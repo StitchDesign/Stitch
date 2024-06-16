@@ -21,7 +21,6 @@ let MEDIA_INPUT_INDEX_IMPORT = 0
 // MARK: - IMAGE
 
 let IMAGE_EMPTY = UIImage(named: "nilImage")!
-let IMAGE_DEBUG = UIImage(named: "burgmeier_4.jpg")!
 
 // MARK: - VIDEO
 

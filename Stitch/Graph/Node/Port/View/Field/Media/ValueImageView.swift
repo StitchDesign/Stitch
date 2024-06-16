@@ -68,10 +68,10 @@ struct ValueStitchVideoView: View {
     }
 }
 
-struct ValueImageView_Previews: PreviewProvider {
-    static var previews: some View {
-        ValueImageView(image: IMAGE_DEBUG)
-            .padding(2)
-            .scaleEffect(10)
-    }
-}
+//struct ValueImageView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ValueImageView(image: IMAGE_DEBUG)
+//            .padding(2)
+//            .scaleEffect(10)
+//    }
+//}

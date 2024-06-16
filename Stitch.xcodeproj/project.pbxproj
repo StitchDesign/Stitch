@@ -144,7 +144,6 @@
 		B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB3D2C18F52600623CC7 /* StitchFileResult.swift */; };
 		B56FFB422C18F7AB00623CC7 /* SafeAreaInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB412C18F7AB00623CC7 /* SafeAreaInsets.swift */; };
 		B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56FFB472C18FF9700623CC7 /* LoopedEval.swift */; };
-		B571C154285D327500FE8726 /* DevDebugUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B571C153285D327500FE8726 /* DevDebugUtil.swift */; };
 		B5743AED29CC128100B3230D /* PortValueComparable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5743AEC29CC128100B3230D /* PortValueComparable.swift */; };
 		B57575F92A187E0600CDB0BA /* previewLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57575F82A187E0600CDB0BA /* previewLayerTests.swift */; };
 		B57967522B5F2BF8007F5F24 /* SchemaObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */; };
@@ -473,7 +472,6 @@
 		EC560E19293A9ACC00350046 /* LoopSumNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC560E18293A9ACC00350046 /* LoopSumNode.swift */; };
 		EC560E1B293A9C8400350046 /* LoopToArrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC560E1A293A9C8400350046 /* LoopToArrayNode.swift */; };
 		EC560E1D293AAB1600350046 /* RunningTotalNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC560E1C293AAB1600350046 /* RunningTotalNode.swift */; };
-		EC572B33263337DD00C8E49A /* sample_video.mov in Resources */ = {isa = PBXBuildFile; fileRef = EC572B32263337DD00C8E49A /* sample_video.mov */; };
 		EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC572B3A26337C5F00C8E49A /* NodeTypeUtils.swift */; };
 		EC5734312B75BA0E00D93A78 /* ReduxHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734302B75BA0E00D93A78 /* ReduxHelpers.swift */; };
 		EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */; };
@@ -1021,7 +1019,6 @@
 		B56FFB3D2C18F52600623CC7 /* StitchFileResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileResult.swift; sourceTree = "<group>"; };
 		B56FFB412C18F7AB00623CC7 /* SafeAreaInsets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeAreaInsets.swift; sourceTree = "<group>"; };
 		B56FFB472C18FF9700623CC7 /* LoopedEval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopedEval.swift; sourceTree = "<group>"; };
-		B571C153285D327500FE8726 /* DevDebugUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevDebugUtil.swift; sourceTree = "<group>"; };
 		B5743AEC29CC128100B3230D /* PortValueComparable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueComparable.swift; sourceTree = "<group>"; };
 		B57575F82A187E0600CDB0BA /* previewLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = previewLayerTests.swift; sourceTree = "<group>"; };
 		B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaObserver.swift; sourceTree = "<group>"; };
@@ -1362,7 +1359,6 @@
 		EC560E18293A9ACC00350046 /* LoopSumNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopSumNode.swift; sourceTree = "<group>"; };
 		EC560E1A293A9C8400350046 /* LoopToArrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopToArrayNode.swift; sourceTree = "<group>"; };
 		EC560E1C293AAB1600350046 /* RunningTotalNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunningTotalNode.swift; sourceTree = "<group>"; };
-		EC572B32263337DD00C8E49A /* sample_video.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = sample_video.mov; sourceTree = "<group>"; };
 		EC572B3A26337C5F00C8E49A /* NodeTypeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTypeUtils.swift; sourceTree = "<group>"; };
 		EC5734302B75BA0E00D93A78 /* ReduxHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduxHelpers.swift; sourceTree = "<group>"; };
 		EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyActionConversionUtils.swift; sourceTree = "<group>"; };
@@ -2777,7 +2773,6 @@
 			children = (
 				200BD85E254F66EE00692903 /* Assets.xcassets */,
 				B555013A2C1C081D0081C3F1 /* ML */,
-				EC572B312633372900C8E49A /* Video */,
 				20A71F8225523CCA00553F7E /* Sounds */,
 				E41685F428A3FC5100731889 /* 3D Models */,
 				B522C54928863117003060A6 /* Sample Apps */,
@@ -3208,7 +3203,6 @@
 				B59660872C1A1BAC00BE75D7 /* TypeExtension */,
 				204B24FE25B68C790041424F /* Constants.swift */,
 				EC609DBD2935311900BF60A5 /* UIKitExtensionUtils.swift */,
-				B571C153285D327500FE8726 /* DevDebugUtil.swift */,
 				ECFCBE5828405ACD0087585C /* SidebarVisibilityActions.swift */,
 				B5D689BE275836390086C297 /* ProjectAlertActions.swift */,
 				ECB33C6126F15A1C0069885B /* ProjectsUtils.swift */,
@@ -3894,14 +3888,6 @@
 			path = Media;
 			sourceTree = "<group>";
 		};
-		EC572B312633372900C8E49A /* Video */ = {
-			isa = PBXGroup;
-			children = (
-				EC572B32263337DD00C8E49A /* sample_video.mov */,
-			);
-			path = Video;
-			sourceTree = "<group>";
-		};
 		EC5E6C852B717EE900B4CACC /* CircuitLine */ = {
 			isa = PBXGroup;
 			children = (
@@ -4346,7 +4332,6 @@
 				20A71F902552434000553F7E /* connection_added.mp3 in Resources */,
 				B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */,
 				B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */,
-				EC572B33263337DD00C8E49A /* sample_video.mov in Resources */,
 				20A71F912552434000553F7E /* connection_removed.mp3 in Resources */,
 				B53E47812894918500A3D060 /* Microphone Recorder.stitch in Resources */,
 			);
@@ -4831,7 +4816,6 @@
 				EC1318C92B8806E200F74E93 /* NodeRowLegacyDefinitions.swift in Sources */,
 				ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */,
 				ECABB55F269C9E5A00AC9931 /* NetworkRequest.swift in Sources */,
-				B571C154285D327500FE8726 /* DevDebugUtil.swift in Sources */,
 				ECF109192889C4C6002B039B /* SplitterTypeUtils.swift in Sources */,
 				EC28E4B526F92AA0006D20CB /* ProjectsHomeView.swift in Sources */,
 				EC08D559289887BF00FEE846 /* LogUtils.swift in Sources */,
