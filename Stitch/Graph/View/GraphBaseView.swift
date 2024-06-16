@@ -153,7 +153,7 @@ struct GraphBaseView: View {
 
         } // Zstack
         .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
-            LayerInspectorView()
+            LayerInspectorView(graph: graph)
         }
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
