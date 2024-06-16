@@ -152,7 +152,7 @@ struct GraphBaseView: View {
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
 
         } // Zstack
-        .inspector(isPresented: $graphUI.showsLayerInspector) {
+        .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
             LayerInspectorView()
         }
         .coordinateSpace(name: Self.coordinateNamespace)
