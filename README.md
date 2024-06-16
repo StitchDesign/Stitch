@@ -29,6 +29,86 @@ We’re active on GitHub and on Campsite(link). Join us, help us improve with id
 
 We genuinely believe the world is a more interesting and wonderful place with easy ways to prototype your ideas, and have dedicated very nontrivial amounts of time and effort to help this cause.
 
+
+
+## Stitch Principles
+
+1. Stitch is a graph-based visual programming language for UX prototyping. A node on the graph is either a ‘patch’ (function) or a ‘layer’ (UI element in the prototype window).
+2. Stitch is an interface to SwiftUI. Wherever possible, we expose SwiftUI views, view modifiers and methods.
+3. Stitch runs on a clock. On every new frame, the entire graph may be recalculated, allowing for smooth animations and dynamic prototypes.
+
+
+
+### 1. Stitch is a graph-based visual programming language for UX prototyping
+
+Build User Interfaces with layers and complex interaction behavior with patches.
+
+![Humane Demo](README_Assets/HumaneDemo.png)
+
+![Monthly Stays Demo](README_Assets/MonthlyStays.png)
+
+
+
+
+
+![Siri Demo](README_Assets/SiriDemo.png)
+
+### 2. Stitch is an interface to SwiftUI
+
+Stitch itself is built primarily in SwiftUI. It’s also meant to match what can be built in SwiftUI. The prototypes you build in Stitch closely mirror what can be built in SwiftUI, so the handoff from designer to developer will be as smooth as possible.
+
+For example, the Spring Animation Node uses the native SwiftUI `Spring`, which powers SwiftUI animations.
+
+![Spring Animation Number Op](README_Assets/SpringAnimationNumberOp.png)
+
+
+
+Similarly, the Text Layer Node is just an interface to the native SwiftUI Text :
+
+![Layer Text View](README_Assets/LayerTextView.png)
+
+
+
+### 3. Stitch runs on a clock
+
+Stitch works by evaluating the connections between the nodes on a graph every clock-step.
+
+The core of each node is its "eval" function. On each graph step, a node's eval may be called. Evaluating a node may produce new outputs, which are then sent to downstream nodes' inputs.
+
+
+
+![Graph State](README_Assets/GraphState.png)
+
+
+
+`StitchEngine` contains logic for scheduling node evaluations. As a contributor, you only need to write a node's eval function, and we take care of the rest. ;-)
+
+When an input on a layer node is updated, the contents of the prototype window are re-rendered.
+
+#### Will StitchEngine be open sourced?
+
+We’re definitely open to the idea. Our thoughts right now are they it’s a small library that’s likely to not change very much. We were able to clean up our code and ship it faster by keeping this in a separate package. Our hope is that no one will ever really need or want to change it, but if that’s not true, please [shoot as an email](mailto:us@stitchdesign.com) — we’d love to hear from you. Our ideas here are likely to evolve and grow over time.
+
+
+
+## Nodes
+
+Nodes are the building blocks of Stitch. When you build a prototype, you do so by adding nodes to the graph and connecting them together.
+
+### Patch Nodes
+
+Patch nodes are functions. Their input ports are inputs to a function, their output ports are the return values of that function. Each patch (function) can be connected to any other patch (function).
+
+![Patch Nodes](README_Assets/PatchNodes.png)
+
+### Layer Nodes
+
+Layer nodes create the views that make up your prototype. Anything that’s a layer gets shown in the preview window. We use SwiftUI to generate these views.
+
+![Layer Nodes](README_Assets/LayerNodes.png)
+
+
+
 ## Who made it (last section)
 
 We’re a group of passionate engineers and designers who share a love for Apple and prototyping. We’re mainly living in SF, but have contributors from all over.
@@ -44,10 +124,3 @@ With a board of VPL advisors:
 * David
 
 Join in and help us, we’ll be keeping this list up to date.
-
-
-## GraphEngine (not in main readme)
-What is the StitchEngine? … Elliot+Chris to write something up
-
-#### Will be in open sourced?
-We’re definitely open to the idea. Our thoughts right now are they it’s a small library that’s likely to not change very much. We were able to clean up our code and ship it faster by keeping this in a separate package. Our hope is that no one will ever really need or want to change it, but if that’s not true, please [shoot as an email](mailto:us@stitchdesign.com) — we’d love to hear from you. Our ideas here are likely to evolve and grow over time.
