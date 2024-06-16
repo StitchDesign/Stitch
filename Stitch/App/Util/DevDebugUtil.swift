@@ -24,7 +24,7 @@ let sampleVideoDuration: Double = 2.5 // approximate
 
 let sampleVideoMetadata: VideoMetadata = VideoMetadata(playing: true)
 
-let DEFAULT_VIDEO_URL = bundledResourceURL(sampleVideoResourceName, "mov")
+//let DEFAULT_VIDEO_URL = bundledResourceURL(sampleVideoResourceName, "mov")
 
 /// Used to create test file testing all patch nodes for versioning purposes.
 // func createAllPatchNodes(state: ProjectState) -> ProjectState {
@@ -66,11 +66,11 @@ let sampleAudioResourceName = "fur_elise"
 let sampleAudioMediaFile = MediaKey(filename: sampleAudioResourceName,
                                     fileExtension: "m4a")
 
-func defaultStitchAudioURL() -> URL {
-    bundledResourceURL(sampleAudioResourceName, "m4a")
-}
-
-let DEFAULT_SOUNDFILE_URL: URL = defaultStitchAudioURL()
+//func defaultStitchAudioURL() -> URL {
+//    bundledResourceURL(sampleAudioResourceName, "m4a")
+//}
+//
+//let DEFAULT_SOUNDFILE_URL: URL = defaultStitchAudioURL()
 
 /// Creates a sample project with 50 connected add nodes. Used for perf testing purposes.
 // func create50AddNodesProject() -> ProjectSchema {
