@@ -122,12 +122,13 @@ extension String {
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
 
-    var hasActiveGroupFocused: Bool
-    var isFullscreen: Bool // = false
-    var isPreviewWindowShown: Bool // = true
+    let graphUI: GraphUIState
+    let hasActiveGroupFocused: Bool
+    let isFullscreen: Bool // = false
+    let isPreviewWindowShown: Bool // = true
     
-    var llmRecordingModeEnabled: Bool
-    var llmRecordingModeActive: Bool
+    let llmRecordingModeEnabled: Bool
+    let llmRecordingModeActive: Bool
 
     var body: some View {
 
@@ -182,6 +183,10 @@ struct CatalystTopBarGraphButtons: View {
             //                // dispatch(ProjectShareButtonPressed(metadata: metadata))
             //                log("CatalystTopBarGraphButtons: to be implemented")
             //            }
+            
+            CatalystNavBarButton(action: {
+                self.graphUI.showsLayerInspector.toggle()
+            }, iconName: .sfSymbol("sidebar.right"))
         }
     }
 }
