@@ -72,7 +72,9 @@ struct PortEntryView: View {
 //                        let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
                         let frame = geometry.frame(in: .named(NodesView.coordinateNameSpace))
                         let origin = frame.origin
+                        logInView("PortEntryView: rowObserver.nodeIOType: \(rowObserver.nodeIOType)")
                         logInView("PortEntryView: frame: \(frame)")
+                        logInView("PortEntryView: origin: \(origin)")
                         
                         Color.clear
                             .onChange(of: graph.groupNodeFocused) {
@@ -80,8 +82,9 @@ struct PortEntryView: View {
                             }
                             .onChange(of: origin,
                                       initial: true) { oldOrigin, newOrigin in
-                                log("PortEntryView: onChangeOf oldOrigin: \(oldOrigin)")
-                                log("PortEntryView: onChangeOf newOrigin: \(newOrigin)")
+                                log("PortEntryView: onChangeOf origin: rowObserver.nodeIOType: \(rowObserver.nodeIOType)")
+                                log("PortEntryView: onChangeOf origin: oldOrigin: \(oldOrigin)")
+                                log("PortEntryView: onChangeOf origin: newOrigin: \(newOrigin)")
                                 self.updatePortViewData(newOrigin: newOrigin)
                             }
                     }
