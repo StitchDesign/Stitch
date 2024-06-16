@@ -156,6 +156,9 @@ struct GraphBaseView: View {
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
 
         } // Zstack
+        .inspector(isPresented: .constant(true)) {
+            LayerInspectorView()
+        }
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
