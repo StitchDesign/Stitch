@@ -16,12 +16,8 @@ struct GraphBaseView: View {
     @State private var spaceHeld = false
 
     @Bindable var graph: GraphState
+    @Bindable var graphUI: GraphUIState
     let insertNodeMenuHiddenNodeId: NodeId?
-
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
 
     var body: some View {
         // Our screen device measurements ignore the safe area,
@@ -156,7 +152,7 @@ struct GraphBaseView: View {
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
 
         } // Zstack
-        .inspector(isPresented: .constant(true)) {
+        .inspector(isPresented: $graphUI.showsLayerInspector) {
             LayerInspectorView()
         }
         .coordinateSpace(name: Self.coordinateNamespace)

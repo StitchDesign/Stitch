@@ -84,6 +84,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
                     iPadGraphTopBarButtons(
+                        graphUI: graphUI,
                         hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
                         isFullscreen: graphUI.isFullScreenMode,
                         isPreviewWindowShown: graphUI.showPreviewWindow,
@@ -119,6 +120,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
+                        graphUI: graphUI,
                         hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
                         isFullscreen: graphUI.isFullScreenMode,
                         isPreviewWindowShown: graphUI.showPreviewWindow,
