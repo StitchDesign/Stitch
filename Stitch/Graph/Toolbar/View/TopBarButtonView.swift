@@ -84,10 +84,11 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
-    var hasActiveGroupFocused: Bool
-    var isFullscreen: Bool // = false
-    var isPreviewWindowShown: Bool // = true
-    var restartPrototypeWindowIconRotationZ: CGFloat
+    let graphUI: GraphUIState
+    let hasActiveGroupFocused: Bool
+    let isFullscreen: Bool // = false
+    let isPreviewWindowShown: Bool // = true
+    let restartPrototypeWindowIconRotationZ: CGFloat
 
     var llmRecordingModeEnabled: Bool
     var llmRecordingModeActive: Bool
@@ -143,6 +144,12 @@ struct iPadGraphTopBarButtons: View {
 
             // the misc (...) button
             iPadGraphTopBarMiscMenu()
+            
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                iPadNavBarButton(action: {
+                    self.graphUI.showsLayerInspector.toggle()
+                }, iconName: .sfSymbol("sidebar.right"))
+            }
         }
     }
 }

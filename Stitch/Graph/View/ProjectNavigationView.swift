@@ -37,6 +37,7 @@ struct ProjectNavigationView: View {
     @ViewBuilder
     var graphView: some View {
         GraphBaseView(graph: graph,
+                      graphUI: graph.graphUI,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
         // TODO: what is the best way / place `updateGraphData` (i.e. the node row observers)? Seems okay perf-wise? ... Specifically for input- or output-port colors.
         .onChange(of: graph.nodes.keys.count) {
