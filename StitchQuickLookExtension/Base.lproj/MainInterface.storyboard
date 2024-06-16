@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="M4Y-Lb-cyx">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Preview View Controller-->
+        <scene sceneID="cwh-vc-ff4">
+            <objects>
+                <viewController id="M4Y-Lb-cyx" customClass="PreviewViewController" customModule="StitchQuickLookExtension" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" simulatedAppContext="notificationCenter" id="S3S-Oj-5AN">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CSZ-Os-35I">
+                                <rect key="frame" x="0.0" y="23" width="375" height="786"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defaultGraphView.png" translatesAutoresizingMaskIntoConstraints="NO" id="TJz-pl-fKL">
+                                        <rect key="frame" x="-12.666666666666657" y="293" width="400.33333333333326" height="200"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="400" id="Vlv-Zo-AkD">
+                                                <variation key="heightClass=regular-widthClass=regular" constant="818"/>
+                                            </constraint>
+                                            <constraint firstAttribute="height" constant="200" id="hft-Js-gYa">
+                                                <variation key="heightClass=regular-widthClass=regular" constant="735"/>
+                                            </constraint>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" red="0.094117647058823528" green="0.098039215686274508" blue="0.11764705882352941" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstItem="TJz-pl-fKL" firstAttribute="centerX" secondItem="CSZ-Os-35I" secondAttribute="centerX" id="Jla-ZA-eyf"/>
+                                    <constraint firstItem="TJz-pl-fKL" firstAttribute="centerY" secondItem="CSZ-Os-35I" secondAttribute="centerY" id="hGO-sO-lD5"/>
+                                    <constraint firstItem="TJz-pl-fKL" firstAttribute="centerY" secondItem="CSZ-Os-35I" secondAttribute="centerY" id="s6p-WK-Mtk"/>
+                                    <constraint firstItem="TJz-pl-fKL" firstAttribute="centerX" secondItem="CSZ-Os-35I" secondAttribute="centerX" id="y6T-LO-axX"/>
+                                </constraints>
+                                <variation key="heightClass=compact-widthClass=compact">
+                                    <mask key="subviews">
+                                        <include reference="TJz-pl-fKL"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=regular">
+                                    <mask key="subviews">
+                                        <include reference="TJz-pl-fKL"/>
+                                    </mask>
+                                </variation>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="bzV-dz-m25"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="bottomMargin" secondItem="CSZ-Os-35I" secondAttribute="bottom" constant="-31" id="9H9-2H-ocK"/>
+                            <constraint firstItem="CSZ-Os-35I" firstAttribute="leading" secondItem="bzV-dz-m25" secondAttribute="leading" id="KCJ-XE-Ckp"/>
+                            <constraint firstItem="CSZ-Os-35I" firstAttribute="centerX" secondItem="S3S-Oj-5AN" secondAttribute="centerX" id="OiE-dV-XbI"/>
+                            <constraint firstItem="CSZ-Os-35I" firstAttribute="top" secondItem="S3S-Oj-5AN" secondAttribute="topMargin" constant="-24" id="gSs-5a-EcF"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="vXp-U4-Rya" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="701.3671875" y="297.80380673499263"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="defaultGraphView.png" width="363" height="238"/>
+    </resources>
+</document>
