@@ -73,12 +73,6 @@ struct NodesView: View {
                         // Using background ensures edges z-index are always behind ndoes
                         connectedEdgesView(allInputs: inputs)
                     }
-                    .overlay {
-                        edgeDrawingView(inputs: inputs)
-                        EdgeInputLabelsView(inputs: inputs,
-                                            graph: graph,
-                                            graphUI: graph.graphUI)
-                    }
                     .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                                nodeLocation: groupNodeLocation,
                                                graphOffset: .zero))
@@ -122,12 +116,6 @@ struct NodesView: View {
                       nodePageData: nodePageData,
                       nodes: visibleNodesViewModel.allViewModels,
                       insertNodeMenuHiddenNode: insertNodeMenuHiddenNodeId)
-    }
-    
-    @MainActor
-    func edgeDrawingView(inputs: NodeRowObservers) -> some View {
-        EdgeDrawingView(edgeDrawingObserver: graph.edgeDrawingObserver,
-                        inputsAtThisTraversalLevel: inputs)
     }
 }
 

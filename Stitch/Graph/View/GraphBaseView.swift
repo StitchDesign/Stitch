@@ -155,6 +155,25 @@ struct GraphBaseView: View {
         .inspector(isPresented: $graphUI.showsLayerInspector) {
             LayerInspectorView()
         }
+        .overlay {
+            // Gets input data for edges
+            let inputs: NodeRowObservers = self.graph.getVisibleNodes()
+                .flatMap { node -> NodeRowObservers in
+                    // hides edges from group input splitters
+                    // and from wireless receiver nodes
+                    if node.splitterType == .input ||
+                        node.patch == .wirelessReceiver {
+                        return []
+                    }
+                    
+                    return node.getRowObservers(.input)
+                }
+            
+            edgeDrawingView(inputs: inputs)
+            EdgeInputLabelsView(inputs: inputs,
+                                graph: graph,
+                                graphUI: graph.graphUI)
+        }
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
@@ -167,6 +186,12 @@ struct GraphBaseView: View {
                     }
             }
         }
+    }
+    
+    @MainActor
+    func edgeDrawingView(inputs: NodeRowObservers) -> some View {
+        EdgeDrawingView(edgeDrawingObserver: graph.edgeDrawingObserver,
+                        inputsAtThisTraversalLevel: inputs)
     }
 }
 

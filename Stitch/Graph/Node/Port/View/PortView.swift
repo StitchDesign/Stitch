@@ -69,7 +69,7 @@ struct PortEntryView: View {
                 }
                 .background {
                     GeometryReader { geometry in
-                        let origin = geometry.frame(in: .named(NodesView.coordinateNameSpace)).origin
+                        let origin = geometry.frame(in: .named(GraphBaseView.coordinateNamespace)).origin
                         
                         Color.clear
                             .onChange(of: graph.groupNodeFocused) {
