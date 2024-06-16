@@ -52,6 +52,7 @@
 		B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */ = {isa = PBXBuildFile; productRef = B50F41672C1EB4320082262F /* StitchViewKit */; };
 		B50F416B2C1EB45B0082262F /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B50F416A2C1EB45B0082262F /* StitchSchemaKit */; };
 		B50F416E2C1EB4830082262F /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B50F416D2C1EB4830082262F /* StitchEngine */; };
+		B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50F41702C1F52C00082262F /* LayerInspectorView.swift */; };
 		B51523BA2B8C2F7A000042CF /* ProjectLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523B92B8C2F79000042CF /* ProjectLoader.swift */; };
 		B51523BC2B8C2FB1000042CF /* DocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */; };
 		B5175C8C28877E2700BF71B6 /* Unsupported Version.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */; };
@@ -928,6 +929,7 @@
 		B50B3A132C0FCCF9006B6E79 /* StitchViewModelKit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = StitchViewModelKit.xcframework; path = ../StitchViewModelKit/StitchViewModelKit.xcframework; sourceTree = "<group>"; };
 		B50C897A2864E2750032E95D /* DelayedEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedEffect.swift; sourceTree = "<group>"; };
 		B50CE3072908D0C40065378E /* StitchTextEditingField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextEditingField.swift; sourceTree = "<group>"; };
+		B50F41702C1F52C00082262F /* LayerInspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorView.swift; sourceTree = "<group>"; };
 		B51523B92B8C2F79000042CF /* ProjectLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectLoader.swift; sourceTree = "<group>"; };
 		B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentLoader.swift; sourceTree = "<group>"; };
 		B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Unsupported Version.stitch"; sourceTree = "<group>"; };
@@ -1873,6 +1875,14 @@
 				20A71F8C2552433F00553F7E /* positive_ping.mp3 */,
 			);
 			path = Sounds;
+			sourceTree = "<group>";
+		};
+		B50F416F2C1F52A70082262F /* LayerInspector */ = {
+			isa = PBXGroup;
+			children = (
+				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
+			);
+			path = LayerInspector;
 			sourceTree = "<group>";
 		};
 		B522C54928863117003060A6 /* Sample Apps */ = {
@@ -2954,6 +2964,7 @@
 				B55501322C1C00AA0081C3F1 /* GraphStep */,
 				EC3420D92AF9BABE00EBD896 /* CommentBox */,
 				B55500CF2C1BA4CA0081C3F1 /* Sidebar */,
+				B50F416F2C1F52A70082262F /* LayerInspector */,
 				B56FFB632C19674000623CC7 /* Menu */,
 				B555011D2C1BF1FF0081C3F1 /* Toolbar */,
 				B56FFB512C195D9400623CC7 /* Gesture */,
@@ -4703,6 +4714,7 @@
 				ECA92A2C260A6A3C00281B52 /* TimeNode.swift in Sources */,
 				EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */,
 				EC40812D2C014EF70047989F /* StitchDocumentURLUtils.swift in Sources */,
+				B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */,
 				ECA92A20260A6A1400281B52 /* CounterNode.swift in Sources */,
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
 				ECE08E432649D14D00996EE2 /* ScrollInteractionNode.swift in Sources */,
