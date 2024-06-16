@@ -1,5 +1,5 @@
 {
-  "originHash" : "aab01935f3e5867c2905772340901afbdc536e955fe291db2b6962a549c4eac5",
+  "originHash" : "fa62414f3ffde63efcf96a3e2f8f06cdb8551ff9a33d61d5f1fa2ad8c3db93d0",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -49,7 +49,7 @@
     {
       "identity" : "stitchengine",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/StitchEngine.git",
+      "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
         "branch" : "main",
         "revision" : "087eb20926ffac4ecbbe03f4db362c3f13f05afe"
@@ -58,7 +58,7 @@
     {
       "identity" : "stitchschemakit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/StitchSchemaKit.git",
+      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
       "state" : {
         "revision" : "afedf3823d743689bad2d4c2c0f82d596cb8ef8d",
         "version" : "18.0.1"
@@ -67,7 +67,7 @@
     {
       "identity" : "stitchviewkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/StitchViewKit.git",
+      "location" : "https://github.com/StitchDesign/StitchViewKit.git",
       "state" : {
         "revision" : "82404015aa4c9eded51a9c189d317238b6bc5b87"
       }
