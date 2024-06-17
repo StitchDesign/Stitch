@@ -154,6 +154,8 @@ struct GraphBaseView: View {
         } // Zstack
         .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
             LayerInspectorView(graph: graph)
+            // TODO: setting an inspector width DOES move over the graph view content
+                .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
         }
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {

@@ -92,7 +92,16 @@ struct FloatingWindowView: View {
             // ... then manually move down and left by the scaled preview window's dimensions
             .background(alignment: .topTrailing) {
                 floatingWindowHandle
+                    .offset(x: -Self.xOffset)
             } // .background
+            .offset(x: self.finalXOffset)
+        
+        // TODO: which animation most closely matches the Inspector? (without .animation, we jump when inspector opened or closed)
+//            .animation(.linear, value: self.finalXOffset)
+//            .animation(.easeOut, value: self.finalXOffset)
+//            .animation(.easeInout, value: self.finalXOffset)
+//            .animation(.spring, value: self.finalXOffset)
+            .animation(.default, value: self.finalXOffset)
     }
 
     @State var isDragging: Bool = false
@@ -118,8 +127,13 @@ struct FloatingWindowView: View {
 
     var catalystFloatingWindowHandleView: some View {
         Circle()
+            
+        #if DEV_DEBUG
+            .fill(Color.cyan.opacity(0.6)) // easier debug
+        #else
             // Note: cannot use .clear
             .fill(Color.PREVIEW_WINDOW_BORDER_COLOR.opacity(0.001))
+        #endif
             .onChange(of: self.isDragging) { _, newValue in
                 log(".onChange(of: self.isDragging): newValue: \(newValue)")
                 if newValue {
@@ -131,11 +145,11 @@ struct FloatingWindowView: View {
     }
 
     var floatingWindowHandlePlatformView: some View {
-        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
         catalystFloatingWindowHandleView
-        #else
+#else
         iPadFloatingWindowHandleView()
-        #endif
+#endif
     }
 
     var floatingWindowHandle: some View {
@@ -148,24 +162,24 @@ struct FloatingWindowView: View {
     var floatingWindowHandleHitbox: some View {
         //        Color.HITBOX_COLOR
         floatingWindowHandlePlatformView
-        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
         // Mac only has cursor, and so can always use a more precise hitbox;
         // but we still expand the size a little bit
-        .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_MAC)
-
-        .onHover { hovering in
-        // log("onHover: hovering: \(hovering)")
-        if hovering {
-        self.setSpecialCursor()
-        } else {
-        self.setNormalCursor()
-        }
-        }
-
-        #else
+            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_MAC)
+        
+            .onHover { hovering in
+                // log("onHover: hovering: \(hovering)")
+                if hovering {
+                    self.setSpecialCursor()
+                } else {
+                    self.setNormalCursor()
+                }
+            }
+        
+#else
         // TODO: on iPad, use UIKit to distinguish between a finger-on-screen touch (which needs extended hitbox) and a cursor touch (which doesn't)
-        .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
-        #endif
+            .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
+#endif
     }
 
     var floatingWindowHandleDragGesture: DragGestureTypeSignature {
@@ -197,7 +211,11 @@ struct FloatingWindowView: View {
                 self.previewWindowSizing.activeAdjustedTranslation = .zero
             })
     }
-
+    
+    var finalXOffset: CGFloat {
+        graph.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+    }
+    
     @ViewBuilder
     var floatingWindow: some View {
         VStack {
@@ -211,7 +229,6 @@ struct FloatingWindowView: View {
             Spacer()
         }
         .padding(.top, PREVIEW_WINDOW_Y_PADDING)
-        .offset(x: Self.xOffset)
     }
 }
 

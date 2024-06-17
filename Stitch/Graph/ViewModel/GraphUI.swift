@@ -92,9 +92,14 @@ final class GraphUIState {
 
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
+    @MainActor
     var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
     
+    #if DEV_DEBUG
+    var showsLayerInspector = true // during dev
+    #else
     var showsLayerInspector = false
+    #endif
 
     // Tracks group breadcrumbs when group nodes are visited
     var groupNodeBreadcrumbs: NodeIdList = []
