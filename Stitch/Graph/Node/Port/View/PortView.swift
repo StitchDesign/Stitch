@@ -69,8 +69,13 @@ struct PortEntryView: View {
                 }
                 .background {
                     GeometryReader { geometry in
-//                        let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
-                        let frame = geometry.frame(in: .named(NodesView.coordinateNameSpace))
+                        // if we use GraphBaseView coord-space, we start messed up -- but do we handle graph scroll well?
+                        // and what happens if we move a node?
+                        let frame = geometry.frame(in: .named(GraphBaseView.coordinateNamespace))
+                        
+                        // Starts out properly, but gets messed up after graph scroll or zoom
+                        // NOTE: moving a node DOES NOT mess up
+//                        let frame = geometry.frame(in: .named(NodesView.coordinateNameSpace))
                         let origin = frame.origin
                         logInView("PortEntryView: rowObserver.nodeIOType: \(rowObserver.nodeIOType)")
                         logInView("PortEntryView: frame: \(frame)")
