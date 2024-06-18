@@ -73,6 +73,7 @@ struct LayerInspectorView: View {
                            _ layerNode: LayerNodeViewModel) -> some View {
         
         
+        // bad perf implications?
         let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorSectionView in
             LayerInspectorSectionView(
                 title: title,
@@ -88,13 +89,54 @@ struct LayerInspectorView: View {
             
             section("Required", Self.required)
             section("Common", Self.common)
-            section("Group", Self.groupLayer)
+            
+            if layerNode.layer.supportsGroupInputs {
+                section("Group", Self.groupLayer)
+            }
+            
             section("Enabled", Self.unknown)
-            section("Text", Self.text)
-            section("Stroke", Self.stroke)
+            
+            if layerNode.layer.supportsTypographyInputs {
+                section("Typography", Self.text)
+            }
+            
+            if layerNode.layer.supportsStrokeInputs {
+                section("Stroke", Self.stroke)
+            }
+            
             section("Rotation", Self.rotation)
             section("Shadow", Self.shadow)
             section("Layer Effects", Self.effects)
+        }
+    }
+}
+
+// TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
+extension Layer {
+    var supportsTypographyInputs: Bool {
+        switch self {
+        case .text, .textField:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var supportsGroupInputs: Bool {
+        switch self {
+        case .group:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    var supportsStrokeInputs: Bool {
+        switch self {
+        case .shape, .oval, .rectangle:
+            return true
+        default:
+            return false
         }
     }
 }
