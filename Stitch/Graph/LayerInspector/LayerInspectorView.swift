@@ -25,14 +25,20 @@ struct LayerInspectorView: View {
     // TODO: property sidebar changes when multiple sidebar layers are selected
     @MainActor
     var selectedLayerNode: NodeViewModel? {
-        guard let firstSidebarLayerId = graph.orderedSidebarLayers.first?.id else {
-            log("LayerInspectorView: No sidebar layers")
+        
+        guard !graph.orderedSidebarLayers.isEmpty else {
             return nil
         }
+     
+        // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
+        let inspectedLayer = graph.sidebarSelectionState.nonEditModeSelections.last?.id ?? graph.orderedSidebarLayers.first?.id
         
-        guard let node = graph.getNodeViewModel(firstSidebarLayerId),
+        //selectedSidebarItems.last ?? graph.orderedSidebarLayers.first
+                
+        guard let inspectedLayerId = inspectedLayer,
+              let node = graph.getNodeViewModel(inspectedLayerId),
               node.layerNode.isDefined else {
-            log("LayerInspectorView: No node for sidebar layer id \(firstSidebarLayerId)")
+            log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
             return nil
         }
         

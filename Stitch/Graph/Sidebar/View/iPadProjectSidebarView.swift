@@ -34,9 +34,9 @@ struct ProjectSidebarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
-
+            
             // Catalyst only
-            #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
             VStack {
                 HStack(spacing: .zero) {
                     // Padding HStack
@@ -48,38 +48,36 @@ struct ProjectSidebarView: View {
                     .padding([.top, .horizontal])
                 }
             }
-//            .padding(.bottom)
+            //            .padding(.bottom)
             .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
             // Higher z-index here for scroll view
             .zIndex(2)
-            #endif
+#endif
             
             SidebarListView(graph: graph,
                             isBeingEdited: isEditing,
                             syncStatus: syncStatus)
-//#if !targetEnvironment(macCatalyst)
-//            .padding(.top)
-//#endif
+            //#if !targetEnvironment(macCatalyst)
+            //            .padding(.top)
+            //#endif
             .zIndex(1)
         }
         .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
-
+        
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)
-
+        
         // iPad only
         // TODO: why is .navigationTitle ignored on Catalyst?
-        #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
         .navigationTitle("Stitch")
         .toolbar {
-        SidebarEditButtonView(isEditing: $isEditing)
+            SidebarEditButtonView(isEditing: $isEditing)
         }
         .toolbarBackground(.visible, for: .automatic)
-        #endif
-        .onChange(of: self.isEditing) { oldValue, newValue in
-            if !newValue {
-                graph.sidebarSelectionState = .init()
-            }
+#endif
+        .onChange(of: self.isEditing) { _, newValue in
+            dispatch(SidebarEditModeToggled(isEditing: newValue))
         }
     }
 
@@ -88,5 +86,19 @@ struct ProjectSidebarView: View {
             .font(.largeTitle)
             .bold()
 
+    }
+}
+
+struct SidebarEditModeToggled: GraphEvent {
+    let isEditing: Bool
+    
+    func handle(state: GraphState) {
+        if isEditing {
+            state.sidebarSelectionState.nonEditModeSelections = .init()
+        }
+        
+        if !isEditing {
+            state.sidebarSelectionState = .init()
+        }
     }
 }

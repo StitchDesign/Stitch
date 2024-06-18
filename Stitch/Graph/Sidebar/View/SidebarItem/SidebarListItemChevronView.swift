@@ -39,7 +39,7 @@ struct SidebarListItemChevronView: View {
                 if isClosed {
                     dispatch(SidebarListItemGroupOpened(openedParent: parentId))
                 } else {
-                    dispatch(SidebarListItemGroupClosed(closedParent: parentId))
+                    dispatch(SidebarListItemGroupClosed(closedParentId: parentId))
                 }
             }
             .animation(.linear, value: rotationZ)
