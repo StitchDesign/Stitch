@@ -7,12 +7,18 @@
 
 import Foundation
 import StitchSchemaKit
+import OrderedCollections
 
+typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 typealias SidebarSelections = LayerIdSet
 typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
 // if a group is selected,
 struct SidebarSelectionState: Codable, Equatable, Hashable {
+    
+    // For inspector, not layer-group creation etc.
+    var nonEditModeSelections = OrderedLayerNodeIdSet()
+    
     // items selected because directly clicked
     var primary = SidebarSelections()
 

@@ -27,18 +27,38 @@ extension GraphState {
             }
         }
     }
+    
+    // for non-edit-mode selections
+    func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
+        
+        // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
+        let closedParent = retrieveItem(closedParentId.asItemId,
+                                        self.sidebarListState.masterList.items)
+        
+        let descendants = getDescendants(closedParent,
+                                         self.sidebarListState.masterList.items)
+        
+        for childen in descendants {
+            self.sidebarSelectionState.nonEditModeSelections.remove(childen.id.asLayerNodeId)
+        }
+    }
 }
+
+
 
 struct SidebarListItemGroupClosed: GraphEventWithResponse {
 
-    let closedParent: LayerNodeId
+    let closedParentId: LayerNodeId
     
     func handle(state: GraphState) -> GraphResponse {
 
         var expanded = state.getSidebarExpandedItems()
         
+        // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
+        state.deselectDescendantsOfClosedGroup(closedParentId)
+                        
         state.sidebarListState.masterList = onSidebarListItemGroupClosed(
-            closedId: closedParent.asItemId,
+            closedId: closedParentId.asItemId,
             state.sidebarListState.masterList)
         
         //        // also need to remove id from sidebar's expandedSet

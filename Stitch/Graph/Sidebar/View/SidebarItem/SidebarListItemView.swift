@@ -32,6 +32,14 @@ struct SidebarListItemView: View {
         proposedGroup?.parentId == item.id
     }
 
+    var layerNodeId: LayerNodeId {
+        item.id.asLayerNodeId
+    }
+    
+    var isNonEditModeSelected: Bool {
+        graph.sidebarSelectionState.nonEditModeSelections.contains(layerNodeId)
+    }
+        
     var body: some View {
 
         HStack {
@@ -39,7 +47,7 @@ struct SidebarListItemView: View {
                 graph: graph,
                 name: name,
                 layer: layer,
-                nodeId: item.id.asLayerNodeId,
+                nodeId: layerNodeId,
                 selection: selection,
                 isHidden: isHidden,
                 isBeingEdited: isBeingEdited)
@@ -49,7 +57,10 @@ struct SidebarListItemView: View {
 
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))        
+        .background(Color.white.opacity(0.001)) // for hit area
+        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+        
         //        #if DEV_DEBUG
         //        .background(.blue.opacity(0.5)) // DEBUG
         //        #endif
@@ -59,7 +70,7 @@ struct SidebarListItemView: View {
         // we need to place the SwiftUI TapGesture below the swipe menu.
         .gesture(TapGesture().onEnded({ _ in
             if !isBeingEdited {
-                dispatch(JumpToNodeOnGraph(id: item.id.id))
+                dispatch(SidebarItemTapped(id: layerNodeId))
             }
         }))
         

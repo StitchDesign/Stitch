@@ -8,7 +8,33 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import OrderedCollections
 
+// Sidebar layer 'tapped' while not in
+struct SidebarItemTapped: GraphEvent {
+    
+    let id: LayerNodeId
+    
+    func handle(state: GraphState) {
+        let alreadySelected = state.sidebarSelectionState
+            .nonEditModeSelections.contains(id)
+    
+        // TODO: support multiple selections and filter property inspector appropriately
+        if alreadySelected {
+            state.sidebarSelectionState.nonEditModeSelections = .init()
+        } else {
+            state.sidebarSelectionState.nonEditModeSelections = .init([id])
+        }
+        
+        
+        // TODO: better: allow multiple selections via cmd+click, not single click
+//        if alreadySelected {
+//            state.sidebarSelectionState.nonEditModeSelections.remove(id)
+//        } else {
+//            state.sidebarSelectionState.nonEditModeSelections.append(id)
+//        }
+    }
+}
 
 // group or top level
 struct SidebarItemSelected: GraphEvent {
