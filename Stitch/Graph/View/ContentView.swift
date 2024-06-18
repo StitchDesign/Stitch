@@ -175,10 +175,11 @@ struct ContentView: View {
     var flyout: some View {
         
         if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-           let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
+           let layerNode = graph.getNodeViewModel(flyoutState.input.nodeId)?.layerNode,
            let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
+            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
             
             // If pseudo-modal-background placed here,
             // then we disable scroll
@@ -198,7 +199,9 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 PaddingFlyoutView(graph: graph,
-                                  rowObserver: rowObserver)
+                                  rowViewModel: inputData.inspectorRowViewModel,
+                                  layer: layerNode.layer,
+                                  hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
                 .offset(
                     x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
                     - 8, // "padding"

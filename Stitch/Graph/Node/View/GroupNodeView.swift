@@ -11,29 +11,31 @@ import StitchSchemaKit
 
 struct GroupNodeView: View {
     @Bindable var graph: GraphState
-    @Bindable var viewModel: NodeViewModel
+    @Bindable var nodeViewModel: NodeViewModel
+    @Bindable var canvasViewModel: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeId?
     let activeIndex: ActiveIndex
     let adjustmentBarSessionId: AdjustmentBarSessionId
-
+    
     var id: NodeId {
-        self.viewModel.id
+        self.nodeViewModel.id
     }
-
+    
     @MainActor
     var displayTitle: String {
-        self.viewModel.displayTitle
+        self.nodeViewModel.displayTitle
     }
-
+    
     @MainActor
     var isSelected: Bool {
-        viewModel.isSelected
+        canvasViewModel.isSelected
     }
-
+    
     var body: some View {
-        NodeView(graph: graph,
-                 node: viewModel,
+        NodeView(node: canvasViewModel,
+                 stitch: nodeViewModel,
+                 graph: graph,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,
@@ -46,22 +48,20 @@ struct GroupNodeView: View {
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
     }
-
+    
     @MainActor
     func inputsViews() -> some View {
-        DefaultNodeRowView(graph: graph,
-                           node: viewModel,
-                           nodeIO: .input,
-                           isNodeSelected: isSelected,
-                           adjustmentBarSessionId: adjustmentBarSessionId)
+        DefaultNodeInputView(graph: graph,
+                             node: nodeViewModel,
+                             isNodeSelected: isSelected,
+                             adjustmentBarSessionId: adjustmentBarSessionId)
     }
-
+    
     @ViewBuilder @MainActor
     func outputsViews() -> some View {
-        DefaultNodeRowView(graph: graph,
-                           node: viewModel,
-                           nodeIO: .output,
-                           isNodeSelected: isSelected,
-                           adjustmentBarSessionId: adjustmentBarSessionId)
+        DefaultNodeOutputView(graph: graph,
+                              node: nodeViewModel,
+                              isNodeSelected: isSelected,
+                              adjustmentBarSessionId: adjustmentBarSessionId)
     }
 }

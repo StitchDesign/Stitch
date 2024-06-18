@@ -16,7 +16,7 @@ import SwiftyJSON
 typealias FieldValues = [FieldValue]
 
 // TODO: rather than "number or string", the real cases are "number or parentPercent (eg 50%) or auto"
-enum FieldValue: Equatable {
+enum FieldValue: Equatable, Sendable {
     case string(StitchStringValue)
     case number(Double)
     case layerDimension(LayerDimensionField)

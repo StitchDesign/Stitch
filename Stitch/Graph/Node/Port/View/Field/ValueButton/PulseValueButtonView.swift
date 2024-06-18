@@ -11,20 +11,19 @@ import StitchSchemaKit
 let PULSE_ICON_SF_SYMBOL_NAME = "record.circle.fill"
 
 struct PulseValueButtonView: View {
-    @Bindable var graph: GraphState
-    
-    private var graphStep: GraphStepManager {
-        self.graph.graphStepManager
-    }
-
     @State private var isPulsed = false
 
-    let coordinate: NodeIOCoordinate
-    let nodeIO: NodeIO
+    @Bindable var graph: GraphState
+    let inputPort: InputNodeRowViewModel?
+    let stitchId: UUID
     let pulseTime: TimeInterval
 
     // always false for outputs
     let hasIncomingEdge: Bool
+
+    private var graphStep: GraphStepManager {
+        self.graph.graphStepManager
+    }
 
     var pulseColor: PulseColor {
         isPulsed ? .active : .inactive
@@ -40,12 +39,11 @@ struct PulseValueButtonView: View {
     var body: some View {
         // TODO: you made this a button, double check it works
         StitchButton {
-            switch nodeIO {
-            case .output:
-                log("PulseValueButtonView error: output unexpectedly encountered for \(coordinate)")
-                return
-            case .input:
-                graph.pulseValueButtonClicked(inputCoordinate: coordinate)
+            if let inputPort = inputPort {
+                graph.pulseValueButtonClicked(stitchId: stitchId,
+                                              inputPort: inputPort)
+            } else {
+                log("PulseValueButtonView error: output unexpectedly encountered for \(stitchId)")
             }
         } label: {
             Image(systemName: PULSE_ICON_SF_SYMBOL_NAME)
@@ -53,7 +51,7 @@ struct PulseValueButtonView: View {
             // This animation causes the bug described here: https://github.com/vpl-codesign/stitch/issues/2387
             // .animation(.linear(duration: 0.25), value: color.color)
         }
-        .disabled(hasIncomingEdge || nodeIO == .output)
+        .disabled(hasIncomingEdge || inputPort.isDefined)
         // Check if we should visibily pulse node as new pulse data comes in
         .onChange(of: pulseTime) {
             // Note: `isPulsed` in this UI is different from our `shouldPulse` check in nodes' evals

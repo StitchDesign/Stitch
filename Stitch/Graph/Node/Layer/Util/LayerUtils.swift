@@ -110,9 +110,9 @@ extension Layer {
          line up against a top-left grid intersection
          when node is placed on graph.
          */
-        if firstCreation {
-            node.adjustPosition(center: position.toCGPoint)
-        }
+//        if firstCreation {
+//            node.adjustPosition(center: position.toCGPoint)
+//        }
         
         node.graphDelegate = graphDelegate
         

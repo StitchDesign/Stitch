@@ -43,8 +43,7 @@ struct SidebarListItemLeftLabelView: View {
 //        
         let atleastOneIndexMasks = graph
             .getLayerNode(id: nodeId.id)?
-            .layerNode?
-            .masksPort
+            .layerNode?.masksPort.rowObserver
             .allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false

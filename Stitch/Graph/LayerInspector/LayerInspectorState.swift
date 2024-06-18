@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 // Can this really be identifiable ?
 enum LayerInspectorRowId: Equatable, Hashable {
-    case layerInput(LayerInputOnGraphId) // Layer node inputs use keypaths
-    case layerOutput(LayerOutputOnGraphId) // Layer node outputs use port ids (ints)
+    case layerInput(LayerInputType) // Layer node inputs use keypaths
+    case layerOutput(Int) // Layer node outputs use port ids (ints)
 }
 
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>

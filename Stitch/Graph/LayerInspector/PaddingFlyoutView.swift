@@ -20,7 +20,9 @@ struct PaddingFlyoutView: View {
     static let PADDING_FLYOUT_HEIGHT = 187.0 // Calculated by Figma
         
     @Bindable var graph: GraphState
-    let rowObserver: NodeRowObserver
+    let rowViewModel: InputNodeRowViewModel
+    let layer: Layer
+    let hasIncomingEdge: Bool
      
     var body: some View {
         
@@ -65,20 +67,22 @@ struct PaddingFlyoutView: View {
     
     @ViewBuilder @MainActor
     var inputOutputRow: some View {
-        ForEach(rowObserver.fieldValueTypes) { fieldGroupViewModel in
-            NodeFieldsView(
-                graph: graph,
-                rowObserver: rowObserver,
-                fieldGroupViewModel: fieldGroupViewModel,
-                coordinate: rowObserver.id,
-                nodeKind: rowObserver.nodeKind,
-                nodeIO: .input,
-                isCanvasItemSelected: true,
-                hasIncomingEdge: false, // NA?
-                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
-                forPropertySidebar: true,
-                propertyIsAlreadyOnGraph: false // TODO: fix
-            )
+        FieldsListView(graph: graph,
+                       rowViewModel: rowViewModel,
+                       nodeId: rowViewModel.id.nodeId,
+                       isGroupNodeKind: !rowViewModel.nodeKind.isGroup,
+                       forPropertySidebar: true,
+                       // TODO: fix
+                       propertyIsAlreadyOnGraph: false) { portViewModel, isMultiField in
+            InputValueEntry(graph: graph,
+                            rowViewModel: rowViewModel,
+                            viewModel: portViewModel,
+                            nodeKind: .layer(layer),
+                            isCanvasItemSelected: false,
+                            hasIncomingEdge: hasIncomingEdge,
+                            forPropertySidebar: true,
+                            // TODO: fix
+                            propertyIsAlreadyOnGraph: false)
         }
     }
 }

@@ -20,46 +20,38 @@ extension CGPoint {
     }
 }
 
-extension NodeViewModel {
+// Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
+extension CanvasItemViewModel {
     func adjustPosition(center: CGPoint) {
         let nodeSize = self.bounds.graphBaseViewBounds.size
-
+        
         self.position = gridAlignedPosition(center: center,
                                             nodeSize: nodeSize)
         self.previousPosition = self.position
     }
-}
-
-// Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
-extension GraphState {
     
     @MainActor
-    func canvasItemTapped(_ id: CanvasItemId) {
-        log("canvasItemTapped: id: \(id)")
-        
-        guard let canvasItem = self.getCanvasItem(id) else {
-            fatalErrorIfDebug()
-            return
-        }
+    func isTapped(graph: GraphState) {
+        log("canvasItemTapped: id: \(self.id)")
         
         // when holding CMD ...
-        if self.graphUI.keypressState.isCommandPressed {
+        if graph.graphUI.keypressState.isCommandPressed {
             // toggle selection
-            if canvasItem.isSelected {
-                canvasItem.deselect()
+            if self.isSelected {
+                self.deselect()
             } else {
-                canvasItem.select()
+                self.select()
             }
         }
         
         // when not holding CMD ...
         else {
-            self.selectSingleCanvasItem(canvasItem)
+            graph.selectSingleCanvasItem(self)
         }
         
         // if we tapped a node, we're no longer moving it
-        self.graphMovement.draggedCanvasItem = nil
+        graph.graphMovement.draggedCanvasItem = nil
         
-        canvasItem.zIndex = self.highestZIndex + 1
+        self.zIndex = graph.highestZIndex + 1
     }
 }
