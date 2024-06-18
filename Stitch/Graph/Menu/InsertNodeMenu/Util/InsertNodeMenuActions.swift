@@ -83,10 +83,23 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
 }
 
 // i.e. User has 'committed' their node-menu selection
-struct AddNodeButtonPressed: GraphEvent {
-    func handle(state: GraphState) {
-        // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
-        state.graphUI.insertNodeMenuState.readActiveSelectionSize = true
+struct AddNodeButtonPressed: GraphEventWithResponse {
+    func handle(state: GraphState) -> GraphResponse {
+        
+        // Immediately create a LayerNode; do not animate.
+        if let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind,
+           nodeKind.isLayer {
+            let newId = state.nodeCreated(choice: nodeKind)
+            if !newId.isDefined {
+                fatalErrorIfDebug() // should not fail to return
+            }
+            state.nodeCreationCompleted()
+            return .shouldPersist
+        } else {
+            // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
+            state.graphUI.insertNodeMenuState.readActiveSelectionSize = true
+            return .noChange
+        }
     }
 }
 
@@ -146,33 +159,39 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
     }
 }
 
-struct InsertNodeAnimationCompleted: GraphEventWithResponse {
-
+extension GraphState {
+    
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
-
-        state.maybeCreateLLMAddNode()
+    func nodeCreationCompleted() {
+        self.maybeCreateLLMAddNode()
         
          // log("InsertNodeAnimationCompleted called")
 
         // hide the menu and animated-node
-        state.graphUI.insertNodeMenuState.show = false
+        self.graphUI.insertNodeMenuState.show = false
 
         // mark the animation as completed
-        state.graphUI.insertNodeMenuState.menuAnimatingToNode = false
+        self.graphUI.insertNodeMenuState.menuAnimatingToNode = false
 
         // unhide the real node
-        state.graphUI.insertNodeMenuState.hiddenNodeId = nil
+        self.graphUI.insertNodeMenuState.hiddenNodeId = nil
 
         // reset active selection
-        //        state.graphUI.insertNodeMenuState.activeSelection = nil
-        state.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
+        //        self.graphUI.insertNodeMenuState.activeSelection = nil
+        self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.startingActiveSelection
         
-        state.graphUI.insertNodeMenuState.activeSelectionBounds = nil
+        self.graphUI.insertNodeMenuState.activeSelectionBounds = nil
 
         // reset double tap location, now that animation has completed
-        state.graphUI.doubleTapLocation = nil
+        self.graphUI.doubleTapLocation = nil
+    }
+}
 
+struct InsertNodeAnimationCompleted: GraphEventWithResponse {
+
+    @MainActor
+    func handle(state: GraphState) -> GraphResponse {
+        state.nodeCreationCompleted()
         return .shouldPersist
     }
 }
