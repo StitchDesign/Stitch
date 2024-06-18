@@ -18,6 +18,7 @@ struct NodeFieldsView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let forPropertySidebar: Bool
 
     var isMultiField: Bool {
         self.fieldGroupViewModel.fieldObservers.count > 1
@@ -64,6 +65,7 @@ struct NodeFieldsView: View {
                    nodeKind: nodeKind,
                    isNodeSelected: isNodeSelected,
                    hasIncomingEdge: hasIncomingEdge,
-                   adjustmentBarSessionId: adjustmentBarSessionId)
+                   adjustmentBarSessionId: adjustmentBarSessionId,
+                   forPropertySidebar: forPropertySidebar)
     }
 }

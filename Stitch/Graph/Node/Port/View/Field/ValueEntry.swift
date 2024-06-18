@@ -21,6 +21,7 @@ struct ValueEntry: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let forPropertySidebar: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -61,6 +62,7 @@ struct ValueEntry: View {
                   isNodeSelected: isNodeSelected,
                   hasIncomingEdge: hasIncomingEdge,
                   adjustmentBarSessionId: adjustmentBarSessionId,
+                  forPropertySidebar: forPropertySidebar,
                   isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -85,6 +87,7 @@ struct ValueView: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: NodeRowObserver
     @Bindable var viewModel: FieldViewModel
+    
     let fieldCoordinate: FieldCoordinate
     let coordinate: NodeIOCoordinate
     let nodeIO: NodeIO
@@ -93,6 +96,8 @@ struct ValueView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let forPropertySidebar: Bool
+    
     @Binding var isButtonPressed: Bool
 
     var fieldValue: FieldValue {
@@ -131,7 +136,8 @@ struct ValueView: View {
                                   fieldIndex: fieldIndex,
                                   isNodeSelected: isNodeSelected,
                                   hasIncomingEdge: hasIncomingEdge,
-                                  isLargeString: string.isLargeString)
+                                  isLargeString: string.isLargeString,
+                                  forPropertySidebar: forPropertySidebar)
             case .output:
                 // Leading alignment when multifield
                 ReadOnlyValueEntry(value: string.string,
@@ -149,7 +155,8 @@ struct ValueView: View {
                                      outputAlignment: outputAlignment,
                                      isNodeSelected: isNodeSelected,
                                      hasIncomingEdge: hasIncomingEdge,
-                                     adjustmentBarSessionId: adjustmentBarSessionId)
+                                     adjustmentBarSessionId: adjustmentBarSessionId,
+                                     forPropertySidebar: forPropertySidebar)
         
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
@@ -161,7 +168,8 @@ struct ValueView: View {
                                  outputAlignment: outputAlignment,
                                  isNodeSelected: isNodeSelected,
                                  hasIncomingEdge: hasIncomingEdge,
-                                 adjustmentBarSessionId: adjustmentBarSessionId)
+                                 adjustmentBarSessionId: adjustmentBarSessionId,
+                                 forPropertySidebar: forPropertySidebar)
 
         case .bool(let bool):
             BoolCheckboxView(id: isInput ? self.coordinate : nil,

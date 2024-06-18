@@ -21,6 +21,7 @@ struct  FieldValueNumberView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    let forPropertySidebar: Bool
 
     @State private var isButtonPressed = false
 
@@ -47,7 +48,8 @@ struct  FieldValueNumberView: View {
                                       fieldIndex: fieldCoordinate.fieldIndex,
                                       isNodeSelected: isNodeSelected,
                                       hasIncomingEdge: hasIncomingEdge,
-                                      isAdjustmentBarInUse: isButtonPressed)
+                                      isAdjustmentBarInUse: isButtonPressed,
+                                      forPropertySidebar: forPropertySidebar)
                 }
             case .output:
                 ReadOnlyValueEntry(value: stringValue,

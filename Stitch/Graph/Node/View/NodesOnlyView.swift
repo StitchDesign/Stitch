@@ -37,7 +37,10 @@ struct NodesOnlyView: View {
         ForEach(nodes) { node in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-            if node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId {
+            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
+            let isNotLayerNode = !node.layerNode.isDefined
+            
+            if isAtThisTraversalLevel && isNotLayerNode {
                 NodeTypeView(
                     graph: graph,
                     node: node,
