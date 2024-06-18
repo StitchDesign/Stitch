@@ -14,6 +14,7 @@ import StitchSchemaKit
 @Observable
 final class NodeCanvasViewModel {
     // Needs its own identifier b/c 0 to many relationship with node
+    let id: UUID
     
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
@@ -50,11 +51,13 @@ final class NodeCanvasViewModel {
     // Reference back to the parent node entity
     weak var nodeDelegate: NodeDelegate?
     
-    init(position: CGPoint,
+    init(id: UUID,
+         position: CGPoint,
          zIndex: Double,
          parentGroupNodeId: NodeId? = nil,
          title: String,
          nodeKind: NodeKind) {
+        self.id = id
         self.position = position
         self.previousPosition = position
         self.bounds = bounds

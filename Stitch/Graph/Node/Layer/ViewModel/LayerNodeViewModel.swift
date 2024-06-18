@@ -17,11 +17,6 @@ typealias LayerNodes = [LayerNode]
 // secondary = hidden because was a child of a group that was primary-hidden
 // none = not hidden at all
 
-struct LayerNodeRowData {
-    let rowObserver: NodeRowObserver
-    var canvasObsever: NodeCanvasViewModel?
-}
-
 @Observable
 final class LayerNodeViewModel {
     var id: NodeId

@@ -282,6 +282,28 @@ extension NodeViewModel {
         
         return observer
     }
+    
+    func getAllCanvasObservers() -> [NodeCanvasViewModel] {
+        switch nodeType {
+        case .patch(let patchNode):
+            return [patchNode.canvasObserver]
+        case .layer(let layerNode):
+            return layerNode.getAllCanvasObservers()
+        case .group(let canvasObserver):
+            return [canvasObserver]
+        }
+    }
+    
+    /// Checks if any canvas entity for this node is visible.
+    var isVisibleInFrame: Bool {
+        for canvasObserver in self.getAllCanvasObservers() {
+            if canvasObserver.isVisibleInFrame {
+                return true
+            }
+        }
+        
+        return false
+    }
 
     // Update both
     @MainActor
@@ -365,7 +387,7 @@ extension NodeViewModel {
         }
         
         // Sometimes observers aren't yet created for nodes with adjustable inputs
-        return self._inputsObservers[safe: portId]
+        return self.patchNode?.inputsObservers[safe: portId]
     }
     
     @MainActor
@@ -389,7 +411,7 @@ extension NodeViewModel {
                                          type: .output)[safe: portId]
         }
         
-        return self._outputsObservers[safe: portId]
+        return self.patchNode?.outputsObservers[safe: portId]
     }
 
     @MainActor

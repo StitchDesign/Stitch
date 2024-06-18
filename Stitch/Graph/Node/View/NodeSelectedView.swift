@@ -34,8 +34,8 @@ struct NodeSelectedView: ViewModifier {
 struct NodeBoundsReader: ViewModifier {
     @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
-
-    let id: NodeId
+    @Bindable var canvasNode: NodeCanvasViewModel
+    
     let splitterType: SplitterType?
     let disabled: Bool
     let updateMenuActiveSelectionBounds: Bool
@@ -56,7 +56,7 @@ struct NodeBoundsReader: ViewModifier {
                             if !disabled {
                                 // log("will update GraphBaseView bounds for \(id)")
                                graph.updateGraphBaseViewBounds(
-                                   for: id,
+                                   for: canvasNode,
                                    newBounds: newBounds,
                                    viewFrame: viewframe,
                                    splitterType: splitterType,
@@ -69,7 +69,7 @@ struct NodeBoundsReader: ViewModifier {
                                 // log("will update local bounds for \(id)")
 
                                 // Used only for comment box creation
-                                graph.updateLocalBounds(for: id, newBounds: newBounds)
+                                canvasNode.bounds.localBounds = newBounds
                             }
                         }
                 }
@@ -85,27 +85,17 @@ struct NodeBoundsReader: ViewModifier {
  Simply switching to either a GraphEvent action or a method on `@Environment graph` resolved the issue; no other changes required.
  */
 extension GraphState {
-
-    @MainActor
-    func updateLocalBounds(for id: NodeId,
-                           newBounds: CGRect) {
-        guard let nodeViewModel = self.getNodeViewModel(id) else {
-            log("updateLocalBounds: could not retrieve node \(id)")
-            return
-        }
-
-        nodeViewModel.bounds.localBounds = newBounds
-    }
-
     /*
      We should keep a group node's input and output splitter nodes' subscriptions running, even when the splitter node is not on screen -- otherwise the group node's input and output ports stop updating.
      */
     @MainActor
-    func updateGraphBaseViewBounds(for id: NodeId,
+    func updateGraphBaseViewBounds(for canvasObserver: NodeCanvasViewModel,
                                    newBounds: CGRect,
                                    viewFrame: CGRect,
                                    splitterType: SplitterType?,
                                    updateMenuActiveSelectionBounds: Bool) {
+        
+        
 
         // Note: do this *first*, since during node menu update we might not have a node view model for the node id yet
         if updateMenuActiveSelectionBounds {
@@ -117,7 +107,7 @@ extension GraphState {
             return
         }
 
-        nodeViewModel.bounds.graphBaseViewBounds = newBounds
+        canvasObserver.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
