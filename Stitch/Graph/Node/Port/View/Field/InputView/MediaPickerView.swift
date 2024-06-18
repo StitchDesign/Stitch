@@ -11,11 +11,9 @@ import StitchSchemaKit
 
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView: View {
-    @Bindable var rowObserver: NodeRowObserver
-
     let inputCoordinate: InputCoordinate
+    let isUpstreamValue: Bool
     let media: FieldValueMedia
-
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
@@ -42,8 +40,8 @@ struct MediaFieldValueView: View {
     var body: some View {
         HStack {
             if isInput && canUseMediaPicker {
-                MediaPickerValueEntry(rowObserver: rowObserver,
-                                      coordinate: inputCoordinate,
+                MediaPickerValueEntry(coordinate: inputCoordinate,
+                                      isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
                                       nodeKind: nodeKind)
             }

@@ -159,7 +159,7 @@ extension GraphState {
                                activeIndex: self.activeIndex,
                                graphDelegate: self) {
         case .success(let patchNode):
-            guard let patch = patchNode.patch else {
+            guard let patchViewModel = patchNode.patchNode else {
                 #if DEBUG
                 fatalError()
                 #endif
@@ -167,7 +167,7 @@ extension GraphState {
             }
 
             // Update group state if node created inside group
-            patchNode.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
+            patchViewModel.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
 
             // Must also add the media patch node to graphState,
             // so that it can be found when we evaluate the graph.
@@ -197,7 +197,7 @@ extension GraphState {
 
         // Can now be patch- OR layer-node
         guard let existingNode = self.getNodeViewModel(nodeId),
-        let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+              let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
             dispatch(DisplayError(error: .mediaCopiedFailed))
             return
         }
@@ -419,8 +419,6 @@ func createPatchNode(from importedMediaURL: URL,
     }
 
     // Import nodes always use first input
-    node.getInputRowObserver(0)?.updateValues([.asyncMedia(asyncMedia)],
-                                              activeIndex: activeIndex,
-                                              isVisibleInFrame: true)
+    node.getInputRowObserver(0)?.updateValues([.asyncMedia(asyncMedia)])
     return .success(node)
 }

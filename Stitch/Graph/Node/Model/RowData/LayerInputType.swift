@@ -218,7 +218,7 @@ extension LayerInputType {
     }
     
     /// Keypath )mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, NodeConnectionType> {
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
         switch self {
             
         // Required
@@ -843,7 +843,7 @@ extension LayerViewModel {
 extension LayerInputType {
     /// Key paths for parent layer view model
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, NodeRowObserver> {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         switch self {
         case .position:
             return \.positionPort

@@ -40,19 +40,13 @@ func updateMouseNodesPosition(mouseNodeIds: NodeIdSet,
         if let node = graphState.getPatchNode(id: mouseNodeId) {
             // Always scalar
             node.getOutputRowObserver(MouseNodeOutputLocations.leftClick)?
-                .updateValues([PortValue.bool(leftClick)],
-                              activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                .updateValues([PortValue.bool(leftClick)])
 
             node.getOutputRowObserver(MouseNodeOutputLocations.position)?
-                .updateValues([PortValue.position(position)],
-                              activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                .updateValues([PortValue.position(position)])
 
             node.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
-                .updateValues([PortValue.position(finalVelocity)],
-                              activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                .updateValues([PortValue.position(finalVelocity)])
 
         } else {
             log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")

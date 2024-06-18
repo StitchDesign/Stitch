@@ -49,22 +49,26 @@ struct NodesView: View {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: groupNodeFocused) {
                                 
-                let inputs: NodeRowObservers = self.graph
+                let inputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
-                    .flatMap { canvasItem -> NodeRowObservers in
+                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         
                         switch canvasItem.id {
                             
-                        case .layerInputOnGraph(let x):
+                        case .layerInput(let x):
                             guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
                                 return []
                             }
-                            return [input]
-                        case .layerOutputOnGraph(let x):
-                            guard let output = graph.getOutputObserver(coordinate: x) else {
-                                return []
-                            }
-                            return [output]
+                            return input.allInputRowViewModels
+                            // filter out view models for inspector
+                                .filter { $0.id.graphItemType == .node }
+                        
+                        case .layerOutput:
+                            return []
+//                            guard let output = graph.getOutputObserver(coordinate: x) else {
+//                                return []
+//                            }
+//                            return [output]
                             
                         case .node(let x):
                             // Hides edges from group input splitters
@@ -80,7 +84,11 @@ struct NodesView: View {
                                 return []
                             }
                             
-                            return node.inputRowObservers()
+                            return node.getAllInputsObservers().flatMap {
+                                $0.allRowViewModels
+                                // filter out view models for inspector
+                                    .filter { $0.id.graphItemType == .node }
+                            }
                         }
                     }
                 
@@ -97,7 +105,8 @@ struct NodesView: View {
                         connectedEdgesView(allInputs: inputs)
                     }
                     .overlay {
-                        edgeDrawingView(inputs: inputs)
+                        edgeDrawingView(inputs: inputs, 
+                                        graph: self.graph)
                         EdgeInputLabelsView(inputs: inputs,
                                             graph: graph,
                                             graphUI: graph.graphUI)
@@ -114,14 +123,14 @@ struct NodesView: View {
                 EmptyView()
             }
         }
-        .onChange(of: groupNodeFocused) {
-            // Updates cached data inside row observers when group changes
-            self.visibleNodesViewModel.updateAllNodeViewData()
-        }
+//        .onChange(of: groupNodeFocused) {
+//            // Updates cached data inside row observers when group changes
+//            self.visibleNodesViewModel.updateAllNodeViewData()
+//        }
     }
     
     @MainActor
-    func connectedEdgesView(allInputs: NodeRowObservers) -> some View {
+    func connectedEdgesView(allInputs: [InputNodeRowViewModel]) -> some View {
         GraphConnectedEdgesView(graph: graph,
                                 graphUI: graphUI,
                                 allInputs: allInputs)
@@ -143,38 +152,43 @@ struct NodesView: View {
         NodesOnlyView(graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData,
-                      nodes: visibleNodesViewModel.allViewModels,
+                      canvasNodes: visibleNodesViewModel.allViewModels,
                       insertNodeMenuHiddenNode: insertNodeMenuHiddenNodeId)
     }
     
     @MainActor
-    func edgeDrawingView(inputs: NodeRowObservers) -> some View {
-        EdgeDrawingView(edgeDrawingObserver: graph.edgeDrawingObserver,
+    func edgeDrawingView(inputs: [InputNodeRowViewModel],
+                         graph: GraphState) -> some View {
+        EdgeDrawingView(graph: graph,
+                        edgeDrawingObserver: graph.edgeDrawingObserver,
                         inputsAtThisTraversalLevel: inputs)
     }
 }
 
 
 struct EdgeInputLabelsView: View {
-    let inputs: NodeRowObservers
+    let inputs: [InputNodeRowViewModel]
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
 
     var body: some View {
         let showLabels = graph.graphUI.edgeEditingState?.labelsShown ?? false
-        let nearbyNodeId = graph.graphUI.edgeEditingState?.nearbyNode
         
-        ForEach(inputs) { inputRowObserver in
-            // visibleNodeId property checks for group splitter inputs
-            let isInputForNearbyNode = nearbyNodeId == inputRowObserver.visibleNodeId
-            let isVisible = isInputForNearbyNode && showLabels
-            
-            EdgeEditModeLabelsView(graph: graph,
-                                   portId: inputRowObserver.portViewType?.input?.portId ?? .zero)
-            .position(inputRowObserver.anchorPoint ?? .zero)
-            .opacity(isVisible ? 1 : 0)
-            .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
-                       value: isVisible)
+        if let nearbyNodeId = graph.graphUI.edgeEditingState?.nearbyNode {
+            ForEach(inputs) { inputRowViewModel in
+                // visibleNodeId property checks for group splitter inputs
+                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyNodeId)
+                let isVisible = isInputForNearbyNode && showLabels
+                
+                EdgeEditModeLabelsView(graph: graph,
+                                       portId: inputRowViewModel.portViewData?.portId ?? .zero)
+                .position(inputRowViewModel.anchorPoint ?? .zero)
+                .opacity(isVisible ? 1 : 0)
+                .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
+                           value: isVisible)
+            }
+        } else {
+            EmptyView()
         }
     }
 }

@@ -33,10 +33,10 @@ extension CanvasItemId {
         switch self {
         case .node(let x):
             return x
-        case .layerInputOnGraph(let x):
+        case .layerInput(let x):
             return x.node
-        case .layerOutputOnGraph(let x):
-            return x.nodeId
+        case .layerOutput(let x):
+            return x.node
         }
     }
 }
