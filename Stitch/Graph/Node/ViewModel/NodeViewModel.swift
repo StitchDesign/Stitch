@@ -26,74 +26,7 @@ final class NodeViewModel: Sendable {
         graphDelegate: nil)
 
     var id: NodeEntity.ID
-
-    var canvasItemId: CanvasItemId {
-        .node(self.id)
-    }
     
-    // TODO: move to PatchNodeViewModel
-    var canvasUIData: CanvasItemViewModel
-
-    var position: CGPoint {
-        get {
-            self.canvasUIData.position
-        } set(newValue) {
-            self.canvasUIData.position = newValue
-        }
-    }
-    
-    var previousPosition: CGPoint {
-        get {
-            self.canvasUIData.previousPosition
-        } set(newValue) {
-            self.canvasUIData.previousPosition = newValue
-        }
-    }
-    
-    var bounds: NodeBounds {
-        get {
-            self.canvasUIData.bounds
-        } set(newValue) {
-            self.canvasUIData.bounds = newValue
-        }
-    }
-    
-    // ui placement
-    var zIndex: Double {
-        get {
-            self.canvasUIData.zIndex
-        } set(newValue) {
-            self.canvasUIData.zIndex = newValue
-        }
-    }
-
-    var parentGroupNodeId: NodeId? {
-        get {
-            self.canvasUIData.parentGroupNodeId
-        } set(newValue) {
-            self.canvasUIData.parentGroupNodeId = newValue
-        }
-    }
-    
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame: Bool {
-        get {
-            self.canvasUIData.isVisibleInFrame
-        } set(newValue) {
-            self.canvasUIData.isVisibleInFrame = newValue
-        }
-    }
-    
-    @MainActor
-    var isSelected: Bool {
-        get {
-            self.canvasUIData.isSelected
-        } set(newValue) {
-            self.canvasUIData.isSelected = newValue
-        }
-    }
-    
-
     var title: String {
         didSet(oldValue) {
             if oldValue != title {
@@ -108,18 +41,11 @@ final class NodeViewModel: Sendable {
      Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
      */
     private var _cachedDisplayTitle: String = ""
-    
-    // Used for data-intensive purposes (eval)
-    // We use a class as a hack to prevent renders caused by data-side values
-    // TODO: can these really start out empty?
-    private var _inputsObservers: NodeRowObservers = []
-    private var _outputsObservers: NodeRowObservers = []
 
     var nodeType: NodeViewModelType
     
     // Cached for perf
     var longestLoopLength: Int = 1
-    
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
@@ -142,106 +68,60 @@ final class NodeViewModel: Sendable {
         }
     }
     
-    // i.e. "create node view model from schema"
+    // i.e. "create node view model from schema
     @MainActor
     init(from schema: NodeEntity,
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
-        
-        // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
-        self.canvasUIData = CanvasItemViewModel(
-            id: .node(schema.id),
-            position: schema.position,
-            zIndex: schema.zIndex,
-            parentGroupNodeId: schema.parentGroupNodeId,
-            nodeDelegate: nil) // set below
-                        
         self.title = schema.title
-        
-        self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
+                                          nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
-        self.layerNode?.nodeDelegate = self
-        self.canvasUIData.nodeDelegate = self
-
-        // Create initial inputs and outputs using default data
-        let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
+        self.getAllCanvasObservers().forEach {
+            $0.nodeDelegate = self
+        }
+        self.getAllInputsObservers().forEach {
+            $0.nodeDelegate = self
+        }
+        self.getAllOutputsObservers().forEach {
+            $0.nodeDelegate = self
+        }
 
         self.createEphemeralObservers()
         
-        // Layer nodes use key paths instead of array for input observers
-        if let layerNode = self.layerNode {
-            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
-                guard let layerNodeEntity = schema.layerNodeEntity else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                // Set delegate and call update values helper
-                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath]
-                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
-                rowObserver.nodeDelegate = self
-                
-                switch rowSchema {
-                case .upstreamConnection(let upstreamCoordinate):
-                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
-                case .values(let values):
-                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
-                    
-                    rowObserver.updateValues(values,
-                                             activeIndex: self.activeIndex,
-                                             isVisibleInFrame: self.isVisibleInFrame,
-                                             isInitialization: true)
-                }
-                
-                // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-                #if DEV_DEBUG
-                
-//                if inputType == .position {
-//                    rowObserver.canvasUIData = .init(
-//                        id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-//                        position: schema.position,
-//                        zIndex: schema.zIndex,
-//                        parentGroupNodeId: schema.parentGroupNodeId,
-//                        nodeDelegate: self)
-//                }
-                
-//                rowObserver.canvasUIData = .init(
-//                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-//                    position: schema.position,
-//                    zIndex: schema.zIndex,
-//                    parentGroupNodeId: schema.parentGroupNodeId,
-//                    nodeDelegate: self)
-                #endif
-                
-                // Add outputs for the few layer nodes that use them
-                self._outputsObservers = rowDefinitions
-                    .createOutputObservers(nodeId: schema.id,
-                                           values: self.defaultOutputsList,
-                                           nodeDelegate: self)
-                
-                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
-            }
-        } else if self.kind.isPatch {
-            // Must set inputs before calling eval below
-            self._inputsObservers = schema.inputs
-                .createInputObservers(nodeId: schema.id,
-                                      kind: self.kind,
-                                      userVisibleType: schema.patchNodeEntity?.userVisibleType,
-                                      nodeDelegate: self)
-    
-            self._outputsObservers = rowDefinitions
-                .createOutputObservers(nodeId: schema.id,
-                                       values: self.defaultOutputsList,
-                                       nodeDelegate: self)
-        }
+        switch self.nodeType {
+        case .patch(let patchNode):
+            patchNode.delegate = self
 
-        // Initialize layers
-        self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
-                                        id: self.id)
+        case .layer(let layerNode):
+            layerNode.nodeDelegate = self
+            
+//            // Layer nodes use key paths instead of array for input observers
+//            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
+//                guard let layerNodeEntity = schema.nodeTypeEntity.layerNodeEntity else {
+//                    fatalErrorIfDebug()
+//                    return
+//                }
+//                
+//                // Set delegate and call update values helper
+//                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath].rowObserver
+//                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
+//                rowObserver.nodeDelegate = self
+//                
+//                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
+//            }
+
+            // Initialize layers
+            self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
+                                            id: self.id)
+        default:
+            return
+            
+        }
     }
     
     @MainActor
@@ -257,55 +137,38 @@ final class NodeViewModel: Sendable {
                      nodeType: NodeViewModelType,
                      parentGroupNodeId: NodeId?,
                      graphDelegate: GraphDelegate?) {
-        var patchNodeEntity: PatchNodeEntity?
-        var layerNodeEntity: LayerNodeEntity?
-        var isGroup = false
 
-        switch nodeType {
-        case .patch(let patchNodeViewModel):
-            patchNodeEntity = patchNodeViewModel.createSchema()
-        case .layer(let layerNodeViewModel):
-            layerNodeEntity = layerNodeViewModel.createSchema()
-        case .group:
-            isGroup = true
-        }
-
-        let inputEntities = inputs.enumerated().map { portId, values in
-            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
-                                                     nodeId: id),
-                                nodeKind: nodeType.kind,
-                                userVisibleType: patchNodeEntity?.userVisibleType,
-                                values: values,
-                                upstreamOutputCoordinate: nil)
-        }
+//        let inputEntities = inputs.enumerated().map { portId, values in
+//            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
+//                                                     nodeId: id),
+//                                nodeKind: nodeType.kind,
+//                                userVisibleType: nodeType.patchNode?.userVisibleType,
+//                                values: values,
+//                                upstreamOutputCoordinate: nil)
+//        }
+        
+        let canvasEntity = CanvasNodeEntity(id: .init(),
+                                            position: position.toCGPoint,
+                                            zIndex: zIndex,
+                                            parentGroupNodeId: parentGroupNodeId)
 
         let nodeEntity = NodeEntity(id: id,
-                                    position: position.toCGPoint,
-                                    zIndex: zIndex,
-                                    parentGroupNodeId: parentGroupNodeId,
-                                    patchNodeEntity: patchNodeEntity,
-                                    layerNodeEntity: layerNodeEntity,
-                                    isGroupNode: isGroup,
-                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil),
-                                    inputs: inputEntities)
+                                    nodeTypeEntity: nodeType.createSchema(),
+                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil))
+//                                    inputs: inputEntities)
 
         self.init(from: nodeEntity,
                   activeIndex: activeIndex,
                   graphDelegate: graphDelegate)
         
         self.nodeType = nodeType
-        self._outputsObservers = NodeRowObservers(values: outputs,
-                                                 kind: self.kind,
-                                                 userVisibleType: self.userVisibleType,
-                                                 id: id,
-                                                 nodeIO: .output,
-                                                 activeIndex: activeIndex,
-                                                 nodeDelegate: self)
-    }
-    
-    /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
-    func _getInputObserversForEncoding() -> NodeRowObservers {
-        self._inputsObservers
+        self.patchNode?.outputsObservers = NodeRowObservers(values: outputs,
+                                                            kind: self.kind,
+                                                            userVisibleType: self.userVisibleType,
+                                                            id: id,
+                                                            nodeIO: .output,
+                                                            activeIndex: activeIndex,
+                                                            nodeDelegate: self)
     }
 }
 
@@ -391,8 +254,10 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
         }
         
         // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
-        (self._inputsObservers + self._outputsObservers).forEach {
-            $0.userVisibleType = newType
+        if let patchNode = self.patchNode {
+            (patchNode.inputsObservers + patchNode.outputsObservers).forEach {
+                $0.userVisibleType = newType
+            }
         }
     }
 }
@@ -416,14 +281,34 @@ extension NodeViewModel {
         
         return observer
     }
-
-    var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
+    
+    func getAllCanvasObservers() -> [CanvasItemViewModel] {
+        switch nodeType {
+        case .patch(let patchNode):
+            return [patchNode.canvasObserver]
+        case .layer(let layerNode):
+            return layerNode.getAllCanvasObservers()
+        case .group(let canvasObserver):
+            return [canvasObserver]
+        }
+    }
+    
+    /// Checks if any canvas entity for this node is visible.
+    var isVisibleInFrame: Bool {
+        for canvasObserver in self.getAllCanvasObservers() {
+            if canvasObserver.isVisibleInFrame {
+                return true
+            }
+        }
+        
+        return false
     }
     
     // fka `func updateRowObservers(activeIndex: ActiveIndex)`
     @MainActor
-    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
+    func updateRowObservers(activeIndex: ActiveIndex) {
+        // TODO: iterate over each row observer for each canvas....
+        
         // Do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
@@ -471,9 +356,9 @@ extension NodeViewModel {
             if let layerNode = self.layerNode {
                 return layerNode.getSortedInputObservers()
             }
-            return self._inputsObservers
+            return self.patchNode?.inputsObservers ?? []
         case .output:
-            return self._outputsObservers
+            return self.patchNode?.outputsObservers ?? []
         }
     }
     
@@ -481,7 +366,8 @@ extension NodeViewModel {
     func getInputRowObserver(for portType: NodeIOPortType) -> NodeRowObserver? {
         switch portType {
         case .portIndex(let portId):
-            return self._inputsObservers[safe: portId]
+            // Assumes patch node for port ID
+            return self.patchNode?.inputsObservers[safe: portId]
 
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {
@@ -489,7 +375,7 @@ extension NodeViewModel {
                 return nil
             }
             
-            return layerNode[keyPath: keyPath.layerNodeKeyPath]
+            return layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
         }
     }
 
@@ -507,7 +393,7 @@ extension NodeViewModel {
         }
         
         // Sometimes observers aren't yet created for nodes with adjustable inputs
-        return self._inputsObservers[safe: portId]
+        return self.patchNode?.inputsObservers[safe: portId]
     }
     
     @MainActor
@@ -531,7 +417,7 @@ extension NodeViewModel {
                                          type: .output)[safe: portId]
         }
         
-        return self._outputsObservers[safe: portId]
+        return self.patchNode?.outputsObservers[safe: portId]
     }
 
     @MainActor
@@ -574,72 +460,6 @@ extension NodeViewModel {
 
         return self._cachedDisplayTitle
     }
-
-    var isNodeMoving: Bool {
-        self.position != self.previousPosition
-    }
-    
-    @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            if self.kind == .group {
-                // Group node needs to mark all input and output splitters as visible
-                // Fixes issue for setting visibility on groups
-                let inputsObservers = self.getRowObservers(.input)
-                let outputsObservers = self.getRowObservers(.output)
-                let allObservers = inputsObservers + outputsObservers
-                allObservers.forEach {
-                    $0.nodeDelegate?.isVisibleInFrame = newValue
-                }
-            }
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
-            }
-        }
-    }
-    
-    @MainActor
-    func updateMathExpressionNodeInputs(newExpression: String) {
-        // Always set math-expr on node for its eval and (default) title
-        self.patchNode?.mathExpression = newExpression
-        
-
-        // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
-
-        // Preserve order of presented characters;
-        // Do not change upper- vs. lower-case etc.
-        let variables = newExpression.getSoulverVariables()
-        
-        // log("updateMathExpressionNodeInputs: variables: \(variables)")
-        
-        // Keep value and connection
-        let oldInputs: [(PortValues, OutputCoordinate?)] = self.getRowObservers(.input).map {
-            ($0.allLoopedValues, $0.upstreamOutputCoordinate)
-        }
-        
-        self._inputsObservers = variables.enumerated().map {
-            let existingInput = oldInputs[safe: $0.offset]
-            return NodeRowObserver(
-                values: existingInput?.0 ?? [.number(.zero)],
-                nodeKind: self.kind,
-                userVisibleType: self.userVisibleType,
-                id: InputCoordinate(portId: $0.offset,
-                                    nodeId: self.id),
-                activeIndex: self.activeIndex,
-                upstreamOutputCoordinate: existingInput?.1,
-                nodeIOType: .input,
-                nodeDelegate: self)
-        }
-        
-        // Update cached port view data
-        self.updateAllPortViewData()
-    }
     
     // Returns indices of LONGEST LOOP
     @MainActor
@@ -680,9 +500,9 @@ extension NodeViewModel: NodeDelegate {
     func portCountShortened(to length: Int, nodeIO: NodeIO) {
         switch nodeIO {
         case .input:
-            self._inputsObservers = Array(self._inputsObservers[0..<length])
+            self.patchNode?.inputsObservers = Array(self.patchNode.inputsObservers[0..<length])
         case .output:
-            self._outputsObservers = Array(self._outputsObservers[0..<length])
+            self.patchNode?.outputsObservers = Array(self.patchNode.outputsObservers[0..<length])
         }
     }
 
@@ -719,8 +539,8 @@ extension NodeViewModel: SchemaObserver {
 
         // Update view if no upstream connection
         // Layers use keypaths
-        if !schema.kind.isLayer {
-            self._getInputObserversForEncoding().forEach { inputObserver in
+        if let patchnode = self.patchNode {
+            patchnode._getInputObserversForEncoding().forEach { inputObserver in
                 if !inputObserver.upstreamOutputObserver.isDefined {
                     inputObserver.updateValues(
                         inputObserver.allLoopedValues,
@@ -734,57 +554,10 @@ extension NodeViewModel: SchemaObserver {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity) {
-        if schema.id != self.id {
-            self.id = schema.id
-        }
-        // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
-//        self.id.setOnChange(schema.id)
-        
-        if self.position != schema.position {
-            self.position = schema.position
-        }
-        
-        if self.previousPosition != schema.position {
-            self.previousPosition = schema.position
-        }
-        
-        if self.zIndex != schema.zIndex {
-            self.zIndex = schema.zIndex
-        }
-        
+        self.nodeType.update(from: schema.nodeTypeEntity)
+
         if self.title != schema.title {
             self.title = schema.title
-        }
-        
-        if self.parentGroupNodeId != schema.parentGroupNodeId {
-            self.parentGroupNodeId = schema.parentGroupNodeId
-        }
-
-        if let patchNode = schema.patchNodeEntity {
-            self._inputsObservers.sync(with: schema.inputs)
-            
-            guard let patchNodeViewModel = self.patchNode else {
-                // Note: NodeViewModelType enum is not Equatable because PatchNodeViewModel etc. is not Equatable
-                self.nodeType = .patch(PatchNodeViewModel(from: patchNode))
-                return
-            }
-            patchNodeViewModel.update(from: patchNode)
-        } else if let layerNode = schema.layerNodeEntity {
-            guard let layerNodeViewModel = self.layerNode else {
-                let layerNodeViewModel = LayerNodeViewModel(from: layerNode,
-                                                            nodeDelegate: self)
-                layerNodeViewModel.nodeDelegate = self
-                self.nodeType = .layer(layerNodeViewModel)
-                return
-            }
-            layerNodeViewModel.update(from: layerNode)
-        } else {
-            self._inputsObservers.sync(with: schema.inputs)
-            
-            guard self.kind.isGroup else {
-                self.nodeType = .group
-                return
-            }
         }
         
         if self._cachedDisplayTitle != self.getDisplayTitle() {
@@ -793,17 +566,9 @@ extension NodeViewModel: SchemaObserver {
     }
 
     func createSchema() -> NodeEntity {
-        // Patch, layer, and group info nil here but set from parent callers
         NodeEntity(id: self.id,
-                   position: self.position,
-                   zIndex: self.zIndex,
-                   parentGroupNodeId: self.parentGroupNodeId,
-                   patchNodeEntity: self.patchNode?.createSchema(),
-                   layerNodeEntity: self.layerNode?.createSchema(),
-                   isGroupNode: self.nodeType.kind.isGroup,
-                   title: self.title,
-                   // layer nodes use keypaths
-                   inputs: self.layerNode == nil ? self._inputsObservers.map { $0.createSchema() } : [])
+                   nodeTypeEntity: self.nodeType.createSchema(),
+                   title: self.title)
     }
     
     func onPrototypeRestart() {
@@ -812,8 +577,8 @@ extension NodeViewModel: SchemaObserver {
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self._inputsObservers.onPrototypeRestart()
-        self._outputsObservers.onPrototypeRestart()
+        self.getAllInputsObservers().onPrototypeRestart()
+        self.getAllOutputsObservers().onPrototypeRestart()
         
         // Flatten interaction nodes' outputs when graph reset
         if patchNode?.patch.isInteractionPatchNode ?? false {
@@ -827,13 +592,13 @@ extension NodeViewModel: Identifiable { }
 extension NodeViewModel {
     @MainActor
     func activeIndexChanged(activeIndex: ActiveIndex) {
-        self._inputsObservers.forEach { observer in
+        self.getAllInputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = observer.getActiveValue(activeIndex: activeIndex)
             observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
         }
 
-        self._outputsObservers.forEach { observer in
+        self.getAllOutputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = observer.getActiveValue(activeIndex: activeIndex)
             observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
@@ -842,14 +607,15 @@ extension NodeViewModel {
     
     @MainActor
     var inputPortCount: Int {
-        switch kind {
-        case .layer(let layer):
-            return layer.layerGraphNode.inputDefinitions.count
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode.layer
+                .layerGraphNode.inputDefinitions.count
         case .group:
             return self.graphDelegate?.getSplitterRowObservers(for: self.id,
                                                                type: .input).count ?? 0
-        case .patch:
-            return self._inputsObservers.count
+        case .patch(let patchNode):
+            return patchNode.inputsObservers.count
         }
     }
     
@@ -861,14 +627,14 @@ extension NodeViewModel {
                                                                type: .output).count ?? 0
         default:
             // Layers also use this
-            return self._outputsObservers.count
+            return self.getAllOutputsObservers().count
         }
     }
     
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor
     func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> PortValuesList {
-        self._inputsObservers
+        self.getAllInputsObservers()
             .filter { $0.hasUpstreamInteractionNode(nodes) }
             .map(\.allLoopedValues)
     }
@@ -882,7 +648,7 @@ extension NodeViewModel {
             return
         }
 
-        self._outputsObservers[safe: portId]?
+        self.getAllOutputsObservers()[safe: portId]?
             .updateValues(values,
                           activeIndex: activeIndex,
                           isVisibleInFrame: self.isVisibleInFrame)
@@ -891,7 +657,7 @@ extension NodeViewModel {
     @MainActor
     func updateOutputs(_ newOutputsValues: PortValuesList,
                        activeIndex: ActiveIndex) {
-        self._outputsObservers
+        self.getAllOutputsObservers()
             .updateAllValues(newOutputsValues,
                              nodeIO: .output,
                              nodeId: self.id,
@@ -905,6 +671,11 @@ extension NodeViewModel {
     // the extension will happen at eval-time
     @MainActor
     func inputAdded() {
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // assumes new input has no label, etc.
         log("inputAdded called")
         let allInputsObservers = self.getRowObservers(.input)
@@ -930,23 +701,28 @@ extension NodeViewModel {
                                                nodeIOType: .input,
                                                nodeDelegate: lastRowObserver.nodeDelegate)
         
-        self._inputsObservers.append(newInputObserver)
+        patchNode.inputsObservers.append(newInputObserver)
     }
 
     @MainActor
     func inputRemoved(minimumInputs: Int) {
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // assumes new input has no label, etc.
         log("inputRemoved called")
         
-        guard self._inputsObservers.count > minimumInputs else {
+        guard self.getAllInputsObservers().count > minimumInputs else {
             return
         }
 
-        self._inputsObservers = self._inputsObservers.dropLast()
+        patchNode.inputsObservers = patchNode.inputsObservers.dropLast()
     }
     
-    func flattenOutputs() {
-        self._outputsObservers.forEach { output in
+    @MainActor func flattenOutputs() {
+        self.getAllOutputsObservers().forEach { output in
             if let firstValue = output.allLoopedValues.first {
                 output.allLoopedValues = [firstValue]
             }
@@ -954,6 +730,11 @@ extension NodeViewModel {
     }
     
     func appendInputRowObserver(_ rowObserver: NodeRowObserver) {
-        self._inputsObservers.append(rowObserver)
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        patchNode.inputsObservers.append(rowObserver)
     }
 }

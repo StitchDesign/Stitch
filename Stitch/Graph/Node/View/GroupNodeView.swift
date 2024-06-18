@@ -11,29 +11,30 @@ import StitchSchemaKit
 
 struct GroupNodeView: View {
     @Bindable var graph: GraphState
-    @Bindable var viewModel: NodeViewModel
+    @Bindable var nodeViewModel: NodeViewModel
+    @Bindable var canvasViewModel: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeId?
     let activeIndex: ActiveIndex
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var id: NodeId {
-        self.viewModel.id
+        self.nodeViewModel.id
     }
 
     @MainActor
     var displayTitle: String {
-        self.viewModel.displayTitle
+        self.nodeViewModel.displayTitle
     }
 
     @MainActor
     var isSelected: Bool {
-        viewModel.isSelected
+        canvasViewModel.isSelected
     }
 
     var body: some View {
         NodeView(graph: graph,
-                 node: viewModel,
+                 node: nodeViewModel,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,
@@ -50,7 +51,7 @@ struct GroupNodeView: View {
     @MainActor
     func inputsViews() -> some View {
         DefaultNodeRowView(graph: graph,
-                           node: viewModel,
+                           node: nodeViewModel,
                            nodeIO: .input,
                            isNodeSelected: isSelected,
                            adjustmentBarSessionId: adjustmentBarSessionId)
@@ -59,7 +60,7 @@ struct GroupNodeView: View {
     @ViewBuilder @MainActor
     func outputsViews() -> some View {
         DefaultNodeRowView(graph: graph,
-                           node: viewModel,
+                           node: nodeViewModel,
                            nodeIO: .output,
                            isNodeSelected: isSelected,
                            adjustmentBarSessionId: adjustmentBarSessionId)
