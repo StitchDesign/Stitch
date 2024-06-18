@@ -148,6 +148,7 @@ struct LayerInspectorSectionView: View {
                                        layerNode: layerNode,
                                        graph: graph)
             }
+            .transition(.slideInAndOut(edge: .top))
         } header: {
             HStack  {
                 StitchTextView(string: title)
@@ -158,10 +159,13 @@ struct LayerInspectorSectionView: View {
                                       axis: (x: 0, y: 0, z: rotationZ))
                     .animation(.linear(duration: 0.2), value: rotationZ)
             }
+            .padding(4)
             .contentShape(Rectangle())
-            .border(.green)
             .onTapGesture {
-                self.expanded.toggle()
+                withAnimation {
+                    self.expanded.toggle()
+                }
+                
             }
         }
     }
