@@ -94,7 +94,9 @@ struct LayerInspectorView: View {
                 section("Group", Self.groupLayer)
             }
             
-            section("Enabled", Self.unknown)
+            if layerNode.layer.supportsUnknownInputs {
+                section("Enabled", Self.unknown)
+            }
             
             if layerNode.layer.supportsTypographyInputs {
                 section("Typography", Self.text)
@@ -104,39 +106,17 @@ struct LayerInspectorView: View {
                 section("Stroke", Self.stroke)
             }
             
-            section("Rotation", Self.rotation)
-            section("Shadow", Self.shadow)
-            section("Layer Effects", Self.effects)
-        }
-    }
-}
-
-// TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
-extension Layer {
-    var supportsTypographyInputs: Bool {
-        switch self {
-        case .text, .textField:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var supportsGroupInputs: Bool {
-        switch self {
-        case .group:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var supportsStrokeInputs: Bool {
-        switch self {
-        case .shape, .oval, .rectangle:
-            return true
-        default:
-            return false
+            if layerNode.layer.supportsRotationInputs {
+                section("Rotation", Self.rotation)
+            }
+            
+            if layerNode.layer.supportsShadowInputs {
+                section("Shadow", Self.shadow)
+            }
+            
+            if layerNode.layer.supportsLayerEffectInputs {
+                section("Layer Effects", Self.effects)
+            }
         }
     }
 }
@@ -369,7 +349,6 @@ extension LayerInspectorView {
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-        
     ]
     
     @MainActor
@@ -383,6 +362,53 @@ extension LayerInspectorView {
         .hueRotation,
         .saturation
     ]
+}
+
+// TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
+extension Layer {
+    
+ 
+    @MainActor
+    var supportsGroupInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.groupLayer).isEmpty
+    }
+    
+    @MainActor
+    var supportsUnknownInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.unknown).isEmpty
+    }
+    
+    @MainActor
+    var supportsTypographyInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.text).isEmpty
+    }
+    
+    @MainActor
+    var supportsStrokeInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.stroke).isEmpty
+    }
+
+    @MainActor
+    var supportsRotationInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.rotation).isEmpty
+    }
+    
+    @MainActor
+    var supportsShadowInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.shadow).isEmpty
+    }
+    
+    @MainActor
+    var supportsLayerEffectInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
+    }
 }
 
 extension LayerInputType: Identifiable {
