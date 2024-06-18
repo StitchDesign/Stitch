@@ -24,21 +24,6 @@ final class NodeCanvasViewModel {
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
     
-    var title: String {
-        didSet(oldValue) {
-            if oldValue != title {
-                self._cachedDisplayTitle = self.getDisplayTitle()
-            }
-        }
-    }
-    
-    /*
-     human-readable-string is perf-intensive, so we cache the node title.
-
-     Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
-     */
-    private var _cachedDisplayTitle: String = ""
-    
     // Moved state here for render cycle perf on port view for colors
     @MainActor
     var isSelected: Bool = false {
@@ -75,10 +60,7 @@ final class NodeCanvasViewModel {
         self.bounds = bounds
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
-        self.title = title
         self.nodeDelegate = nodeDelegate
-        
-        self._cachedDisplayTitle = self.getDisplayTitle()
     }
 }
 
@@ -91,30 +73,8 @@ extension NodeCanvasViewModel {
         self.nodeDelegate?.kind
     }
     
-    func getDisplayTitle() -> String {
-        guard let kind = self.kind else {
-            return ""
-        }
-        
-        return self.getDisplayTitle(kind: kind)
-    }
-    
-    // MARK: heavy perf cost due to human readable strings.**
-    func getDisplayTitle(kind: NodeKind) -> String {
-        // always prefer a custom name
-        kind.getDisplayTitle(customName: self.title)
-    }
-    
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
-    }
-    
-    var displayTitle: String {
-        guard self.id != Self.nilChoice.id else {
-            return "None"
-        }
-        
-        return self._cachedDisplayTitle
     }
     
     var isNodeMoving: Bool {

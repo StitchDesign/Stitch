@@ -27,9 +27,20 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
     
-//    // Used for data-intensive purposes (eval)
-//    private var _inputsObservers: NodeRowObservers = []
-//    private var _outputsObservers: NodeRowObservers = []
+    var title: String {
+        didSet(oldValue) {
+            if oldValue != title {
+                self._cachedDisplayTitle = self.getDisplayTitle()
+            }
+        }
+    }
+
+    /*
+     human-readable-string is perf-intensive, so we cache the node title.
+
+     Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
+     */
+    private var _cachedDisplayTitle: String = ""
 
     var nodeType: NodeViewModelType
     
@@ -64,7 +75,9 @@ final class NodeViewModel: Sendable {
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
+        self.title = schema.title
         self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
+        self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
@@ -409,6 +422,14 @@ extension NodeViewModel {
         default:
             return .commonNodeColor
         }
+    }
+
+    var displayTitle: String {
+        guard self.id != Self.nilChoice.id else {
+            return "None"
+        }
+
+        return self._cachedDisplayTitle
     }
     
     @MainActor
