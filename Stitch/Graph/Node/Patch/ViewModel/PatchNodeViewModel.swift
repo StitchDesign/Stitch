@@ -38,6 +38,10 @@ final class PatchNodeViewModel: Sendable {
     
     let canvasObserver: NodeCanvasViewModel
     
+    // Used for data-intensive purposes (eval)
+    var inputsObservers: NodeRowObservers = []
+    var outputsObservers: NodeRowObservers = []
+    
     // Only for Math Expression nodes
     var mathExpression: String?
     
@@ -53,9 +57,24 @@ final class PatchNodeViewModel: Sendable {
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
         
-        // TODO: build canvas here
+        // TODO: build canvas and input/output data
         fatalError()
-//        self.canvasObserver = ...
+
+        //        self.canvasObserver = ...
+        
+        // MARK: this is the exact code that was in NodeViewModel init
+//        // Must set inputs before calling eval below
+//        self._inputsObservers = schema.inputs
+//            .createInputObservers(nodeId: schema.id,
+//                                  kind: self.kind,
+//                                  userVisibleType: schema.patchNodeEntity?.userVisibleType,
+//                                  nodeDelegate: self)
+//
+//        self._outputsObservers = rowDefinitions
+//            .createOutputObservers(nodeId: schema.id,
+//                                   values: self.defaultOutputsList,
+//                                   nodeDelegate: self)
+        
     }
 }
 
@@ -163,6 +182,11 @@ extension PatchNodeViewModel {
         set(newValue) {
             self.canvasObserver.parentGroupNodeId = newValue
         }
+    }
+    
+    /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
+    func _getInputObserversForEncoding() -> NodeRowObservers {
+        self._inputsObservers
     }
 }
 

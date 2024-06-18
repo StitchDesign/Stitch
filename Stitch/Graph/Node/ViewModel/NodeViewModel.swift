@@ -27,11 +27,9 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
     
-    // Used for data-intensive purposes (eval)
-    // We use a class as a hack to prevent renders caused by data-side values
-    // TODO: can these really start out empty?
-    private var _inputsObservers: NodeRowObservers = []
-    private var _outputsObservers: NodeRowObservers = []
+//    // Used for data-intensive purposes (eval)
+//    private var _inputsObservers: NodeRowObservers = []
+//    private var _outputsObservers: NodeRowObservers = []
 
     var nodeType: NodeViewModelType
     
@@ -72,9 +70,9 @@ final class NodeViewModel: Sendable {
         self.graphDelegate = graphDelegate
         self.layerNode?.nodeDelegate = self
         self.patchNode?.canvasObserver.nodeDelegate = self
-
-        // TODO: this gets removed with split up layer nodes
-        self.layerNode?.canvasObserver.nodeDelegate = self
+        self.layerNode?.getAllCanvasObservers().forEach {
+            $0.nodeDelegate = self
+        }
 
         // Create initial inputs and outputs using default data
         let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
@@ -94,41 +92,9 @@ final class NodeViewModel: Sendable {
                 let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
                 rowObserver.nodeDelegate = self
                 
-                // TODO: Elliot to figure out updating values
-//                switch rowSchema {
-//                case .upstreamConnection(let upstreamCoordinate):
-//                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
-//                case .values(let values):
-//                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
-//                    
-//                    rowObserver.updateValues(values,
-//                                             activeIndex: self.activeIndex,
-//                                             isVisibleInFrame: self.isVisibleInFrame,
-//                                             isInitialization: true)
-//                }
-                
-                // Add outputs for the few layer nodes that use them
-                self._outputsObservers = rowDefinitions
-                    .createOutputObservers(nodeId: schema.id,
-                                           values: self.defaultOutputsList,
-                                           nodeDelegate: self)
-                
                 assertInDebug(!rowObserver.allLoopedValues.isEmpty)
             }
-        } else if self.kind.isPatch {
-            // Must set inputs before calling eval below
-            self._inputsObservers = schema.inputs
-                .createInputObservers(nodeId: schema.id,
-                                      kind: self.kind,
-                                      userVisibleType: schema.patchNodeEntity?.userVisibleType,
-                                      nodeDelegate: self)
-    
-            self._outputsObservers = rowDefinitions
-                .createOutputObservers(nodeId: schema.id,
-                                       values: self.defaultOutputsList,
-                                       nodeDelegate: self)
         }
-
         // Initialize layers
         self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
                                         id: self.id)
@@ -184,18 +150,13 @@ final class NodeViewModel: Sendable {
                   graphDelegate: graphDelegate)
         
         self.nodeType = nodeType
-        self._outputsObservers = NodeRowObservers(values: outputs,
-                                                 kind: self.kind,
-                                                 userVisibleType: self.userVisibleType,
-                                                 id: id,
-                                                 nodeIO: .output,
-                                                 activeIndex: activeIndex,
-                                                 nodeDelegate: self)
-    }
-    
-    /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
-    func _getInputObserversForEncoding() -> NodeRowObservers {
-        self._inputsObservers
+        self.patchNode?.outputsObservers = NodeRowObservers(values: outputs,
+                                                            kind: self.kind,
+                                                            userVisibleType: self.userVisibleType,
+                                                            id: id,
+                                                            nodeIO: .output,
+                                                            activeIndex: activeIndex,
+                                                            nodeDelegate: self)
     }
 }
 
@@ -281,8 +242,10 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
         }
         
         // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
-        (self._inputsObservers + self._outputsObservers).forEach {
-            $0.userVisibleType = newType
+        if let patchNode = self.patchNode {
+            (patchNode.inputsObservers + patchNode.outputsObservers).forEach {
+                $0.userVisibleType = newType
+            }
         }
     }
 }
@@ -310,6 +273,8 @@ extension NodeViewModel {
     // Update both
     @MainActor
     func updateRowObservers(activeIndex: ActiveIndex) {
+        // TODO: iterate over each row observer for each canvas....
+        
         // Do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
@@ -350,9 +315,9 @@ extension NodeViewModel {
             if let layerNode = self.layerNode {
                 return layerNode.getSortedInputObservers()
             }
-            return self._inputsObservers
+            return self.patchNode?.inputsObservers ?? []
         case .output:
-            return self._outputsObservers
+            return self.patchNode?.outputsObservers ?? []
         }
     }
     
@@ -360,7 +325,8 @@ extension NodeViewModel {
     func getInputRowObserver(for portType: NodeIOPortType) -> NodeRowObserver? {
         switch portType {
         case .portIndex(let portId):
-            return self._inputsObservers[safe: portId]
+            // Assumes patch node for port ID
+            return self.patchNode?.inputsObservers[safe: portId]
 
         case .keyPath(let keyPath):
             guard let layerNode = self.layerNode else {
