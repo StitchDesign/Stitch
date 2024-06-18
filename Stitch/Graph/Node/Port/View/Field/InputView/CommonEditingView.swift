@@ -29,6 +29,8 @@ struct CommonEditingView: View {
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
 
+    let forPropertySidebar: Bool // = false
+    
     var fieldCoordinate: FieldCoordinate {
         FieldCoordinate(input: id,
                         fieldIndex: fieldIndex)
@@ -37,7 +39,11 @@ struct CommonEditingView: View {
     // Important perf check to prevent instantiations of editing view
     @MainActor
     var showEditingView: Bool {
-        thisFieldIsFocused && isNodeSelected && !isSelectionBoxInUse
+        if forPropertySidebar {
+           return thisFieldIsFocused
+        } else {
+            return thisFieldIsFocused && isNodeSelected && !isSelectionBoxInUse
+        }
     }
     
     @MainActor
@@ -45,7 +51,7 @@ struct CommonEditingView: View {
         switch graph.graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == fieldCoordinate
-            // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
+//             log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
             return k
         default:
             // log("CommonEditingView: thisFieldIsFocused: false")

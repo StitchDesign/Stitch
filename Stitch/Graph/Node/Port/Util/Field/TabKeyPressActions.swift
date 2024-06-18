@@ -131,10 +131,8 @@ extension NodeViewModel {
                 return .fakeFieldCoordinate // should never happen
             }
             
-            let layerInputs = layer.layerGraphNode.inputDefinitions.filter({
-                $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
-            })
-            
+            let layerInputs = layer.textInputsForThisLayer
+                        
             guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
                   let firstInput = layerInputs.first,
                   let lastInput = layerInputs.last else {
@@ -159,6 +157,25 @@ extension NodeViewModel {
             }
             
         } // switch
+    }
+}
+
+extension Layer {
+    var textInputsForThisLayer: [LayerInputType] {
+        
+        let layer = self
+        
+        // text-field-using inputs for this layer
+        let thisLayersTextUsingInputs = layer.layerGraphNode.inputDefinitions.filter({
+            $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
+        })
+        
+        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use tex-field
+        let layerInputs = LayerInspectorView.allInputs.filter { masterListInput in
+            thisLayersTextUsingInputs.contains(masterListInput)
+        }
+        
+        return layerInputs
     }
 }
 
@@ -253,10 +270,8 @@ extension NodeViewModel {
                 fatalErrorIfDebug()
                 return .fakeFieldCoordinate // should never happen
             }
-            
-            let layerInputs = layer.layerGraphNode.inputDefinitions.filter({
-                $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
-            })
+
+            let layerInputs = layer.textInputsForThisLayer
             
             guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
                   let firstInput = layerInputs.first,

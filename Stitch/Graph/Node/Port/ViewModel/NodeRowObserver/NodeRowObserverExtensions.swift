@@ -145,7 +145,6 @@ extension NodeRowObserver {
             if self.nodeIOType == .input,
                let mathExpr = self.nodeDelegate?.getMathExpression?.getSoulverVariables(),
                let variableChar = mathExpr[safe: portId] {
-//                return String(variableChar)
                 return String(variableChar)
             }
             
