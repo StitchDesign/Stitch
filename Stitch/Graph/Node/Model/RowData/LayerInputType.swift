@@ -950,7 +950,11 @@ extension LayerInputType {
         }
     }
     
-    var label: String {
+//    var label: String {
+    
+    // shortLabel = used for property sidebar
+    func label(_ useShortLabel: Bool = false) -> String {
+//    func label(_ useShortLabel: Bool) -> String {
         switch self {
             // Required everywhere
         case .position:
@@ -1030,20 +1034,19 @@ extension LayerInputType {
             return "Shape"
             
         case .strokePosition:
-            return "Stroke Position"
+            return useShortLabel ? "Position" : "Stroke Position"
         case .strokeWidth:
-            return "Stroke Width"
+            return useShortLabel ? "Width" : "Stroke Width"
         case .strokeColor:
-            return "Stroke Color"
+            return useShortLabel ? "Color" : "Stroke Color"
         case .strokeStart:
-            return "Stroke Start"
+            return useShortLabel ? "Start" : "Stroke Start"
         case .strokeEnd:
-            return "Stroke End"
+            return useShortLabel ? "End" : "Stroke End"
         case .strokeLineCap:
-            return "Stroke Line Cap"
+            return useShortLabel ? "Line Cap" : "Stroke Line Cap"
         case .strokeLineJoin:
-            return "Stroke Line Join"
-            
+            return useShortLabel ? "Line Join" : "Stroke Line Join"
         case .coordinateSystem:
             return "Coordinate System"
 
@@ -1103,13 +1106,13 @@ extension LayerInputType {
             return "End Radius"
             
         case .shadowColor:
-            return "Shadow Color"
+            return useShortLabel ? "Color" : "Shadow Color"
         case .shadowOpacity:
-            return "Shadow Opacity"
+            return useShortLabel ? "Opacity" : "Shadow Opacity"
         case .shadowRadius:
-            return "Shadow Radius"
+            return useShortLabel ? "Radius" : "Shadow Radius"
         case .shadowOffset:
-            return "Shadow Offset"
+            return useShortLabel ? "Offset" : "Shadow Offset"
         case .sfSymbol:
             return "SF Symbol"
             

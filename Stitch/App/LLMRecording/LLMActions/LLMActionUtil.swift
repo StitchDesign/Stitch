@@ -133,7 +133,7 @@ extension NodeIOCoordinate {
         
             // If we have a LayerNode input, use that label
         case .keyPath(let x):
-            return x.label
+            return x.label()
             
             // If we have a PatchNode input/output, or LayerNode output,
             // try to find the label per node definitions

@@ -28,7 +28,7 @@ struct NodeInputOutputView: View {
 
     @MainActor
     var label: String {
-        self.rowData.label
+        self.rowData.label(forLayerProperty)
     }
 
     var isSplitter: Bool {

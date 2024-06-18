@@ -139,7 +139,7 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    var label: String {
+    func label(_ useShortLabel: Bool = false) -> String {
         switch id.portType {
         case .portIndex(let portId):
             if self.nodeIOType == .input,
@@ -159,7 +159,7 @@ extension NodeRowObserver {
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
             
         case .keyPath(let keyPath):
-            return keyPath.label
+            return keyPath.label(useShortLabel)
         }
     }
     

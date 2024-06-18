@@ -42,7 +42,7 @@ struct PressInteractionNode: PatchNodeDefinition {
                     type: .pulse
                 ),
                 .init(
-                    label: LayerInputType.position.label,
+                    label: LayerInputType.position.label(),
                     type: .position
                 ),
                 .init(
