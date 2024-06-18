@@ -26,28 +26,6 @@ final class NodeViewModel: Sendable {
         graphDelegate: nil)
 
     var id: NodeEntity.ID
-
-    var position: CGPoint = .zero
-    var previousPosition: CGPoint = .zero
-    var bounds = NodeBounds()
-
-    // ui placement
-    var zIndex: Double = .zero
-
-    var title: String {
-        didSet(oldValue) {
-            if oldValue != title {
-                self._cachedDisplayTitle = self.getDisplayTitle()
-            }
-        }
-    }
-
-    /*
-     human-readable-string is perf-intensive, so we cache the node title.
-
-     Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
-     */
-    private var _cachedDisplayTitle: String = ""
     
     // Used for data-intensive purposes (eval)
     // We use a class as a hack to prevent renders caused by data-side values
@@ -56,37 +34,9 @@ final class NodeViewModel: Sendable {
     private var _outputsObservers: NodeRowObservers = []
 
     var nodeType: NodeViewModelType
-
-    var parentGroupNodeId: NodeId?
-
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame = false
     
     // Cached for perf
     var longestLoopLength: Int = 1
-    
-    // Moved state here for render cycle perf on port view for colors
-    @MainActor
-    var isSelected: Bool = false {
-        didSet {
-            guard let graph = graphDelegate else {
-                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
-                return
-            }
-            
-            // Move to didSet ?
-            updatePortColorDataUponNodeSelection(node: self,
-                                                 graphState: graph)
-            
-            // When a group node is selected, we also update the port view cache of its splitters.
-            if self.kind == .group {
-                updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterRowObservers(for: self.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: self.id, type: .output),
-                    graphState: graph)
-            }
-        }
-    }
 
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
@@ -110,23 +60,21 @@ final class NodeViewModel: Sendable {
         }
     }
     
-    // i.e. "create node view model from schema"
+    // i.e. "create node view model from schema
     @MainActor
     init(from schema: NodeEntity,
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
-        self.position = schema.position
-        self.previousPosition = schema.position
-        self.zIndex = schema.zIndex
-        self.title = schema.title
-        self.parentGroupNodeId = schema.parentGroupNodeId
         self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
-        self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
         self.layerNode?.nodeDelegate = self
+        self.patchNode?.canvasObserver.nodeDelegate = self
+
+        // TODO: this gets removed with split up layer nodes
+        self.layerNode?.canvasObserver.nodeDelegate = self
 
         // Create initial inputs and outputs using default data
         let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
@@ -146,17 +94,18 @@ final class NodeViewModel: Sendable {
                 let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
                 rowObserver.nodeDelegate = self
                 
-                switch rowSchema {
-                case .upstreamConnection(let upstreamCoordinate):
-                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
-                case .values(let values):
-                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
-                    
-                    rowObserver.updateValues(values,
-                                             activeIndex: self.activeIndex,
-                                             isVisibleInFrame: self.isVisibleInFrame,
-                                             isInitialization: true)
-                }
+                // TODO: Elliot to figure out updating values
+//                switch rowSchema {
+//                case .upstreamConnection(let upstreamCoordinate):
+//                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
+//                case .values(let values):
+//                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
+//                    
+//                    rowObserver.updateValues(values,
+//                                             activeIndex: self.activeIndex,
+//                                             isVisibleInFrame: self.isVisibleInFrame,
+//                                             isInitialization: true)
+//                }
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions
@@ -358,10 +307,6 @@ extension NodeViewModel {
         return observer
     }
 
-    var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
-    }
-
     // Update both
     @MainActor
     func updateRowObservers(activeIndex: ActiveIndex) {
@@ -498,18 +443,6 @@ extension NodeViewModel {
         default:
             return .commonNodeColor
         }
-    }
-
-    var displayTitle: String {
-        guard self.id != Self.nilChoice.id else {
-            return "None"
-        }
-
-        return self._cachedDisplayTitle
-    }
-
-    var isNodeMoving: Bool {
-        self.position != self.previousPosition
     }
     
     @MainActor

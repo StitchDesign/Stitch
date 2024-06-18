@@ -240,12 +240,6 @@ extension NodeViewModel {
         }
     }
     
-    // MARK: heavy perf cost due to human readable strings.**
-    func getDisplayTitle() -> String {
-        // always prefer a custom name
-        self.kind.getDisplayTitle(customName: self.title)
-    }
-    
     var layerNodeId: LayerNodeId {
         LayerNodeId(self.id)
     }

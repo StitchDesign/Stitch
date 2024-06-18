@@ -36,7 +36,7 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var isNodeMoving: Bool { get }
     
-    @MainActor var zIndex: Double { get }
+//    @MainActor var zIndex: Double { get }
     
     @MainActor var isSelected: Bool { get set }
     

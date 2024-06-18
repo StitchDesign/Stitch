@@ -11,7 +11,7 @@ import StitchSchemaKit
 enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
-    case group
+    case group(NodeCanvasViewModel)
 }
 
 extension NodeViewModelType {
@@ -26,7 +26,9 @@ extension NodeViewModelType {
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
         } else {
-            self = .group
+            // TODO: create canvas observable
+            fatalError()
+//            self = .group(create a canvas observer..)
         }
     }
 

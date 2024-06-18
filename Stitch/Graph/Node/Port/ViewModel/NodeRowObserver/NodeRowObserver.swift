@@ -172,18 +172,18 @@ final class NodeRowObserver: Identifiable, Sendable {
         postProcessing(oldValues: [], newValues: values)
     }
     
-    @MainActor
-    static func empty(_ layerInputType: LayerInputType,
-                      layer: Layer) -> Self {
-        Self.init(values: [layerInputType.getDefaultValue(for: layer)],
-                  nodeKind: .layer(.rectangle),
-                  userVisibleType: nil,
-                  id: .init(portId: -1, nodeId: .init()),
-                  activeIndex: .init(.zero),
-                  upstreamOutputCoordinate: nil,
-                  nodeIOType: .input,
-                  nodeDelegate: nil)
-    }
+//    @MainActor
+//    static func empty(_ layerInputType: LayerInputType,
+//                      layer: Layer) -> Self {
+//        Self.init(values: [layerInputType.getDefaultValue(for: layer)],
+//                  nodeKind: .layer(.rectangle),
+//                  userVisibleType: nil,
+//                  id: .init(portId: -1, nodeId: .init()),
+//                  activeIndex: .init(.zero),
+//                  upstreamOutputCoordinate: nil,
+//                  nodeIOType: .input,
+//                  nodeDelegate: nil)
+//    }
     
     /// Values for import dropdowns don't hold media directly, so we need to find it.
     @MainActor var importedMediaObject: StitchMediaObject? {

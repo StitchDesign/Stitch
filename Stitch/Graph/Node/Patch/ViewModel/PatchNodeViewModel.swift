@@ -36,6 +36,8 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
+    let canvasObserver: NodeCanvasViewModel
+    
     // Only for Math Expression nodes
     var mathExpression: String?
     
@@ -50,12 +52,18 @@ final class PatchNodeViewModel: Sendable {
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
-        self.delegate = delegate
+        
+        // TODO: build canvas here
+        fatalError()
+//        self.canvasObserver = ...
     }
 }
 
 extension PatchNodeViewModel: SchemaObserver {
     static func createObject(from entity: PatchNodeEntity) -> Self {
+        // TODO: patch needs canvas entity
+        fatalError()
+        
         self.init(from: entity)
     }
 
@@ -145,6 +153,15 @@ extension PatchNodeViewModel {
             self.splitterNode = SplitterNodeEntity(id: self.id,
                                                    lastModifiedDate: .init(),
                                                    type: newValue)
+        }
+    }
+    
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasObserver.parentGroupNodeId
+        }
+        set(newValue) {
+            self.canvasObserver.parentGroupNodeId = newValue
         }
     }
 }

@@ -226,6 +226,7 @@
 		B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */; };
 		B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */; };
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
+		B5F8D6A62C22282900B99E5C /* NodeCanvasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F8D6A52C22282900B99E5C /* NodeCanvasViewModel.swift */; };
 		B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */; };
 		B5F9EB9E28D3927F00112799 /* MockFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9D28D3927F00112799 /* MockFileManager.swift */; };
 		B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FE64B229641ACD004EB04B /* AsyncMediaImpureEvalResult.swift */; };
@@ -1103,6 +1104,7 @@
 		B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaLayerViewModifier.swift; sourceTree = "<group>"; };
 		B5F0FC152B4F2FB5009104A8 /* GraphReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphReducer.swift; sourceTree = "<group>"; };
 		B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "WhatToTest.en-US.txt"; sourceTree = "<group>"; };
+		B5F8D6A52C22282900B99E5C /* NodeCanvasViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCanvasViewModel.swift; sourceTree = "<group>"; };
 		B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagerTests.swift; sourceTree = "<group>"; };
 		B5F9EB9D28D3927F00112799 /* MockFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileManager.swift; sourceTree = "<group>"; };
 		B5FE64B229641ACD004EB04B /* AsyncMediaImpureEvalResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaImpureEvalResult.swift; sourceTree = "<group>"; };
@@ -2999,6 +3001,7 @@
 			children = (
 				EC0F33492BED93D9008093BC /* NodeDelegate.swift */,
 				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
+				B5F8D6A52C22282900B99E5C /* NodeCanvasViewModel.swift */,
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
@@ -4570,6 +4573,7 @@
 				EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */,
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
+				B5F8D6A62C22282900B99E5C /* NodeCanvasViewModel.swift in Sources */,
 				B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */,
