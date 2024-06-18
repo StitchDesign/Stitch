@@ -19,6 +19,8 @@ struct NodeInputOutputView: View {
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
+    var forLayerProperty: Bool = false
+    
     @MainActor
     private var graphUI: GraphUIState {
         self.graph.graphUI
@@ -43,11 +45,14 @@ struct NodeInputOutputView: View {
             // Fields and port ordering depending on input/output
             switch coordinateType {
             case .input(let inputCoordinate):
-                NodeRowPortView(graph: graph,
-                                node: node,
-                                rowData: rowData,
-                                showPopover: $showPopover, 
-                                coordinate: .input(inputCoordinate))
+                if !forLayerProperty {
+                    NodeRowPortView(graph: graph,
+                                    node: node,
+                                    rowData: rowData,
+                                    showPopover: $showPopover,
+                                    coordinate: .input(inputCoordinate))
+                }
+                
                 labelView
                 inputOutputRow(coordinate: coordinate)
 
@@ -57,11 +62,13 @@ struct NodeInputOutputView: View {
                     inputOutputRow(coordinate: coordinate)
                 }
                 labelView
-                NodeRowPortView(graph: graph,
-                                node: node,
-                                rowData: rowData,
-                                showPopover: $showPopover,
-                                coordinate: .output(outputCoordinate))
+                if !forLayerProperty {
+                    NodeRowPortView(graph: graph,
+                                    node: node,
+                                    rowData: rowData,
+                                    showPopover: $showPopover,
+                                    coordinate: .output(outputCoordinate))
+                }
             }
         }
         .frame(height: NODE_ROW_HEIGHT)
