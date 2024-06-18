@@ -48,9 +48,19 @@ struct LayerInspectorView: View {
     var body: some View {
         if let node = selectedLayerNode,
            let layerNode = node.layerNode {
-            selectedLayerView(node, layerNode)
-                .onAppear {
-                    #if DEV_DEBUG
+            
+            UIKitWrapper(ignoresKeyCommands: false,
+                         name: "LayerInspectorView") {
+                selectedLayerView(node, layerNode)
+                    .frame(idealHeight: .infinity)
+            }
+            // Takes care of the mysterious white top padding UIKitWrapper introduces
+            // TODO: compare on various iPads (using simulator?); -40 seems perfect for Catalyst
+                         .padding(.top, -40)
+            
+//            selectedLayerView(node, layerNode)
+//                .onAppear {
+//                    #if DEV_DEBUG
 //                    let listedLayers = Self.required
 //                        .union(Self.common)
 //                        .union(Self.groupLayer)
@@ -60,14 +70,14 @@ struct LayerInspectorView: View {
 //                        .union(Self.rotation)
 //                        .union(Self.shadow)
 //                        .union(Self.effects)
-//                    
+//
 //                    // TODO: make LayerInputType enum `CaseIterable`
 //                    let allLayers = LayerInputType.allCases
-//                    
+//
 //                    assert(listedLayers.count == allLayers)
-//                    
-                    #endif
-                }
+//
+//                    #endif
+//                }
         } else {
             // Empty List, so have same background
             List { }
@@ -150,7 +160,7 @@ struct LayerInspectorPortView: View {
                                 nodeKind: .layer(layerNode.layer),
                                 isNodeSelected: false,
                                 adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
-                                forLayerProperty: true)
+                                forPropertySidebar: true)
         } else {
             EmptyView()
         }
@@ -217,6 +227,19 @@ struct LayerInspectorSectionView: View {
 extension LayerInspectorView {
     // TODO: fill these out
         
+    // TODO: better?: make the LayerInputTypeSet enum CaseIterable and have the enum ordering as the source of truth for this order 
+    @MainActor
+    static let allInputs: LayerInputTypeSet = Self.required
+        .union(Self.common)
+        .union(Self.groupLayer)
+        .union(Self.unknown)
+        .union(Self.text)
+        .union(Self.stroke)
+        .union(Self.rotation)
+        .union(Self.shadow)
+        .union(Self.effects)
+    
+    
     @MainActor
     static let required: LayerInputTypeSet = [
         .position,

@@ -19,7 +19,7 @@ struct NodeInputOutputView: View {
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
-    var forLayerProperty: Bool = false
+    var forPropertySidebar: Bool = false
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -28,7 +28,7 @@ struct NodeInputOutputView: View {
 
     @MainActor
     var label: String {
-        self.rowData.label(forLayerProperty)
+        self.rowData.label(forPropertySidebar)
     }
 
     var isSplitter: Bool {
@@ -45,7 +45,7 @@ struct NodeInputOutputView: View {
             // Fields and port ordering depending on input/output
             switch coordinateType {
             case .input(let inputCoordinate):
-                if !forLayerProperty {
+                if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowData: rowData,
@@ -62,7 +62,7 @@ struct NodeInputOutputView: View {
                     inputOutputRow(coordinate: coordinate)
                 }
                 labelView
-                if !forLayerProperty {
+                if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowData: rowData,
@@ -101,7 +101,8 @@ struct NodeInputOutputView: View {
                 nodeIO: coordinateType.nodeIO,
                 isNodeSelected: isNodeSelected,
                 hasIncomingEdge: rowData.upstreamOutputCoordinate.isDefined,
-                adjustmentBarSessionId: adjustmentBarSessionId
+                adjustmentBarSessionId: adjustmentBarSessionId,
+                forPropertySidebar: forPropertySidebar
             )
         }
     }
