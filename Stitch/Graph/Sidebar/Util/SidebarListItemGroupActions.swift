@@ -44,8 +44,6 @@ extension GraphState {
     }
 }
 
-
-
 struct SidebarListItemGroupClosed: GraphEventWithResponse {
 
     let closedParentId: LayerNodeId

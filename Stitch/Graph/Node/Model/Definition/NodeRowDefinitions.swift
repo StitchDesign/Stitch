@@ -42,7 +42,7 @@ extension NodeRowDefinitions {
          layer: Layer) {
         let inputs = layerInputs.map { layerInput in
             NodeInputDefinition(defaultValues: [layerInput.getDefaultValue(for: layer)],
-                                label: layerInput.label,
+                                label: layerInput.label(),
                                 layerInputType: layerInput)
         }
         

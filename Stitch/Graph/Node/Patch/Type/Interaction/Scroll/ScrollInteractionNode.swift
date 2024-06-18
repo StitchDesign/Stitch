@@ -127,7 +127,7 @@ struct ScrollInteractionNode: PatchNodeDefinition {
             ],
             outputs: [
                 .init(
-                    label: LayerInputType.position.label,
+                    label: LayerInputType.position.label(),
                     type: .position
                 )
             ]

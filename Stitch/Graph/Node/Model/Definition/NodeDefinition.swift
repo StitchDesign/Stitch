@@ -46,7 +46,6 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     static var inputDefinitions: LayerInputTypeSet { get }
     
-    
     @MainActor
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
