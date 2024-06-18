@@ -59,13 +59,38 @@ Stitch itself is built primarily in SwiftUI. It’s also meant to match what can
 
 For example, the Spring Animation Node uses the native SwiftUI `Spring`, which powers SwiftUI animations.
 
-![Spring Animation Number Op](README_Assets/SpringAnimationNumberOp.png)
+```func springAnimationNumberOp(values: PortValues, // ie inputs and outputs
+// Use SwiftUI native Spring to model damping, stiffness etc.
+let spring = Spring(mass: mass,
+		stiffness: stiffness,
+		damping: damping)
+```
 
 
 
 Similarly, the Text Layer Node is just an interface to the native SwiftUI Text :
 
-![Layer Text View](README_Assets/LayerTextView.png)
+```
+struct LayerTextView: View {
+    let value: String
+    let color: Color
+    let fontSize: LayerDimension
+    let textAlignment: LayerTextAlignment
+    let verticalAlignment: LayerTextVerticalAlignment
+    let textDecoration: LayerTextDecoration
+    let textFont: StitchFont
+
+    var body: some View {
+        Text(value)
+            .font(.system(size: fontSize.asNumber,
+                          weight: textFont.fontWeight.asFontWeight,
+                          design: textFont.fontWeight.asFontWeight))
+            .foregroundColor(color)
+            .underline(textDecoration.isUnderline, pattern: .solid)
+            .strikethrough(textDecoration.isStrikethrough, pattern: .solid)
+    }
+}
+```
 
 
 
@@ -77,7 +102,7 @@ The core of each node is its "eval" function. On each graph step, a node's eval 
 
 
 
-![Graph State](README_Assets/GraphState.png)
+![Graph State](README_Assets/GraphStateDrawing.png)
 
 
 
