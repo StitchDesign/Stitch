@@ -63,21 +63,21 @@ struct LayerInspectorView: View {
 //            selectedLayerView(node, layerNode)
 //                .onAppear {
 //                    #if DEV_DEBUG
-////                    let listedLayers = Self.required
-////                        .union(Self.common)
-////                        .union(Self.groupLayer)
-////                        .union(Self.unknown)
-////                        .union(Self.text)
-////                        .union(Self.stroke)
-////                        .union(Self.rotation)
-////                        .union(Self.shadow)
-////                        .union(Self.effects)
-////                    
-////                    // TODO: make LayerInputType enum `CaseIterable`
-////                    let allLayers = LayerInputType.allCases
-////                    
-////                    assert(listedLayers.count == allLayers)
-////                    
+//                    let listedLayers = Self.required
+//                        .union(Self.common)
+//                        .union(Self.groupLayer)
+//                        .union(Self.unknown)
+//                        .union(Self.text)
+//                        .union(Self.stroke)
+//                        .union(Self.rotation)
+//                        .union(Self.shadow)
+//                        .union(Self.effects)
+//
+//                    // TODO: make LayerInputType enum `CaseIterable`
+//                    let allLayers = LayerInputType.allCases
+//
+//                    assert(listedLayers.count == allLayers)
+//
 //                    #endif
 //                }
         } else {
@@ -233,6 +233,19 @@ struct LayerInspectorSectionView: View {
 extension LayerInspectorView {
     // TODO: fill these out
         
+    // TODO: better?: make the LayerInputTypeSet enum CaseIterable and have the enum ordering as the source of truth for this order 
+    @MainActor
+    static let allInputs: LayerInputTypeSet = Self.required
+        .union(Self.common)
+        .union(Self.groupLayer)
+        .union(Self.unknown)
+        .union(Self.text)
+        .union(Self.stroke)
+        .union(Self.rotation)
+        .union(Self.shadow)
+        .union(Self.effects)
+    
+    
     @MainActor
     static let required: LayerInputTypeSet = [
         .position,
