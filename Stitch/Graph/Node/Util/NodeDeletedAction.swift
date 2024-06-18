@@ -49,7 +49,7 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
-    func selectedGraphNodesDeleted(selectedNodes: IdSet) {
+    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
 
         self.selectedCanvasItems.forEach {
             self.deleteCanvasItem($0.id)
@@ -86,20 +86,19 @@ extension GraphState {
         case .node(let x):
             self.deleteNode(id: x)
         
-        case .layerInputOnGraph(let x):
+        case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerInputOnGraph(x)?.canvasUIData = nil
+            self.getLayerInputOnGraph(x)?.canvasItemDelegate = nil
             
-        case .layerOutputOnGraph(let x):
+        case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerOutputOnGraph(x)?.canvasUIData = nil
+            self.getLayerOutputOnGraph(x)?.canvasItemDelegate = nil
         }
     }
-
     
     @MainActor
     func deleteNode(id: NodeId,
-                    willDeleteLayerChildren: Bool = true) {
+                    willDeleteLayerGroupChildren: Bool = true) {
 
         //    log("deleteNode called, will delete node \(id)")
         
@@ -111,7 +110,7 @@ extension GraphState {
         // Find nodes to recursively delete
         switch node.kind {
         case .layer(let layer) where layer == .group:
-            if willDeleteLayerChildren {
+            if willDeleteLayerGroupChildren {
                 let layerChildren = self.getLayerChildren(for: id)
                 layerChildren.forEach {
                     self.deleteNode(id: $0)
@@ -175,7 +174,7 @@ extension GraphState {
 extension CommentBoxesDict {
     // Removes a node from any the node-set of any comment boxes that have it
     // Note: comment-boxes-bounds-dict does not contain node if
-    func removeNode(_ nodeId: NodeId) {
+    func removeNode(_ nodeId: CanvasItemId) {
         self.values.forEach { box in
             box.nodes.remove(nodeId)
         }

@@ -152,9 +152,8 @@ extension GraphState {
         // If we're currently dragging node(s), treat graph momentum's change
         // of the graph's position as a change of a node's current and starting position (i.e. node.position and node.previousPosition)
         if graphState.graphMovement.canvasItemIsDragged {
-            graphState.selectedNodeIds.forEach { (id: NodeId) in
-                if var node = graphState.visibleNodesViewModel
-                    .getViewModel(id) {
+            graphState.selectedNodeIds.forEach { id in
+                if let node = graphState.getCanvasItem(id) {
                     node.previousPosition -= adjustment
                     node.position -= adjustment
                 }

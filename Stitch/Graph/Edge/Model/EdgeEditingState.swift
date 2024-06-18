@@ -29,13 +29,13 @@ extension PossibleEdge {
 
 typealias PossibleEdgeSet = Set<PossibleEdge>
 
-struct EdgeEditingState: Equatable, Hashable {
+struct EdgeEditingState {
 
     // currently hovered-over output
     var originOutput: OutputPortViewData
 
     // the node that is east of, and the shortest distance from, the origin node
-    var nearbyNode: NodeId
+    var nearbyNode: CanvasItemId
 
     var possibleEdges: PossibleEdgeSet
 

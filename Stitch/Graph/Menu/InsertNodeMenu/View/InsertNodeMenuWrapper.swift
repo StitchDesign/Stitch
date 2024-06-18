@@ -38,7 +38,7 @@ struct InsertNodeMenuWrapper: View {
     // doesn't really matter, since overridden by actual node size
     @State private var nodeWidth: CGFloat = 300.0
     @State private var nodeHeight: CGFloat = 200.0
-    @State private var animatedNode: NodeViewModel?
+    @State private var animatedNode: CanvasItemViewModel?
 
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
@@ -245,9 +245,12 @@ struct InsertNodeMenuWrapper: View {
     func fakeNodeView(boundsDisabled: Bool,
                       updateMenuActiveSelectionBounds: Bool) -> some View {
 
-        if let node = self.animatedNode {
+        if let canvasNode = self.animatedNode,
+           let nodeDelegate = canvasNode.nodeDelegate,
+           let node = graph.getNodeViewModel(nodeDelegate.id) {
             NodeTypeView(graph: graph,
-                         node: node,
+                         node: node, 
+                         canvasNode: canvasNode,
                          atleastOneCommentBoxSelected: false,
                          activeIndex: .init(1),
                          groupNodeFocused: nil,
@@ -383,7 +386,7 @@ struct InsertNodeMenuWrapper: View {
         .onChange(of: graphUI.insertNodeMenuState.activeSelection, initial: true) { _, _ in
             //            log("ContentView: onChange of activeSelection: oldValue: \(oldValue)")
             //            log("ContentView: onChange of activeSelection: newValue: \(newValue)")
-            self.animatedNode = graphUI.insertNodeMenuState.fakeNode(nodePosition)
+            self.animatedNode = graphUI.insertNodeMenuState.fakeNode(nodePosition)?.patchCanvasItem
         }
     }
     

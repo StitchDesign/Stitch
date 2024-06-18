@@ -16,7 +16,9 @@ struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
         // Sidebar Selection State
         state.sidebarSelectionState.all.map(\.asNodeId).forEach {
             if let node = state.getNodeViewModel($0) {
-                node.select()
+                node.getAllCanvasObservers().forEach {
+                    $0.select()
+                }
             }
         }
         

@@ -124,14 +124,22 @@ extension NodeViewModel {
 
 extension NodeViewModel {
     
+    /// Gets fields for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInputFields(_ key: LayerInputType) -> FieldViewModels? {
-        self.getInputRowObserver(for: .keyPath(key))?.fieldValueTypes.first?.fieldObservers
+    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
+        guard let layerNode = self.layerNode else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        return layerNode[keyPath: key.layerNodeKeyPath]
+            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
     }
     
+    /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInputField(_ key: LayerInputType) -> FieldViewModel? {
-        self.getLayerInputFields(key)?.first
+    func getLayerInspectorInputField(_ key: LayerInputType) -> InputFieldViewModel? {
+        self.getLayerInspectorInputFields(key)?.first
     }
    
     @MainActor
@@ -139,7 +147,7 @@ extension NodeViewModel {
                         fieldIndex: Int? = nil,
                         isBlocked: Bool) {
         
-        guard let fields = self.getLayerInputFields(input) else {
+        guard let fields = self.getLayerInspectorInputFields(input) else {
             fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
             return
         }
@@ -213,7 +221,8 @@ extension NodeViewModel {
     func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
         
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
+        guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?
+            .activeValue.getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
             return
         }
@@ -229,7 +238,8 @@ extension NodeViewModel {
     func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
 
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
+        guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?
+            .activeValue.getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
             return
         }

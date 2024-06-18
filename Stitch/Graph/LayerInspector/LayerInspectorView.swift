@@ -190,13 +190,15 @@ struct LayerInspectorInputsSectionView: View {
                 
                 let inputListContainsInput = inputsList.contains(layerInput)
                 
-                let rowObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                let layerInputData = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                let rowObserver = layerInputData.rowObserver
                 
-                let allFieldsBlockedOut = rowObserver.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                let allFieldsBlockedOut = layerInputData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if inputListContainsInput && !allFieldsBlockedOut {
                     LayerInspectorPortView(
-                        layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
+                        layerInput: layerInput,
+                        rowViewModel: layerInputData.inspectorRowViewModel,
                         rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
@@ -238,7 +240,7 @@ struct LayerInspectorInputsSectionView: View {
                     self.expanded.toggle()
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
-                           x.keyPath == layerInput {
+                           x == layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
@@ -256,18 +258,18 @@ struct LayerInspectorOutputsSectionView: View {
     
     var body: some View {
         
-        let outputs = node.outputRowObservers()
+        let outputs = layerNode.outputPorts
         
         if outputs.isEmpty {
             EmptyView()
         } else {
             Section(isExpanded: .constant(true)) {
                 ForEach(outputs) { output in
-                    if let portId = output.id.portId {
-                        LayerInspectorPortView(
-                            layerProperty: .layerOutput(.init(portId: portId,
-                                                              nodeId: output.id.nodeId)),
-                            rowObserver: output,
+                    if let portId = output.rowObserver.id.portId {
+                        LayerInspectorOutputPortView(
+                            outputPortId: portId,
+                            rowViewModel: output.inspectorRowViewModel,
+                            rowObserver: output.rowObserver,
                             node: node,
                             layerNode: layerNode,
                             graph: graph)
@@ -286,16 +288,16 @@ struct LayerInspectorOutputsSectionView: View {
 }
 
 
-#Preview {
-    let graph = GraphState(from: .init(), store: nil)
-    let nodeTest = TextLayerNode.createViewModel(position: .zero,
-                                                 zIndex: .zero,
-                                                 activeIndex: .init(.zero),
-                                                 graphDelegate: graph)
-    nodeTest.isSelected = true
-    
-    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
-    
-    return LayerInspectorView(graph: graph)
-}
+//#Preview {
+//    let graph = GraphState(from: .init(), store: nil)
+//    let nodeTest = TextLayerNode.createViewModel(position: .zero,
+//                                                 zIndex: .zero,
+//                                                 activeIndex: .init(.zero),
+//                                                 graphDelegate: graph)
+//    nodeTest.isSelected = true
+//    
+//    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
+//    
+//    return LayerInspectorView(graph: graph)
+//}
 

@@ -94,7 +94,7 @@ extension NodeViewModel {
             return
         }
         
-        let inputObserver = layerViewModel.positionPort
+        let inputObserver = layerViewModel.positionPort.rowObserver
         let updatedPositions: PortValues = inputObserver.allLoopedValues.map { $0.getPoint ?? .zero }
             .map {
                 updatePosition(position: $0, offset: offset.toCGPoint)
@@ -102,8 +102,6 @@ extension NodeViewModel {
             }
             .map(PortValue.position)
 
-        inputObserver.updateValues(updatedPositions,
-                                   activeIndex: activeIndex,
-                                   isVisibleInFrame: self.isVisibleInFrame)
+        inputObserver.updateValues(updatedPositions)
     }
 }

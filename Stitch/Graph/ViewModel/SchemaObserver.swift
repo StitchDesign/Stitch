@@ -10,10 +10,6 @@ import StitchSchemaKit
 
 protocol SchemaObserver: AnyObject, Identifiable {
     associatedtype CodableSchema: StitchVersionedCodable
-    
-    /// Static function initializer.
-    @MainActor
-    static func createObject(from entity: CodableSchema) -> Self
 
     /// Update view model.
     @MainActor
@@ -27,7 +23,11 @@ protocol SchemaObserver: AnyObject, Identifiable {
     func onPrototypeRestart()
 }
 
-protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable { }
+protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable {
+    /// Static function initializer.
+    @MainActor
+    static func createObject(from entity: CodableSchema) -> Self
+}
 
 extension NodePortInputEntity: Identifiable { }
 

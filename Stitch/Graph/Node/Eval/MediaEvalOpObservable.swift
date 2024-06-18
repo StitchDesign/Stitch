@@ -111,10 +111,7 @@ extension MediaEvalOpObservable {
         // A bit of a hack to get fields to update with loaded media
         if let mediaPortRow = self.nodeDelegate?.getInputRowObserver(0) {
             mediaPortRow
-                .updateValues(mediaPortRow.allLoopedValues,
-                              activeIndex: self.nodeDelegate?.activeIndex ?? .init(.zero),
-                              isVisibleInFrame: self.nodeDelegate?.isVisibleInFrame ?? false,
-                              isInitialization: true)
+                .updateValues(mediaPortRow.allLoopedValues)
         }
     }
     

@@ -60,47 +60,49 @@ func areNear(_ inputCenter: CGPoint, _ cursorCenter: CGPoint) -> Bool {
     return k
 }
 
-/*
- In certain cases we won't find an eligible-input:
- - graph contains a single node
- - cursor position is too far from other inputs,
- - ... etc.
- */
-@MainActor
-func findEligibleInput(
-    // The location of the user's output/input-dragged gesture
-    cursorLocation: CGPoint,
-    
-    // Which node is this cursor-drawn-edge extended from?
-    // Never create an edge from an output to an input on the very same node.
-    cursorNodeId: NodeId,
-    
-    // Since deleted nodes are not removed from prefDict,
-    // if we iterate through prefDict, we will potentially propose a deleted input.
-    // So instead we iterate through VisibleNodes' inputs (i.e. inputs at this traversal level).
-    eligibleInputCandidates: NodeRowObservers) {
-    var nearestInputs = [NodeRowObserver]()
-    
-    // Only look at pref-dict inputs' which are on this level
-    for inputObserver in eligibleInputCandidates {
-        guard let inputCenter = inputObserver.anchorPoint else {
-            continue
-        }
-        
-        if areNear(inputCenter, cursorLocation)
-            && inputObserver.id.nodeId != cursorNodeId {
-            nearestInputs.append(inputObserver)
-        }
-    }
-
-    if nearestInputs.isEmpty {
-        dispatch(EligibleInputReset())
-    } else {
-        dispatch(EligibleInputDetected(input: nearestInputs.last!))
-    }
-}
 
 extension GraphState {
+    /*
+     In certain cases we won't find an eligible-input:
+     - graph contains a single node
+     - cursor position is too far from other inputs,
+     - ... etc.
+     */
+    @MainActor
+    func findEligibleInput(
+        // The location of the user's output/input-dragged gesture
+        cursorLocation: CGPoint,
+        
+        // Which node is this cursor-drawn-edge extended from?
+        // Never create an edge from an output to an input on the very same node.
+        cursorNodeId: CanvasItemId,
+        
+        // Since deleted nodes are not removed from prefDict,
+        // if we iterate through prefDict, we will potentially propose a deleted input.
+        // So instead we iterate through VisibleNodes' inputs (i.e. inputs at this traversal level).
+        eligibleInputCandidates: [InputNodeRowViewModel]) {
+        
+        var nearestInputs = [InputNodeRowViewModel]()
+        
+        // Only look at pref-dict inputs' which are on this level
+        for inputViewModel in eligibleInputCandidates {
+            guard let inputCenter = inputViewModel.anchorPoint else {
+                continue
+            }
+            
+            if areNear(inputCenter, cursorLocation)
+                && inputViewModel.canvasItemDelegate?.id != cursorNodeId {
+                nearestInputs.append(inputViewModel)
+            }
+        }
+        
+        if nearestInputs.isEmpty {
+            dispatch(EligibleInputReset())
+        } else {
+            nearestInputs.last?.eligibleInputDetected(graphState: self)
+        }
+    }
+    
     /// Removes edges which root from some output coordinate.
     @MainActor
     func removeConnections(from outputCoordinate: NodeIOCoordinate,

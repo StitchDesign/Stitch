@@ -54,12 +54,13 @@ struct PatchNodeView: View {
 
     @MainActor
     var isSelected: Bool {
-        viewModel.isSelected
+        self.patchNode.canvasObserver.isSelected
     }
 
     var body: some View {
-        NodeView(graph: graph,
-                 node: viewModel,
+        NodeView(node: patchNode.canvasObserver,
+                 stitch: viewModel,
+                 graph: graph,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,
@@ -86,11 +87,10 @@ struct PatchNodeView: View {
                 WirelessPortView(isOutput: false, id: id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
-                DefaultNodeRowView(graph: graph,
-                                   node: viewModel,
-                                   nodeIO: .input,
-                                   isNodeSelected: isSelected,
-                                   adjustmentBarSessionId: adjustmentBarSessionId)
+                DefaultNodeInputView(graph: graph,
+                                     node: viewModel,
+                                     isNodeSelected: isSelected,
+                                     adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -104,11 +104,10 @@ struct PatchNodeView: View {
                 WirelessPortView(isOutput: true, id: id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
-                DefaultNodeRowView(graph: graph,
-                                   node: viewModel,
-                                   nodeIO: .output,
-                                   isNodeSelected: isSelected,
-                                   adjustmentBarSessionId: adjustmentBarSessionId)
+                DefaultNodeOutputView(graph: graph,
+                                      node: viewModel,
+                                      isNodeSelected: isSelected,
+                                      adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }

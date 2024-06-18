@@ -9,12 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: does this need to be `Identifiable`?
-enum CanvasItemId: Equatable, Codable, Hashable {
-    case node(NodeId)
-    case layerInputOnGraph(LayerInputOnGraphId)
-    case layerOutputOnGraph(LayerOutputOnGraphId)
-    
+extension CanvasItemId {    
     var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
@@ -24,18 +19,18 @@ enum CanvasItemId: Equatable, Codable, Hashable {
         }
     }
     
-    var layerInputCase: LayerInputOnGraphId? {
+    var layerInputCase: LayerInputCoordinate? {
         switch self {
-        case .layerInputOnGraph(let layerInputOnGraphId):
+        case .layerInput(let layerInputOnGraphId):
             return layerInputOnGraphId
         default:
             return nil
         }
     }
     
-    var layerOutputCase: LayerOutputOnGraphId? {
+    var layerOutputCase: LayerOutputCoordinate? {
         switch self {
-        case .layerOutputOnGraph(let layerOutputOnGraphId):
+        case .layerOutput(let layerOutputOnGraphId):
             return layerOutputOnGraphId
         default:
             return nil
@@ -43,27 +38,25 @@ enum CanvasItemId: Equatable, Codable, Hashable {
     }
 }
 
-// TODO: careful for perf here?
+extension CanvasItemId: Identifiable {
+    public var id: Int {
+        self.hashValue
+    }
+}
+
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-struct LayerInputOnGraphId: Equatable, Codable, Hashable {
-    let node: NodeId // id for the parent layer node
-    let keyPath: LayerInputType // the keypath, i.e. unique port
-    
+extension LayerInputCoordinate {
     var asInputCoordinate: InputCoordinate {
         .init(portType: .keyPath(keyPath),
               nodeId: node)
     }
 }
 
-typealias LayerOutputOnGraphId = OutputPortViewData
-
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel {
-    // Needs its own identifier b/c 0 to many relationship with node
-    let id: CanvasItemId
-    
+final class CanvasItemViewModel: Identifiable {
+    var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
     var bounds = NodeBounds()
@@ -72,6 +65,10 @@ final class CanvasItemViewModel {
     
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
+    
+    // View specific port value data
+    var inputViewModels: [InputNodeRowViewModel] = []
+    var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -83,14 +80,20 @@ final class CanvasItemViewModel {
                 return
             }
             
-            updatePortColorDataUponNodeSelection(node: node,
-                                                 graphState: graph)
+            node.updatePortColorDataUponNodeSelection()
+            
+            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
+                $0.allRowViewModels
+            }
+            
+            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
+                $0.allRowViewModels
+            }
             
             if node.kind == .group {
                 updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterRowObservers(for: node.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output),
-                    graphState: graph)
+                    inputs: inputs,
+                    outputs: outputs)
             }
         }
     }
@@ -110,11 +113,51 @@ final class CanvasItemViewModel {
         self.id = id
         self.position = position
         self.previousPosition = position
-        self.bounds = bounds // where or how is this set?
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate // where or how is this set?
     }
+}
+
+extension CanvasItemViewModel: SchemaObserver {
+    convenience init(from canvasEntity: CanvasNodeEntity,
+                     id: CanvasItemId,
+                     node: NodeDelegate?) {
+        self.init(id: id,
+                  position: canvasEntity.position,
+                  zIndex: canvasEntity.zIndex,
+                  parentGroupNodeId: canvasEntity.parentGroupNodeId,
+                  nodeDelegate: node)
+    }
+    
+    func createSchema() -> CanvasNodeEntity {
+        .init(position: self.position,
+              zIndex: self.zIndex,
+              parentGroupNodeId: self.parentGroupNodeId)
+    }
+
+    @MainActor func update(from schema: CanvasNodeEntity) {
+        // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
+//        self.id.setOnChange(schema.id)
+        
+        if self.position != schema.position {
+            self.position = schema.position
+        }
+        
+        if self.previousPosition != schema.position {
+            self.previousPosition = schema.position
+        }
+        
+        if self.zIndex != schema.zIndex {
+            self.zIndex = schema.zIndex
+        }
+        
+        if self.parentGroupNodeId != schema.parentGroupNodeId {
+            self.parentGroupNodeId = schema.parentGroupNodeId
+        }
+    }
+    
+    func onPrototypeRestart() { }
 }
 
 extension CanvasItemViewModel {
@@ -125,46 +168,65 @@ extension CanvasItemViewModel {
     var isMoving: Bool {
         self.position != self.previousPosition
     }
-    
+
     @MainActor
-    static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(
-        id: fakeCanvasItemIdForLayerInputOnGraph,
-        // So that we roughly get in the middle of the device screen;
-        // (since we use
-        position: .init(x: 350, y: 350),
-        zIndex: 0,
-        parentGroupNodeId: nil,
-        nodeDelegate: nil)
+    func updateVisibilityStatus(with newValue: Bool,
+                                activeIndex: ActiveIndex) {
+        let oldValue = self.isVisibleInFrame
+        if oldValue != newValue {
+            self.isVisibleInFrame = newValue
+
+            if self.nodeDelegate?.kind == .group {
+                // Group node needs to mark all input and output splitters as visible
+                // Fixes issue for setting visibility on groups
+                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
+                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
+
+                inputsObservers
+                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+                    .forEach { $0.isVisibleInFrame = newValue }
+                
+                outputsObservers
+                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+                    .forEach { $0.isVisibleInFrame = newValue }
+            }
+
+            // Refresh values if node back in frame
+            if newValue {
+                self.nodeDelegate?.updateInputsObservers(activeIndex: activeIndex)
+                self.nodeDelegate?.updateOutputsObservers(activeIndex: activeIndex)
+            }
+        }
+    }
+    
+    func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
+        let gridLineLength = CGFloat(gridLineLength)
+        
+        self.position = .init(
+            x: self.position.x + gridLineLength,
+            y: self.position.y + gridLineLength)
+        
+        self.previousPosition = self.position
+    }
 }
 
-let fakeCanvasItemIdForLayerInputOnGraph: CanvasItemId = .layerInputOnGraph(.init(
-    node: .fakeNodeId,
-    keyPath: .size))
-
-
-//extension CanvasItemViewModel: SchemaObserver {
-//    func createSchema() -> CanvasNodeEntity {
-//        .init(id: self.id,
-//              position: self.position,
-//              zIndex: self.zIndex,
-//              parentGroupNodeId: self.parentGroupNodeId)
-//    }
-//    
-//    @MainActor static func createObject(from entity: CanvasNodeEntity) -> Self {
-//        .init(id: entity.id,
-//              position: entity.position,
-//              zIndex: entity.zIndex)
-//    }
-//    
-//    @MainActor func update(from schema: CanvasNodeEntity) {
-//        self.id = schema.id
-//        self.position = schema.position
-//        self.previousPosition = schema.position
-//        self.zIndex = schema.zIndex
-//        self.parentGroupNodeId = schema.parentGroupNodeId
-//    }
-//    
-//    // TODO: remove -- CanvasItem represents data that is never changed by graph reset
-//    func onPrototypeRestart() { }
-//}
-
+extension InputLayerNodeRowData {
+    @MainActor
+    static func empty(_ layerInputType: LayerInputType,
+                      layer: Layer) -> Self {
+        let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
+                                               nodeKind: .layer(.rectangle),
+                                               userVisibleType: nil,
+                                               id: .init(portId: -1, nodeId: .init()),
+                                               activeIndex: .init(.zero),
+                                               upstreamOutputCoordinate: nil,
+                                               nodeDelegate: nil)
+        
+        fatalError()
+        
+        // TODO: update arguments above to pass in the entity struct for canvas data
+//        let canvasObserver = CanvasItemViewModel(from canvasEntity: ....)
+//        return .init(rowObserver: rowObserver,
+//                     canvasObsever: canvasObserver)
+    }
+}
