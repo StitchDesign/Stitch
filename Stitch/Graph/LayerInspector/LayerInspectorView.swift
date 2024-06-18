@@ -49,8 +49,6 @@ struct LayerInspectorView: View {
         if let node = selectedLayerNode,
            let layerNode = node.layerNode {
             
-            // added
-            // works for key press listening, but introduces
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
@@ -103,10 +101,6 @@ struct LayerInspectorView: View {
         
         List {
             // TODO: remove?
-//            UIKitWrapper(ignoresKeyCommands: false,
-//                         name: "LayerInspectorView") {
-//                Text(node.displayTitle).font(.title2)
-//            }
             Text(node.displayTitle).font(.title2)
             
             section("Required", Self.required)
