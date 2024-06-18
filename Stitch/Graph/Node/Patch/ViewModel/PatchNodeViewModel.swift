@@ -16,7 +16,7 @@ import SwiftUI
 typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
 
-protocol PatchNodeViewModelDelegate: AnyObject {
+protocol PatchNodeViewModelDelegate: NodeDelegate {
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType)
 }
@@ -36,6 +36,12 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
+    let canvasObserver: CanvasNodeViewModel
+    
+    // Used for data-intensive purposes (eval)
+    var inputsObservers: NodeRowObservers = []
+    var outputsObservers: NodeRowObservers = []
+    
     // Only for Math Expression nodes
     var mathExpression: String?
     
@@ -44,22 +50,50 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
-    init(from schema: PatchNodeEntity) {
+    @MainActor init(from schema: PatchNodeEntity,
+                    node: NodeDelegate?) {
+        let kind = NodeKind.patch(schema.patch)
+        
         self.id = schema.id
         self.patch = schema.patch
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
-        self.delegate = delegate
+
+        self.canvasObserver = .init(from: schema.canvasEntity,
+                                    node: node)
+        
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.patch(schema.patch)
+            .rowDefinitions(for: schema.userVisibleType)
+        let defaultOutputsList = rowDefinitions.outputs.defaultList
+        
+        // Must set inputs before calling eval below
+        self.inputsObservers = schema.inputs
+            .createInputObservers(nodeId: schema.id,
+                                  kind: kind,
+                                  userVisibleType: schema.userVisibleType,
+                                  nodeDelegate: node)
+
+        self.outputsObservers = rowDefinitions
+            .createOutputObservers(nodeId: schema.id,
+                                   values: defaultOutputsList,
+                                   kind: kind,
+                                   userVisibleType: schema.userVisibleType,
+                                   nodeDelegate: node)
+        
     }
 }
 
 extension PatchNodeViewModel: SchemaObserver {
     static func createObject(from entity: PatchNodeEntity) -> Self {
-        self.init(from: entity)
+        self.init(from: entity,
+                  node: nil)
     }
 
     func update(from schema: PatchNodeEntity) {
+        self.inputsObservers.sync(with: schema.inputs)
+        
         if self.id != schema.id {
             self.id = schema.id
         }
@@ -77,6 +111,8 @@ extension PatchNodeViewModel: SchemaObserver {
     func createSchema() -> PatchNodeEntity {
         PatchNodeEntity(id: self.id,
                         patch: self.patch,
+                        inputs: self.inputsObservers.map { $0.createSchema() },
+                        canvasEntity: self.canvasObserver.createSchema(),
                         userVisibleType: self.userVisibleType,
                         splitterNode: self.splitterNode, 
                         mathExpression: self.mathExpression)
@@ -87,28 +123,37 @@ extension PatchNodeViewModel: SchemaObserver {
 
 extension PatchNodeViewModel {
     // Other inits better for public accesss
-    private convenience init(id: NodeId,
+    @MainActor private convenience init(id: NodeId,
                              patch: Patch,
+                             inputs: [NodePortInputEntity],
+                             canvasEntity: CanvasNodeEntity,
                              userVisibleType: UserVisibleType? = nil,
                              mathExpression: String?,
                              splitterNode: SplitterNodeEntity?,
                              delegate: PatchNodeViewModelDelegate?) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
+                                     inputs: inputs,
+                                     canvasEntity: canvasEntity,
                                      userVisibleType: userVisibleType,
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
-        self.init(from: entity)
+        self.init(from: entity,
+                  node: delegate)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
 
-    convenience init(id: NodeId,
+    @MainActor convenience init(id: NodeId,
                      patch: Patch,
+                     inputs: [NodePortInputEntity],
+                     canvasEntity: CanvasNodeEntity,
                      userVisibleType: UserVisibleType? = nil,
                      delegate: PatchNodeViewModelDelegate?) {
         self.init(id: id,
                   patch: patch,
+                  inputs: inputs,
+                  canvasEntity: canvasEntity,
                   userVisibleType: userVisibleType,
                   mathExpression: nil,
                   splitterNode: nil,
@@ -147,6 +192,64 @@ extension PatchNodeViewModel {
                                                    type: newValue)
         }
     }
+    
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasObserver.parentGroupNodeId
+        }
+        set(newValue) {
+            self.canvasObserver.parentGroupNodeId = newValue
+        }
+    }
+    
+    /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
+    func _getInputObserversForEncoding() -> NodeRowObservers {
+        self._inputsObservers
+    }
+    
+    @MainActor
+    func updateMathExpressionNodeInputs(newExpression: String) {
+        // Always set math-expr on node for its eval and (default) title
+        self.mathExpression = newExpression
+        
+
+        // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
+
+        // Preserve order of presented characters;
+        // Do not change upper- vs. lower-case etc.
+        let variables = newExpression.getSoulverVariables()
+        
+        // log("updateMathExpressionNodeInputs: variables: \(variables)")
+        
+        // Keep value and connection
+        let oldInputs: [(PortValues, OutputCoordinate?)] = self.inputsObservers.map {
+            ($0.allLoopedValues, $0.upstreamOutputCoordinate)
+        }
+        
+        self._inputsObservers = variables.enumerated().map {
+            let existingInput = oldInputs[safe: $0.offset]
+            return NodeRowObserver(
+                values: existingInput?.0 ?? [.number(.zero)],
+                nodeKind: .patch(self.patch),
+                userVisibleType: self.userVisibleType,
+                id: InputCoordinate(portId: $0.offset,
+                                    nodeId: self.id),
+                activeIndex: self.delegate?.activeIndex ?? .init(.zero),
+                upstreamOutputCoordinate: existingInput?.1,
+                nodeIOType: .input,
+                nodeDelegate: self.delegate)
+        }
+        
+        // Update cached port view data
+        self.updateAllPortViewData()
+    }
+    
+    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
+    @MainActor
+    func updateAllPortViewData() {
+        self.inputsObservers.forEach { $0.updatePortViewData() }
+        self.outputsObservers.forEach { $0.updatePortViewData() }
+    }
 }
 
 extension NodeViewModel {
@@ -163,10 +266,26 @@ extension NodeViewModel {
                      patch: Patch,
                      userVisibleType: UserVisibleType?,
                      splitterNode: SplitterNodeEntity? = nil) {
+        
+        let inputEntities = inputs.enumerated().map { portId, values in
+            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
+                                                     nodeId: id),
+                                nodeKind: nodeType.kind,
+                                userVisibleType: userVisibleType,
+                                values: values,
+                                upstreamOutputCoordinate: nil)
+        }
+            
+        let canvasEntity = CanvasNodeEntity(id: .init(),
+                                            position: position.toCGPoint,
+                                            zIndex: zIndex,
+                                            parentGroupNodeId: nil)
 
         let patchNode = PatchNodeViewModel(
             id: id,
             patch: patch,
+            inputs: inputEntities,
+            canvasEntity: canvasEntity,
             userVisibleType: userVisibleType,
             delegate: nil)
 
@@ -184,6 +303,7 @@ extension NodeViewModel {
                   graphDelegate: nil)
 
         patchNode.delegate = self
+        patchNode.canvasObserver.nodeDelegate = self
 
         // Set splitter info
         patchNode.splitterNode = splitterNode

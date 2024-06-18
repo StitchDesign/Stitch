@@ -36,7 +36,7 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var isNodeMoving: Bool { get }
     
-    @MainActor var zIndex: Double { get }
+//    @MainActor var zIndex: Double { get }
     
     @MainActor var isSelected: Bool { get set }
     
@@ -64,6 +64,8 @@ protocol NodeDelegate: AnyObject {
     @MainActor func inputRowObservers() -> NodeRowObservers
     
     @MainActor func outputRowObservers() -> NodeRowObservers
+    
+    func updateRowObservers(activeIndex: ActiveIndex)
     
     @MainActor func calculate()
 }

@@ -13,7 +13,7 @@ extension [NodePortInputEntity] {
     func createInputObservers(nodeId: NodeId,
                               kind: NodeKind,
                               userVisibleType: UserVisibleType?,
-                              nodeDelegate: NodeDelegate) -> NodeRowObservers {
+                              nodeDelegate: NodeDelegate?) -> NodeRowObservers {
         
         // Note: can be called for GroupNode as well?
         guard !kind.isLayer else {
@@ -42,14 +42,12 @@ extension [NodePortInputEntity] {
             guard let values: PortValues = values else {
                 log("createInputObservers: could not create observer for \(portId) for node \(nodeId)")
                 // MARK: from Elliot--seems to work ok if this gets hit
-                // Note: from Chris -- is this still okay?
-//                fatalErrorIfDebug()
                 return nil
             }
 
             return NodeRowObserver(values: values,
-                                   nodeKind: nodeDelegate.kind,
-                                   userVisibleType: nodeDelegate.userVisibleType,
+                                   nodeKind: kind,
+                                   userVisibleType: userVisibleType,
                                    id: .init(portId: portId, nodeId: nodeId),
                                    activeIndex: .init(.zero),
                                    upstreamOutputCoordinate: schemaData.upstreamOutputCoordinate,
@@ -120,11 +118,13 @@ extension NodeRowDefinitions {
     func createOutputObservers(nodeId: NodeId,
                                // Pass in values directly from eval
                                values: PortValuesList,
-                               nodeDelegate: NodeDelegate) -> NodeRowObservers {
+                               kind: NodeKind,
+                               userVisibleType: UserVisibleType?,
+                               nodeDelegate: NodeDelegate?) -> NodeRowObservers {
         self.outputs.enumerated().map { portId, _ in
             NodeRowObserver(values: values[safe: portId] ?? [],
-                            nodeKind: nodeDelegate.kind,
-                            userVisibleType: nodeDelegate.userVisibleType,
+                            nodeKind: kind,
+                            userVisibleType: userVisibleType,
                             id: .init(portId: portId, nodeId: nodeId),
                             activeIndex: .init(.zero),
                             upstreamOutputCoordinate: nil,

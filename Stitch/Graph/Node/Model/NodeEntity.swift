@@ -11,26 +11,54 @@ import StitchSchemaKit
 
 extension NodeEntity {
     var kind: NodeKind {
-        if let layerNode = self.layerNodeEntity {
-            return .layer(layerNode.layer)
-        } else if let patchNode = self.patchNodeEntity {
-            return .patch(patchNode.patch)
-        }
-
-        // Group if all else fails
-        return .group
+        self.nodeTypeEntity.kind
     }
     
     /// Gets inputs values from disconnected ports.
     var encodedInputsValues: [PortValues?] {
-        if let layerNode = self.layerNodeEntity {
+        switch self.nodeTypeEntity {
+        case .layer(let layerNode):
             // Layer nodes save values data directy in its schema
             return layerNode.layer.layerGraphNode.inputDefinitions
                 .map { keyPath in
                     layerNode[keyPath: keyPath.schemaPortKeyPath].values
                 }
+        case .patch(let patchNode):
+            return patchNode.inputs.map { $0.values }
+        default:
+            return []
         }
         
-        return self.inputs.map { $0.values }
+    }
+}
+
+extension NodeTypeEntity {
+    var kind: NodeKind {
+        switch self {
+        case .patch(let patchEntity):
+            return .patch(patchEntity.patch)
+        case .layer(let layerEntity):
+            return .layer(layerEntity.layer)
+        case .group:
+            return .group
+        }
+    }
+    
+    var patchNodeEntity: PatchNodeEntity? {
+        switch self {
+        case .patch(let patchNodeEntity):
+            return patchNodeEntity
+        default:
+            return nil
+        }
+    }
+    
+    var layerNodeEntity: LayerNodeEntity? {
+        switch self {
+        case .layer(let layerNodeEntity):
+            return layerNodeEntity
+        default:
+            return nil
+        }
     }
 }

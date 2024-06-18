@@ -159,7 +159,7 @@ extension GraphState {
                                activeIndex: self.activeIndex,
                                graphDelegate: self) {
         case .success(let patchNode):
-            guard let patch = patchNode.patch else {
+            guard let patchViewModel = patchNode.patchNode else {
                 #if DEBUG
                 fatalError()
                 #endif
@@ -167,7 +167,7 @@ extension GraphState {
             }
 
             // Update group state if node created inside group
-            patchNode.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
+            patchViewModel.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
 
             // Must also add the media patch node to graphState,
             // so that it can be found when we evaluate the graph.

@@ -779,7 +779,7 @@ extension LayerViewModel {
 extension LayerInputType {
     /// Key paths for parent layer view model
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, NodeRowObserver> {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerNodeRowData> {
         switch self {
         case .position:
             return \.positionPort

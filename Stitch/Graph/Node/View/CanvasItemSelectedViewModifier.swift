@@ -36,8 +36,8 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
 struct CanvasItemBoundsReader: ViewModifier {
     @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
-
-    let canvasItem: CanvasItemViewModel
+    @Bindable var canvasNode: CanvasNodeViewModel
+    
     let splitterType: SplitterType?
     let disabled: Bool
     let updateMenuActiveSelectionBounds: Bool
@@ -58,7 +58,7 @@ struct CanvasItemBoundsReader: ViewModifier {
                             if !disabled {
                                 // log("will update GraphBaseView bounds for \(id)")
                                graph.updateGraphBaseViewBounds(
-                                   for: canvasItem,
+                                   for: canvasNode,
                                    newBounds: newBounds,
                                    viewFrame: viewframe,
                                    splitterType: splitterType,
@@ -71,8 +71,7 @@ struct CanvasItemBoundsReader: ViewModifier {
                                 // log("will update local bounds for \(id)")
 
                                 // Used only for comment box creation
-                                graph.updateLocalBounds(for: canvasItem,
-                                                        newBounds: newBounds)
+                                canvasNode.bounds.localBounds = newBounds
                             }
                         }
                 }
@@ -88,96 +87,33 @@ struct CanvasItemBoundsReader: ViewModifier {
  Simply switching to either a GraphEvent action or a method on `@Environment graph` resolved the issue; no other changes required.
  */
 extension GraphState {
-
-    @MainActor
-    func updateLocalBounds(for canvasItem: CanvasItemViewModel,
-                           newBounds: CGRect) {
-        canvasItem.bounds.localBounds = newBounds
-    }
-
     /*
      We should keep a group node's input and output splitter nodes' subscriptions running, even when the splitter node is not on screen -- otherwise the group node's input and output ports stop updating.
      */
     @MainActor
-    func updateGraphBaseViewBounds(for canvasItem: CanvasItemViewModel,
+    func updateGraphBaseViewBounds(for canvasObserver: CanvasNodeViewModel,
                                    newBounds: CGRect,
                                    viewFrame: CGRect,
                                    splitterType: SplitterType?,
                                    updateMenuActiveSelectionBounds: Bool) {
+        
+        
 
         // Note: do this *first*, since during node menu update we might not have a node view model for the node id yet
         if updateMenuActiveSelectionBounds {
             self.graphUI.insertNodeMenuState.activeSelectionBounds = newBounds
         }
 
-        canvasItem.bounds.graphBaseViewBounds = newBounds
+        guard let nodeViewModel = self.getNodeViewModel(id) else {
+            log("updateGraphBaseViewBounds: could not retrieve node \(id)")
+            return
+        }
+
+        canvasObserver.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
-        canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
-                                          activeIndex: self.activeIndex)
-    }
-}
-
-extension CanvasItemViewModel {
-    
-    // different meanings whether node vs just LIG
-    // - node = update all inputs and outputs
-    // - LIG = update just one input
-    
-    @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        
-        let oldValue = self.isVisibleInFrame
-        guard oldValue != newValue else {
-            return // Do nothing if visibility status didn't change
-        }
-        
-        switch self.id {
-            
-        case .node(let x):
-            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(x) else {
-//                fatalErrorIfDebug()
-                log("updateVisibilityStatus: could not update visibility for node \(x)")
-                return
-            }
-            node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
-            
-        case .layerInputOnGraph(let x):
-            guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
-//                fatalErrorIfDebug()
-                log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
-                return
-            }
-            input.canvasUIData?.isVisibleInFrame = newValue
-            input.updateRowObserverUponVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: newValue)
-            
-        case .layerOutputOnGraph(let x):
-            guard let output = self.nodeDelegate?.graphDelegate?.getLayerOutputOnGraph(x) else {
-//                fatalErrorIfDebug()
-                log("updateVisibilityStatus: could not update visibility for layerOutputOnGraph \(x)")
-                return
-            }
-            output.canvasUIData?.isVisibleInFrame = newValue
-            output.updateRowObserverUponVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: newValue)
-        }
-    }
-}
-
-
-extension NodeRowObserver {
-    // When the input or output becomes visible on the canvas,
-    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
-    @MainActor
-    func updateRowObserverUponVisibilityChange(activeIndex: ActiveIndex,
-                                               isVisible: Bool) {
-        self.updateValues(self.allLoopedValues,
-                          activeIndex: activeIndex,
-                          isVisibleInFrame: isVisible)
+        canvasObserver.updateVisibilityStatus(with: isVisibleInFrame,
+                                              activeIndex: activeIndex)
     }
 }
