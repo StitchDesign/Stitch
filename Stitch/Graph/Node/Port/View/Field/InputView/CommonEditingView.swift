@@ -60,11 +60,9 @@ struct CommonEditingView: View {
     }
 
     var body: some View {
-        logInView("CommonEditingView: body for \(fieldCoordinate)")
         Group {
             // For perf: we don't want this view rendering at all if not currently focused
             if showEditingView {
-                logInView("CommonEditingView: will show editable field for \(fieldCoordinate)")
                 // Render NodeTextFieldView if its the focused field.
                 StitchTextEditingBindingField(
                     currentEdit: $currentEdit,
