@@ -169,7 +169,7 @@ struct FakeLayerInputOnGraphView: View {
                               node: node,
 //                              input: node.inputRowObservers().first!,
                               input: node.inputRowObservers()[1],
-                              canvasItem: .fakeCanvasItem,
+                              canvasItem: .fakeCanvasItemForLayerInputOnGraph,
                               layer: node.layerNode!.layer)
     }
 }

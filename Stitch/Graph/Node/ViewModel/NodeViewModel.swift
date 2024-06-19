@@ -27,14 +27,61 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
 
-//    var canvasUIData = CanvasItemViewModel()
+    // TODO: move to PatchNodeViewModel
+    var canvasUIData: CanvasItemViewModel
     
-    var position: CGPoint = .zero
-    var previousPosition: CGPoint = .zero
-    var bounds = NodeBounds()
-
+//    = CanvasItemViewModel(
+//        id: .node(id),
+//        position: .zero,
+//        zIndex: .zero,
+//        parentGroupNodeId: nil)
+    
+//    var position: CGPoint = .zero
+    var position: CGPoint {
+        get {
+            self.canvasUIData.position
+        } set(newValue) {
+            self.canvasUIData.position = newValue
+        }
+    }
+    
+//    var previousPosition: CGPoint = .zero
+    var previousPosition: CGPoint {
+        get {
+            self.canvasUIData.previousPosition
+        } set(newValue) {
+            self.canvasUIData.previousPosition = newValue
+        }
+    }
+    
+    
+//    var bounds = NodeBounds()
+    var bounds: NodeBounds {
+        get {
+            self.canvasUIData.bounds
+        } set(newValue) {
+            self.canvasUIData.bounds = newValue
+        }
+    }
+    
     // ui placement
-    var zIndex: Double = .zero
+//    var zIndex: Double = .zero
+    var zIndex: Double {
+        get {
+            self.canvasUIData.zIndex
+        } set(newValue) {
+            self.canvasUIData.zIndex = newValue
+        }
+    }
+    
+//    var parentGroupNodeId: NodeId?
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasUIData.parentGroupNodeId
+        } set(newValue) {
+            self.canvasUIData.parentGroupNodeId = newValue
+        }
+    }
 
     var title: String {
         didSet(oldValue) {
@@ -59,7 +106,7 @@ final class NodeViewModel: Sendable {
 
     var nodeType: NodeViewModelType
 
-    var parentGroupNodeId: NodeId?
+//    var parentGroupNodeId: NodeId?
 
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
@@ -118,11 +165,21 @@ final class NodeViewModel: Sendable {
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
-        self.position = schema.position
-        self.previousPosition = schema.position
-        self.zIndex = schema.zIndex
+        
+        // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
+        self.canvasUIData = CanvasItemViewModel(
+            id: .node(schema.id),
+            position: schema.position,
+            zIndex: schema.zIndex,
+            parentGroupNodeId: schema.parentGroupNodeId)
+        
+//        self.position = schema.position
+//        self.previousPosition = schema.position
+//        self.zIndex = schema.zIndex
+//        self.parentGroupNodeId = schema.parentGroupNodeId
+        
         self.title = schema.title
-        self.parentGroupNodeId = schema.parentGroupNodeId
+        
         self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
@@ -161,7 +218,7 @@ final class NodeViewModel: Sendable {
                 }
                 
                 // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-                rowObserver.canvasUIData = .fakeCanvasItem
+                rowObserver.canvasUIData = .fakeCanvasItemForLayerInputOnGraph
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions

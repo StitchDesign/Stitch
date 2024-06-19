@@ -25,23 +25,39 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             fatalErrorIfDebug()
             return .noChange
         }
-        
+                
         input.canvasUIData = .init(
-            id: .init(),
+            id: .layerInputOnGraph(.init(
+                node: nodeId,
+                keyPath: coordinate)),
             position: state.newNodeCenterLocation,
-            zIndex: state.highestZIndex + 1)
+            zIndex: state.highestZIndex + 1, 
+            // Put newly-created LIG into graph's current traversal level
+            parentGroupNodeId: state.groupNodeFocused)
         
         return .shouldPersist
     }
 }
 
 
-typealias CanvasItemId = UUID
+// TODO: does this need to be `Identifiable`?
+enum CanvasItemId: Equatable, Codable {
+    case node(NodeId)
+    case layerInputOnGraph(LayerInputOnGraphId)
+}
+
+// TODO: careful for perf here?
+/// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
+struct LayerInputOnGraphId: Equatable, Codable {
+    let node: NodeId // id for the parent layer node
+    let keyPath: LayerInputType // the keypath, i.e. unique port
+}
+
 
 @Observable
 final class CanvasItemViewModel {
     // Needs its own identifier b/c 0 to many relationship with node
-    var id: CanvasItemId
+    let id: CanvasItemId
     
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
@@ -74,10 +90,12 @@ final class CanvasItemViewModel {
         self.nodeDelegate?.graphDelegate
     }
     
-    init(id: UUID,
+    //
+    init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
-         parentGroupNodeId: NodeId? = nil) {
+//         parentGroupNodeId: NodeId? = nil) {
+         parentGroupNodeId: NodeId?) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -105,8 +123,8 @@ extension CanvasItemViewModel {
 //    }
     
     @MainActor
-    static let fakeCanvasItem: CanvasItemViewModel = .init(
-        id: fakeCanvasItemId,
+    static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(
+        id: fakeCanvasItemIdForLayerInputOnGraph,
         // So that we roughly get in the middle of the device screen;
         // (since we use
         position: .init(x: 350, y: 350),
@@ -114,7 +132,10 @@ extension CanvasItemViewModel {
         parentGroupNodeId: nil)
 }
 
-let fakeCanvasItemId: CanvasItemId = .init()
+let fakeCanvasItemIdForLayerInputOnGraph: CanvasItemId = .layerInputOnGraph(.init(
+    node: .fakeNodeId,
+    keyPath: .size))
+
 
 //extension CanvasItemViewModel: SchemaObserver {
 //    func createSchema() -> CanvasNodeEntity {

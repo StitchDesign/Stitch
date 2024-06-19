@@ -26,7 +26,7 @@ struct MapLayerNode: LayerNodeDefinition {
 //        .mapType,
 //        .mapLatLong,
 //        .mapSpan,
-        .position,
+//        .position,
 //        .rotationX,
 //        .rotationY,
 //        .rotationZ,

@@ -499,6 +499,23 @@ extension GraphState {
         self.getNodeViewModel(id)
     }
     
+    @MainActor
+    func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel? {
+        switch id {
+        case .node(let x):
+            return self.getNodeViewModel(x)?.canvasUIData
+        case .layerInputOnGraph(let x):
+            return self.getLayerInputOnGraph(x)?.canvasUIData
+        }
+    }
+    
+    // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
+    @MainActor
+    func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver? {
+        self.getNodeViewModel(id.node)?
+            .getInputRowObserver(for: .keyPath(id.keyPath))
+    }
+    
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
         self.visibleNodesViewModel.getViewModel(id)
     }
