@@ -175,6 +175,8 @@ struct LayerInspectorPortView: View {
         let inputsList = definition.inputDefinitions
         let rowObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         
+        let isOnGraphAlready = rowObserver.canvasUIData.isDefined
+        
         // See if layer node uses this input
         if inputsList.contains(layerInputType),
            let portViewType = rowObserver.portViewType {
@@ -186,6 +188,12 @@ struct LayerInspectorPortView: View {
                                 isNodeSelected: false,
                                 adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
                                 forPropertySidebar: true)
+            .overlay {
+                if isOnGraphAlready {
+                    Color.red.opacity(0.4).padding()
+                }
+            }
+            .disabled(isOnGraphAlready)
         } else {
             EmptyView()
         }
