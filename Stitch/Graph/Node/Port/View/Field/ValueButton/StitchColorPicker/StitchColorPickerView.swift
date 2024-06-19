@@ -8,6 +8,20 @@
 import SwiftUI
 import StitchSchemaKit
 
+let COLOR_ORB_WRAPPING_COLOR = Color(uiColor: UIColor.systemGray3)
+
+struct ColorOrbWrapperModifier: ViewModifier {
+    
+    func body(content: Content) -> some View {
+        content
+            .padding(2)
+            .background {
+//                Circle().fill(.white) // original
+                Circle().fill(COLOR_ORB_WRAPPING_COLOR)
+            }
+    }
+}
+
 struct StitchColorPickerOrb: View {
 
     let chosenColor: Color
@@ -16,10 +30,7 @@ struct StitchColorPickerOrb: View {
         Circle().fill(chosenColor)
             .frame(width: NODE_ROW_HEIGHT, // req'd for e.g. ports that have labels
                    height: NODE_ROW_HEIGHT)
-            .padding(2)
-            .background {
-                Circle().fill(.white)
-            }
+            .modifier(ColorOrbWrapperModifier())
     }
 }
 
@@ -202,6 +213,7 @@ struct StitchColorPickerView: View {
         Circle().fill(color)
             //            .stroke(.black)
             .frame(width: 50)
+            .modifier(ColorOrbWrapperModifier())
             .onTapGesture {
 
                 // When user manually clicks a pre-selected color,
@@ -248,8 +260,16 @@ struct StitchColorPickerView: View {
 }
 
 #Preview {
-    StitchColorPickerView(coordinate: .fakeInputCoordinate,
-                          chosenColor: .constant(.red),
-                          graph: .init(id: .init(), store: nil))
-        .scaleEffect(2)
+    
+    VStack(spacing: 100) {
+        
+        StitchColorPickerOrb(chosenColor: .green)
+            .scaleEffect(2)
+        
+        StitchColorPickerView(coordinate: .fakeInputCoordinate,
+                              chosenColor: .constant(.red),
+                              graph: .init(id: .init(), store: nil))
+            .scaleEffect(2)
+    }
+    
 }
