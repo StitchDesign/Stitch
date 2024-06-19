@@ -9,6 +9,33 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+struct LayerInputAddedToGraph: GraphEventWithResponse {
+    
+    let nodeId: NodeId
+    let coordinate: LayerInputType
+    
+    func handle(state: GraphState) -> GraphResponse {
+        
+        log("LayerInputAddedToGraph: nodeId: \(nodeId)")
+        log("LayerInputAddedToGraph: coordinate: \(coordinate)")
+        
+        guard let node = state.getNodeViewModel(nodeId),
+              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
+            log("LayerInputAddedToGraph: could not add Layer Input to graph")
+            fatalErrorIfDebug()
+            return .noChange
+        }
+        
+        input.canvasUIData = .init(
+            id: .init(),
+            position: state.newNodeCenterLocation,
+            zIndex: state.highestZIndex + 1)
+        
+        return .shouldPersist
+    }
+}
+
+
 typealias CanvasItemId = UUID
 
 @Observable

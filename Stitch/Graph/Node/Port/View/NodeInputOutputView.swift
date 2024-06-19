@@ -42,6 +42,19 @@ struct NodeInputOutputView: View {
     var body: some View {
         let coordinate = rowData.id
         HStack(spacing: NODE_COMMON_SPACING) {
+            if forPropertySidebar {
+                Image(systemName: "plus.circle")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                    .onTapGesture {
+                        if let layerInput = self.rowData.id.keyPath {
+                            dispatch(LayerInputAddedToGraph(nodeId: self.node.id,
+                                                            coordinate: layerInput))
+                        }
+                    }
+                    .opacity(isUserSelectedInPropertySidebar ? 1 : 0)
+            }
+            
             // Fields and port ordering depending on input/output
             switch coordinateType {
             case .input(let inputCoordinate):
@@ -78,8 +91,32 @@ struct NodeInputOutputView: View {
             self.rowData.activeValueChanged(oldValue: oldViewValue,
                                             newValue: newViewValue)
         }
+        .overlay {
+            if isLayer, 
+                forPropertySidebar,
+                isUserSelectedInPropertySidebar {
+                STITCH_PURPLE.opacity(0.4)
+                    .frame(height: NODE_ROW_HEIGHT + 4)
+                    .padding()
+                    .cornerRadius(8)
+            }
+        }
+        .simultaneousGesture(
+            TapGesture()
+                .onEnded { _ in
+                    if isLayer, forPropertySidebar {
+                        isUserSelectedInPropertySidebar.toggle()
+                    }
+                }
+        )
     }
+    
+    @State var isUserSelectedInPropertySidebar = false
 
+    var isLayer: Bool {
+        self.nodeKind.isLayer
+    }
+            
     @ViewBuilder
     @MainActor
     var labelView: some View {
@@ -167,6 +204,16 @@ struct NodeRowPortView: View {
         }
     }
 }
+
+//#Preview {
+//    NodeInputOutputView(graph: <#T##GraphState#>,
+//                        node: <#T##NodeViewModel#>, 
+//                        rowData: <#T##NodeRowObserver#>,
+//                        coordinateType: <#T##PortViewType#>,
+//                        nodeKind: <#T##NodeKind#>,
+//                        isNodeSelected: <#T##Bool#>, 
+//                        adjustmentBarSessionId: <#T##AdjustmentBarSessionId#>)
+//}
 
 // struct SpecNodeInputView_Previews: PreviewProvider {
 //    static var previews: some View {
