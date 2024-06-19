@@ -92,48 +92,16 @@ struct GraphBaseView: View {
         } // GraphGestureView
     }
 
-    //    var nodesMap: some View {
-    //        if let rect = graphState.graphBounds(
-    //            graphUI.zoom,
-    //            graphView: graphUI.frame,
-    //            graphOffset: graphUI.graphMovement.graphOffset.localPosition,
-    //            groupNodeFocused: graphUI.groupNodeFocused) {
-    //
-    //            return Rectangle().fill(.cyan.opacity(0.5))
-    //                .frame(width: rect.width + 0,
-    //                       height: rect.height + 0)
-    //                // places view in top-left corner of parent, and offsets from there;
-    //                // we use .position since the individual nodes use .position
-    //                .position(rect.origin)
-    //                // places view in center of parent, and offsets from there
-    //                //            .offset(rect.origin)
-    //                .eraseToAnyView()
-    //        } else {
-    //            return EmptyView().eraseToAnyView()
-    //        }
-    //    }
-
     @ViewBuilder
     @MainActor
     var nodesAndCursor: some View {
-        ZStack(alignment: .top) {
+        ZStack {
             #if DEV_DEBUG
             // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
             // to get in exact screen center.
             Circle().fill(.cyan.opacity(0.5))
                 .frame(width: 60, height: 60)
             #endif
-
-            // Temporarily removed; may be added back in future.
-            //                #if DEV_DEBUG
-            //                GridTilingView(scale: zoom,
-            //                               offset: localPosition,
-            //                               tileLength: graphUI.gridImageLength,
-            //                               graphUIFrame: graphUI.frame)
-            //                    .opacity(zoom)
-            //                    .zIndex(-1)
-            //                //                .hidden(zoom < GRID_SCALE_MINIMUM)
-            //                #endif
 
             nodesView
 
@@ -150,13 +118,16 @@ struct GraphBaseView: View {
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
-
-        } // Zstack
-        .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
-            LayerInspectorView(graph: graph)
-            // TODO: setting an inspector width DOES move over the graph view content
-                .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-        }
+            
+            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
+            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+                .frame(width: 1, height: 1)
+                .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
+                    LayerInspectorView(graph: graph)
+                    // TODO: setting an inspector width DOES move over the graph view content
+                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                }
+        } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {
             GeometryReader { geometry in
