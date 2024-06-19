@@ -8,7 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-
 struct LayerInputOnGraphView: View {
     
     @Bindable var graph: GraphState
@@ -24,7 +23,6 @@ struct LayerInputOnGraphView: View {
     @MainActor
     var isSelected: Bool {
         self.canvasItem.isSelected
-//        true
     }
     
     var body: some View {

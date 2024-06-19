@@ -27,7 +27,7 @@ struct NodesOnlyView: View {
     var adjustmentBarSessionId: AdjustmentBarSessionId {
         graphUI.adjustmentBarSessionId
     }
-    
+        
     var body: some View {
         // HACK for when no nodes present
         if nodes.isEmpty {
@@ -36,7 +36,51 @@ struct NodesOnlyView: View {
 
         //        FakeLayerInputOnGraphView().zIndex(9999)
         
-        ForEach(nodes) { node in
+        // Does ZStack e.g. put LIG views on top of patch node views?
+        ZStack {
+            patchNodesView
+            layerInputsOnGraphView
+        }
+        .onChange(of: self.activeIndex) {
+            // Update values when active index changes
+            self.nodes.forEach { node in
+                node.activeIndexChanged(activeIndex: self.activeIndex)
+            }
+        }
+    }
+    
+    
+    var layerNodes: NodeViewModels {
+        self.nodes.filter(\.layerNode.isDefined)
+    }
+    
+    @MainActor
+    var layerInputsOnGraphView: some View {
+        ForEach(layerNodes) { node in
+            // TODO: only show those LIG at this traversal level
+            let inputsOnGraph = node.inputRowObservers().filter(\.canvasUIData.isDefined)
+            ForEach(inputsOnGraph) { inputOnGraph in
+                LayerInputOnGraphView(
+                    graph: graph,
+                    node: node,
+                    input: inputOnGraph,
+                    canvasItem: inputOnGraph.canvasUIData!,
+                    layer: node.layerNode!.layer)
+            }
+            
+//            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
+            
+        }
+    }
+    
+    var patchNodes: NodeViewModels {
+        self.nodes.filter(\.patchNode.isDefined)
+    }
+    
+    var patchNodesView: some View {
+//        ForEach(nodes) { node in
+        ForEach(patchNodes) { node in
+        
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
             let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
@@ -57,14 +101,8 @@ struct NodesOnlyView: View {
                 EmptyView()
             }
         }
-        .onChange(of: self.activeIndex) {
-            // Update values when active index changes
-            self.nodes.forEach { node in
-                node.activeIndexChanged(activeIndex: self.activeIndex)
-            }
-        }
     }
-}    
+}
 
 // struct NodesOnlyView_Previews: PreviewProvider {
 //    static var previews: some View {
