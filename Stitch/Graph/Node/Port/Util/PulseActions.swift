@@ -37,7 +37,7 @@ extension GraphState {
         //            return .noChange
         //        }
 
-        self.selectSingleNode(inputCoordinate.nodeId)
+        
 
         //        guard let inputCoordinate = inputCoordinate else {
         //            log("PulseValueButtonClicked: Did not have input coordinate")
@@ -50,6 +50,8 @@ extension GraphState {
               !inputObserver.upstreamOutputObserver.isDefined else {
             return
         }
+        
+        self.selectSingleNode(node)
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)],
                                    activeIndex: self.activeIndex,

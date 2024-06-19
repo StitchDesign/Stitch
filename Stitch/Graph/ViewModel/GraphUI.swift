@@ -363,18 +363,6 @@ extension GraphUISelectionState {
 // we thereby select.
 extension GraphState {
     @MainActor
-    func selectSingleNode(_ id: NodeId) {
-        // ie expansionBox, isSelecting, selected-comments etc.
-        // get reset when we select a single node.
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
-        
-        if let node = self.getNodeViewModel(id) {
-            self.setNodeSelection(node, to: true)
-        }
-    }
-    
-    @MainActor
     func selectSingleNode(_ node: NodeViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.

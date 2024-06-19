@@ -188,9 +188,9 @@ struct LayerInspectorPortView: View {
                                 adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
                                 forPropertySidebar: true)
             .overlay {
-                if isOnGraphAlready {
+//                if isOnGraphAlready {
                     Color.red.opacity(0.4).padding()
-                }
+//                }
             }
             .simultaneousGesture(
                 TapGesture()

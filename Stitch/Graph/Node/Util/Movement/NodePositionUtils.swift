@@ -32,10 +32,11 @@ extension NodeViewModel {
 
 // Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
 extension GraphState {
+    
     @MainActor
     func nodeTapped(_ node: NodeViewModel) {
         let id = node.id
-        log("handleNodeTapped: id: \(id)")
+        log("nodeTapped: id: \(id)")
         
         guard let node = self.getNodeViewModel(id) else {
             fatalErrorIfDebug()
@@ -50,7 +51,7 @@ extension GraphState {
         
         // when not holding CMD ...
         else {
-            self.selectSingleNode(id)
+            self.selectSingleNode(node)
         }
         
         // if we tapped a node, we're no longer moving it

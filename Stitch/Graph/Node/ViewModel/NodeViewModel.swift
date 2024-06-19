@@ -27,6 +27,8 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
 
+//    var canvasUIData = CanvasItemViewModel()
+    
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
     var bounds = NodeBounds()
@@ -157,6 +159,9 @@ final class NodeViewModel: Sendable {
                                              isVisibleInFrame: self.isVisibleInFrame,
                                              isInitialization: true)
                 }
+                
+                // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
+                rowObserver.canvasUIData = .fakeCanvasItem
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions

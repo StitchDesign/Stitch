@@ -109,7 +109,7 @@ extension CanvasItemViewModel {
         id: fakeCanvasItemId,
         // So that we roughly get in the middle of the device screen;
         // (since we use
-        position: .init(x: 500, y: 500),
+        position: .init(x: 350, y: 350),
         zIndex: 0,
         parentGroupNodeId: nil)
 }
