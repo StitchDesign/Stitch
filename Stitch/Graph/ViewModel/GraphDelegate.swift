@@ -80,6 +80,12 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor func updateOutputs(at loopIndex: Int,
                                   node: NodeViewModel,
                                   portValues: PortValues)
+    
+    @MainActor
+    var sidebarSelectionState: SidebarSelectionState { get }
+    
+    @MainActor
+    var orderedSidebarLayers: OrderedSidebarLayers { get }
 }
 
 extension GraphDelegate {

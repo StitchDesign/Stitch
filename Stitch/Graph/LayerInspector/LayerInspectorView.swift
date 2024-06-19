@@ -9,6 +9,28 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension GraphDelegate {
+    // TODO: cache these for perf
+    @MainActor
+    var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
+        self.sidebarSelectionState.nonEditModeSelections.last?.id
+    }
+    
+    // TODO: cache these for perf
+    @MainActor
+    var firstLayerInLayerSidebar: NodeId? {
+        self.orderedSidebarLayers.first?.id
+    }
+    
+    // TODO: support multiple layers being focused in propety sidebar
+    // TODO: cache these for perf?
+    /// The single layer currently focused in the inspector
+    @MainActor
+    var layerFocusedInPropertyInspector: NodeId? {
+        self.nonEditModeSelectedLayerInLayerSidebar ?? self.firstLayerInLayerSidebar
+    }
+}
+
 struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
@@ -31,10 +53,7 @@ struct LayerInspectorView: View {
         }
      
         // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
-        let inspectedLayer = graph.sidebarSelectionState.nonEditModeSelections.last?.id ?? graph.orderedSidebarLayers.first?.id
-        
-        //selectedSidebarItems.last ?? graph.orderedSidebarLayers.first
-                
+        let inspectedLayer = graph.layerFocusedInPropertyInspector
         guard let inspectedLayerId = inspectedLayer,
               let node = graph.getNodeViewModel(inspectedLayerId),
               node.layerNode.isDefined else {
