@@ -78,67 +78,63 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         
         ZStack {
             nodeBody
-                #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                 .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
-                #endif
-
-                /*
-                 Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
-
-                 If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
-
-                 If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
-                 */
+#endif
+            
+            /*
+             Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
+             
+             If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
+             
+             If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
+             */
                 .gesture(TapGesture(count: 2).onEnded({
                     if self.node.kind.isGroup {
-                        #if DEV_DEBUG
                         log("NodeView: .gesture(TapGesture(count: 2)")
                         log("NodeView: .gesture(TapGesture(count: 2): will set active group")
-                        #endif
                         dispatch(GroupNodeDoubleTapped(id: GroupNodeId(id)))
                     }
                 }))
-
-                // See GroupNodeView for group node double tap
+            
+            // See GroupNodeView for group node double tap
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
-                    #if DEV_DEBUG
                     log("NodeView: .simultaneousGesture(TapGesture(count: 1)")
-                    #endif
                     graph.nodeTapped(node)
                 }))
-
-                // TODO: put into a separate ViewModifier
+            
+            // TODO: put into a separate ViewModifier
                 .overlay(alignment: .topTrailing) {
                     if isSelected {
                         Menu {
                             nodeTagMenu
                         } label: {
                             nodeTagMenuIcon
-                            #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
                             // .border(.yellow)
-                            .padding(16) // increase hit area
+                                .padding(16) // increase hit area
                             // .border(.blue)
-                            #endif
+#endif
                         }
-                        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                         .buttonStyle(.plain)
                         .scaleEffect(1.4)
                         .frame(width: 24, height: 12)
                         .padding(16)
                         .foregroundColor(STITCH_TITLE_FONT_COLOR)
                         .offset(x: -4, y: -4)
-                        #else
-
+#else
+                        
                         // iPad
                         .menuStyle(.button)
                         .buttonStyle(.borderless)
                         .foregroundColor(STITCH_TITLE_FONT_COLOR)
                         .offset(x: -2, y: -4)
-                        #endif
+#endif
                         // .border(.red)
                     }
                 }
-        }
+        } // ZStack
         .nodePositionHandler(graph: graph,
                              node: node,
                              position: position,
@@ -167,8 +163,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
         .fixedSize()
         //        .background(nodeUIColor.body) // ORIGINAL
-        //        .background(nodeUIColor.body.opacity(0.7).blur(radius: 6))
-        //        .background(.ultraThinMaterial)
         .background {
             ZStack {
                 VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
@@ -209,7 +203,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     }
 
     var nodeTitle: some View {
-        NodeTitleView(graph: graph,
+        CanvasItemTitleView(graph: graph,
                       node: node,
                       isNodeSelected: isSelected)
     }
@@ -280,6 +274,11 @@ struct FakeNodeView: View {
                      usePositionHandler: false,
                      updateMenuActiveSelectionBounds: false)
     }
+}
+
+extension GraphState {
+    @MainActor
+    static let fakeEmptyGraphState: GraphState = .init(id: .init(), store: nil)
 }
 
 @MainActor

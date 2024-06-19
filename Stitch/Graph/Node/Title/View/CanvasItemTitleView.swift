@@ -14,7 +14,8 @@ extension UUID {
     }
 }
 
-struct NodeTitleView: View {
+// fka `NodeTitleView`
+struct CanvasItemTitleView: View {
     // BAD: causes re-renders even when not used anywhere in View
     //    @FocusedValue(\.focusedField) private var focusedField
     
