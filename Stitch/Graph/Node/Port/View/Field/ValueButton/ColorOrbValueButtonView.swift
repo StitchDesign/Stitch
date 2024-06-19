@@ -22,7 +22,7 @@ struct ColorOrbValueButtonView: View {
     let currentColor: Color // the current color, from input
     let hasIncomingEdge: Bool
     let graph: GraphState
-
+    
     var body: some View {
 
         // logInView("ColorOrbValueButtonView: body: currentColor.asHexDisplay: \(currentColor.asHexDisplay)")
@@ -46,11 +46,12 @@ struct ColorOrbValueButtonView: View {
             }
         }
 
-        StitchColorPickerView(coordinate: id, chosenColor: binding, 
+        StitchColorPickerView(coordinate: id, 
+                              chosenColor: binding,
                               graph: graph)
-            .onAppear {
-                self.colorState = currentColor
-            }
+        .onAppear {
+            self.colorState = currentColor
+        }
             //            .id(self.viewId)
             // ^^ this might be happening too late?
             // better to set via `.init` ?
