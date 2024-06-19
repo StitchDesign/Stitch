@@ -82,6 +82,17 @@ final class NodeViewModel: Sendable {
             self.canvasUIData.parentGroupNodeId = newValue
         }
     }
+    
+    // Default to false so initialized graphs don't take on extra perf loss
+    // var isVisibleInFrame = false
+    var isVisibleInFrame: Bool {
+        get {
+            self.canvasUIData.isVisibleInFrame
+        } set(newValue) {
+            self.canvasUIData.isVisibleInFrame = newValue
+        }
+    }
+    
 
     var title: String {
         didSet(oldValue) {
@@ -108,8 +119,8 @@ final class NodeViewModel: Sendable {
 
 //    var parentGroupNodeId: NodeId?
 
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame = false
+//    // Default to false so initialized graphs don't take on extra perf loss
+//    var isVisibleInFrame = false
     
     // Cached for perf
     var longestLoopLength: Int = 1

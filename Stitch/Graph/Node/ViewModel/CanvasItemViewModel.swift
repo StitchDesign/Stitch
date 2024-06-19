@@ -65,6 +65,7 @@ final class CanvasItemViewModel {
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
+    // TODO: remove
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
     
