@@ -16,7 +16,7 @@ import SwiftUI
 typealias PatchNode = NodeViewModel
 typealias NodeViewModels = [NodeViewModel]
 
-protocol PatchNodeViewModelDelegate: AnyObject {
+protocol PatchNodeViewModelDelegate: NodeDelegate {
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType)
 }
@@ -187,6 +187,43 @@ extension PatchNodeViewModel {
     /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
     func _getInputObserversForEncoding() -> NodeRowObservers {
         self._inputsObservers
+    }
+    
+    @MainActor
+    func updateMathExpressionNodeInputs(newExpression: String) {
+        // Always set math-expr on node for its eval and (default) title
+        self.mathExpression = newExpression
+        
+
+        // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
+
+        // Preserve order of presented characters;
+        // Do not change upper- vs. lower-case etc.
+        let variables = newExpression.getSoulverVariables()
+        
+        // log("updateMathExpressionNodeInputs: variables: \(variables)")
+        
+        // Keep value and connection
+        let oldInputs: [(PortValues, OutputCoordinate?)] = self.getRowObservers(.input).map {
+            ($0.allLoopedValues, $0.upstreamOutputCoordinate)
+        }
+        
+        self._inputsObservers = variables.enumerated().map {
+            let existingInput = oldInputs[safe: $0.offset]
+            return NodeRowObserver(
+                values: existingInput?.0 ?? [.number(.zero)],
+                nodeKind: .patch(self.patch),
+                userVisibleType: self.userVisibleType,
+                id: InputCoordinate(portId: $0.offset,
+                                    nodeId: self.id),
+                activeIndex: self.delegate?.activeIndex ?? .init(.zero),
+                upstreamOutputCoordinate: existingInput?.1,
+                nodeIOType: .input,
+                nodeDelegate: self.delegate)
+        }
+        
+        // Update cached port view data
+        self.updateAllPortViewData()
     }
 }
 

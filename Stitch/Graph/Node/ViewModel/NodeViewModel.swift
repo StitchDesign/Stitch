@@ -479,43 +479,6 @@ extension NodeViewModel {
         }
     }
     
-    @MainActor
-    func updateMathExpressionNodeInputs(newExpression: String) {
-        // Always set math-expr on node for its eval and (default) title
-        self.patchNode?.mathExpression = newExpression
-        
-
-        // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
-
-        // Preserve order of presented characters;
-        // Do not change upper- vs. lower-case etc.
-        let variables = newExpression.getSoulverVariables()
-        
-        // log("updateMathExpressionNodeInputs: variables: \(variables)")
-        
-        // Keep value and connection
-        let oldInputs: [(PortValues, OutputCoordinate?)] = self.getRowObservers(.input).map {
-            ($0.allLoopedValues, $0.upstreamOutputCoordinate)
-        }
-        
-        self._inputsObservers = variables.enumerated().map {
-            let existingInput = oldInputs[safe: $0.offset]
-            return NodeRowObserver(
-                values: existingInput?.0 ?? [.number(.zero)],
-                nodeKind: self.kind,
-                userVisibleType: self.userVisibleType,
-                id: InputCoordinate(portId: $0.offset,
-                                    nodeId: self.id),
-                activeIndex: self.activeIndex,
-                upstreamOutputCoordinate: existingInput?.1,
-                nodeIOType: .input,
-                nodeDelegate: self)
-        }
-        
-        // Update cached port view data
-        self.updateAllPortViewData()
-    }
-    
     // Returns indices of LONGEST LOOP
     @MainActor
     func getLoopIndices() -> [Int] {
@@ -555,9 +518,9 @@ extension NodeViewModel: NodeDelegate {
     func portCountShortened(to length: Int, nodeIO: NodeIO) {
         switch nodeIO {
         case .input:
-            self._inputsObservers = Array(self._inputsObservers[0..<length])
+            self.patchNode?.inputsObservers = Array(self.patchNode.inputsObservers[0..<length])
         case .output:
-            self._outputsObservers = Array(self._outputsObservers[0..<length])
+            self.patchNode?.outputsObservers = Array(self.patchNode.outputsObservers[0..<length])
         }
     }
 
@@ -594,8 +557,8 @@ extension NodeViewModel: SchemaObserver {
 
         // Update view if no upstream connection
         // Layers use keypaths
-        if !schema.kind.isLayer {
-            self._getInputObserversForEncoding().forEach { inputObserver in
+        if let patchnode = self.patchNode {
+            patchnode._getInputObserversForEncoding().forEach { inputObserver in
                 if !inputObserver.upstreamOutputObserver.isDefined {
                     inputObserver.updateValues(
                         inputObserver.allLoopedValues,
