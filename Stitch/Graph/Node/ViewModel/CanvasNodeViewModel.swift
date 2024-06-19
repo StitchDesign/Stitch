@@ -1,5 +1,5 @@
 //
-//  NodeCanvasViewModel.swift
+//  CanvasNodeViewModel.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 6/18/24.
@@ -9,12 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
-
 @Observable
-final class NodeCanvasViewModel {
+final class CanvasNodeViewModel {
     // Needs its own identifier b/c 0 to many relationship with node
-    let id: UUID
+    var id: UUID
     
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
@@ -54,9 +52,7 @@ final class NodeCanvasViewModel {
     init(id: UUID,
          position: CGPoint,
          zIndex: Double,
-         parentGroupNodeId: NodeId? = nil,
-         title: String,
-         nodeKind: NodeKind) {
+         parentGroupNodeId: NodeId? = nil) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -67,11 +63,32 @@ final class NodeCanvasViewModel {
     }
 }
 
-extension NodeCanvasViewModel: SchemaObserver {
+extension CanvasNodeViewModel: SchemaObserver {
+    func createSchema() -> CanvasNodeEntity {
+        .init(id: self.id,
+              position: self.position,
+              zIndex: self.zIndex,
+              parentGroupNodeId: self.parentGroupNodeId)
+    }
+    
+    @MainActor static func createObject(from entity: CanvasNodeEntity) -> Self {
+        .init(id: entity.id,
+              position: entity.position,
+              zIndex: entity.zIndex)
+    }
+    
+    @MainActor func update(from schema: CanvasNodeEntity) {
+        self.id = schema.id
+        self.position = schema.position
+        self.previousPosition = schema.position
+        self.zIndex = schema.zIndex
+        self.parentGroupNodeId = schema.parentGroupNodeId
+    }
+    
     func onPrototypeRestart() { }
 }
 
-extension NodeCanvasViewModel {
+extension CanvasNodeViewModel {
     var kind: NodeKind? {
         self.nodeDelegate?.kind
     }
@@ -101,7 +118,7 @@ extension LayerNodeRowData {
         fatalError()
         
         // TODO: update arguments above to pass in the entity struct for canvas data
-//        let canvasObserver = NodeCanvasViewModel(from canvasEntity: ....)
+//        let canvasObserver = CanvasNodeViewModel(from canvasEntity: ....)
 //        return .init(rowObserver: rowObserver,
 //                     canvasObsever: canvasObserver)
     }

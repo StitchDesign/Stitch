@@ -300,7 +300,7 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
-    func getAllCanvasObservers() -> [NodeCanvasViewModel] {
+    func getAllCanvasObservers() -> [CanvasNodeViewModel] {
         fatalError()
         /// Steps here...
         /// 1. Get layer definition

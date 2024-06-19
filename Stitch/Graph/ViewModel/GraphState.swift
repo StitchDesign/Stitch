@@ -505,7 +505,7 @@ extension GraphState {
     
     /// Gets all possible canvas observers for some node.
     /// For patches there is always one canvas observer. For layers there are 0 to many observers.
-    func getCanvasNodeViewModels(from nodeId: NodeId) -> [NodeCanvasViewModel] {
+    func getCanvasNodeViewModels(from nodeId: NodeId) -> [CanvasNodeViewModel] {
         guard let node = self.getNodeViewModel(nodeId) else {
             return []
         }

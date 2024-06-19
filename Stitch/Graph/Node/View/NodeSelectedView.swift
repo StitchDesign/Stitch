@@ -34,7 +34,7 @@ struct NodeSelectedView: ViewModifier {
 struct NodeBoundsReader: ViewModifier {
     @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
-    @Bindable var canvasNode: NodeCanvasViewModel
+    @Bindable var canvasNode: CanvasNodeViewModel
     
     let splitterType: SplitterType?
     let disabled: Bool
@@ -89,7 +89,7 @@ extension GraphState {
      We should keep a group node's input and output splitter nodes' subscriptions running, even when the splitter node is not on screen -- otherwise the group node's input and output ports stop updating.
      */
     @MainActor
-    func updateGraphBaseViewBounds(for canvasObserver: NodeCanvasViewModel,
+    func updateGraphBaseViewBounds(for canvasObserver: CanvasNodeViewModel,
                                    newBounds: CGRect,
                                    viewFrame: CGRect,
                                    splitterType: SplitterType?,

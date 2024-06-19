@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 struct LayerNodeRowData {
     let rowObserver: NodeRowObserver
-    var canvasObsever: NodeCanvasViewModel?
+    var canvasObsever: CanvasNodeViewModel?
 }
 
 extension LayerNodeRowData {

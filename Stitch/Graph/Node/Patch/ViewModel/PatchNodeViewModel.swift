@@ -36,7 +36,7 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
-    let canvasObserver: NodeCanvasViewModel
+    let canvasObserver: CanvasNodeViewModel
     
     // Used for data-intensive purposes (eval)
     var inputsObservers: NodeRowObservers = []

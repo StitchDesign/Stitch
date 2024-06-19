@@ -11,24 +11,23 @@ import StitchSchemaKit
 enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
-    case group(NodeCanvasViewModel)
+    case group(CanvasNodeViewModel)
 }
 
 extension NodeViewModelType {
     @MainActor
-    init(from schema: NodeEntity,
+    init(from nodeType: NodeTypeEntity,
          nodeDelegate: NodeDelegate?) {
-        if let patchNode = schema.patchNodeEntity {
+        switch nodeType {
+        case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode)
             self = .patch(viewModel)
-        } else if let layerNode = schema.layerNodeEntity {
-            let viewModel = LayerNodeViewModel(from: layerNode, 
+        case .layer(let layerNode):
+            let viewModel = LayerNodeViewModel(from: layerNode,
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
-        } else {
-            // TODO: create canvas observable
-            fatalError()
-//            self = .group(create a canvas observer..)
+        case .group(let canvasNode):
+            self = .group()
         }
     }
 

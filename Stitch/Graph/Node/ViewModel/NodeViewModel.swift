@@ -283,7 +283,7 @@ extension NodeViewModel {
         return observer
     }
     
-    func getAllCanvasObservers() -> [NodeCanvasViewModel] {
+    func getAllCanvasObservers() -> [CanvasNodeViewModel] {
         switch nodeType {
         case .patch(let patchNode):
             return [patchNode.canvasObserver]
