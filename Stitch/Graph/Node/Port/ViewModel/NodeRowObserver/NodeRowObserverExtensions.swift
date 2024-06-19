@@ -34,11 +34,16 @@ extension NodeRowObserver {
         let oldViewValue = self.activeValue // the old cached
         let newViewValue = self.getActiveValue(activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
-
-        // Conditions for forcing fields update:
-        // 1. Is at time of initialization--used for layers
-        // 2. Did values change AND visible in frame
-        let shouldUpdate = isInitialization || (didViewValueChange && isVisibleInFrame)
+        
+        let isLayerFocusedInPropertySidebar = self.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == self.id.nodeId
+        
+        /*
+         Conditions for forcing fields update:
+         1. Is at time of initialization--used for layers, or
+         2. Did values change AND visible in frame, or
+         3. Is this an input for a layer node that is focused in the property sidebar?
+         */
+        let shouldUpdate = isInitialization || (didViewValueChange && isVisibleInFrame) || isLayerFocusedInPropertySidebar
 
         if shouldUpdate {
             self.activeValue = newViewValue
