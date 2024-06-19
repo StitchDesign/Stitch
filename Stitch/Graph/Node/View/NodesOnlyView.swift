@@ -34,6 +34,8 @@ struct NodesOnlyView: View {
             Rectangle().fill(.clear)
         }
 
+        //        FakeLayerInputOnGraphView().zIndex(9999)
+        
         ForEach(nodes) { node in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)

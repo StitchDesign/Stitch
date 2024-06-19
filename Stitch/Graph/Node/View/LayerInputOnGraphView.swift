@@ -24,6 +24,7 @@ struct LayerInputOnGraphView: View {
     @MainActor
     var isSelected: Bool {
         self.canvasItem.isSelected
+//        true
     }
     
     var body: some View {
@@ -76,7 +77,6 @@ struct LayerInputOnGraphView: View {
                              position: self.canvasItem.position,
                              zIndex: self.canvasItem.zIndex,
                              usePositionHandler: true)
-      
     }
     
     var nodeTagMenuIcon: some View {
@@ -143,18 +143,22 @@ struct LayerInputOnGraphView: View {
     
     @ViewBuilder @MainActor
     var inputView: some View {
-        // See if layer node uses this input
-        if let portViewType = input.portViewType {
-            NodeInputOutputView(graph: graph,
-                                node: node,
-                                rowData: input,
-                                coordinateType: portViewType,
-//                                nodeKind: .layer(layerNode.layer),
-                                nodeKind: .layer(layer),
-                                isNodeSelected: false,
-                                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
-        } else {
-            EmptyView()
+        HStack {
+            // See if layer node uses this input
+            if let portViewType = input.portViewType {
+                NodeInputOutputView(graph: graph,
+                                    node: node,
+                                    rowData: input,
+                                    coordinateType: portViewType,
+                                    //                                nodeKind: .layer(layerNode.layer),
+                                    nodeKind: .layer(layer),
+                                    isNodeSelected: false,
+                                    adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
+            } else {
+                EmptyView()
+            }
+            
+            Spacer()
         }
     }
 }
@@ -165,14 +169,19 @@ struct FakeLayerInputOnGraphView: View {
         let node = Layer.oval.getFakeLayerNode()!
         LayerInputOnGraphView(graph: .fakeEmptyGraphState,
                               node: node,
-                              input: node.inputRowObservers().first!,
+//                              input: node.inputRowObservers().first!,
+                              input: node.inputRowObservers()[1],
                               canvasItem: .fakeCanvasItem,
                               layer: node.layerNode!.layer)
     }
 }
 
 #Preview {
-    FakeLayerInputOnGraphView()
+    ZStack {
+        Color.blue
+        Color.black.opacity(0.2)
+        FakeLayerInputOnGraphView()
+    }
 }
 
 // want to reuse: title, tag menu, position
