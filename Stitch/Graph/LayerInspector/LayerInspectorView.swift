@@ -167,7 +167,6 @@ struct LayerInspectorPortView: View {
     let layerInputType: LayerInputType
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
-    
     @Bindable var graph: GraphState
     
     var body: some View {
@@ -193,7 +192,14 @@ struct LayerInspectorPortView: View {
                     Color.red.opacity(0.4).padding()
                 }
             }
-            .disabled(isOnGraphAlready)
+            .simultaneousGesture(
+                TapGesture()
+                    .onEnded({ _ in
+                        // TODO: when input tapped, and we already ahve an LIG, jump to that LIG on the graph
+                        
+                    })
+            )
+//            .disabled(isOnGraphAlready)
         } else {
             EmptyView()
         }
