@@ -52,11 +52,17 @@ struct LayerInspectorView: View {
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
-                    .frame(idealHeight: .infinity)
+//                    .frame(idealHeight: .infinity)
             }
+
+            // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
-            // TODO: compare on various iPads (using simulator?); -40 seems perfect for Catalyst
+            #if targetEnvironment(macCatalyst)
                          .padding(.top, -40)
+            #else
+                         .padding(.top, -60)
+                         .padding(.bottom, -20)
+            #endif
             
 //            selectedLayerView(node, layerNode)
 //                .onAppear {
