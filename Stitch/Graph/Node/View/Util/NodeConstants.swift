@@ -8,7 +8,8 @@
 import SwiftUI
 import RealityKit
 
-let NODE_CORNER_RADIUS: CGFloat = 12
+// fka `NODE_CORNER_RADIUS`
+let CANVAS_ITEM_CORNER_RADIUS: CGFloat = 12
 
 // How much of the input-entry/output-exit 'port dot' is shown?
 let PORT_VISIBLE_LENGTH: CGFloat = 16

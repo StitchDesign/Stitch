@@ -171,7 +171,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 //                nodeUIColor.body.opacity(0.5)
                 //                nodeUIColor.body.opacity(0.7)
             }
-            .cornerRadius(NODE_CORNER_RADIUS)
+            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
         }
         .overlay(content: {
             if isLayerNode, isHiddenLayer {
@@ -184,7 +184,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                  - use crossed-out eye icon near node title?
                  */
                 Color.black.opacity(0.3)
-                    .cornerRadius(NODE_CORNER_RADIUS)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                     .allowsHitTesting(false)
 
                 //                STITCH_TITLE_FONT_COLOR.opacity(0.3)
@@ -193,13 +193,14 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 EmptyView()
             }
         })
-        .modifier(NodeBoundsReader(graph: graph,
-                                   id: id,
-                                   splitterType: splitterType,
-                                   disabled: boundsReaderDisabled,
-                                   updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+        .modifier(CanvasItemBoundsReader(
+            graph: graph,
+            canvasItem: node.canvasUIData,
+            splitterType: splitterType,
+            disabled: boundsReaderDisabled,
+            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         //        .cornerRadius(NODE_CORNER_RADIUS)
-        .modifier(NodeSelectedView(isSelected: isSelected))
+        .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
 
     var nodeTitle: some View {

@@ -108,17 +108,18 @@ struct LayerInputOnGraphView: View {
                 //                nodeUIColor.body.opacity(0.5)
                 //                nodeUIColor.body.opacity(0.7)
             }
-            .cornerRadius(NODE_CORNER_RADIUS)
+            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
         }
         
         // TODO: add the `disabled layer node` overaly
         
-        .modifier(NodeBoundsReader(graph: graph,
-                                   id: self.node.id,
-                                   splitterType: nil,
-                                   disabled: false,
-                                   updateMenuActiveSelectionBounds: false))
-        .modifier(NodeSelectedView(isSelected: isSelected))
+        .modifier(CanvasItemBoundsReader(
+            graph: graph,
+            canvasItem: canvasItem,
+            splitterType: nil,
+            disabled: false,
+            updateMenuActiveSelectionBounds: false))
+        .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
  
     @MainActor

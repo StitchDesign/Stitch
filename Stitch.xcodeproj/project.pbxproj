@@ -829,7 +829,7 @@
 		ECF387CB280B5C650075F0E5 /* PortValuesPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */; };
 		ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387D0280B5E560075F0E5 /* StitchTextView.swift */; };
 		ECF387D3280B600A0075F0E5 /* ReadOnlyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */; };
-		ECF387DD280B61680075F0E5 /* NodeSelectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */; };
+		ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */; };
 		ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DE280B61860075F0E5 /* NodeUIKind.swift */; };
 		ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387E0280B61A80075F0E5 /* NodeConstants.swift */; };
 		ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */; };
@@ -1719,7 +1719,7 @@
 		ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValuesPreviewView.swift; sourceTree = "<group>"; };
 		ECF387D0280B5E560075F0E5 /* StitchTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextView.swift; sourceTree = "<group>"; };
 		ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadOnlyEntry.swift; sourceTree = "<group>"; };
-		ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectedView.swift; sourceTree = "<group>"; };
+		ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemSelectedViewModifier.swift; sourceTree = "<group>"; };
 		ECF387DE280B61860075F0E5 /* NodeUIKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIKind.swift; sourceTree = "<group>"; };
 		ECF387E0280B61A80075F0E5 /* NodeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConstants.swift; sourceTree = "<group>"; };
 		ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMLClassifyNode.swift; sourceTree = "<group>"; };
@@ -2430,7 +2430,7 @@
 				B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */,
 				B5EC61F42A5DF7BE002A639F /* LayerNodeView.swift */,
 				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
-				ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */,
+				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
 				B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */,
 			);
 			path = View;
@@ -4956,7 +4956,7 @@
 				B5CF6448294B8AF700EF83DB /* StitchButton.swift in Sources */,
 				EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */,
 				EC2614432B895C3400BEB066 /* SizePackNode.swift in Sources */,
-				ECF387DD280B61680075F0E5 /* NodeSelectedView.swift in Sources */,
+				ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */,
 				B5952EA32BD34597005687C0 /* InsertNodeMenuWrapper.swift in Sources */,
 				EC733DC22639E22E00DD4EC1 /* PatchNodeViewModel.swift in Sources */,
 				EC1DE584260A9ACB009497CF /* HSLColorNode.swift in Sources */,

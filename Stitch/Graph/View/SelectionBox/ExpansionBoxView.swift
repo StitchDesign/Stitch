@@ -31,11 +31,11 @@ struct ExpansionBoxView: View {
     @State var size: CGSize = .zero
 
     var body: some View {
-        RoundedRectangle(cornerRadius: NODE_CORNER_RADIUS,
+        RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS,
                          style: .continuous)
             .fill(color.opacity(0.4))
             .overlay(
-                RoundedRectangle(cornerRadius: NODE_CORNER_RADIUS)
+                RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
                     .stroke(color, lineWidth: 4)
             )
             .background {

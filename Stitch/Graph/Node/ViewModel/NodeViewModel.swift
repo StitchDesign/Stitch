@@ -443,21 +443,28 @@ extension NodeViewModel {
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
-
-    // Update both
+    
+    // fka `func updateRowObservers(activeIndex: ActiveIndex)`
     @MainActor
-    func updateRowObservers(activeIndex: ActiveIndex) {
+    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
         // Do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
         }
-
-        self.updateInputsObservers(newValuesList: self.inputs,
-                                   activeIndex: activeIndex)
-        self.updateOutputsObservers(newValuesList: self.outputs,
-                                    activeIndex: activeIndex)
+        
+        self._inputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
+        
+        self._outputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
     }
-
+    
     @MainActor
     func updateInputsObservers(newValuesList: PortValuesList,
                                activeIndex: ActiveIndex) {
@@ -570,7 +577,7 @@ extension NodeViewModel {
                                   isVisibleInFrame: self.isVisibleInFrame)
         }
     }
-
+    
     var color: NodeUIColor {
         switch self.kind {
         case .patch(let patch):
@@ -582,6 +589,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var displayTitle: String {
         guard self.id != Self.nilChoice.id else {
             return "None"
@@ -614,7 +622,7 @@ extension NodeViewModel {
 
             // Refresh values if node back in frame
             if newValue {
-                self.updateRowObservers(activeIndex: activeIndex)
+                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
             }
         }
     }
