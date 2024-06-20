@@ -53,6 +53,7 @@ struct LayerInputOnGraphId: Equatable, Codable {
     let keyPath: LayerInputType // the keypath, i.e. unique port
 }
 
+typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
 final class CanvasItemViewModel {
@@ -91,19 +92,17 @@ final class CanvasItemViewModel {
         self.nodeDelegate?.graphDelegate
     }
     
-    //
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
-//         parentGroupNodeId: NodeId? = nil) {
          parentGroupNodeId: NodeId?) {
         self.id = id
         self.position = position
         self.previousPosition = position
-        self.bounds = bounds
+        self.bounds = bounds // where or how is this set?
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
-        self.nodeDelegate = nodeDelegate
+        self.nodeDelegate = nodeDelegate // where or how is this set?
     }
 }
 

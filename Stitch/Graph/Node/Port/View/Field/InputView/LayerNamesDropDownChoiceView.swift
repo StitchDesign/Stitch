@@ -34,6 +34,7 @@ struct LayerNamesDropDownChoiceView: View {
         return options
     }
 
+    @MainActor
     var selectionTitle: String {
         #if DEV_DEBUG
         self.selection.displayTitle + " " + self.selection.id.description.dropLast(24)

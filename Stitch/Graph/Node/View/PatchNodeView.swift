@@ -47,6 +47,7 @@ struct PatchNodeView: View {
         self.patch.availableNodeTypes
     }
 
+    @MainActor
     var displayTitle: String {
         self.viewModel.displayTitle
     }

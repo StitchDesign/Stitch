@@ -31,6 +31,7 @@ struct LayerNodeView: View {
         self.viewModel.inputs
     }
 
+    @MainActor
     var displayTitle: String {
         self.viewModel.displayTitle
     }

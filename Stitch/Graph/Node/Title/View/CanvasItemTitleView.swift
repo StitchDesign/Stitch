@@ -27,6 +27,8 @@ struct CanvasItemTitleView: View {
     var id: NodeId {
         node.id
     }
+    
+    @MainActor
     var name: String {
         node.displayTitle
     }

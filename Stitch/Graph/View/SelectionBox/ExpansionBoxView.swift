@@ -48,7 +48,7 @@ struct ExpansionBoxView: View {
             .frame(box.size)
             .position(box.anchorCorner)
             .onPreferenceChange(SelectionBoxPreferenceKey.self) { newSelectionBounds in
-                dispatch(DetermineSelectedNodes(selectionBounds: newSelectionBounds))
+                dispatch(DetermineSelectedCanvasItems(selectionBounds: newSelectionBounds))
             }
     }
 }

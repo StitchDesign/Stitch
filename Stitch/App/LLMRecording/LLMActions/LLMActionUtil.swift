@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 extension NodeViewModel {
+    @MainActor
     var llmNodeTitle: String {
         // Use parens to indicate chopped off uuid
         self.displayTitle + " (" + self.id.debugFriendlyId + ")"

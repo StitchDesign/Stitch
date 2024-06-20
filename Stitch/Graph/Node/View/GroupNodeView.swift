@@ -21,6 +21,7 @@ struct GroupNodeView: View {
         self.viewModel.id
     }
 
+    @MainActor
     var displayTitle: String {
         self.viewModel.displayTitle
     }

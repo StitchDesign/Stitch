@@ -117,23 +117,24 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     }
 }
 
-// CAREFUL ABOUT PERSISTENCE
-struct DetermineSelectedNodes: GraphEvent {
+// fka `DetermineSelectedNodes`
+struct DetermineSelectedCanvasItems: GraphEvent {
     let selectionBounds: CGRect
 
     func handle(state: GraphState) {
-        state.processNodeSelectionBoxChange(
-            nodeCursorSelectionBox: selectionBounds)
+        state.processCanvasSelectionBoxChange(
+            cursorSelectionBox: selectionBounds)
     }
 }
 
 // TODO: needs to potentially select comment boxes as well
 extension GraphState {
     @MainActor
-    func processNodeSelectionBoxChange(nodeCursorSelectionBox: CGRect) {
+    // fka `processNodeSelectionBoxChange`
+    func processCanvasSelectionBoxChange(cursorSelectionBox: CGRect) {
         let graphState = self
 
-        guard nodeCursorSelectionBox.size != .zero else {
+        guard cursorSelectionBox.size != .zero else {
             #if DEV_DEBUG
             log("processNodeSelectionBoxChange error: expansion box was size zero")
             #endif
@@ -142,56 +143,86 @@ extension GraphState {
 
         var smallestDistance: CGFloat?
 
-        let allNodes = self.visibleNodesViewModel
-            .getVisibleNodes(at: graphState.graphUI.groupNodeFocused?.asNodeId)
-
-        // Determine which nodes are now selected
-        for node in allNodes {
-            let id = node.id
-            let doesSelectionIntersectNode = nodeCursorSelectionBox.intersects(node.bounds.graphBaseViewBounds)
-
+        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: graphState.graphUI.groupNodeFocused?.asNodeId)
+        
+        for canvasItem in allCanvasItems {
+            
+            let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
+            
             // Selected
-            if doesSelectionIntersectNode {
-                // Add node to selected nodes
-                self.setNodeSelection(node, to: true)
-
+            if doesSelectionIntersectCanvasItem {
+                
+                // Add to selected canvas items
+                self.setCanvasItemSelection(canvasItem, to: true)
+                
                 let thisDistance = CGPointDistanceSquared(
-                    from: node.bounds.graphBaseViewBounds.origin,
+                    from: canvasItem.bounds.graphBaseViewBounds.origin,
                     to: graphState.graphUI.selection.expansionBox.endPoint)
 
                 if !smallestDistance.isDefined {
                     smallestDistance = thisDistance
                 }
-
-            } // if box.size
+            } // if intersecrts
 
             // De-selected
             else {
-                // Remove node from selected nodes
-                self.setNodeSelection(node, to: false)
+                // Remove from selected canvas items
+                self.setCanvasItemSelection(canvasItem, to: true)
             }
-
-        } // for node in ...
+        }
+        
+//        let allNodes = self.visibleNodesViewModel
+//            .getVisibleNodes(at: graphState.graphUI.groupNodeFocused?.asNodeId)
+//
+//        // Determine which nodes are now selected
+//        for node in allNodes {
+//            let id = node.id
+//            let doesSelectionIntersectNode = cursorSelectionBox.intersects(node.bounds.graphBaseViewBounds)
+//
+//            // Selected
+//            if doesSelectionIntersectNode {
+//                // Add node to selected nodes
+//                self.setNodeSelection(node, to: true)
+//
+//                let thisDistance = CGPointDistanceSquared(
+//                    from: node.bounds.graphBaseViewBounds.origin,
+//                    to: graphState.graphUI.selection.expansionBox.endPoint)
+//
+//                if !smallestDistance.isDefined {
+//                    smallestDistance = thisDistance
+//                }
+//
+//            } // if box.size
+//
+//            // De-selected
+//            else {
+//                // Remove node from selected nodes
+//                self.setNodeSelection(node, to: false)
+//            }
+//
+//        } // for node in ...
 
         // Determine selected comment boxes
 
-        // TODO: only look at boxes on this traversal level
-        for box in graphState.commentBoxesDict.toValuesArray {
-            if let boxBounds = graphState.graphUI.commentBoxBoundsDict.get(box.id) {
-
-                // node cursor box only selects a comment box if we touch the comment box's title area
-                //                let doesIntersectSelectionBox = nodeCursorSelectionBox.intersects(boxBounds)
-                let doesIntersectSelectionBox = nodeCursorSelectionBox.intersects(boxBounds.titleBounds)
-
-                if doesIntersectSelectionBox {
-                    graphState.graphUI.selection.selectedCommentBoxes.insert(box.id)
-                } else {
-                    graphState.graphUI.selection.selectedCommentBoxes.remove(box.id)
-                }
-
-            } else {
-                log("processNodeSelectionBoxChange: could not get bounds for comment box \(box.id)")
-            }
-        }
+//      // TODO: only look at boxes on this traversal level
+        // TODO: update comment boxes to use `CanvasItemViewModel`
+//        for box in graphState.commentBoxesDict.toValuesArray {
+//            if let boxBounds = graphState.graphUI.commentBoxBoundsDict.get(box.id) {
+//
+//                // node cursor box only selects a comment box if we touch the comment box's title area
+//                //                let doesIntersectSelectionBox = nodeCursorSelectionBox.intersects(boxBounds)
+//                let doesIntersectSelectionBox = cursorSelectionBox.intersects(boxBounds.titleBounds)
+//
+//                if doesIntersectSelectionBox {
+//                    graphState.graphUI.selection.selectedCommentBoxes.insert(box.id)
+//                } else {
+//                    graphState.graphUI.selection.selectedCommentBoxes.remove(box.id)
+//                }
+//
+//            } else {
+//                log("processNodeSelectionBoxChange: could not get bounds for comment box \(box.id)")
+//            }
+//        }
+        
     }
 }

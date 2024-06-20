@@ -41,6 +41,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         self.node.zIndex
     }
 
+    @MainActor
     var displayTitle: String {
         self.node.displayTitle
     }

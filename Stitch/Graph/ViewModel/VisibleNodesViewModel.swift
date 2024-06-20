@@ -186,6 +186,18 @@ extension VisibleNodesViewModel {
         self.allViewModels
             .filter { $0.parentGroupNodeId ==  focusedGroup }
     }
+    
+    @MainActor
+    func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
+        self.allViewModels.reduce(into: .init()) { partialResult, node in
+            switch node.kind {
+            case .patch, .group:
+                partialResult.append(node.canvasUIData)
+            case .layer:
+                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+            }
+        }
+    }
 
     /// Obtains row observers directly from splitter patch nodes given its parent group node.
     @MainActor
