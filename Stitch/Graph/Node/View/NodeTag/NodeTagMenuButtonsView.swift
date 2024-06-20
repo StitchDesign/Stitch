@@ -41,7 +41,8 @@ struct NodeTagMenuButtonsView: View {
     
     @MainActor
     var moreThanOneNodeSelected: Bool {
-        graph.selectedNodeIds.count > 1
+//        graph.selectedNodeIds.count > 1
+        graph.selectedCanvasItems.count > 1
     }
 
     @MainActor

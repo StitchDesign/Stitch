@@ -19,11 +19,18 @@ struct LayerInputOnGraphView: View {
     // Don't need full LayerNodeViewModel, just that layer
     //    @Bindable var layerNode: LayerNodeViewModel
     let layer: Layer
-    
+        
     @MainActor
     var isSelected: Bool {
         self.canvasItem.isSelected
     }
+    
+    var isHiddenLayer: Bool {
+        node.layerNode?.hasSidebarVisibility ?? false
+    }
+    
+    // TODO: fix when comment boxes added back
+    let atleastOneCommentBoxSelected: Bool = false
     
     var body: some View {
                     
@@ -111,13 +118,32 @@ struct LayerInputOnGraphView: View {
             .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
         }
         
-        // TODO: add the `disabled layer node` overaly
+        .overlay(content: {
+            if isHiddenLayer {
+                /*
+                 TODO: how to indicate from the graph view that a given layer node's layers are hidden?
+
+                 - use 30% black overlay in Light mode, 30% white overlay in Dark mode?
+                 - use theme color?
+                 - use crossed-out eye icon near node title?
+                 */
+                Color.black.opacity(0.3)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    .allowsHitTesting(false)
+
+                //                STITCH_TITLE_FONT_COLOR.opacity(0.3)
+                //                theme.themeData.edgeColor.opacity(0.3)
+            } else {
+                EmptyView()
+            }
+        })
         
         .modifier(CanvasItemBoundsReader(
             graph: graph,
             canvasItem: canvasItem,
-            splitterType: nil,
-            disabled: false,
+            splitterType: nil, // N/A for LIG
+            disabled: false, // N/A for LIG
+            // N/A for LIG
             updateMenuActiveSelectionBounds: false))
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
@@ -129,15 +155,16 @@ struct LayerInputOnGraphView: View {
                       isNodeSelected: isSelected)
     }
     
+    @MainActor
     var tagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
                                node: node,
-                               activeGroupId: nil,
-                               nodeTypeChoices: .init(),
-                               canAddInput: false,
-                               canRemoveInput: false,
-                               atleastOneCommentBoxSelected: false,
-                               isHiddenLayer: false)
+                               activeGroupId: graph.groupNodeFocused?.asGroupNodeId,
+                               nodeTypeChoices: .init(), // N/A layer-inputs-on-graph
+                               canAddInput: false, // N/A for layer-inputs-on-graph
+                               canRemoveInput: false, // N/A for layer-inputs-on-graph
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                               isHiddenLayer: isHiddenLayer)
     }
     
     @ViewBuilder @MainActor
