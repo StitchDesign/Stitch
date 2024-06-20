@@ -179,16 +179,14 @@ extension GraphState {
 
         // Dragging an unselected node selects that node
         // and de-selects all other nodes.
-//        let alreadySelected = graphState.selectedNodeIds.contains(nodeToDrag.id)
         let alreadySelected = canvasItemToDrag.isSelected
 
         if !alreadySelected {
             // update node's position
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
-            // select the node
-//            graphState.selectSingleNode(nodeToDrag)
-            canvasItemToDrag.select()
+            // select the canvas item and de-select all the others
+            graphState.selectSingleCanvasItem(canvasItemToDrag)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             graphState.selectedEdges = .init()
@@ -197,10 +195,7 @@ extension GraphState {
         // If we're dragging a node that's already selected,
         // then just update positions of all selected nodes.
         else {
-//            graphState.selectedNodeIds
-//                .compactMap { self.getNodeViewModel($0) }
             graphState.selectedCanvasItems
-//                .compactMap { self.getCanvasItem($0) }
             // need to sort by z index to retain order
                 .sorted { $0.zIndex < $1.zIndex }
                 .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
@@ -225,6 +220,7 @@ struct NodeMoveEndedAction: GraphEventWithResponse {
 }
 
 extension GraphState {
+    // `handleNodeMoveEnded`
     // mutates GraphState, but also has to update GraphSchema
     @MainActor
     func handleNodeMoveEnded(id: CanvasItemId) {
