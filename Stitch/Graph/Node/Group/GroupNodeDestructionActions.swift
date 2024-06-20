@@ -49,7 +49,6 @@ extension GraphState {
         let newGroupId = self.graphUI.groupNodeFocused?.asNodeId
 
         // Update nodes to map to new group id
-//        self.nodes.values.forEach { node in
         self.getCanvasItems().forEach { canvasItem in
             if canvasItem.parentGroupNodeId == uncreatedGroupNodeId {
                 

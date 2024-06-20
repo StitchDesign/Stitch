@@ -13,26 +13,42 @@ typealias CanvasItemIdSet = Set<CanvasItemId>
 
 extension GraphState {
     
+    @MainActor
+    func canvasItemsImpliedBySelectedGroupNodes(_ selectedCanvasItems: CanvasItemIdSet) -> CanvasItemIdSet {
+        var impliedIds = CanvasItemIdSet()
+    
+        let selectedGroupNodes = selectedCanvasItems.compactMap { canvasItem in
+            if let nodeId = canvasItem.nodeCase, self.getNode(nodeId)?.isGroupNode ?? false {
+                return nodeId
+            }
+            return nil
+        }
+        
+        for id in selectedGroupNodes {
+            
+            let visibleCanvasItemsForSelectedGroupNode = self.visibleNodesViewModel
+                .getVisibleCanvasItems(at: id)
+                .reduce(into: CanvasItemIdSet(), { $0.insert($1.id) })
+            
+            impliedIds = impliedIds.union(visibleCanvasItemsForSelectedGroupNode)
+        }
+        
+        return impliedIds
+    }
+    
     // Edges that will (may?) change in the process of creating a group-ui-node
-    func getEdgesToUpdate(selectedNodeIds: IdSet,
+    @MainActor
+    func getEdgesToUpdate(selectedCanvasItems: CanvasItemIdSet,
                           edges: Edges) -> (Edges, Edges) {
 
-        var impliedIds = IdSet()
-        for id in selectedNodeIds {
-            if let node = self.getNodeViewModel(id),
-               node.kind == .group {
-                impliedIds = impliedIds.union(
-                    self.visibleNodesViewModel.getVisibleNodes(at: id).map { $0.id }.toSet
-                )
-            }
-        }
+        var impliedIds = canvasItemsImpliedBySelectedGroupNodes(selectedCanvasItems)
 
         //        log("GroupNodeCreatedEvent: impliedIds: \(impliedIds)")
         //        selectedNodeIds = selectedNodeIds.union(impliedIds)
         //        log("GroupNodeCreatedEvent: selectedNodeIds is now: \(selectedNodeIds)")
 
         // When creating edges, we must look at all the implied ids as well:
-        let allImpliedIds = selectedNodeIds.union(impliedIds)
+        let allImpliedIds = selectedCanvasItems.union(impliedIds)
 
         // Coordinates outside graph which connect to graph.
         // We'll need to replace these edges later
@@ -40,15 +56,18 @@ extension GraphState {
         var outputEdgesToUpdate: [PortEdgeData] = []
 
         edges.forEach { edge in
-            // Determine incoming edges to group to determine group's inputs
-            if allImpliedIds.contains(where: { $0 == edge.to.nodeId }),
-               !allImpliedIds.contains(where: { $0 == edge.from.nodeId }) {
+            // why were we testing against node id, rather than input or output coordinate?
+            
+            let destinationIsInsideGroup = allImpliedIds.contains(edge.to.asCanvasItemId)
+            let originIsInsideGroup = allImpliedIds.contains(edge.from.asCanvasItemId)
+            
+            // Will the destination be put in the group, but the origin stays outside? if so, that is an "input edge to update" i.e. an edge coming into the group
+            if destinationIsInsideGroup && !originIsInsideGroup {
                 inputEdgesToUpdate.append(edge)
-            }
-
-            // Determine outgoing edges from group to determine group's outputs
-            if allImpliedIds.contains(where: { $0 == edge.from.nodeId }),
-               !allImpliedIds.contains(where: { $0 == edge.to.nodeId }) {
+            } 
+            
+            // Will the origin be put in the group, but the destination stays outside? if so, that is an "output edge to update" i.e. an edge coming out of the group
+            else if originIsInsideGroup && !destinationIsInsideGroup {
                 outputEdgesToUpdate.append(edge)
             }
         }
@@ -56,7 +75,7 @@ extension GraphState {
         return (inputEdgesToUpdate, outputEdgesToUpdate)
     }
     
-    func getOldEdgeToNodeLocations(inputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
+    func getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeToNodeLocations = [NodeIOCoordinate: CGPoint]()
         inputEdgesToUpdate.forEach { edge in
             if let node =  self.getNodeViewModel(edge.to.nodeId) {
@@ -69,7 +88,7 @@ extension GraphState {
         return oldEdgeToNodeLocations
     }
     
-    func getOldEdgeFromNodeLocations(outputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
+    func getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeFromNodeLocations = [NodeIOCoordinate: CGPoint]()
         outputEdgesToUpdate.forEach { edge in
             if let node = self.getNodeViewModel(edge.from.nodeId) {
@@ -137,59 +156,59 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         }
 //        #endif
 
-//        let (inputEdgesToUpdate,
-//             outputEdgesToUpdate) = state.getEdgesToUpdate(
-//                selectedNodeIds: selectedCanvasItems,
-//                edges: edges)
+        let (inputEdgesToUpdate,
+             outputEdgesToUpdate) = state.getEdgesToUpdate(
+                selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
+                edges: edges)
 
         // log("GroupNodeCreatedEvent: inputEdgesToUpdate: \(inputEdgesToUpdate)")
         // log("GroupNodeCreatedEvent: outputEdgesToUpdate: \(outputEdgesToUpdate)")
 
         let center = state.graphUI.center(state.localPosition)
-//
-        // input splitters need to be west of the `to` node for the `edge`
-//        let oldEdgeToNodeLocations = state.getOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
-//        
-//        inputEdgesToUpdate.forEach { edge in
-//            
-//            // Retrieve relevant old-edge's destination node's position
-//            let to = edge.to
-//            var nodePosition = oldEdgeToNodeLocations.get(to) ?? center
-//            
-//            state.insertIntermediaryNode(
-//                inBetweenNodesOf: edge,
-//                newGroupNodeId: newGroupNodeId,
-//                splitterType: .input,
-//                position: nodePosition)
-//
-//            // Increment node position for next input splitter node
-//            nodePosition.x += NODE_POSITION_STAGGER_SIZE
-//            nodePosition.y += NODE_POSITION_STAGGER_SIZE
-//            
-//            oldEdgeToNodeLocations[to] = nodePosition
-//        }
-//
-//        let oldEdgeFromNodeLocations = state.getOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
-//        
-//        // output edge = an edge going FROM a node in the group, TO a node outside the group
-//        outputEdgesToUpdate.forEach { edge in
-//
-//            // Retrieve relevant old-edge's destination node's position
-//            let from = edge.from
-//            var nodePosition = oldEdgeFromNodeLocations.get(from) ?? center
-//            
-//            state.insertIntermediaryNode(
-//                inBetweenNodesOf: edge,
-//                newGroupNodeId: newGroupNodeId,
-//                splitterType: .output,
-//                position: nodePosition)
-//            
-//            // Increment node position for next output splitter node
-//            nodePosition.x += NODE_POSITION_STAGGER_SIZE
-//            nodePosition.y += NODE_POSITION_STAGGER_SIZE
-//            
-//            oldEdgeFromNodeLocations[from] = nodePosition
-//        }
+        
+        //input splitters need to be west of the `to` node for the `edge`
+        var oldEdgeToNodeLocations = state.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
+                                                                
+        inputEdgesToUpdate.forEach { edge in
+            
+            // Retrieve relevant old-edge's destination node's position
+            let to = edge.to
+            var nodePosition = oldEdgeToNodeLocations.get(to) ?? center
+            
+            state.insertIntermediaryNode(
+                inBetweenNodesOf: edge,
+                newGroupNodeId: newGroupNodeId,
+                splitterType: .input,
+                position: nodePosition)
+            
+            // Increment node position for next input splitter node
+            nodePosition.x += NODE_POSITION_STAGGER_SIZE
+            nodePosition.y += NODE_POSITION_STAGGER_SIZE
+            
+            oldEdgeToNodeLocations[to] = nodePosition
+        }
+        
+        var oldEdgeFromNodeLocations = state.getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
+        
+        // output edge = an edge going FROM a node in the group, TO a node outside the group
+        outputEdgesToUpdate.forEach { edge in
+            
+            // Retrieve relevant old-edge's destination node's position
+            let from = edge.from
+            var nodePosition = oldEdgeFromNodeLocations.get(from) ?? center
+            
+            state.insertIntermediaryNode(
+                inBetweenNodesOf: edge,
+                newGroupNodeId: newGroupNodeId,
+                splitterType: .output,
+                position: nodePosition)
+            
+            // Increment node position for next output splitter node
+            nodePosition.x += NODE_POSITION_STAGGER_SIZE
+            nodePosition.y += NODE_POSITION_STAGGER_SIZE
+            
+            oldEdgeFromNodeLocations[from] = nodePosition
+        }
         
         // Update selected canvas items with new parent id
         selectedCanvasItems.forEach { $0.parentGroupNodeId = newGroupNodeId.id }

@@ -263,7 +263,7 @@ extension GraphState {
             node.previousPosition = node.position
                 
             // TODO: support LLM Actions for LayerInputOnGraph
-            if let nodeId = id.nodeCase(), let node = self.getNode(nodeId) {
+            if let nodeId = id.nodeCase, let node = self.getNode(nodeId) {
                 let diff = node.position - positionAtStart
                 self.maybeCreateLLMMoveNode(node: node,
                                             diff: diff)

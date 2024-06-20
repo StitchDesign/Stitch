@@ -141,7 +141,7 @@ struct NodeTagMenuButtonsView: View {
             }
 
             if let splitterType = splitterType,
-               let nodeId = canvasItemId.nodeCase(),
+               let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
                 splitterTypeSubmenu(nodeId: nodeId, splitterType)
             }
@@ -150,7 +150,7 @@ struct NodeTagMenuButtonsView: View {
             // only for nodes with node-types;
             // ie only some patch nodes and never layer nodes.
             if let nodeType = nodeType,
-               let nodeId = canvasItemId.nodeCase(),
+               let nodeId = canvasItemId.nodeCase,
                !nodeTypeChoices.isEmpty {
                 nodeTypeSubmenu(nodeId: nodeId, nodeType, nodeTypeChoices)
             } // if let nodeType
@@ -258,7 +258,7 @@ struct NodeTagMenuButtonsView: View {
     // distinguish between "Duplicage Nodes" and "Duplicage Comments"
     @MainActor @ViewBuilder
     var duplicateButton: some View {
-        if let nodeId = canvasItemId.nodeCase() {
+        if let nodeId = canvasItemId.nodeCase {
             Group {
                 if atleastOneCommentBoxSelected {
                     DuplicateNodesButton(graph: graph,
@@ -312,7 +312,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var visitGroupButton: some View {
         nodeTagMenuButton(label: "Visit Group") {
-            if let nodeId = canvasItemId.nodeCase() {
+            if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
             }
         }
@@ -322,7 +322,7 @@ struct NodeTagMenuButtonsView: View {
     var deleteGroupButton: some View {
         nodeTagMenuButton(label: "Delete",
                           role: .destructive) {
-            if let nodeId = canvasItemId.nodeCase() {
+            if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeDeletedAction(groupNodeId: nodeId.asGroupNodeId))
             }
         }
@@ -331,7 +331,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var ungroupGroupButton: some View {
         nodeTagMenuButton(label: "Ungroup") {
-            if let nodeId = canvasItemId.nodeCase() {
+            if let nodeId = canvasItemId.nodeCase {
                 dispatch(GroupNodeUncreated(groupId: GroupNodeId(nodeId)))
             }
         }
@@ -340,7 +340,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var removeInputButton: some View {
         nodeTagMenuButton(label: "Remove Input") {
-            if let nodeId = canvasItemId.nodeCase() {
+            if let nodeId = canvasItemId.nodeCase {
                 dispatch(InputRemovedAction(nodeId: nodeId))
             }
         }
@@ -349,7 +349,7 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var addInputButton: some View {
         nodeTagMenuButton(label: "Add Input") {
-            if let nodeId = canvasItemId.nodeCase() {
+            if let nodeId = canvasItemId.nodeCase {
                 dispatch(InputAddedAction(nodeId: nodeId))
             }
         }

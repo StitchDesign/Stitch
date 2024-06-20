@@ -46,7 +46,7 @@ enum CanvasItemId: Equatable, Codable, Hashable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputOnGraphId)
     
-    func nodeCase() -> NodeId? {
+    var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
             return nodeId
@@ -55,7 +55,7 @@ enum CanvasItemId: Equatable, Codable, Hashable {
         }
     }
     
-    func layerInputCase() -> LayerInputOnGraphId? {
+    var layerInputCase: LayerInputOnGraphId? {
         switch self {
         case .node:
             return nil

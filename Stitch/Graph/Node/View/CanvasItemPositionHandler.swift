@@ -55,7 +55,7 @@ struct CanvasItemPositionHandler: ViewModifier {
                         .onChanged { gesture in
                             // log("NodePositionHandler: onChanged")
                             if isOptionPressed,
-                               let nodeId = node.id.nodeCase() {
+                               let nodeId = node.id.nodeCase {
                                 dispatch(NodeDuplicateDraggedAction(
                                             id: nodeId,
                                             translation: gesture.translation))
