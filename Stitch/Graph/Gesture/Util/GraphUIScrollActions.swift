@@ -547,7 +547,7 @@ extension GraphState {
         // and node isn't already dragging,
         // then set graph-drag as active first gesture
         if self.graphMovement.firstActive == .none {
-            if !self.graphMovement.nodeIsDragged {
+            if !self.graphMovement.canvasItemIsDragged {
                 log("graphDrag onChanged: will set .graph as active first gesture")
                 self.graphMovement.firstActive = .graph
             }
@@ -558,9 +558,10 @@ extension GraphState {
         // If we're simultaneously dragging the node,
         // add inverse graph translation to node's position,
         // so that node stays under our finger:
-        if self.graphMovement.nodeIsDragged {
+        if self.graphMovement.canvasItemIsDragged {
 
-            self.getSelectedNodeViewModels().forEach { node in
+            self.selectedCanvasItems.forEach { node in
+            // self.getSelectedNodeViewModels().forEach { node in
                 node.updateNodeOnGraphDragged(
                     translation,
                     self.highestZIndex + 1,
@@ -627,7 +628,7 @@ extension GraphState {
         // always reset 'wasTrackpadScroll'
         graphMovement.wasTrackpadScroll = false
 
-        graphMovement.draggedNode = nil
+        graphMovement.draggedCanvasItem = nil
     }
 
     // you should pass in GraphMovement
@@ -663,13 +664,13 @@ extension GraphState {
         graphMovement.graphIsDragged = false
 
         // Only add to `accumulated` if we're indeed dragging at least one node
-        if graphMovement.nodeIsDragged {
+        if graphMovement.canvasItemIsDragged {
             graphMovement.accumulatedGraphTranslation += (graphMovement.runningGraphTranslation ?? .zero) / graphMovement.zoomData.zoom
         }
 
         graphMovement.runningGraphTranslation = nil
 
-        if graphMovement.nodeIsDragged {
+        if graphMovement.canvasItemIsDragged {
             //        log("graphDrag: onEnded: will set .graph as active first gesture")
             graphMovement.firstActive = .node
         } else {

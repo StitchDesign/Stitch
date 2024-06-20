@@ -30,15 +30,16 @@ struct GraphMultigesture: Equatable, Hashable {
     // false eg when momentum running.
     var graphIsDragged = false
 
-    var draggedNode: NodeId?
+//    var draggedNode: NodeId?
+    var draggedCanvasItem: CanvasItemId?
 
     // Are any nodes currently being dragged?
-    var nodeIsDragged: Bool {
-        self.draggedNode.isDefined
+    var canvasItemIsDragged: Bool {
+        self.draggedCanvasItem.isDefined
     }
 
     // The last translation from the node(s) dragging;
-    var lastNodeTranslation: CGSize = .zero
+    var lastCanvasItemTranslation: CGSize = .zero
 
     // How much the graph has been translated *on this current graph drag gesture*.
     // Updated during graph drag;
@@ -73,19 +74,20 @@ extension GraphMovementObserver {
         }
     }
 
-    var draggedNode: NodeId? {
+//    var draggedNode: NodeId? {
+    var draggedCanvasItem: CanvasItemId? {
         get {
-            self.graphMultigesture.draggedNode
+            self.graphMultigesture.draggedCanvasItem
         } set(newValue) {
-            self.graphMultigesture.draggedNode = newValue
+            self.graphMultigesture.draggedCanvasItem = newValue
         }
     }
 
-    var lastNodeTranslation: CGSize {
+    var lastCanvasItemTranslation: CGSize {
         get {
-            self.graphMultigesture.lastNodeTranslation
+            self.graphMultigesture.lastCanvasItemTranslation
         } set(newValue) {
-            self.graphMultigesture.lastNodeTranslation = newValue
+            self.graphMultigesture.lastCanvasItemTranslation = newValue
         }
     }
 
@@ -113,7 +115,7 @@ extension GraphMovementObserver {
         }
     }
 
-    var nodeIsDragged: Bool {
-        self.graphMultigesture.draggedNode.isDefined
+    var canvasItemIsDragged: Bool {
+        self.graphMultigesture.draggedCanvasItem.isDefined
     }
 }

@@ -199,7 +199,7 @@
 		B5CEC1A428F8D95700BE083E /* StitchAVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */; };
 		B5CF6448294B8AF700EF83DB /* StitchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6447294B8AF700EF83DB /* StitchButton.swift */; };
 		B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */; };
-		B5CF644D294BEABD00EF83DB /* NodePositionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */; };
+		B5CF644D294BEABD00EF83DB /* CanvasItemPositionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */; };
 		B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */; };
 		B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BC275833390086C297 /* ProjectAlertState.swift */; };
 		B5D689BF275836390086C297 /* ProjectAlertActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BE275836390086C297 /* ProjectAlertActions.swift */; };
@@ -1079,7 +1079,7 @@
 		B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAVCaptureSession.swift; sourceTree = "<group>"; };
 		B5CF6447294B8AF700EF83DB /* StitchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchButton.swift; sourceTree = "<group>"; };
 		B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleTextField.swift; sourceTree = "<group>"; };
-		B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodePositionHandler.swift; sourceTree = "<group>"; };
+		B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemPositionHandler.swift; sourceTree = "<group>"; };
 		B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowElementUIKitGestures.swift; sourceTree = "<group>"; };
 		B5D689BC275833390086C297 /* ProjectAlertState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertState.swift; sourceTree = "<group>"; };
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
@@ -2431,7 +2431,7 @@
 				B5EC61F42A5DF7BE002A639F /* LayerNodeView.swift */,
 				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
-				B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */,
+				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5063,7 +5063,7 @@
 				EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */,
 				ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */,
 				EC17ACD326B4C12800137EA5 /* CameraFeedManager.swift in Sources */,
-				B5CF644D294BEABD00EF83DB /* NodePositionHandler.swift in Sources */,
+				B5CF644D294BEABD00EF83DB /* CanvasItemPositionHandler.swift in Sources */,
 				ECA92A4A260A6ADE00281B52 /* TextLayerNode.swift in Sources */,
 				20B8D4F825D75FAD005D71C5 /* Coercers.swift in Sources */,
 				EC3BAABE299D83190047EFF7 /* StitchRootView.swift in Sources */,

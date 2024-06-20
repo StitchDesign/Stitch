@@ -70,11 +70,11 @@ struct LayerInputOnGraphView: View {
                 }
             
         } // ZStack
-        .nodePositionHandler(graph: graph,
-                             node: node,
-                             position: self.canvasItem.position,
-                             zIndex: self.canvasItem.zIndex,
-                             usePositionHandler: true)
+        .canvasItemPositionHandler(graph: graph,
+                                   node: canvasItem,
+                                   position: self.canvasItem.position,
+                                   zIndex: self.canvasItem.zIndex,
+                                   usePositionHandler: true)
     }
     
     var nodeTagMenuIcon: some View {

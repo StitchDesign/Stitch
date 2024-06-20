@@ -194,8 +194,8 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
 
 extension GraphMovementObserver {
     func stopNodeMovement() {
-        self.draggedNode = nil
-        self.lastNodeTranslation = .zero
+        self.draggedCanvasItem = nil
+        self.lastCanvasItemTranslation = .zero
         self.accumulatedGraphTranslation = .zero
         self.runningGraphTranslationBeforeNodeDragged = nil
     }

@@ -58,7 +58,7 @@ extension GraphState {
         }
         
         // if we tapped a node, we're no longer moving it
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
         
         canvasItem.zIndex = self.highestZIndex + 1
     }

@@ -545,6 +545,10 @@ extension GraphState {
             .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
     }
     
+    @MainActor
+    func getCanvasItems() -> CanvasItemViewModels {
+        self.visibleNodesViewModel.getCanvasItems()
+    }
 
     func getNodesToAlwaysRun() -> NodeIdSet {
         Array(self.nodes

@@ -186,15 +186,35 @@ extension VisibleNodesViewModel {
         self.allViewModels
             .filter { $0.parentGroupNodeId ==  focusedGroup }
     }
+
+    @MainActor
+    func getCanvasItems() -> CanvasItemViewModels {
+        self.allViewModels.reduce(into: .init()) { partialResult, node in
+            switch node.kind {
+            case .patch, .group:
+                    partialResult.append(node.canvasUIData)
+            case .layer:
+                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+            }
+        }
+    }
     
     @MainActor
     func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
         self.allViewModels.reduce(into: .init()) { partialResult, node in
             switch node.kind {
             case .patch, .group:
-                partialResult.append(node.canvasUIData)
+                if node.canvasUIData.isVisibleInFrame {
+                    partialResult.append(node.canvasUIData)
+                }
             case .layer:
-                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+                let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
+                    if let canvasData = input.canvasUIData, canvasData.isVisibleInFrame {
+                        return canvasData
+                    }
+                    return nil
+                }
+                partialResult.append(contentsOf: visibleLayerInputsOnGraph)
             }
         }
     }

@@ -136,11 +136,11 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     }
                 }
         } // ZStack
-        .nodePositionHandler(graph: graph,
-                             node: node,
-                             position: position,
-                             zIndex: zIndex,
-                             usePositionHandler: usePositionHandler)
+        .canvasItemPositionHandler(graph: graph,
+                                   node: node.canvasUIData,
+                                   position: position,
+                                   zIndex: zIndex,
+                                   usePositionHandler: usePositionHandler)
         .opacity(isHiddenDuringAnimation ? 0 : 1)
     }
 

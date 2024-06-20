@@ -143,7 +143,10 @@ extension GraphState {
 
         var smallestDistance: CGFloat?
 
-        let allCanvasItems = self.getVisibleCanvasItems()
+//        let allCanvasItems = self.getVisibleCanvasItems()
+//        let allCanvasItems = self.getVisibleCanvasItems()
+        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
+        log("processNodeSelectionBoxChange: allCanvasItems.count: \(allCanvasItems)")
         
         for canvasItem in allCanvasItems {
             

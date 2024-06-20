@@ -75,7 +75,7 @@ extension GraphState {
         // Recreate topological order
         self.updateTopologicalData()
 
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
         
         self.updateSidebarListStateAfterStateChange()
         

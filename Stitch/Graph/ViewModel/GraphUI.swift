@@ -96,8 +96,8 @@ final class GraphUIState {
     var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
     
     #if DEV_DEBUG
-    var showsLayerInspector = true // during dev
-    //    var showsLayerInspector = false // during dev
+//    var showsLayerInspector = true // during dev
+        var showsLayerInspector = false // during dev
     #else
     var showsLayerInspector = false
     #endif
@@ -268,7 +268,7 @@ extension GraphState {
 
         // if we tap the graph, we're no longer dragging either nodes or graph
         // TODO: should we also reset graphMovement.firstActive etc.? Otherwise we can get in an improper state?
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
         self.graphMovement.graphIsDragged = false
 
         self.graphUI.selection = GraphUISelectionState()
@@ -444,5 +444,12 @@ extension GraphState {
                 return nil
             }
             .toSet
+    }
+}
+
+extension GraphState {
+    @MainActor
+    var selectedCanvasItems: CanvasItemViewModels {
+        self.getVisibleCanvasItems().filter(\.isSelected)
     }
 }

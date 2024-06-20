@@ -41,14 +41,32 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
 
 
 // TODO: does this need to be `Identifiable`?
-enum CanvasItemId: Equatable, Codable {
+enum CanvasItemId: Equatable, Codable, Hashable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputOnGraphId)
+    
+    func nodeCase() -> NodeId? {
+        switch self {
+        case .node(let nodeId):
+            return nodeId
+        case .layerInputOnGraph:
+            return nil
+        }
+    }
+    
+    func layerInputCase() -> LayerInputOnGraphId? {
+        switch self {
+        case .node:
+            return nil
+        case .layerInputOnGraph(let layerInputOnGraphId):
+            return layerInputOnGraphId
+        }
+    }
 }
 
 // TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-struct LayerInputOnGraphId: Equatable, Codable {
+struct LayerInputOnGraphId: Equatable, Codable, Hashable {
     let node: NodeId // id for the parent layer node
     let keyPath: LayerInputType // the keypath, i.e. unique port
 }
@@ -125,9 +143,9 @@ extension CanvasItemViewModel {
     
     // should be needed?
 //    var isNodeMoving: Bool {
-//    var isCanvasItemMoving: Bool {
-//        self.position != self.previousPosition
-//    }
+    var isMoving: Bool {
+        self.position != self.previousPosition
+    }
     
     @MainActor
     static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(

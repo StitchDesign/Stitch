@@ -11,64 +11,70 @@ import StitchSchemaKit
 
 extension GraphState {
     
+    // fka `updateNodeOnDragged`
     @MainActor
-    func updateNodeOnDragged(_ node: NodeViewModel,
-                             translation: CGSize) {
-        node.updateNodeOnDragged(translation: translation,
-                                 highestZIndex: self.highestZIndex + 1,
-                                 zoom: self.graphMovement.zoomData.zoom,
-                                 state: self.graphMovement)
+    func updateCanvasItemOnDragged(_ canvasItem: CanvasItemViewModel,
+                                   translation: CGSize) {
+        canvasItem.updateCanvasItemOnDragged(translation: translation,
+                                             highestZIndex: self.highestZIndex + 1,
+                                             zoom: self.graphMovement.zoomData.zoom,
+                                             state: self.graphMovement)
     }
 }
 
-extension NodeViewModel {
+//extension NodeViewModel {
+extension CanvasItemViewModel {
+    
+    // fka `updateNodeOnDragged`
     // UPDATED FOR DUAL DRAG: when node dragged directly
     @MainActor
-    func updateNodeOnDragged(translation: CGSize,
-                             highestZIndex: ZIndex?,
-                             zoom: CGFloat,
-                             state: GraphMovementObserver) {
-        let node = self
-
+    func updateCanvasItemOnDragged(translation: CGSize,
+                                   highestZIndex: ZIndex?,
+                                   zoom: CGFloat,
+                                   state: GraphMovementObserver) {
+        log("updateCanvasItemOnDragged self.position was: \(self.position)")
         // Set z-index once on node movement
-        if !self.isNodeMoving,
+        if !self.isMoving,
            let highestZIndex = highestZIndex {
-            node.zIndex = highestZIndex
+            self.zIndex = highestZIndex
         }
-        
 
         let translationSize = (translation / zoom) // required when using SwiftUI .global on nodes' DragGesture
             - ((state.runningGraphTranslation ?? .zero) / zoom)
             + (state.runningGraphTranslationBeforeNodeDragged ?? .zero)
             - state.accumulatedGraphTranslation
 
-        node.position = node.previousPosition + translationSize.toCGPoint
+        self.position = self.previousPosition + translationSize.toCGPoint
+        log("updateCanvasItemOnDragged self.position is now: \(self.position)")
     }
 
+    // fka `updateNodeOnGraphDragged`
     func updateNodeOnGraphDragged(_ translation: CGSize,
                                   _ highestZIndex: ZIndex,
                                   zoom: CGFloat,
                                   state: GraphMovementObserver) {
-        let node = self
+        self.zIndex = highestZIndex
 
-        node.zIndex = highestZIndex
-
-        let translationSize = state.lastNodeTranslation
+        let translationSize = state.lastCanvasItemTranslation
             - (translation / zoom)
             - state.accumulatedGraphTranslation
             + (state.runningGraphTranslationBeforeNodeDragged ?? .zero)
-        node.position = node.previousPosition + translationSize.toCGPoint
+        
+        self.position = self.previousPosition + translationSize.toCGPoint
     }
 }
 
 // ie we dragged the node while holding `Option` key
 // TODO: this seems to only duplicate a single node?
+// TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
 // What if we have multiple nodes on the graph selected and we hold `Option` + drag?
 struct NodeDuplicateDraggedAction: GraphEventWithResponse {
     let id: NodeId
     let translation: CGSize
 
     func handle(state: GraphState) -> GraphResponse {
+        log("NodeDuplicateDraggedAction called")
+        
         guard state.graphUI.dragDuplication else {
             // Copy nodes if no drag started yet
             state.copyAndPasteSelectedNodes()
@@ -78,12 +84,12 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
 
         // Drag all selected nodes if dragging already started
         state.selectedNodeIds
-            .compactMap { state.getNodeViewModel($0) }
+            .compactMap { state.getNodeViewModel($0)?.canvasUIData }
             .forEach { draggedNode in
                 // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag")
-                state.nodeMoved(for: draggedNode,
-                                translation: translation,
-                                wasDrag: true)
+                state.canvasItemMoved(for: draggedNode,
+                                      translation: translation,
+                                      wasDrag: true)
             }
         
         return .persistenceResponse
@@ -93,15 +99,17 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
 // Drag.onChanged
 extension GraphState {
     @MainActor
-    func nodeMoved(for node: NodeViewModel,
-                   translation: CGSize,
-                   // drag vs long-press
-                   wasDrag: Bool) {
+    // fka `nodeMoved`
+    func canvasItemMoved(for canvasItem: CanvasItemViewModel,
+                         translation: CGSize,
+                         // drag vs long-press
+                         wasDrag: Bool) {
+        
         let graphState = self
-        var nodeToDrag = node
+        var canvasItemToDrag = canvasItem
 
         #if DEV_DEBUG
-        log("handleNodeMoved: original id: \(id)")
+        log("canvasItemMoved: original id: \(id)")
         #endif
 
         // Edges should *never* animate when node is being dragged
@@ -123,7 +131,7 @@ extension GraphState {
          */
         if !wasDrag && graphState.graphUI.keypressState.isCommandPressed {
             #if DEV_DEBUG
-            log("handleNodeMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
+            log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
             #endif
             return
         }
@@ -132,25 +140,25 @@ extension GraphState {
         // Note: do this check AFTER we've set our 'currently dragged id' to be the option-duplicated node's id.
         // TODO: duplicate-node-drag should also update the `draggedNode` in GraphState ?
         // Overall, node duplication logic needs to be thought through with multigestures in mind.
-        if let draggedNode = graphState.graphMovement.draggedNode,
-           draggedNode != nodeToDrag.id {
+        if let draggedCanvasItem = graphState.graphMovement.draggedCanvasItem,
+           draggedCanvasItem != canvasItemToDrag.id {
             #if DEV_DEBUG
-            log("handleNodeMoved: some other node is already dragged: \(draggedNode)")
+            log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
             #endif
             return
         }
 
         // Updating for dual-drag; must set before
 
-        graphState.graphMovement.draggedNode = nodeToDrag.id
-        graphState.graphMovement.lastNodeTranslation = translation
+        graphState.graphMovement.draggedCanvasItem = canvasItemToDrag.id
+        graphState.graphMovement.lastCanvasItemTranslation = translation
 
         // If we don't have an active first gesture,
         // and graph isn't already dragging,
         // then set node-drag as active first gesture
         if graphState.graphMovement.firstActive == .none {
             if !graphState.graphMovement.graphIsDragged {
-                // log("handleNodeMoved: will set .node as active first gesture")
+                // log("canvasItemMoved: will set .node as active first gesture")
                 graphState.graphMovement.firstActive = .node
             }
         }
@@ -158,7 +166,7 @@ extension GraphState {
 
             if !graphState.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
                 #if DEV_DEBUG
-                log("handleNodeMoved: setting runningGraphTranslationBeforeNodeDragged to be graphState.graphMovement.runningGraphTranslation: \(graphState.graphMovement.runningGraphTranslation)")
+                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be graphState.graphMovement.runningGraphTranslation: \(graphState.graphMovement.runningGraphTranslation)")
                 #endif
                 graphState.graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
@@ -171,14 +179,16 @@ extension GraphState {
 
         // Dragging an unselected node selects that node
         // and de-selects all other nodes.
-        let alreadySelected = graphState.selectedNodeIds.contains(nodeToDrag.id)
+//        let alreadySelected = graphState.selectedNodeIds.contains(nodeToDrag.id)
+        let alreadySelected = canvasItemToDrag.isSelected
 
         if !alreadySelected {
             // update node's position
-            self.updateNodeOnDragged(node, translation: translation)
+            self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the node
-            graphState.selectSingleNode(nodeToDrag)
+//            graphState.selectSingleNode(nodeToDrag)
+            canvasItemToDrag.select()
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             graphState.selectedEdges = .init()
@@ -187,11 +197,13 @@ extension GraphState {
         // If we're dragging a node that's already selected,
         // then just update positions of all selected nodes.
         else {
-            graphState.selectedNodeIds
-                .compactMap { self.getNodeViewModel($0) }
+//            graphState.selectedNodeIds
+//                .compactMap { self.getNodeViewModel($0) }
+            graphState.selectedCanvasItems
+//                .compactMap { self.getCanvasItem($0) }
             // need to sort by z index to retain order
                 .sorted { $0.zIndex < $1.zIndex }
-                .forEach { self.updateNodeOnDragged($0, translation: translation) }
+                .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
         }
 
         // end any edge-drawing
@@ -203,7 +215,8 @@ extension GraphState {
 
 // Drag.onEnded
 struct NodeMoveEndedAction: GraphEventWithResponse {
-    let id: NodeId // id of node or rectangle
+//    let id: NodeId // id of node or rectangle
+    let id: CanvasItemId // id of node or rectangle
 
     func handle(state: GraphState) -> GraphResponse {
         state.handleNodeMoveEnded(id: id)
@@ -214,7 +227,7 @@ struct NodeMoveEndedAction: GraphEventWithResponse {
 extension GraphState {
     // mutates GraphState, but also has to update GraphSchema
     @MainActor
-    func handleNodeMoveEnded(id: NodeId) {
+    func handleNodeMoveEnded(id: CanvasItemId) {
         
 #if DEV_DEBUG
         log("handleNodeMoveEnded: id \(id): ")
@@ -231,17 +244,20 @@ extension GraphState {
             self.graphMovement.firstActive = .none
         }
         
-        let _update = { (id: NodeId) in
+//        let _update = { (id: CanvasItemId) in
+        let _update = { (node: CanvasItemViewModel) in
             
-            guard let node = self.visibleNodesViewModel.getViewModel(id) else {
-#if DEV_DEBUG
-                log("handleNodeMoveEnded: _update: could not find node \(id)")
-#endif
-                return
-            }
+////            guard let node = self.visibleNodesViewModel.getViewModel(id) else {
+//            guard let node = self.getCanvasItem(id) else {
+//#if DEV_DEBUG
+//                log("handleNodeMoveEnded: _update: could not find canvas item \(id)")
+//#endif
+//                return
+//            }
             
             //        let nodeSize = node.geometryObserver.bounds.size
             let nodeSize = node.bounds.graphBaseViewBounds.size
+            
             node.position = determineSnapPosition(
                 position: node.position,
                 previousPosition: node.previousPosition,
@@ -249,24 +265,40 @@ extension GraphState {
             
             let positionAtStart = node.previousPosition
             node.previousPosition = node.position
-            
-            let diff = node.position - positionAtStart
-            self.maybeCreateLLMMoveNode(node: node,
-                                        diff: diff)
-        }
-        
-        guard let node = self.getNodeViewModel(id) else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        if node.isSelected {
-            for selectedId in self.selectedNodeIds {
-                _update(selectedId)
+                
+            // TODO: support LLM Actions for LayerInputOnGraph
+            if let nodeId = id.nodeCase(), let node = self.getNode(nodeId) {
+                let diff = node.position - positionAtStart
+                self.maybeCreateLLMMoveNode(node: node,
+                                            diff: diff)
             }
-        } else {
-            _update(id)
+            
         }
+        
+    // if node is selected, update
+        
+        // if we're dragging an already selected canvas item, then update ALL canvas items' positions;
+        // else, update only the position of the single
+        
+        // The initial `canvasItemMoved` should handle which canvas items are selected or
+        
+        
+        self.selectedCanvasItems.forEach { _update($0) }
+        
+//        
+//        guard let node = self.getCanvasItem(id) else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+        
+//        if node.isSelected {
+////            for selectedId in self.selectedNodeIds {
+//            for selectedId in self.selectedCanvasItems.map(\.id).toSet {
+//                _update(selectedId)
+//            }
+//        } else {
+//            _update(id)
+//        }
         
         self.nodeIsMoving = false
         self.outputDragStartedCount = 0
