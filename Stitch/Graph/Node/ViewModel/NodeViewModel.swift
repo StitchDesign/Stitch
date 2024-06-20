@@ -199,8 +199,9 @@ final class NodeViewModel: Sendable {
             id: .node(schema.id),
             position: schema.position,
             zIndex: schema.zIndex,
-            parentGroupNodeId: schema.parentGroupNodeId)
-        
+            parentGroupNodeId: schema.parentGroupNodeId,
+            nodeDelegate: nil) // set below
+                
 //        self.position = schema.position
 //        self.previousPosition = schema.position
 //        self.zIndex = schema.zIndex
@@ -214,6 +215,7 @@ final class NodeViewModel: Sendable {
         // Set delegates
         self.graphDelegate = graphDelegate
         self.layerNode?.nodeDelegate = self
+        self.canvasUIData.nodeDelegate = self
 
         // Create initial inputs and outputs using default data
         let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
@@ -251,7 +253,8 @@ final class NodeViewModel: Sendable {
                     id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
                     position: schema.position,
                     zIndex: schema.zIndex,
-                    parentGroupNodeId: schema.parentGroupNodeId)
+                    parentGroupNodeId: schema.parentGroupNodeId,
+                    nodeDelegate: self)
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions

@@ -33,7 +33,8 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             position: state.newNodeCenterLocation,
             zIndex: state.highestZIndex + 1, 
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: state.groupNodeFocused)
+            parentGroupNodeId: state.groupNodeFocused,
+            nodeDelegate: node)
         
         return .shouldPersist
     }
@@ -120,7 +121,8 @@ final class CanvasItemViewModel {
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
-         parentGroupNodeId: NodeId?) {
+         parentGroupNodeId: NodeId?,
+         nodeDelegate: NodeDelegate?) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -154,7 +156,8 @@ extension CanvasItemViewModel {
         // (since we use
         position: .init(x: 350, y: 350),
         zIndex: 0,
-        parentGroupNodeId: nil)
+        parentGroupNodeId: nil,
+        nodeDelegate: nil)
 }
 
 let fakeCanvasItemIdForLayerInputOnGraph: CanvasItemId = .layerInputOnGraph(.init(
