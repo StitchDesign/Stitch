@@ -45,8 +45,11 @@ extension GraphState {
         // when holding CMD ...
         if self.graphUI.keypressState.isCommandPressed {
             // toggle selection
-            self.setCanvasItemSelection(canvasItem,
-                                        to: !canvasItem.isSelected)
+            if canvasItem.isSelected {
+                canvasItem.deselect()
+            } else {
+                canvasItem.select()
+            }
         }
         
         // when not holding CMD ...

@@ -113,7 +113,7 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     state.resetSelectedCanvasItems()
     
     visibleNodes.forEach {
-        state.setNodeSelection($0, to: true)
+        $0.select()
     }
 }
 
@@ -143,7 +143,7 @@ extension GraphState {
 
         var smallestDistance: CGFloat?
 
-        let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: graphState.graphUI.groupNodeFocused?.asNodeId)
+        let allCanvasItems = self.getVisibleCanvasItems()
         
         for canvasItem in allCanvasItems {
             

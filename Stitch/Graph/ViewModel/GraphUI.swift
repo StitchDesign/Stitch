@@ -97,6 +97,7 @@ final class GraphUIState {
     
     #if DEV_DEBUG
     var showsLayerInspector = true // during dev
+    //    var showsLayerInspector = false // during dev
     #else
     var showsLayerInspector = false
     #endif
@@ -348,11 +349,9 @@ extension GraphState {
         self.nodes.values.forEach { node in
             switch node.kind {
             case .layer:
-                return node.inputRowObservers().forEach { input in
-                    input.canvasUIData?.isSelected = false
-                }
+                node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
             case .patch, .group:
-                return self.setNodeSelection(node, to: false)
+                node.deselect()
             }
         }
     }
@@ -377,8 +376,7 @@ extension GraphState {
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        
-        self.setNodeSelection(node, to: true)
+        node.select()
     }
     
     @MainActor
@@ -387,7 +385,7 @@ extension GraphState {
         // get reset when we select a single canvasItem.
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        self.setCanvasItemSelection(canvasItem, to: true)
+        canvasItem.select()
     }
     
     // TEST HELPER
@@ -397,27 +395,20 @@ extension GraphState {
             fatalErrorIfDebug()
             return
         }
-        self.setNodeSelection(node, to: true)
+        node.select()
     }
-         
-    // THESE DON'T NEED TO BE GRAPH-STATE METHODS ANYMORE
-    
-    /// Handles setting selection state along with edge case scenario of selecting a group node,
-    /// which requires setting selection status to input/output splitter nodes for port colors.
+}
+
+extension NodeViewModel {
     @MainActor
-    func setNodeSelection(_ node: NodeDelegate,
-                          to value: Bool) {
-        // see `NodeViewModel.isSelected`'s `didSet` for how the port view data cache is repopulated
-        node.isSelected = value
+    func select() {
+        self.isSelected = true
     }
     
     @MainActor
-    func setCanvasItemSelection(_ canvasItem: CanvasItemViewModel,
-                                to value: Bool) {
-        // see `CanvasItem.isSelected`'s `didSet` for how the port view data cache is repopulated
-        canvasItem.isSelected = value
+    func deselect() {
+        self.isSelected = false
     }
-    
 }
 
 extension CanvasItemViewModel {

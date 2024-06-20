@@ -180,7 +180,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
 
         // ... then select the GroupNode and its edges
         state.resetSelectedCanvasItems()
-        state.setNodeSelection(newGroupNode, to: true)
+        newGroupNode.select()
 
         // Stop any active node dragging etc.
         state.graphMovement.stopNodeMovement()

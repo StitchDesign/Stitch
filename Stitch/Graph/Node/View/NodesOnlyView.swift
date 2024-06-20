@@ -48,14 +48,10 @@ struct NodesOnlyView: View {
             }
         }
     }
-    
-    
-    var layerNodes: NodeViewModels {
-        self.nodes.filter(\.layerNode.isDefined)
-    }
-    
-    @MainActor
+        
+    @MainActor @ViewBuilder
     var layerInputsOnGraphView: some View {
+        let layerNodes = self.nodes.filter(\.layerNode.isDefined)
         ForEach(layerNodes) { node in
             // TODO: only show those LIG at this traversal level
             let inputsOnGraph = node.inputRowObservers().filter(\.canvasUIData.isDefined)
@@ -67,20 +63,15 @@ struct NodesOnlyView: View {
                     canvasItem: inputOnGraph.canvasUIData!,
                     layer: node.layerNode!.layer)
             }
-            
 //            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
             
         }
     }
     
-    var patchNodes: NodeViewModels {
-        self.nodes.filter(\.patchNode.isDefined)
-    }
-    
+    @MainActor @ViewBuilder
     var patchNodesView: some View {
-//        ForEach(nodes) { node in
+        let patchNodes = self.nodes.filter(\.patchNode.isDefined)
         ForEach(patchNodes) { node in
-        
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
             let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId

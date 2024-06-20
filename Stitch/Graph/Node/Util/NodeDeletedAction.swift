@@ -44,7 +44,7 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
         if state.selectedNodeIds.isEmpty,
            let nodeId = nodeId,
            let node = state.getNodeViewModel(nodeId) {
-            state.setNodeSelection(node, to: true)
+            node.select()
         }
 
         state.selectedGraphNodesDeleted(
