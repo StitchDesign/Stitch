@@ -33,12 +33,10 @@ struct NodesOnlyView: View {
         if nodes.isEmpty {
             Rectangle().fill(.clear)
         }
-
-        //        FakeLayerInputOnGraphView().zIndex(9999)
         
         // Does ZStack e.g. put LIG views on top of patch node views?
         ZStack {
-            patchNodesView
+            patchOrGroupNodesView
             layerInputsOnGraphView
         }
         .onChange(of: self.activeIndex) {
@@ -48,6 +46,10 @@ struct NodesOnlyView: View {
             }
         }
     }
+    
+    var currentlyFocusedGroup: NodeId? {
+        graphUI.groupNodeFocused?.asNodeId
+    }
         
     @MainActor @ViewBuilder
     var layerInputsOnGraphView: some View {
@@ -55,29 +57,40 @@ struct NodesOnlyView: View {
         ForEach(layerNodes) { node in
             // TODO: only show those LIG at this traversal level
             let inputsOnGraph = node.inputRowObservers().filter(\.canvasUIData.isDefined)
-            ForEach(inputsOnGraph) { inputOnGraph in
-                LayerInputOnGraphView(
-                    graph: graph,
-                    node: node,
-                    input: inputOnGraph,
-                    canvasItem: inputOnGraph.canvasUIData!,
-                    layer: node.layerNode!.layer)
-            }
+            
 //            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
+            ForEach(inputsOnGraph) { inputOnGraph in
+                let isAtThisTraversalLevel = inputOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
+                
+                if isAtThisTraversalLevel,
+                   let layerNode = node.layerNode {
+                    LayerInputOnGraphView(
+                        graph: graph,
+                        node: node,
+                        input: inputOnGraph,
+                        canvasItem: inputOnGraph.canvasUIData!,
+                        layerNode: layerNode)
+                } else {
+                    EmptyView().onAppear {
+                        if !node.layerNode.isDefined {
+                            fatalErrorIfDebug()
+                        }
+                    }
+                }
+            }
+            
             
         }
     }
     
     @MainActor @ViewBuilder
-    var patchNodesView: some View {
-        let patchNodes = self.nodes.filter(\.patchNode.isDefined)
-        ForEach(patchNodes) { node in
+    var patchOrGroupNodesView: some View {
+        let patchOrGroupNodes = self.nodes.filter { !$0.kind.isLayer }
+        ForEach(patchOrGroupNodes) { node in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
-            let isNotLayerNode = !node.layerNode.isDefined
-            
-            if isAtThisTraversalLevel && isNotLayerNode {
+            let isAtThisTraversalLevel = node.parentGroupNodeId == currentlyFocusedGroup
+            if isAtThisTraversalLevel {
                 NodeTypeView(
                     graph: graph,
                     node: node,
@@ -85,8 +98,7 @@ struct NodesOnlyView: View {
                     activeIndex: activeIndex,
                     groupNodeFocused: graphUI.groupNodeFocused,
                     adjustmentBarSessionId: adjustmentBarSessionId,
-                    isHiddenDuringAnimation: insertNodeMenuHiddenNode
-                        .map { $0 == node.id } ?? false
+                    isHiddenDuringAnimation: insertNodeMenuHiddenNode.map { $0 == node.id } ?? false
                 )
             } else {
                 EmptyView()

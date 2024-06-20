@@ -198,14 +198,14 @@ final class NodeViewModel: Sendable {
                 }
                 
                 // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-                #if DEV_DEBUG
-                rowObserver.canvasUIData = .init(
-                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-                    position: schema.position,
-                    zIndex: schema.zIndex,
-                    parentGroupNodeId: schema.parentGroupNodeId,
-                    nodeDelegate: self)
-                #endif
+//                #if DEV_DEBUG
+//                rowObserver.canvasUIData = .init(
+//                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
+//                    position: schema.position,
+//                    zIndex: schema.zIndex,
+//                    parentGroupNodeId: schema.parentGroupNodeId,
+//                    nodeDelegate: self)
+//                #endif
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions

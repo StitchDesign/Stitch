@@ -15,10 +15,8 @@ struct LayerInputOnGraphView: View {
 
     @Bindable var input: NodeRowObserver
     @Bindable var canvasItem: CanvasItemViewModel
-
-    // Don't need full LayerNodeViewModel, just that layer
-    //    @Bindable var layerNode: LayerNodeViewModel
-    let layer: Layer
+    
+    @Bindable var layerNode: LayerNodeViewModel
         
     @MainActor
     var isSelected: Bool {
@@ -26,7 +24,7 @@ struct LayerInputOnGraphView: View {
     }
     
     var isHiddenLayer: Bool {
-        let isVisibleInSidebar = node.layerNode?.hasSidebarVisibility ?? true
+        let isVisibleInSidebar = layerNode.hasSidebarVisibility
         return !isVisibleInSidebar
     }
     
@@ -174,8 +172,7 @@ struct LayerInputOnGraphView: View {
                                     node: node,
                                     rowData: input,
                                     coordinateType: portViewType,
-                                    //                                nodeKind: .layer(layerNode.layer),
-                                    nodeKind: .layer(layer),
+                                    nodeKind: .layer(layerNode.layer),
                                     isNodeSelected: false,
                                     adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
             } else {
@@ -196,7 +193,7 @@ struct FakeLayerInputOnGraphView: View {
 //                              input: node.inputRowObservers().first!,
                               input: node.inputRowObservers()[1],
                               canvasItem: .fakeCanvasItemForLayerInputOnGraph,
-                              layer: node.layerNode!.layer)
+                              layerNode: node.layerNode!)
     }
 }
 
