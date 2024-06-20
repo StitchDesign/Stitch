@@ -141,14 +141,16 @@ extension CanvasItemViewModel {
             
         case .node(let x):
             guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(x) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for node \(x)")
                 return
             }
             node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
             
         case .layerInputOnGraph(let x):
             guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
-                fatalErrorIfDebug()
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
                 return
             }
             input.canvasUIData?.isVisibleInFrame = newValue

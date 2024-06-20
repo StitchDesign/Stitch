@@ -97,6 +97,17 @@ final class NodeViewModel: Sendable {
         }
     }
     
+    //    @MainActor
+    //    var isSelected: Bool = false
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.canvasUIData.isSelected
+        } set(newValue) {
+            self.canvasUIData.isSelected = newValue
+        }
+    }
+    
 
     var title: String {
         didSet(oldValue) {
@@ -129,28 +140,30 @@ final class NodeViewModel: Sendable {
     // Cached for perf
     var longestLoopLength: Int = 1
     
-    // Moved state here for render cycle perf on port view for colors
-    @MainActor
-    var isSelected: Bool = false {
-        didSet {
-            guard let graph = graphDelegate else {
-                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
-                return
-            }
-            
-            // Move to didSet ?
-            updatePortColorDataUponNodeSelection(node: self,
-                                                 graphState: graph)
-            
-            // When a group node is selected, we also update the port view cache of its splitters.
-            if self.kind == .group {
-                updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterRowObservers(for: self.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: self.id, type: .output),
-                    graphState: graph)
-            }
-        }
-    }
+//    // Moved state here for render cycle perf on port view for colors
+//    @MainActor
+//    var isSelected: Bool = false {
+//        didSet {
+//            guard let graph = graphDelegate else {
+//                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
+//                return
+//            }
+//            
+//            // Move to didSet ?
+//            updatePortColorDataUponNodeSelection(node: self,
+//                                                 graphState: graph)
+//            
+////            canvasUIData.isSelected
+//            
+//            // When a group node is selected, we also update the port view cache of its splitters.
+//            if self.kind == .group {
+//                updatePortColorDataUponNodeSelection(
+//                    inputs: graph.getSplitterRowObservers(for: self.id, type: .input),
+//                    outputs: graph.getSplitterRowObservers(for: self.id, type: .output),
+//                    graphState: graph)
+//            }
+//        }
+//    }
 
     var ephemeralObservers: [any NodeEphemeralObservable]?
 

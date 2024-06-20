@@ -399,7 +399,9 @@ extension GraphState {
         }
         self.setNodeSelection(node, to: true)
     }
-            
+         
+    // THESE DON'T NEED TO BE GRAPH-STATE METHODS ANYMORE
+    
     /// Handles setting selection state along with edge case scenario of selecting a group node,
     /// which requires setting selection status to input/output splitter nodes for port colors.
     @MainActor
@@ -416,6 +418,18 @@ extension GraphState {
         canvasItem.isSelected = value
     }
     
+}
+
+extension CanvasItemViewModel {
+    @MainActor
+    func select() {
+        self.isSelected = true
+    }
+    
+    @MainActor
+    func deselect() {
+        self.isSelected = false
+    }
 }
 
 // Model for graph zoom.

@@ -153,7 +153,8 @@ extension GraphState {
             if doesSelectionIntersectCanvasItem {
                 
                 // Add to selected canvas items
-                self.setCanvasItemSelection(canvasItem, to: true)
+//                self.setCanvasItemSelection(canvasItem, to: true)
+                canvasItem.select()
                 
                 let thisDistance = CGPointDistanceSquared(
                     from: canvasItem.bounds.graphBaseViewBounds.origin,
@@ -167,7 +168,8 @@ extension GraphState {
             // De-selected
             else {
                 // Remove from selected canvas items
-                self.setCanvasItemSelection(canvasItem, to: true)
+//                self.setCanvasItemSelection(canvasItem, to: false)
+                canvasItem.deselect()
             }
         }
         

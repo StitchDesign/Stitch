@@ -76,12 +76,19 @@ final class CanvasItemViewModel {
         didSet {
             guard let node = self.nodeDelegate,
                   let graph = self.graphDelegate else {
-                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
+                log("CanvasItemViewModel: isSelected: didSet: could not find node and/or graph delegate; cannot update port view data cache")
                 return
             }
             
             updatePortColorDataUponNodeSelection(node: node,
                                                  graphState: graph)
+            
+            if node.kind == .group {
+                updatePortColorDataUponNodeSelection(
+                    inputs: graph.getSplitterRowObservers(for: node.id, type: .input),
+                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output),
+                    graphState: graph)
+            }
         }
     }
     
