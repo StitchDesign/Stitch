@@ -70,6 +70,11 @@ enum CanvasItemId: Equatable, Codable, Hashable {
 struct LayerInputOnGraphId: Equatable, Codable, Hashable {
     let node: NodeId // id for the parent layer node
     let keyPath: LayerInputType // the keypath, i.e. unique port
+    
+    var asInputCoordinate: InputCoordinate {
+        .init(portType: .keyPath(keyPath),
+              nodeId: node)
+    }
 }
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]

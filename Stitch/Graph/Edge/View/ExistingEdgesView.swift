@@ -31,7 +31,9 @@ struct GraphConnectedEdgesView: View {
         guard let possibleEdge = possibleEdge else {
             return nil
         }
-        
+
+        // Works, even after initial LayerInputOnGraph changes, becauses an edge's origin is still always a patch node output.
+        // TODO: search for LayerOutputsOnGraph when we allow a LayerNode's outputs to be manually added to the canvas
         let node = graph.getNodeViewModel(possibleEdge.edge.from.nodeId)
         let upstreamRowObserver = node?.getOutputRowObserver(possibleEdge.edge.from.portId)
         return upstreamRowObserver

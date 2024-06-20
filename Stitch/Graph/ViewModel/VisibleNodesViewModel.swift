@@ -200,17 +200,18 @@ extension VisibleNodesViewModel {
         }
     }
     
+    // TODO: "visible" is ambiguous between "canvas item is on-screen" vs "canvas item is at this traversal level"
     @MainActor
     func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
         self.allViewModels.reduce(into: .init()) { partialResult, node in
             switch node.kind {
             case .patch, .group:
-                if node.canvasUIData.isVisibleInFrame {
+                if node.canvasUIData.parentGroupNodeId == focusedGroup {
                     partialResult.append(node.canvasUIData)
                 }
             case .layer:
                 let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
-                    if let canvasData = input.canvasUIData, canvasData.isVisibleInFrame {
+                    if let canvasData = input.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
                         return canvasData
                     }
                     return nil

@@ -200,14 +200,14 @@ final class NodeViewModel: Sendable {
                 // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
                 #if DEV_DEBUG
                 
-                if inputType == .position {
-                    rowObserver.canvasUIData = .init(
-                        id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-                        position: schema.position,
-                        zIndex: schema.zIndex,
-                        parentGroupNodeId: schema.parentGroupNodeId,
-                        nodeDelegate: self)
-                }
+//                if inputType == .position {
+//                    rowObserver.canvasUIData = .init(
+//                        id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
+//                        position: schema.position,
+//                        zIndex: schema.zIndex,
+//                        parentGroupNodeId: schema.parentGroupNodeId,
+//                        nodeDelegate: self)
+//                }
                 
 //                rowObserver.canvasUIData = .init(
 //                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),

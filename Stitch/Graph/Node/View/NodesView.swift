@@ -48,19 +48,37 @@ struct NodesView: View {
         Group {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: groupNodeFocused) {
-                
-                // Gets input data for edges
-                let inputs: NodeRowObservers = self.graph.getVisibleNodes()
-                    .flatMap { node -> NodeRowObservers in
-                        // hides edges from group input splitters
-                        // and from wireless receiver nodes
-                        if node.splitterType == .input ||
-                            node.patch == .wirelessReceiver {
-                            return []
-                        }
+                                
+                let inputs: NodeRowObservers = self.graph
+                    .getVisibleCanvasItems()
+                    .flatMap { canvasItem -> NodeRowObservers in
                         
-                        return node.getRowObservers(.input)
+                        switch canvasItem.id {
+                            
+                        case .layerInputOnGraph(let x):
+                            guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
+                                return []
+                            }
+                            return [input]
+                            
+                        case .node(let x):
+                            // Hides edges from group input splitters
+                            // and from wireless receiver nodes
+                            guard let node = graph.getNode(x) else {
+                                log("could not find node")
+                                return []
+                            }
+                            
+                            if node.splitterType == .input ||
+                                node.patch == .wirelessReceiver {
+                                log("had an input splitter or wireless receiver")
+                                return []
+                            }
+                            
+                            return node.inputRowObservers()
+                        }
                     }
+                
                 
                 ZStack {
                     // CommentBox needs to be affected by graph offset and zoom
