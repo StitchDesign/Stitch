@@ -34,11 +34,10 @@ extension NodeViewModel {
 extension GraphState {
     
     @MainActor
-    func nodeTapped(_ node: NodeViewModel) {
-        let id = node.id
-        log("nodeTapped: id: \(id)")
+    func canvasItemTapped(_ id: CanvasItemId) {
+        log("canvasItemTapped: id: \(id)")
         
-        guard let node = self.getNodeViewModel(id) else {
+        guard let canvasItem = self.getCanvasItem(id) else {
             fatalErrorIfDebug()
             return
         }
@@ -46,20 +45,18 @@ extension GraphState {
         // when holding CMD ...
         if self.graphUI.keypressState.isCommandPressed {
             // toggle selection
-            self.setNodeSelection(node, to: !node.isSelected)
+            self.setCanvasItemSelection(canvasItem,
+                                        to: !canvasItem.isSelected)
         }
         
         // when not holding CMD ...
         else {
-            self.selectSingleNode(node)
+            self.selectSingleCanvasItem(canvasItem)
         }
         
         // if we tapped a node, we're no longer moving it
         self.graphMovement.draggedNode = nil
         
-        node.zIndex = self.highestZIndex + 1
-     
-        // Why would we write-to-file when we tap a node? Does that ephemeral state really need to be cross-synced?
-//        self.encodeProjectInBackground()
+        canvasItem.zIndex = self.highestZIndex + 1
     }
 }

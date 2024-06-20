@@ -271,7 +271,7 @@ extension GraphState {
         self.graphMovement.graphIsDragged = false
 
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
+        self.resetSelectedCanvasItems()
         self.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         self.graphUI.insertNodeMenuState.show = false
         self.graphUI.isFullScreenMode = false
@@ -344,9 +344,16 @@ enum GraphDragState: Codable {
 
 extension GraphState {
     @MainActor
-    func resetSelectedNodes() {
-        self.nodes.values.forEach {
-            self.setNodeSelection($0, to: false)
+    func resetSelectedCanvasItems() {
+        self.nodes.values.forEach { node in
+            switch node.kind {
+            case .layer:
+                return node.inputRowObservers().forEach { input in
+                    input.canvasUIData?.isSelected = false
+                }
+            case .patch, .group:
+                return self.setNodeSelection(node, to: false)
+            }
         }
     }
 }
@@ -362,32 +369,37 @@ extension GraphUISelectionState {
 // When we tap or drag a single node,
 // we thereby select.
 extension GraphState {
+    
+    // Keep this helper around
     @MainActor
     func selectSingleNode(_ node: NodeViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
+        self.resetSelectedCanvasItems()
         
         self.setNodeSelection(node, to: true)
     }
     
     @MainActor
-    func addNodeToSelections(_ nodeId: NodeId) {
-        self.setNodeSelection(nodeId, to: true)
-    }
-        
-    @MainActor
-    func setNodeSelection(_ nodeId: NodeId,
-                       to value: Bool) {
-        guard let node = self.getNodeViewModel(nodeId) else {
-            log("setNodeSelect: unable to select node \(nodeId)")
-            return
-        }
-        
-        self.setNodeSelection(node, to: value)
+    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
+        // ie expansionBox, isSelecting, selected-comments etc.
+        // get reset when we select a single canvasItem.
+        self.graphUI.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+        self.setCanvasItemSelection(canvasItem, to: true)
     }
     
+    // TEST HELPER
+    @MainActor
+    func addNodeToSelections(_ nodeId: NodeId) {
+        guard let node = self.getNode(nodeId) else {
+            fatalErrorIfDebug()
+            return
+        }
+        self.setNodeSelection(node, to: true)
+    }
+            
     /// Handles setting selection state along with edge case scenario of selecting a group node,
     /// which requires setting selection status to input/output splitter nodes for port colors.
     @MainActor
@@ -396,6 +408,14 @@ extension GraphState {
         // see `NodeViewModel.isSelected`'s `didSet` for how the port view data cache is repopulated
         node.isSelected = value
     }
+    
+    @MainActor
+    func setCanvasItemSelection(_ canvasItem: CanvasItemViewModel,
+                                to value: Bool) {
+        // see `CanvasItem.isSelected`'s `didSet` for how the port view data cache is repopulated
+        canvasItem.isSelected = value
+    }
+    
 }
 
 // Model for graph zoom.

@@ -55,7 +55,7 @@ extension GraphState {
         //        }
 
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
+        self.resetSelectedCanvasItems()
         self.setNodeSelection(node, to: true)
         
         // Update focused group

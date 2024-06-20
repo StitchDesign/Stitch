@@ -27,6 +27,10 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
 
+    var canvasItemId: CanvasItemId {
+        .node(self.id)
+    }
+    
     // TODO: move to PatchNodeViewModel
     var canvasUIData: CanvasItemViewModel
     
@@ -229,7 +233,12 @@ final class NodeViewModel: Sendable {
                 }
                 
                 // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-                rowObserver.canvasUIData = .fakeCanvasItemForLayerInputOnGraph
+//                rowObserver.canvasUIData = .fakeCanvasItemForLayerInputOnGraph
+                rowObserver.canvasUIData = .init(
+                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
+                    position: schema.position,
+                    zIndex: schema.zIndex,
+                    parentGroupNodeId: schema.parentGroupNodeId)
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions

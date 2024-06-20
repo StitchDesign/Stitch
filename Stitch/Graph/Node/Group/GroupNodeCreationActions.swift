@@ -179,7 +179,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         state.selectedEdges = .init()
 
         // ... then select the GroupNode and its edges
-        state.resetSelectedNodes()
+        state.resetSelectedCanvasItems()
         state.setNodeSelection(newGroupNode, to: true)
 
         // Stop any active node dragging etc.

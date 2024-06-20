@@ -100,7 +100,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             // See GroupNodeView for group node double tap
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
                     log("NodeView: .simultaneousGesture(TapGesture(count: 1)")
-                    graph.nodeTapped(node)
+                    graph.canvasItemTapped(node.canvasItemId)
                 }))
             
             // TODO: put into a separate ViewModifier

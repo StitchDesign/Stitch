@@ -35,7 +35,7 @@ struct LayerInputOnGraphView: View {
 #endif
                 .gesture(TapGesture(count: 1).onEnded({
                     log("LayerInputOnGraphView: .simultaneousGesture(TapGesture(count: 1)")
-                    graph.nodeTapped(node)
+                    graph.canvasItemTapped(canvasItem.id)
                 }))
             
                 .overlay(alignment: .topTrailing) {
