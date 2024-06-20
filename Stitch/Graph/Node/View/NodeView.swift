@@ -198,7 +198,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     var nodeTagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
-                               node: node,
+                               node: node, 
+                               canvasItemId: node.canvasItemId,
                                activeGroupId: activeGroupId,
                                nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,

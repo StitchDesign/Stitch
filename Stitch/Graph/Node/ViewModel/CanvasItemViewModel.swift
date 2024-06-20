@@ -85,7 +85,6 @@ final class CanvasItemViewModel {
     var zIndex: Double = .zero
     var parentGroupNodeId: NodeId?
     
-    // TODO: remove
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
     
@@ -143,8 +142,6 @@ extension CanvasItemViewModel {
         self.bounds.localBounds.size
     }
     
-    // should be needed?
-//    var isNodeMoving: Bool {
     var isMoving: Bool {
         self.position != self.previousPosition
     }

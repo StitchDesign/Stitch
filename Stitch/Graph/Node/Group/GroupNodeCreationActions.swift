@@ -73,11 +73,12 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         
         let newGroupNodeId = GroupNodeId(id: NodeId())
         let selectedNodeIds = state.selectedNodeIds
+//        let selectedNodeIds = state.selectedCanvasItems
         let edges = state.createEdges()
 
-        #if DEV
+        #if DEV || DEV_DEBUG
         // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = state.visibleNodesViewModel.getVisibleNodes().map(\.id).toSet
+        let nodesAtThisLevel = state.getVisibleNodes().map(\.id).toSet
         if selectedNodeIds.contains { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) } {
             fatalError()
         }

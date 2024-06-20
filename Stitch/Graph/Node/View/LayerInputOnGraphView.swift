@@ -159,6 +159,7 @@ struct LayerInputOnGraphView: View {
     var tagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
                                node: node,
+                               canvasItemId: canvasItem.id,
                                activeGroupId: graph.groupNodeFocused?.asGroupNodeId,
                                nodeTypeChoices: .init(), // N/A layer-inputs-on-graph
                                canAddInput: false, // N/A for layer-inputs-on-graph

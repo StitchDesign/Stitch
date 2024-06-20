@@ -43,7 +43,6 @@ struct GroupNodeView: View {
                  usePositionHandler: true,
                  updateMenuActiveSelectionBounds: false,
                  isHiddenDuringAnimation: false,
-                 isHiddenLayer: false,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
     }

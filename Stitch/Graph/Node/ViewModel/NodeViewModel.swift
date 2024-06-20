@@ -33,14 +33,7 @@ final class NodeViewModel: Sendable {
     
     // TODO: move to PatchNodeViewModel
     var canvasUIData: CanvasItemViewModel
-    
-//    = CanvasItemViewModel(
-//        id: .node(id),
-//        position: .zero,
-//        zIndex: .zero,
-//        parentGroupNodeId: nil)
-    
-//    var position: CGPoint = .zero
+
     var position: CGPoint {
         get {
             self.canvasUIData.position
@@ -49,7 +42,6 @@ final class NodeViewModel: Sendable {
         }
     }
     
-//    var previousPosition: CGPoint = .zero
     var previousPosition: CGPoint {
         get {
             self.canvasUIData.previousPosition
@@ -58,8 +50,6 @@ final class NodeViewModel: Sendable {
         }
     }
     
-    
-//    var bounds = NodeBounds()
     var bounds: NodeBounds {
         get {
             self.canvasUIData.bounds
@@ -69,7 +59,6 @@ final class NodeViewModel: Sendable {
     }
     
     // ui placement
-//    var zIndex: Double = .zero
     var zIndex: Double {
         get {
             self.canvasUIData.zIndex
@@ -77,8 +66,7 @@ final class NodeViewModel: Sendable {
             self.canvasUIData.zIndex = newValue
         }
     }
-    
-//    var parentGroupNodeId: NodeId?
+
     var parentGroupNodeId: NodeId? {
         get {
             self.canvasUIData.parentGroupNodeId
@@ -88,7 +76,6 @@ final class NodeViewModel: Sendable {
     }
     
     // Default to false so initialized graphs don't take on extra perf loss
-    // var isVisibleInFrame = false
     var isVisibleInFrame: Bool {
         get {
             self.canvasUIData.isVisibleInFrame
@@ -97,8 +84,6 @@ final class NodeViewModel: Sendable {
         }
     }
     
-    //    @MainActor
-    //    var isSelected: Bool = false
     @MainActor
     var isSelected: Bool {
         get {
@@ -131,40 +116,10 @@ final class NodeViewModel: Sendable {
     private var _outputsObservers: NodeRowObservers = []
 
     var nodeType: NodeViewModelType
-
-//    var parentGroupNodeId: NodeId?
-
-//    // Default to false so initialized graphs don't take on extra perf loss
-//    var isVisibleInFrame = false
     
     // Cached for perf
     var longestLoopLength: Int = 1
     
-//    // Moved state here for render cycle perf on port view for colors
-//    @MainActor
-//    var isSelected: Bool = false {
-//        didSet {
-//            guard let graph = graphDelegate else {
-//                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
-//                return
-//            }
-//            
-//            // Move to didSet ?
-//            updatePortColorDataUponNodeSelection(node: self,
-//                                                 graphState: graph)
-//            
-////            canvasUIData.isSelected
-//            
-//            // When a group node is selected, we also update the port view cache of its splitters.
-//            if self.kind == .group {
-//                updatePortColorDataUponNodeSelection(
-//                    inputs: graph.getSplitterRowObservers(for: self.id, type: .input),
-//                    outputs: graph.getSplitterRowObservers(for: self.id, type: .output),
-//                    graphState: graph)
-//            }
-//        }
-//    }
-
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
@@ -201,12 +156,7 @@ final class NodeViewModel: Sendable {
             zIndex: schema.zIndex,
             parentGroupNodeId: schema.parentGroupNodeId,
             nodeDelegate: nil) // set below
-                
-//        self.position = schema.position
-//        self.previousPosition = schema.position
-//        self.zIndex = schema.zIndex
-//        self.parentGroupNodeId = schema.parentGroupNodeId
-        
+                        
         self.title = schema.title
         
         self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
@@ -248,13 +198,14 @@ final class NodeViewModel: Sendable {
                 }
                 
                 // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-//                rowObserver.canvasUIData = .fakeCanvasItemForLayerInputOnGraph
+                #if DEV_DEBUG
                 rowObserver.canvasUIData = .init(
                     id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
                     position: schema.position,
                     zIndex: schema.zIndex,
                     parentGroupNodeId: schema.parentGroupNodeId,
                     nodeDelegate: self)
+                #endif
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions
