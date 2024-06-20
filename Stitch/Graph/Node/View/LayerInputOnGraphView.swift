@@ -26,7 +26,8 @@ struct LayerInputOnGraphView: View {
     }
     
     var isHiddenLayer: Bool {
-        node.layerNode?.hasSidebarVisibility ?? false
+        let isVisibleInSidebar = node.layerNode?.hasSidebarVisibility ?? true
+        return !isVisibleInSidebar
     }
     
     // TODO: fix when comment boxes added back
@@ -122,7 +123,6 @@ struct LayerInputOnGraphView: View {
             if isHiddenLayer {
                 /*
                  TODO: how to indicate from the graph view that a given layer node's layers are hidden?
-
                  - use 30% black overlay in Light mode, 30% white overlay in Dark mode?
                  - use theme color?
                  - use crossed-out eye icon near node title?
@@ -130,9 +130,6 @@ struct LayerInputOnGraphView: View {
                 Color.black.opacity(0.3)
                     .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
                     .allowsHitTesting(false)
-
-                //                STITCH_TITLE_FONT_COLOR.opacity(0.3)
-                //                theme.themeData.edgeColor.opacity(0.3)
             } else {
                 EmptyView()
             }
