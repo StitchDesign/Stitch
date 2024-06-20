@@ -58,7 +58,6 @@ struct NodesOnlyView: View {
             // TODO: only show those LIG at this traversal level
             let inputsOnGraph = node.inputRowObservers().filter(\.canvasUIData.isDefined)
             
-//            let isAtThisTraversalLevel = node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId
             ForEach(inputsOnGraph) { inputOnGraph in
                 let isAtThisTraversalLevel = inputOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
                 
@@ -78,8 +77,6 @@ struct NodesOnlyView: View {
                     }
                 }
             }
-            
-            
         }
     }
     

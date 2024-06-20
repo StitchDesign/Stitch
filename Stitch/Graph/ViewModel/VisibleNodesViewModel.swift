@@ -187,6 +187,7 @@ extension VisibleNodesViewModel {
             .filter { $0.parentGroupNodeId ==  focusedGroup }
     }
 
+    // TODO: combine with getVisibleCanvasItems and just provide an additional param?
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
         self.allViewModels.reduce(into: .init()) { partialResult, node in
