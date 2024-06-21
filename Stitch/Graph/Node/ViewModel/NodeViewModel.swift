@@ -22,9 +22,27 @@ final class NodeViewModel: Sendable {
 
     var canvasItemId: CanvasItemId { .node(self.id) }
     
-    // TODO: move to PatchNodeViewModel
-    var canvasUIData: CanvasItemViewModel
+    var canvasUIData: CanvasItemViewModel {
+        get {
+            nodeData.canvasUIData
+        } set(newValue) {
+            nodeData.canvasUIData = newValue
+        }
+    }
 
+    var nodeData: NodeDataViewModel
+    
+    // Used for data-intensive purposes (eval)
+    // We use a class as a hack to prevent renders caused by data-side values
+    // TODO: can these really start out empty?
+    private var _inputsObservers: NodeRowObservers = []
+    private var _outputsObservers: NodeRowObservers = []
+    
+    // Is this node a LayerNode, PatchNode or GroupNode?
+    // Like `NodeKind` but contains node-kind specific data
+    // fka `nodeType`
+    var nodeKind: NodeViewModelKind
+    
     var title: String {
         didSet(oldValue) {
             if oldValue != title {
@@ -41,23 +59,13 @@ final class NodeViewModel: Sendable {
     // TODO: migrate Patch and Layer so that we can either grab the custom title or use the non-perf-sensitive default title, without needing to cache anything
     // Note: see own notes with actual updates for the new Layer and Patch raw-string values
     private var _cachedDisplayTitle: String = ""
-    
-    // Used for data-intensive purposes (eval)
-    // We use a class as a hack to prevent renders caused by data-side values
-    // TODO: can these really start out empty?
-    private var _inputsObservers: NodeRowObservers = []
-    private var _outputsObservers: NodeRowObservers = []
-
-    // Is this node a LayerNode, PatchNode or GroupNode?
-    // Like `NodeKind` but contains node-kind specific data
-    // fka `nodeType`
-    var nodeKind: NodeViewModelKind
-    
+        
     // TODO: move to LayerNodeViewModel ?
     // Cached for perf
     var longestLoopLength: Int = 1
     
-    // TODO: should these continue to live at Node-level, or be moved to PatchNode- and LayerNode-specific level? GroupNodes NEVER use ephemeral observers? Is it "one ephemeral-observer per input" or "one per loop index in an input"?
+    // TODO: should these continue to live on the Node, or be moved to PatchNode and/or LayerNode? (GroupNodes NEVER use ephemeral observers?)
+    // TODO: Is it "one ephemeral-observer per input" or "one per loop index in an input"? Per some use cases seems to be the second?
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
@@ -88,12 +96,16 @@ final class NodeViewModel: Sendable {
         self.id = schema.id
         
         // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
-        self.canvasUIData = CanvasItemViewModel(
+        // self.canvasUIData = CanvasItemViewModel(
+        let canvasUIData = CanvasItemViewModel(
             id: .node(schema.id),
             position: schema.position,
             zIndex: schema.zIndex,
             parentGroupNodeId: schema.parentGroupNodeId,
             nodeDelegate: nil) // set below
+        
+        self.nodeData = NodeDataViewModel(id: schema.id,
+                                          canvasUIData: canvasUIData)
                         
         self.title = schema.title
         

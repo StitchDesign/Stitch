@@ -39,14 +39,22 @@ final class NodeDataViewModel {
     // Needed for e.g. group nodes, since a group node may not have an input or output that we can query
     let id: NodeId
     
-    private var _inputsObservers: NodeRowObservers = []
-    private var _outputsObservers: NodeRowObservers = []
+    var canvasUIData: CanvasItemViewModel
     
     init(id: NodeId, 
-         inputs: NodeRowObservers,
-         outputs: NodeRowObservers) {
+         canvasUIData: CanvasItemViewModel) {
         self.id = id
-        self._inputsObservers = inputs
-        self._outputsObservers = outputs
+        self.canvasUIData = canvasUIData
     }
+    
+//    private var _inputsObservers: NodeRowObservers = []
+//    private var _outputsObservers: NodeRowObservers = []
+//        
+//    init(id: NodeId, 
+//         inputs: NodeRowObservers,
+//         outputs: NodeRowObservers) {
+//        self.id = id
+//        self._inputsObservers = inputs
+//        self._outputsObservers = outputs
+//    }
 }
