@@ -194,7 +194,8 @@ struct LayerInspectorPortView: View {
             .listRowBackground(listBackgroundColor)
             //            .listRowSpacing(12)
 //            .contentShape(Rectangle())
-            .simultaneousGesture(
+//            .simultaneousGesture(
+            .gesture(
                 TapGesture().onEnded({ _ in
                     log("LayerInspectorPortView tapped")
                     // TODO: when input tapped, and we already have an LIG, jump to that LIG on the graph
