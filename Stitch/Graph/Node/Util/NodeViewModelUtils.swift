@@ -77,10 +77,10 @@ extension NodeViewModel {
 
     var userVisibleType: UserVisibleType? {
         get {
-            self.nodeType.patchNode?.userVisibleType
+            self.nodeKind.patchNode?.userVisibleType
         }
         set(newValue) {
-            guard let patchNode = self.nodeType.patchNode else {
+            guard let patchNode = self.nodeKind.patchNode else {
                 return
             }
 
@@ -90,10 +90,10 @@ extension NodeViewModel {
 
     var splitterType: SplitterType? {
         get {
-            self.nodeType.patchNode?.splitterType
+            self.nodeKind.patchNode?.splitterType
         }
         set(newValue) {
-            guard let patchNode = self.nodeType.patchNode else {
+            guard let patchNode = self.nodeKind.patchNode else {
                 return
             }
 
@@ -102,7 +102,7 @@ extension NodeViewModel {
     }
 
     var kind: NodeKind {
-        self.nodeType.kind
+        self.nodeKind.kind
     }
 
     @MainActor
@@ -276,11 +276,11 @@ extension NodeViewModel {
     }
 
     var patchNode: PatchNodeViewModel? {
-        nodeType.patchNode
+        nodeKind.patchNode
     }
 
     var layerNode: LayerNodeViewModel? {
-        nodeType.layerNode
+        nodeKind.layerNode
     }
 
     @MainActor

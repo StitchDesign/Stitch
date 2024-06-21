@@ -27,7 +27,7 @@ struct NodeTypeView: View {
     var isHiddenDuringAnimation: Bool = false
 
     var body: some View {
-        switch node.nodeType {
+        switch node.nodeKind {
         case .layer:
             // LayerNodes use `LayerInputOnGraphView`
             EmptyView()

@@ -8,14 +8,16 @@
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: rename to `NodeKindData` or `NodeKindViewModel` or `NodeViewModelKind`? i.e. this is the `NodeKind` enum but with a kind's specific data attached.
-enum NodeViewModelType {
+// Is this node a LayerNode, PatchNode or GroupNode?
+// Like `NodeKind` but contains node-kind specific data
+// fka `NodeViewModelType`
+enum NodeViewModelKind {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
     case group
 }
 
-extension NodeViewModelType {
+extension NodeViewModelKind {
     @MainActor
     init(from schema: NodeEntity,
          nodeDelegate: NodeDelegate?) {
@@ -44,7 +46,7 @@ extension NodeViewModelType {
     }
 }
 
-extension NodeViewModelType {
+extension NodeViewModelKind {
     var patchNode: PatchNodeViewModel? {
         switch self {
         case .patch(let patchNode):

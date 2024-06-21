@@ -107,6 +107,8 @@ final class NodeViewModel: Sendable {
 
      Previously we used a `lazy var`, but since Swift never recalculates lazy vars we had to switch to a cache.
      */
+    // TODO: migrate Patch and Layer so that we can either grab the custom title or use the non-perf-sensitive default title, without needing to cache anything
+    // Note: see own notes with actual updates for the new Layer and Patch raw-string values
     private var _cachedDisplayTitle: String = ""
     
     // Used for data-intensive purposes (eval)
@@ -116,9 +118,11 @@ final class NodeViewModel: Sendable {
     private var _outputsObservers: NodeRowObservers = []
 
     // Is this node a LayerNode, PatchNode or GroupNode?
-    // Like `NodeKind` but a case may contain node-kind specific data
-    var nodeType: NodeViewModelType
+    // Like `NodeKind` but contains node-kind specific data
+    // fka `nodeType`
+    var nodeKind: NodeViewModelKind
     
+    // TODO: move to LayerNodeViewModel?
     // Cached for perf
     var longestLoopLength: Int = 1
     
@@ -162,7 +166,7 @@ final class NodeViewModel: Sendable {
                         
         self.title = schema.title
         
-        self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
+        self.nodeKind = NodeViewModelKind(from: schema, nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
@@ -257,7 +261,7 @@ final class NodeViewModel: Sendable {
                      outputs: PortValuesList,
                      outputLabels: [String],
                      activeIndex: ActiveIndex,
-                     nodeType: NodeViewModelType,
+                     nodeType: NodeViewModelKind,
                      parentGroupNodeId: NodeId?,
                      graphDelegate: GraphDelegate?) {
         var patchNodeEntity: PatchNodeEntity?
@@ -296,7 +300,7 @@ final class NodeViewModel: Sendable {
                   activeIndex: activeIndex,
                   graphDelegate: graphDelegate)
         
-        self.nodeType = nodeType
+        self.nodeKind = nodeType
         self._outputsObservers = NodeRowObservers(values: outputs,
                                                  kind: self.kind,
                                                  userVisibleType: self.userVisibleType,
@@ -328,7 +332,7 @@ extension NodeViewModel: NodeCalculatable {
     // If unable to run eval for a node (e.g. because it is one of the layer nodes that does not support node eval),
     // return `nil` rather than an empty list of inputs
     @MainActor func evaluate() -> EvalResult? {
-        switch self.nodeType {
+        switch self.nodeKind {
         case .patch(let patchNodeViewModel):
             return patchNodeViewModel.patch.evaluate.runEvaluation(
                 node: self
@@ -650,7 +654,7 @@ extension NodeViewModel {
         let inputValuesList = self.inputs
         let outputValuesList = self.outputs
 
-        switch self.nodeType {
+        switch self.nodeKind {
         case .patch, .layer:
             if self.kind.getPatch?.usesInputsForLoopIndices ?? false {
                 return getLongestLoopIndices(valuesList: inputValuesList)
@@ -768,7 +772,7 @@ extension NodeViewModel: SchemaObserver {
             
             guard let patchNodeViewModel = self.patchNode else {
                 // Note: NodeViewModelType enum is not Equatable because PatchNodeViewModel etc. is not Equatable
-                self.nodeType = .patch(PatchNodeViewModel(from: patchNode))
+                self.nodeKind = .patch(PatchNodeViewModel(from: patchNode))
                 return
             }
             patchNodeViewModel.update(from: patchNode)
@@ -777,7 +781,7 @@ extension NodeViewModel: SchemaObserver {
                 let layerNodeViewModel = LayerNodeViewModel(from: layerNode,
                                                             nodeDelegate: self)
                 layerNodeViewModel.nodeDelegate = self
-                self.nodeType = .layer(layerNodeViewModel)
+                self.nodeKind = .layer(layerNodeViewModel)
                 return
             }
             layerNodeViewModel.update(from: layerNode)
@@ -785,7 +789,7 @@ extension NodeViewModel: SchemaObserver {
             self._inputsObservers.sync(with: schema.inputs)
             
             guard self.kind.isGroup else {
-                self.nodeType = .group
+                self.nodeKind = .group
                 return
             }
         }
@@ -803,7 +807,7 @@ extension NodeViewModel: SchemaObserver {
                    parentGroupNodeId: self.parentGroupNodeId,
                    patchNodeEntity: self.patchNode?.createSchema(),
                    layerNodeEntity: self.layerNode?.createSchema(),
-                   isGroupNode: self.nodeType.kind.isGroup,
+                   isGroupNode: self.nodeKind.kind.isGroup,
                    title: self.title,
                    // layer nodes use keypaths
                    inputs: self.layerNode == nil ? self._inputsObservers.map { $0.createSchema() } : [])

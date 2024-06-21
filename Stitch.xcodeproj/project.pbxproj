@@ -666,7 +666,7 @@
 		ECB5A8162657230600D46D3E /* SampleHoldNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB5A8152657230600D46D3E /* SampleHoldNode.swift */; };
 		ECB6EE9F29314D51003D60C7 /* PatchNodeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB6EE9E29314D51003D60C7 /* PatchNodeType.swift */; };
 		ECB6EEA129317E50003D60C7 /* UserVisibleTypeSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB6EEA029317E50003D60C7 /* UserVisibleTypeSet.swift */; };
-		ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */; };
+		ECB7B5D12A72DD7600E2D30B /* NodeViewModelKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7B5D02A72DD7600E2D30B /* NodeViewModelKind.swift */; };
 		ECB7B5D32A72DD9400E2D30B /* NodePageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */; };
 		ECB7C71C28A56C0D00252DE7 /* ClassicAnimationColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7C71B28A56C0D00252DE7 /* ClassicAnimationColor.swift */; };
 		ECB7C71E28A56C2200252DE7 /* ClassicAnimationPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7C71D28A56C2200252DE7 /* ClassicAnimationPosition.swift */; };
@@ -1558,7 +1558,7 @@
 		ECB5A8152657230600D46D3E /* SampleHoldNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHoldNode.swift; sourceTree = "<group>"; };
 		ECB6EE9E29314D51003D60C7 /* PatchNodeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeType.swift; sourceTree = "<group>"; };
 		ECB6EEA029317E50003D60C7 /* UserVisibleTypeSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserVisibleTypeSet.swift; sourceTree = "<group>"; };
-		ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelType.swift; sourceTree = "<group>"; };
+		ECB7B5D02A72DD7600E2D30B /* NodeViewModelKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelKind.swift; sourceTree = "<group>"; };
 		ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodePageData.swift; sourceTree = "<group>"; };
 		ECB7C71B28A56C0D00252DE7 /* ClassicAnimationColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationColor.swift; sourceTree = "<group>"; };
 		ECB7C71D28A56C2200252DE7 /* ClassicAnimationPosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationPosition.swift; sourceTree = "<group>"; };
@@ -3009,7 +3009,7 @@
 				ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */,
 				EC1A357B2C25D4D700E5A6D8 /* LayerInputViewModel.swift */,
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
-				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
+				ECB7B5D02A72DD7600E2D30B /* NodeViewModelKind.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
 			);
 			path = ViewModel;
@@ -5167,7 +5167,7 @@
 				ECC2BCCB2B9B72A700D5F942 /* SidebarListView.swift in Sources */,
 				ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */,
 				EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */,
-				ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */,
+				ECB7B5D12A72DD7600E2D30B /* NodeViewModelKind.swift in Sources */,
 				EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */,
 				EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */,
 				EC2DD178289B6BF80089D501 /* NodeInputChangedActions.swift in Sources */,
