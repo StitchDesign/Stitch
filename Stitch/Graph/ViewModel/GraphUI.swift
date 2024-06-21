@@ -28,8 +28,16 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
+struct PropertySidebarState: Equatable {
+    // Which rows in the property sidebar are currently selected
+    var selectedProperties = LayerInputTypeSet() // technically doesn't need to be ordered
+}
+
 @Observable
 final class GraphUIState {
+        
+    var propertySidebar = PropertySidebarState()
+    
     var llmRecording = LLMRecordingState()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = NodeIdSet()
@@ -96,8 +104,8 @@ final class GraphUIState {
     var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
     
     #if DEV_DEBUG
-//    var showsLayerInspector = true // during dev
-        var showsLayerInspector = false // during dev
+    var showsLayerInspector = true // during dev
+//        var showsLayerInspector = false // during dev
     #else
     var showsLayerInspector = false
     #endif

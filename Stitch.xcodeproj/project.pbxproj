@@ -376,7 +376,7 @@
 		EC2942352BA136F500D14CD1 /* SidebarDeps.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942342BA136F500D14CD1 /* SidebarDeps.swift */; };
 		EC2942372BA1377B00D14CD1 /* SidebarListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */; };
 		EC2942392BA13C8100D14CD1 /* SidebarListUIActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */; };
-		EC29423D2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */; };
+		EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */; };
 		EC29423F2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */; };
 		EC2942412BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */; };
 		EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942422BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift */; };
@@ -1270,7 +1270,7 @@
 		EC2942342BA136F500D14CD1 /* SidebarDeps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDeps.swift; sourceTree = "<group>"; };
 		EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItem.swift; sourceTree = "<group>"; };
 		EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListUIActions.swift; sourceTree = "<group>"; };
-		EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToNodeOnGraph.swift; sourceTree = "<group>"; };
+		EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToCanvasItem.swift; sourceTree = "<group>"; };
 		EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupUncreated.swift; sourceTree = "<group>"; };
 		EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectedItemsDeleted.swift; sourceTree = "<group>"; };
 		EC2942422BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectedItemsDuplicated.swift; sourceTree = "<group>"; };
@@ -2279,7 +2279,7 @@
 				ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */,
 				ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */,
 				EC3127F72BA3DE120087049A /* DeriveSidebarList.swift */,
-				EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */,
+				EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */,
 				B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */,
 			);
 			path = Util;
@@ -4991,7 +4991,7 @@
 				B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */,
 				EC8605B6269E1A18007B8ED3 /* JSONObjectNode.swift in Sources */,
 				ECDCE3602821F13800D83EC3 /* DropDownChoiceView.swift in Sources */,
-				EC29423D2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift in Sources */,
+				EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */,
 				EC4D0D8A290861E300444B04 /* GraphBounds.swift in Sources */,
 				ECA92A0C260A69A000281B52 /* AddNode.swift in Sources */,
 				EC9D16E22808D97A00684978 /* ValueEntry.swift in Sources */,

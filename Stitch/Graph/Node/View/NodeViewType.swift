@@ -143,7 +143,7 @@ struct DefaultNodeRowView: View {
             rowData: data,
             coordinateType: coordinateType,
             nodeKind: nodeKind,
-            isNodeSelected: isNodeSelected,
+            isCanvasItemSelected: isNodeSelected,
             adjustmentBarSessionId: adjustmentBarSessionId)
     }
 }

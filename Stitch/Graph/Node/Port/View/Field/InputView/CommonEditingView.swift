@@ -24,12 +24,13 @@ struct CommonEditingView: View {
     let id: InputCoordinate
     @Bindable var graph: GraphState
     let fieldIndex: Int
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
 
     let forPropertySidebar: Bool // = false
+    let propertyIsAlreadyOnGraph: Bool
     
     var fieldCoordinate: FieldCoordinate {
         FieldCoordinate(input: id,
@@ -39,10 +40,15 @@ struct CommonEditingView: View {
     // Important perf check to prevent instantiations of editing view
     @MainActor
     var showEditingView: Bool {
+        // Can never focus the field of property row if that propery is already on the graph
+        if forPropertySidebar && propertyIsAlreadyOnGraph {
+            return false
+        }
+        
         if forPropertySidebar {
            return thisFieldIsFocused
         } else {
-            return thisFieldIsFocused && isNodeSelected && !isSelectionBoxInUse
+            return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
         }
     }
     
@@ -63,6 +69,8 @@ struct CommonEditingView: View {
         Group {
             // For perf: we don't want this view rendering at all if not currently focused
             if showEditingView {
+                // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
+                
                 // Render NodeTextFieldView if its the focused field.
                 StitchTextEditingBindingField(
                     currentEdit: $currentEdit,

@@ -110,18 +110,5 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         
         // `TapGesture`s need to come AFTER `DragGesture`
             .simultaneousGesture(self.tapGesture)
-            .simultaneousGesture(TapGesture(count: 1).onEnded({ _ in
-                dispatch(LayerTapped(coordinate: interactiveLayer.id))
-            }))
     } 
-}
-
-struct LayerTapped: GraphEvent {
-    let coordinate: PreviewCoordinate
-
-    func handle(state: GraphState) {
-        if state.graphUI.keypressState.isCommandPressed {
-            state.panGraphToNodeLocation(nodeId: coordinate.layerNodeId.asNodeId)
-        }
-    }
 }

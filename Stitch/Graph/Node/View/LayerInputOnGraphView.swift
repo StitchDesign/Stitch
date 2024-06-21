@@ -39,7 +39,7 @@ struct LayerInputOnGraphView: View {
 #if targetEnvironment(macCatalyst)
                 .contextMenu { tagMenu } // Catalyst right-click to open node tag menu
 #endif
-                .gesture(TapGesture(count: 1).onEnded({
+                .simultaneousGesture(TapGesture(count: 1).onEnded({
                     log("LayerInputOnGraphView: .simultaneousGesture(TapGesture(count: 1)")
                     graph.canvasItemTapped(canvasItem.id)
                 }))
@@ -173,7 +173,7 @@ struct LayerInputOnGraphView: View {
                                     rowData: input,
                                     coordinateType: portViewType,
                                     nodeKind: .layer(layerNode.layer),
-                                    isNodeSelected: false,
+                                    isCanvasItemSelected: canvasItem.isSelected,
                                     adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
             } else {
                 EmptyView()
@@ -188,12 +188,12 @@ struct FakeLayerInputOnGraphView: View {
     
     var body: some View {
         let node = Layer.oval.getFakeLayerNode()!
-        LayerInputOnGraphView(graph: .fakeEmptyGraphState,
-                              node: node,
-//                              input: node.inputRowObservers().first!,
-                              input: node.inputRowObservers()[1],
-                              canvasItem: .fakeCanvasItemForLayerInputOnGraph,
-                              layerNode: node.layerNode!)
+        LayerInputOnGraphView(
+            graph: .fakeEmptyGraphState,
+            node: node,
+            input: node.inputRowObservers()[1],
+            canvasItem: .fakeCanvasItemForLayerInputOnGraph,
+            layerNode: node.layerNode!)
     }
 }
 

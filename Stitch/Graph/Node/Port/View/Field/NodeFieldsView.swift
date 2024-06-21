@@ -15,10 +15,11 @@ struct NodeFieldsView: View {
     let coordinate: NodeIOCoordinate
     let nodeKind: NodeKind
     let nodeIO: NodeIO
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
+    let propertyIsAlreadyOnGraph: Bool
 
     var isMultiField: Bool {
         self.fieldGroupViewModel.fieldObservers.count > 1
@@ -44,6 +45,10 @@ struct NodeFieldsView: View {
            }
        }
     
+    var isForPropertyAlreadyOnGraph: Bool {
+        forPropertySidebar && propertyIsAlreadyOnGraph
+    }
+    
     var body: some View {
         if let groupLabel = label {
             StitchTextView(string: groupLabel)
@@ -52,6 +57,7 @@ struct NodeFieldsView: View {
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
             self.valueEntryView(fieldViewModel)
         }
+        .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
 
     @ViewBuilder
@@ -63,9 +69,10 @@ struct NodeFieldsView: View {
                    nodeIO: nodeIO,
                    isMultiField: isMultiField,
                    nodeKind: nodeKind,
-                   isNodeSelected: isNodeSelected,
+                   isCanvasItemSelected: isCanvasItemSelected,
                    hasIncomingEdge: hasIncomingEdge,
                    adjustmentBarSessionId: adjustmentBarSessionId,
-                   forPropertySidebar: forPropertySidebar)
+                   forPropertySidebar: forPropertySidebar,
+                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
     }
 }

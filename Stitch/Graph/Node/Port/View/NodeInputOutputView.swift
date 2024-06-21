@@ -16,10 +16,12 @@ struct NodeInputOutputView: View {
     @Bindable var rowData: NodeRowObserver
     let coordinateType: PortViewType
     let nodeKind: NodeKind
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var forPropertySidebar: Bool = false
+    var propertyIsSelected: Bool = false
+    var propertyIsAlreadyOnGraph: Bool = false
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -52,7 +54,7 @@ struct NodeInputOutputView: View {
                                                             coordinate: layerInput))
                         }
                     }
-                    .opacity(isUserSelectedInPropertySidebar ? 1 : 0)
+                    .opacity(propertyIsSelected ? 1 : 0)
             }
             
             // Fields and port ordering depending on input/output
@@ -91,28 +93,8 @@ struct NodeInputOutputView: View {
             self.rowData.activeValueChanged(oldValue: oldViewValue,
                                             newValue: newViewValue)
         }
-        .overlay {
-            if isLayer, 
-                forPropertySidebar,
-                isUserSelectedInPropertySidebar {
-                STITCH_PURPLE.opacity(0.4)
-                    .frame(height: NODE_ROW_HEIGHT + 4)
-                    .padding()
-                    .cornerRadius(8)
-            }
-        }
-        .simultaneousGesture(
-            TapGesture()
-                .onEnded { _ in
-                    if isLayer, forPropertySidebar {
-                        isUserSelectedInPropertySidebar.toggle()
-                    }
-                }
-        )
     }
     
-    @State var isUserSelectedInPropertySidebar = false
-
     var isLayer: Bool {
         self.nodeKind.isLayer
     }
@@ -136,10 +118,11 @@ struct NodeInputOutputView: View {
                 coordinate: coordinate,
                 nodeKind: nodeKind,
                 nodeIO: coordinateType.nodeIO,
-                isNodeSelected: isNodeSelected,
+                isCanvasItemSelected: isCanvasItemSelected,
                 hasIncomingEdge: rowData.upstreamOutputCoordinate.isDefined,
                 adjustmentBarSessionId: adjustmentBarSessionId,
-                forPropertySidebar: forPropertySidebar
+                forPropertySidebar: forPropertySidebar,
+                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph
             )
         }
     }

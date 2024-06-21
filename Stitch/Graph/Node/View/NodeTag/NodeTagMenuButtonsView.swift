@@ -168,7 +168,7 @@ struct NodeTagMenuButtonsView: View {
             if isWirelessReceiver,
                let assignedBroadcaster = node.currentBroadcastChoiceId {
                 nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
-                    dispatch(JumpToNodeOnGraph(id: assignedBroadcaster))
+                    dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
                 }
             }
             

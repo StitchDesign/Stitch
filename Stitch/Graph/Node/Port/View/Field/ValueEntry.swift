@@ -18,10 +18,11 @@ struct ValueEntry: View {
     let nodeIO: NodeIO
     let isMultiField: Bool
     let nodeKind: NodeKind
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
+    let propertyIsAlreadyOnGraph: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -59,10 +60,11 @@ struct ValueEntry: View {
                   nodeIO: nodeIO,
                   isMultiField: isMultiField,
                   nodeKind: nodeKind,
-                  isNodeSelected: isNodeSelected,
+                  isCanvasItemSelected: isCanvasItemSelected,
                   hasIncomingEdge: hasIncomingEdge,
                   adjustmentBarSessionId: adjustmentBarSessionId,
                   forPropertySidebar: forPropertySidebar,
+                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                   isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -93,10 +95,11 @@ struct ValueView: View {
     let nodeIO: NodeIO
     let isMultiField: Bool
     let nodeKind: NodeKind
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
+    let propertyIsAlreadyOnGraph: Bool
     
     @Binding var isButtonPressed: Bool
 
@@ -134,10 +137,11 @@ struct ValueView: View {
                                   id: coordinate,
                                   graph: graph,
                                   fieldIndex: fieldIndex,
-                                  isNodeSelected: isNodeSelected,
+                                  isCanvasItemSelected: isCanvasItemSelected,
                                   hasIncomingEdge: hasIncomingEdge,
                                   isLargeString: string.isLargeString,
-                                  forPropertySidebar: forPropertySidebar)
+                                  forPropertySidebar: forPropertySidebar,
+                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
             case .output:
                 // Leading alignment when multifield
                 ReadOnlyValueEntry(value: string.string,
@@ -153,10 +157,11 @@ struct ValueView: View {
                                      nodeIO: nodeIO,
                                      fieldCoordinate: fieldCoordinate,
                                      outputAlignment: outputAlignment,
-                                     isNodeSelected: isNodeSelected,
+                                     isCanvasItemSelected: isCanvasItemSelected,
                                      hasIncomingEdge: hasIncomingEdge,
                                      adjustmentBarSessionId: adjustmentBarSessionId,
-                                     forPropertySidebar: forPropertySidebar)
+                                     forPropertySidebar: forPropertySidebar,
+                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
         
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
@@ -166,10 +171,11 @@ struct ValueView: View {
                                  nodeIO: nodeIO,
                                  fieldCoordinate: fieldCoordinate,
                                  outputAlignment: outputAlignment,
-                                 isNodeSelected: isNodeSelected,
+                                 isCanvasItemSelected: isCanvasItemSelected,
                                  hasIncomingEdge: hasIncomingEdge,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
-                                 forPropertySidebar: forPropertySidebar)
+                                 forPropertySidebar: forPropertySidebar,
+                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
 
         case .bool(let bool):
             BoolCheckboxView(id: isInput ? self.coordinate : nil,
@@ -217,7 +223,7 @@ struct ValueView: View {
                                 nodeKind: nodeKind,
                                 isInput: isInput,
                                 fieldIndex: fieldIndex,
-                                isNodeSelected: isNodeSelected,
+                                isNodeSelected: isCanvasItemSelected,
                                 hasIncomingEdge: hasIncomingEdge)
 
         case .color(let color):

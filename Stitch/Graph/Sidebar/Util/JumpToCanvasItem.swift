@@ -11,55 +11,55 @@ import StitchSchemaKit
 
 // MARK: ACTIONS
 
-struct JumpToNodeOnGraph: GraphEvent {
+struct JumpToCanvasItem: GraphEvent {
 
-    let id: NodeId
+    let id: CanvasItemId
 
     func handle(state: GraphState) {
-        state.panGraphToNodeLocation(nodeId: id)
+        state.panGraphToNodeLocation(id: id)
     }
 }
 
-struct FindNodeOnGraph: GraphEvent {
+struct FindSomeCanvasItemOnGraph: GraphEvent {
     
     func handle(state: GraphState) {
-        if let node = GraphState.westernMostNode(
+        if let canvasItem = GraphState.westernMostNode(
             state.groupNodeFocused?.asGroupNodeId,
-            nodeViewModels: state.getVisibleNodes()) {
+            canvasItems: state.getVisibleCanvasItems()) {
             
-            state.panGraphToNodeLocation(nodeId: node.id)
+            state.panGraphToNodeLocation(id: canvasItem.id)
         }
     }
 }
 
 extension GraphState {
     @MainActor
-    func panGraphToNodeLocation(nodeId: NodeId) {
-        guard let node = self.getNodeViewModel(nodeId) else {
-            fatalErrorIfDebug("GraphState.sidebarItemTapped: no node found")
+    func panGraphToNodeLocation(id: CanvasItemId) {
+        guard let canvasItem = self.getCanvasItem(id) else {
+            fatalErrorIfDebug("GraphState.sidebarItemTapped: no canvasItem found")
             return
         }
 
-        // the size of the screen and nodeView
+        // the size of the screen and canvas item's View
         let frame = self.graphUI.frame
 
-        // location of node
-        let position = node.position
+        // location of canvasItem
+        let position = canvasItem.position
 
         let newLocation = calculateMove(frame, position)
 
-        // TODO: how to slowly move over to the tapped layer? Using `withAnimation` on just graph offset does not animate the edges. (There's also a node text issue?)
-        //        withAnimation(.easeaInOut) {
+        // TODO: how to slowly move over to the tapped layer? Using `withAnimation` on just graph offset does not animate the edges. (There's also a canvasItem text issue?)
+        //        withAnimation(.easeInOut) {
         self.graphMovement.localPosition = newLocation
         self.graphMovement.localPreviousPosition = newLocation
         //        }
 
         self.graphUI.selection = GraphUISelectionState()
         self.resetSelectedCanvasItems()
-        node.select()
+        canvasItem.select()
         
         // Update focused group
-        self.graphUI.groupNodeFocused = node.parentGroupNodeId?.asGroupNodeId
+        self.graphUI.groupNodeFocused = canvasItem.parentGroupNodeId?.asGroupNodeId
     }
 }
 

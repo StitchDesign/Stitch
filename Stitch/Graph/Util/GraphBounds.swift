@@ -24,17 +24,17 @@ extension GraphState {
 
         // NOTE: nodes are retrieved per active traversal level,
         // ie top level vs some specific, focused group.
-        let nodesAtTraversalLevel = self.nodesAtTraversalLevel(self.graphUI.groupNodeFocused)
+        let canvasItemsAtTraversalLevel = self.canvasItemsAtTraversalLevel(self.graphUI.groupNodeFocused)
 
         // If there are no nodes, then there is no graphBounds
         guard let east = Self.easternMostNode(groupNodeFocused,
-                                              nodeViewModels: nodesAtTraversalLevel),
+                                              canvasItems: canvasItemsAtTraversalLevel),
               let west = Self.westernMostNode(groupNodeFocused,
-                                              nodeViewModels: nodesAtTraversalLevel),
+                                              canvasItems: canvasItemsAtTraversalLevel),
               let south = Self.southernMostNode(groupNodeFocused,
-                                                nodeViewModels: nodesAtTraversalLevel),
+                                                canvasItems: canvasItemsAtTraversalLevel),
               let north = Self.northernMostNode(groupNodeFocused,
-                                                nodeViewModels: nodesAtTraversalLevel) else {
+                                                canvasItems: canvasItemsAtTraversalLevel) else {
             //            log("GraphState: graphBounds: had no nodes")
             return nil
         }

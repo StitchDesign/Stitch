@@ -18,10 +18,11 @@ struct  FieldValueNumberView: View {
     let nodeIO: NodeIO
     let fieldCoordinate: FieldCoordinate
     let outputAlignment: Alignment
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
+    let propertyIsAlreadyOnGraph: Bool
 
     @State private var isButtonPressed = false
 
@@ -46,10 +47,11 @@ struct  FieldValueNumberView: View {
                                       id: coordinate,
                                       graph: graph,
                                       fieldIndex: fieldCoordinate.fieldIndex,
-                                      isNodeSelected: isNodeSelected,
+                                      isCanvasItemSelected: isCanvasItemSelected,
                                       hasIncomingEdge: hasIncomingEdge,
                                       isAdjustmentBarInUse: isButtonPressed,
-                                      forPropertySidebar: forPropertySidebar)
+                                      forPropertySidebar: forPropertySidebar,
+                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
                 }
             case .output:
                 ReadOnlyValueEntry(value: stringValue,

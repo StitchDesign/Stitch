@@ -35,13 +35,7 @@ struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     static let LAYER_INSPECTOR_WIDTH = 360.0
-    
-    @State private var debugLocation: String = "none"
-    
-    @State private var isLayoutExpanded = true
-    @State private var isSomeSectionExpanded = true
-    @State private var isAnotherSectionExpanded = true
-    
+        
     @Bindable var graph: GraphState // should be Bindable?
     
     // TODO: property sidebar changes when multiple sidebar layers are selected
@@ -71,7 +65,6 @@ struct LayerInspectorView: View {
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
-//                    .frame(idealHeight: .infinity)
             }
 
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
@@ -83,7 +76,6 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-//            selectedLayerView(node, layerNode)
 //                .onAppear {
 //                    #if DEV_DEBUG
 //                    let listedLayers = Self.required
@@ -98,9 +90,7 @@ struct LayerInspectorView: View {
 //
 //                    // TODO: make LayerInputType enum `CaseIterable`
 //                    let allLayers = LayerInputType.allCases
-//
 //                    assert(listedLayers.count == allLayers)
-//
 //                    #endif
 //                }
         } else {
@@ -169,12 +159,24 @@ struct LayerInspectorPortView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
+    // Is this property-row selected?
+    @MainActor
+    var propertyRowIsSelected: Bool {
+        graph.graphUI.propertySidebar
+            .selectedProperties.contains(layerInputType)
+    }
+    
     var body: some View {
         let definition = layerNode.layer.layerGraphNode
         let inputsList = definition.inputDefinitions
         let rowObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         
         let isOnGraphAlready = rowObserver.canvasUIData.isDefined
+        
+        let listBackgroundColor: Color = isOnGraphAlready
+            ? Color.black.opacity(0.3)
+            : (self.propertyRowIsSelected 
+               ? STITCH_PURPLE.opacity(0.4) : .clear)
         
         // See if layer node uses this input
         if inputsList.contains(layerInputType),
@@ -184,24 +186,42 @@ struct LayerInspectorPortView: View {
                                 rowData: rowObserver,
                                 coordinateType: portViewType,
                                 nodeKind: .layer(layerNode.layer),
-                                isNodeSelected: false,
+                                isCanvasItemSelected: false,
                                 adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
-                                forPropertySidebar: true)
-            .overlay {
-//                if isOnGraphAlready {
-                    Color.red.opacity(0.4).padding()
-//                }
-            }
+                                forPropertySidebar: true,
+                                propertyIsSelected: propertyRowIsSelected,
+                                propertyIsAlreadyOnGraph: isOnGraphAlready)
+            .listRowBackground(listBackgroundColor)
+            //            .listRowSpacing(12)
+//            .contentShape(Rectangle())
             .simultaneousGesture(
-                TapGesture()
-                    .onEnded({ _ in
-                        // TODO: when input tapped, and we already ahve an LIG, jump to that LIG on the graph
-                        
-                    })
+                TapGesture().onEnded({ _ in
+                    log("LayerInspectorPortView tapped")
+                    // TODO: when input tapped, and we already have an LIG, jump to that LIG on the graph
+                    if isOnGraphAlready,
+                       let canvasItemId = rowObserver.canvasUIData?.id {
+                        dispatch(JumpToCanvasItem(id: canvasItemId))
+                    } else {
+                        withAnimation {
+                            graph.graphUI.layerPropertyTapped(layerInputType)
+                        }
+                    }
+                })
             )
-//            .disabled(isOnGraphAlready)
         } else {
             EmptyView()
+        }
+    }
+}
+
+extension GraphUIState {
+    func layerPropertyTapped(_ property: LayerInputType) {
+        let alreadySelected = self.propertySidebar.selectedProperties.contains(property)
+        
+        if alreadySelected {
+            self.propertySidebar.selectedProperties.remove(property)
+        } else {
+            self.propertySidebar.selectedProperties.append(property)
         }
     }
 }
@@ -241,8 +261,10 @@ struct LayerInspectorSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
+                    layers.forEach {
+                        graph.graphUI.propertySidebar.selectedProperties.remove($0)
+                    }
                 }
-                
             }
         }
     }

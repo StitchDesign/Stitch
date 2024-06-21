@@ -388,7 +388,7 @@ extension GraphState {
 
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> NodeViewModels {
-        self.nodesAtTraversalLevel(self.graphUI.groupNodeFocused)
+        self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
