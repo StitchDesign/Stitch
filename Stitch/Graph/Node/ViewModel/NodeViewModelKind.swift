@@ -14,9 +14,10 @@ import StitchSchemaKit
 enum NodeViewModelKind {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
-    case group
+    case group(GroupNodeViewModel)
 }
 
+// Becomes very important, since inputs/outputs, position etc. are now all held here.
 extension NodeViewModelKind {
     @MainActor
     init(from schema: NodeEntity,
@@ -29,7 +30,8 @@ extension NodeViewModelKind {
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
         } else {
-            self = .group
+            let viewModel = GroupNodeViewModel.fromSchemaWithoutDelegate(from: schema)
+            self = .group(viewModel)
         }
     }
 

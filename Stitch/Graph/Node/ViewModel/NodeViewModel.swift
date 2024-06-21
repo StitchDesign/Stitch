@@ -114,13 +114,7 @@ final class NodeViewModel: Sendable {
         self.id = schema.id
         
         // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
-        // self.canvasUIData = CanvasItemViewModel(
-        let canvasUIData = CanvasItemViewModel(
-            id: .node(schema.id),
-            position: schema.position,
-            zIndex: schema.zIndex,
-            parentGroupNodeId: schema.parentGroupNodeId,
-            nodeDelegate: nil) // set below
+        let canvasUIData = CanvasItemViewModel.fromSchemaWithoutDelegate(schema)
         
         self.nodeData = NodeDataViewModel(id: schema.id,
                                           canvasUIData: canvasUIData,
@@ -143,71 +137,74 @@ final class NodeViewModel: Sendable {
 
         self.createEphemeralObservers()
         
+        // Why do we have to initialize the inputs and outputs AFTER we've created the other data?
+        // ... the NodeRowObservers need to be able to reference the NodeViewModel as the node delegate ?
+        
         // Layer nodes use key paths instead of array for input observers
         if let layerNode = self.layerNode {
-            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
-                guard let layerNodeEntity = schema.layerNodeEntity else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                // Set delegate and call update values helper
-                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath]
-                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
-                rowObserver.nodeDelegate = self
-                
-                switch rowSchema {
-                case .upstreamConnection(let upstreamCoordinate):
-                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
-                case .values(let values):
-                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
-                    
-                    rowObserver.updateValues(values,
-                                             activeIndex: self.activeIndex,
-                                             isVisibleInFrame: self.isVisibleInFrame,
-                                             isInitialization: true)
-                }
-                
-                // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
-                #if DEV_DEBUG
-                
-//                if inputType == .position {
-//                    rowObserver.canvasUIData = .init(
-//                        id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-//                        position: schema.position,
-//                        zIndex: schema.zIndex,
-//                        parentGroupNodeId: schema.parentGroupNodeId,
-//                        nodeDelegate: self)
-//                }
-                
-//                rowObserver.canvasUIData = .init(
-//                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
-//                    position: schema.position,
-//                    zIndex: schema.zIndex,
-//                    parentGroupNodeId: schema.parentGroupNodeId,
-//                    nodeDelegate: self)
-                #endif
-                
-                // Add outputs for the few layer nodes that use them
-                self._outputsObservers = rowDefinitions
-                    .createOutputObservers(nodeId: schema.id,
-                                           values: self.defaultOutputsList,
-                                           nodeDelegate: self)
-                
-                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
-            }
-        } else if self.kind.isPatch {
+                        
+            layerNode.updateLayerInputsFromSchema(
+                schema: schema,
+                activeIndex: activeIndex,
+                nodeDelegate: self)
+            
+//            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
+//                
+//                // Set delegate and call update values helper
+//                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath]
+//                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
+//                rowObserver.nodeDelegate = self
+//                
+//                switch rowSchema {
+//                case .upstreamConnection(let upstreamCoordinate):
+//                    rowObserver.upstreamOutputCoordinate = upstreamCoordinate
+//                case .values(let values):
+//                    let values = values.isEmpty ? [inputType.getDefaultValue(for: layerNode.layer)] : values
+//                    
+//                    rowObserver.updateValues(values,
+//                                             activeIndex: self.activeIndex,
+//                                             isVisibleInFrame: self.isVisibleInFrame,
+//                                             isInitialization: true)
+//                } // switch
+//                
+//                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
+//                
+//            } // for inputType in layerNode.layer ...
+            
+            // Strange -- this had been inside `for each input-type` loop!
+            // Add outputs for the few layer nodes that use them
+            self._outputsObservers = schema.outputObserversFromSchema(
+                rowDefinitions: rowDefinitions,
+                nodeDelegate: self)
+            
+//                .outputObserversFromSchema(
+//                schema,
+//                rowDefinitions: rowDefinitions,
+//                nodeDelegate: self)
+            
+            
+        } // if let layerNode = ...
+        
+        else if self.kind.isPatch {
             // Must set inputs before calling eval below
-            self._inputsObservers = schema.inputs
-                .createInputObservers(nodeId: schema.id,
-                                      kind: self.kind,
-                                      userVisibleType: schema.patchNodeEntity?.userVisibleType,
-                                      nodeDelegate: self)
+//            self._inputsObservers = schema.inputs
+//                .createInputObservers(nodeId: schema.id,
+//                                      kind: self.kind,
+//                                      userVisibleType: schema.patchNodeEntity?.userVisibleType,
+//                                      nodeDelegate: self)
+            
+            self._inputsObservers = schema.inputObserversFromSchema(
+                kind: self.kind,
+                nodeType: schema.patchNodeEntity?.userVisibleType,
+                nodeDelegate: self)
     
-            self._outputsObservers = rowDefinitions
-                .createOutputObservers(nodeId: schema.id,
-                                       values: self.defaultOutputsList,
-                                       nodeDelegate: self)
+//            self._outputsObservers = rowDefinitions
+//                .createOutputObservers(nodeId: schema.id,
+//                                       values: self.defaultOutputsList,
+//                                       nodeDelegate: self)
+            self._outputsObservers = schema.outputObserversFromSchema(
+                rowDefinitions: rowDefinitions,
+                nodeDelegate: self)
         }
 
         // Initialize layers
@@ -827,7 +824,7 @@ extension NodeViewModel: SchemaObserver {
             self._inputsObservers.sync(with: schema.inputs)
             
             guard self.kind.isGroup else {
-                self.nodeKind = .group
+                self.nodeKind = .group(.fromSchemaWithoutDelegate(from: schema))
                 return
             }
         }
