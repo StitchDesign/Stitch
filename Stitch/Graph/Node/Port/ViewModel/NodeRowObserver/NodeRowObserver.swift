@@ -20,9 +20,7 @@ extension NodeRowObserver: Equatable {
 
 @Observable
 final class NodeRowObserver: Identifiable, Sendable {
-    
-    var canvasUIData: CanvasItemViewModel? = nil
-    
+        
     // MARK: fundamental, non-derived data
     
     // TODO: this initializer seems strange? Presumably we update and change this logic elsewhere?
@@ -36,7 +34,22 @@ final class NodeRowObserver: Identifiable, Sendable {
     
     // NodeIO type cannot be changed over the life of a row, and is important enough that we should not let it default to some value
     let nodeIOType: NodeIO
-    
+        
+    var canvasUIData: CanvasItemViewModel? = nil
+
+//    var layerInputViewModel: LayerInputViewModel?
+//
+//    var canvasUIData: CanvasItemViewModel? {
+//        get {
+//            self.layerInputViewModel?.canvasUIData
+//        } set(newValue) {
+//            if let newValue = newValue {
+//                self.layerInputViewModel?.canvasUIData = newValue
+//            }
+//            
+//        }
+//    }
+        
     // Holds view models for fields
     var fieldValueTypes = FieldGroupTypeViewModelList()
     

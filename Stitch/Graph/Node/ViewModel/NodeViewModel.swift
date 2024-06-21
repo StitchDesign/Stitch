@@ -35,8 +35,26 @@ final class NodeViewModel: Sendable {
     // Used for data-intensive purposes (eval)
     // We use a class as a hack to prevent renders caused by data-side values
     // TODO: can these really start out empty?
-    private var _inputsObservers: NodeRowObservers = []
-    private var _outputsObservers: NodeRowObservers = []
+//    private var _inputsObservers: NodeRowObservers = []
+//    private var _outputsObservers: NodeRowObservers = []
+    
+    private var _inputsObservers: NodeRowObservers {
+        get {
+            self.nodeData._inputsObservers
+        } set(newValue) {
+            // Do we really want to allow such direct setting?
+            self.nodeData._inputsObservers = newValue
+        }
+    }
+    
+    private var _outputsObservers: NodeRowObservers {
+        get {
+            self.nodeData._outputsObservers
+        } set(newValue) {
+            // Do we really want to allow such direct setting?
+            self.nodeData._outputsObservers = newValue
+        }
+    }
     
     // Is this node a LayerNode, PatchNode or GroupNode?
     // Like `NodeKind` but contains node-kind specific data
@@ -105,7 +123,10 @@ final class NodeViewModel: Sendable {
             nodeDelegate: nil) // set below
         
         self.nodeData = NodeDataViewModel(id: schema.id,
-                                          canvasUIData: canvasUIData)
+                                          canvasUIData: canvasUIData,
+                                          // Filled below
+                                          inputs: [],
+                                          outputs: [])
                         
         self.title = schema.title
         

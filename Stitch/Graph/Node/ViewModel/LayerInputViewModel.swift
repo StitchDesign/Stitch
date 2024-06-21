@@ -15,23 +15,30 @@ import StitchSchemaKit
 final class LayerInputViewModel {
     let id: InputCoordinate // really, can only be (nodeId, layerInputType)
     
-    var input: NodeRowObserver
+//    var input: NodeRowObserver
     var canvasUIData: CanvasItemViewModel
     
-    init(id: InputCoordinate, 
-         input: NodeRowObserver,
+    init(id: InputCoordinate,
          canvasUIData: CanvasItemViewModel) {
         self.id = id
-        self.input = input
         self.canvasUIData = canvasUIData
     }
     
-    convenience init(input: NodeRowObserver,
-                     canvasUIData: CanvasItemViewModel) {
-        self.init(id: input.id,
-                  input: input,
-                  canvasUIData: canvasUIData)
-    }
+    
+//    init(id: InputCoordinate,
+//         input: NodeRowObserver,
+//         canvasUIData: CanvasItemViewModel) {
+//        self.id = id
+//        self.input = input
+//        self.canvasUIData = canvasUIData
+//    }
+//    
+//    convenience init(input: NodeRowObserver,
+//                     canvasUIData: CanvasItemViewModel) {
+//        self.init(id: input.id,
+//                  input: input,
+//                  canvasUIData: canvasUIData)
+//    }
 }
 
 @Observable
@@ -41,20 +48,23 @@ final class NodeDataViewModel {
     
     var canvasUIData: CanvasItemViewModel
     
+//    init(id: NodeId, 
+//         canvasUIData: CanvasItemViewModel) {
+//        self.id = id
+//        self.canvasUIData = canvasUIData
+//    }
+    
+    // Don't need to be private?
+    var _inputsObservers: NodeRowObservers = []
+    var _outputsObservers: NodeRowObservers = []
+        
     init(id: NodeId, 
-         canvasUIData: CanvasItemViewModel) {
+         canvasUIData: CanvasItemViewModel,
+         inputs: NodeRowObservers,
+         outputs: NodeRowObservers) {
         self.id = id
         self.canvasUIData = canvasUIData
+        self._inputsObservers = inputs
+        self._outputsObservers = outputs
     }
-    
-//    private var _inputsObservers: NodeRowObservers = []
-//    private var _outputsObservers: NodeRowObservers = []
-//        
-//    init(id: NodeId, 
-//         inputs: NodeRowObservers,
-//         outputs: NodeRowObservers) {
-//        self.id = id
-//        self._inputsObservers = inputs
-//        self._outputsObservers = outputs
-//    }
 }
