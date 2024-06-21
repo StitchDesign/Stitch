@@ -75,26 +75,30 @@ extension GraphState {
         return (inputEdgesToUpdate, outputEdgesToUpdate)
     }
     
+    @MainActor
     func getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeToNodeLocations = [NodeIOCoordinate: CGPoint]()
         inputEdgesToUpdate.forEach { edge in
-            if let node =  self.getNodeViewModel(edge.to.nodeId) {
+//            if let node =  self.getNodeViewModel(edge.to.nodeId) {
+            if let canvasItem =  self.getCanvasItem(edge.to.asCanvasItemId) {
                 // Move west
-                var position = node.position
-                position.x -= (200 + node.sizeByLocalBounds.width)
+                var position = canvasItem.position
+                position.x -= (200 + canvasItem.sizeByLocalBounds.width)
                 oldEdgeToNodeLocations[edge.to] = position
             }
         }
         return oldEdgeToNodeLocations
     }
     
+    @MainActor
     func getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: Edges) -> [NodeIOCoordinate: CGPoint] {
         var oldEdgeFromNodeLocations = [NodeIOCoordinate: CGPoint]()
         outputEdgesToUpdate.forEach { edge in
-            if let node = self.getNodeViewModel(edge.from.nodeId) {
+//            if let node = self.getNodeViewModel(edge.from.nodeId) {
+            if let canvasItem = self.getCanvasItem(edge.from.asCanvasItemId) {
                 // Move east
-                var position = node.position
-                position.x += (200 + node.sizeByLocalBounds.width)
+                var position = canvasItem.position
+                position.x += (200 + canvasItem.sizeByLocalBounds.width)
                 oldEdgeFromNodeLocations[edge.from] = position
             }
         }
@@ -277,8 +281,8 @@ extension GraphState {
             activeIndex: self.activeIndex,
             graphDelegate: self)
 
-        newSplitterNode.position = position
-        newSplitterNode.previousPosition = position
+        newSplitterNode.patchNode?.position = position
+        newSplitterNode.patchNode?.previousPosition = position
 
         newSplitterNode.splitterType = splitterType
 

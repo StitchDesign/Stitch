@@ -29,8 +29,9 @@ extension NodeRowObserver {
          TODO: we only care about splitterType = .input or .output; add `splitterType` to `NodeDelegate`.
          */
         if self.nodeKind == .patch(.splitter),
+           // Only for splitter patch nodes
            let parentId = self.nodeDelegate?.parentGroupNodeId,
-           self.nodeDelegate?.graphDelegate?.getNodeViewModel(parentId)?.isSelected ?? false {
+           self.nodeDelegate?.graphDelegate?.getNodeViewModel(parentId)?.patchNode?.isSelected ?? false {
             return true
         } else {
             return self.getIsNodeSelected()

@@ -142,6 +142,8 @@ extension CanvasItemViewModel {
                 log("updateVisibilityStatus: could not update visibility for node \(x)")
                 return
             }
+//            node.nodeData?.up
+            
             node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
             
         case .layerInputOnGraph(let x):
@@ -159,6 +161,27 @@ extension CanvasItemViewModel {
 }
 
 
+extension NodeDataViewModel {
+    @MainActor
+    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
+        // Do nothing if not in frame
+        guard self.isVisibleInFrame else {
+            return
+        }
+        
+        self._inputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
+        
+        self._outputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
+    }
+}
 
 extension NodeRowObserver {
     // When the input or output becomes visible on the canvas,

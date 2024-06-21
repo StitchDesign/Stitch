@@ -25,6 +25,7 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
         let graphTime = graphState.graphStepManager.graphTime
 
         guard let receiverNode = graphState.getPatchNode(id: receiverNodeId),
+              let receiverPatchNode = receiverNode.patchNode,
               let receiverNodeInputObserver = receiverNode.getInputRowObserver(0) else {
             log("SetBroadcastForWirelessReceiver: could not find received node \(receiverNodeId)")
             return .noChange
@@ -38,8 +39,9 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
             // Note 1: we may not have actually had an edge, e.g. if we were already on a nil broadcaster.
             // Note 2: removeAnyEdges already recalculates the graph from the `to` node of the removed edge.
 
-            receiverNodeInputObserver.removeUpstreamConnection(activeIndex: graphState.activeIndex,
-                                                               isVisible: receiverNode.isVisibleInFrame)
+            receiverNodeInputObserver.removeUpstreamConnection(
+                activeIndex: graphState.activeIndex,
+                isVisible: receiverPatchNode.isVisibleInFrame)
             graphState.calculate(receiverNodeId)
             
             return .init(willPersist: true)

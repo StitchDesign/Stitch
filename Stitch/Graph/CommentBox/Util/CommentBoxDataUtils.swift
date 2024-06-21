@@ -84,6 +84,7 @@ extension String {
     }
 }
 
+// TODO: update to use CanvasItemViewModels
 extension CommentBoxViewModel {
     // MARK: initializing comment box from a set of existing nodes
     convenience init(zIndex: ZIndex,

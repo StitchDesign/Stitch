@@ -50,6 +50,11 @@ extension GraphState {
                          newType: SplitterType,
                          currentType: SplitterType) {
 
+        guard let canvasItem = splitterNode.canvasUIData else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         let outputPort = NodeIOCoordinate(portId: 0, nodeId: splitterNode.id)
 
         // Set type to view model
@@ -61,12 +66,12 @@ extension GraphState {
             // we need to remove some edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame)
+                                       isNodeVisible: canvasItem.isVisibleInFrame)
             } else if currentType == .input {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
                         .removeUpstreamConnection(activeIndex: self.activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame)
+                                                  isVisible: canvasItem.isVisibleInFrame)
                 }
             }
 
@@ -75,7 +80,7 @@ extension GraphState {
             // then need to remove outgoing edges.
             if currentType == .output {
                 self.removeConnections(from: outputPort,
-                                       isNodeVisible: splitterNode.isVisibleInFrame)
+                                       isNodeVisible: canvasItem.isVisibleInFrame)
             }
 
         case .output:
@@ -85,7 +90,7 @@ extension GraphState {
                 if let inputObserver = splitterNode.getInputRowObserver(for: .portIndex(0)) {
                     inputObserver
                         .removeUpstreamConnection(activeIndex: self.activeIndex,
-                                                  isVisible: splitterNode.isVisibleInFrame)
+                                                  isVisible: canvasItem.isVisibleInFrame)
                 }
             }
         }

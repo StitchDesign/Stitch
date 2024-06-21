@@ -41,7 +41,11 @@ extension GraphState {
             return
         }
 
-        guard let nearbyNode = self.getNodeViewModel(nearbyNodeId) else {
+//        guard let nearbyNode = self.getNodeViewModel(nearbyNodeId) else {
+//            log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
+//            return
+//        }
+        guard let nearbyNode = self.getCanvasItem(nearbyNodeId) else {
             log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
             return
         }
@@ -49,9 +53,9 @@ extension GraphState {
         // log("OutputHovered: nearbyNodeId: \(nearbyNodeId)")
 
         var alreadyShownEdges = Set<PossibleEdgeId>()
-
-        let possibleEdges: PossibleEdgeSet = nearbyNode
-            .edgeFriendlyInputCoordinates(from: self.visibleNodesViewModel)
+        
+        let possibleEdges: PossibleEdgeSet = self
+            .edgeFriendlyInputCoordinates(nearbyNode)
             .reduce(into: PossibleEdgeSet()) { partialResult, inputCoordinate in
 
                 let edgeUI = PortEdgeUI(from: outputCoordinate,
@@ -91,18 +95,41 @@ extension GraphState {
     }
 }
 
-extension NodeViewModel {
 
-    // Get the "edge-friendly" coordinates,
-    // i.e. the real input coords for a non-group node,
-    // or the input-splitter coords for a group node.
+extension GraphState {
+    
     @MainActor
-    func edgeFriendlyInputCoordinates(from nodes: VisibleNodesViewModel) -> [InputPortViewData] {
-        if let inputSplitters = nodes.getInputSplitterInputPorts(for: self.id) {
+    func getInputObservers(_ id: CanvasItemId) -> NodeRowObservers {
+        switch id {
+        case .layerInputOnGraph(let x):
+            if let input = self.getInputObserver(coordinate: x.asInputCoordinate) {
+                return [input]
+            }
+            log("GraphState: getInputObservers: layerInputOnGraph: no input")
+            return []
+        case .node(let x):
+            // When can this actually be empty?
+            if let inputs = self.getNode(x)?.inputRowObservers() {
+                return inputs
+            }
+            log("GraphState: getInputObservers: node: no inputs")
+            return []
+        }
+    }
+    
+    @MainActor
+    func edgeFriendlyInputCoordinates(_ canvasItem: CanvasItemViewModel) -> [InputPortViewData] {
+                
+        // TODO: REVISIT?: INPUT REFACTOR
+        
+        // If this canvas item is a group input splitter...
+        if let nodeId = canvasItem.id.nodeCase,
+            let node: NodeViewModel = self.getNode(nodeId),
+            let inputSplitters = self.visibleNodesViewModel.getInputSplitterInputPorts(for: nodeId) {
             return inputSplitters
         }
         
-        return self.getRowObservers(.input).enumerated().map { portId, inputObserver in
+        return self.getInputObservers(canvasItem.id).enumerated().map { portId, inputObserver in
             InputPortViewData(portId: portId, nodeId: inputObserver.id.nodeId)
         }
     }
@@ -166,22 +193,25 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
 extension GraphState {
 
     @MainActor
-    func getEligibleNearbyNode(eastOf originOutputNodeId: NodeId) -> NodeId? {
-
-        guard let originOutputNode = self.getNodeViewModel(originOutputNodeId) else {
+    func getEligibleNearbyNode(eastOf originOutputNodeId: NodeId) -> CanvasItemId? {
+        
+        guard let originOutputNode = self.getCanvasItem(.node(originOutputNodeId)) else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
 
-        let groupNodeFouced = self.graphUI.groupNodeFocused?.asNodeId
+        // Not operating on a node but on a canvas-item
+        let groupNodeFocused = self.graphUI.groupNodeFocused?.asNodeId
         let nodes = self.visibleNodesViewModel
-            .getVisibleNodes(at: groupNodeFouced)
+//            .getVisibleNodes(at: groupNodeFocused)
+            .getVisibleCanvasItems(at: groupNodeFocused)
             // "Nearby node" for edge-edit mode can never be a wireless receiver node
-            .filter { $0.patch != .wirelessReceiver }
+//            .filter { $0.patch != .wirelessReceiver }
+            .filter { $0.nodeDelegate?.kind.getPatch  != .wirelessReceiver }
 
         // Note: we compare the origin node's output against the other nodes' inputs.
         // The *input* must be east of the output.
-        let nodesEast = nodes.filter { (node: NodeViewModel) in
+        let nodesEast = nodes.filter { node in
             /*
              Note: although SwiftUI's .position modifier is from top-left corner, we actually adjust the node's `position: CGPoint`, such that position = center of node.
 

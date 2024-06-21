@@ -17,6 +17,48 @@ typealias LayerNodes = [LayerNode]
 // secondary = hidden because was a child of a group that was primary-hidden
 // none = not hidden at all
 
+// Unlike the inputs on a patch or group node,
+// the individual inputs of a layer node can be added to a graph (canvas), dragged etc.
+
+@Observable
+final class LayerInputViewModel {
+    let id: InputCoordinate // really, can only be (nodeId, layerInputType)
+    
+    // nil = layer input is not currently a canvas item on the graph
+    var canvasUIData: CanvasItemViewModel?
+    
+    var input: NodeRowObserver // has NodeDelegate reference
+    
+    init(id: InputCoordinate,
+         canvasUIData: CanvasItemViewModel?,
+         input: NodeRowObserver) {
+        self.id = id
+        self.canvasUIData = canvasUIData
+        self.input = input
+    }
+    
+    
+//    init(id: InputCoordinate,
+//         input: NodeRowObserver,
+//         canvasUIData: CanvasItemViewModel) {
+//        self.id = id
+//        self.input = input
+//        self.canvasUIData = canvasUIData
+//    }
+//
+//    convenience init(input: NodeRowObserver,
+//                     canvasUIData: CanvasItemViewModel) {
+//        self.init(id: input.id,
+//                  input: input,
+//                  canvasUIData: canvasUIData)
+//    }
+    
+}
+
+extension LayerNodeViewModel {
+    
+}
+
 @Observable
 final class LayerNodeViewModel {
     var id: NodeId
@@ -26,6 +68,12 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     var previewLayerViewModels: [LayerViewModel]
     
+    // For a layer node, these previously lived at the NodeViewModel level;
+    // but now we need to
+    var _outputObservers: NodeRowObservers = []
+    
+    // TODO: change these properties to be `LayerInputViewModels` and remove `canvasUIData` from `NodeRowObserver`
+    // Inputs -- accessed as sorted array via `LayerNodeViewModel.getInputObservers`
     @MainActor var positionPort: NodeRowObserver
     @MainActor var sizePort: NodeRowObserver
     @MainActor var scalePort: NodeRowObserver
@@ -300,8 +348,10 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
+    
+    // fka `getSortedInputObservers`; but no more sorting going on
     @MainActor
-    func getSortedInputObservers() -> NodeRowObservers {
+    func getInputObservers() -> NodeRowObservers {
         self.layer.layerGraphNode.inputDefinitions.map {
             self[keyPath: $0.layerNodeKeyPath]
         }

@@ -25,6 +25,9 @@ protocol PatchNodeViewModelDelegate: AnyObject {
 final class PatchNodeViewModel: Sendable {
     var id: NodeId
     var patch: Patch
+    
+    var nodeData: NodeDataViewModel // holds inputs/outputs + position etc.
+    
     var userVisibleType: UserVisibleType? {
         didSet(oldValue) {
             if let oldValue = oldValue,
@@ -43,15 +46,93 @@ final class PatchNodeViewModel: Sendable {
     var splitterNode: SplitterNodeEntity?
     
     weak var delegate: PatchNodeViewModelDelegate?
-    
+        
     init(from schema: PatchNodeEntity) {
         self.id = schema.id
         self.patch = schema.patch
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
+        
+        // TODO: grab inputs+outputs and position from PatchNodeEntity ?
+        self.nodeData = .init(id: schema.id,
+                              canvasUIData: .init(id: .node(schema.id),
+                                                  position: .zero, 
+                                                  zIndex: 1,
+                                                  parentGroupNodeId: nil,
+                                                  nodeDelegate: nil),
+                              inputs: [],
+                              outputs: [])
+        
         self.delegate = delegate
     }
+}
+
+extension PatchNodeViewModel {
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.nodeData.canvasUIData.parentGroupNodeId
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.parentGroupNodeId = newValue
+        }
+    }
+    
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.nodeData.canvasUIData.isSelected
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.isSelected = newValue
+        }
+    }
+    
+    var position: CGPoint {
+        get {
+            self.nodeData.canvasUIData.position
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.position = newValue
+        }
+    }
+    
+    var previousPosition: CGPoint {
+        get {
+            self.nodeData.canvasUIData.previousPosition
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.previousPosition = newValue
+        }
+    }
+    
+    var zIndex: Double {
+        get {
+            self.nodeData.canvasUIData.zIndex
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.zIndex = newValue
+        }
+    }
+    
+    var isVisibleInFrame: Bool {
+        get {
+            self.nodeData.canvasUIData.isVisibleInFrame
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.isVisibleInFrame = newValue
+        }
+    }
+    
+    var bounds: NodeBounds {
+        get {
+            self.nodeData.canvasUIData.bounds
+        }
+        set(newValue) {
+            self.nodeData.canvasUIData.bounds = newValue
+        }
+    }
+    
 }
 
 extension PatchNodeViewModel: SchemaObserver {

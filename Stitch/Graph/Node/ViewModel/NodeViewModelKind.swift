@@ -13,8 +13,8 @@ import StitchSchemaKit
 // fka `NodeViewModelType`
 enum NodeViewModelKind {
     case patch(PatchNodeViewModel)
-    case layer(LayerNodeViewModel)
     case group(GroupNodeViewModel)
+    case layer(LayerNodeViewModel)
 }
 
 // Becomes very important, since inputs/outputs, position etc. are now all held here.
@@ -24,17 +24,31 @@ extension NodeViewModelKind {
          nodeDelegate: NodeDelegate?) {
         if let patchNode = schema.patchNodeEntity {
             let viewModel = PatchNodeViewModel(from: patchNode)
+            viewModel.nodeData = NodeDataViewModel(
+                id: schema.id,
+                // pass the node delegate here?
+                canvasUIData: CanvasItemViewModel.fromSchemaWithoutDelegate(schema),
+                // populate these inputs etc.?
+                inputs: [],
+                outputs: [])
             self = .patch(viewModel)
         } else if let layerNode = schema.layerNodeEntity {
-            let viewModel = LayerNodeViewModel(from: layerNode, 
+            let viewModel = LayerNodeViewModel(from: layerNode,
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
         } else {
             let viewModel = GroupNodeViewModel.fromSchemaWithoutDelegate(from: schema)
+            viewModel.nodeData = NodeDataViewModel(
+                id: schema.id,
+                canvasUIData: CanvasItemViewModel.fromSchemaWithoutDelegate(schema),
+                // For a group node, inputs and outputs are constructed later
+                inputs: [],
+                outputs: [])
             self = .group(viewModel)
         }
     }
 
+    // Not used? Also, wasn't covering the LayerNode case?
     @MainActor
     func update(from schema: NodeEntity) {
         if let patchNode = schema.patchNodeEntity {

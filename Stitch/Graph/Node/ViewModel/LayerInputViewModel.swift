@@ -8,39 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-// Unlike the inputs on a patch or group node,
-// the individual inputs of a layer node can be added to a graph (canvas), dragged etc.
-
-@Observable
-final class LayerInputViewModel {
-    let id: InputCoordinate // really, can only be (nodeId, layerInputType)
-    
-//    var input: NodeRowObserver
-    var canvasUIData: CanvasItemViewModel
-    
-    init(id: InputCoordinate,
-         canvasUIData: CanvasItemViewModel) {
-        self.id = id
-        self.canvasUIData = canvasUIData
-    }
-    
-    
-//    init(id: InputCoordinate,
-//         input: NodeRowObserver,
-//         canvasUIData: CanvasItemViewModel) {
-//        self.id = id
-//        self.input = input
-//        self.canvasUIData = canvasUIData
-//    }
-//    
-//    convenience init(input: NodeRowObserver,
-//                     canvasUIData: CanvasItemViewModel) {
-//        self.init(id: input.id,
-//                  input: input,
-//                  canvasUIData: canvasUIData)
-//    }
-}
-
 @Observable
 final class NodeDataViewModel {
     // Needed for e.g. group nodes, since a group node may not have an input or output that we can query
@@ -54,11 +21,17 @@ final class NodeDataViewModel {
 //        self.canvasUIData = canvasUIData
 //    }
     
+    // TODO: these could be in a smaller class, since some contexts need inputs and outputs but not canvas ui-data etc.
     // Don't need to be private?
     var _inputsObservers: NodeRowObservers = []
     var _outputsObservers: NodeRowObservers = []
         
-    init(id: NodeId, 
+    // Every single input and output observer should have same node delegate reference
+    var nodeDelegate: NodeDelegate? {
+        self._inputsObservers.first?.nodeDelegate
+    }
+    
+    init(id: NodeId,
          canvasUIData: CanvasItemViewModel,
          inputs: NodeRowObservers,
          outputs: NodeRowObservers) {
@@ -68,3 +41,136 @@ final class NodeDataViewModel {
         self._outputsObservers = outputs
     }
 }
+
+extension NodeIO {
+    var toSplitterType: SplitterType {
+        switch self {
+        case .input:
+            return .input
+        case .output:
+            return .output
+        }
+    }
+}
+
+extension NodeDataViewModel {
+
+    @MainActor
+    func updateVisibilityStatus(with newValue: Bool,
+                                activeIndex: ActiveIndex) {
+                
+        // Only relevant for Patch and Group, which use Node
+        guard let nodeKind = self.nodeDelegate?.kind else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let oldValue = self.isVisibleInFrame
+        if oldValue != newValue {
+            self.isVisibleInFrame = newValue
+
+            if nodeKind == .group {
+                // Group node needs to mark all input and output splitters as visible
+                // Fixes issue for setting visibility on groups
+//                let inputsObservers = self.getRowObservers(.input)
+                let inputsObservers = self.getRowObservers(.input, nodeKind)
+                let outputsObservers = self.getRowObservers(.output, nodeKind)
+                let allObservers = inputsObservers + outputsObservers
+                allObservers.forEach {
+                    $0.nodeDelegate?.isVisibleInFrame = newValue
+                }
+            }
+
+            // Refresh values if node back in frame
+            if newValue {
+                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
+            }
+        }
+    }
+    
+    // This is basically a wrapper for "Are we retrieving inputs/outputs for a
+    @MainActor
+    func getRowObservers(_ nodeIO: NodeIO,
+                         _ nodeKind: NodeKind) -> NodeRowObservers {
+        
+        if nodeKind == .group {
+            return self.nodeDelegate?.graphDelegate?.getSplitterRowObservers(
+                for: self.id,
+                type: nodeIO.toSplitterType) ?? []
+        }
+        
+        switch nodeIO {
+        case .input:
+            // Note: this fn is only for patch
+            return self._inputsObservers
+        case .output:
+            return self._outputsObservers
+        }
+    }
+    
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasUIData.parentGroupNodeId
+        }
+        set(newValue) {
+            self.canvasUIData.parentGroupNodeId = newValue
+        }
+    }
+    
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.canvasUIData.isSelected
+        }
+        set(newValue) {
+            self.canvasUIData.isSelected = newValue
+        }
+    }
+    
+    var position: CGPoint {
+        get {
+            self.canvasUIData.position
+        }
+        set(newValue) {
+            self.canvasUIData.position = newValue
+        }
+    }
+    
+    var previousPosition: CGPoint {
+        get {
+            self.canvasUIData.previousPosition
+        }
+        set(newValue) {
+            self.canvasUIData.previousPosition = newValue
+        }
+    }
+    
+    var zIndex: Double {
+        get {
+            self.canvasUIData.zIndex
+        }
+        set(newValue) {
+            self.canvasUIData.zIndex = newValue
+        }
+    }
+    
+    var isVisibleInFrame: Bool {
+        get {
+            self.canvasUIData.isVisibleInFrame
+        }
+        set(newValue) {
+            self.canvasUIData.isVisibleInFrame = newValue
+        }
+    }
+    
+    var bounds: NodeBounds {
+        get {
+            self.canvasUIData.bounds
+        }
+        set(newValue) {
+            self.canvasUIData.bounds = newValue
+        }
+    }
+    
+}
+

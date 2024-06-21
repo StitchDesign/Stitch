@@ -26,6 +26,8 @@ final class GroupNodeViewModel: Sendable {
     }
 }
 
+// TODO: will GroupNode have a GroupNodeEntity, like PatchNodeEntity and LayerNodeEntity do?
+
 extension GroupNodeViewModel {
     // TODO: update StitchSchemaKit NodeEntity to contain `.groupNodeEntity` class?
     static func fromSchemaWithoutDelegate(from schema: NodeEntity) -> GroupNodeViewModel {

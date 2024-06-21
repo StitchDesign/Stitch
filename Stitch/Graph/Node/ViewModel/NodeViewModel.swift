@@ -22,15 +22,45 @@ final class NodeViewModel: Sendable {
 
     var canvasItemId: CanvasItemId { .node(self.id) }
     
-    var canvasUIData: CanvasItemViewModel {
+    var canvasUIData: CanvasItemViewModel? {
         get {
-            nodeData.canvasUIData
+            self.nodeData?.canvasUIData
         } set(newValue) {
-            nodeData.canvasUIData = newValue
+            if let newValue = newValue {
+                self.nodeData?.canvasUIData = newValue
+            }
         }
     }
 
-    var nodeData: NodeDataViewModel
+    // Needs
+//    var nodeData: NodeDataViewModel
+    
+    // probably we're grabbing this data for moving a node etc.
+    var nodeData: NodeDataViewModel? {
+        get {
+            switch self.nodeKind {
+            case .patch(let x):
+                return x.nodeData
+            case .layer:
+                return nil
+            case .group(let x):
+                return x.nodeData
+            }
+        } set(newValue) {
+            switch self.nodeKind {
+            case .patch(let x):
+                if let newValue = newValue {
+                    return x.nodeData = newValue
+                }
+            case .layer:
+                fatalError()
+            case .group(let x):
+                if let newValue = newValue {
+                    return x.nodeData = newValue
+                }
+            }
+        }
+    }
     
     // Used for data-intensive purposes (eval)
     // We use a class as a hack to prevent renders caused by data-side values
@@ -38,21 +68,62 @@ final class NodeViewModel: Sendable {
 //    private var _inputsObservers: NodeRowObservers = []
 //    private var _outputsObservers: NodeRowObservers = []
     
+    // TODO: `inputsObservers` vs `inputObservers`? The latter seems correct; this is a list of one-observer-per-input, not one-observer-for-many-inputs
+    @MainActor
     private var _inputsObservers: NodeRowObservers {
         get {
-            self.nodeData._inputsObservers
+//            self.nodeData._inputsObservers
+            
+            switch self.nodeKind {
+            case .patch(let x):
+                return x.nodeData._inputsObservers
+            case .group(let x):
+                return x.nodeData._inputsObservers
+                
+                // Patch and Group keep their inputs and outputs in NodeData,
+                // but Layer keeps its inputs in
+            case .layer(let x):
+                return x.getInputObservers()
+            }
+            
         } set(newValue) {
             // Do we really want to allow such direct setting?
-            self.nodeData._inputsObservers = newValue
+//            self.nodeData._inputsObservers = newValue
+            switch self.nodeKind {
+            case .patch(let x):
+                x.nodeData._inputsObservers = newValue
+            case .group(let x):
+                x.nodeData._inputsObservers = newValue
+            
+            case .layer(let x):
+                fatalError()
+                // where, with a layer node, do we ever really directly set input-observers?
+            }
         }
     }
     
     private var _outputsObservers: NodeRowObservers {
         get {
-            self.nodeData._outputsObservers
+//            self.nodeData._outputsObservers
+            switch self.nodeKind {
+            case .patch(let x):
+                return x.nodeData._outputsObservers
+            case .group(let x):
+                return x.nodeData._outputsObservers
+            case .layer(let x):
+                return x._outputObservers
+            }
         } set(newValue) {
             // Do we really want to allow such direct setting?
-            self.nodeData._outputsObservers = newValue
+//            self.nodeData._outputsObservers = newValue
+            switch self.nodeKind {
+            case .patch(let x):
+                x.nodeData._outputsObservers = newValue
+            case .group(let x):
+                x.nodeData._outputsObservers = newValue
+            case .layer(let x):
+                x._outputObservers = newValue
+            }
         }
     }
     
@@ -114,23 +185,27 @@ final class NodeViewModel: Sendable {
         self.id = schema.id
         
         // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
-        let canvasUIData = CanvasItemViewModel.fromSchemaWithoutDelegate(schema)
-        
-        self.nodeData = NodeDataViewModel(id: schema.id,
-                                          canvasUIData: canvasUIData,
-                                          // Filled below
-                                          inputs: [],
-                                          outputs: [])
+//        let canvasUIData = CanvasItemViewModel.fromSchemaWithoutDelegate(schema)
+//        
+//        // Now also: NodeData is only by patch and group; never by NodeViewModel
+//        self.nodeData = NodeDataViewModel(id: schema.id,
+//                                          canvasUIData: canvasUIData,
+//                                          // Filled below
+//                                          inputs: [],
+//                                          outputs: [])
                         
         self.title = schema.title
         
+        // Here is where NodeData is created,
         self.nodeKind = NodeViewModelKind(from: schema, nodeDelegate: nil)
+        
         self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
         self.layerNode?.nodeDelegate = self
-        self.canvasUIData.nodeDelegate = self
+        
+//        self.canvasUIData.nodeDelegate = self
 
         // Create initial inputs and outputs using default data
         let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
@@ -272,7 +347,7 @@ final class NodeViewModel: Sendable {
     }
     
     /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
-    func _getInputObserversForEncoding() -> NodeRowObservers {
+    @MainActor func _getInputObserversForEncoding() -> NodeRowObservers {
         self._inputsObservers
     }
 }
@@ -280,66 +355,66 @@ final class NodeViewModel: Sendable {
 
 // Accessors for canvas-ui data
 
-extension NodeViewModel {
-    var position: CGPoint {
-        get {
-            self.canvasUIData.position
-        } set(newValue) {
-            self.canvasUIData.position = newValue
-        }
-    }
-    
-    var previousPosition: CGPoint {
-        get {
-            self.canvasUIData.previousPosition
-        } set(newValue) {
-            self.canvasUIData.previousPosition = newValue
-        }
-    }
-    
-    var bounds: NodeBounds {
-        get {
-            self.canvasUIData.bounds
-        } set(newValue) {
-            self.canvasUIData.bounds = newValue
-        }
-    }
-    
-    // ui placement
-    var zIndex: Double {
-        get {
-            self.canvasUIData.zIndex
-        } set(newValue) {
-            self.canvasUIData.zIndex = newValue
-        }
-    }
-
-    var parentGroupNodeId: NodeId? {
-        get {
-            self.canvasUIData.parentGroupNodeId
-        } set(newValue) {
-            self.canvasUIData.parentGroupNodeId = newValue
-        }
-    }
-    
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame: Bool {
-        get {
-            self.canvasUIData.isVisibleInFrame
-        } set(newValue) {
-            self.canvasUIData.isVisibleInFrame = newValue
-        }
-    }
-    
-    @MainActor
-    var isSelected: Bool {
-        get {
-            self.canvasUIData.isSelected
-        } set(newValue) {
-            self.canvasUIData.isSelected = newValue
-        }
-    }
-}
+//extension NodeViewModel {
+//    var position: CGPoint {
+//        get {
+//            self.canvasUIData.position
+//        } set(newValue) {
+//            self.canvasUIData.position = newValue
+//        }
+//    }
+//    
+//    var previousPosition: CGPoint {
+//        get {
+//            self.canvasUIData.previousPosition
+//        } set(newValue) {
+//            self.canvasUIData.previousPosition = newValue
+//        }
+//    }
+//    
+//    var bounds: NodeBounds {
+//        get {
+//            self.canvasUIData.bounds
+//        } set(newValue) {
+//            self.canvasUIData.bounds = newValue
+//        }
+//    }
+//    
+//    // ui placement
+//    var zIndex: Double {
+//        get {
+//            self.canvasUIData.zIndex
+//        } set(newValue) {
+//            self.canvasUIData.zIndex = newValue
+//        }
+//    }
+//
+//    var parentGroupNodeId: NodeId? {
+//        get {
+//            self.canvasUIData.parentGroupNodeId
+//        } set(newValue) {
+//            self.canvasUIData.parentGroupNodeId = newValue
+//        }
+//    }
+//    
+//    // Default to false so initialized graphs don't take on extra perf loss
+//    var isVisibleInFrame: Bool {
+//        get {
+//            self.canvasUIData.isVisibleInFrame
+//        } set(newValue) {
+//            self.canvasUIData.isVisibleInFrame = newValue
+//        }
+//    }
+//    
+//    @MainActor
+//    var isSelected: Bool {
+//        get {
+//            self.canvasUIData.isSelected
+//        } set(newValue) {
+//            self.canvasUIData.isSelected = newValue
+//        }
+//    }
+//}
 
 extension NodeViewModel {
     // Create some fake patch node as our "nil" choice for dropdowns like layers, broadcast nodes
@@ -424,6 +499,8 @@ extension NodeViewModel: NodeCalculatable {
 }
 
 extension NodeViewModel: PatchNodeViewModelDelegate {
+    
+    @MainActor
     func userVisibleTypeChanged(oldType: UserVisibleType,
                                 newType: UserVisibleType) {
         self.ephemeralObservers?.forEach {
@@ -459,30 +536,32 @@ extension NodeViewModel {
         return observer
     }
 
-    var sizeByLocalBounds: CGSize {
-        self.bounds.localBounds.size
-    }
+    // Now has to be by CanvasItemViewModel
+//    var sizeByLocalBounds: CGSize {
+//        self.bounds.localBounds.size
+//    }
     
-    // fka `func updateRowObservers(activeIndex: ActiveIndex)`
-    @MainActor
-    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
-        // Do nothing if not in frame
-        guard self.isVisibleInFrame else {
-            return
-        }
-        
-        self._inputsObservers.forEach {
-            $0.updateRowObserverUponVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame)
-        }
-        
-        self._outputsObservers.forEach {
-            $0.updateRowObserverUponVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame)
-        }
-    }
+    // Now has to be by CanvasItemViewModel
+//    // fka `func updateRowObservers(activeIndex: ActiveIndex)`
+//    @MainActor
+//    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
+//        // Do nothing if not in frame
+//        guard self.isVisibleInFrame else {
+//            return
+//        }
+//        
+//        self._inputsObservers.forEach {
+//            $0.updateRowObserverUponVisibilityChange(
+//                activeIndex: activeIndex,
+//                isVisible: self.isVisibleInFrame)
+//        }
+//        
+//        self._outputsObservers.forEach {
+//            $0.updateRowObserverUponVisibilityChange(
+//                activeIndex: activeIndex,
+//                isVisible: self.isVisibleInFrame)
+//        }
+//    }
     
     @MainActor
     func updateInputsObservers(newValuesList: PortValuesList,
@@ -511,7 +590,7 @@ extension NodeViewModel {
         case .input:
             // Layers use key paths instead of array
             if let layerNode = self.layerNode {
-                return layerNode.getSortedInputObservers()
+                return layerNode.getInputObservers()
             }
             return self._inputsObservers
         case .output:
@@ -539,7 +618,7 @@ extension NodeViewModel {
     func getInputRowObserver(_ portId: Int) -> NodeRowObserver? {
         // Layers use key paths instead of array
         if let layerNode = self.layerNode {
-            return layerNode.getSortedInputObservers()[safe: portId]
+            return layerNode.getInputObservers()[safe: portId]
         }
         
         if kind == .group {
@@ -616,35 +695,38 @@ extension NodeViewModel {
 
         return self._cachedDisplayTitle
     }
-
-    var isNodeMoving: Bool {
-        self.position != self.previousPosition
-    }
     
-    @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            if self.kind == .group {
-                // Group node needs to mark all input and output splitters as visible
-                // Fixes issue for setting visibility on groups
-                let inputsObservers = self.getRowObservers(.input)
-                let outputsObservers = self.getRowObservers(.output)
-                let allObservers = inputsObservers + outputsObservers
-                allObservers.forEach {
-                    $0.nodeDelegate?.isVisibleInFrame = newValue
-                }
-            }
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
-            }
-        }
-    }
+//    @MainActor
+//    func updateVisibilityStatus(with newValue: Bool,
+//                                activeIndex: ActiveIndex) {
+//                
+//        // Only relevant for Patch and Group, which use Node
+//        guard let nodeData = self.nodeData else {
+//            fatalErrorIfDebug()
+//            kIOReturnNoMedia
+//        }
+//        
+//        let oldValue = self.isVisibleInFrame
+//        if oldValue != newValue {
+//            self.isVisibleInFrame = newValue
+//
+//            if self.kind == .group {
+//                // Group node needs to mark all input and output splitters as visible
+//                // Fixes issue for setting visibility on groups
+//                let inputsObservers = self.getRowObservers(.input)
+//                let outputsObservers = self.getRowObservers(.output)
+//                let allObservers = inputsObservers + outputsObservers
+//                allObservers.forEach {
+//                    $0.nodeDelegate?.isVisibleInFrame = newValue
+//                }
+//            }
+//
+//            // Refresh values if node back in frame
+//            if newValue {
+//                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
+//            }
+//        }
+//    }
     
     @MainActor
     func updateMathExpressionNodeInputs(newExpression: String) {
@@ -776,30 +858,32 @@ extension NodeViewModel: SchemaObserver {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity) {
+        // **TODO: REVISIT: INPUT REFACTOR**
+//        fatalError()
+        
         if schema.id != self.id {
             self.id = schema.id
         }
         // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
 //        self.id.setOnChange(schema.id)
-        
-        if self.position != schema.position {
-            self.position = schema.position
+        if self.canvasUIData?.position != schema.position {
+            self.canvasUIData?.position = schema.position
         }
         
-        if self.previousPosition != schema.position {
-            self.previousPosition = schema.position
+        if self.canvasUIData?.previousPosition != schema.position {
+            self.canvasUIData?.previousPosition = schema.position
         }
         
-        if self.zIndex != schema.zIndex {
-            self.zIndex = schema.zIndex
+        if self.canvasUIData?.zIndex != schema.zIndex {
+            self.canvasUIData?.zIndex = schema.zIndex
         }
         
         if self.title != schema.title {
             self.title = schema.title
         }
         
-        if self.parentGroupNodeId != schema.parentGroupNodeId {
-            self.parentGroupNodeId = schema.parentGroupNodeId
+        if self.canvasUIData?.parentGroupNodeId != schema.parentGroupNodeId {
+            self.canvasUIData?.parentGroupNodeId = schema.parentGroupNodeId
         }
 
         if let patchNode = schema.patchNodeEntity {
@@ -835,17 +919,20 @@ extension NodeViewModel: SchemaObserver {
     }
 
     func createSchema() -> NodeEntity {
-        // Patch, layer, and group info nil here but set from parent callers
-        NodeEntity(id: self.id,
-                   position: self.position,
-                   zIndex: self.zIndex,
-                   parentGroupNodeId: self.parentGroupNodeId,
-                   patchNodeEntity: self.patchNode?.createSchema(),
-                   layerNodeEntity: self.layerNode?.createSchema(),
-                   isGroupNode: self.nodeKind.kind.isGroup,
-                   title: self.title,
-                   // layer nodes use keypaths
-                   inputs: self.layerNode == nil ? self._inputsObservers.map { $0.createSchema() } : [])
+        // **TODO: REVISIT: INPUT REFACTOR**
+        fatalError()
+        
+//        // Patch, layer, and group info nil here but set from parent callers
+//        NodeEntity(id: self.id,
+//                   position: self.position,
+//                   zIndex: self.zIndex,
+//                   parentGroupNodeId: self.parentGroupNodeId,
+//                   patchNodeEntity: self.patchNode?.createSchema(),
+//                   layerNodeEntity: self.layerNode?.createSchema(),
+//                   isGroupNode: self.nodeKind.kind.isGroup,
+//                   title: self.title,
+//                   // layer nodes use keypaths
+//                   inputs: self.layerNode == nil ? self._inputsObservers.map { $0.createSchema() } : [])
     }
     
     func onPrototypeRestart() {
@@ -995,6 +1082,7 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
     func appendInputRowObserver(_ rowObserver: NodeRowObserver) {
         self._inputsObservers.append(rowObserver)
     }
