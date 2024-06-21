@@ -17,82 +17,13 @@ typealias NodesViewModelDict = [NodeId: NodeViewModel]
 
 @Observable
 final class NodeViewModel: Sendable {
-    // Create some fake patch node as our "nil" choice for dropdowns like layers, broadcast nodes
-    @MainActor
-    static let nilChoice = SplitterPatchNode.createViewModel(
-        position: .zero,
-        zIndex: .zero,
-        activeIndex: .init(.zero),
-        graphDelegate: nil)
-
+    
     var id: NodeEntity.ID
 
-    var canvasItemId: CanvasItemId {
-        .node(self.id)
-    }
+    var canvasItemId: CanvasItemId { .node(self.id) }
     
     // TODO: move to PatchNodeViewModel
     var canvasUIData: CanvasItemViewModel
-
-    var position: CGPoint {
-        get {
-            self.canvasUIData.position
-        } set(newValue) {
-            self.canvasUIData.position = newValue
-        }
-    }
-    
-    var previousPosition: CGPoint {
-        get {
-            self.canvasUIData.previousPosition
-        } set(newValue) {
-            self.canvasUIData.previousPosition = newValue
-        }
-    }
-    
-    var bounds: NodeBounds {
-        get {
-            self.canvasUIData.bounds
-        } set(newValue) {
-            self.canvasUIData.bounds = newValue
-        }
-    }
-    
-    // ui placement
-    var zIndex: Double {
-        get {
-            self.canvasUIData.zIndex
-        } set(newValue) {
-            self.canvasUIData.zIndex = newValue
-        }
-    }
-
-    var parentGroupNodeId: NodeId? {
-        get {
-            self.canvasUIData.parentGroupNodeId
-        } set(newValue) {
-            self.canvasUIData.parentGroupNodeId = newValue
-        }
-    }
-    
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame: Bool {
-        get {
-            self.canvasUIData.isVisibleInFrame
-        } set(newValue) {
-            self.canvasUIData.isVisibleInFrame = newValue
-        }
-    }
-    
-    @MainActor
-    var isSelected: Bool {
-        get {
-            self.canvasUIData.isSelected
-        } set(newValue) {
-            self.canvasUIData.isSelected = newValue
-        }
-    }
-    
 
     var title: String {
         didSet(oldValue) {
@@ -101,7 +32,7 @@ final class NodeViewModel: Sendable {
             }
         }
     }
-
+    
     /*
      human-readable-string is perf-intensive, so we cache the node title.
 
@@ -122,7 +53,7 @@ final class NodeViewModel: Sendable {
     // fka `nodeType`
     var nodeKind: NodeViewModelKind
     
-    // TODO: move to LayerNodeViewModel?
+    // TODO: move to LayerNodeViewModel ?
     // Cached for perf
     var longestLoopLength: Int = 1
     
@@ -314,6 +245,80 @@ final class NodeViewModel: Sendable {
     func _getInputObserversForEncoding() -> NodeRowObservers {
         self._inputsObservers
     }
+}
+
+
+// Accessors for canvas-ui data
+
+extension NodeViewModel {
+    var position: CGPoint {
+        get {
+            self.canvasUIData.position
+        } set(newValue) {
+            self.canvasUIData.position = newValue
+        }
+    }
+    
+    var previousPosition: CGPoint {
+        get {
+            self.canvasUIData.previousPosition
+        } set(newValue) {
+            self.canvasUIData.previousPosition = newValue
+        }
+    }
+    
+    var bounds: NodeBounds {
+        get {
+            self.canvasUIData.bounds
+        } set(newValue) {
+            self.canvasUIData.bounds = newValue
+        }
+    }
+    
+    // ui placement
+    var zIndex: Double {
+        get {
+            self.canvasUIData.zIndex
+        } set(newValue) {
+            self.canvasUIData.zIndex = newValue
+        }
+    }
+
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasUIData.parentGroupNodeId
+        } set(newValue) {
+            self.canvasUIData.parentGroupNodeId = newValue
+        }
+    }
+    
+    // Default to false so initialized graphs don't take on extra perf loss
+    var isVisibleInFrame: Bool {
+        get {
+            self.canvasUIData.isVisibleInFrame
+        } set(newValue) {
+            self.canvasUIData.isVisibleInFrame = newValue
+        }
+    }
+    
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.canvasUIData.isSelected
+        } set(newValue) {
+            self.canvasUIData.isSelected = newValue
+        }
+    }
+}
+
+extension NodeViewModel {
+    // Create some fake patch node as our "nil" choice for dropdowns like layers, broadcast nodes
+    @MainActor
+    static let nilChoice = SplitterPatchNode.createViewModel(
+        position: .zero,
+        zIndex: .zero,
+        activeIndex: .init(.zero),
+        graphDelegate: nil)
 }
 
 extension NodeViewModel: NodeCalculatable {
