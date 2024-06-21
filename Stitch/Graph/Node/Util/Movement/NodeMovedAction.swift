@@ -240,18 +240,8 @@ extension GraphState {
             self.graphMovement.firstActive = .none
         }
         
-//        let _update = { (id: CanvasItemId) in
         let _update = { (node: CanvasItemViewModel) in
-            
-////            guard let node = self.visibleNodesViewModel.getViewModel(id) else {
-//            guard let node = self.getCanvasItem(id) else {
-//#if DEV_DEBUG
-//                log("handleNodeMoveEnded: _update: could not find canvas item \(id)")
-//#endif
-//                return
-//            }
-            
-            //        let nodeSize = node.geometryObserver.bounds.size
+
             let nodeSize = node.bounds.graphBaseViewBounds.size
             
             node.position = determineSnapPosition(
@@ -271,30 +261,7 @@ extension GraphState {
             
         }
         
-    // if node is selected, update
-        
-        // if we're dragging an already selected canvas item, then update ALL canvas items' positions;
-        // else, update only the position of the single
-        
-        // The initial `canvasItemMoved` should handle which canvas items are selected or
-        
-        
         self.selectedCanvasItems.forEach { _update($0) }
-        
-//        
-//        guard let node = self.getCanvasItem(id) else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-        
-//        if node.isSelected {
-////            for selectedId in self.selectedNodeIds {
-//            for selectedId in self.selectedCanvasItems.map(\.id).toSet {
-//                _update(selectedId)
-//            }
-//        } else {
-//            _update(id)
-//        }
         
         self.nodeIsMoving = false
         self.outputDragStartedCount = 0

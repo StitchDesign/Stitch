@@ -325,6 +325,7 @@
 		EC17ACD626B4C32200137EA5 /* PortActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ACD526B4C32200137EA5 /* PortActions.swift */; };
 		EC17DF0928F626660042BF4F /* MathParser in Frameworks */ = {isa = PBXBuildFile; productRef = EC17DF0828F626660042BF4F /* MathParser */; };
 		EC17ECB229970C300097870C /* ExtendedAttributesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */; };
+		EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */; };
 		EC1B41AC26BC4B5D0016C2C2 /* ScrolledActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */; };
 		EC1B41AE26BC4BD40016C2C2 /* LayerDraggedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */; };
 		EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */; };
@@ -1220,6 +1221,7 @@
 		EC17ACD226B4C12800137EA5 /* CameraFeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedManager.swift; sourceTree = "<group>"; };
 		EC17ACD526B4C32200137EA5 /* PortActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortActions.swift; sourceTree = "<group>"; };
 		EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtendedAttributesUtils.swift; sourceTree = "<group>"; };
+		EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorActions.swift; sourceTree = "<group>"; };
 		EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrolledActions.swift; sourceTree = "<group>"; };
 		EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDraggedActions.swift; sourceTree = "<group>"; };
 		EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCreatedAction.swift; sourceTree = "<group>"; };
@@ -1884,6 +1886,7 @@
 		B50F416F2C1F52A70082262F /* LayerInspector */ = {
 			isa = PBXGroup;
 			children = (
+				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 			);
 			path = LayerInspector;
@@ -4472,6 +4475,7 @@
 				EC560E0D293A773D00350046 /* LoopDedupeNode.swift in Sources */,
 				B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */,
 				ECDCE3562821EA5800D83EC3 /* PortValueDisplay.swift in Sources */,
+				EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */,
 				B55500E52C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift in Sources */,
 				ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */,
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,

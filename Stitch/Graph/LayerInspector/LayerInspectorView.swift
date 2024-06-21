@@ -9,27 +9,17 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphDelegate {
-    // TODO: cache these for perf
-    @MainActor
-    var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.nonEditModeSelections.last?.id
-    }
-    
-    // TODO: cache these for perf
-    @MainActor
-    var firstLayerInLayerSidebar: NodeId? {
-        self.orderedSidebarLayers.first?.id
-    }
-    
-    // TODO: support multiple layers being focused in propety sidebar
-    // TODO: cache these for perf?
-    /// The single layer currently focused in the inspector
-    @MainActor
-    var layerFocusedInPropertyInspector: NodeId? {
-        self.nonEditModeSelectedLayerInLayerSidebar ?? self.firstLayerInLayerSidebar
+
+extension LayerInputType: Identifiable {
+    public var id: Int {
+        self.hashValue
     }
 }
+
+//extension LayerInputType: CaseIterable {
+//    public static var allCases: [LayerInputType_V18.LayerInputType]
+//}
+
 
 struct LayerInspectorView: View {
     
@@ -103,8 +93,7 @@ struct LayerInspectorView: View {
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
         
-        
-        // bad perf implications?
+        // TODO: perf implications?
         let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorSectionView in
             LayerInspectorSectionView(
                 title: title,
@@ -194,11 +183,9 @@ struct LayerInspectorPortView: View {
             .listRowBackground(listBackgroundColor)
             //            .listRowSpacing(12)
 //            .contentShape(Rectangle())
-//            .simultaneousGesture(
             .gesture(
                 TapGesture().onEnded({ _ in
-                    log("LayerInspectorPortView tapped")
-                    // TODO: when input tapped, and we already have an LIG, jump to that LIG on the graph
+                    // log("LayerInspectorPortView tapped")
                     if isOnGraphAlready,
                        let canvasItemId = rowObserver.canvasUIData?.id {
                         dispatch(JumpToCanvasItem(id: canvasItemId))
@@ -211,18 +198,6 @@ struct LayerInspectorPortView: View {
             )
         } else {
             EmptyView()
-        }
-    }
-}
-
-extension GraphUIState {
-    func layerPropertyTapped(_ property: LayerInputType) {
-        let alreadySelected = self.propertySidebar.selectedProperties.contains(property)
-        
-        if alreadySelected {
-            self.propertySidebar.selectedProperties.remove(property)
-        } else {
-            self.propertySidebar.selectedProperties.append(property)
         }
     }
 }
@@ -501,13 +476,3 @@ extension Layer {
         return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
     }
 }
-
-extension LayerInputType: Identifiable {
-    public var id: Int {
-        self.hashValue
-    }
-}
-
-//extension LayerInputType: CaseIterable {
-//    public static var allCases: [LayerInputType_V18.LayerInputType]
-//}

@@ -143,10 +143,7 @@ extension GraphState {
 
         var smallestDistance: CGFloat?
 
-//        let allCanvasItems = self.getVisibleCanvasItems()
-//        let allCanvasItems = self.getVisibleCanvasItems()
         let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
-        log("processNodeSelectionBoxChange: allCanvasItems.count: \(allCanvasItems)")
         
         for canvasItem in allCanvasItems {
             
@@ -156,7 +153,6 @@ extension GraphState {
             if doesSelectionIntersectCanvasItem {
                 
                 // Add to selected canvas items
-//                self.setCanvasItemSelection(canvasItem, to: true)
                 canvasItem.select()
                 
                 let thisDistance = CGPointDistanceSquared(
@@ -171,42 +167,11 @@ extension GraphState {
             // De-selected
             else {
                 // Remove from selected canvas items
-//                self.setCanvasItemSelection(canvasItem, to: false)
                 canvasItem.deselect()
             }
         }
         
-//        let allNodes = self.visibleNodesViewModel
-//            .getVisibleNodes(at: graphState.graphUI.groupNodeFocused?.asNodeId)
-//
-//        // Determine which nodes are now selected
-//        for node in allNodes {
-//            let id = node.id
-//            let doesSelectionIntersectNode = cursorSelectionBox.intersects(node.bounds.graphBaseViewBounds)
-//
-//            // Selected
-//            if doesSelectionIntersectNode {
-//                // Add node to selected nodes
-//                self.setNodeSelection(node, to: true)
-//
-//                let thisDistance = CGPointDistanceSquared(
-//                    from: node.bounds.graphBaseViewBounds.origin,
-//                    to: graphState.graphUI.selection.expansionBox.endPoint)
-//
-//                if !smallestDistance.isDefined {
-//                    smallestDistance = thisDistance
-//                }
-//
-//            } // if box.size
-//
-//            // De-selected
-//            else {
-//                // Remove node from selected nodes
-//                self.setNodeSelection(node, to: false)
-//            }
-//
-//        } // for node in ...
-
+        
         // Determine selected comment boxes
 
 //      // TODO: only look at boxes on this traversal level

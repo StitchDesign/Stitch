@@ -20,17 +20,7 @@ struct SelectedGraphItemsDeleted: GraphEventWithResponse {
         // delete nodes
         state.selectedGraphNodesDeleted(
             selectedNodes: state.selectedNodeIds)
-        
-        // Should not be needed since done by `selectedGraphNodesDeleted`
-        
-//        state.updateSidebarListStateAfterStateChange()
-//        
-//        // TODO: why is this necessary?
-//        _updateStateAfterListChange(
-//            updatedList: state.sidebarListState,
-//            expanded: state.getSidebarExpandedItems(),
-//            graphState: state)
-        
+                
         return .shouldPersist
     }
 }
@@ -60,10 +50,6 @@ extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
     func selectedGraphNodesDeleted(selectedNodes: IdSet) {
-
-//        self.selectedNodeIds.forEach {
-//            self.deleteNode(id: $0)
-//        } // for id in ...
 
         self.selectedCanvasItems.forEach {
             self.deleteCanvasItem($0.id)

@@ -9,38 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct LayerInputAddedToGraph: GraphEventWithResponse {
-    
-    let nodeId: NodeId
-    let coordinate: LayerInputType
-    
-    func handle(state: GraphState) -> GraphResponse {
-        
-        log("LayerInputAddedToGraph: nodeId: \(nodeId)")
-        log("LayerInputAddedToGraph: coordinate: \(coordinate)")
-        
-        guard let node = state.getNodeViewModel(nodeId),
-              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
-            log("LayerInputAddedToGraph: could not add Layer Input to graph")
-            fatalErrorIfDebug()
-            return .noChange
-        }
-                
-        input.canvasUIData = .init(
-            id: .layerInputOnGraph(.init(
-                node: nodeId,
-                keyPath: coordinate)),
-            position: state.newNodeCenterLocation,
-            zIndex: state.highestZIndex + 1, 
-            // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: state.groupNodeFocused,
-            nodeDelegate: node)
-        
-        return .shouldPersist
-    }
-}
-
-
 // TODO: does this need to be `Identifiable`?
 enum CanvasItemId: Equatable, Codable, Hashable {
     case node(NodeId)
@@ -138,11 +106,6 @@ final class CanvasItemViewModel {
 }
 
 extension CanvasItemViewModel {
-    // Shouldn't be needed?
-//    var kind: NodeKind? {
-//        self.nodeDelegate?.kind
-//    }
-    
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
