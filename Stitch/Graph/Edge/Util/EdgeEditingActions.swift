@@ -262,7 +262,7 @@ extension GraphState {
             return
         }
         
-        guard let nearbyNode = self.getNodeViewModel(edgeEditingState.nearbyNode) else {
+        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyNode) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyNode)")
             return
         }
@@ -275,8 +275,17 @@ extension GraphState {
          For a group node, the destination input must be some input-splitter, not the group node itself.
          */
         //    let destinationInput = NodeIOCoordinate(portId: labelAsPortId, nodeId: nearbyNode.id)
-        let destinationInput: InputPortViewData = self.visibleNodesViewModel
-            .getInputSplitterInputPorts(for: nearbyNode.id)?[safe: labelAsPortId] ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
+        
+        let inputOnGroupInputSplitter: InputPortViewData? = nearbyNode.id.nodeCase.flatMap { nodeId in
+            self.visibleNodesViewModel.getInputSplitterInputPorts(for: nodeId)?[safe: labelAsPortId]
+        }
+        
+        guard let nodeId = nearbyNode.id.nodeCase ?? nearbyNode.id.layerInputCase?.node else {
+            log("keyCharPressedDuringEdgeEditingMode: did not have nodeId")
+            return
+        }
+        
+        let destinationInput: InputPortViewData = inputOnGroupInputSplitter ?? .init(portId: labelAsPortId, nodeId: nodeId)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         

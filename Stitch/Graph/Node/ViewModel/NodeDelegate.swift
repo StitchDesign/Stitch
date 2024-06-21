@@ -18,14 +18,14 @@ import StitchSchemaKit
 protocol NodeDelegate: AnyObject {
     var id: NodeId { get }
     
-    var isVisibleInFrame: Bool { get set }
+//    var isVisibleInFrame: Bool { get set }
     
     var kind: NodeKind { get }
     
     var userVisibleType: UserVisibleType? { get }
     
-    var parentGroupNodeId: NodeId? { get }
-    
+//    var parentGroupNodeId: NodeId? { get }
+//    
     @MainActor var longestLoopLength: Int { get }
 
     @MainActor var inputsRowCount: Int { get }
@@ -36,9 +36,9 @@ protocol NodeDelegate: AnyObject {
     
 //    @MainActor var isNodeMoving: Bool { get }
     
-    @MainActor var zIndex: Double { get }
+//    @MainActor var zIndex: Double { get }
     
-    @MainActor var isSelected: Bool { get set }
+//    @MainActor var isSelected: Bool { get set }
     
     @MainActor var inputs: PortValuesList { get }
     

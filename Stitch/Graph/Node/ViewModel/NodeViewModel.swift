@@ -788,6 +788,7 @@ extension NodeViewModel {
 }
 
 extension NodeViewModel: NodeDelegate {
+ 
     var inputsRowCount: Int {
         self.getRowObservers(.input).count
     }
@@ -833,26 +834,48 @@ extension NodeViewModel: SchemaObserver {
     @MainActor
     func updateNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
                                        activeIndex: ActiveIndex) {
+//        // **TODO: REVISIT: INPUT REFACTOR**
+//        fatalError()
+        
         self.update(from: nodeSchema, activeIndex: activeIndex)
     }
 
+    // TODO: this likely needs to be at the Patch vs Group vs Layer level now?
     @MainActor
     func update(from schema: NodeEntity, 
                 activeIndex: ActiveIndex) {
+        
+        // **TODO: REVISIT: INPUT REFACTOR**
+//        fatalError()
+        
         self.update(from: schema)
 
         // Update view if no upstream connection
         // Layers use keypaths
-        if !schema.kind.isLayer {
+        
+        if !schema.kind.isLayer,
+           let nodeData = self.nodeData {
+            
             self._getInputObserversForEncoding().forEach { inputObserver in
                 if !inputObserver.upstreamOutputObserver.isDefined {
                     inputObserver.updateValues(
                         inputObserver.allLoopedValues,
                         activeIndex: activeIndex,
-                        isVisibleInFrame: self.isVisibleInFrame)
+                        isVisibleInFrame: nodeData.isVisibleInFrame)
                 }
             }
         }
+        
+//        if !schema.kind.isLayer {
+//            self._getInputObserversForEncoding().forEach { inputObserver in
+//                if !inputObserver.upstreamOutputObserver.isDefined {
+//                    inputObserver.updateValues(
+//                        inputObserver.allLoopedValues,
+//                        activeIndex: activeIndex,
+//                        isVisibleInFrame: self.isVisibleInFrame)
+//                }
+//            }
+//        }
     }
 
     // MARK: main actor needed to prevent view updates from background thread
@@ -1002,20 +1025,21 @@ extension NodeViewModel {
             .map(\.allLoopedValues)
     }
     
-    @MainActor
-    func updateOutput(_ values: PortValues,
-                      at portId: Int,
-                      activeIndex: ActiveIndex) {
-        guard self.outputs.count > portId else {
-            log("PatchNode: portID exceeds outputs count")
-            return
-        }
-
-        self._outputsObservers[safe: portId]?
-            .updateValues(values,
-                          activeIndex: activeIndex,
-                          isVisibleInFrame: self.isVisibleInFrame)
-    }
+//    // Can remain at the NodeViewModel level
+//    @MainActor
+//    func updateOutput(_ values: PortValues,
+//                      at portId: Int,
+//                      activeIndex: ActiveIndex) {
+//        guard self.outputs.count > portId else {
+//            log("PatchNode: portID exceeds outputs count")
+//            return
+//        }
+//
+//        self._outputsObservers[safe: portId]?
+//            .updateValues(values,
+//                          activeIndex: activeIndex,
+//                          isVisibleInFrame: self.isVisibleInFrame)
+//    }
 
     @MainActor
     func updateOutputs(_ newOutputsValues: PortValuesList,

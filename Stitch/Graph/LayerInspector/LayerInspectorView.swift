@@ -253,7 +253,7 @@ struct LayerInspectorSectionView: View {
                                                  zIndex: .zero,
                                                  activeIndex: .init(.zero),
                                                  graphDelegate: graph)
-    nodeTest.isSelected = true
+//    nodeTest?.isSelected = true
     
     graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
     

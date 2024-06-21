@@ -140,7 +140,7 @@ struct ConnectedEdgeView: View {
             // If this input is a group input splitter, then we want to use the z-index of the group node on the same level as the edge, not the z-index of the group input splitter one level below.
             let zIndexOfInputNode = inputObserver.nodeDelegate?.parentGroupNodeId
                 .flatMap({
-                    parentId in graph.getNodeViewModel(parentId)?.zIndex
+                    parentId in graph.getCanvasItem(.node(parentId))?.zIndex
                 }) ?? defaultInputNodeIndex
             
             

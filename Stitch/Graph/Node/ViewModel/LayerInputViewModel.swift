@@ -77,7 +77,7 @@ extension NodeDataViewModel {
                 let outputsObservers = self.getRowObservers(.output, nodeKind)
                 let allObservers = inputsObservers + outputsObservers
                 allObservers.forEach {
-                    $0.nodeDelegate?.isVisibleInFrame = newValue
+                    $0.canvasUIData?.isVisibleInFrame = newValue
                 }
             }
 

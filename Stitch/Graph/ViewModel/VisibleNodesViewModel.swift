@@ -191,11 +191,22 @@ extension VisibleNodesViewModel {
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
         self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                    partialResult.append(node.canvasUIData)
-            case .layer:
-                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+            
+//            // TODO: which is better -- the switch, which handles all 3 cases explicitly; or handling the cases as "nodeData vs layer" ?
+//            if let nodeData = node.nodeKind.nodeData {
+//                partialResult.append(nodeData.canvasUIData)
+//            } else let layer = node.nodeKind.layerNode  {
+//                partialResult.append(contentsOf: layer.getInputObservers().compactMap(\.canvasUIData))
+//            }
+
+            // TODO: how to get around writing such similar case-statement logic for both Patch and Group ?
+            switch node.nodeKind {
+            case .group(let x):
+                partialResult.append(x.nodeData.canvasUIData)
+            case .patch(let x):
+                partialResult.append(x.nodeData.canvasUIData)
+            case .layer(let x):
+                partialResult.append(contentsOf: x.getInputObservers().compactMap(\.canvasUIData))
             }
         }
     }

@@ -33,12 +33,7 @@ struct PortEntryView: View {
     var portColor: Color {
         rowObserver.portColor.color(theme)
     }
-    
-    @MainActor
-    var isNodeMoving: Bool {
-        self.nodeDelegate?.isNodeMoving ?? false
-    }
-    
+        
     @MainActor
     var isDraggingFromThisOutput: Bool {
         // Only applies if output drag exists and on this port

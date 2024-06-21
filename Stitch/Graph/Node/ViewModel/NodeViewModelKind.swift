@@ -15,7 +15,40 @@ enum NodeViewModelKind {
     case patch(PatchNodeViewModel)
     case group(GroupNodeViewModel)
     case layer(LayerNodeViewModel)
+    
+    
+    /*
+     // Better?:
+     
+     case layer(LayerNodeViewModel)
+     case nodeData(NodeData)
+     */
+    
+    // An `if let nodeData = nodeKind.nodeData` as an alternative to
+    var nodeData: NodeDataViewModel? {
+        switch self {
+        case .patch(let patchNodeViewModel):
+            return patchNodeViewModel.nodeData
+        case .group(let groupNodeViewModel):
+            return groupNodeViewModel.nodeData
+        case .layer(let layerNodeViewModel):
+            return nil
+        }
+    }
+    
+    var groupNode: GroupNodeViewModel? {
+        switch self {
+        case .group(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }
+
+/*
+ Almost seems like
+ */
 
 // Becomes very important, since inputs/outputs, position etc. are now all held here.
 extension NodeViewModelKind {
