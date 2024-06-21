@@ -143,9 +143,11 @@ extension GraphState {
         // Update box's nodes:
         for nodeId in box.nodes {
             // When drag ends, we update both the node view model and the node schema
-            if let node = self.visibleNodesViewModel.getViewModel(nodeId) {
+//            if let node = self.visibleNodesViewModel.getViewModel(nodeId) {
+            // TODO: CommentBox should store CanvasItemIds, not NodeIds
+            if let canvasItem = self.getCanvasItem(.node(nodeId)) {
                 // update node view model
-                node.previousPosition = node.position
+                canvasItem.previousPosition = canvasItem.position
 
             } else {
                 log("CommentBoxPositionDragEnded: could not retrieve node view model \(nodeId)")

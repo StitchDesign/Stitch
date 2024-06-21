@@ -40,7 +40,7 @@ final class GraphUIState {
     
     var llmRecording = LLMRecordingState()
         
-    var nodesThatWereOnScreenPriorToEnteringFullScreen = NodeIdSet()
+    var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
     var lastMomentumRunTime: TimeInterval = .zero
     
@@ -219,16 +219,10 @@ extension GraphUIState {
 
 extension GraphState {
     
-    @MainActor
-    func getSelectedNodeViewModels() -> NodeViewModels {
-        self.nodes.values.filter {
-            $0.isSelected
-        }
-    }
-
     /// Returns  `NodeEntities` given some selection state. Recursively gets group children if group selected.
     @MainActor
     func getSelectedNodeEntities(for ids: NodeIdSet) -> NodeEntities {
+                
         ids.flatMap { nodeId -> NodeEntities in
             guard let nodeViewModel = self.getNodeViewModel(nodeId) else {
                 return []
@@ -240,7 +234,9 @@ extension GraphState {
             case .group:
                 // Recursively add nodes in group
                 let idsInGroup = self.nodes.values
-                    .filter { $0.parentGroupNodeId == nodeViewModel.id }
+                    .filter {
+                        $0.canvasUIData?.parentGroupNodeId == nodeViewModel.id
+                    }
                     .map { $0.id }
                     .toSet
                 
@@ -355,11 +351,10 @@ extension GraphState {
     @MainActor
     func resetSelectedCanvasItems() {
         self.nodes.values.forEach { node in
-            switch node.kind {
-            case .layer:
+            if let nodeData = node.nodeData {
+                node.canvasUIData?.deselect()
+            } else {
                 node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
-            case .patch, .group:
-                node.deselect()
             }
         }
     }
@@ -376,17 +371,7 @@ extension GraphUISelectionState {
 // When we tap or drag a single node,
 // we thereby select.
 extension GraphState {
-    
-    // Keep this helper around
-    @MainActor
-    func selectSingleNode(_ node: NodeViewModel) {
-        // ie expansionBox, isSelecting, selected-comments etc.
-        // get reset when we select a single node.
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
-        node.select()
-    }
-    
+        
     @MainActor
     func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
@@ -403,21 +388,21 @@ extension GraphState {
             fatalErrorIfDebug()
             return
         }
-        node.select()
+        node.canvasUIData?.select()
     }
 }
 
-extension NodeViewModel {
-    @MainActor
-    func select() {
-        self.isSelected = true
-    }
-    
-    @MainActor
-    func deselect() {
-        self.isSelected = false
-    }
-}
+//extension NodeViewModel {
+//    @MainActor
+//    func select() {
+//        self.isSelected = true
+//    }
+//    
+//    @MainActor
+//    func deselect() {
+//        self.isSelected = false
+//    }
+//}
 
 extension CanvasItemViewModel {
     @MainActor

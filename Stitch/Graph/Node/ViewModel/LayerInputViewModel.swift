@@ -55,6 +55,21 @@ extension NodeIO {
 
 extension NodeDataViewModel {
 
+    // TODO: which is better -- to expose these as an interface on NodeViewModel only, or both there and here?
+    @MainActor
+    func getInputRowObserver(_ portId: Int) -> NodeRowObserver? {
+            
+        if self.nodeDelegate?.kind == .group {
+            return self.nodeDelegate?.graphDelegate?
+                .getSplitterRowObservers(
+                    for: self.id,
+                    type: .input)[safe: portId]
+        }
+        
+        // Sometimes observers aren't yet created for nodes with adjustable inputs
+        return self._inputsObservers[safe: portId]
+    }
+    
     @MainActor
     func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
         if self.nodeDelegate?.kind == .group {

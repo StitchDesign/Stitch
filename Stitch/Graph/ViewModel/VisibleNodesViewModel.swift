@@ -184,7 +184,7 @@ extension VisibleNodesViewModel {
 
     func getVisibleNodes(at focusedGroup: NodeId?) -> NodeViewModels {
         self.allViewModels
-            .filter { $0.parentGroupNodeId ==  focusedGroup }
+            .filter { $0.canvasUIData?.parentGroupNodeId ==  focusedGroup }
     }
 
     // TODO: combine with getVisibleCanvasItems and just provide an additional param?
@@ -215,12 +215,11 @@ extension VisibleNodesViewModel {
     @MainActor
     func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
         self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                if node.canvasUIData.parentGroupNodeId == focusedGroup {
-                    partialResult.append(node.canvasUIData)
-                }
-            case .layer:
+            
+            // patch or group
+            if let nodeData = node.nodeData {
+                partialResult.append(nodeData.canvasUIData)
+            } else if let layerNode = node.layerNode {
                 let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
                     if let canvasData = input.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
                         return canvasData
@@ -229,6 +228,22 @@ extension VisibleNodesViewModel {
                 }
                 partialResult.append(contentsOf: visibleLayerInputsOnGraph)
             }
+            
+//            switch node.kind {
+//            case .patch, .group:
+//                if node.canvasUIData.parentGroupNodeId == focusedGroup {
+//                    partialResult.append(node.canvasUIData)
+//                }
+//            case .layer:
+//                let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
+//                    if let canvasData = input.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
+//                        return canvasData
+//                    }
+//                    return nil
+//                }
+//                partialResult.append(contentsOf: visibleLayerInputsOnGraph)
+//            }
+            
         }
     }
 
@@ -245,7 +260,7 @@ extension VisibleNodesViewModel {
         // filter splitters relevant to this group node
         let splittersInThisGroup = allSplitterNodes
             .filter { splitterNode in
-                splitterNode.parentGroupNodeId == groupNodeId
+                splitterNode.canvasUIData?.parentGroupNodeId == groupNodeId
             }
             // sort new inputs/outputs by the date the splitter was created
             .sorted {
@@ -253,20 +268,28 @@ extension VisibleNodesViewModel {
                     ($1.patchNode?.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
+        let splitterNodesInThisGroup = splittersInThisGroup.compactMap {
+            self.getViewModel($0.id)
+        }
+        
         // get the first (and only) row observer for this splitter node
-        let splitterRowObservers: NodeRowObservers = splittersInThisGroup
+        let splitterRowObservers: NodeRowObservers = splitterNodesInThisGroup
+        //splittersInThisGroup
             // get the NodeViewModel for this splitter
-            .compactMap { self.nodes.get($0.id) }
-            .compactMap { node in
-                switch node.splitterType {
-                case .inline, .none:
-                    // Shouldn't be called
-                    fatalErrorIfDebug()
+//            .compactMap { self.getViewModel($0.id) }
+//        splitt
+            .compactMap { node -> NodeRowObserver? in
+                guard let splitterType = node.patchNode?.splitterType,
+                      let nodeData = node.nodeData else  {
                     return nil
+                }
+                switch splitterType {
                 case .input:
-                    return node.getInputRowObserver(0)
+                    return nodeData.getInputRowObserver(0)
                 case .output:
-                    return node.getOutputRowObserver(0)
+                    return nodeData.getOutputRowObserver(0)
+                case .inline:
+                    return nil
                 }
             }
 
@@ -350,8 +373,48 @@ extension VisibleNodesViewModel {
     
     @MainActor
     func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> NodeRowObserver? {
-        self.nodes.get(coordinate.nodeId)?
-            .getOutputRowObserver(for: coordinate.portType)
+        
+        // How to retrieve the output?
+        // - patch or group: via NodeData
+        // - layer: via LayerNodeViewModel
+            
+        
+        // Better: this helper should accept NodeId and PortId directly
+        guard let portId = coordinate.portId else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        guard let node = self.getViewModel(coordinate.nodeId) else {
+            return nil
+        }
+        
+        if let nodeData = node.nodeData {
+            return nodeData.getOutputRowObserver(portId)
+        } else if let layerNode = node.layerNode {
+            return layerNode._outputObservers[safe: portId]
+        }
+        
+        fatalErrorIfDebug()
+        return nil
+    }
+}
+
+// Represents address that use nodeId + portId,
+// i.e. patch inputs and outputs + layer outputs
+struct PortIdCoordinate: Equatable, Hashable, Codable {
+    let nodeId: NodeId
+    let portId: Int
+}
+
+extension NodeIOCoordinate {
+    var asPortIdCoordinate: PortIdCoordinate? {
+        switch self.portType {
+        case .portIndex(let x):
+            return .init(nodeId: self.nodeId, portId: x)
+        case .keyPath(let x):
+            return nil
+        }
     }
 }
 

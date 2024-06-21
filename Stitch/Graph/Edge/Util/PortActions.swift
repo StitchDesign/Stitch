@@ -154,7 +154,7 @@ extension NodeViewModel {
                             activeIndex: ActiveIndex) {
         self.getInputRowObserver(for: coordinate.portType)?
             .removeUpstreamConnection(activeIndex: activeIndex,
-                                      isVisible: self.isVisibleInFrame)
+                                      isVisible: self.canvasUIData?.isVisibleInFrame)
     }
 }
 

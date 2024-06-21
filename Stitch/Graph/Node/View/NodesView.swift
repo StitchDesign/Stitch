@@ -151,7 +151,7 @@ struct NodesView: View {
 
 
 struct EdgeInputLabelsView: View {
-    let inputs: NodeRowObservers
+    let inputs: NodeRowObservers // these should be Observable ?
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
 
@@ -162,6 +162,7 @@ struct EdgeInputLabelsView: View {
         ForEach(inputs) { inputRowObserver in
             // visibleNodeId property checks for group splitter inputs
             let isInputForNearbyNode = nearbyNodeId == inputRowObserver.visibleNodeId
+            
             let isVisible = isInputForNearbyNode && showLabels
             
             EdgeEditModeLabelsView(graph: graph,

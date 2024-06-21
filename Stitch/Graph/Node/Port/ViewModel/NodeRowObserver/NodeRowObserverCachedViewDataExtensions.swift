@@ -36,20 +36,28 @@ extension NodeRowObserver {
    }
    
    /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
-   /// which save a differnt node ID.
+   /// which save a different node ID.
    @MainActor
-   var visibleNodeId: NodeId? {
-       guard self.nodeDelegate?.isVisibleInFrame ?? false else {
-           return nil
-       }
-       
-       // We use the group node ID only if it isn't in focus
-       if self.nodeDelegate?.splitterType == .input &&
-           self.nodeDelegate?.graphDelegate?.groupNodeFocused != self.nodeDelegate?.parentGroupNodeId {
-           return self.nodeDelegate?.parentGroupNodeId
-       }
-       
-       return self.id.nodeId
+//   var visibleNodeId: NodeId? {
+    var visibleNodeId: CanvasItemId? {
+        
+        // **TODO: REVISIT: INPUT REFACTOR**
+        fatalErrorIfDebug()
+        return nil
+        
+        // Notes: this is for the label in front of an input during edge-edit mode's output hover; it's about the number/letter we show the user
+                
+//       guard self.nodeDelegate?.isVisibleInFrame ?? false else {
+//           return nil
+//       }
+//       
+//       // We use the group node ID only if it isn't in focus
+//       if self.nodeDelegate?.splitterType == .input &&
+//           self.nodeDelegate?.graphDelegate?.groupNodeFocused != self.nodeDelegate?.parentGroupNodeId {
+//           return self.nodeDelegate?.parentGroupNodeId
+//       }
+//       
+//       return self.id.nodeId
    }
        
    // MARK: This has expensive perf (esp `getGroupSplitters`) so it's been relegated to only be called on visible nodes sync.
@@ -58,8 +66,27 @@ extension NodeRowObserver {
        guard let nodeId = self.nodeDelegate?.id else {
            return nil
        }
+       
+       // PortViewType is cached data that every input (and output?) has.
+       // The logic is very different whether the input is on a patch, group, or layer.
+       
+       
+       
+       
+       
+       
+//       let canvasItem = self.canvasUIData
+//       
+//       guard let canvasItem = self.nodeDelegate?.graphDelegate?.getCanvasItem(.n)
 
        // Row observers use splitters inside groups
+       let isSplitter = self.nodeKind == .patch(.splitter)
+       
+       
+       
+       
+       let isNotAtCurrentTraversalLevel = self.nodeDelegate?.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused
+       
        let isGroup = self.nodeKind == .patch(.splitter) &&
        // Splitter is visible if it's parent group ID is focused in graph
        self.nodeDelegate?.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused

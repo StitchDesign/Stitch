@@ -51,7 +51,9 @@ extension GraphState {
             return
         }
         
-        self.selectSingleNode(node)
+        if let canvasItem = self.getCanvasItem(inputCoordinate.asCanvasItemId) {
+            self.selectSingleCanvasItem(canvasItem)
+        }
         
         inputObserver.updateValues([.pulse(self.graphStepState.graphTime)],
                                    activeIndex: self.activeIndex,

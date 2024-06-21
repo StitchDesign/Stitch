@@ -67,23 +67,13 @@ struct SidebarGroupCreated: GraphEventWithResponse {
         // Reset selections
         state.sidebarSelectionState.resetSelections()
         
-        // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
-        
-        // TODO: adjust position of children
-        // TODO: determine real size of just-created LayerGroup
-        let groupFit: LayerGroupFit = state.getLayerGroupFit(
-            primarilySelectedLayers,
-            parentSize: state.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
-        
-        let assumedLayerGroupSize: LayerSize = groupFit.size
+        // // **TODO: REVISIT: INPUT REFACTOR**
         
         // Update layer group's size input
         newNode.getInputRowObserver(1)?.updateValues(
-            [.size(assumedLayerGroupSize)],
+            [.size(.init(width: .auto, height: .auto))],
             activeIndex: .defaultActiveIndex,
             isVisibleInFrame: true)
-        
-        
         
         return .persistenceResponse
     }

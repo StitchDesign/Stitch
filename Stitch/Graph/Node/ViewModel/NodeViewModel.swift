@@ -355,66 +355,68 @@ final class NodeViewModel: Sendable {
 
 // Accessors for canvas-ui data
 
-//extension NodeViewModel {
-//    var position: CGPoint {
-//        get {
-//            self.canvasUIData.position
-//        } set(newValue) {
-//            self.canvasUIData.position = newValue
-//        }
-//    }
-//    
-//    var previousPosition: CGPoint {
-//        get {
-//            self.canvasUIData.previousPosition
-//        } set(newValue) {
-//            self.canvasUIData.previousPosition = newValue
-//        }
-//    }
-//    
-//    var bounds: NodeBounds {
-//        get {
-//            self.canvasUIData.bounds
-//        } set(newValue) {
-//            self.canvasUIData.bounds = newValue
-//        }
-//    }
-//    
-//    // ui placement
-//    var zIndex: Double {
-//        get {
-//            self.canvasUIData.zIndex
-//        } set(newValue) {
-//            self.canvasUIData.zIndex = newValue
-//        }
-//    }
-//
-//    var parentGroupNodeId: NodeId? {
-//        get {
-//            self.canvasUIData.parentGroupNodeId
-//        } set(newValue) {
-//            self.canvasUIData.parentGroupNodeId = newValue
-//        }
-//    }
-//    
-//    // Default to false so initialized graphs don't take on extra perf loss
-//    var isVisibleInFrame: Bool {
-//        get {
-//            self.canvasUIData.isVisibleInFrame
-//        } set(newValue) {
-//            self.canvasUIData.isVisibleInFrame = newValue
-//        }
-//    }
-//    
-//    @MainActor
-//    var isSelected: Bool {
-//        get {
-//            self.canvasUIData.isSelected
-//        } set(newValue) {
-//            self.canvasUIData.isSelected = newValue
-//        }
-//    }
-//}
+// TODO: revisit this logic slowly; these properties are defined on NodeDelegate (and thus NodeViewModel), but are more like `canvas item ui` properties.
+// Perhaps we introduce `CanvasItemDelegate` which is used by PatchNode, GroupNode and LayerInputOnGraph ?
+extension NodeViewModel {
+    var position: CGPoint {
+        get {
+            self.canvasUIData!.position
+        } set(newValue) {
+            self.canvasUIData!.position = newValue
+        }
+    }
+    
+    var previousPosition: CGPoint {
+        get {
+            self.canvasUIData!.previousPosition
+        } set(newValue) {
+            self.canvasUIData!.previousPosition = newValue
+        }
+    }
+    
+    var bounds: NodeBounds {
+        get {
+            self.canvasUIData!.bounds
+        } set(newValue) {
+            self.canvasUIData!.bounds = newValue
+        }
+    }
+    
+    // ui placement
+    var zIndex: Double {
+        get {
+            self.canvasUIData!.zIndex
+        } set(newValue) {
+            self.canvasUIData!.zIndex = newValue
+        }
+    }
+
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasUIData!.parentGroupNodeId
+        } set(newValue) {
+            self.canvasUIData!.parentGroupNodeId = newValue
+        }
+    }
+    
+    // Default to false so initialized graphs don't take on extra perf loss
+    var isVisibleInFrame: Bool {
+        get {
+            self.canvasUIData!.isVisibleInFrame
+        } set(newValue) {
+            self.canvasUIData!.isVisibleInFrame = newValue
+        }
+    }
+    
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.canvasUIData!.isSelected
+        } set(newValue) {
+            self.canvasUIData!.isSelected = newValue
+        }
+    }
+}
 
 extension NodeViewModel {
     // Create some fake patch node as our "nil" choice for dropdowns like layers, broadcast nodes
@@ -631,6 +633,7 @@ extension NodeViewModel {
         return self._inputsObservers[safe: portId]
     }
     
+    // TODO: remove this?
     @MainActor
     func getOutputRowObserver(for portType: NodeIOPortType) -> NodeRowObserver? {
         switch portType {
@@ -644,16 +647,16 @@ extension NodeViewModel {
         }
     }
 
-//    @MainActor
-//    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
-//        if kind == .group {
-//            return self.graphDelegate?
-//                .getSplitterRowObservers(for: self.id,
-//                                         type: .output)[safe: portId]
-//        }
-//        
-//        return self._outputsObservers[safe: portId]
-//    }
+    @MainActor
+    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
+        if kind == .group {
+            return self.graphDelegate?
+                .getSplitterRowObservers(for: self.id,
+                                         type: .output)[safe: portId]
+        }
+        
+        return self._outputsObservers[safe: portId]
+    }
 
     @MainActor
     private func updateRowObservers(rowObservers: NodeRowObservers,

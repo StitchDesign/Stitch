@@ -8,6 +8,7 @@
 import Foundation
 
 
+// This is really just an enum that wraps identical { nodeId, portId }
 enum PortViewType: Equatable, Hashable {
     case input(InputPortViewData)
     case output(OutputPortViewData)
@@ -17,6 +18,7 @@ extension PortViewType {
     init(nodeIO: NodeIO,
          portId: Int,
          nodeId: UUID) {
+        
         switch nodeIO {
         case .input:
             self = .input(.init(portId: portId, nodeId: nodeId))

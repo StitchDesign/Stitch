@@ -16,6 +16,7 @@ final class CommentBoxViewModel {
     var groupId: NodeId?
     var title: String = "Comment"
     var color: Color
+    // TODO: CommentBox should store CanvasItemIds, not NodeIds
     var nodes: NodeIdSet = .init()
     var previousPosition: CGPoint = .zero
     var position: CGPoint = .zero

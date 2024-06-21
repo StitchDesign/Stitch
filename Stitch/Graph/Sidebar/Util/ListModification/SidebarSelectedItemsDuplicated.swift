@@ -13,15 +13,18 @@ struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
         // Update selections UI, which copy/paste logic will use
         
-        // Sidebar Selection State
-        state.sidebarSelectionState.all.map(\.asNodeId).forEach {
-            if let node = state.getNodeViewModel($0) {
-                node.select()
-            }
-        }
+        // **TODO: REVISIT: INPUT REFACTOR**
+        fatalError()
         
-        state.copyAndPasteSelectedNodes()
-        return .persistenceResponse
+//        // Sidebar Selection State
+//        state.sidebarSelectionState.all.map(\.asNodeId).forEach {
+//            if let node = state.getNodeViewModel($0) {
+//                node.select()
+//            }
+//        }
+//        
+//        state.copyAndPasteSelectedNodes()
+//        return .persistenceResponse
     }
 }
 

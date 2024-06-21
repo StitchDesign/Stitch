@@ -51,6 +51,8 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     
+    @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
+    
     @MainActor func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver?
     
     @MainActor func getMediaUrl(forKey: MediaKey) -> URL?

@@ -399,11 +399,9 @@ extension GraphState {
     }
 
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
+    @MainActor
     var highestZIndex: Double {
-        let zIndices = self.visibleNodesViewModel
-            .nodes.values
-            .map { $0.zIndex }
-        return zIndices.max() ?? 0
+        self.getCanvasItems().map(\.zIndex).max() ?? 0
     }
 
     @MainActor

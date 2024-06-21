@@ -107,7 +107,7 @@ extension GraphState {
             
             // Select node in UI
             if let node = node {
-                node.select()
+                node.canvasUIData?.select()
             }
             
             return node

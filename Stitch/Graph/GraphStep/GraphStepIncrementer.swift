@@ -42,11 +42,12 @@ extension GraphState: GraphStepManagerDelegate {
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
             let mouseNodeIds = self.mouseNodes
             for mouseNodeId in mouseNodeIds {
-                if let mouseNode = self.getPatchNode(id: mouseNodeId) {
+                if let mouseNode = self.getPatchNode(id: mouseNodeId),
+                   let patchNode = mouseNode.patchNode {
                     mouseNode.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
                         .updateValues([.position(.zero)],
                                       activeIndex: self.activeIndex,
-                                      isVisibleInFrame: mouseNode.isVisibleInFrame)
+                                      isVisibleInFrame: patchNode.isVisibleInFrame)
                 }
             }
             
