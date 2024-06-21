@@ -330,6 +330,7 @@ extension LayerNodeViewModel {
         if newLongestLoopLength < oldLongestLoopLength {
             self.previewLayerViewModels = Array(self.previewLayerViewModels[0..<newLongestLoopLength])
             
+            // TODO: from the signature `didValuesUpdate(PortValuesList, NodeId)` alone, we would not know that could mutate GraphState; but I guess GraphDelegate's explicit setters limit the chaos.
             // Re-sort preview layers when looping changes
             self.nodeDelegate?.graphDelegate?.shouldResortPreviewLayers = true
         }

@@ -115,11 +115,14 @@ final class NodeViewModel: Sendable {
     private var _inputsObservers: NodeRowObservers = []
     private var _outputsObservers: NodeRowObservers = []
 
+    // Is this node a LayerNode, PatchNode or GroupNode?
+    // Like `NodeKind` but a case may contain node-kind specific data
     var nodeType: NodeViewModelType
     
     // Cached for perf
     var longestLoopLength: Int = 1
     
+    // TODO: should these continue to live at Node-level, or be moved to PatchNode- and LayerNode-specific level? GroupNodes NEVER use ephemeral observers? Is it "one ephemeral-observer per input" or "one per loop index in an input"?
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties

@@ -326,6 +326,7 @@
 		EC17DF0928F626660042BF4F /* MathParser in Frameworks */ = {isa = PBXBuildFile; productRef = EC17DF0828F626660042BF4F /* MathParser */; };
 		EC17ECB229970C300097870C /* ExtendedAttributesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */; };
 		EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */; };
+		EC1A357C2C25D4D700E5A6D8 /* LayerInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1A357B2C25D4D700E5A6D8 /* LayerInputViewModel.swift */; };
 		EC1B41AC26BC4B5D0016C2C2 /* ScrolledActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */; };
 		EC1B41AE26BC4BD40016C2C2 /* LayerDraggedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */; };
 		EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */; };
@@ -1222,6 +1223,7 @@
 		EC17ACD526B4C32200137EA5 /* PortActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortActions.swift; sourceTree = "<group>"; };
 		EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtendedAttributesUtils.swift; sourceTree = "<group>"; };
 		EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorActions.swift; sourceTree = "<group>"; };
+		EC1A357B2C25D4D700E5A6D8 /* LayerInputViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputViewModel.swift; sourceTree = "<group>"; };
 		EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrolledActions.swift; sourceTree = "<group>"; };
 		EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDraggedActions.swift; sourceTree = "<group>"; };
 		EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCreatedAction.swift; sourceTree = "<group>"; };
@@ -3005,6 +3007,7 @@
 				EC0F33492BED93D9008093BC /* NodeDelegate.swift */,
 				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
 				ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */,
+				EC1A357B2C25D4D700E5A6D8 /* LayerInputViewModel.swift */,
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
@@ -4861,6 +4864,7 @@
 				ECDC622026583B0C00F67ED8 /* GrayscaleNode.swift in Sources */,
 				ECE35EE627CEE80B00CB8F5C /* FieldValue.swift in Sources */,
 				B544D3A6283B4EE4000A24E2 /* SampleAppsSheet.swift in Sources */,
+				EC1A357C2C25D4D700E5A6D8 /* LayerInputViewModel.swift in Sources */,
 				EC4D95A626B4911700AD5AB4 /* MediaActions.swift in Sources */,
 				EC2DD172289B6BA50089D501 /* NodeDuplicationActions.swift in Sources */,
 				EC4D959D26B48F7900AD5AB4 /* PulseActions.swift in Sources */,

@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+// TODO: rename to `NodeKindData` or `NodeKindViewModel` or `NodeViewModelKind`? i.e. this is the `NodeKind` enum but with a kind's specific data attached.
 enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
