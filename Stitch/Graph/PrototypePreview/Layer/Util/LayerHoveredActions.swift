@@ -37,22 +37,22 @@ func updateMouseNodesPosition(mouseNodeIds: NodeIdSet,
     }
 
     for mouseNodeId in mouseNodeIds {
-        if let node = graphState.getPatchNode(id: mouseNodeId) {
+        if let node = graphState.getPatchNode(id: mouseNodeId)?.patchNode {
             // Always scalar
-            node.getOutputRowObserver(MouseNodeOutputLocations.leftClick)?
+            node.nodeData.getOutputRowObserver(MouseNodeOutputLocations.leftClick)?
                 .updateValues([PortValue.bool(leftClick)],
                               activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                              isVisibleInFrame: node.nodeData.isVisibleInFrame)
 
-            node.getOutputRowObserver(MouseNodeOutputLocations.position)?
+            node.nodeData.getOutputRowObserver(MouseNodeOutputLocations.position)?
                 .updateValues([PortValue.position(position)],
                               activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                              isVisibleInFrame: node.nodeData.isVisibleInFrame)
 
-            node.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
+            node.nodeData.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
                 .updateValues([PortValue.position(finalVelocity)],
                               activeIndex: graphState.activeIndex,
-                              isVisibleInFrame: node.isVisibleInFrame)
+                              isVisibleInFrame: node.nodeData.isVisibleInFrame)
 
         } else {
             log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")

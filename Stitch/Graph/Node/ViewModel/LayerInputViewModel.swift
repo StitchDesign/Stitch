@@ -56,6 +56,17 @@ extension NodeIO {
 extension NodeDataViewModel {
 
     @MainActor
+    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
+        if self.nodeDelegate?.kind == .group {
+            return self.nodeDelegate?.graphDelegate?
+                .getSplitterRowObservers(for: self.id,
+                                         type: .output)[safe: portId]
+        }
+        
+        return self._outputsObservers[safe: portId]
+    }
+    
+    @MainActor
     func updateVisibilityStatus(with newValue: Bool,
                                 activeIndex: ActiveIndex) {
                 

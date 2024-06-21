@@ -644,16 +644,16 @@ extension NodeViewModel {
         }
     }
 
-    @MainActor
-    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
-        if kind == .group {
-            return self.graphDelegate?
-                .getSplitterRowObservers(for: self.id,
-                                         type: .output)[safe: portId]
-        }
-        
-        return self._outputsObservers[safe: portId]
-    }
+//    @MainActor
+//    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
+//        if kind == .group {
+//            return self.graphDelegate?
+//                .getSplitterRowObservers(for: self.id,
+//                                         type: .output)[safe: portId]
+//        }
+//        
+//        return self._outputsObservers[safe: portId]
+//    }
 
     @MainActor
     private func updateRowObservers(rowObservers: NodeRowObservers,

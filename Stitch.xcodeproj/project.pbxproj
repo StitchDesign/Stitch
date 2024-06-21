@@ -705,7 +705,6 @@
 		ECC2BCE92B9B865300D5F942 /* SidebarListItemToggleHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */; };
 		ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */; };
 		ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */; };
-		ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */; };
 		ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AA293808BF00C34F10 /* ArraySortNode.swift */; };
 		ECC301AD2938096000C34F10 /* GetKeysNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AC2938096000C34F10 /* GetKeysNode.swift */; };
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
@@ -1598,7 +1597,6 @@
 		ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemToggleHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListActionHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemGroupActions.swift; sourceTree = "<group>"; };
-		ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupFit.swift; sourceTree = "<group>"; };
 		ECC301AA293808BF00C34F10 /* ArraySortNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArraySortNode.swift; sourceTree = "<group>"; };
 		ECC301AC2938096000C34F10 /* GetKeysNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetKeysNode.swift; sourceTree = "<group>"; };
 		ECC301AE293809D200C34F10 /* IndexOf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexOf.swift; sourceTree = "<group>"; };
@@ -2339,7 +2337,6 @@
 			children = (
 				B55500F32C1BC2320081C3F1 /* SidebarListItemUtils.swift */,
 				EC4BD8992BA1350300B8F38A /* SidebarLayerData.swift */,
-				ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */,
 			);
 			path = LayerGrouping;
 			sourceTree = "<group>";
@@ -4708,7 +4705,6 @@
 				ECA92A28260A6A3400281B52 /* DelayNode.swift in Sources */,
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
-				ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
 				EC8BA54526A62D14002E345C /* DeviceMotionNode.swift in Sources */,
 				EC65B25628653CAA00BC8FBF /* FileDropModifier.swift in Sources */,
