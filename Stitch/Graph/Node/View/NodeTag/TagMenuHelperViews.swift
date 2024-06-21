@@ -30,12 +30,12 @@ struct TagMenuButtonView: View {
 struct DeleteNodesButton: View {
 
     var label: String // = "Delete Nodes"
-    var nodeId: NodeId? // when called from comment box tag menu,
+    var canvasItemId: CanvasItemId? // when called from comment box tag menu,
 
     var body: some View {
         TagMenuButtonView(label: label,
                           role: .destructive) {
-            dispatch(SelectedGraphNodesDeleted(nodeId: nodeId))
+            dispatch(SelectedGraphNodesDeleted(canvasItemId: canvasItemId))
         }
     }
 }

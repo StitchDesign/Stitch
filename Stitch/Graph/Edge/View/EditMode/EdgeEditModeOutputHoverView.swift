@@ -51,7 +51,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
             .onHover { isHovering in
                 // Make sure the graph isn't in movement
                 guard !graph.graphMovement.graphIsDragged,
-                      !graph.graphMovement.nodeIsDragged else {
+                      !graph.graphMovement.canvasItemIsDragged else {
                     return
                 }
 

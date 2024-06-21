@@ -99,7 +99,7 @@ extension GraphState {
         self.update(from: document)
 
         // Reset selected nodes
-        self.resetSelectedNodes()
+        self.resetSelectedCanvasItems()
 
         // Update selected nodes
         let newNodeViewModels = newNodes.compactMap {
@@ -107,7 +107,7 @@ extension GraphState {
             
             // Select node in UI
             if let node = node {
-                self.setNodeSelection(node, to: true)
+                node.select()
             }
             
             return node

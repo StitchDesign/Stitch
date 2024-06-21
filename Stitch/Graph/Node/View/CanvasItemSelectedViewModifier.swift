@@ -8,14 +8,15 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeSelectedView: ViewModifier {
+// fka `NodeSelectedView`
+struct CanvasItemSelectedViewModifier: ViewModifier {
 
     @Environment(\.appTheme) var theme
 
     let isSelected: Bool
 
     // must use slightly larger corner radius for highlight
-    let NODE_SELECTED_CORNER_RADIUS = NODE_CORNER_RADIUS + 3
+    let CANVAS_ITEM_SELECTED_CORNER_RADIUS = CANVAS_ITEM_CORNER_RADIUS + 3
 
     func body(content: Content) -> some View {
         let color = isSelected ? theme.themeData.highlightedEdgeColor : Color.clear
@@ -23,7 +24,7 @@ struct NodeSelectedView: ViewModifier {
             .padding(3)
             .overlay {
                 // needs to be slightly larger than
-                RoundedRectangle(cornerRadius: NODE_SELECTED_CORNER_RADIUS)
+                RoundedRectangle(cornerRadius: CANVAS_ITEM_SELECTED_CORNER_RADIUS)
                     .strokeBorder(color, lineWidth: 3)
             }
     }
@@ -31,11 +32,12 @@ struct NodeSelectedView: ViewModifier {
 
 // https://stackoverflow.com/questions/60407125/swiftui-how-can-i-detect-if-two-views-are-intersecting-each-other
 
-struct NodeBoundsReader: ViewModifier {
+// fka `NodeBoundsReader`
+struct CanvasItemBoundsReader: ViewModifier {
     @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
 
-    let id: NodeId
+    let canvasItem: CanvasItemViewModel
     let splitterType: SplitterType?
     let disabled: Bool
     let updateMenuActiveSelectionBounds: Bool
@@ -56,7 +58,7 @@ struct NodeBoundsReader: ViewModifier {
                             if !disabled {
                                 // log("will update GraphBaseView bounds for \(id)")
                                graph.updateGraphBaseViewBounds(
-                                   for: id,
+                                   for: canvasItem,
                                    newBounds: newBounds,
                                    viewFrame: viewframe,
                                    splitterType: splitterType,
@@ -69,7 +71,8 @@ struct NodeBoundsReader: ViewModifier {
                                 // log("will update local bounds for \(id)")
 
                                 // Used only for comment box creation
-                                graph.updateLocalBounds(for: id, newBounds: newBounds)
+                                graph.updateLocalBounds(for: canvasItem,
+                                                        newBounds: newBounds)
                             }
                         }
                 }
@@ -87,21 +90,16 @@ struct NodeBoundsReader: ViewModifier {
 extension GraphState {
 
     @MainActor
-    func updateLocalBounds(for id: NodeId,
+    func updateLocalBounds(for canvasItem: CanvasItemViewModel,
                            newBounds: CGRect) {
-        guard let nodeViewModel = self.getNodeViewModel(id) else {
-            log("updateLocalBounds: could not retrieve node \(id)")
-            return
-        }
-
-        nodeViewModel.bounds.localBounds = newBounds
+        canvasItem.bounds.localBounds = newBounds
     }
 
     /*
      We should keep a group node's input and output splitter nodes' subscriptions running, even when the splitter node is not on screen -- otherwise the group node's input and output ports stop updating.
      */
     @MainActor
-    func updateGraphBaseViewBounds(for id: NodeId,
+    func updateGraphBaseViewBounds(for canvasItem: CanvasItemViewModel,
                                    newBounds: CGRect,
                                    viewFrame: CGRect,
                                    splitterType: SplitterType?,
@@ -112,16 +110,64 @@ extension GraphState {
             self.graphUI.insertNodeMenuState.activeSelectionBounds = newBounds
         }
 
-        guard let nodeViewModel = self.getNodeViewModel(id) else {
-            log("updateGraphBaseViewBounds: could not retrieve node \(id)")
-            return
-        }
-
-        nodeViewModel.bounds.graphBaseViewBounds = newBounds
+        canvasItem.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
-        nodeViewModel.updateVisibilityStatus(with: isVisibleInFrame,
-                                             activeIndex: activeIndex)
+        canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
+                                          activeIndex: self.activeIndex)
+    }
+}
+
+extension CanvasItemViewModel {
+    
+    // different meanings whether node vs just LIG
+    // - node = update all inputs and outputs
+    // - LIG = update just one input
+    
+    @MainActor
+    func updateVisibilityStatus(with newValue: Bool,
+                                activeIndex: ActiveIndex) {
+        
+        let oldValue = self.isVisibleInFrame
+        guard oldValue != newValue else {
+            return // Do nothing if visibility status didn't change
+        }
+        
+        switch self.id {
+            
+        case .node(let x):
+            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for node \(x)")
+                return
+            }
+            node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
+            
+        case .layerInputOnGraph(let x):
+            guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
+                return
+            }
+            input.canvasUIData?.isVisibleInFrame = newValue
+            input.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: newValue)
+        }
+    }
+}
+
+
+
+extension NodeRowObserver {
+    // When the input or output becomes visible on the canvas,
+    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
+    @MainActor
+    func updateRowObserverUponVisibilityChange(activeIndex: ActiveIndex,
+                                               isVisible: Bool) {
+        self.updateValues(self.allLoopedValues,
+                          activeIndex: activeIndex,
+                          isVisibleInFrame: isVisible)
     }
 }

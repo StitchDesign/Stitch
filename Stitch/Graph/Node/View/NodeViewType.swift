@@ -28,19 +28,13 @@ struct NodeTypeView: View {
 
     var body: some View {
         switch node.nodeType {
-        case .layer(let layerViewModel):
-            LayerNodeView(graph: graph,
-                          viewModel: node,
-                          layerNode: layerViewModel,
-                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                          activeGroupId: groupNodeFocused,
-                          activeIndex: activeIndex,
-                          boundsReaderDisabled: boundsReaderDisabled,
-                          usePositionHandler: usePositionHandler,
-                          updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
-                          isHiddenDuringAnimation: isHiddenDuringAnimation,
-                          adjustmentBarSessionId: adjustmentBarSessionId)
-
+        case .layer:
+            // LayerNodes use `LayerInputOnGraphView`
+            EmptyView()
+                .onAppear {
+                    fatalErrorIfDebug()
+                }
+            
         case .patch(let patchViewModel):
             PatchNodeView(graph: graph,
                           viewModel: node,
@@ -53,6 +47,7 @@ struct NodeTypeView: View {
                           updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
                           isHiddenDuringAnimation: isHiddenDuringAnimation,
                           adjustmentBarSessionId: adjustmentBarSessionId)
+            
         case .group:
             GroupNodeView(graph: graph,
                           viewModel: node,
@@ -148,7 +143,7 @@ struct DefaultNodeRowView: View {
             rowData: data,
             coordinateType: coordinateType,
             nodeKind: nodeKind,
-            isNodeSelected: isNodeSelected,
+            isCanvasItemSelected: isNodeSelected,
             adjustmentBarSessionId: adjustmentBarSessionId)
     }
 }

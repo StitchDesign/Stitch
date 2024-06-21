@@ -37,11 +37,11 @@ class GroupNodeTests: XCTestCase {
 //            XCTAbortTest()
             fatalError("failed to create Add nodes")
         }
-        
+                
         // Freshly created nodes should have no parent
         XCTAssert(graphState.getNode(nodeId1)!.parentGroupNodeId == nil)
         XCTAssert(graphState.getNode(nodeId2)!.parentGroupNodeId == nil)
-        
+                
         // Select the nodes
         graphState.addNodeToSelections(nodeId1)
         graphState.addNodeToSelections(nodeId2)
@@ -78,7 +78,7 @@ class GroupNodeTests: XCTestCase {
     func testSimpleGroupNodeDuplication() throws {
         let (graphState, groupNodeId) = createSimpleGroupNode()
         
-        graphState.selectSingleNode(groupNodeId.id)
+        graphState.addNodeToSelections(groupNodeId.id)
         
         // Make sure only one node is selected
         // TODO: fix after changing "selecting group node = selecting its splitters as well"

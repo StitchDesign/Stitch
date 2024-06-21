@@ -112,7 +112,7 @@ struct iPadGraphTopBarButtons: View {
             iPadNavBarButton(action: INSERT_NODE_ACTION,
                              iconName: .sfSymbol(.ADD_NODE_SF_SYMBOL_NAME))
             
-            iPadNavBarButton(action: { dispatch(FindNodeOnGraph()) },
+            iPadNavBarButton(action: { dispatch(FindSomeCanvasItemOnGraph()) },
                              iconName: .sfSymbol(.FIND_NODE_ON_GRAPH))
 
             // TODO: implement

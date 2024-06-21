@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct NodePositionHandler: ViewModifier {
+struct CanvasItemPositionHandler: ViewModifier {
     @Bindable var graph: GraphState
     
     @MainActor
@@ -16,7 +16,7 @@ struct NodePositionHandler: ViewModifier {
         self.graph.graphUI
     }
 
-    @Bindable var node: NodeViewModel
+    @Bindable var node: CanvasItemViewModel
     let position: CGPoint
 
     @MainActor
@@ -28,10 +28,6 @@ struct NodePositionHandler: ViewModifier {
     let zIndex: ZIndex
 
     let usePositionHandler: Bool
-
-    var nodeId: NodeId {
-        node.id
-    }
 
     // When this node is the last selected node on graph,
     // we raise it and its buttons
@@ -58,19 +54,20 @@ struct NodePositionHandler: ViewModifier {
 
                         .onChanged { gesture in
                             // log("NodePositionHandler: onChanged")
-                            if isOptionPressed {
+                            if isOptionPressed,
+                               let nodeId = node.id.nodeCase {
                                 dispatch(NodeDuplicateDraggedAction(
                                             id: nodeId,
                                             translation: gesture.translation))
                             } else {
-                                graph.nodeMoved(for: node,
-                                                translation: gesture.translation,
-                                                wasDrag: true)
+                                graph.canvasItemMoved(for: node,
+                                                      translation: gesture.translation,
+                                                      wasDrag: true)
                             }
                         }
                         .onEnded { _ in
                             // log("NodePositionHandler: onEnded")
-                            dispatch(NodeMoveEndedAction(id: nodeId))
+                            dispatch(NodeMoveEndedAction(id: node.id))
                         }
                 ) // .gesture
         }
@@ -79,13 +76,13 @@ struct NodePositionHandler: ViewModifier {
 
 extension View {
     /// Handles node position, drag gestures, and option+select for duplicating node.
-    func nodePositionHandler(graph: GraphState,
-                             node: NodeViewModel,
-                             position: CGPoint,
-                             zIndex: ZIndex,
-                             usePositionHandler: Bool) -> some View {
+    func canvasItemPositionHandler(graph: GraphState,
+                                   node: CanvasItemViewModel,
+                                   position: CGPoint,
+                                   zIndex: ZIndex,
+                                   usePositionHandler: Bool) -> some View {
 
-        self.modifier(NodePositionHandler(graph: graph,
+        self.modifier(CanvasItemPositionHandler(graph: graph,
                                           node: node,
                                           position: position,
                                           zIndex: zIndex,

@@ -9,7 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: can be a `GraphEventWithResponse`
 // Used for Delete key shortcut
 struct SelectedGraphItemsDeleted: GraphEventWithResponse {
     
@@ -21,30 +20,22 @@ struct SelectedGraphItemsDeleted: GraphEventWithResponse {
         // delete nodes
         state.selectedGraphNodesDeleted(
             selectedNodes: state.selectedNodeIds)
-        
-        state.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
-        
+                
         return .shouldPersist
     }
 }
 
-// Still used for node tag menu's Delete option?
+// Used by Node Tag Menu 'delete' option
 struct SelectedGraphNodesDeleted: GraphEventWithResponse {
 
-    var nodeId: NodeId? // for when node tag menu opened via right-click
+    var canvasItemId: CanvasItemId? // for when node tag menu opened via right-click
 
     func handle(state: GraphState) -> GraphResponse {
         
-        if state.selectedNodeIds.isEmpty,
-           let nodeId = nodeId,
-           let node = state.getNodeViewModel(nodeId) {
-            state.setNodeSelection(node, to: true)
+        if state.selectedCanvasItems.isEmpty,
+           let canvasItemId = canvasItemId,
+           let canvasItem = state.getCanvasItem(canvasItemId) {
+            canvasItem.select()
         }
 
         state.selectedGraphNodesDeleted(
@@ -54,15 +45,16 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
     }
 }
 
+
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
     func selectedGraphNodesDeleted(selectedNodes: IdSet) {
 
-        self.selectedNodeIds.forEach {
-            self.deleteNode(id: $0)
-        } // for id in ...
-
+        self.selectedCanvasItems.forEach {
+            self.deleteCanvasItem($0.id)
+        }
+        
         // reset node-ui highlight/selection state
         self.graphUI.selection = GraphUISelectionState()
 
@@ -75,7 +67,7 @@ extension GraphState {
         // Recreate topological order
         self.updateTopologicalData()
 
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
         
         self.updateSidebarListStateAfterStateChange()
         
@@ -85,7 +77,20 @@ extension GraphState {
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
     }
+    
+    // Varies by node vs LayerInputOnGraph vs comment box
+    @MainActor
+    func deleteCanvasItem(_ id: CanvasItemId) {
+        switch id {
+        case .node(let x):
+            self.deleteNode(id: x)
+        case .layerInputOnGraph(let x):
+            // Set the canvas-ui-data on the layer node's input = nil
+            self.getNode(x.node)?.getInputRowObserver(for: .keyPath(x.keyPath))?.canvasUIData = nil
+        }
+    }
 
+    
     @MainActor
     func deleteNode(id: NodeId,
                     willDeleteLayerChildren: Bool = true) {

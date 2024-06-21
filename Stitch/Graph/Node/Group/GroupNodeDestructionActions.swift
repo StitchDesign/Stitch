@@ -49,24 +49,32 @@ extension GraphState {
         let newGroupId = self.graphUI.groupNodeFocused?.asNodeId
 
         // Update nodes to map to new group id
-        self.nodes.values.forEach { node in
-            if node.parentGroupNodeId == uncreatedGroupNodeId {
-                let isGroupSplitter = node.splitterType?.isGroupSplitter ?? false
-                guard !isGroupSplitter else {
+        self.getCanvasItems().forEach { canvasItem in
+            if canvasItem.parentGroupNodeId == uncreatedGroupNodeId {
+                
+                // If this canvas item was a group-splitter-node,
+                // completely delete it.
+                if let nodeId = canvasItem.nodeDelegate?.id,
+                   let node = self.getNode(nodeId), // need the NodeViewModel specifically
+                   node.splitterType?.isGroupSplitter ?? false {
                     // Recreate edges if splitter contains upstream and downstream edges
                     self.insertEdgesAfterGroupUncreated(for: node)
-
+                    
                     // Delete splitter input/output nodes here
                     // Can ignore undo effects since that's only for media nodes
                     let _ = self.deleteNode(id: node.id)
                     return
                 }
-
-                node.parentGroupNodeId = newGroupId
+                
+                // Else, just assign the ungrouped canvas item to the current traversal level.
+                else {
+                    canvasItem.parentGroupNodeId = newGroupId
+                }
             }
         }
 
         // Delete group node
+        // NOTE: CANNOT USE `GraphState.deleteNode` because that deletes the group node's children as well
         self.visibleNodesViewModel.nodes.removeValue(forKey: uncreatedGroupNodeId)
 
         // Process and encode changes

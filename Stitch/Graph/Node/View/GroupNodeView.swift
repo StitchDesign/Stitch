@@ -21,6 +21,7 @@ struct GroupNodeView: View {
         self.viewModel.id
     }
 
+    @MainActor
     var displayTitle: String {
         self.viewModel.displayTitle
     }
@@ -42,7 +43,6 @@ struct GroupNodeView: View {
                  usePositionHandler: true,
                  updateMenuActiveSelectionBounds: false,
                  isHiddenDuringAnimation: false,
-                 isHiddenLayer: false,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
     }

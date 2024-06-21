@@ -60,7 +60,7 @@ struct PortEntryView: View {
             Rectangle().fill(portColor)
                 .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
             // TODO: use `UnevenRoundedRectangle` ?
-                .clipShape(RoundedRectangle(cornerRadius: NODE_CORNER_RADIUS))
+                .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
                 .background {
                     Rectangle()
                         .fill(portColor)

@@ -152,7 +152,7 @@ struct CatalystTopBarGraphButtons: View {
             
             // TODO: should be a toast only shows up when no nodes are on-screen?
             CatalystNavBarButton(.FIND_NODE_ON_GRAPH) {
-                dispatch(FindNodeOnGraph())
+                dispatch(FindSomeCanvasItemOnGraph())
             }
 
             // TODO: implement

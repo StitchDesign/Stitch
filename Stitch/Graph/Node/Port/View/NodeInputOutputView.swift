@@ -16,10 +16,12 @@ struct NodeInputOutputView: View {
     @Bindable var rowData: NodeRowObserver
     let coordinateType: PortViewType
     let nodeKind: NodeKind
-    let isNodeSelected: Bool
+    let isCanvasItemSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var forPropertySidebar: Bool = false
+    var propertyIsSelected: Bool = false
+    var propertyIsAlreadyOnGraph: Bool = false
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -42,6 +44,19 @@ struct NodeInputOutputView: View {
     var body: some View {
         let coordinate = rowData.id
         HStack(spacing: NODE_COMMON_SPACING) {
+            if forPropertySidebar {
+                Image(systemName: "plus.circle")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                    .onTapGesture {
+                        if let layerInput = self.rowData.id.keyPath {
+                            dispatch(LayerInputAddedToGraph(nodeId: self.node.id,
+                                                            coordinate: layerInput))
+                        }
+                    }
+                    .opacity(propertyIsSelected ? 1 : 0)
+            }
+            
             // Fields and port ordering depending on input/output
             switch coordinateType {
             case .input(let inputCoordinate):
@@ -79,7 +94,11 @@ struct NodeInputOutputView: View {
                                             newValue: newViewValue)
         }
     }
-
+    
+    var isLayer: Bool {
+        self.nodeKind.isLayer
+    }
+            
     @ViewBuilder
     @MainActor
     var labelView: some View {
@@ -99,10 +118,11 @@ struct NodeInputOutputView: View {
                 coordinate: coordinate,
                 nodeKind: nodeKind,
                 nodeIO: coordinateType.nodeIO,
-                isNodeSelected: isNodeSelected,
+                isCanvasItemSelected: isCanvasItemSelected,
                 hasIncomingEdge: rowData.upstreamOutputCoordinate.isDefined,
                 adjustmentBarSessionId: adjustmentBarSessionId,
-                forPropertySidebar: forPropertySidebar
+                forPropertySidebar: forPropertySidebar,
+                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph
             )
         }
     }
@@ -167,6 +187,16 @@ struct NodeRowPortView: View {
         }
     }
 }
+
+//#Preview {
+//    NodeInputOutputView(graph: <#T##GraphState#>,
+//                        node: <#T##NodeViewModel#>, 
+//                        rowData: <#T##NodeRowObserver#>,
+//                        coordinateType: <#T##PortViewType#>,
+//                        nodeKind: <#T##NodeKind#>,
+//                        isNodeSelected: <#T##Bool#>, 
+//                        adjustmentBarSessionId: <#T##AdjustmentBarSessionId#>)
+//}
 
 // struct SpecNodeInputView_Previews: PreviewProvider {
 //    static var previews: some View {

@@ -98,7 +98,7 @@ extension GraphState {
         // Do this once the node-insert animation has finished
         //    self.graphUI.doubleTapLocation = nil
 
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
 
         
         return nodeId

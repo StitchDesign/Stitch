@@ -27,12 +27,72 @@ final class NodeViewModel: Sendable {
 
     var id: NodeEntity.ID
 
-    var position: CGPoint = .zero
-    var previousPosition: CGPoint = .zero
-    var bounds = NodeBounds()
+    var canvasItemId: CanvasItemId {
+        .node(self.id)
+    }
+    
+    // TODO: move to PatchNodeViewModel
+    var canvasUIData: CanvasItemViewModel
 
+    var position: CGPoint {
+        get {
+            self.canvasUIData.position
+        } set(newValue) {
+            self.canvasUIData.position = newValue
+        }
+    }
+    
+    var previousPosition: CGPoint {
+        get {
+            self.canvasUIData.previousPosition
+        } set(newValue) {
+            self.canvasUIData.previousPosition = newValue
+        }
+    }
+    
+    var bounds: NodeBounds {
+        get {
+            self.canvasUIData.bounds
+        } set(newValue) {
+            self.canvasUIData.bounds = newValue
+        }
+    }
+    
     // ui placement
-    var zIndex: Double = .zero
+    var zIndex: Double {
+        get {
+            self.canvasUIData.zIndex
+        } set(newValue) {
+            self.canvasUIData.zIndex = newValue
+        }
+    }
+
+    var parentGroupNodeId: NodeId? {
+        get {
+            self.canvasUIData.parentGroupNodeId
+        } set(newValue) {
+            self.canvasUIData.parentGroupNodeId = newValue
+        }
+    }
+    
+    // Default to false so initialized graphs don't take on extra perf loss
+    var isVisibleInFrame: Bool {
+        get {
+            self.canvasUIData.isVisibleInFrame
+        } set(newValue) {
+            self.canvasUIData.isVisibleInFrame = newValue
+        }
+    }
+    
+    @MainActor
+    var isSelected: Bool {
+        get {
+            self.canvasUIData.isSelected
+        } set(newValue) {
+            self.canvasUIData.isSelected = newValue
+        }
+    }
+    
 
     var title: String {
         didSet(oldValue) {
@@ -56,38 +116,10 @@ final class NodeViewModel: Sendable {
     private var _outputsObservers: NodeRowObservers = []
 
     var nodeType: NodeViewModelType
-
-    var parentGroupNodeId: NodeId?
-
-    // Default to false so initialized graphs don't take on extra perf loss
-    var isVisibleInFrame = false
     
     // Cached for perf
     var longestLoopLength: Int = 1
     
-    // Moved state here for render cycle perf on port view for colors
-    @MainActor
-    var isSelected: Bool = false {
-        didSet {
-            guard let graph = graphDelegate else {
-                log("NodeViewModel: isSelected: didSet: could not find graph delegate; cannot update port view data cache")
-                return
-            }
-            
-            // Move to didSet ?
-            updatePortColorDataUponNodeSelection(node: self,
-                                                 graphState: graph)
-            
-            // When a group node is selected, we also update the port view cache of its splitters.
-            if self.kind == .group {
-                updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterRowObservers(for: self.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: self.id, type: .output),
-                    graphState: graph)
-            }
-        }
-    }
-
     var ephemeralObservers: [any NodeEphemeralObservable]?
 
     // aka reference to a limited subset of GraphState properties
@@ -116,17 +148,24 @@ final class NodeViewModel: Sendable {
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
-        self.position = schema.position
-        self.previousPosition = schema.position
-        self.zIndex = schema.zIndex
+        
+        // TODO: later, this data at a node-wide level will only exist on a PatchNodeViewModel
+        self.canvasUIData = CanvasItemViewModel(
+            id: .node(schema.id),
+            position: schema.position,
+            zIndex: schema.zIndex,
+            parentGroupNodeId: schema.parentGroupNodeId,
+            nodeDelegate: nil) // set below
+                        
         self.title = schema.title
-        self.parentGroupNodeId = schema.parentGroupNodeId
+        
         self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
         self.layerNode?.nodeDelegate = self
+        self.canvasUIData.nodeDelegate = self
 
         // Create initial inputs and outputs using default data
         let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
@@ -157,6 +196,26 @@ final class NodeViewModel: Sendable {
                                              isVisibleInFrame: self.isVisibleInFrame,
                                              isInitialization: true)
                 }
+                
+                // REMOVE ONCE PROPER SSK MIGRATION HAPPENS
+                #if DEV_DEBUG
+                
+//                if inputType == .position {
+//                    rowObserver.canvasUIData = .init(
+//                        id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
+//                        position: schema.position,
+//                        zIndex: schema.zIndex,
+//                        parentGroupNodeId: schema.parentGroupNodeId,
+//                        nodeDelegate: self)
+//                }
+                
+//                rowObserver.canvasUIData = .init(
+//                    id: .layerInputOnGraph(LayerInputOnGraphId(node: schema.id, keyPath: inputType)),
+//                    position: schema.position,
+//                    zIndex: schema.zIndex,
+//                    parentGroupNodeId: schema.parentGroupNodeId,
+//                    nodeDelegate: self)
+                #endif
                 
                 // Add outputs for the few layer nodes that use them
                 self._outputsObservers = rowDefinitions
@@ -361,21 +420,28 @@ extension NodeViewModel {
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
-
-    // Update both
+    
+    // fka `func updateRowObservers(activeIndex: ActiveIndex)`
     @MainActor
-    func updateRowObservers(activeIndex: ActiveIndex) {
+    func updateInputsAndOutputsUponVisibilityChange(_ activeIndex: ActiveIndex) {
         // Do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
         }
-
-        self.updateInputsObservers(newValuesList: self.inputs,
-                                   activeIndex: activeIndex)
-        self.updateOutputsObservers(newValuesList: self.outputs,
-                                    activeIndex: activeIndex)
+        
+        self._inputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
+        
+        self._outputsObservers.forEach {
+            $0.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: self.isVisibleInFrame)
+        }
     }
-
+    
     @MainActor
     func updateInputsObservers(newValuesList: PortValuesList,
                                activeIndex: ActiveIndex) {
@@ -488,7 +554,7 @@ extension NodeViewModel {
                                   isVisibleInFrame: self.isVisibleInFrame)
         }
     }
-
+    
     var color: NodeUIColor {
         switch self.kind {
         case .patch(let patch):
@@ -500,6 +566,7 @@ extension NodeViewModel {
         }
     }
 
+    @MainActor
     var displayTitle: String {
         guard self.id != Self.nilChoice.id else {
             return "None"
@@ -532,7 +599,7 @@ extension NodeViewModel {
 
             // Refresh values if node back in frame
             if newValue {
-                self.updateRowObservers(activeIndex: activeIndex)
+                self.updateInputsAndOutputsUponVisibilityChange(activeIndex)
             }
         }
     }

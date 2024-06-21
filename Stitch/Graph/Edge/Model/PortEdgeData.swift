@@ -18,6 +18,24 @@ struct PortEdgeData: Hashable {
     let to: NodeIOCoordinate
 }
 
+extension NodeIOCoordinate {
+    var asCanvasItemId: CanvasItemId {
+        switch self.portType {
+            
+        // PortIndex = this is an address for an input on a patch or group node,
+        // i.e. a node canvas item
+        case .portIndex(let x):
+            return .node(self.nodeId)
+            
+        // KeyPath = this is an address for layer-input on the graph,
+        // i.e. a layer-input-on-graph canvas item
+        case .keyPath(let x):
+            return .layerInputOnGraph(LayerInputOnGraphId(node: self.nodeId,
+                                                          keyPath: x))
+        }
+    }
+}
+
 extension GraphState {
     func createEdges() -> Edges {
         self.connections.reduce(into: []) { partialResult, connection in

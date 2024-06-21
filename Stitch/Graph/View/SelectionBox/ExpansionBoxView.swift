@@ -31,11 +31,11 @@ struct ExpansionBoxView: View {
     @State var size: CGSize = .zero
 
     var body: some View {
-        RoundedRectangle(cornerRadius: NODE_CORNER_RADIUS,
+        RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS,
                          style: .continuous)
             .fill(color.opacity(0.4))
             .overlay(
-                RoundedRectangle(cornerRadius: NODE_CORNER_RADIUS)
+                RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS)
                     .stroke(color, lineWidth: 4)
             )
             .background {
@@ -48,7 +48,7 @@ struct ExpansionBoxView: View {
             .frame(box.size)
             .position(box.anchorCorner)
             .onPreferenceChange(SelectionBoxPreferenceKey.self) { newSelectionBounds in
-                dispatch(DetermineSelectedNodes(selectionBounds: newSelectionBounds))
+                dispatch(DetermineSelectedCanvasItems(selectionBounds: newSelectionBounds))
             }
     }
 }

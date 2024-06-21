@@ -28,8 +28,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     // This node is the "real" node of an active insert-node-animation,
     let isHiddenDuringAnimation: Bool
 
-    let isHiddenLayer: Bool
-
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
 
@@ -41,6 +39,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         self.node.zIndex
     }
 
+    @MainActor
     var displayTitle: String {
         self.node.displayTitle
     }
@@ -78,72 +77,68 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         
         ZStack {
             nodeBody
-                #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                 .contextMenu { nodeTagMenu } // Catalyst right-click to open node tag menu
-                #endif
-
-                /*
-                 Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
-
-                 If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
-
-                 If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
-                 */
+#endif
+            
+            /*
+             Note: we must order these gestures as `double tap gesture -> single tap simultaneous gesture`.
+             
+             If both gestures are simultaneous, then a "double tap" user gesture ends up doing a single tap then a double tap then ANOTHER single tap.
+             
+             If both gestures non-simultaneous, then there is a delay as SwiftUI waits to see whether we did a single or a double tap.
+             */
                 .gesture(TapGesture(count: 2).onEnded({
                     if self.node.kind.isGroup {
-                        #if DEV_DEBUG
                         log("NodeView: .gesture(TapGesture(count: 2)")
                         log("NodeView: .gesture(TapGesture(count: 2): will set active group")
-                        #endif
                         dispatch(GroupNodeDoubleTapped(id: GroupNodeId(id)))
                     }
                 }))
-
-                // See GroupNodeView for group node double tap
+            
+            // See GroupNodeView for group node double tap
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
-                    #if DEV_DEBUG
                     log("NodeView: .simultaneousGesture(TapGesture(count: 1)")
-                    #endif
-                    graph.nodeTapped(node)
+                    graph.canvasItemTapped(node.canvasItemId)
                 }))
-
-                // TODO: put into a separate ViewModifier
+            
+            // TODO: put into a separate ViewModifier
                 .overlay(alignment: .topTrailing) {
                     if isSelected {
                         Menu {
                             nodeTagMenu
                         } label: {
                             nodeTagMenuIcon
-                            #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
                             // .border(.yellow)
-                            .padding(16) // increase hit area
+                                .padding(16) // increase hit area
                             // .border(.blue)
-                            #endif
+#endif
                         }
-                        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
                         .buttonStyle(.plain)
                         .scaleEffect(1.4)
                         .frame(width: 24, height: 12)
                         .padding(16)
                         .foregroundColor(STITCH_TITLE_FONT_COLOR)
                         .offset(x: -4, y: -4)
-                        #else
-
+#else
+                        
                         // iPad
                         .menuStyle(.button)
                         .buttonStyle(.borderless)
                         .foregroundColor(STITCH_TITLE_FONT_COLOR)
                         .offset(x: -2, y: -4)
-                        #endif
+#endif
                         // .border(.red)
                     }
                 }
-        }
-        .nodePositionHandler(graph: graph,
-                             node: node,
-                             position: position,
-                             zIndex: zIndex,
-                             usePositionHandler: usePositionHandler)
+        } // ZStack
+        .canvasItemPositionHandler(graph: graph,
+                                   node: node.canvasUIData,
+                                   position: position,
+                                   zIndex: zIndex,
+                                   usePositionHandler: usePositionHandler)
         .opacity(isHiddenDuringAnimation ? 0 : 1)
     }
 
@@ -167,8 +162,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
         .fixedSize()
         //        .background(nodeUIColor.body) // ORIGINAL
-        //        .background(nodeUIColor.body.opacity(0.7).blur(radius: 6))
-        //        .background(.ultraThinMaterial)
         .background {
             ZStack {
                 VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
@@ -177,39 +170,20 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 //                nodeUIColor.body.opacity(0.5)
                 //                nodeUIColor.body.opacity(0.7)
             }
-            .cornerRadius(NODE_CORNER_RADIUS)
+            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
         }
-        .overlay(content: {
-            if isLayerNode, isHiddenLayer {
-
-                /*
-                 TODO: how to indicate from the graph view that a given layer node's layers are hidden?
-
-                 - use 30% black overlay in Light mode, 30% white overlay in Dark mode?
-                 - use theme color?
-                 - use crossed-out eye icon near node title?
-                 */
-                Color.black.opacity(0.3)
-                    .cornerRadius(NODE_CORNER_RADIUS)
-                    .allowsHitTesting(false)
-
-                //                STITCH_TITLE_FONT_COLOR.opacity(0.3)
-                //                theme.themeData.edgeColor.opacity(0.3)
-            } else {
-                EmptyView()
-            }
-        })
-        .modifier(NodeBoundsReader(graph: graph,
-                                   id: id,
-                                   splitterType: splitterType,
-                                   disabled: boundsReaderDisabled,
-                                   updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
+        .modifier(CanvasItemBoundsReader(
+            graph: graph,
+            canvasItem: node.canvasUIData,
+            splitterType: splitterType,
+            disabled: boundsReaderDisabled,
+            updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
         //        .cornerRadius(NODE_CORNER_RADIUS)
-        .modifier(NodeSelectedView(isSelected: isSelected))
+        .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
 
     var nodeTitle: some View {
-        NodeTitleView(graph: graph,
+        CanvasItemTitleView(graph: graph,
                       node: node,
                       isNodeSelected: isSelected)
     }
@@ -224,13 +198,15 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     var nodeTagMenu: NodeTagMenuButtonsView {
         NodeTagMenuButtonsView(graph: graph,
-                               node: node,
+                               node: node, 
+                               canvasItemId: node.canvasItemId,
                                activeGroupId: activeGroupId,
                                nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
                                atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                               isHiddenLayer: isHiddenLayer)
+                               // Always false for PatchNodeView
+                               isHiddenLayer: false)
     }
 }
 
@@ -280,6 +256,11 @@ struct FakeNodeView: View {
                      usePositionHandler: false,
                      updateMenuActiveSelectionBounds: false)
     }
+}
+
+extension GraphState {
+    @MainActor
+    static let fakeEmptyGraphState: GraphState = .init(id: .init(), store: nil)
 }
 
 @MainActor

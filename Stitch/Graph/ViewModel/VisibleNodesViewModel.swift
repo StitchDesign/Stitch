@@ -187,6 +187,40 @@ extension VisibleNodesViewModel {
             .filter { $0.parentGroupNodeId ==  focusedGroup }
     }
 
+    // TODO: combine with getVisibleCanvasItems and just provide an additional param?
+    @MainActor
+    func getCanvasItems() -> CanvasItemViewModels {
+        self.allViewModels.reduce(into: .init()) { partialResult, node in
+            switch node.kind {
+            case .patch, .group:
+                    partialResult.append(node.canvasUIData)
+            case .layer:
+                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+            }
+        }
+    }
+    
+    // TODO: "visible" is ambiguous between "canvas item is on-screen" vs "canvas item is at this traversal level"
+    @MainActor
+    func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
+        self.allViewModels.reduce(into: .init()) { partialResult, node in
+            switch node.kind {
+            case .patch, .group:
+                if node.canvasUIData.parentGroupNodeId == focusedGroup {
+                    partialResult.append(node.canvasUIData)
+                }
+            case .layer:
+                let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
+                    if let canvasData = input.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
+                        return canvasData
+                    }
+                    return nil
+                }
+                partialResult.append(contentsOf: visibleLayerInputsOnGraph)
+            }
+        }
+    }
+
     /// Obtains row observers directly from splitter patch nodes given its parent group node.
     @MainActor
     func getSplitterRowObservers(for groupNodeId: NodeId,

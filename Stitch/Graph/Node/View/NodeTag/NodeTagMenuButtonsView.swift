@@ -17,9 +17,11 @@ struct NodeTagMenuButtonsView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
 
+    let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
+    
     var activeGroupId: GroupNodeId?
     var nodeTypeChoices: [UserVisibleType] = []
-
+    
     // Always false for Layer Nodes;
     // may be true for Patch Nodes.
     let canAddInput: Bool
@@ -35,13 +37,10 @@ struct NodeTagMenuButtonsView: View {
         self.graph.graphUI
     }
 
-    var nodeId: NodeId {
-        self.node.id
-    }
-    
+     
     @MainActor
     var moreThanOneNodeSelected: Bool {
-        graph.selectedNodeIds.count > 1
+        graph.selectedCanvasItems.count > 1
     }
 
     @MainActor
@@ -101,16 +100,16 @@ struct NodeTagMenuButtonsView: View {
                 duplicateButton
                 visitGroupButton
                 ungroupGroupButton
-                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-                    createCommentBoxButton
-                }
+//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+//                    createCommentBoxButton
+//                }
             }
         } else if singleNonGroupNodeSelected {
             Group {
                 buttonsForSingleNongroupNode
-                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-                    createCommentBoxButton
-                }
+//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+//                    createCommentBoxButton
+//                }
             }
         } else {
             // multiple nodes selected
@@ -118,14 +117,14 @@ struct NodeTagMenuButtonsView: View {
                 deleteButton
                 duplicateButton
                 createGroupButton
-                if FeatureFlags.USE_COMMENT_BOX_FLAG {
-                    createCommentBoxButton
-                }
+//                if FeatureFlags.USE_COMMENT_BOX_FLAG {
+//                    createCommentBoxButton
+//                }
             }
         }
     }
 
-    @MainActor
+    @MainActor @ViewBuilder
     var buttonsForSingleNongroupNode: some View {
         Group {
             // Always shown
@@ -141,16 +140,18 @@ struct NodeTagMenuButtonsView: View {
             }
 
             if let splitterType = splitterType,
+               let nodeId = canvasItemId.nodeCase,
                hasSplitterTypeCarousel {
-                splitterTypeSubmenu(splitterType)
+                splitterTypeSubmenu(nodeId: nodeId, splitterType)
             }
 
             // node-type carousel:
             // only for nodes with node-types;
             // ie only some patch nodes and never layer nodes.
             if let nodeType = nodeType,
+               let nodeId = canvasItemId.nodeCase,
                !nodeTypeChoices.isEmpty {
-                nodeTypeSubmenu(nodeType, nodeTypeChoices)
+                nodeTypeSubmenu(nodeId: nodeId, nodeType, nodeTypeChoices)
             } // if let nodeType
 
             if hasLoopIndexCarousel {
@@ -166,7 +167,7 @@ struct NodeTagMenuButtonsView: View {
             if isWirelessReceiver,
                let assignedBroadcaster = node.currentBroadcastChoiceId {
                 nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
-                    dispatch(JumpToNodeOnGraph(id: assignedBroadcaster))
+                    dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
                 }
             }
             
@@ -189,7 +190,8 @@ struct NodeTagMenuButtonsView: View {
     }
     
     @MainActor
-    func splitterTypeSubmenu(_ currentSplitterType: SplitterType) -> some View {
+    func splitterTypeSubmenu(nodeId: NodeId,
+                             _ currentSplitterType: SplitterType) -> some View {
 
         let binding: Binding<SplitterType> = .init {
             currentSplitterType
@@ -208,7 +210,8 @@ struct NodeTagMenuButtonsView: View {
     }
 
     @MainActor
-    func nodeTypeSubmenu(_ currentNodeType: UserVisibleType,
+    func nodeTypeSubmenu(nodeId: NodeId,
+                         _ currentNodeType: UserVisibleType,
                          _ nodeTypeChoices: [UserVisibleType]) -> some View {
 
         let binding: Binding<UserVisibleType> = .init {
@@ -252,35 +255,40 @@ struct NodeTagMenuButtonsView: View {
 
     // If both nodes AND comments are selected,
     // distinguish between "Duplicage Nodes" and "Duplicage Comments"
+    @MainActor @ViewBuilder
     var duplicateButton: some View {
-        Group {
-            if atleastOneCommentBoxSelected {
-                DuplicateNodesButton(graph: graph,
-                                     label: "Duplicate Nodes",
-                                     nodeId: nodeId)
-                DuplicateCommentsOnlyButton(graph: graph)
-            } else {
-                // If no comment select
-                DuplicateNodesButton(graph: graph,
-                                     label: "Duplicate",
-                                     nodeId: nodeId)
+        if let nodeId = canvasItemId.nodeCase {
+            Group {
+                if atleastOneCommentBoxSelected {
+                    DuplicateNodesButton(graph: graph,
+                                         label: "Duplicate Nodes",
+                                         nodeId: nodeId)
+                    DuplicateCommentsOnlyButton(graph: graph)
+                } else {
+                    // If no comment select
+                    DuplicateNodesButton(graph: graph,
+                                         label: "Duplicate",
+                                         nodeId: nodeId)
+                }
             }
+        } else {
+            EmptyView()
         }
+        
     }
-
+    
     // If both nodes AND comments are selected,
     // distinguish between "Delete Nodes" and "Delete Comments"
     var deleteButton: some View {
         // Delete node(s) button
-
         Group {
             if atleastOneCommentBoxSelected {
                 DeleteNodesButton(label: "Delete Nodes",
-                                  nodeId: nodeId)
+                                  canvasItemId: canvasItemId)
                 DeleteCommentsOnlyButton(graph: graph)
             } else {
                 DeleteNodesButton(label: "Delete",
-                                  nodeId: nodeId)
+                                  canvasItemId: canvasItemId)
             }
         }
     }
@@ -292,17 +300,20 @@ struct NodeTagMenuButtonsView: View {
         }
     }
 
-    @MainActor
-    var createCommentBoxButton: some View {
-        nodeTagMenuButton(label: "Create Comment") {
-            graph.commentBoxCreated(nodeId: nodeId)
-        }
-    }
+    // TODO: fix when comment boxes added back
+//    @MainActor
+//    var createCommentBoxButton: some View {
+//        nodeTagMenuButton(label: "Create Comment") {
+//            graph.commentBoxCreated(nodeId: nodeId)
+//        }
+//    }
 
     @MainActor
     var visitGroupButton: some View {
         nodeTagMenuButton(label: "Visit Group") {
-            dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
+            }
         }
     }
 
@@ -310,28 +321,36 @@ struct NodeTagMenuButtonsView: View {
     var deleteGroupButton: some View {
         nodeTagMenuButton(label: "Delete",
                           role: .destructive) {
-            dispatch(GroupNodeDeletedAction(groupNodeId: nodeId.asGroupNodeId))
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(GroupNodeDeletedAction(groupNodeId: nodeId.asGroupNodeId))
+            }
         }
     }
 
     @MainActor
     var ungroupGroupButton: some View {
         nodeTagMenuButton(label: "Ungroup") {
-            dispatch(GroupNodeUncreated(groupId: GroupNodeId(nodeId)))
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(GroupNodeUncreated(groupId: GroupNodeId(nodeId)))
+            }
         }
     }
 
     @MainActor
     var removeInputButton: some View {
         nodeTagMenuButton(label: "Remove Input") {
-            dispatch(InputRemovedAction(nodeId: nodeId))
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputRemovedAction(nodeId: nodeId))
+            }
         }
     }
 
     @MainActor
     var addInputButton: some View {
         nodeTagMenuButton(label: "Add Input") {
-            dispatch(InputAddedAction(nodeId: nodeId))
+            if let nodeId = canvasItemId.nodeCase {
+                dispatch(InputAddedAction(nodeId: nodeId))
+            }
         }
     }
     

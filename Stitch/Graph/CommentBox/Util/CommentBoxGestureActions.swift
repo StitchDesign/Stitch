@@ -96,11 +96,12 @@ extension GraphState {
                                          translation: CGSize) {
         // log("CommentBoxPositionDragged: box.nodes: \(box.nodes)")
 
+        // TODO: CommentBox should support Nodes and LayerInputsOnGraph
         // Update box's nodes:
         for nodeId in box.nodes {
             // During drag itself, we just update the node view model
             if let node = self.visibleNodesViewModel.getViewModel(nodeId) {
-                self.updateNodeOnDragged(node,
+                self.updateCanvasItemOnDragged(node.canvasUIData,
                                          translation: translation)
 
                 self.nodeIsMoving = true

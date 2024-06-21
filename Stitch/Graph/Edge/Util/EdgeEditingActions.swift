@@ -29,7 +29,7 @@ extension GraphState {
             return
         }
 
-        if self.graphMovement.nodeIsDragged || self.nodeIsMoving {
+        if self.graphMovement.canvasItemIsDragged || self.nodeIsMoving {
             log("OutputHovered called during node drag; exiting")
             self.graphUI.edgeAnimationEnabled = false
             self.graphUI.edgeEditingState = nil

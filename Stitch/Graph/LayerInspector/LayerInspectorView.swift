@@ -9,39 +9,23 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphDelegate {
-    // TODO: cache these for perf
-    @MainActor
-    var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.nonEditModeSelections.last?.id
-    }
-    
-    // TODO: cache these for perf
-    @MainActor
-    var firstLayerInLayerSidebar: NodeId? {
-        self.orderedSidebarLayers.first?.id
-    }
-    
-    // TODO: support multiple layers being focused in propety sidebar
-    // TODO: cache these for perf?
-    /// The single layer currently focused in the inspector
-    @MainActor
-    var layerFocusedInPropertyInspector: NodeId? {
-        self.nonEditModeSelectedLayerInLayerSidebar ?? self.firstLayerInLayerSidebar
+
+extension LayerInputType: Identifiable {
+    public var id: Int {
+        self.hashValue
     }
 }
+
+//extension LayerInputType: CaseIterable {
+//    public static var allCases: [LayerInputType_V18.LayerInputType]
+//}
+
 
 struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     static let LAYER_INSPECTOR_WIDTH = 360.0
-    
-    @State private var debugLocation: String = "none"
-    
-    @State private var isLayoutExpanded = true
-    @State private var isSomeSectionExpanded = true
-    @State private var isAnotherSectionExpanded = true
-    
+        
     @Bindable var graph: GraphState // should be Bindable?
     
     // TODO: property sidebar changes when multiple sidebar layers are selected
@@ -71,7 +55,6 @@ struct LayerInspectorView: View {
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
-//                    .frame(idealHeight: .infinity)
             }
 
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
@@ -83,7 +66,6 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-//            selectedLayerView(node, layerNode)
 //                .onAppear {
 //                    #if DEV_DEBUG
 //                    let listedLayers = Self.required
@@ -98,9 +80,7 @@ struct LayerInspectorView: View {
 //
 //                    // TODO: make LayerInputType enum `CaseIterable`
 //                    let allLayers = LayerInputType.allCases
-//
 //                    assert(listedLayers.count == allLayers)
-//
 //                    #endif
 //                }
         } else {
@@ -113,8 +93,7 @@ struct LayerInspectorView: View {
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
         
-        
-        // bad perf implications?
+        // TODO: perf implications?
         let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorSectionView in
             LayerInspectorSectionView(
                 title: title,
@@ -167,13 +146,26 @@ struct LayerInspectorPortView: View {
     let layerInputType: LayerInputType
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
-    
     @Bindable var graph: GraphState
+    
+    // Is this property-row selected?
+    @MainActor
+    var propertyRowIsSelected: Bool {
+        graph.graphUI.propertySidebar
+            .selectedProperties.contains(layerInputType)
+    }
     
     var body: some View {
         let definition = layerNode.layer.layerGraphNode
         let inputsList = definition.inputDefinitions
         let rowObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+        
+        let isOnGraphAlready = rowObserver.canvasUIData.isDefined
+        
+        let listBackgroundColor: Color = isOnGraphAlready
+            ? Color.black.opacity(0.3)
+            : (self.propertyRowIsSelected 
+               ? STITCH_PURPLE.opacity(0.4) : .clear)
         
         // See if layer node uses this input
         if inputsList.contains(layerInputType),
@@ -183,9 +175,27 @@ struct LayerInspectorPortView: View {
                                 rowData: rowObserver,
                                 coordinateType: portViewType,
                                 nodeKind: .layer(layerNode.layer),
-                                isNodeSelected: false,
+                                isCanvasItemSelected: false,
                                 adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
-                                forPropertySidebar: true)
+                                forPropertySidebar: true,
+                                propertyIsSelected: propertyRowIsSelected,
+                                propertyIsAlreadyOnGraph: isOnGraphAlready)
+            .listRowBackground(listBackgroundColor)
+            //            .listRowSpacing(12)
+//            .contentShape(Rectangle())
+            .gesture(
+                TapGesture().onEnded({ _ in
+                    // log("LayerInspectorPortView tapped")
+                    if isOnGraphAlready,
+                       let canvasItemId = rowObserver.canvasUIData?.id {
+                        dispatch(JumpToCanvasItem(id: canvasItemId))
+                    } else {
+                        withAnimation {
+                            graph.graphUI.layerPropertyTapped(layerInputType)
+                        }
+                    }
+                })
+            )
         } else {
             EmptyView()
         }
@@ -227,8 +237,10 @@ struct LayerInspectorSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
+                    layers.forEach {
+                        graph.graphUI.propertySidebar.selectedProperties.remove($0)
+                    }
                 }
-                
             }
         }
     }
@@ -464,13 +476,3 @@ extension Layer {
         return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
     }
 }
-
-extension LayerInputType: Identifiable {
-    public var id: Int {
-        self.hashValue
-    }
-}
-
-//extension LayerInputType: CaseIterable {
-//    public static var allCases: [LayerInputType_V18.LayerInputType]
-//}

@@ -47,6 +47,7 @@ struct PatchNodeView: View {
         self.patch.availableNodeTypes
     }
 
+    @MainActor
     var displayTitle: String {
         self.viewModel.displayTitle
     }
@@ -69,7 +70,6 @@ struct PatchNodeView: View {
                  usePositionHandler: usePositionHandler,
                  updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
                  isHiddenDuringAnimation: isHiddenDuringAnimation,
-                 isHiddenLayer: false,
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
             .onChange(of: self.patch, initial: true) {

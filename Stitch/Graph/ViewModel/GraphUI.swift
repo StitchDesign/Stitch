@@ -28,8 +28,16 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
+struct PropertySidebarState: Equatable {
+    // Which rows in the property sidebar are currently selected
+    var selectedProperties = LayerInputTypeSet() // technically doesn't need to be ordered
+}
+
 @Observable
 final class GraphUIState {
+        
+    var propertySidebar = PropertySidebarState()
+    
     var llmRecording = LLMRecordingState()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = NodeIdSet()
@@ -97,6 +105,7 @@ final class GraphUIState {
     
     #if DEV_DEBUG
     var showsLayerInspector = true // during dev
+//        var showsLayerInspector = false // during dev
     #else
     var showsLayerInspector = false
     #endif
@@ -267,11 +276,11 @@ extension GraphState {
 
         // if we tap the graph, we're no longer dragging either nodes or graph
         // TODO: should we also reset graphMovement.firstActive etc.? Otherwise we can get in an improper state?
-        self.graphMovement.draggedNode = nil
+        self.graphMovement.draggedCanvasItem = nil
         self.graphMovement.graphIsDragged = false
 
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
+        self.resetSelectedCanvasItems()
         self.graphUI.insertNodeMenuState.searchResults = InsertNodeMenuState.allSearchOptions
         self.graphUI.insertNodeMenuState.show = false
         self.graphUI.isFullScreenMode = false
@@ -344,9 +353,14 @@ enum GraphDragState: Codable {
 
 extension GraphState {
     @MainActor
-    func resetSelectedNodes() {
-        self.nodes.values.forEach {
-            self.setNodeSelection($0, to: false)
+    func resetSelectedCanvasItems() {
+        self.nodes.values.forEach { node in
+            switch node.kind {
+            case .layer:
+                node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
+            case .patch, .group:
+                node.deselect()
+            }
         }
     }
 }
@@ -362,51 +376,58 @@ extension GraphUISelectionState {
 // When we tap or drag a single node,
 // we thereby select.
 extension GraphState {
-    @MainActor
-    func selectSingleNode(_ id: NodeId) {
-        // ie expansionBox, isSelecting, selected-comments etc.
-        // get reset when we select a single node.
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
-        
-        if let node = self.getNodeViewModel(id) {
-            self.setNodeSelection(node, to: true)
-        }
-    }
     
+    // Keep this helper around
     @MainActor
     func selectSingleNode(_ node: NodeViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedNodes()
-        
-        self.setNodeSelection(node, to: true)
+        self.resetSelectedCanvasItems()
+        node.select()
     }
     
+    @MainActor
+    func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
+        // ie expansionBox, isSelecting, selected-comments etc.
+        // get reset when we select a single canvasItem.
+        self.graphUI.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+        canvasItem.select()
+    }
+    
+    // TEST HELPER
     @MainActor
     func addNodeToSelections(_ nodeId: NodeId) {
-        self.setNodeSelection(nodeId, to: true)
-    }
-        
-    @MainActor
-    func setNodeSelection(_ nodeId: NodeId,
-                       to value: Bool) {
-        guard let node = self.getNodeViewModel(nodeId) else {
-            log("setNodeSelect: unable to select node \(nodeId)")
+        guard let node = self.getNode(nodeId) else {
+            fatalErrorIfDebug()
             return
         }
-        
-        self.setNodeSelection(node, to: value)
+        node.select()
+    }
+}
+
+extension NodeViewModel {
+    @MainActor
+    func select() {
+        self.isSelected = true
     }
     
-    /// Handles setting selection state along with edge case scenario of selecting a group node,
-    /// which requires setting selection status to input/output splitter nodes for port colors.
     @MainActor
-    func setNodeSelection(_ node: NodeDelegate,
-                          to value: Bool) {
-        // see `NodeViewModel.isSelected`'s `didSet` for how the port view data cache is repopulated
-        node.isSelected = value
+    func deselect() {
+        self.isSelected = false
+    }
+}
+
+extension CanvasItemViewModel {
+    @MainActor
+    func select() {
+        self.isSelected = true
+    }
+    
+    @MainActor
+    func deselect() {
+        self.isSelected = false
     }
 }
 
@@ -431,5 +452,12 @@ extension GraphState {
                 return nil
             }
             .toSet
+    }
+}
+
+extension GraphState {
+    @MainActor
+    var selectedCanvasItems: CanvasItemViewModels {
+        self.getVisibleCanvasItems().filter(\.isSelected)
     }
 }

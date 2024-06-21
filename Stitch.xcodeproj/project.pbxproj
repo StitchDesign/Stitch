@@ -199,7 +199,7 @@
 		B5CEC1A428F8D95700BE083E /* StitchAVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */; };
 		B5CF6448294B8AF700EF83DB /* StitchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6447294B8AF700EF83DB /* StitchButton.swift */; };
 		B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */; };
-		B5CF644D294BEABD00EF83DB /* NodePositionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */; };
+		B5CF644D294BEABD00EF83DB /* CanvasItemPositionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */; };
 		B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */; };
 		B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BC275833390086C297 /* ProjectAlertState.swift */; };
 		B5D689BF275836390086C297 /* ProjectAlertActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BE275836390086C297 /* ProjectAlertActions.swift */; };
@@ -218,7 +218,6 @@
 		B5EB3F072C165FE900879947 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		B5EC48BC2A0ECC0000C6AE72 /* LayerNodesSorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC48BB2A0ECC0000C6AE72 /* LayerNodesSorting.swift */; };
 		B5EC61F32A5DF7AA002A639F /* PatchNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */; };
-		B5EC61F52A5DF7BE002A639F /* LayerNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F42A5DF7BE002A639F /* LayerNodeView.swift */; };
 		B5EC61F72A5DF7CD002A639F /* GroupNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */; };
 		B5EC61F92A5E2174002A639F /* NodeViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F82A5E2174002A639F /* NodeViewType.swift */; };
 		B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */; };
@@ -326,6 +325,7 @@
 		EC17ACD626B4C32200137EA5 /* PortActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ACD526B4C32200137EA5 /* PortActions.swift */; };
 		EC17DF0928F626660042BF4F /* MathParser in Frameworks */ = {isa = PBXBuildFile; productRef = EC17DF0828F626660042BF4F /* MathParser */; };
 		EC17ECB229970C300097870C /* ExtendedAttributesUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */; };
+		EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */; };
 		EC1B41AC26BC4B5D0016C2C2 /* ScrolledActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */; };
 		EC1B41AE26BC4BD40016C2C2 /* LayerDraggedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */; };
 		EC1B41B426BCB0910016C2C2 /* NodeCreatedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */; };
@@ -377,7 +377,7 @@
 		EC2942352BA136F500D14CD1 /* SidebarDeps.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942342BA136F500D14CD1 /* SidebarDeps.swift */; };
 		EC2942372BA1377B00D14CD1 /* SidebarListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */; };
 		EC2942392BA13C8100D14CD1 /* SidebarListUIActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */; };
-		EC29423D2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */; };
+		EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */; };
 		EC29423F2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */; };
 		EC2942412BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */; };
 		EC2942432BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942422BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift */; };
@@ -602,7 +602,7 @@
 		EC9B93CE28A2D27600BFBB5E /* StitchLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9B93CD28A2D27600BFBB5E /* StitchLogger.swift */; };
 		EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C498D268E29F4004150F8 /* SoundHelpers.swift */; };
 		EC9C6F9B298C45EE00E05523 /* NodeTagMenuButtonsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C6F9A298C45EE00E05523 /* NodeTagMenuButtonsView.swift */; };
-		EC9D16E02808D89000684978 /* NodeTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16DF2808D89000684978 /* NodeTitleView.swift */; };
+		EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */; };
 		EC9D16E22808D97A00684978 /* ValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16E12808D97A00684978 /* ValueEntry.swift */; };
 		EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */; };
 		EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB347280F239C0061EC3C /* PortDragActions.swift */; };
@@ -709,6 +709,8 @@
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
 		ECC301B129380CB900C34F10 /* SubarrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B029380CB900C34F10 /* SubarrayNode.swift */; };
 		ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */; };
+		ECC30E102C234DAF00F0F54C /* LayerInputOnGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */; };
+		ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */; };
 		ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */; };
 		ECC506E9267BB7C700A2D015 /* PreviewVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */; };
 		ECC506EB267BBA1900A2D015 /* VideoLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */; };
@@ -827,7 +829,7 @@
 		ECF387CB280B5C650075F0E5 /* PortValuesPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */; };
 		ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387D0280B5E560075F0E5 /* StitchTextView.swift */; };
 		ECF387D3280B600A0075F0E5 /* ReadOnlyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */; };
-		ECF387DD280B61680075F0E5 /* NodeSelectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */; };
+		ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */; };
 		ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387DE280B61860075F0E5 /* NodeUIKind.swift */; };
 		ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387E0280B61A80075F0E5 /* NodeConstants.swift */; };
 		ECF6AEF5263CB7C70011C679 /* CoreMLClassifyNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */; };
@@ -1077,7 +1079,7 @@
 		B5CEC1A328F8D95700BE083E /* StitchAVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAVCaptureSession.swift; sourceTree = "<group>"; };
 		B5CF6447294B8AF700EF83DB /* StitchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchButton.swift; sourceTree = "<group>"; };
 		B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleTextField.swift; sourceTree = "<group>"; };
-		B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodePositionHandler.swift; sourceTree = "<group>"; };
+		B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemPositionHandler.swift; sourceTree = "<group>"; };
 		B5D689BA2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowElementUIKitGestures.swift; sourceTree = "<group>"; };
 		B5D689BC275833390086C297 /* ProjectAlertState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertState.swift; sourceTree = "<group>"; };
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
@@ -1095,7 +1097,6 @@
 		B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeUIGroupingTests.swift; sourceTree = "<group>"; };
 		B5EC48BB2A0ECC0000C6AE72 /* LayerNodesSorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodesSorting.swift; sourceTree = "<group>"; };
 		B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeView.swift; sourceTree = "<group>"; };
-		B5EC61F42A5DF7BE002A639F /* LayerNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeView.swift; sourceTree = "<group>"; };
 		B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeView.swift; sourceTree = "<group>"; };
 		B5EC61F82A5E2174002A639F /* NodeViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewType.swift; sourceTree = "<group>"; };
 		B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModel.swift; sourceTree = "<group>"; };
@@ -1220,6 +1221,7 @@
 		EC17ACD226B4C12800137EA5 /* CameraFeedManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedManager.swift; sourceTree = "<group>"; };
 		EC17ACD526B4C32200137EA5 /* PortActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortActions.swift; sourceTree = "<group>"; };
 		EC17ECB129970C300097870C /* ExtendedAttributesUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtendedAttributesUtils.swift; sourceTree = "<group>"; };
+		EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorActions.swift; sourceTree = "<group>"; };
 		EC1B41AB26BC4B5D0016C2C2 /* ScrolledActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrolledActions.swift; sourceTree = "<group>"; };
 		EC1B41AD26BC4BD40016C2C2 /* LayerDraggedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDraggedActions.swift; sourceTree = "<group>"; };
 		EC1B41B326BCB0910016C2C2 /* NodeCreatedAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCreatedAction.swift; sourceTree = "<group>"; };
@@ -1270,7 +1272,7 @@
 		EC2942342BA136F500D14CD1 /* SidebarDeps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarDeps.swift; sourceTree = "<group>"; };
 		EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItem.swift; sourceTree = "<group>"; };
 		EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListUIActions.swift; sourceTree = "<group>"; };
-		EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToNodeOnGraph.swift; sourceTree = "<group>"; };
+		EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToCanvasItem.swift; sourceTree = "<group>"; };
 		EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupUncreated.swift; sourceTree = "<group>"; };
 		EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectedItemsDeleted.swift; sourceTree = "<group>"; };
 		EC2942422BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectedItemsDuplicated.swift; sourceTree = "<group>"; };
@@ -1491,7 +1493,7 @@
 		EC9B93CD28A2D27600BFBB5E /* StitchLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchLogger.swift; sourceTree = "<group>"; };
 		EC9C498D268E29F4004150F8 /* SoundHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundHelpers.swift; sourceTree = "<group>"; };
 		EC9C6F9A298C45EE00E05523 /* NodeTagMenuButtonsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTagMenuButtonsView.swift; sourceTree = "<group>"; };
-		EC9D16DF2808D89000684978 /* NodeTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeTitleView.swift; sourceTree = "<group>"; };
+		EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemTitleView.swift; sourceTree = "<group>"; };
 		EC9D16E12808D97A00684978 /* ValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueEntry.swift; sourceTree = "<group>"; };
 		EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingObserver.swift; sourceTree = "<group>"; };
 		EC9DB347280F239C0061EC3C /* PortDragActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortDragActions.swift; sourceTree = "<group>"; };
@@ -1598,6 +1600,8 @@
 		ECC301AE293809D200C34F10 /* IndexOf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexOf.swift; sourceTree = "<group>"; };
 		ECC301B029380CB900C34F10 /* SubarrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubarrayNode.swift; sourceTree = "<group>"; };
 		ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueAtPathNode.swift; sourceTree = "<group>"; };
+		ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputOnGraphView.swift; sourceTree = "<group>"; };
+		ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemViewModel.swift; sourceTree = "<group>"; };
 		ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImportNode.swift; sourceTree = "<group>"; };
 		ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideo.swift; sourceTree = "<group>"; };
 		ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoLayerNode.swift; sourceTree = "<group>"; };
@@ -1715,7 +1719,7 @@
 		ECF387CA280B5C650075F0E5 /* PortValuesPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValuesPreviewView.swift; sourceTree = "<group>"; };
 		ECF387D0280B5E560075F0E5 /* StitchTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchTextView.swift; sourceTree = "<group>"; };
 		ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadOnlyEntry.swift; sourceTree = "<group>"; };
-		ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectedView.swift; sourceTree = "<group>"; };
+		ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemSelectedViewModifier.swift; sourceTree = "<group>"; };
 		ECF387DE280B61860075F0E5 /* NodeUIKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIKind.swift; sourceTree = "<group>"; };
 		ECF387E0280B61A80075F0E5 /* NodeConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConstants.swift; sourceTree = "<group>"; };
 		ECF6AEF2263CB7C70011C679 /* CoreMLClassifyNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreMLClassifyNode.swift; sourceTree = "<group>"; };
@@ -1882,6 +1886,7 @@
 		B50F416F2C1F52A70082262F /* LayerInspector */ = {
 			isa = PBXGroup;
 			children = (
+				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 			);
 			path = LayerInspector;
@@ -2277,7 +2282,7 @@
 				ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */,
 				ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */,
 				EC3127F72BA3DE120087049A /* DeriveSidebarList.swift */,
-				EC29423C2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift */,
+				EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */,
 				B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */,
 			);
 			path = Util;
@@ -2422,11 +2427,11 @@
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
+				ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */,
 				B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */,
-				B5EC61F42A5DF7BE002A639F /* LayerNodeView.swift */,
 				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
-				ECF387DC280B61680075F0E5 /* NodeSelectedView.swift */,
-				B5CF644C294BEABD00EF83DB /* NodePositionHandler.swift */,
+				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
+				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -2600,7 +2605,7 @@
 		B55501252C1BFA2E0081C3F1 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				EC9D16DF2808D89000684978 /* NodeTitleView.swift */,
+				EC9D16DF2808D89000684978 /* CanvasItemTitleView.swift */,
 				B5CF6449294B8B6200EF83DB /* NodeTitleTextField.swift */,
 				EC519E362BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift */,
 			);
@@ -2999,6 +3004,7 @@
 			children = (
 				EC0F33492BED93D9008093BC /* NodeDelegate.swift */,
 				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
+				ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */,
 				ECB7B5D22A72DD9400E2D30B /* NodePageData.swift */,
 				ECB7B5D02A72DD7600E2D30B /* NodeViewModelType.swift */,
 				B5368D122A886C1900FE3489 /* InteractionLayer.swift */,
@@ -4469,6 +4475,7 @@
 				EC560E0D293A773D00350046 /* LoopDedupeNode.swift in Sources */,
 				B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */,
 				ECDCE3562821EA5800D83EC3 /* PortValueDisplay.swift in Sources */,
+				EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */,
 				B55500E52C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift in Sources */,
 				ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */,
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
@@ -4650,7 +4657,6 @@
 				B5FEE4B428AC443500B50BCD /* StitchVideoDelegate.swift in Sources */,
 				EC28CC9E287E351100987792 /* PatchNodeTypeExtensions.swift in Sources */,
 				B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */,
-				B5EC61F52A5DF7BE002A639F /* LayerNodeView.swift in Sources */,
 				EC609DD229357B8B00BF60A5 /* LessThanNode.swift in Sources */,
 				EC4BD8942BA1343400B8F38A /* SidebarGroupsDict.swift in Sources */,
 				B530D5072C18ABEB0005C6A9 /* DirectoryObserverActions.swift in Sources */,
@@ -4709,6 +4715,7 @@
 				EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */,
 				B5E28AEE2A7AB9180007C0CB /* ProjectToolbar.swift in Sources */,
 				EC609DCE29354C6E00BF60A5 /* LengthNode.swift in Sources */,
+				ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */,
 				EC004DD12B449D0700C5DB33 /* CanvasSketchView.swift in Sources */,
 				ECA92A18260A69EB00281B52 /* OptionPickerNode.swift in Sources */,
 				EC067CEC2BAB7A9300F8EB82 /* MathExpressionNode.swift in Sources */,
@@ -4721,6 +4728,7 @@
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
 				ECE08E432649D14D00996EE2 /* ScrollInteractionNode.swift in Sources */,
 				ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */,
+				ECC30E102C234DAF00F0F54C /* LayerInputOnGraphView.swift in Sources */,
 				ECEA4C3D28A32836005C7B49 /* LogActions.swift in Sources */,
 				EC560E19293A9ACC00350046 /* LoopSumNode.swift in Sources */,
 				EC2942412BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift in Sources */,
@@ -4762,7 +4770,7 @@
 				ECEEA50B2AFF1A6000C7CE86 /* CommentBoxTitleEditView.swift in Sources */,
 				B5E34E1E2A81E9A80011A3E1 /* EnvironmentValues.swift in Sources */,
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
-				EC9D16E02808D89000684978 /* NodeTitleView.swift in Sources */,
+				EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */,
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
 				EC560E15293A944100350046 /* LoopReverseNode.swift in Sources */,
@@ -4948,7 +4956,7 @@
 				B5CF6448294B8AF700EF83DB /* StitchButton.swift in Sources */,
 				EC1E7A6F287D228D00144D05 /* BoolCheckboxView.swift in Sources */,
 				EC2614432B895C3400BEB066 /* SizePackNode.swift in Sources */,
-				ECF387DD280B61680075F0E5 /* NodeSelectedView.swift in Sources */,
+				ECF387DD280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift in Sources */,
 				B5952EA32BD34597005687C0 /* InsertNodeMenuWrapper.swift in Sources */,
 				EC733DC22639E22E00DD4EC1 /* PatchNodeViewModel.swift in Sources */,
 				EC1DE584260A9ACB009497CF /* HSLColorNode.swift in Sources */,
@@ -4987,7 +4995,7 @@
 				B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */,
 				EC8605B6269E1A18007B8ED3 /* JSONObjectNode.swift in Sources */,
 				ECDCE3602821F13800D83EC3 /* DropDownChoiceView.swift in Sources */,
-				EC29423D2BA13DB400D14CD1 /* JumpToNodeOnGraph.swift in Sources */,
+				EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */,
 				EC4D0D8A290861E300444B04 /* GraphBounds.swift in Sources */,
 				ECA92A0C260A69A000281B52 /* AddNode.swift in Sources */,
 				EC9D16E22808D97A00684978 /* ValueEntry.swift in Sources */,
@@ -5055,7 +5063,7 @@
 				EC9C498E268E29F4004150F8 /* SoundHelpers.swift in Sources */,
 				ECC7382D2BB6093100A680B5 /* ClassicAnimationOpAnchoring.swift in Sources */,
 				EC17ACD326B4C12800137EA5 /* CameraFeedManager.swift in Sources */,
-				B5CF644D294BEABD00EF83DB /* NodePositionHandler.swift in Sources */,
+				B5CF644D294BEABD00EF83DB /* CanvasItemPositionHandler.swift in Sources */,
 				ECA92A4A260A6ADE00281B52 /* TextLayerNode.swift in Sources */,
 				20B8D4F825D75FAD005D71C5 /* Coercers.swift in Sources */,
 				EC3BAABE299D83190047EFF7 /* StitchRootView.swift in Sources */,
