@@ -27,19 +27,23 @@ extension NodeViewModelType {
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
         case .group(let canvasNode):
-            self = .group()
+            self = .group(.init(from: canvasNode,
+                                node: nodeDelegate))
         }
     }
 
     @MainActor
-    func update(from schema: NodeEntity) {
-        if let patchNode = schema.patchNodeEntity {
-            let viewModel = PatchNodeViewModel(from: patchNode)
-            viewModel.update(from: patchNode)
-        } else {
-            #if DEBUG
-            fatalError()
-            #endif
+    func update(from schema: NodeTypeEntity) {
+        switch (self, schema) {
+        case (.patch(let patchViewModel), .patch(let patchEntity)):
+            patchViewModel.update(from: patchEntity)
+        case (.layer(let layerViewModel), .layer(let layerEntity)):
+            layerViewModel.update(from: layerEntity)
+        case (.group(let canvasViewModel), .group(let canvasEntity)):
+            canvasViewModel.update(from: canvasEntity)
+        default:
+            log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
+            fatalErrorIfDebug()
         }
     }
 }

@@ -56,7 +56,6 @@ final class CanvasNodeViewModel {
         self.id = id
         self.position = position
         self.previousPosition = position
-        self.bounds = bounds
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
@@ -64,6 +63,16 @@ final class CanvasNodeViewModel {
 }
 
 extension CanvasNodeViewModel: SchemaObserver {
+    convenience init(from canvasEntity: CanvasNodeEntity,
+                     node: NodeDelegate?) {
+        self.id = canvasEntity.id
+        self.position = canvasEntity.position
+        self.previousPosition = canvasEntity.position
+        self.zIndex = canvasEntity.zIndex
+        self.parentGroupNodeId = canvasEntity.parentGroupNodeId
+        self.nodeDelegate = node
+    }
+    
     func createSchema() -> CanvasNodeEntity {
         .init(id: self.id,
               position: self.position,
