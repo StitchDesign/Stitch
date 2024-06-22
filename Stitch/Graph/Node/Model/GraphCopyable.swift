@@ -40,28 +40,47 @@ extension NodeEntity: GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> NodeEntity {
+        .init(id: newId, 
+              nodeEntityType: self.nodeEntityType
+            .createCopy(newId: newId,
+                        mappableData: mappableData,
+                        copiedNodeIds: copiedNodeIds),
+              title: self.title)
+    }
+}
+
+extension NodeTypeEntity: GraphCopyable {
+    func createCopy(newId: NodeId,
+                    mappableData: [NodeId : NodeId],
+                    copiedNodeIds: NodeIdSet) -> NodeTypeEntity {
+        switch self {
+        case .patch(let patchEntity):
+            return .patch(patchEntity.createCopy(newId: newId,
+                                                 mappableData: mappableData,
+                                                 copiedNodeIds: copiedNodeIds))
+        case .layer(let layerEntity):
+            return .layer(layerEntity.createCopy(newId: newId,
+                                                 mappableData: mappableData,
+                                                 copiedNodeIds: copiedNodeIds))
+            
+        case .group(let canvasEntity):
+            return .group(canvasEntity.createCopy(newId: newId,
+                                                  mappableData: mappableData,
+                                                  copiedNodeIds: copiedNodeIds))
+        }
+    }
+}
+
+extension CanvasNodeEntity: GraphCopyable {
+    func createCopy(newId: NodeId,
+                    mappableData: [NodeId : NodeId],
+                    copiedNodeIds: NodeIdSet) -> CanvasNodeEntity {
         let newGroupId = mappableData.get(self.parentGroupNodeId)
 
-        return .init(id: newId,
+        return .init(id: self.id,
                      position: self.position,
                      zIndex: self.zIndex,
-                     // Update this later
-                     parentGroupNodeId: newGroupId,
-                     patchNodeEntity: self.patchNodeEntity?
-                        .createCopy(newId: newId,
-                                    mappableData: mappableData,
-                                    copiedNodeIds: copiedNodeIds),
-                     layerNodeEntity: self.layerNodeEntity?
-                        .createCopy(newId: newId,
-                                    mappableData: mappableData,
-                                    copiedNodeIds: copiedNodeIds),
-                     isGroupNode: self.isGroupNode,
-                     title: self.title,
-                     inputs: self.inputs.map { input in
-                        input.createCopy(newId: newId,
-                                         mappableData: mappableData,
-                                         copiedNodeIds: copiedNodeIds)
-                     })
+                     parentGroupNodeId: newGroupId)
     }
 }
 
@@ -122,14 +141,21 @@ extension PatchNodeEntity: GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> PatchNodeEntity {
-        .init(id: newId,
-              patch: self.patch,
-              userVisibleType: self.userVisibleType,
-              splitterNode: self.splitterNode?
-                .createCopy(newId: newId,
-                            mappableData: mappableData,
-                            copiedNodeIds: copiedNodeIds), 
-              mathExpression: self.mathExpression)
+        let newInputs = self.inputs.map { input in
+            input.createCopy(newId: newId,
+                             mappableData: mappableData,
+                             copiedNodeIds: copiedNodeIds)
+        }
+        
+        return .init(id: newId,
+                     patch: self.patch,
+                     inputs: newInputs,
+                     userVisibleType: self.userVisibleType,
+                     splitterNode: self.splitterNode?
+            .createCopy(newId: newId,
+                        mappableData: mappableData,
+                        copiedNodeIds: copiedNodeIds),
+                     mathExpression: self.mathExpression)
     }
 }
 

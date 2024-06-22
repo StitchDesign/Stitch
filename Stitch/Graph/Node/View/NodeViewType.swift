@@ -53,9 +53,10 @@ struct NodeTypeView: View {
                           updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
                           isHiddenDuringAnimation: isHiddenDuringAnimation,
                           adjustmentBarSessionId: adjustmentBarSessionId)
-        case .group:
+        case .group(let canvasViewModel):
             GroupNodeView(graph: graph,
-                          viewModel: node,
+                          nodeViewModel: node,
+                          canvasViewModel: canvasViewModel,
                           atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                           activeGroupId: groupNodeFocused,
                           activeIndex: activeIndex,
