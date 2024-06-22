@@ -89,7 +89,7 @@ func applyGraphOffsetAndScale(nodeSize: CGSize,
 
 struct ToggleSelectAllGraphItems: GraphEvent {
     func handle(state: GraphState) {
-        selectAllNodesAtTraversalLevel(state)
+        selectAllCanvasItemsAtTraversalLevel(state)
 
         state.selectAllCommentsAtTraversalLevel()
     }
@@ -104,17 +104,14 @@ extension GraphState {
 }
 
 @MainActor
-func selectAllNodesAtTraversalLevel(_ state: GraphState) {
+func selectAllCanvasItemsAtTraversalLevel(_ state: GraphState) {
     // Only select the visible nodes,
     // i.e. those at this traversal level.
-    let visibleNodes = state.visibleNodesViewModel
-        .getVisibleNodes(at: state.graphUI.groupNodeFocused?.asNodeId)
+    let visibleCanvasItems = state.getVisibleCanvasItems()
 
     state.resetSelectedCanvasItems()
     
-    visibleNodes.forEach {
-        $0.select()
-    }
+    visibleCanvasItems.forEach { $0.select() }
 }
 
 // fka `DetermineSelectedNodes`

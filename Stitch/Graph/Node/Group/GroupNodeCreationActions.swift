@@ -228,7 +228,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         
         // ... then select the GroupNode and its edges
         // TODO: highlight new group node's incoming and outgoing edges
-        newGroupNode.select()
+        newGroupNode.canvasUIData?.select()
 
         // Stop any active node dragging etc.
         state.graphMovement.stopNodeMovement()

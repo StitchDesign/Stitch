@@ -16,8 +16,7 @@ final class CommentBoxViewModel {
     var groupId: NodeId?
     var title: String = "Comment"
     var color: Color
-    // TODO: CommentBox should store CanvasItemIds, not NodeIds
-    var nodes: NodeIdSet = .init()
+    var nodes: CanvasItemIdSet = .init()
     var previousPosition: CGPoint = .zero
     var position: CGPoint = .zero
     var size: CGSize = .zero
@@ -27,7 +26,7 @@ final class CommentBoxViewModel {
     init(groupId: NodeId? = nil,
          title: String = "Comment",
          color: Color = CommentBoxViewModel.colorOptions.randomElement() ?? .blue,
-         nodes: NodeIdSet = .init(),
+         nodes: CanvasItemIdSet = .init(),
          position: CGPoint = .zero,
          size: CGSize = .zero,
          expansionBox: CommentExpansionBox = .init(),
@@ -49,19 +48,19 @@ extension CommentBoxViewModel: SchemaObserver {
         Self.init(groupId: entity.groupId,
                   title: entity.title,
                   color: entity.color,
-                  nodes: entity.nodes,
+                  nodes: entity.nodes.map { CanvasItemId.node($0)}.toSet,
                   position: entity.position,
                   size: entity.size,
                   zIndex: entity.zIndex)
     }
-
+    
     @MainActor
     func update(from schema: CommentBoxData) {
         self.id = schema.id
         self.groupId = schema.groupId
         self.title = schema.title
         self.color = schema.color
-        self.nodes = schema.nodes
+        self.nodes = schema.nodes.map { CanvasItemId.node($0)}.toSet
         self.position = schema.position
         self.size = schema.size
         self.zIndex = schema.zIndex
@@ -73,7 +72,8 @@ extension CommentBoxViewModel: SchemaObserver {
             groupId: self.groupId,
             title: self.title,
             color: self.color,
-            nodes: self.nodes,
+            // TODO: update CommentBoxEntity schema
+            nodes: self.nodes.compactMap(\.nodeCase),
             position: self.position,
             size: self.size,
             zIndex: self.zIndex

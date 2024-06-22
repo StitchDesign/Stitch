@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 struct GroupNodeView: View {
     @Bindable var graph: GraphState
+    @Bindable var groupNodeViewModel: GroupNodeViewModel
     @Bindable var viewModel: NodeViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeId?
@@ -34,6 +35,7 @@ struct GroupNodeView: View {
     var body: some View {
         NodeView(graph: graph,
                  node: viewModel,
+                 nodeData: groupNodeViewModel.nodeData,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,

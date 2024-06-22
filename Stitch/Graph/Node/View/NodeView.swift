@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var nodeData: NodeDataViewModel
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
     let activeGroupId: GroupNodeId?
@@ -135,7 +136,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                 }
         } // ZStack
         .canvasItemPositionHandler(graph: graph,
-                                   node: node.canvasUIData,
+                                   node: nodeData.canvasUIData,
                                    position: position,
                                    zIndex: zIndex,
                                    usePositionHandler: usePositionHandler)

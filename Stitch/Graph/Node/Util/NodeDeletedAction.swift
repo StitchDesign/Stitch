@@ -169,9 +169,9 @@ extension GraphState {
 extension CommentBoxesDict {
     // Removes a node from any the node-set of any comment boxes that have it
     // Note: comment-boxes-bounds-dict does not contain node if
-    func removeNode(_ nodeId: NodeId) {
+    func removeNode(_ id: CanvasItemId) {
         self.values.forEach { box in
-            box.nodes.remove(nodeId)
+            box.nodes.remove(id)
         }
     }
 }

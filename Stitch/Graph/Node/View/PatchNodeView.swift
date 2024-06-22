@@ -59,7 +59,8 @@ struct PatchNodeView: View {
 
     var body: some View {
         NodeView(graph: graph,
-                 node: viewModel,
+                 node: viewModel, 
+                 nodeData: patchNode.nodeData,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,
