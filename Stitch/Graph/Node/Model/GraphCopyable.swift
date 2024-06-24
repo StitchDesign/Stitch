@@ -41,7 +41,7 @@ extension NodeEntity: GraphCopyable {
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> NodeEntity {
         .init(id: newId, 
-              nodeEntityType: self.nodeEntityType
+              nodeTypeEntity: self.nodeTypeEntity
             .createCopy(newId: newId,
                         mappableData: mappableData,
                         copiedNodeIds: copiedNodeIds),

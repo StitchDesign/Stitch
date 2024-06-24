@@ -11,12 +11,12 @@ import StitchSchemaKit
 
 extension NodeEntity {
     var kind: NodeKind {
-        self.nodeEntityType.kind
+        self.nodeTypeEntity.kind
     }
     
     /// Gets inputs values from disconnected ports.
     var encodedInputsValues: [PortValues?] {
-        switch self.nodeEntityType {
+        switch self.nodeTypeEntity {
         case .layer(let layerNode):
             // Layer nodes save values data directy in its schema
             return layerNode.layer.layerGraphNode.inputDefinitions

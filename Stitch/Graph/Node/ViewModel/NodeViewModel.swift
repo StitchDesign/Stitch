@@ -76,7 +76,7 @@ final class NodeViewModel: Sendable {
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = NodeViewModelType(from: schema.nodeEntityType,
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
@@ -103,7 +103,7 @@ final class NodeViewModel: Sendable {
             
 //            // Layer nodes use key paths instead of array for input observers
 //            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
-//                guard let layerNodeEntity = schema.nodeEntityType.layerNodeEntity else {
+//                guard let layerNodeEntity = schema.nodeTypeEntity.layerNodeEntity else {
 //                    fatalErrorIfDebug()
 //                    return
 //                }
@@ -584,7 +584,7 @@ extension NodeViewModel: SchemaObserver {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity) {
-        self.nodeType.update(from: schema.nodeEntityType)
+        self.nodeType.update(from: schema.nodeTypeEntity)
 
         if self.title != schema.title {
             self.title = schema.title
@@ -597,7 +597,7 @@ extension NodeViewModel: SchemaObserver {
 
     func createSchema() -> NodeEntity {
         NodeEntity(id: self.id,
-                   nodeEntityType: self.nodeType.createSchema(),
+                   nodeTypeEntity: self.nodeType.createSchema(),
                    title: self.title)
     }
     
