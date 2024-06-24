@@ -92,6 +92,8 @@ extension PatchNodeViewModel: SchemaObserver {
     }
 
     func update(from schema: PatchNodeEntity) {
+        self.inputsObservers.sync(with: schema.inputs)
+        
         if self.id != schema.id {
             self.id = schema.id
         }

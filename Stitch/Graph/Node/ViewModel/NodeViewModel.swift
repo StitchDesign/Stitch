@@ -584,57 +584,10 @@ extension NodeViewModel: SchemaObserver {
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
     func update(from schema: NodeEntity) {
-        if schema.id != self.id {
-            self.id = schema.id
-        }
-        // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
-//        self.id.setOnChange(schema.id)
-        
-        if self.position != schema.position {
-            self.position = schema.position
-        }
-        
-        if self.previousPosition != schema.position {
-            self.previousPosition = schema.position
-        }
-        
-        if self.zIndex != schema.zIndex {
-            self.zIndex = schema.zIndex
-        }
-        
+        self.nodeType.update(from: schema.nodeEntityType)
+
         if self.title != schema.title {
             self.title = schema.title
-        }
-        
-        if self.parentGroupNodeId != schema.parentGroupNodeId {
-            self.parentGroupNodeId = schema.parentGroupNodeId
-        }
-
-        if let patchNode = schema.patchNodeEntity {
-            self._inputsObservers.sync(with: schema.inputs)
-            
-            guard let patchNodeViewModel = self.patchNode else {
-                // Note: NodeViewModelType enum is not Equatable because PatchNodeViewModel etc. is not Equatable
-                self.nodeType = .patch(PatchNodeViewModel(from: patchNode))
-                return
-            }
-            patchNodeViewModel.update(from: patchNode)
-        } else if let layerNode = schema.layerNodeEntity {
-            guard let layerNodeViewModel = self.layerNode else {
-                let layerNodeViewModel = LayerNodeViewModel(from: layerNode,
-                                                            nodeDelegate: self)
-                layerNodeViewModel.nodeDelegate = self
-                self.nodeType = .layer(layerNodeViewModel)
-                return
-            }
-            layerNodeViewModel.update(from: layerNode)
-        } else {
-            self._inputsObservers.sync(with: schema.inputs)
-            
-            guard self.kind.isGroup else {
-                self.nodeType = .group
-                return
-            }
         }
         
         if self._cachedDisplayTitle != self.getDisplayTitle() {
