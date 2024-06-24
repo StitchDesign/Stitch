@@ -596,17 +596,9 @@ extension NodeViewModel: SchemaObserver {
     }
 
     func createSchema() -> NodeEntity {
-        // Patch, layer, and group info nil here but set from parent callers
         NodeEntity(id: self.id,
-                   position: self.position,
-                   zIndex: self.zIndex,
-                   parentGroupNodeId: self.parentGroupNodeId,
-                   patchNodeEntity: self.patchNode?.createSchema(),
-                   layerNodeEntity: self.layerNode?.createSchema(),
-                   isGroupNode: self.nodeType.kind.isGroup,
-                   title: self.title,
-                   // layer nodes use keypaths
-                   inputs: self.layerNode == nil ? self._inputsObservers.map { $0.createSchema() } : [])
+                   nodeEntityType: self.nodeType.createSchema(),
+                   title: self.title)
     }
     
     func onPrototypeRestart() {
