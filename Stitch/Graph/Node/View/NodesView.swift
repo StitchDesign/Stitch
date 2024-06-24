@@ -60,6 +60,11 @@ struct NodesView: View {
                                 return []
                             }
                             return [input]
+                        case .layerOutputOnGraph(let x):
+                            guard let output = graph.getOutputObserver(coordinate: x) else {
+                                return []
+                            }
+                            return [output]
                             
                         case .node(let x):
                             // Hides edges from group input splitters

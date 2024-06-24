@@ -494,6 +494,10 @@ extension GraphState {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
+    
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver? {
+        self.getNode(coordinate.nodeId)?.getOutputRowObserver(coordinate.portId)
+    }
 
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
@@ -506,6 +510,8 @@ extension GraphState {
             return self.getNodeViewModel(x)?.canvasUIData
         case .layerInputOnGraph(let x):
             return self.getLayerInputOnGraph(x)?.canvasUIData
+        case .layerOutputOnGraph(let x):
+            return self.getLayerOutputOnGraph(x)?.canvasUIData
         }
     }
     
@@ -514,6 +520,11 @@ extension GraphState {
     func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver? {
         self.getNodeViewModel(id.node)?
             .getInputRowObserver(for: .keyPath(id.keyPath))
+    }
+    
+    @MainActor
+    func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver? {
+        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(id.portId)
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {

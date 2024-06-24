@@ -43,8 +43,6 @@ enum CanvasItemId: Equatable, Codable, Hashable {
     }
 }
 
-typealias LayerOutputOnGraphId = OutputPortViewData
-
 // TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
 struct LayerInputOnGraphId: Equatable, Codable, Hashable {
@@ -56,6 +54,8 @@ struct LayerInputOnGraphId: Equatable, Codable, Hashable {
               nodeId: node)
     }
 }
+
+typealias LayerOutputOnGraphId = OutputPortViewData
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 

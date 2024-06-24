@@ -82,11 +82,17 @@ extension GraphState {
     @MainActor
     func deleteCanvasItem(_ id: CanvasItemId) {
         switch id {
+            
         case .node(let x):
             self.deleteNode(id: x)
+        
         case .layerInputOnGraph(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getNode(x.node)?.getInputRowObserver(for: .keyPath(x.keyPath))?.canvasUIData = nil
+            self.getLayerInputOnGraph(x)?.canvasUIData = nil
+            
+        case .layerOutputOnGraph(let x):
+            // Set the canvas-ui-data on the layer node's input = nil
+            self.getLayerOutputOnGraph(x)?.canvasUIData = nil
         }
     }
 

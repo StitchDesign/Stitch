@@ -32,8 +32,11 @@ extension GraphDelegate {
     }
 }
 
+
 struct LayerInputAddedToGraph: GraphEventWithResponse {
-    
+
+    // just pass in LayerInspectorRowId and switch on that;
+    // don't need two actions
     let nodeId: NodeId
     let coordinate: LayerInputType
     

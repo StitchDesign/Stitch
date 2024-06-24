@@ -711,7 +711,7 @@
 		ECC301AF293809D200C34F10 /* IndexOf.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301AE293809D200C34F10 /* IndexOf.swift */; };
 		ECC301B129380CB900C34F10 /* SubarrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B029380CB900C34F10 /* SubarrayNode.swift */; };
 		ECC301B329380EBB00C34F10 /* ValueAtPathNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */; };
-		ECC30E102C234DAF00F0F54C /* LayerInputOnGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */; };
+		ECC30E102C234DAF00F0F54C /* LayerRowOnGraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E0F2C234DAF00F0F54C /* LayerRowOnGraphView.swift */; };
 		ECC30E122C234E8800F0F54C /* CanvasItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */; };
 		ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */; };
 		ECC506E9267BB7C700A2D015 /* PreviewVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */; };
@@ -1604,7 +1604,7 @@
 		ECC301AE293809D200C34F10 /* IndexOf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexOf.swift; sourceTree = "<group>"; };
 		ECC301B029380CB900C34F10 /* SubarrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubarrayNode.swift; sourceTree = "<group>"; };
 		ECC301B229380EBB00C34F10 /* ValueAtPathNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueAtPathNode.swift; sourceTree = "<group>"; };
-		ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputOnGraphView.swift; sourceTree = "<group>"; };
+		ECC30E0F2C234DAF00F0F54C /* LayerRowOnGraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerRowOnGraphView.swift; sourceTree = "<group>"; };
 		ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasItemViewModel.swift; sourceTree = "<group>"; };
 		ECC506E6267BB2CA00A2D015 /* VideoImportNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoImportNode.swift; sourceTree = "<group>"; };
 		ECC506E8267BB7C700A2D015 /* PreviewVideo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewVideo.swift; sourceTree = "<group>"; };
@@ -2433,7 +2433,7 @@
 				EC91B56329AE7891006E823D /* NodesOnlyView.swift */,
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
-				ECC30E0F2C234DAF00F0F54C /* LayerInputOnGraphView.swift */,
+				ECC30E0F2C234DAF00F0F54C /* LayerRowOnGraphView.swift */,
 				B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */,
 				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
@@ -4735,7 +4735,7 @@
 				EC650BD926864DF200C4CCC9 /* SoundImportNode.swift in Sources */,
 				ECE08E432649D14D00996EE2 /* ScrollInteractionNode.swift in Sources */,
 				ECF387D1280B5E560075F0E5 /* StitchTextView.swift in Sources */,
-				ECC30E102C234DAF00F0F54C /* LayerInputOnGraphView.swift in Sources */,
+				ECC30E102C234DAF00F0F54C /* LayerRowOnGraphView.swift in Sources */,
 				ECEA4C3D28A32836005C7B49 /* LogActions.swift in Sources */,
 				EC560E19293A9ACC00350046 /* LoopSumNode.swift in Sources */,
 				EC2942412BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift in Sources */,

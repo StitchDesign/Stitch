@@ -55,22 +55,21 @@ struct NodesOnlyView: View {
     var layerInputsOnGraphView: some View {
         let layerNodes = self.nodes.filter(\.layerNode.isDefined)
         ForEach(layerNodes) { node in
-            // TODO: only show those LIG at this traversal level
-            let inputsOnGraph = node.inputRowObservers().filter(\.canvasUIData.isDefined)
+            let layerRowsOnGraph = (node.inputRowObservers() + node.outputRowObservers()).filter(\.canvasUIData.isDefined)
             
-            ForEach(inputsOnGraph) { inputOnGraph in
-                let isAtThisTraversalLevel = inputOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
+            ForEach(layerRowsOnGraph) { layerRowOnGraph in
+                let isAtThisTraversalLevel = layerRowOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
                 
                 if isAtThisTraversalLevel,
                    let layerNode = node.layerNode {
-                    LayerInputOnGraphView(
+                    LayerRowOnGraphView(
                         graph: graph,
                         node: node,
-                        input: inputOnGraph,
-                        canvasItem: inputOnGraph.canvasUIData!,
+                        row: layerRowOnGraph,
+                        canvasItem: layerRowOnGraph.canvasUIData!,
                         layerNode: layerNode)
                 } else {
-                    EmptyView().onAppear {
+                    Color.clear.onAppear {
                         if !node.layerNode.isDefined {
                             fatalErrorIfDebug()
                         }
