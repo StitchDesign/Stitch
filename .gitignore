@@ -1,0 +1,11 @@
+## User settings
+xcuserdata/
+
+.DS_Store
+*.icloud
+
+# Ignores Stitch packages for local testing
+StitchSchemaKit/
+
+# Settings for package which discovers unused files
+.periphery.yml

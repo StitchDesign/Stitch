@@ -1,0 +1,21 @@
+disabled_rules:
+  - identifier_name
+  - empty_parentheses_with_trailing_closure
+  - redundant_discardable_let
+  - syntactic_sugar
+  - cyclomatic_complexity
+  - function_body_length
+  - file_length
+  - function_parameter_count
+  - type_body_length
+  - type_name
+  - line_length
+  - weak_delegate
+  - inclusive_language
+  - todo
+  
+force_cast: warning
+force_try: warning
+line_length: 120
+large_tuple: 4
+vertical_whitespace: 2

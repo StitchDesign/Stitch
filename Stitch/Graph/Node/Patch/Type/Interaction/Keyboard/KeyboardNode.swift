@@ -1,0 +1,43 @@
+//
+//  KeyboardNode.swift
+//  Stitch
+//
+//  Created by Christian J Clampitt on 12/15/22.
+//
+
+import Foundation
+import SwiftUI
+import StitchSchemaKit
+
+struct KeyboardNode: PatchNodeDefinition {
+    static let patch: Patch = .keyboard
+
+    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+        .init(
+            inputs: [
+                .init(defaultValues: [.string(.init("a"))], label: "Key")
+            ],
+            outputs: [
+                .init(label: "Down",
+                      type: .bool)
+            ]
+        )
+    }
+}
+
+// returns (new outputs, updated key-press-state)
+@MainActor
+func keyboardEval(node: PatchNode,
+                  graph: GraphDelegate) -> EvalResult {
+    
+    let graphTime = graph.graphStepState.graphTime
+    let keypressState = graph.keypressState
+
+    return node.loopedEval { values, _ in
+        let character = values.first?.getString?.string ?? ""
+        //        log("keyboardEval: op: character: \(character)")
+        //        log("keyboardEval: op: keyPress.characters: \(keyPress.characters)")
+        return [.bool(keypressState.characters.contains(character))]
+    }
+    .createPureEvalResult()
+}

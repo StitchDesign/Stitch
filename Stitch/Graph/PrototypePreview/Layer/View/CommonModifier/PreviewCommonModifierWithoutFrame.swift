@@ -1,0 +1,112 @@
+//
+//  PreviewCommonModifierWithoutFrame.swift
+//  Stitch
+//
+//  Created by Elliot Boschwitz on 6/13/24.
+//
+
+import Foundation
+import SwiftUI
+import StitchSchemaKit
+
+// Note: used by many but not all layers; e.g. Group Layer does not use this
+struct PreviewCommonModifierWithoutFrame: ViewModifier {
+
+    @Bindable var graph: GraphState
+    @Bindable var layerViewModel: LayerViewModel
+    let interactiveLayer: InteractiveLayer
+    
+    let position: StitchPosition
+    let rotationX: CGFloat
+    let rotationY: CGFloat
+    let rotationZ: CGFloat
+    let size: LayerSize
+    
+    // let this default to .zero, since only the Toggle Switch (and Progress Indicator?) need non-zero min-drag-distances
+    var minimumDragDistance: Double = .zero
+    
+    let scale: Double
+    let anchoring: Anchoring
+    let blurRadius: CGFloat
+    let blendMode: StitchBlendMode
+    let brightness: Double
+    let colorInvert: Bool
+    let contrast: Double
+    let hueRotation: Double
+    let saturation: Double
+    let pivot: Anchoring
+    
+    let shadowColor: Color
+    let shadowOpacity: CGFloat
+    let shadowRadius: CGFloat
+    let shadowOffset: StitchPosition
+    
+    var sizeForAnchoringAndGestures: CGSize {
+        size.asCGSize(parentSize)
+    }
+    
+    // Assumes parentSize has already been scaled etc.
+    let parentSize: CGSize
+    let parentDisablesPosition: Bool
+
+    var pos: StitchPosition {
+        adjustPosition(
+//            size: size, // does not need to be scaled when using `anchor:` in `.scaleEffect`
+            //            size: size.asCGSize(parentSize),
+            size: layerViewModel.readSize,
+            position: position,
+            anchor: anchoring,
+            parentSize: parentSize)
+    }
+    
+    
+    func body(content: Content) -> some View {
+
+        return content
+        
+            .modifier(PreviewLayerEffectsModifier(
+                blurRadius: blurRadius,
+                blendMode: blendMode,
+                brightness: brightness,
+                colorInvert: colorInvert,
+                contrast: contrast,
+                hueRotation: hueRotation,
+                saturation: saturation))
+        
+        // Doesn't matter whether SwiftUI .shadow modifier comes before or after .scaleEffect, .position, etc. ?
+            .modifier(PreviewShadowModifier(
+                shadowColor: shadowColor,
+                shadowOpacity: shadowOpacity,
+                shadowRadius: shadowRadius,
+                shadowOffset: shadowOffset))
+        
+        // should be BEFORE .scale, .position, .offset and .rotation, so that border can be affected by those changes; but AFTER layer-effects, so that e.g. masking or blur does
+            .modifier(PreviewSidebarHighlightModifier(
+                nodeId: interactiveLayer.id.layerNodeId,
+                highlightedSidebarLayers: graph.graphUI.highlightedSidebbarLayers,
+                scale: scale))
+
+            .modifier(PreviewLayerRotationModifier(
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ))
+        
+            .scaleEffect(CGFloat(scale),
+                         anchor: pivot.toPivot)
+                
+            .modifier(PreviewCommonPositionModifier(
+                parentDisablesPosition: parentDisablesPosition,
+                pos: pos))
+                
+        //  SwiftUI gestures must come AFTER the .position modifier
+            .modifier(PreviewWindowElementSwiftUIGestures(
+                graph: graph,
+                interactiveLayer: interactiveLayer,
+                position: position.toCGPoint,
+                pos: pos,
+                size: sizeForAnchoringAndGestures,
+                parentSize: parentSize,
+                minimumDragDistance: minimumDragDistance))
+    }
+}
+

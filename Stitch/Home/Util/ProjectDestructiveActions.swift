@@ -1,0 +1,113 @@
+//
+//  ProjectDestructiveActions.swift
+//  prototype
+//
+//  Created by Christian J Clampitt on 4/26/22.
+//
+
+import Foundation
+import SwiftUI
+import StitchSchemaKit
+
+extension StitchStore {
+    // Called when user elects to remove project locally after it's been deleted elsewhere
+    @MainActor
+    func handleDeleteAndExitCurrentProject() {
+        guard let document = self.currentGraph else {
+            log("DeleteAndExitCurrentProject: current project was not found.")
+            self.alertState.stitchFileError = .currentProjectNotFound
+            return
+        }
+
+        self.navPath = []
+        self.deleteProject(document: document.createSchema())
+    }
+}
+
+extension StitchStore {
+    @MainActor
+    func deleteProject(document: StitchDocument) {
+        let fileManager = self.environment.fileManager
+        let projectId = document.projectId
+
+        switch StitchFileManager.removeStitchProject(
+            url: document.getUrl(),
+            projectId: projectId) {
+
+        case .success:
+            log("StitchStore: deleteProject: success")
+            // If undo is called, re-import the project from recently deleted
+            let undoEvents: [Action] = [UndoDeleteProject(projectId: projectId) ]
+            let redoEvents: [Action] = [ProjectDeleted(document: document)]
+
+            // Displays toast UI on projects screen
+            
+            // TODO: fix 'Undo Delete' on iPhone
+            if !isPhoneDevice() {
+                self.alertState.deletedProjectId = projectId
+            }
+            // self.alertState.deletedProjectId = projectId
+
+            self.saveUndoHistory(undoEvents: undoEvents,
+                                 redoEvents: redoEvents)
+
+        case .failure(let error):
+            log("StitchStore: deleteProject: failure")
+            self.alertState.stitchFileError = error
+        }
+    }
+
+    /// Clears undo button toast UI on projects screen.
+    @MainActor
+    func projectDeleteToastExpired() {
+        self.alertState.deletedProjectId = nil
+    }
+}
+
+struct DeleteAllProjects: FileManagerEvent {
+    func handle(fileManager: StitchFileManager) -> MiddlewareManagerResponse {
+        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL.url).value {
+            contents.forEach { url in
+                try? fileManager.removeItem(at: url)
+            }
+        }
+        return .noChange
+    }
+}
+
+extension StitchStore {
+    @MainActor
+    func undoDeleteProject(projectId: ProjectId) {
+        // Find URL from recently deleted
+        let deletedProjectURL = StitchDocument.recentlyDeletedURL
+            .appendingStitchDocPath(projectId)
+
+        // Reimports deleted project
+        Task {
+            do {
+                let _ = try await StitchDocument.openDocument(from: deletedProjectURL,
+                                                              isImport: true)
+            } catch {
+                await MainActor.run { [weak self] in
+                    self?.alertState.stitchFileError = .projectWriteFailed
+                }
+            }
+
+            await MainActor.run { [weak self] in
+                // Remove toast on projects screen
+                self?.alertState.deletedProjectId = nil
+            }
+        }
+    }
+}
+
+struct DeleteAllProjectsConfirmed: AppEvent {
+    func handle(state: AppState) -> AppResponse {
+        var state = state
+        state.alertState.showDeleteAllProjectsConfirmation = false
+
+        let effect: Effect = { DeleteAllProjects() }
+
+        return AppResponse(effects: [effect], state: state)
+    }
+}
