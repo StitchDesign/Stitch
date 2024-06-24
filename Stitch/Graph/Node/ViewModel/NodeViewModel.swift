@@ -76,41 +76,53 @@ final class NodeViewModel: Sendable {
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = NodeViewModelType(from: schema, nodeDelegate: nil)
+        self.nodeType = NodeViewModelType(from: schema.nodeEntityType,
+                                          nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
         // Set delegates
         self.graphDelegate = graphDelegate
-        self.layerNode?.nodeDelegate = self
-        self.patchNode?.canvasObserver.nodeDelegate = self
-        self.layerNode?.getAllCanvasObservers().forEach {
+        self.getAllCanvasObservers().forEach {
+            $0.nodeDelegate = self
+        }
+        self.getAllInputsObservers().forEach {
+            $0.nodeDelegate = self
+        }
+        self.getAllOutputsObservers().forEach {
             $0.nodeDelegate = self
         }
 
-        // Create initial inputs and outputs using default data
-        let rowDefinitions = schema.kind.rowDefinitions(for: schema.patchNodeEntity?.userVisibleType)
-
         self.createEphemeralObservers()
         
-        // Layer nodes use key paths instead of array for input observers
-        if let layerNode = self.layerNode {
-            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
-                guard let layerNodeEntity = schema.layerNodeEntity else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                // Set delegate and call update values helper
-                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath]
-                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
-                rowObserver.nodeDelegate = self
-                
-                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
-            }
+        switch self.nodeType {
+        case .patch(let patchNode):
+            patchNode.delegate = self
+
+        case .layer(let layerNode):
+            layerNode.nodeDelegate = self
+            
+//            // Layer nodes use key paths instead of array for input observers
+//            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
+//                guard let layerNodeEntity = schema.nodeEntityType.layerNodeEntity else {
+//                    fatalErrorIfDebug()
+//                    return
+//                }
+//                
+//                // Set delegate and call update values helper
+//                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath].rowObserver
+//                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
+//                rowObserver.nodeDelegate = self
+//                
+//                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
+//            }
+
+            // Initialize layers
+            self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
+                                            id: self.id)
+        default:
+            return
+            
         }
-        // Initialize layers
-        self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
-                                        id: self.id)
     }
     
     @MainActor

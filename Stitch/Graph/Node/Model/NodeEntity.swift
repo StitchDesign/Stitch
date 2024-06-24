@@ -43,4 +43,22 @@ extension NodeTypeEntity {
             return .group
         }
     }
+    
+    var patchNodeEntity: PatchNodeEntity? {
+        switch self {
+        case .patch(let patchNodeEntity):
+            return patchNodeEntity
+        default:
+            return nil
+        }
+    }
+    
+    var layerNodeEntity: LayerNodeEntity? {
+        switch self {
+        case .layer(let layerNodeEntity):
+            return layerNodeEntity
+        default:
+            return nil
+        }
+    }
 }

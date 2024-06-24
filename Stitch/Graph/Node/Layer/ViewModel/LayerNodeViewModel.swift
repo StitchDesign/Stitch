@@ -26,6 +26,9 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     var previewLayerViewModels: [LayerViewModel]
     
+    // Some layer nodes contain outputs
+    @MainActor var outputsObservers: NodeRowObservers = []
+    
     @MainActor var positionPort: LayerNodeRowData
     @MainActor var sizePort: LayerNodeRowData
     @MainActor var scalePort: LayerNodeRowData
@@ -142,12 +145,23 @@ final class LayerNodeViewModel {
     @MainActor
     init(from schema: LayerNodeEntity,
          nodeDelegate: NodeDelegate?) {
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.layer(schema.layer)
+            .rowDefinitions(for: nil)
+        
         self.id = schema.id
         self.layer = schema.layer
         
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar
+        
+        self.outputsObservers = rowDefinitions
+            .createOutputObservers(nodeId: schema.id,
+                                   values: rowDefinitions.outputs.defaultList,
+                                   kind: .layer(schema.layer),
+                                   userVisibleType: nil,
+                                   nodeDelegate: nodeDelegate)
         
         self.positionPort = .empty(.position, layer: schema.layer)
         self.sizePort = .empty(.size, layer: schema.layer)
@@ -247,7 +261,7 @@ final class LayerNodeViewModel {
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let rowObserver = self[keyPath: inputType.layerNodeKeyPath]
+            let rowObserver = self[keyPath: inputType.layerNodeKeyPath].rowObserver
             
             rowObserver.nodeKind = .layer(schema.layer)
             rowObserver.nodeDelegate = nodeDelegate
@@ -275,7 +289,7 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Process input data
         self.layer.layerGraphNode.inputDefinitions.forEach {
-            self[keyPath: $0.layerNodeKeyPath]
+            self[keyPath: $0.layerNodeKeyPath].rowObserver
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
                         inputType: $0)
         }
@@ -290,7 +304,7 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Only encode keypaths used by this layer
         self.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].createLayerSchema()
+            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].rowObserver.createLayerSchema()
         }
         
         return schema
@@ -310,13 +324,14 @@ extension LayerNodeViewModel {
     @MainActor
     func getSortedInputObservers() -> NodeRowObservers {
         self.layer.layerGraphNode.inputDefinitions.map {
-            self[keyPath: $0.layerNodeKeyPath]
+            self[keyPath: $0.layerNodeKeyPath].rowObserver
         }
     }
     
     @MainActor
     func layerSize(_ activeIndex: ActiveIndex) -> LayerSize? {
-        self.sizePort.getActiveValue(activeIndex: activeIndex).getSize
+        self.sizePort.rowObserver
+            .getActiveValue(activeIndex: activeIndex).getSize
     }
     
     /// Updates one or more preview layers given some layer node.
@@ -430,16 +445,19 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort.getActiveValue(activeIndex: activeIndex).getPoint
+        self.positionPort.rowObserver
+            .getActiveValue(activeIndex: activeIndex).getPoint
     }
     
     @MainActor
     func scaledLayerSize(for nodeId: NodeId,
                          parentSize: CGSize,
                          activeIndex: ActiveIndex) -> ScaledSize? {
-        let scale = self.scalePort.getActiveValue(activeIndex: activeIndex).getNumber ?? .zero
+        let scale = self.scalePort.rowObserver
+            .getActiveValue(activeIndex: activeIndex).getNumber ?? .zero
         
-        return self.sizePort.getActiveValue(activeIndex: activeIndex)
+        return self.sizePort.rowObserver
+            .getActiveValue(activeIndex: activeIndex)
             .getSize?.asCGSize(parentSize)
             .asScaledSize(scale)
     }

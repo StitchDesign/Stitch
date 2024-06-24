@@ -50,40 +50,45 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
-    init(from schema: PatchNodeEntity) {
+    @MainActor init(from schema: PatchNodeEntity,
+                    node: NodeDelegate?) {
+        let kind = NodeKind.patch(schema.patch)
+        
         self.id = schema.id
         self.patch = schema.patch
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
-        
-        // TODO: build canvas and input/output data
-        fatalError()
 
-        //        self.canvasObserver = ...
+        self.canvasObserver = .init(from: schema.canvasEntity,
+                                    node: node)
         
-        // MARK: this is the exact code that was in NodeViewModel init
-//        // Must set inputs before calling eval below
-//        self._inputsObservers = schema.inputs
-//            .createInputObservers(nodeId: schema.id,
-//                                  kind: self.kind,
-//                                  userVisibleType: schema.patchNodeEntity?.userVisibleType,
-//                                  nodeDelegate: self)
-//
-//        self._outputsObservers = rowDefinitions
-//            .createOutputObservers(nodeId: schema.id,
-//                                   values: self.defaultOutputsList,
-//                                   nodeDelegate: self)
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.patch(schema.patch)
+            .rowDefinitions(for: schema.userVisibleType)
+        let defaultOutputsList = rowDefinitions.outputs.defaultList
+        
+        // Must set inputs before calling eval below
+        self.inputsObservers = schema.inputs
+            .createInputObservers(nodeId: schema.id,
+                                  kind: kind,
+                                  userVisibleType: schema.userVisibleType,
+                                  nodeDelegate: node)
+
+        self.outputsObservers = rowDefinitions
+            .createOutputObservers(nodeId: schema.id,
+                                   values: defaultOutputsList,
+                                   kind: kind,
+                                   userVisibleType: schema.userVisibleType,
+                                   nodeDelegate: node)
         
     }
 }
 
 extension PatchNodeViewModel: SchemaObserver {
     static func createObject(from entity: PatchNodeEntity) -> Self {
-        // TODO: patch needs canvas entity
-        fatalError()
-        
-        self.init(from: entity)
+        self.init(from: entity,
+                  node: nil)
     }
 
     func update(from schema: PatchNodeEntity) {
