@@ -677,13 +677,13 @@ extension NodeViewModel: Identifiable { }
 extension NodeViewModel {
     @MainActor
     func activeIndexChanged(activeIndex: ActiveIndex) {
-        self._inputsObservers.forEach { observer in
+        self.getAllInputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = observer.getActiveValue(activeIndex: activeIndex)
             observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
         }
 
-        self._outputsObservers.forEach { observer in
+        self.getAllOutputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = observer.getActiveValue(activeIndex: activeIndex)
             observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
@@ -692,14 +692,15 @@ extension NodeViewModel {
     
     @MainActor
     var inputPortCount: Int {
-        switch kind {
-        case .layer(let layer):
-            return layer.layerGraphNode.inputDefinitions.count
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode.layer
+                .layerGraphNode.inputDefinitions.count
         case .group:
             return self.graphDelegate?.getSplitterRowObservers(for: self.id,
                                                                type: .input).count ?? 0
-        case .patch:
-            return self._inputsObservers.count
+        case .patch(let patchNode):
+            return patchNode.inputsObservers.count
         }
     }
     
@@ -711,14 +712,14 @@ extension NodeViewModel {
                                                                type: .output).count ?? 0
         default:
             // Layers also use this
-            return self._outputsObservers.count
+            return self.getAllOutputsObservers().count
         }
     }
     
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor
     func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> PortValuesList {
-        self._inputsObservers
+        self.getAllInputsObservers()
             .filter { $0.hasUpstreamInteractionNode(nodes) }
             .map(\.allLoopedValues)
     }
@@ -732,7 +733,7 @@ extension NodeViewModel {
             return
         }
 
-        self._outputsObservers[safe: portId]?
+        self.getAllOutputsObservers()[safe: portId]?
             .updateValues(values,
                           activeIndex: activeIndex,
                           isVisibleInFrame: self.isVisibleInFrame)
@@ -741,7 +742,7 @@ extension NodeViewModel {
     @MainActor
     func updateOutputs(_ newOutputsValues: PortValuesList,
                        activeIndex: ActiveIndex) {
-        self._outputsObservers
+        self.getAllOutputsObservers()
             .updateAllValues(newOutputsValues,
                              nodeIO: .output,
                              nodeId: self.id,
@@ -755,6 +756,11 @@ extension NodeViewModel {
     // the extension will happen at eval-time
     @MainActor
     func inputAdded() {
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // assumes new input has no label, etc.
         log("inputAdded called")
         let allInputsObservers = self.getRowObservers(.input)
@@ -780,23 +786,28 @@ extension NodeViewModel {
                                                nodeIOType: .input,
                                                nodeDelegate: lastRowObserver.nodeDelegate)
         
-        self._inputsObservers.append(newInputObserver)
+        patchNode.inputsObservers.append(newInputObserver)
     }
 
     @MainActor
     func inputRemoved(minimumInputs: Int) {
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // assumes new input has no label, etc.
         log("inputRemoved called")
         
-        guard self._inputsObservers.count > minimumInputs else {
+        guard self.getAllInputsObservers().count > minimumInputs else {
             return
         }
 
-        self._inputsObservers = self._inputsObservers.dropLast()
+        patchNode.inputsObservers = patchNode.inputsObservers.dropLast()
     }
     
-    func flattenOutputs() {
-        self._outputsObservers.forEach { output in
+    @MainActor func flattenOutputs() {
+        self.getAllOutputsObservers().forEach { output in
             if let firstValue = output.allLoopedValues.first {
                 output.allLoopedValues = [firstValue]
             }
@@ -804,6 +815,11 @@ extension NodeViewModel {
     }
     
     func appendInputRowObserver(_ rowObserver: NodeRowObserver) {
-        self._inputsObservers.append(rowObserver)
+        guard let patchNode = self.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        patchNode.inputsObservers.append(rowObserver)
     }
 }

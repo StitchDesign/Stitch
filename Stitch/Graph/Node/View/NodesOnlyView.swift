@@ -50,15 +50,14 @@ struct NodesOnlyView: View {
                     isHiddenDuringAnimation: insertNodeMenuHiddenNode
                         .map { $0 == node.id } ?? false
                 )
+                .onChange(of: self.activeIndex) {
+                    // Update values when active index changes
+                    self.canvasNodes.forEach { canvasNode in
+                        node.activeIndexChanged(activeIndex: self.activeIndex)
+                    }
+                }
             } else {
                 EmptyView()
-            }
-        }
-        .onChange(of: self.activeIndex) {
-            // Update values when active index changes
-            self.canvasNodes.forEach { canvasNode in
-                canvasNode.nodeDelegate?
-                    .activeIndexChanged(activeIndex: self.activeIndex)
             }
         }
     }
