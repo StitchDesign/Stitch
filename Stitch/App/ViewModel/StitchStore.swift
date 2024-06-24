@@ -41,11 +41,6 @@ final class StitchStore: Sendable, StoreDelegate {
         // Sets up action dispatching
         GlobalDispatch.shared.delegate = self
 
-        #if COPILOT
-        // Prints NodeInfo for ChatGPT purposes
-        //        NodeInfo.printAllNodeInfo()
-        #endif
-
         self.environment.dirObserver.delegate = self
         self.environment.store = self
     }
