@@ -121,8 +121,6 @@ struct DefaultNodeRowView: View {
                     if let coordinate = data.portViewType {
                         self.rowView(data: data,
                                      coordinateType: coordinate)
-                            .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                                               coordinate: coordinate))
                     } else {
                         EmptyView()
                             .onAppear {

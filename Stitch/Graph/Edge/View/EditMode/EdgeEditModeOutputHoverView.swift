@@ -16,7 +16,6 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     let outputCoordinate: OutputPortViewData
-    let nodeIO: NodeIO
     let isDraggingOutput: Bool
 
     static let REQUIRED_HOVER_DURATION: CGFloat = 0.75
@@ -52,11 +51,7 @@ struct EdgeEditModeOutputHoverViewModifier: ViewModifier {
                 // Make sure the graph isn't in movement
                 guard !graph.graphMovement.graphIsDragged,
                       !graph.graphMovement.canvasItemIsDragged else {
-                    return
-                }
-
-                guard nodeIO == .output else {
-                    // if we have an input, do nothing
+                    log("EdgeEditModeOutputHoverViewModifier: graph is in movement; doing nothing")
                     return
                 }
 

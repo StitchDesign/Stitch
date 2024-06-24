@@ -108,6 +108,10 @@ struct NodeInputOutputView: View {
             self.rowData.activeValueChanged(oldValue: oldViewValue,
                                             newValue: newViewValue)
         }
+        .modifier(EdgeEditModeViewModifier(graphState: graph,
+                                           portId: coordinate.portId,
+                                           nodeId: coordinate.nodeId,
+                                           nodeIOType: self.rowData.nodeIOType))
     }
    
     @ViewBuilder @MainActor
