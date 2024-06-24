@@ -111,6 +111,8 @@ extension PatchNodeViewModel: SchemaObserver {
     func createSchema() -> PatchNodeEntity {
         PatchNodeEntity(id: self.id,
                         patch: self.patch,
+                        inputs: self.inputsObservers.map { $0.createSchema() },
+                        canvasEntity: self.canvasObserver.createSchema(),
                         userVisibleType: self.userVisibleType,
                         splitterNode: self.splitterNode, 
                         mathExpression: self.mathExpression)
