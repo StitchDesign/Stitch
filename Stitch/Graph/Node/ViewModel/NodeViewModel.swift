@@ -381,7 +381,7 @@ extension NodeViewModel {
                 return nil
             }
             
-            return layerNode[keyPath: keyPath.layerNodeKeyPath]
+            return layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
         }
     }
 
@@ -607,8 +607,8 @@ extension NodeViewModel: SchemaObserver {
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self._inputsObservers.onPrototypeRestart()
-        self._outputsObservers.onPrototypeRestart()
+        self.getAllInputsObservers().onPrototypeRestart()
+        self.getAllOutputsObservers().onPrototypeRestart()
         
         // Flatten interaction nodes' outputs when graph reset
         if patchNode?.patch.isInteractionPatchNode ?? false {
