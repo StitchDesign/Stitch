@@ -146,8 +146,8 @@ struct LayerInputOnGraphView: View {
     @MainActor
     var title: some View {
         CanvasItemTitleView(graph: graph,
-                      node: node,
-                      isNodeSelected: isSelected)
+                            node: node,
+                            isNodeSelected: isSelected)
     }
     
     @MainActor

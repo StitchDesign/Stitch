@@ -63,36 +63,34 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
     }
 }
 
-//struct LayerOutputAddedToGraph: GraphEventWithResponse {
-//    
-//    let nodeId: NodeId
-//    let coordinate: OutputPortViewData
-//    
-//    func handle(state: GraphState) -> GraphResponse {
-//        
-//        // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
-//        // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
-//        
-//        guard let node = state.getNodeViewModel(nodeId),
-//              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
-//            log("LayerOutputAddedToGraph: could not add Layer Input to graph")
-//            fatalErrorIfDebug()
-//            return .noChange
-//        }
-//                
-//        input.canvasUIData = .init(
-//            id: .layerInputOnGraph(.init(
-//                node: nodeId,
-//                keyPath: coordinate)),
-//            position: state.newNodeCenterLocation,
-//            zIndex: state.highestZIndex + 1,
-//            // Put newly-created LIG into graph's current traversal level
-//            parentGroupNodeId: state.groupNodeFocused,
-//            nodeDelegate: node)
-//        
-//        return .shouldPersist
-//    }
-//}
+struct LayerOutputAddedToGraph: GraphEventWithResponse {
+    
+    let nodeId: NodeId
+    let coordinate: LayerOutputOnGraphId
+    
+    func handle(state: GraphState) -> GraphResponse {
+        
+        // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
+        // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
+        
+        guard let node = state.getNodeViewModel(coordinate.nodeId),
+              let output = node.getOutputRowObserver(coordinate.portId) else {
+            log("LayerOutputAddedToGraph: could not add Layer Output to graph")
+            fatalErrorIfDebug()
+            return .noChange
+        }
+                
+        output.canvasUIData = .init(
+            id: .layerOutputOnGraph(coordinate),
+            position: state.newNodeCenterLocation,
+            zIndex: state.highestZIndex + 1,
+            // Put newly-created LIG into graph's current traversal level
+            parentGroupNodeId: state.groupNodeFocused,
+            nodeDelegate: node)
+        
+        return .shouldPersist
+    }
+}
 
 extension GraphUIState {
     func layerPropertyTapped(_ property: LayerInspectorRowId) {

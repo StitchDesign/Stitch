@@ -33,6 +33,10 @@ struct NodeInputOutputView: View {
         self.rowData.label(forPropertySidebar)
     }
 
+    var nodeId: NodeId {
+        nodeId
+    }
+    
     var isSplitter: Bool {
         self.nodeKind == .patch(.splitter)
     }
@@ -50,13 +54,16 @@ struct NodeInputOutputView: View {
                     .frame(width: 15, height: 15)
                     .onTapGesture {
                         if let layerInput = self.rowData.id.keyPath {
-                            dispatch(LayerInputAddedToGraph(nodeId: self.node.id,
-                                                            coordinate: layerInput))
+                            dispatch(LayerInputAddedToGraph(
+                                nodeId: nodeId,
+                                coordinate: layerInput))
                         } 
-//                        else if let portId = self.rowData.id.portId {
-//                            dispatch(LayerOutputAddedToGraph(nodeId: self.node.id,
-//                                                            coordinate: .init()))
-//                        }
+                        else if let portId = self.rowData.id.portId {
+                            dispatch(LayerOutputAddedToGraph(
+                                nodeId: nodeId,
+                                coordinate: .init(portId: portId,
+                                                  nodeId: nodeId)))
+                        }
                     }
                     .opacity(propertyIsSelected ? 1 : 0)
             }

@@ -13,25 +13,37 @@ import StitchSchemaKit
 enum CanvasItemId: Equatable, Codable, Hashable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputOnGraphId)
+    case layerOutputOnGraph(LayerOutputOnGraphId)
     
     var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
             return nodeId
-        case .layerInputOnGraph:
+        default:
             return nil
         }
     }
     
     var layerInputCase: LayerInputOnGraphId? {
         switch self {
-        case .node:
-            return nil
         case .layerInputOnGraph(let layerInputOnGraphId):
             return layerInputOnGraphId
+        default:
+            return nil
+        }
+    }
+    
+    var layerOutputCase: LayerOutputOnGraphId? {
+        switch self {
+        case .layerOutputOnGraph(let layerOutputOnGraphId):
+            return layerOutputOnGraphId
+        default:
+            return nil
         }
     }
 }
+
+typealias LayerOutputOnGraphId = OutputPortViewData
 
 // TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
