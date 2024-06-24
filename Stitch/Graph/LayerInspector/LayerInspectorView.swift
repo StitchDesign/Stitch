@@ -16,10 +16,7 @@ extension LayerInputType: Identifiable {
     }
 }
 
-//extension LayerInputType: CaseIterable {
-//    public static var allCases: [LayerInputType_V18.LayerInputType]
-//}
-
+// MARK: Right-hand sidebar i.e. "Property sidebar"
 
 struct LayerInspectorView: View {
     
@@ -66,23 +63,24 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-//                .onAppear {
-//                    #if DEV_DEBUG
-//                    let listedLayers = Self.required
-//                        .union(Self.common)
-//                        .union(Self.groupLayer)
-//                        .union(Self.unknown)
-//                        .union(Self.text)
-//                        .union(Self.stroke)
-//                        .union(Self.rotation)
-//                        .union(Self.shadow)
-//                        .union(Self.effects)
-//
-//                    // TODO: make LayerInputType enum `CaseIterable`
-//                    let allLayers = LayerInputType.allCases
-//                    assert(listedLayers.count == allLayers)
-//                    #endif
-//                }
+                         .onAppear {
+#if DEV_DEBUG
+                             let listedLayers = Self.required
+                                 .union(Self.common)
+                                 .union(Self.groupLayer)
+                                 .union(Self.unknown)
+                                 .union(Self.text)
+                                 .union(Self.stroke)
+                                 .union(Self.rotation)
+                                 .union(Self.shadow)
+                                 .union(Self.effects)
+                             
+                             let allLayers = LayerInputType.allCases.toSet
+                             let diff = allLayers.subtracting(listedLayers)
+                             log("diff: \(diff)")
+                             assert(diff.count == 0)
+#endif
+                         }
         } else {
             // Empty List, so have same background
             List { }

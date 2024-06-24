@@ -6071,7 +6071,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 18.0.1;
+				version = 18.0.2;
 			};
 		};
 		B50F416C2C1EB4830082262F /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
