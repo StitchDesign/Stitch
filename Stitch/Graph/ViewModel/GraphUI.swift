@@ -28,11 +28,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
-struct PropertySidebarState: Equatable {
-    // Which rows in the property sidebar are currently selected
-    var selectedProperties = LayerInputTypeSet() // technically doesn't need to be ordered
-}
-
 @Observable
 final class GraphUIState {
         

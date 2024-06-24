@@ -485,6 +485,8 @@
 		EC5E6C872B717F0800B4CACC /* AnimatableCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */; };
 		EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */; };
 		EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */; };
+		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
+		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1378,6 +1380,8 @@
 		EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCircuitLine.swift; sourceTree = "<group>"; };
 		EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableForwardCircuitLine.swift; sourceTree = "<group>"; };
 		EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGridData.swift; sourceTree = "<group>"; };
+		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
+		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -1888,6 +1892,8 @@
 			children = (
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
+				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
+				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
 			);
 			path = LayerInspector;
 			sourceTree = "<group>";
@@ -4533,6 +4539,7 @@
 				ECFC872F2936CE09004A065A /* StopwatchNode.swift in Sources */,
 				ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */,
 				20308F9C25AD1721008CE3BE /* DelayNodeUtil.swift in Sources */,
+				EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */,
 				EC28CCA0287E355E00987792 /* PatchUIExtensions.swift in Sources */,
 				ECEA4C3B28A32830005C7B49 /* LogHelpers.swift in Sources */,
 				EC8A48F02710EBA3001BB4FC /* GraphStepMovement.swift in Sources */,
@@ -4769,6 +4776,7 @@
 				EC226C672BD881D400411EB7 /* SFSymbolLayerNode.swift in Sources */,
 				ECEEA50B2AFF1A6000C7CE86 /* CommentBoxTitleEditView.swift in Sources */,
 				B5E34E1E2A81E9A80011A3E1 /* EnvironmentValues.swift in Sources */,
+				EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */,
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
 				EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */,
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,

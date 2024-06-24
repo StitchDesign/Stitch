@@ -63,14 +63,45 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
     }
 }
 
+//struct LayerOutputAddedToGraph: GraphEventWithResponse {
+//    
+//    let nodeId: NodeId
+//    let coordinate: OutputPortViewData
+//    
+//    func handle(state: GraphState) -> GraphResponse {
+//        
+//        // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
+//        // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
+//        
+//        guard let node = state.getNodeViewModel(nodeId),
+//              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
+//            log("LayerOutputAddedToGraph: could not add Layer Input to graph")
+//            fatalErrorIfDebug()
+//            return .noChange
+//        }
+//                
+//        input.canvasUIData = .init(
+//            id: .layerInputOnGraph(.init(
+//                node: nodeId,
+//                keyPath: coordinate)),
+//            position: state.newNodeCenterLocation,
+//            zIndex: state.highestZIndex + 1,
+//            // Put newly-created LIG into graph's current traversal level
+//            parentGroupNodeId: state.groupNodeFocused,
+//            nodeDelegate: node)
+//        
+//        return .shouldPersist
+//    }
+//}
+
 extension GraphUIState {
-    func layerPropertyTapped(_ property: LayerInputType) {
+    func layerPropertyTapped(_ property: LayerInspectorRowId) {
         let alreadySelected = self.propertySidebar.selectedProperties.contains(property)
         
         if alreadySelected {
             self.propertySidebar.selectedProperties.remove(property)
         } else {
-            self.propertySidebar.selectedProperties.append(property)
+            self.propertySidebar.selectedProperties.insert(property)
         }
     }
 }

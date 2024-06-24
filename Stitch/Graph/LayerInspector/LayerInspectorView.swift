@@ -9,8 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
 extension LayerInputType: Identifiable {
+    // https://stackoverflow.com/questions/71358712/swiftui-is-it-ok-to-use-hashvalue-in-identifiable
+    // Actually, using hashValue for id is a bad idea?
     public var id: Int {
         self.hashValue
     }
@@ -92,10 +93,10 @@ struct LayerInspectorView: View {
                            _ layerNode: LayerNodeViewModel) -> some View {
         
         // TODO: perf implications?
-        let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorSectionView in
-            LayerInspectorSectionView(
+        let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorInputsSectionView in
+            LayerInspectorInputsSectionView(
                 title: title,
-                layers: layers,
+                layerInputs: layers,
                 node: node,
                 layerNode: layerNode,
                 graph: graph)
@@ -135,75 +136,18 @@ struct LayerInspectorView: View {
             if layerNode.layer.supportsLayerEffectInputs {
                 section("Layer Effects", Self.effects)
             }
+            
+            LayerInspectorOutputsSectionView(node: node, 
+                                             layerNode: layerNode,
+                                             graph: graph)
         }
     }
 }
 
-struct LayerInspectorPortView: View {
-    
-    let layerInputType: LayerInputType
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
-    @Bindable var graph: GraphState
-    
-    // Is this property-row selected?
-    @MainActor
-    var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar
-            .selectedProperties.contains(layerInputType)
-    }
-    
-    var body: some View {
-        let definition = layerNode.layer.layerGraphNode
-        let inputsList = definition.inputDefinitions
-        let rowObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-        
-        let isOnGraphAlready = rowObserver.canvasUIData.isDefined
-        
-        let listBackgroundColor: Color = isOnGraphAlready
-            ? Color.black.opacity(0.3)
-            : (self.propertyRowIsSelected 
-               ? STITCH_PURPLE.opacity(0.4) : .clear)
-        
-        // See if layer node uses this input
-        if inputsList.contains(layerInputType),
-           let portViewType = rowObserver.portViewType {
-            NodeInputOutputView(graph: graph,
-                                node: node,
-                                rowData: rowObserver,
-                                coordinateType: portViewType,
-                                nodeKind: .layer(layerNode.layer),
-                                isCanvasItemSelected: false,
-                                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
-                                forPropertySidebar: true,
-                                propertyIsSelected: propertyRowIsSelected,
-                                propertyIsAlreadyOnGraph: isOnGraphAlready)
-            .listRowBackground(listBackgroundColor)
-            //            .listRowSpacing(12)
-//            .contentShape(Rectangle())
-            .gesture(
-                TapGesture().onEnded({ _ in
-                    // log("LayerInspectorPortView tapped")
-                    if isOnGraphAlready,
-                       let canvasItemId = rowObserver.canvasUIData?.id {
-                        dispatch(JumpToCanvasItem(id: canvasItemId))
-                    } else {
-                        withAnimation {
-                            graph.graphUI.layerPropertyTapped(layerInputType)
-                        }
-                    }
-                })
-            )
-        } else {
-            EmptyView()
-        }
-    }
-}
-
-struct LayerInspectorSectionView: View {
+struct LayerInspectorInputsSectionView: View {
     
     let title: String
-    let layers: LayerInputTypeSet
+    let layerInputs: LayerInputTypeSet
     
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -212,12 +156,18 @@ struct LayerInspectorSectionView: View {
     @State private var expanded = true
     
     var body: some View {
+        let inputsList = layerNode.layer.layerGraphNode.inputDefinitions
+        
         Section(isExpanded: $expanded) {
-            ForEach(layers) { input in
-                LayerInspectorPortView(layerInputType: input,
-                                       node: node,
-                                       layerNode: layerNode,
-                                       graph: graph)
+            ForEach(layerInputs) { layerInput in
+                if inputsList.contains(layerInput) {
+                    LayerInspectorPortView(
+                        layerProperty: .layerInput(layerInput),
+                        rowObserver: layerNode[keyPath: layerInput.layerNodeKeyPath],
+                        node: node,
+                        layerNode: layerNode,
+                        graph: graph)
+                }
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
@@ -235,10 +185,47 @@ struct LayerInspectorSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
-                    layers.forEach {
-                        graph.graphUI.propertySidebar.selectedProperties.remove($0)
+                    layerInputs.forEach {
+                        graph.graphUI.propertySidebar.selectedProperties.remove(.layerInput($0))
                     }
                 }
+            }
+        }
+    }
+}
+
+struct LayerInspectorOutputsSectionView: View {
+    
+    @Bindable var node: NodeViewModel
+    @Bindable var layerNode: LayerNodeViewModel
+    @Bindable var graph: GraphState
+        
+    var body: some View {
+        
+        let outputs = node.outputRowObservers()
+        
+        if outputs.isEmpty {
+            EmptyView()
+        } else {
+            Section(isExpanded: .constant(true)) {
+                ForEach(outputs) { output in
+                    if let portId = output.id.portId {
+                        LayerInspectorPortView(
+                            layerProperty: .layerOutput(.init(portId: portId,
+                                                              nodeId: output.id.nodeId)),
+                            rowObserver: output,
+                            node: node,
+                            layerNode: layerNode,
+                            graph: graph)
+                    } else {
+                        Color.clear.onAppear {
+                            fatalErrorIfDebug("Did not have portId for layer node output")
+                        }
+                    }
+                }
+            } header: {
+                StitchTextView(string: "Outputs")
+                    .padding(4)
             }
         }
     }
@@ -258,219 +245,3 @@ struct LayerInspectorSectionView: View {
     return LayerInspectorView(graph: graph)
 }
 
-// MARK: each one of these corresponds to a section
-extension LayerInspectorView {
-    // TODO: fill these out
-        
-    // TODO: better?: make the LayerInputTypeSet enum CaseIterable and have the enum ordering as the source of truth for this order 
-    @MainActor
-    static let allInputs: LayerInputTypeSet = Self.required
-        .union(Self.common)
-        .union(Self.groupLayer)
-        .union(Self.unknown)
-        .union(Self.text)
-        .union(Self.stroke)
-        .union(Self.rotation)
-        .union(Self.shadow)
-        .union(Self.effects)
-    
-    
-    @MainActor
-    static let required: LayerInputTypeSet = [
-        .position,
-        .size,
-        .scale,
-        .anchoring,
-        .opacity,
-        .zIndex,
-        .pivot // pivot point for scaling; put with
-    ]
-    
-    // Includes some
-    @MainActor
-    static let common: LayerInputTypeSet = [
-        .masks,
-        .clipped,
-        
-        .color, // Text color vs Rectangle color
-        
-        // Hit Area
-        .setupMode,
-        
-        // Model3D
-        .isAnimating,
-        
-        // Shape layer node
-        .shape,
-        .coordinateSystem,
-        
-        // rectangle (and group?)
-        .cornerRadius,
-        
-        // Canvas
-        .canvasLineColor,
-        .canvasLineWidth,
-        
-        // text
-        .text,
-        
-        // Media
-        .image,
-        .video,
-        .model3D,
-        .fitStyle,
-        
-        
-        // Progress Indicator
-        .progressIndicatorStyle,
-        .progress,
-        
-        // Map
-        .mapType,
-        .mapLatLong,
-        .mapSpan,
-        
-        // Switch
-        .isSwitchToggled,
-        
-        // Gradients
-        .startColor,
-        .endColor,
-        .startAnchor,
-        .endAnchor,
-        .centerAnchor,
-        .startAngle,
-        .endAngle,
-        .startRadius,
-        .endRadius,
-        
-        // SFSymbol
-        .sfSymbol,
-        
-        // Video
-        .videoURL,
-        .volume,
-        
-        // Reality
-        .allAnchors,
-        .cameraDirection,
-        .isCameraEnabled,
-        .isShadowsEnabled
-    ]
-    
-    @MainActor
-    static let groupLayer: LayerInputTypeSet = [
-        .backgroundColor, // actually for many layers?
-        .isClipped,
-        .orientation,
-        .padding,
-        // Grid
-        .spacingBetweenGridColumns,
-        .spacingBetweenGridRows,
-        .itemAlignmentWithinGridCell
-    ]
-     
-    // TODO: what are these inputs?
-    @MainActor
-    static let unknown: LayerInputTypeSet = [
-        .lineColor,
-        .lineWidth,
-        .enabled // what is this?
-    ]
- 
-    @MainActor
-    static let text: LayerInputTypeSet = [
-        .text,
-        .placeholderText,
-        .fontSize,
-        .textAlignment,
-        .verticalAlignment,
-        .textDecoration,
-        .textFont,
-    ]
-    
-    @MainActor
-    static let stroke: LayerInputTypeSet = [
-        .strokePosition,
-        .strokeWidth,
-        .strokeColor,
-        .strokeStart,
-        .strokeEnd,
-        .strokeLineCap,
-        .strokeLineJoin
-    ]
-    
-    @MainActor
-    static let rotation: LayerInputTypeSet = [
-        .rotationX,
-        .rotationY,
-        .rotationZ
-    ]
-    
-    @MainActor
-    static let shadow: LayerInputTypeSet = [
-        .shadowColor,
-        .shadowOpacity,
-        .shadowRadius,
-        .shadowOffset
-    ]
-    
-    @MainActor
-    static let effects: LayerInputTypeSet = [
-        .blur, // blur vs blurRadius ?
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
-}
-
-// TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
-extension Layer {
-    
- 
-    @MainActor
-    var supportsGroupInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.groupLayer).isEmpty
-    }
-    
-    @MainActor
-    var supportsUnknownInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.unknown).isEmpty
-    }
-    
-    @MainActor
-    var supportsTypographyInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.text).isEmpty
-    }
-    
-    @MainActor
-    var supportsStrokeInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.stroke).isEmpty
-    }
-
-    @MainActor
-    var supportsRotationInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.rotation).isEmpty
-    }
-    
-    @MainActor
-    var supportsShadowInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.shadow).isEmpty
-    }
-    
-    @MainActor
-    var supportsLayerEffectInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.effects).isEmpty
-    }
-}

@@ -52,7 +52,11 @@ struct NodeInputOutputView: View {
                         if let layerInput = self.rowData.id.keyPath {
                             dispatch(LayerInputAddedToGraph(nodeId: self.node.id,
                                                             coordinate: layerInput))
-                        }
+                        } 
+//                        else if let portId = self.rowData.id.portId {
+//                            dispatch(LayerOutputAddedToGraph(nodeId: self.node.id,
+//                                                            coordinate: .init()))
+//                        }
                     }
                     .opacity(propertyIsSelected ? 1 : 0)
             }
