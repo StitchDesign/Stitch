@@ -13,7 +13,7 @@ struct NodesOnlyView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
-    let nodes: NodeViewModels
+    let canvasNodes: [CanvasNodeViewModel]
     let insertNodeMenuHiddenNode: NodeId?
     
     var selection: GraphUISelectionState {
@@ -30,17 +30,19 @@ struct NodesOnlyView: View {
     
     var body: some View {
         // HACK for when no nodes present
-        if nodes.isEmpty {
+        if canvasNodes.isEmpty {
             Rectangle().fill(.clear)
         }
 
-        ForEach(nodes) { node in
+        ForEach(canvasNodes) { canvasNode in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-            if node.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId {
+            if let node = canvasNode.nodeDelegate as? NodeViewModel,
+               canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId {
                 NodeTypeView(
                     graph: graph,
                     node: node,
+                    canvasNode: canvasNode,
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                     activeIndex: activeIndex,
                     groupNodeFocused: graphUI.groupNodeFocused,
@@ -54,8 +56,9 @@ struct NodesOnlyView: View {
         }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
-            self.nodes.forEach { node in
-                node.activeIndexChanged(activeIndex: self.activeIndex)
+            self.canvasNodes.forEach { canvasNode in
+                canvasNode.nodeDelegate?
+                    .activeIndexChanged(activeIndex: self.activeIndex)
             }
         }
     }

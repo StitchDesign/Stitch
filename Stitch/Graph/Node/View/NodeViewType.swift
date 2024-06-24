@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct NodeTypeView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var canvasNode: CanvasNodeViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
     let groupNodeFocused: GroupNodeId?
