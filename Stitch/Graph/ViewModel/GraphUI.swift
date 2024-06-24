@@ -347,16 +347,24 @@ enum GraphDragState: Codable {
 }
 
 extension GraphState {
+        
     @MainActor
     func resetSelectedCanvasItems() {
-        self.nodes.values.forEach { node in
-            switch node.kind {
-            case .layer:
-                node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
-            case .patch, .group:
-                node.deselect()
-            }
+        
+        self.getCanvasItems().forEach {
+            $0.deselect()
         }
+
+        // // bad: needs to be
+//        self.nodes.values.forEach { node in
+//            switch node.kind {
+//            case .layer:
+//                node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
+//                node.outputRowObservers().forEach { $0.canvasUIData?.deselect() }
+//            case .patch, .group:
+//                node.deselect()
+//            }
+//        }
     }
 }
 

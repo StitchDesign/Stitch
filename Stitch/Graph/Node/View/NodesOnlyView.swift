@@ -59,7 +59,7 @@ struct NodesOnlyView: View {
             
             ForEach(layerRowsOnGraph) { layerRowOnGraph in
                 let isAtThisTraversalLevel = layerRowOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
-                
+                                
                 if isAtThisTraversalLevel,
                    let layerNode = node.layerNode {
                     LayerRowOnGraphView(

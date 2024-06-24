@@ -34,7 +34,7 @@ struct NodeInputOutputView: View {
     }
 
     var nodeId: NodeId {
-        nodeId
+        self.rowData.id.nodeId
     }
     
     var isSplitter: Bool {
@@ -43,6 +43,10 @@ struct NodeInputOutputView: View {
 
     var activeValue: PortValue {
         self.rowData.activeValue
+    }
+    
+    var isLayer: Bool {
+        self.nodeKind.isLayer
     }
 
     var body: some View {
@@ -105,21 +109,15 @@ struct NodeInputOutputView: View {
                                             newValue: newViewValue)
         }
     }
-    
-    var isLayer: Bool {
-        self.nodeKind.isLayer
-    }
-            
-    @ViewBuilder
-    @MainActor
+   
+    @ViewBuilder @MainActor
     var labelView: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR)
     }
 
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     func inputOutputRow(coordinate: NodeIOCoordinate) -> some View {
         ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
             NodeFieldsView(

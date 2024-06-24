@@ -166,20 +166,29 @@ struct LayerRowOnGraphView: View {
     @ViewBuilder @MainActor
     var rowView: some View {
         HStack {
-            // See if layer node uses this input
-            if let portViewType = row.portViewType {
-                NodeInputOutputView(graph: graph,
-                                    node: node,
-                                    rowData: row,
-                                    coordinateType: portViewType,
-                                    nodeKind: .layer(layerNode.layer),
-                                    isCanvasItemSelected: canvasItem.isSelected,
-                                    adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
-            } else {
-                EmptyView()
+            switch self.row.nodeIOType {
+            case .input:
+                rowFieldsView
+                Spacer()
+            case .output:
+                Spacer()
+                rowFieldsView
             }
-            
-            Spacer()
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    var rowFieldsView: some View {
+        if let portViewType = row.portViewType {
+            NodeInputOutputView(graph: graph,
+                                node: node,
+                                rowData: row,
+                                coordinateType: portViewType,
+                                nodeKind: .layer(layerNode.layer),
+                                isCanvasItemSelected: canvasItem.isSelected,
+                                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
+        } else {
+            EmptyView()
         }
     }
 }

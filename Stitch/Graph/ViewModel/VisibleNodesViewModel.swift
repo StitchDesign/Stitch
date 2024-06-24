@@ -195,7 +195,7 @@ extension VisibleNodesViewModel {
             case .patch, .group:
                     partialResult.append(node.canvasUIData)
             case .layer:
-                partialResult.append(contentsOf: node.inputRowObservers().compactMap(\.canvasUIData))
+                partialResult.append(contentsOf: node.allRowObservers().compactMap(\.canvasUIData))
             }
         }
     }
@@ -210,13 +210,14 @@ extension VisibleNodesViewModel {
                     partialResult.append(node.canvasUIData)
                 }
             case .layer:
-                let visibleLayerInputsOnGraph = node.inputRowObservers().compactMap { input in
-                    if let canvasData = input.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
-                        return canvasData
+                let visibleLayerRowsOnGraph = node.allRowObservers()
+                    .compactMap { row in
+                        if let canvasData = row.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
+                            return canvasData
+                        }
+                        return nil
                     }
-                    return nil
-                }
-                partialResult.append(contentsOf: visibleLayerInputsOnGraph)
+                partialResult.append(contentsOf: visibleLayerRowsOnGraph)
             }
         }
     }
