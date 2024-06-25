@@ -17,12 +17,45 @@ extension NodeViewModel {
 }
 
 extension GraphState {
-    
+
     @MainActor
-    func maybeCreateLLMAddNode() {
+    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.graphUI.llmRecording.isRecording,
-           let newlyCreatedNodeId: NodeId = self.graphUI.insertNodeMenuState.hiddenNodeId,
+           let node = self.getNodeViewModel(nodeId) {
+
+            let addLayer = LLMAddLayerInput(
+                node: node.llmNodeTitle,
+                port: property.label())
+            
+            self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
+        }
+    }
+    
+    @MainActor
+    func maybeCreateLLMAddLayerOutput(_ nodeId: NodeId, _ portId: Int) {
+                
+        // If we're LLM-recording, add an `LLMAddNode` action
+        if self.graphUI.llmRecording.isRecording,
+           let node = self.getNodeViewModel(nodeId) {
+            
+            let output = OutputCoordinate(portId: portId, nodeId: nodeId)
+            let port = output.asLLMPort(nodeKind: node.kind,
+                                        nodeIO: .output,
+                                        nodeType: node.userVisibleType)
+            
+            let addLayer = LLMAddLayerInput(
+                node: node.llmNodeTitle,
+                port: port)
+            
+            self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
+        }
+    }
+    
+    @MainActor
+    func maybeCreateLLMAddNode(_ newlyCreatedNodeId: NodeId) {
+        // If we're LLM-recording, add an `LLMAddNode` action
+        if self.graphUI.llmRecording.isRecording,
            let newlyCreatedNode = self.getNodeViewModel(newlyCreatedNodeId) {
             
             let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
@@ -139,11 +172,15 @@ extension NodeIOCoordinate {
             // If we have a PatchNode input/output, or LayerNode output,
             // try to find the label per node definitions
         case .portIndex(let portId):
+            
             let definitions = nodeKind.rowDefinitions(for: nodeType)
+            
             switch nodeIO {
+            
             case .input:
                 let rowLabel = definitions.inputs[safe: portId]?.label ?? ""
                 return rowLabel.isEmpty ? portId.description : rowLabel
+            
             case .output:
                 let rowLabel = definitions.outputs[safe: portId]?.label ?? ""
                 return rowLabel.isEmpty ? portId.description : rowLabel

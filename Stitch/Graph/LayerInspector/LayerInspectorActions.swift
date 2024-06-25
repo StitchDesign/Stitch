@@ -33,6 +33,73 @@ extension GraphDelegate {
 }
 
 
+//struct LayerRowAddedToGraph: GraphEventWithResponse {
+//    
+//    
+//    
+//    // just pass in LayerInspectorRowId and switch on that;
+//    // don't need two actions
+////    let nodeId: NodeId
+////    let coordinate: LayerInputType
+//    let coordinate: NodeIOCoordinate
+//    
+//    func handle(state: GraphState) -> GraphResponse {
+//        
+//        // log("LayerInputAddedToGraph: nodeId: \(nodeId)")
+//        // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
+//        
+//        
+//        CanvasItemViewModel(
+//            id: id,
+//            position: state.newNodeCenterLocation,
+//            zIndex: state.highestZIndex + 1,
+//            // Put newly-created LIG into graph's current traversal level
+//            parentGroupNodeId: state.groupNodeFocused,
+//            nodeDelegate: node)
+//        
+//        let fn = {
+//            CanvasItemViewModel(
+//                id: .layerInputOnGraph(.init(
+//                    node: nodeId,
+//                    keyPath: coordinate)),
+//                position: state.newNodeCenterLocation,
+//                zIndex: state.highestZIndex + 1,
+//                // Put newly-created LIG into graph's current traversal level
+//                parentGroupNodeId: state.groupNodeFocused,
+//                nodeDelegate: node)
+//        }
+//        
+//        switch coordinate.portType {
+//            
+//        case .portIndex(let portId):
+//            coordinate.inputCoordinateAsCanvasItemId
+//            
+//        case .keyPath(let keyPath):
+//            
+//        }
+//        
+//        guard let node = state.getNodeViewModel(nodeId),
+//              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
+//            log("LayerInputAddedToGraph: could not add Layer Input to graph")
+//            fatalErrorIfDebug()
+//            return .noChange
+//        }
+//                
+//        input.canvasUIData = CanvasItemViewModel(
+//            id: .layerInputOnGraph(.init(
+//                node: nodeId,
+//                keyPath: coordinate)),
+//            position: state.newNodeCenterLocation,
+//            zIndex: state.highestZIndex + 1,
+//            // Put newly-created LIG into graph's current traversal level
+//            parentGroupNodeId: state.groupNodeFocused,
+//            nodeDelegate: node)
+//        
+//        return .shouldPersist
+//    }
+//    
+//}
+
 struct LayerInputAddedToGraph: GraphEventWithResponse {
 
     // just pass in LayerInspectorRowId and switch on that;
@@ -62,6 +129,8 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             parentGroupNodeId: state.groupNodeFocused,
             nodeDelegate: node)
         
+        state.maybeCreateLLMAddLayerInput(nodeId, coordinate)
+        
         return .shouldPersist
     }
 }
@@ -90,6 +159,8 @@ struct LayerOutputAddedToGraph: GraphEventWithResponse {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: state.groupNodeFocused,
             nodeDelegate: node)
+        
+        state.maybeCreateLLMAddLayerOutput(nodeId, coordinate.portId)
         
         return .shouldPersist
     }
