@@ -32,7 +32,6 @@ extension GraphDelegate {
     }
 }
 
-
 struct LayerInputAddedToGraph: GraphEventWithResponse {
 
     // just pass in LayerInspectorRowId and switch on that;
@@ -62,6 +61,8 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             parentGroupNodeId: state.groupNodeFocused,
             nodeDelegate: node)
         
+        state.maybeCreateLLMAddLayerInput(nodeId, coordinate)
+        
         return .shouldPersist
     }
 }
@@ -90,6 +91,8 @@ struct LayerOutputAddedToGraph: GraphEventWithResponse {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: state.groupNodeFocused,
             nodeDelegate: node)
+        
+        state.maybeCreateLLMAddLayerOutput(nodeId, coordinate.portId)
         
         return .shouldPersist
     }

@@ -93,7 +93,7 @@ struct AddNodeButtonPressed: GraphEventWithResponse {
             if !newId.isDefined {
                 fatalErrorIfDebug() // should not fail to return
             }
-            state.nodeCreationCompleted()
+            state.nodeCreationCompleted(newId)
             return .shouldPersist
         } else {
             // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
@@ -162,9 +162,16 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
 extension GraphState {
     
     @MainActor
-    func nodeCreationCompleted() {
-        self.maybeCreateLLMAddNode()
+    func nodeCreationCompleted(_ immediatelyCreatedLayerNode: NodeId? = nil) {
         
+        if let newlyCreatedNodeId = immediatelyCreatedLayerNode ?? self.graphUI.insertNodeMenuState.hiddenNodeId {
+            
+            self.maybeCreateLLMAddNode(newlyCreatedNodeId)
+        } else {
+            log("nodeCreationCompleted: finished creating node, but had neither id of immediately created layer node nor id of the node during animation")
+            fatalErrorIfDebug()
+        }
+                
          // log("InsertNodeAnimationCompleted called")
 
         // hide the menu and animated-node

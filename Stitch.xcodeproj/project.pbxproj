@@ -487,6 +487,7 @@
 		EC5F51E42BFFBB3300D3DAD7 /* PreviewGridData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */; };
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
+		EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F64302C2B451C00A9E52F /* LLMActions.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -608,7 +609,6 @@
 		EC9D16E22808D97A00684978 /* ValueEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9D16E12808D97A00684978 /* ValueEntry.swift */; };
 		EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */; };
 		EC9DB348280F239C0061EC3C /* PortDragActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DB347280F239C0061EC3C /* PortDragActions.swift */; };
-		EC9DE6472C1B813500A4472C /* LLMChangeNodeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9DE6462C1B813500A4472C /* LLMChangeNodeType.swift */; };
 		EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */; };
 		ECA2E2B927F6210D00D31ECF /* SidebarListItemSelectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA2E2B827F6210D00D31ECF /* SidebarListItemSelectionStatus.swift */; };
 		ECA3915B29A6C3C9005C10A8 /* StitchProjectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */; };
@@ -750,10 +750,6 @@
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
 		ECD83F092C192BC600722AD7 /* LLMAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F082C192BC600722AD7 /* LLMAction.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
-		ECD83F112C19ED9C00722AD7 /* LLMAddNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F102C19ED9C00722AD7 /* LLMAddNode.swift */; };
-		ECD83F132C19EDB400722AD7 /* LLMAddEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F122C19EDB400722AD7 /* LLMAddEdge.swift */; };
-		ECD83F152C19EDC400722AD7 /* LLMModeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F142C19EDC400722AD7 /* LLMModeNode.swift */; };
-		ECD83F172C19EDD100722AD7 /* LLMSetField.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F162C19EDD100722AD7 /* LLMSetField.swift */; };
 		ECD83F192C19EDF100722AD7 /* LLMEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F182C19EDF100722AD7 /* LLMEvents.swift */; };
 		ECD83F1B2C1A0C5F00722AD7 /* LLMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */; };
 		ECD83F1D2C1A176900722AD7 /* LLMActionUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */; };
@@ -1382,6 +1378,7 @@
 		EC5F51E32BFFBB3300D3DAD7 /* PreviewGridData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGridData.swift; sourceTree = "<group>"; };
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
+		EC5F64302C2B451C00A9E52F /* LLMActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActions.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -1501,7 +1498,6 @@
 		EC9D16E12808D97A00684978 /* ValueEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueEntry.swift; sourceTree = "<group>"; };
 		EC9DB345280F1F710061EC3C /* EdgeDrawingObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingObserver.swift; sourceTree = "<group>"; };
 		EC9DB347280F239C0061EC3C /* PortDragActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortDragActions.swift; sourceTree = "<group>"; };
-		EC9DE6462C1B813500A4472C /* LLMChangeNodeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMChangeNodeType.swift; sourceTree = "<group>"; };
 		EC9F0C8C26549B38003DFD41 /* CameraFeedNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraFeedNode.swift; sourceTree = "<group>"; };
 		ECA2E2B827F6210D00D31ECF /* SidebarListItemSelectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionStatus.swift; sourceTree = "<group>"; };
 		ECA3915A29A6C3C9005C10A8 /* StitchProjectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchProjectView.swift; sourceTree = "<group>"; };
@@ -1642,10 +1638,6 @@
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
 		ECD83F082C192BC600722AD7 /* LLMAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAction.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
-		ECD83F102C19ED9C00722AD7 /* LLMAddNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAddNode.swift; sourceTree = "<group>"; };
-		ECD83F122C19EDB400722AD7 /* LLMAddEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAddEdge.swift; sourceTree = "<group>"; };
-		ECD83F142C19EDC400722AD7 /* LLMModeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMModeNode.swift; sourceTree = "<group>"; };
-		ECD83F162C19EDD100722AD7 /* LLMSetField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMSetField.swift; sourceTree = "<group>"; };
 		ECD83F182C19EDF100722AD7 /* LLMEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEvents.swift; sourceTree = "<group>"; };
 		ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMView.swift; sourceTree = "<group>"; };
 		ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionUtil.swift; sourceTree = "<group>"; };
@@ -4131,14 +4123,10 @@
 			isa = PBXGroup;
 			children = (
 				ECD83F082C192BC600722AD7 /* LLMAction.swift */,
-				EC9DE6462C1B813500A4472C /* LLMChangeNodeType.swift */,
 				ECD83F182C19EDF100722AD7 /* LLMEvents.swift */,
 				ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */,
 				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
-				ECD83F122C19EDB400722AD7 /* LLMAddEdge.swift */,
-				ECD83F142C19EDC400722AD7 /* LLMModeNode.swift */,
-				ECD83F162C19EDD100722AD7 /* LLMSetField.swift */,
-				ECD83F102C19ED9C00722AD7 /* LLMAddNode.swift */,
+				EC5F64302C2B451C00A9E52F /* LLMActions.swift */,
 			);
 			path = LLMActions;
 			sourceTree = "<group>";
@@ -4432,6 +4420,7 @@
 				ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */,
 				EC9AB63D28DFE33A002810BC /* LayerDragEndedActions.swift in Sources */,
 				EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */,
+				EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */,
 				ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */,
 				EC1224A32B98F1E20011D687 /* StitchBlendMode.swift in Sources */,
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
@@ -4512,7 +4501,6 @@
 				B55500BB2C1B99810081C3F1 /* FieldViewModelType.swift in Sources */,
 				205E6DDA25AFCB16001C5C27 /* NodeTesting.swift in Sources */,
 				ECC2BCD32B9B734F00D5F942 /* SidebarItemGestureViewModel.swift in Sources */,
-				ECD83F112C19ED9C00722AD7 /* LLMAddNode.swift in Sources */,
 				E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */,
 				B5EC61F92A5E2174002A639F /* NodeViewType.swift in Sources */,
 				B548533729371E3900C43828 /* RealityView.swift in Sources */,
@@ -4845,7 +4833,6 @@
 				B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */,
 				EC5043A52874CDDB00590D07 /* RGBA.swift in Sources */,
 				B5657D392C0B94A300287362 /* GraphMediaValue.swift in Sources */,
-				ECD83F152C19EDC400722AD7 /* LLMModeNode.swift in Sources */,
 				B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */,
 				EC17ACC226B4BC5900137EA5 /* StitchAudio.swift in Sources */,
 				ECFA5D4A287DEE580037CD59 /* PulseColor.swift in Sources */,
@@ -4913,7 +4900,6 @@
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
-				ECD83F132C19EDB400722AD7 /* LLMAddEdge.swift in Sources */,
 				B55500B12C1B77E00081C3F1 /* PortViewType.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,
@@ -5019,7 +5005,6 @@
 				ECA92A10260A69B000281B52 /* MultiplyNode.swift in Sources */,
 				EC53F3BA287E25D60021095B /* SineNode.swift in Sources */,
 				ECA4FCCA28EB41E4006B4F23 /* NetworkRequestHandleResponse.swift in Sources */,
-				ECD83F172C19EDD100722AD7 /* LLMSetField.swift in Sources */,
 				EC0A5ECD28E22A9900B00A9F /* WhenPrototypeStartsNode.swift in Sources */,
 				EC3A5C49270D1C5800C369CB /* PulseEvaluationHelpers.swift in Sources */,
 				EC609DCC29354A7800BF60A5 /* PowerNode.swift in Sources */,
@@ -5092,7 +5077,6 @@
 				EC9832692B69C926003F9462 /* EdgeEditModeInputLabelView.swift in Sources */,
 				20747C5925CB0B0500570787 /* PreviewLayerType.swift in Sources */,
 				B51523BA2B8C2F7A000042CF /* ProjectLoader.swift in Sources */,
-				EC9DE6472C1B813500A4472C /* LLMChangeNodeType.swift in Sources */,
 				ECFEFF9A26BDD93F00CF042E /* PortValueDefaults.swift in Sources */,
 				ECFA5D48287DEE510037CD59 /* PortColor.swift in Sources */,
 				B5E28AEC2A7988420007C0CB /* ProjectWindowSizeReader.swift in Sources */,

@@ -61,8 +61,7 @@ struct NodeInputOutputView: View {
                             dispatch(LayerInputAddedToGraph(
                                 nodeId: nodeId,
                                 coordinate: layerInput))
-                        } 
-                        else if let portId = self.rowData.id.portId {
+                        } else if let portId = self.rowData.id.portId {
                             dispatch(LayerOutputAddedToGraph(
                                 nodeId: nodeId,
                                 coordinate: .init(portId: portId,

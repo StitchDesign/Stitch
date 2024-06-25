@@ -162,12 +162,6 @@ extension GraphState {
             let sidebarLayerData = SidebarLayerData(id: layerNode.id)
             self.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
             
-//            // added: update the sidebarListState as well
-//            // MUST DO THIS AFTER the node has
-//            self.sidebarListState.masterList = getMasterListFrom(
-//                layerNodes: <#T##LayerNodesDict#>,
-//                orderedSidebarItems: <#T##SidebarLayerList#>)
-            
             return layerNode
 
         case let .patch(x):

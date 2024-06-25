@@ -240,25 +240,21 @@ extension GraphState {
             self.graphMovement.firstActive = .none
         }
         
-        let _update = { (node: CanvasItemViewModel) in
+        let _update = { (canvasItem: CanvasItemViewModel) in
 
-            let nodeSize = node.bounds.graphBaseViewBounds.size
+            let nodeSize = canvasItem.bounds.graphBaseViewBounds.size
             
-            node.position = determineSnapPosition(
-                position: node.position,
-                previousPosition: node.previousPosition,
+            canvasItem.position = determineSnapPosition(
+                position: canvasItem.position,
+                previousPosition: canvasItem.previousPosition,
                 nodeSize: nodeSize)
             
-            let positionAtStart = node.previousPosition
-            node.previousPosition = node.position
-                
-            // TODO: support LLM Actions for LayerInputOnGraph
-            if let nodeId = id.nodeCase, let node = self.getNode(nodeId) {
-                let diff = node.position - positionAtStart
-                self.maybeCreateLLMMoveNode(node: node,
-                                            diff: diff)
-            }
+            let positionAtStart = canvasItem.previousPosition
+            canvasItem.previousPosition = canvasItem.position
             
+            let diff = canvasItem.position - positionAtStart
+            self.maybeCreateLLMMoveNode(canvasItem: canvasItem,
+                                        diff: diff)
         }
         
         self.selectedCanvasItems.forEach { _update($0) }

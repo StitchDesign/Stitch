@@ -41,7 +41,7 @@ extension GraphState {
     func getEdgesToUpdate(selectedCanvasItems: CanvasItemIdSet,
                           edges: Edges) -> (Edges, Edges) {
 
-        var impliedIds = canvasItemsImpliedBySelectedGroupNodes(selectedCanvasItems)
+        let impliedIds = canvasItemsImpliedBySelectedGroupNodes(selectedCanvasItems)
 
         //        log("GroupNodeCreatedEvent: impliedIds: \(impliedIds)")
         //        selectedNodeIds = selectedNodeIds.union(impliedIds)
@@ -56,10 +56,10 @@ extension GraphState {
         var outputEdgesToUpdate: [PortEdgeData] = []
 
         edges.forEach { edge in
-            // why were we testing against node id, rather than input or output coordinate?
             
-            let destinationIsInsideGroup = allImpliedIds.contains(edge.to.asCanvasItemId)
-            let originIsInsideGroup = allImpliedIds.contains(edge.from.asCanvasItemId)
+            let destinationIsInsideGroup = allImpliedIds.contains(edge.to.inputCoordinateAsCanvasItemId)
+            
+            let originIsInsideGroup = allImpliedIds.contains(edge.from.outputCoordinateAsCanvasItemId(self))
             
             // Will the destination be put in the group, but the origin stays outside? if so, that is an "input edge to update" i.e. an edge coming into the group
             if destinationIsInsideGroup && !originIsInsideGroup {

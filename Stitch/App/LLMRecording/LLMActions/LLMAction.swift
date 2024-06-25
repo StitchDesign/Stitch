@@ -11,14 +11,13 @@ import SwiftyJSON
 import StitchSchemaKit
 
 /// What we write to JSON/JSONL file
-//struct LLMRecordingData: Equatable, Codable {
 struct LLMRecordingData: Equatable, Encodable {
     let actions: [LLMAction]
     let prompt: String // user-entered
 }
 
+
 extension [LLMAction] {
-    
     func asJSON() -> JSON? {
         do {
             let data = try JSONEncoder().encode(self)
@@ -36,17 +35,31 @@ extension [LLMAction] {
     }
 }
 
+enum LLMActionNames: String, Equatable {
+    case addNode = "Add Node",
+         moveNode = "Move Node",
+         setField = "Set Field",
+         addEdge = "Add Edge",
+         changeNodeType = "Change Node Type",
+         addLayerInput = "Add Layer Input",
+         addLayerOutput = "Add Layer Output"
+}
+
 //enum LLMAction: Equatable, Codable {
 enum LLMAction: Equatable {
     case addNode(LLMAddNode),
          moveNode(LLMMoveNode),
          addEdge(LLMAddEdge),
          setField(LLMSetFieldAction),
-         changeNodeType(LLMAChangeNodeTypeAction)
+         changeNodeType(LLMAChangeNodeTypeAction),
+         addLayerInput(LLMAddLayerInput),
+         addLayerOutput(LLMAddLayerOutput)
 }
 
 //extension LLMAction: Codable {
 extension LLMAction: Encodable {
+    
+    // Top level coding keys an LLM-action may contain
     enum CodingKeys: String, CodingKey {
         case action,
              
@@ -63,7 +76,10 @@ extension LLMAction: Encodable {
              field, value,
         
             // changing node type, setting field
-            nodeType
+            nodeType,
+        
+            // label of a layer input or output
+            port
     }
 
 //    public init(from decoder: Decoder) throws {
@@ -98,6 +114,7 @@ extension LLMAction: Encodable {
         case .moveNode(let x):
             try container.encode(x.action, forKey: .action)
             try container.encode(x.node, forKey: .node)
+            try container.encode(x.port, forKey: .port)
             try container.encode(x.translation, forKey: .translation)
             
         case .addEdge(let x):
@@ -115,6 +132,16 @@ extension LLMAction: Encodable {
             try container.encode(x.action, forKey: .action)
             try container.encode(x.node, forKey: .node)
             try container.encode(x.nodeType, forKey: .nodeType)
+            
+        case .addLayerInput(let x):
+            try container.encode(x.action, forKey: .action)
+            try container.encode(x.node, forKey: .node)
+            try container.encode(x.port, forKey: .port)
+            
+        case .addLayerOutput(let x):
+            try container.encode(x.action, forKey: .action)
+            try container.encode(x.node, forKey: .node)
+            try container.encode(x.port, forKey: .port)
         }
     }
 }
