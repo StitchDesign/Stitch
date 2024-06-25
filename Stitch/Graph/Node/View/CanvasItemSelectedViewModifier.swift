@@ -154,10 +154,20 @@ extension CanvasItemViewModel {
             input.updateRowObserverUponVisibilityChange(
                 activeIndex: activeIndex,
                 isVisible: newValue)
+            
+        case .layerOutputOnGraph(let x):
+            guard let output = self.nodeDelegate?.graphDelegate?.getLayerOutputOnGraph(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for layerOutputOnGraph \(x)")
+                return
+            }
+            output.canvasUIData?.isVisibleInFrame = newValue
+            output.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: newValue)
         }
     }
 }
-
 
 
 extension NodeRowObserver {

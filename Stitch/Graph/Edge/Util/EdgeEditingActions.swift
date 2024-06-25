@@ -19,9 +19,7 @@ struct OutputHoveredLongEnough: GraphUIEvent {
 extension GraphState {
     @MainActor
     func outputHovered(outputCoordinate: OutputPortViewData) {
-        let outputCoordinate = OutputPortViewData(portId: outputCoordinate.portId,
-                                                  nodeId: outputCoordinate.nodeId)
-
+        
         if self.edgeDrawingObserver.drawingGesture != .none {
             log("OutputHovered called during edge drawing gesture; exiting")
             self.graphUI.edgeAnimationEnabled = false

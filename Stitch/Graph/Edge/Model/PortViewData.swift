@@ -8,18 +8,21 @@
 import Foundation
 import StitchSchemaKit
 
-protocol PortViewData: Equatable, Hashable {
+// TODO: rename to `PortIdAddress`, since this is really a port-id-based way of representing an input's or output's address
+protocol PortViewData: Equatable, Hashable, Codable {
     var portId: Int { get set }
     var nodeId: UUID { get set }
     
     init(portId: Int, nodeId: UUID)
 }
 
+// TODO: rename to `InputPortIdAddress`
 struct InputPortViewData: PortViewData {
     var portId: Int
     var nodeId: UUID
 }
 
+// TODO: rename to `OutputPortIdAddress`
 struct OutputPortViewData: PortViewData {
     var portId: Int
     var nodeId: UUID

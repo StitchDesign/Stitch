@@ -49,9 +49,14 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor func getInputObserver(coordinate: InputCoordinate) -> NodeRowObserver?
     
+    // TODO: we can NEVER pass a keypath as part of retrieving an output
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver?
+    
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     
     @MainActor func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver?
+    
+    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver?
     
     @MainActor func getMediaUrl(forKey: MediaKey) -> URL?
     

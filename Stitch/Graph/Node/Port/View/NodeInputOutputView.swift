@@ -33,12 +33,20 @@ struct NodeInputOutputView: View {
         self.rowData.label(forPropertySidebar)
     }
 
+    var nodeId: NodeId {
+        self.rowData.id.nodeId
+    }
+    
     var isSplitter: Bool {
         self.nodeKind == .patch(.splitter)
     }
 
     var activeValue: PortValue {
         self.rowData.activeValue
+    }
+    
+    var isLayer: Bool {
+        self.nodeKind.isLayer
     }
 
     var body: some View {
@@ -50,8 +58,15 @@ struct NodeInputOutputView: View {
                     .frame(width: 15, height: 15)
                     .onTapGesture {
                         if let layerInput = self.rowData.id.keyPath {
-                            dispatch(LayerInputAddedToGraph(nodeId: self.node.id,
-                                                            coordinate: layerInput))
+                            dispatch(LayerInputAddedToGraph(
+                                nodeId: nodeId,
+                                coordinate: layerInput))
+                        } 
+                        else if let portId = self.rowData.id.portId {
+                            dispatch(LayerOutputAddedToGraph(
+                                nodeId: nodeId,
+                                coordinate: .init(portId: portId,
+                                                  nodeId: nodeId)))
                         }
                     }
                     .opacity(propertyIsSelected ? 1 : 0)
@@ -72,12 +87,19 @@ struct NodeInputOutputView: View {
                 inputOutputRow(coordinate: coordinate)
 
             case .output(let outputCoordinate):
+                
+                // Property sidebar always shows labels on left side, never right
+                if forPropertySidebar {
+                    labelView
+                }
+                
                 // Hide outputs for value node
                 if !isSplitter {
                     inputOutputRow(coordinate: coordinate)
                 }
-                labelView
+                                
                 if !forPropertySidebar {
+                    labelView
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowData: rowData,
@@ -93,22 +115,21 @@ struct NodeInputOutputView: View {
             self.rowData.activeValueChanged(oldValue: oldViewValue,
                                             newValue: newViewValue)
         }
+        .modifier(EdgeEditModeViewModifier(graphState: graph,
+                                           portId: coordinate.portId,
+                                           nodeId: coordinate.nodeId,
+                                           nodeIOType: self.rowData.nodeIOType,
+                                           forPropertySidebar: forPropertySidebar))
     }
-    
-    var isLayer: Bool {
-        self.nodeKind.isLayer
-    }
-            
-    @ViewBuilder
-    @MainActor
+   
+    @ViewBuilder @MainActor
     var labelView: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR)
     }
 
-    @ViewBuilder
-    @MainActor
+    @ViewBuilder @MainActor
     func inputOutputRow(coordinate: NodeIOCoordinate) -> some View {
         ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
             NodeFieldsView(

@@ -8,12 +8,12 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct LayerInputOnGraphView: View {
+struct LayerRowOnGraphView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel // for overall layer node
 
-    @Bindable var input: NodeRowObserver
+    @Bindable var row: NodeRowObserver
     @Bindable var canvasItem: CanvasItemViewModel
     
     @Bindable var layerNode: LayerNodeViewModel
@@ -35,7 +35,7 @@ struct LayerInputOnGraphView: View {
                     
         // Node title with node tag menu button etc.
         ZStack {
-            inputBody
+            rowBody
 #if targetEnvironment(macCatalyst)
                 .contextMenu { tagMenu } // Catalyst right-click to open node tag menu
 #endif
@@ -88,13 +88,13 @@ struct LayerInputOnGraphView: View {
     }
     
     @MainActor
-    var inputBody: some View {
+    var rowBody: some View {
         VStack(spacing: 0) {
             title
                 .padding([.leading, .trailing], 62)
                 .padding(NODE_BODY_PADDING)
             
-            inputView
+            rowView
                 .padding(.top, NODE_BODY_PADDING * 2)
                 .padding(.bottom, NODE_BODY_PADDING + 4)
                 .overlay(
@@ -146,8 +146,8 @@ struct LayerInputOnGraphView: View {
     @MainActor
     var title: some View {
         CanvasItemTitleView(graph: graph,
-                      node: node,
-                      isNodeSelected: isSelected)
+                            node: node,
+                            isNodeSelected: isSelected)
     }
     
     @MainActor
@@ -164,22 +164,31 @@ struct LayerInputOnGraphView: View {
     }
     
     @ViewBuilder @MainActor
-    var inputView: some View {
+    var rowView: some View {
         HStack {
-            // See if layer node uses this input
-            if let portViewType = input.portViewType {
-                NodeInputOutputView(graph: graph,
-                                    node: node,
-                                    rowData: input,
-                                    coordinateType: portViewType,
-                                    nodeKind: .layer(layerNode.layer),
-                                    isCanvasItemSelected: canvasItem.isSelected,
-                                    adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
-            } else {
-                EmptyView()
+            switch self.row.nodeIOType {
+            case .input:
+                rowFieldsView
+                Spacer()
+            case .output:
+                Spacer()
+                rowFieldsView
             }
-            
-            Spacer()
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    var rowFieldsView: some View {
+        if let portViewType = row.portViewType {
+            NodeInputOutputView(graph: graph,
+                                node: node,
+                                rowData: row,
+                                coordinateType: portViewType,
+                                nodeKind: .layer(layerNode.layer),
+                                isCanvasItemSelected: canvasItem.isSelected,
+                                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
+        } else {
+            EmptyView()
         }
     }
 }
@@ -188,10 +197,10 @@ struct FakeLayerInputOnGraphView: View {
     
     var body: some View {
         let node = Layer.oval.getFakeLayerNode()!
-        LayerInputOnGraphView(
+        LayerRowOnGraphView(
             graph: .fakeEmptyGraphState,
             node: node,
-            input: node.inputRowObservers()[1],
+            row: node.inputRowObservers()[1],
             canvasItem: .fakeCanvasItemForLayerInputOnGraph,
             layerNode: node.layerNode!)
     }

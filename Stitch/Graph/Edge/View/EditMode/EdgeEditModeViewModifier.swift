@@ -11,7 +11,10 @@ import SwiftUI
 struct EdgeEditModeViewModifier: ViewModifier {
 
     @Bindable var graphState: GraphState
-    let coordinate: PortViewType
+    let portId: Int?
+    let nodeId: NodeId
+    let nodeIOType: NodeIO
+    let forPropertySidebar: Bool
 
     @MainActor
     var isDraggingOutput: Bool {
@@ -19,16 +22,18 @@ struct EdgeEditModeViewModifier: ViewModifier {
     }
 
     func body(content: Content) -> some View {
-        switch coordinate {
-        case .input:
-            content
-        case .output(let outputPortViewData):
+                
+        if let portId = portId,
+            nodeIOType == .output,
+           !forPropertySidebar {
             content
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graphState,
-                    outputCoordinate: outputPortViewData,
-                    nodeIO: coordinate.nodeIO,
+                    outputCoordinate: .init(portId: portId, 
+                                            nodeId: nodeId),
                     isDraggingOutput: isDraggingOutput))
+        } else {
+            content
         }
     }
 }
