@@ -132,8 +132,7 @@ extension GraphState {
                                                port: port,
                                                field: fieldIndex),
                     value: value.asLLMValue,
-                    nodeType: NodeType(value).display))
-            )
+                    nodeType: NodeType(value))))
         }
     }
     

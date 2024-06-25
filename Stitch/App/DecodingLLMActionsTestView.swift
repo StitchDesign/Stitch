@@ -11,15 +11,20 @@ import SwiftyJSON
 
 struct DecodingLLMActionsView: View {
     
-    let json = Self.json1
+    let json: JSON = Self.json1
     
-    var body: some View {
-        Text(json.description)
-            .onAppear {
-                
-            }
+    var decodedActions: [LLMAction] {
+        let data = try! json.rawData()
+        let actions = try! JSONDecoder().decode([LLMAction].self, from: data)
+        return actions
     }
     
+    var body: some View {
+        HStack(spacing: 200) {
+            Text("json.description: \(json.description)")
+            Text("decodedActions: \(decodedActions)")
+        }
+    }
     
     // Creating Add node, editing its first input’s first field
     static let json1 = JSON.init(parseJSON: """
