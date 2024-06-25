@@ -14,6 +14,7 @@ struct EdgeEditModeViewModifier: ViewModifier {
     let portId: Int?
     let nodeId: NodeId
     let nodeIOType: NodeIO
+    let forPropertySidebar: Bool
 
     @MainActor
     var isDraggingOutput: Bool {
@@ -22,7 +23,9 @@ struct EdgeEditModeViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
                 
-        if let portId = portId, nodeIOType == .output {
+        if let portId = portId,
+            nodeIOType == .output,
+           !forPropertySidebar {
             content
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graphState,

@@ -87,12 +87,19 @@ struct NodeInputOutputView: View {
                 inputOutputRow(coordinate: coordinate)
 
             case .output(let outputCoordinate):
+                
+                // Property sidebar always shows labels on left side, never right
+                if forPropertySidebar {
+                    labelView
+                }
+                
                 // Hide outputs for value node
                 if !isSplitter {
                     inputOutputRow(coordinate: coordinate)
                 }
-                labelView
+                                
                 if !forPropertySidebar {
+                    labelView
                     NodeRowPortView(graph: graph,
                                     node: node,
                                     rowData: rowData,
@@ -111,7 +118,8 @@ struct NodeInputOutputView: View {
         .modifier(EdgeEditModeViewModifier(graphState: graph,
                                            portId: coordinate.portId,
                                            nodeId: coordinate.nodeId,
-                                           nodeIOType: self.rowData.nodeIOType))
+                                           nodeIOType: self.rowData.nodeIOType,
+                                           forPropertySidebar: forPropertySidebar))
     }
    
     @ViewBuilder @MainActor
