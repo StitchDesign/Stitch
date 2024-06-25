@@ -28,8 +28,8 @@ struct LLMMoveNode: Equatable, Codable {
     let action: String = LLMActionNames.moveNode.rawValue
     let node: String
     
-    // empty string if moved a patch node, 
-    // non-empty string if moved a layer input/field
+    // empty string if we moved a patch node,
+    // non-empty string if we moved a layer input/field.
     let port: String
     
     // (position at end of movement - position at start of movement)

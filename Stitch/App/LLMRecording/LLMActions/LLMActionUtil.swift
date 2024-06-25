@@ -65,13 +65,20 @@ extension GraphState {
     }
 
     @MainActor
-    func maybeCreateLLMMoveNode(node: NodeViewModel,
+    func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,
                                 // (position - previousGesture) i.e. how much we moved
                                 diff: CGPoint) {
         
-        if self.graphUI.llmRecording.isRecording {
+        if self.graphUI.llmRecording.isRecording,
+           let nodeId = canvasItem.nodeDelegate?.id,
+           let node = self.getNode(nodeId) {
+            
+            let layerInput = canvasItem.id.layerInputCase?.keyPath.label()
+            let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
+                        
             let llmMoveNode = LLMMoveNode(
-                node: node.llmNodeTitle,
+                node: node.llmNodeTitle, 
+                port: layerInput ?? layerOutPort ?? "",
                 // Position is diff'd against a graphOffset of 0,0
                 // Round the position numbers so that
                 translation: .init(x: diff.x.rounded(),
@@ -80,7 +87,7 @@ extension GraphState {
             self.graphUI.llmRecording.actions.append(.moveNode(llmMoveNode))
         }
     }
-    
+        
     @MainActor
     func maybeCreateLLMAddEdge(_ edge: PortEdgeData) {
         // If we're LLM-recording, add an `LLMAddNode` action

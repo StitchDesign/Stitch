@@ -114,6 +114,7 @@ extension LLMAction: Encodable {
         case .moveNode(let x):
             try container.encode(x.action, forKey: .action)
             try container.encode(x.node, forKey: .node)
+            try container.encode(x.port, forKey: .port)
             try container.encode(x.translation, forKey: .translation)
             
         case .addEdge(let x):
