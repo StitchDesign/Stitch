@@ -7,7 +7,6 @@
 
 import Foundation
 import StitchSchemaKit
-import SwiftyJSON
 
 extension NodeViewModel {
     @MainActor

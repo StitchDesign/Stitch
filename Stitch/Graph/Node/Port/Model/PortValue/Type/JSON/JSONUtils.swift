@@ -217,8 +217,8 @@ extension JSON {
     init(key: String,
          value: PortValue) {
         
-            log("JSONObjectFromKeyAndValue: key: \(key)")
-            log("JSONObjectFromKeyAndValue: value: \(value)")
+        // log("JSONObjectFromKeyAndValue: key: \(key)")
+        // log("JSONObjectFromKeyAndValue: value: \(value)")
         
         var j = JSON()
         switch JSONFriendlyFormat(value: value) {

@@ -49,7 +49,6 @@ struct LLMAFieldCoordinate: Equatable, Codable {
 struct LLMSetFieldAction: Equatable, Encodable {
     let action: String = LLMActionNames.setField.rawValue
     let field: LLMAFieldCoordinate
-//    let value: String
     let value: JSONFriendlyFormat
     let nodeType: String
 }
