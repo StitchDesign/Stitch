@@ -123,28 +123,37 @@ extension PatchNodeViewModel: SchemaObserver {
 
 extension PatchNodeViewModel {
     // Other inits better for public accesss
-    private convenience init(id: NodeId,
+    @MainActor private convenience init(id: NodeId,
                              patch: Patch,
+                             inputs: [NodePortInputEntity],
+                             canvasEntity: CanvasNodeEntity,
                              userVisibleType: UserVisibleType? = nil,
                              mathExpression: String?,
                              splitterNode: SplitterNodeEntity?,
                              delegate: PatchNodeViewModelDelegate?) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
+                                     inputs: inputs,
+                                     canvasEntity: canvasEntity,
                                      userVisibleType: userVisibleType,
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
-        self.init(from: entity)
+        self.init(from: entity,
+                  node: delegate)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
 
-    convenience init(id: NodeId,
+    @MainActor convenience init(id: NodeId,
                      patch: Patch,
+                     inputs: [NodePortInputEntity],
+                     canvasEntity: CanvasNodeEntity,
                      userVisibleType: UserVisibleType? = nil,
                      delegate: PatchNodeViewModelDelegate?) {
         self.init(id: id,
                   patch: patch,
+                  inputs: inputs,
+                  canvasEntity: canvasEntity,
                   userVisibleType: userVisibleType,
                   mathExpression: nil,
                   splitterNode: nil,
@@ -213,7 +222,7 @@ extension PatchNodeViewModel {
         // log("updateMathExpressionNodeInputs: variables: \(variables)")
         
         // Keep value and connection
-        let oldInputs: [(PortValues, OutputCoordinate?)] = self.getRowObservers(.input).map {
+        let oldInputs: [(PortValues, OutputCoordinate?)] = self.inputsObservers.map {
             ($0.allLoopedValues, $0.upstreamOutputCoordinate)
         }
         
@@ -234,6 +243,13 @@ extension PatchNodeViewModel {
         // Update cached port view data
         self.updateAllPortViewData()
     }
+    
+    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
+    @MainActor
+    func updateAllPortViewData() {
+        self.inputsObservers.forEach { $0.updatePortViewData() }
+        self.outputsObservers.forEach { $0.updatePortViewData() }
+    }
 }
 
 extension NodeViewModel {
@@ -250,10 +266,26 @@ extension NodeViewModel {
                      patch: Patch,
                      userVisibleType: UserVisibleType?,
                      splitterNode: SplitterNodeEntity? = nil) {
+        
+        let inputEntities = inputs.enumerated().map { portId, values in
+            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
+                                                     nodeId: id),
+                                nodeKind: nodeType.kind,
+                                userVisibleType: userVisibleType,
+                                values: values,
+                                upstreamOutputCoordinate: nil)
+        }
+            
+        let canvasEntity = CanvasNodeEntity(id: .init(),
+                                            position: position.toCGPoint,
+                                            zIndex: zIndex,
+                                            parentGroupNodeId: nil)
 
         let patchNode = PatchNodeViewModel(
             id: id,
             patch: patch,
+            inputs: inputEntities,
+            canvasEntity: canvasEntity,
             userVisibleType: userVisibleType,
             delegate: nil)
 
@@ -271,6 +303,7 @@ extension NodeViewModel {
                   graphDelegate: nil)
 
         patchNode.delegate = self
+        patchNode.canvasObserver.nodeDelegate = self
 
         // Set splitter info
         patchNode.splitterNode = splitterNode
