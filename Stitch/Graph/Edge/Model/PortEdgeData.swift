@@ -19,9 +19,7 @@ struct PortEdgeData: Hashable {
 }
 
 extension NodeIOCoordinate {
-    
-//    var inputCoordinateAsCanvasItemId
-    
+        
     // TODO: portType.portIndex vs .keyPath is not enough to create a canvas item id, since that can be for
     
     // InputCoordinate -> CanvasItemId = keypath is always for layer input, port id is always for patch input

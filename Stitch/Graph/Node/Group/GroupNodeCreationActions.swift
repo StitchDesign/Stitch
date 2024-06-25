@@ -56,17 +56,8 @@ extension GraphState {
         var outputEdgesToUpdate: [PortEdgeData] = []
 
         edges.forEach { edge in
-            // why were we testing against node id, rather than input or output coordinate?
             
             let destinationIsInsideGroup = allImpliedIds.contains(edge.to.inputCoordinateAsCanvasItemId)
-            
-            // You're asking: does this edge originate from an output that will be put into the group?
-            // What you have is a set of canvas items.
-            // You could just compare against node ids? ... But that won't work for layer inputs/outputs, since one layer input could sit inside the graph while the other sits outside.
-            
-            // Suppose we have selected the following canvas items: 1 patch node, 1 layer input, 1 layer output
-            
-            // To know whether an output is from a patch node or a layer node, you would have to check the node itself.
             
             let originIsInsideGroup = allImpliedIds.contains(edge.from.outputCoordinateAsCanvasItemId(self))
             
