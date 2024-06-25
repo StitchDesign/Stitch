@@ -149,17 +149,20 @@ extension GraphState {
             )
         }
     }
-    
 }
 
 extension PortValue {
-    var asLLMValue: String {
+    @MainActor
+    var asLLMValue: JSONFriendlyFormat {
+                
         switch self {
         // Use shorter ids for assigned-layer nodes
         case .assignedLayer(let x):
-            return x?.id.debugFriendlyId.description ?? self.display
+            let shorterId = x?.id.debugFriendlyId.description ?? self.display
+            return .init(value: .string(.init(shorterId)))
+            
         default:
-            return self.display
+            return .init(value: self)
         }
     }
 }
