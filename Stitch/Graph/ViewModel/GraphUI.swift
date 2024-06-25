@@ -8,6 +8,227 @@
 import SwiftUI
 import StitchSchemaKit
 
+// MARK: where we can store canvas ui data
+
+// Addresses to specific fields in an unpacked multifield layer node input
+enum LayerFields {
+    case position(LayerFieldsPosition)
+    case size(LayerFieldsSize)
+    case dropShadow(LayerFieldsDropShadow)
+}
+
+enum LayerFieldsPosition {
+    case x, y
+}
+
+enum LayerFieldsSize {
+    case width, height
+}
+
+enum LayerFieldsDropShadow {
+    case x, y, blur, radius
+}
+
+enum _CanvasItemId {
+    // patch node
+    case node(NodeId)
+    
+    // e.g. scale, rotation x, rotation y, packed size, packed position
+    case layerInput(nodeId: NodeId, input: LayerInputType)
+    
+    // e.g. unpacked size, unpacked position
+    case layerField(nodeId: NodeId, address: LayerFields)
+}
+
+struct LayerRowData {
+    let rowObserver: NodeRowObserver
+    
+    // i.e. This layer node input has either:
+    // - no canvas items at all, or
+    // - one canvas item, or
+    // - n-many canvas items (each optional)
+    let canvasObservers: LayerRowCanvas?
+    
+    // i.e. for this given layer node input, get the canvas ui item
+    func getCanvasObserver(id: _CanvasItemId) -> CanvasItemViewModel? {
+        self.canvasObservers?.getCanvasObserver(id: id)
+    }
+}
+
+// "1 address = 1 canvas ui data (optional)" feels correct; we're capturing the fact that
+enum LayerRowCanvas {
+    // e.g. color, corner radius, packed size, packed position etc.
+    case single(CanvasItemViewModel)
+    
+    // unpacked size, unpacked position
+    case two(x: CanvasItemViewModel?,
+             y: CanvasItemViewModel?)
+    
+    // unpacked point3D
+    case three(x: CanvasItemViewModel?,
+               y: CanvasItemViewModel?,
+               z: CanvasItemViewModel?)
+    
+    // unpacked padding, unpacked dropshadow; can choose different names, or use a totally separate case
+    // can use generic parameters (below works well for Point4D) ...
+    case four(x: CanvasItemViewModel?,
+              y: CanvasItemViewModel?,
+              z: CanvasItemViewModel?,
+              w: CanvasItemViewModel?)
+    
+    // ... or additional, more specific cases:
+    case dropshadow(x: CanvasItemViewModel?,
+                    y: CanvasItemViewModel?,
+                    blur: CanvasItemViewModel?,
+                    radius: CanvasItemViewModel?)
+    
+    func getCanvasObserver(id: _CanvasItemId) -> CanvasItemViewModel? {
+        
+        switch id {
+            
+        case .layerInput:
+            return self.getSingle()
+            
+        case .layerField(nodeId: let nodeId, address: let field):
+            
+            // The mapping of unique addresses to numerically-counted Feels a bit verbose / redundant ?
+            switch field {
+                
+            case .position(let layerFieldsPosition):
+                switch layerFieldsPosition {
+                case .x:
+                    return self.getTwoX()
+                case .y:
+                    return self.getTwoY()
+                }
+                
+            case .size(let layerFieldsSize):
+                switch layerFieldsSize {
+                case .width:
+                    return self.getTwoX()
+                case .height:
+                    return self.getTwoY()
+                }
+                
+            case .dropShadow(let layerFieldsDropShadow):
+                switch layerFieldsDropShadow {
+                case .x:
+                    return self.getDropshadowX()
+                case .y:
+                    return self.getDropshadowY()
+                case .blur:
+                    return self.getDropshadowBlur()
+                case .radius:
+                    return self.getDropshadowRadius()
+                }
+                
+            default:
+                fatalError()
+            } // switch address
+            
+        default:
+            fatalError()
+        } // switch id
+        
+    }
+    
+}
+
+// Helpers; we only write these once, and only for (potentially) multifield layer inputs
+extension LayerRowCanvas {
+    
+    func getSingle() -> CanvasItemViewModel? {
+        switch self {
+        case .single(let x):
+            return x
+        default:
+            return nil
+        }
+    }
+    
+    func getTwoX() -> CanvasItemViewModel? {
+        switch self {
+        case .two(let x, let y):
+            return x
+        default:
+            return nil
+        }
+    }
+    
+    func getTwoY() -> CanvasItemViewModel? {
+        switch self {
+        case .two(let x, let y):
+            return y
+        default:
+            return nil
+        }
+    }
+    
+    func getThreeX() -> CanvasItemViewModel? {
+        switch self {
+        case .three(let x, let y, let z):
+            return x
+        default:
+            return nil
+        }
+    }
+    
+    func getThreeY() -> CanvasItemViewModel? {
+        switch self {
+        case .three(let x, let y, let z):
+            return y
+        default:
+            return nil
+        }
+    }
+    
+    func getThreeZ() -> CanvasItemViewModel? {
+        switch self {
+        case .three(let x, let y, let z):
+            return z
+        default:
+            return nil
+        }
+    }
+    
+    func getDropshadowX() -> CanvasItemViewModel? {
+        switch self {
+        case .dropshadow(x: let x, y: let y, blur: let blur, radius: let radius):
+            return x
+        default:
+            return nil
+        }
+    }
+    
+    func getDropshadowY() -> CanvasItemViewModel? {
+        switch self {
+        case .dropshadow(x: let x, y: let y, blur: let blur, radius: let radius):
+            return y
+        default:
+            return nil
+        }
+    }
+    
+    func getDropshadowBlur() -> CanvasItemViewModel? {
+        switch self {
+        case .dropshadow(x: let x, y: let y, blur: let blur, radius: let radius):
+            return blur
+        default:
+            return nil
+        }
+    }
+    
+    func getDropshadowRadius() -> CanvasItemViewModel? {
+        switch self {
+        case .dropshadow(x: let x, y: let y, blur: let blur, radius: let radius):
+            return radius
+        default:
+            return nil
+        }
+    }
+}
+
+
 let DEFAULT_LANDSCAPE_ORIGIN = CGPoint(x: 0.0, y: 24.0)
 
 // 12.9-inch 5th generation iPad
