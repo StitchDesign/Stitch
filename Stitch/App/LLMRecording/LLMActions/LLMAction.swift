@@ -45,7 +45,6 @@ enum LLMActionNames: String, Equatable {
          addLayerOutput = "Add Layer Output"
 }
 
-//enum LLMAction: Equatable, Codable {
 enum LLMAction: Equatable {
     case addNode(LLMAddNode),
          moveNode(LLMMoveNode),
