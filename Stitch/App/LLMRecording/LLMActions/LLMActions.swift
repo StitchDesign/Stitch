@@ -50,7 +50,7 @@ struct LLMSetFieldAction: Equatable, Encodable {
     let action: String = LLMActionNames.setField.rawValue
     let field: LLMAFieldCoordinate
     let value: JSONFriendlyFormat
-    let nodeType: String
+    let nodeType: NodeType
 }
 
 

@@ -590,7 +590,9 @@ extension JSON {
     }
 }
 
-enum JSONFriendlyFormat: Encodable, Equatable {
+// Needs to be decodable too
+//enum JSONFriendlyFormat: Encodable, Equatable {
+enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
     case string(String),
          number(Double),
          dictionary([String: Double]),

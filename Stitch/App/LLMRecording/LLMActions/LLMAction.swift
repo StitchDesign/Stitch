@@ -56,7 +56,7 @@ enum LLMAction: Equatable {
 }
 
 //extension LLMAction: Codable {
-extension LLMAction: Encodable {
+extension LLMAction: Encodable, Decodable {
     
     // Top level coding keys an LLM-action may contain
     enum CodingKeys: String, CodingKey {
@@ -81,12 +81,69 @@ extension LLMAction: Encodable {
             port
     }
 
-//    public init(from decoder: Decoder) throws {
-//        let container = try decoder.container(keyedBy: CodingKeys.self)
-//
-//        // the `type` key, whether it's "lineTo" or "moveTo"
-//        let type = try container.decode(LLMAction.self, forKey: .type)
-//
+    // where was this decoder code originally from?
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // the `type` key, whether it's "lineTo" or "moveTo"
+        
+        // will be a string
+        let action = try container.decode(String.self, forKey: .action)
+
+        switch action {
+        
+        case LLMActionNames.addNode.rawValue:
+            log("LLMAction: Decoder: decoding .addNode")
+            let node = try container.decode(String.self, forKey: .node)
+            self = .addNode(.init(node: node))
+        
+        case LLMActionNames.moveNode.rawValue:
+            log("LLMAction: Decoder: decoding .moveNode")
+            let node = try container.decode(String.self, forKey: .node)
+            let port = try container.decode(String.self, forKey: .port)
+            let translation = try container.decode(LLMMoveNodeTranslation.self, forKey: .translation)
+            self = .moveNode(.init(node: node,
+                                   port: port,
+                                   translation: translation))
+            
+        case LLMActionNames.addEdge.rawValue:
+            log("LLMAction: Decoder: decoding .addEdge")
+            let from = try container.decode(LLMAddEdgeCoordinate.self, forKey: .from)
+            let to = try container.decode(LLMAddEdgeCoordinate.self, forKey: .to)
+            self = .addEdge(.init(from: from, to: to))
+            
+        case LLMActionNames.setField.rawValue:
+            log("LLMAction: Decoder: decoding .setField")
+            let field = try container.decode(LLMAFieldCoordinate.self, forKey: .field)
+            let value = try container.decode(JSONFriendlyFormat.self, forKey: .value)
+            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
+            self = .setField(.init(field: field, value: value, nodeType: nodeType))
+                
+        case LLMActionNames.changeNodeType.rawValue:
+            log("LLMAction: Decoder: decoding .changeNodeType")
+            let node = try container.decode(String.self, forKey: .node)
+            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
+            self = .changeNodeType(.init(node: node, nodeType: nodeType))
+            
+        
+        case LLMActionNames.addLayerInput.rawValue:
+            log("LLMAction: Decoder: decoding .addLayerInput")
+            let node = try container.decode(String.self, forKey: .node)
+            let port = try container.decode(String.self, forKey: .port)
+            self = .addLayerInput(.init(node: node, port: port))
+        
+        case LLMActionNames.addLayerOutput.rawValue:
+            log("LLMAction: Decoder: decoding .addLayerOutput")
+            let node = try container.decode(String.self, forKey: .node)
+            let port = try container.decode(String.self, forKey: .port)
+            self = .addLayerOutput(.init(node: node, port: port))
+        
+        default:
+            fatalErrorIfDebug("LLMAction: decoder: unrecognized action")
+            self = .moveNode(.init(node: "", port: "", translation: .init(x: 0, y: 0)))
+            return
+        }
+        
 //        switch type {
 //
 //        case .addNode(value: llmAddNode):
@@ -97,8 +154,8 @@ extension LLMAction: Encodable {
 //            let point = try container.decode(PathPoint.self, forKey: .moveNode)
 //            self = .moveTo(point: point)
 //        }
-//
-//    }
+
+    }
 
     // Note: we encode a key-value pair (e.g. "type: moveTo")
     // which we don't actually use in the enum.
