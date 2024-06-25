@@ -138,37 +138,25 @@ final class NodeViewModel: Sendable {
                      nodeType: NodeViewModelType,
                      parentGroupNodeId: NodeId?,
                      graphDelegate: GraphDelegate?) {
-        var patchNodeEntity: PatchNodeEntity?
-        var layerNodeEntity: LayerNodeEntity?
-        var isGroup = false
 
-        switch nodeType {
-        case .patch(let patchNodeViewModel):
-            patchNodeEntity = patchNodeViewModel.createSchema()
-        case .layer(let layerNodeViewModel):
-            layerNodeEntity = layerNodeViewModel.createSchema()
-        case .group:
-            isGroup = true
-        }
-
-        let inputEntities = inputs.enumerated().map { portId, values in
-            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
-                                                     nodeId: id),
-                                nodeKind: nodeType.kind,
-                                userVisibleType: patchNodeEntity?.userVisibleType,
-                                values: values,
-                                upstreamOutputCoordinate: nil)
-        }
+//        let inputEntities = inputs.enumerated().map { portId, values in
+//            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
+//                                                     nodeId: id),
+//                                nodeKind: nodeType.kind,
+//                                userVisibleType: nodeType.patchNode?.userVisibleType,
+//                                values: values,
+//                                upstreamOutputCoordinate: nil)
+//        }
+        
+        let canvasEntity = CanvasNodeEntity(id: .init(),
+                                            position: position.toCGPoint,
+                                            zIndex: zIndex,
+                                            parentGroupNodeId: parentGroupNodeId)
 
         let nodeEntity = NodeEntity(id: id,
-                                    position: position.toCGPoint,
-                                    zIndex: zIndex,
-                                    parentGroupNodeId: parentGroupNodeId,
-                                    patchNodeEntity: patchNodeEntity,
-                                    layerNodeEntity: layerNodeEntity,
-                                    isGroupNode: isGroup,
-                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil),
-                                    inputs: inputEntities)
+                                    nodeTypeEntity: nodeType.createSchema(),
+                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil))
+//                                    inputs: inputEntities)
 
         self.init(from: nodeEntity,
                   activeIndex: activeIndex,
@@ -464,31 +452,6 @@ extension NodeViewModel {
         }
 
         return self._cachedDisplayTitle
-    }
-    
-    @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            if self.kind == .group {
-                // Group node needs to mark all input and output splitters as visible
-                // Fixes issue for setting visibility on groups
-                let inputsObservers = self.getRowObservers(.input)
-                let outputsObservers = self.getRowObservers(.output)
-                let allObservers = inputsObservers + outputsObservers
-                allObservers.forEach {
-                    $0.nodeDelegate?.isVisibleInFrame = newValue
-                }
-            }
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.updateRowObservers(activeIndex: activeIndex)
-            }
-        }
     }
     
     // Returns indices of LONGEST LOOP

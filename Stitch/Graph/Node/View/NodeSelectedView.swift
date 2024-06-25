@@ -111,7 +111,7 @@ extension GraphState {
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
-        nodeViewModel.updateVisibilityStatus(with: isVisibleInFrame,
-                                             activeIndex: activeIndex)
+        canvasObserver.updateVisibilityStatus(with: isVisibleInFrame,
+                                              activeIndex: activeIndex)
     }
 }

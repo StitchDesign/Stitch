@@ -125,6 +125,32 @@ extension CanvasNodeViewModel {
     var isNodeMoving: Bool {
         self.position != self.previousPosition
     }
+    
+    @MainActor
+    func updateVisibilityStatus(with newValue: Bool,
+                                activeIndex: ActiveIndex) {
+        let oldValue = self.isVisibleInFrame
+        if oldValue != newValue {
+            self.isVisibleInFrame = newValue
+
+            if self.kind == .group {
+                // Group node needs to mark all input and output splitters as visible
+                // Fixes issue for setting visibility on groups
+                let inputsObservers = self.nodeDelegate?.inputRowObservers() ?? []
+                let outputsObservers = self.nodeDelegate?.outputRowObservers() ?? []
+                let allObservers = inputsObservers + outputsObservers
+                allObservers.forEach {
+                    $0.nodeDelegate?.isVisibleInFrame = newValue
+                }
+            }
+
+            // Refresh values if node back in frame
+            if newValue {
+                self.nodeDelegate?
+                    .updateRowObservers(activeIndex: activeIndex)
+            }
+        }
+    }
 }
 
 extension LayerNodeRowData {

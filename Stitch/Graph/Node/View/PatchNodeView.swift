@@ -53,7 +53,7 @@ struct PatchNodeView: View {
 
     @MainActor
     var isSelected: Bool {
-        viewModel.isSelected
+        self.patchNode.canvasObserver.isSelected
     }
 
     var body: some View {

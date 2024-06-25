@@ -65,6 +65,8 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func outputRowObservers() -> NodeRowObservers
     
+    func updateRowObservers(activeIndex: ActiveIndex)
+    
     @MainActor func calculate()
 }
 
