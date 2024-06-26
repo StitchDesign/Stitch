@@ -132,7 +132,7 @@ extension GraphState {
                                                port: port,
                                                field: fieldIndex),
                     value: value.asLLMValue,
-                    nodeType: NodeType(value))))
+                    nodeType: NodeType(value).display)))
         }
     }
     
@@ -144,7 +144,7 @@ extension GraphState {
             self.graphUI.llmRecording.actions.append(
                 .changeNodeType(LLMAChangeNodeTypeAction(
                     node: node.llmNodeTitle,
-                    nodeType: newNodeType))
+                    nodeType: newNodeType.display))
             )
         }
     }

@@ -602,6 +602,35 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
         self.setInJSON(JSON(["a"]), index: 0)
     }
 
+    /*
+     How would you really decode this?
+     You have no keys etc. -- you just get a string or number or dictionary etc. back.
+    
+     (For LLM case, probably don't need JSON per se?)
+     
+     You don't know the type of the value that gets returned.
+     And Stitch nodes never really turn this format back into some PortValue etc.
+     
+     You could create a new struct or enum, and specify both 
+     */
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        if let s = try? container.decode(String.self) {
+            self = .string(s)
+        }
+        else if let n = try? container.decode(Double.self) {
+            self = .number(n)
+        } else if let d = try? container.decode([String: Double].self) {
+            self = .dictionary(d)
+        } else if let j = try? container.decode(JSON.self) {
+            self = .json(j)
+        } else {
+            fatalErrorIfDebug()
+            self = .string("Decoding Failed")
+        }
+    }
+    
     func encode(to encoder: Encoder) throws {
         // Very important to use a single value container
         var container = encoder.singleValueContainer()

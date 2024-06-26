@@ -9,15 +9,30 @@ import SwiftUI
 import StitchSchemaKit
 import SwiftyJSON
 
+
+
 struct DecodingLLMActionsView: View {
     
 //    let json: JSON = _addNode // good
 //    let json = _addNodeAndMove // good
-    let json = _addLayerInputAndMove
+//    let json = _addLayerInputAndMove // good
+    let json = _setField // bad
     
-    var decodedActions: [LLMAction] {
+//    let json = jff
+    
+     typealias DebugDecodeType = [LLMAction] // still fails?
+//     typealias DebugDecodeType = JSONFriendlyFormat // also works
+//    typealias DebugDecodeType = [JSONFriendlyFormat] // works
+    
+    var decodedActions: DebugDecodeType {
+        log("json.description: \(json.description)")
+        
         let data = try! json.rawData()
-        let actions = try! JSONDecoder().decode([LLMAction].self, from: data)
+        
+        let actions = try! JSONDecoder().decode(
+            DebugDecodeType.self,
+            from: data)
+        
         return actions
     }
     
@@ -27,10 +42,26 @@ struct DecodingLLMActionsView: View {
             Text("decodedActions : \(decodedActions)")
         }
     }
-    
-   
 }
 
+//let jff = JSONFriendlyFormat(value: .number(77)).jsonWrapper
+
+let jff = JSONFriendlyFormat(value: .size(.init(width: 22, height: 33))).jsonWrapper
+
+let _setField = JSON.init(parseJSON: """
+[
+  {
+    "value" : 90,
+    "field" : {
+      "field" : 0,
+      "port" : "0",
+      "node" : "Add (7AEC3B)"
+    },
+    "nodeType" : "Number",
+    "action" : "Set Field"
+  }
+]
+""")
 
 // Creating Add node, editing its first input’s first field
 let _addNode = JSON.init(parseJSON: """

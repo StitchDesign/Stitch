@@ -116,13 +116,14 @@ extension LLMAction: Encodable, Decodable {
             log("LLMAction: Decoder: decoding .setField")
             let field = try container.decode(LLMAFieldCoordinate.self, forKey: .field)
             let value = try container.decode(JSONFriendlyFormat.self, forKey: .value)
-            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
+//            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
+            let nodeType = try container.decode(String.self, forKey: .nodeType)
             self = .setField(.init(field: field, value: value, nodeType: nodeType))
                 
         case LLMActionNames.changeNodeType.rawValue:
             log("LLMAction: Decoder: decoding .changeNodeType")
             let node = try container.decode(String.self, forKey: .node)
-            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
+            let nodeType = try container.decode(String.self, forKey: .nodeType)
             self = .changeNodeType(.init(node: node, nodeType: nodeType))
             
         
