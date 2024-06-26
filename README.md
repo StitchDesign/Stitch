@@ -2,8 +2,6 @@
 
 ![header](README_Assets/airbnb-monthystays.png)
 
-![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
-
 We’re an open source, Apple first, and community driven prototyping environment.
 
 Stitch works accross iPad, iPhone, macOS with Vision Pro coming soon. Apple Watch too if anyone wants. 😆
@@ -47,3 +45,6 @@ We’re a group of passionate engineers and designers who share a love for Apple
 Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com).
 
 Join in and help us, we’ll be keeping this list up to date.
+
+## Prototype Gallery
+![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
