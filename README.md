@@ -13,9 +13,9 @@ Stitch follows in the footsteps of giants, namely [QC](https://en.wikipedia.org/
 
 We created Stitch to solve three main problems:
 
-1. Make it Open Source. Freely avalible to everyone to modify and extend.
-2. Modern Apple Frameworks. Base it on the latest from Apple. iCloud Syncing, SwiftUI, and support on every device they create.
-3. Community Driven. Build it in the open with the community driving.
+1. **Make it Open Source.** Freely available for everyone to modify and extend.
+2. **Modern Apple Frameworks.** Base it on the latest from Apple. iCloud Syncing, SwiftUI, and support on every device they create.
+3. **Community Driven.** Build it in the open with the community driving.
 
 ## Some history and a bit more context
 
