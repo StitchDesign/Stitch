@@ -2,7 +2,9 @@
 
 ![header](README_Assets/airbnb-monthystays.png)
 
-We’re an Apple first, open source, and community driven prototyping environment. iPad, iPhone, macOS with Vision Pro coming soon. We're in beta and have so much more we want to give.
+We’re an open source, Apple first, and community driven prototyping environment. Stitch works accross iPad, iPhone, macOS with Vision Pro coming soon. Apple Watch too if anyone wants 😆.
+
+We're in beta and have so much more we want to give.
 
 ## What is Stitch
 Stitch follows in the footsteps of giants, namely [QC](https://en.wikipedia.org/wiki/Quartz_Composer) and [Origami](http://origami.design).
@@ -12,6 +14,8 @@ We created Stitch to solve three main problems:
 1. Make it Open Source. Freely avalible to everyone to modify and extend.
 2. Modern Apple Frameworks. Base it on the latest from Apple. iCloud Syncing, SwiftUI, and support on every device they create.
 3. Community Driven. Build it in the open with the community driving.
+
+## Some history and a bit more context
 
 The history of visual programming languages a wonderful one, but it has its woes. The two biggest examples [QC](https://en.wikipedia.org/wiki/Quartz_Composer) and [Origami](http://origami.design), are both examples of side projects for bigger companies and neither is open source. When QC became defunct, Facebook worked on creating Origami to fill the gap left by it. If QC was open source, Facebook wouldn’t have had to start from scratch. Not to discredit the incredible team at Facebook, but we’ve noticed Origami isn’t really their main focus. It’ll also never support things like ARKit and the Vision Pro for obvious reasons. There are so many wonderful people out there who relay on these tools for their work, and have incredible ideas on how to improve them, we think the world would be a better place with an open source, completely community driven visual programming language.
 
@@ -30,8 +34,7 @@ We’re active on GitHub and on [Campsite](https://app.campsite.co/stitch/posts)
 We genuinely believe the world is a more interesting and wonderful place with easy ways to prototype your ideas, and have dedicated very nontrivial amounts of time and effort to help this cause.
 
 
-
-## Stitch Principles
+## Stitch Engineering Principles
 
 1. Stitch is a graph-based visual programming language for UX prototyping. A node on the graph is either a ‘patch’ (function) or a ‘layer’ (UI element in the prototype window).
 2. Stitch is an interface to SwiftUI. Wherever possible, we expose SwiftUI views, view modifiers and methods.
