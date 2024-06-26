@@ -23,7 +23,7 @@ struct LLMRecordingState: Equatable {
 
 struct LLMPromptState: Equatable {
     // can even show a long scrollable json of the encoded actions, so user can double check
-    var showPromptModal: Bool = false
+    var showModal: Bool = false
     
     var prompt: String = ""
         
@@ -37,6 +37,7 @@ struct LLMJsonEntryState: Equatable {
     
     var jsonEntry: String = ""
     
-    // Mapping of LLM node ids (e.g. "123456") to the id creat
-    var llmNodeIdMapping = [String: NodeId]()
+    // Mapping of LLM node ids (e.g. "123456") to the id created
+//    var llmNodeIdMapping = [String: NodeId]()
+    var llmNodeIdMapping = [String: CanvasItemId]()
 }

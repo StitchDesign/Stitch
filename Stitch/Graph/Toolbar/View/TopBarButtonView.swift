@@ -98,6 +98,9 @@ struct iPadGraphTopBarButtons: View {
         // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
             
+            iPadNavBarButton(action: { dispatch(LLMActionsJSONEntryModalOpened()) },
+                             iconName: .sfSymbol("rectangle.and.pencil.and.ellipsis"))
+            
             iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },
                              iconName: .sfSymbol(llmRecordingModeActive ? "stop.fill" : "play.fill"))
             

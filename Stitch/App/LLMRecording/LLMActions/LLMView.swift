@@ -38,7 +38,7 @@ struct LLMPromptEdited: GraphUIEvent {
     let prompt: String
     
     func handle(state: GraphUIState) {
-        state.llmRecording.prompt = prompt
+        state.llmRecording.promptState.prompt = prompt
     }
 }
 
@@ -46,7 +46,7 @@ struct LLMJsonEdited: GraphUIEvent {
     let jsonEntry: String
     
     func handle(state: GraphUIState) {
-        state.llmRecording.jsonEntry = jsonEntry
+        state.llmRecording.jsonEntryState.jsonEntry = jsonEntry
     }
 }
 
@@ -56,7 +56,7 @@ struct LLMActionsJSONEntryModalView: View {
     @State var jsonEntry: String = ""
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             StitchTextView(string: "Enter model-generated JSON of LLM Actions")
             Divider()
             TextEditor(text: $jsonEntry)

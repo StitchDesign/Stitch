@@ -22,6 +22,10 @@ struct LLMAddNode: Equatable, Codable {
 struct LLMMoveNodeTranslation: Equatable, Codable {
     let x: CGFloat
     let y: CGFloat
+    
+    var asCGSize: CGSize {
+        .init(width: x, height: y)
+    }
 }
 
 struct LLMMoveNode: Equatable, Codable {

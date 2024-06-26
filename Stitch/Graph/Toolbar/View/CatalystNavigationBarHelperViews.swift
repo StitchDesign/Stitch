@@ -135,6 +135,11 @@ struct CatalystTopBarGraphButtons: View {
         // `HStack` doesn't matter? These are all placed in a `ToolbarItemGroup` ...
         HStack {
             
+            CatalystNavBarButton("rectangle.and.pencil.and.ellipsis") {
+                dispatch(LLMActionsJSONEntryModalOpened())
+            }
+            .opacity(llmRecordingModeEnabled ? 1 : 0)
+            
             CatalystNavBarButton(llmRecordingModeActive ? "stop.fill" : "play.fill") {
                 dispatch(LLMRecordingToggled())
             }

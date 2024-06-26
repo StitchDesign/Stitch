@@ -16,19 +16,19 @@ struct StitchApp: App {
     var body: some Scene {
         WindowGroup {
 
-            DecodingLLMActionsView()
+//            DecodingLLMActionsView()
             
             // iPad uses StitchRouter to use the project zoom in/out animation
-//            StitchRootView(store: self.store)
-//                .onAppear {
-//                    dispatch(DirectoryUpdated())
-//                }
-//                .environment(self.store)
-//                .environment(self.store.environment)
-//                .environment(self.store.environment.fileManager)
-//            // Inject theme as environment variable
-//                .environment(\.appTheme, self.store.appTheme)
-//                .environment(\.edgeStyle, self.store.edgeStyle)
+            StitchRootView(store: self.store)
+                .onAppear {
+                    dispatch(DirectoryUpdated())
+                }
+                .environment(self.store)
+                .environment(self.store.environment)
+                .environment(self.store.environment.fileManager)
+            // Inject theme as environment variable
+                .environment(\.appTheme, self.store.appTheme)
+                .environment(\.edgeStyle, self.store.edgeStyle)
 
         }
 
@@ -40,10 +40,10 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
-
-//        .commands {
-//            StitchCommands(store: store,
-//                           activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)
-//        }
+        
+        .commands {
+            StitchCommands(store: store,
+                           activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)
+        }
     }
 }

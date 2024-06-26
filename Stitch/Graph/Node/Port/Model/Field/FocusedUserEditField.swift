@@ -30,7 +30,8 @@ enum FocusedUserEditField: Equatable, Hashable {
          commentBox(CommentBoxId),
          insertNodeMenu,
          textFieldLayer(PreviewCoordinate), // specific loop-index
-         any    // default option
+         any,    // default option
+         llmJsonEntryModal
 
     var getTextieldLayerInputEdit: PreviewCoordinate? {
         switch self {

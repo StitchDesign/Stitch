@@ -42,7 +42,7 @@ extension GraphState {
         
         // If we stopped recording and have LLMActions, show the prompt
         if !self.graphUI.llmRecording.actions.isEmpty {
-            self.graphUI.llmRecording.promptState.showPromptModal = true
+            self.graphUI.llmRecording.promptState.showModal = true
         }
     }
 }
@@ -50,16 +50,24 @@ extension GraphState {
 struct LLMActionsJSONEntryModalOpened: GraphUIEvent {
     func handle(state: GraphUIState) {
         state.llmRecording.jsonEntryState.showModal = true
+        state.reduxFocusedField = .llmJsonEntryModal
     }
 }
 
 // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
 struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
+                
+        let jsonEntry = state.graphUI.llmRecording.jsonEntryState.jsonEntry
         
         state.graphUI.llmRecording.jsonEntryState.showModal = false
-        let jsonEntry = state.graphUI.llmRecording.jsonEntryState.jsonEntry
         state.graphUI.llmRecording.jsonEntryState.jsonEntry = ""
+        state.graphUI.reduxFocusedField = nil
+        
+        guard !jsonEntry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            log("LLMActionsJSONEntryModalClosed: json entry")
+            return .noChange
+        }
         
         do {
             let json = JSON(parseJSON: jsonEntry) // returns null json if parsing fails
@@ -71,7 +79,7 @@ struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
             return .shouldPersist
         } catch {
             log("LLMActionsJSONEntryModalClosed: Error: \(error)")
-            fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retieve ")
+            fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")
             return .noChange
         }
     }
@@ -126,6 +134,9 @@ extension GraphState {
         
         log("handleLLMAction: action: \(action)")
         
+        // Make sure we're not "recording", so that functions do
+        self.graphUI.llmRecording.isRecording = false
+                
         switch action {
             
         case .addNode(let llmAddNode):
@@ -134,38 +145,53 @@ extension GraphState {
             // the LLM-move-action will expect the specific "LLM action
             
             if let (llmNodeId, nodeKind) = llmAddNode.node.parseLLMNodeTitle,
+               // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let nodeId = self.nodeCreated(choice: nodeKind) {
-                self.graphUI
-                    .llmRecording
-                    .jsonEntryState
-                    .llmNodeIdMapping.updateValue(nodeId, forKey: llmNodeId)
+                
+                self.graphUI.llmRecording.jsonEntryState
+                    .llmNodeIdMapping.updateValue(.node(nodeId),
+                                                  forKey: llmNodeId)
             }
             
+        // A patch node or layer-input-on-graph was moved
         case .moveNode(let llmMoveNode):
-            <#code#>
             
-        case .addEdge(let llmAddEdge):
-            <#code#>
-        case .setField(let llmSetFieldAction):
-            <#code#>
-        case .changeNodeType(let llmAChangeNodeTypeAction):
-            <#code#>
-        case .addLayerInput(let llmAddLayerInput):
-            <#code#>
-        case .addLayerOutput(let llmAddLayerOutput):
-            <#code#>
+            
+            if let (llmNodeId, _) = llmMoveNode.node.parseLLMNodeTitle,
+               let canvasItemId = self.graphUI.llmRecording.jsonEntryState.llmNodeIdMapping.get(llmNodeId),
+               // canvas item must exist
+               let canvasItem = self.getCanvasItem(canvasItemId) {
+                
+                self.updateCanvasItemOnDragged(canvasItem,
+                                               translation: llmMoveNode.translation.asCGSize)
+            }
+            
+        default:
+            fatalError()
+            
+//        case .addEdge(let llmAddEdge):
+//            <#code#>
+//        case .setField(let llmSetFieldAction):
+//            <#code#>
+//        case .changeNodeType(let llmAChangeNodeTypeAction):
+//            <#code#>
+//        case .addLayerInput(let llmAddLayerInput):
+//            <#code#>
+//        case .addLayerOutput(let llmAddLayerOutput):
+//            <#code#>
         }
+        
     }
 }
 
 // When prompt modal is closed, we write the JSON of prompt + actions to file.
 struct LLMRecordingPromptClosed: GraphEvent {
-
+    
     func handle(state: GraphState) {
         
         // log("LLMRecordingPromptClosed called")
         
-        state.graphUI.llmRecording.promptState.showPromptModal = false
+        state.graphUI.llmRecording.promptState.showModal = false
         
         let actions = state.graphUI.llmRecording.actions
         
@@ -208,7 +234,7 @@ struct LLMRecordingPromptClosed: GraphEvent {
                     // let input = try String(contentsOf: url)
                     // log("LLMRecordingPromptClosed: success: \(input)")
                 } catch {
-                     log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
+                    log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
                 }
             }
         }
