@@ -1,6 +1,8 @@
-# Stitch
+# Stitch (Beta)
 
-We’re an Apple first, open source, and community driven prototyping environment. iPad, iPhone, macOS with Vision Pro coming soon.
+![header](README_Assets/airbnb-monthystays.png)
+
+We’re an Apple first, open source, and community driven prototyping environment. iPad, iPhone, macOS with Vision Pro coming soon. We're in beta and have so much more we want to give.
 
 ## What is Stitch
 Stitch follows in the footsteps of giants, namely [QC](https://en.wikipedia.org/wiki/Quartz_Composer) and [Origami](http://origami.design).
