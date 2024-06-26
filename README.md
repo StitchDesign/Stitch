@@ -40,7 +40,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 
 #### Design:
 * [Josh](https://x.com/joshuapekera)
-* [Adam](adammenges.com)
+* [Adam](https://adammenges.com)
 
 Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com).
 
