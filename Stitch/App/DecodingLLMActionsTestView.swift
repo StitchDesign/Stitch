@@ -11,7 +11,9 @@ import SwiftyJSON
 
 struct DecodingLLMActionsView: View {
     
-    let json: JSON = Self.json1
+//    let json: JSON = _addNode // good
+//    let json = _addNodeAndMove // good
+    let json = _addLayerInputAndMove
     
     var decodedActions: [LLMAction] {
         let data = try! json.rawData()
@@ -20,86 +22,84 @@ struct DecodingLLMActionsView: View {
     }
     
     var body: some View {
-        HStack(spacing: 200) {
+        HStack(spacing: 100) {
             Text("json.description: \(json.description)")
-            Text("decodedActions: \(decodedActions)")
+            Text("decodedActions : \(decodedActions)")
         }
     }
     
-    // Creating Add node, editing its first input’s first field
-    static let json1 = JSON.init(parseJSON: """
-    [
-      {
-        "action" : "Add Node",
-        "node" : "Add (7AEC3B)"
-      },
-      {
-        "value" : 90,
-        "field" : {
-          "field" : 0,
-          "port" : "0",
-          "node" : "Add (7AEC3B)"
-        },
-        "nodeType" : "Number",
-        "action" : "Set Field"
-      }
-    ]
-    """)
-
-
-    // Creating Subtract node, moving it
-    static let json2 = JSON.init(parseJSON: """
-    [
-      {
-        "action" : "Add Node",
-        "node" : "Subtract (CE9AE8)"
-      },
-      {
-        "translation" : {
-          "y" : 100,
-          "x" : -196
-        },
-        "node" : "Subtract (CE9AE8)",
-        "port" : "",
-        "action" : "Move Node"
-      }
-    ]
-    """)
-
-    static let json3 = JSON.init(parseJSON: """
-    [
-      {
-        "node" : "Oval (FEB7AA)",
-        "action" : "Add Node"
-      },
-      {
-        "port" : "Position",
-        "node" : "Oval (FEB7AA)",
-        "action" : "Add Layer Input"
-      },
-      {
-        "port" : "Position",
-        "translation" : {
-          "y" : -212,
-          "x" : -372
-        },
-        "action" : "Move Node",
-        "node" : "Oval (FEB7AA)"
-      },
-      {
-        "field" : {
-          "port" : "Position",
-          "node" : "Oval (FEB7AA)",
-          "field" : 0
-        },
-        "nodeType" : "Position",
-        "value" : {
-          "y" : 0,
-          "x" : 12
-        },
-        "action" : "Set Field"
-      }
-    ]
-    """)
-
+   
 }
+
+
+// Creating Add node, editing its first input’s first field
+let _addNode = JSON.init(parseJSON: """
+[
+  {
+    "action" : "Add Node",
+    "node" : "Add (7AEC3B)"
+  }
+]
+""")
+
+let _addNodeAndSetField = JSON.init(parseJSON: """
+[
+  {
+    "action" : "Add Node",
+    "node" : "Add (7AEC3B)"
+  },
+  {
+    "value" : 90,
+    "field" : {
+      "field" : 0,
+      "port" : "0",
+      "node" : "Add (7AEC3B)"
+    },
+    "nodeType" : "Number",
+    "action" : "Set Field"
+  }
+]
+""")
+
+
+// Creating Subtract node, moving it
+let _addNodeAndMove = JSON.init(parseJSON: """
+[
+  {
+    "action" : "Add Node",
+    "node" : "Subtract (CE9AE8)"
+  },
+  {
+    "translation" : {
+      "y" : 100,
+      "x" : -196
+    },
+    "node" : "Subtract (CE9AE8)",
+    "port" : "",
+    "action" : "Move Node"
+  }
+]
+""")
+
+let _addLayerInputAndMove = JSON.init(parseJSON: """
+[
+  {
+    "node" : "Oval (FEB7AA)",
+    "action" : "Add Node"
+  },
+  {
+    "port" : "Position",
+    "node" : "Oval (FEB7AA)",
+    "action" : "Add Layer Input"
+  },
+  {
+    "port" : "Position",
+    "translation" : {
+      "y" : -212,
+      "x" : -372
+    },
+    "action" : "Move Node",
+    "node" : "Oval (FEB7AA)"
+  }
+]
+""")
