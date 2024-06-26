@@ -1,10 +1,8 @@
 # Stitch
 
-Prototyping. Apple first. Touch enabled. iPad, iPhone, macOS with more devices coming soon. Open source.
+We’re an Apple first, open source, and community driven prototyping environment. iPad, iPhone, macOS with Vision Pro coming soon.
 
 ## What is Stitch
-We’re an Apple first, open source, and community driven prototyping environment.
-
 Stitch follows in the footsteps of giants, namely [QC](https://en.wikipedia.org/wiki/Quartz_Composer) and [Origami](http://origami.design).
 
 We created Stitch to solve three main problems:
@@ -25,7 +23,7 @@ You and use and import USDZ (Apple’s primary 3D model format) and use them wit
 
 You can import your CoreML models (or use one’s we supply) to use powerful AI in your prototypes.
 
-We’re active on GitHub and on Campsite(link). Join us, help us improve with ideas and code. 
+We’re active on GitHub and on [Campsite](https://app.campsite.co/stitch/posts). Join us, help us improve with ideas and code. 
 
 We genuinely believe the world is a more interesting and wonderful place with easy ways to prototype your ideas, and have dedicated very nontrivial amounts of time and effort to help this cause.
 
@@ -134,18 +132,20 @@ Layer nodes create the views that make up your prototype. Anything that’s a la
 
 
 
-## Who made it (last section)
+## Who we are
 
 We’re a group of passionate engineers and designers who share a love for Apple and prototyping. We’re mainly living in SF, but have contributors from all over.
+
+### Engineering:
 * Chris
 * Elliot
-* Adam
 * Nick
-* Josh
+* Ryan
 
-With a board of VPL advisors:
-* Mike
-* Brandon
-* David
+### Design:
+* [Josh](https://x.com/joshuapekera)
+* [Adam](adammenges.com)
+
+Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com).
 
 Join in and help us, we’ll be keeping this list up to date.
