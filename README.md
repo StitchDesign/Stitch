@@ -2,7 +2,7 @@
 
 ![header](README_Assets/airbnb-monthystays.png)
 
-![header](README_Assets/CleanShot 2024-06-25 at 23.07.52.gif)
+![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
 
 We’re an open source, Apple first, and community driven prototyping environment.
 
