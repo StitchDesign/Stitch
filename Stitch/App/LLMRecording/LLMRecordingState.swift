@@ -14,12 +14,29 @@ struct LLMRecordingState: Equatable {
     // Are we actively recording redux-actions which we then turn into LLM-actions?
     var isRecording: Bool = false
     
-    // Is the
+    var actions: [LLMAction] = .init()
+
+    var promptState = LLMPromptState()
+    
+    var jsonEntryState = LLMJsonEntryState()
+}
+
+struct LLMPromptState: Equatable {
     // can even show a long scrollable json of the encoded actions, so user can double check
     var showPromptModal: Bool = false
     
     var prompt: String = ""
-    
-    var actions: [LLMAction] = .init()
+        
+    // cached; updated when we open the prompt modal
+    // TODO: find a better way to write the view such that the json's (of the encoded actions) keys are not shifting around as user types
     var actionsAsDisplayString: String = ""
+}
+
+struct LLMJsonEntryState: Equatable {
+    var showModal = false
+    
+    var jsonEntry: String = ""
+    
+    // Mapping of LLM node ids (e.g. "123456") to the id creat
+    var llmNodeIdMapping = [String: NodeId]()
 }

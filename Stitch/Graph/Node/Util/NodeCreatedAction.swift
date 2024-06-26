@@ -27,6 +27,7 @@ extension GraphState {
         self.adjustedDoubleTapLocation(self.localPosition) ?? self.graphUI.center(self.localPosition)
     }
 
+    // Used by InsertNodeMenu
     @MainActor
     func nodeCreated(choice: NodeKind) -> NodeId? {
         let center = self.newNodeCenterLocation

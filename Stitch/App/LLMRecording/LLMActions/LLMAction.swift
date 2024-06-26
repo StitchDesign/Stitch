@@ -12,12 +12,12 @@ import StitchSchemaKit
 
 /// What we write to JSON/JSONL file
 struct LLMRecordingData: Equatable, Encodable {
-    let actions: [LLMAction]
+    let actions: LLMActions
     let prompt: String // user-entered
 }
 
 
-extension [LLMAction] {
+extension LLMActions {
     func asJSON() -> JSON? {
         do {
             let data = try JSONEncoder().encode(self)
@@ -44,6 +44,8 @@ enum LLMActionNames: String, Equatable {
          addLayerInput = "Add Layer Input",
          addLayerOutput = "Add Layer Output"
 }
+
+typealias LLMActions = [LLMAction]
 
 enum LLMAction: Equatable {
     case addNode(LLMAddNode),

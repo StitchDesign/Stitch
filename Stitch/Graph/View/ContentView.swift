@@ -148,6 +148,12 @@ struct ContentView: View {
                      sheetBody: {
             LLMPromptModalView(actionsAsDisplay: graph.graphUI.llmRecording.actionsAsDisplayString)
         })
+        .stitchSheet(isPresented: graph.graphUI.llmRecording.showPromptModal,
+                     titleLabel: "LLM JSON Entry",
+                     hideAction: LLMActionsJSONEntryModalClosed(),
+                     sheetBody: {
+            LLMActionsJSONEntryModalView()
+        })
     }
 
     private var fullScreenPreviewView: some View {

@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftyJSON
 
+// User has recorded some LLM actions in the app and now assigns a prompt to them
 struct LLMPromptModalView: View {
         
     let actionsAsDisplay: String
@@ -17,8 +18,7 @@ struct LLMPromptModalView: View {
     var body: some View {
         VStack {
             HStack {
-                Text("Prompt: ")
-                    .font(STITCH_FONT)
+                StitchTextView(string: "Prompt: ")
                 TextField("", text: $prompt)
                     .font(STITCH_FONT)
             }
@@ -42,6 +42,37 @@ struct LLMPromptEdited: GraphUIEvent {
     }
 }
 
-//#Preview {
+struct LLMJsonEdited: GraphUIEvent {
+    let jsonEntry: String
+    
+    func handle(state: GraphUIState) {
+        state.llmRecording.jsonEntry = jsonEntry
+    }
+}
+
+// User has a json of LLM Actions (created by the
+struct LLMActionsJSONEntryModalView: View {
+    
+    @State var jsonEntry: String = ""
+    
+    var body: some View {
+        VStack {
+            StitchTextView(string: "Enter model-generated JSON of LLM Actions")
+            Divider()
+            TextEditor(text: $jsonEntry)
+                .font(STITCH_FONT)
+                .scrollContentBackground(.hidden)
+        }
+        .padding()
+        .onChange(of: self.jsonEntry) { oldValue, newValue in
+            dispatch(LLMJsonEdited(jsonEntry: jsonEntry))
+        }
+    }
+}
+
+
+
+#Preview {
 //    LLMPromptModalView()
-//}
+    LLMActionsJSONEntryModalView()
+}
