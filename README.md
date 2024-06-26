@@ -38,7 +38,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 * [Chris](https://github.com/pianostringquartet)
 * [Elliot](https://x.com/ellbosch)
 * [Nick](https://x.com/nickarner)
-* [Ryan](https://github.com/ryapapap)
+* [Ryan](https://www.ryapapap.com)
 * [Josh](https://x.com/joshuapekera)
 * [Adam](https://adammenges.com)
 
