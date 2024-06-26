@@ -61,9 +61,7 @@ typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
 final class CanvasItemViewModel {
-    // Needs its own identifier b/c 0 to many relationship with node
-    let id: CanvasItemId
-    
+    var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
     var bounds = NodeBounds()
@@ -119,8 +117,9 @@ final class CanvasItemViewModel {
 
 extension CanvasItemViewModel: SchemaObserver {
     convenience init(from canvasEntity: CanvasNodeEntity,
+                     id: CanvasItemId,
                      node: NodeDelegate?) {
-        self.id = canvasEntity.id
+        self.id = id
         self.position = canvasEntity.position
         self.previousPosition = canvasEntity.position
         self.zIndex = canvasEntity.zIndex
@@ -129,22 +128,12 @@ extension CanvasItemViewModel: SchemaObserver {
     }
     
     func createSchema() -> CanvasNodeEntity {
-        .init(id: self.id,
-              position: self.position,
+        .init(position: self.position,
               zIndex: self.zIndex,
               parentGroupNodeId: self.parentGroupNodeId)
     }
-    
-    @MainActor static func createObject(from entity: CanvasNodeEntity) -> Self {
-        .init(id: entity.id,
-              position: entity.position,
-              zIndex: entity.zIndex)
-    }
-    
+
     @MainActor func update(from schema: CanvasNodeEntity) {
-        if schema.id != self.id {
-            self.id = schema.id
-        }
         // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
 //        self.id.setOnChange(schema.id)
         
@@ -168,8 +157,6 @@ extension CanvasItemViewModel: SchemaObserver {
     func onPrototypeRestart() { }
 }
 
-}
-
 extension CanvasItemViewModel {
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
@@ -186,7 +173,7 @@ extension CanvasItemViewModel {
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
 
-            if self.nodeDelegate.kind == .group {
+            if self.nodeDelegate?.kind == .group {
                 // Group node needs to mark all input and output splitters as visible
                 // Fixes issue for setting visibility on groups
                 let inputsObservers = self.nodeDelegate?.inputRowObservers() ?? []

@@ -314,14 +314,14 @@ extension NodeViewModel {
             return
         }
         
-        self._inputsObservers.forEach {
-            $0.updateRowObserverUponVisibilityChange(
+        self.getAllInputsObservers().forEach { rowObserver in
+            rowObserver.onVisibilityChange(
                 activeIndex: activeIndex,
                 isVisible: self.isVisibleInFrame)
         }
         
-        self._outputsObservers.forEach {
-            $0.updateRowObserverUponVisibilityChange(
+        self.getAllOutputsObservers().forEach { rowObserver in
+            rowObserver.onVisibilityChange(
                 activeIndex: activeIndex,
                 isVisible: self.isVisibleInFrame)
         }

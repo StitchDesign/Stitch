@@ -109,11 +109,11 @@ extension GraphState {
             return
         }
 
-        canvasObserver.bounds.graphBaseViewBounds = newBounds
+        canvasItem.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
-        canvasObserver.updateVisibilityStatus(with: isVisibleInFrame,
+        canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
                                               activeIndex: activeIndex)
     }
 }
@@ -167,3 +167,15 @@ extension GraphState {
 //         }
 //     }
 // }
+
+extension NodeRowObserver {
+    // When the input or output becomes visible on the canvas,
+    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
+    @MainActor
+    func onVisibilityChange(activeIndex: ActiveIndex,
+                                               isVisible: Bool) {
+        self.updateValues(self.allLoopedValues,
+                          activeIndex: activeIndex,
+                          isVisibleInFrame: isVisible)
+    }
+}
