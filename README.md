@@ -35,10 +35,10 @@ Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on t
 We’re a group of passionate engineers and designers who share a love for Apple and prototyping. We’re mainly living in SF, but have contributors from all over.
 
 #### Collaborators
-* Chris
-* Elliot
-* Nick
-* Ryan
+* [Chris](https://github.com/pianostringquartet)
+* [Elliot](https://x.com/ellbosch)
+* [Nick](https://x.com/nickarner)
+* [Ryan](https://github.com/ryapapap)
 * [Josh](https://x.com/joshuapekera)
 * [Adam](https://adammenges.com)
 
