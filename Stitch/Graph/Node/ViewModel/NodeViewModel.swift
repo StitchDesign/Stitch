@@ -484,6 +484,15 @@ extension NodeViewModel {
 }
 
 extension NodeViewModel: NodeDelegate {
+    var patchNodeViewModel: PatchNodeViewModel? {
+        self.patchNode
+    }
+    
+    func portCountShortened(to length: Int, nodeIO: NodeIO) {
+        self.patchNodeViewModel?.portCountShortened(to: length,
+                                                    nodeIO: nodeIO)
+    }
+    
     var inputsRowCount: Int {
         self.getRowObservers(.input).count
     }

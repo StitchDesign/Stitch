@@ -71,6 +71,10 @@ final class CanvasItemViewModel {
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
     
+    // View specific port value data
+    var inputViewModels: [InputNodeRowViewModel]
+    var outputViewModels: [OutputNodeRowViewModel]
+    
     // Moved state here for render cycle perf on port view for colors
     @MainActor
     var isSelected: Bool = false {

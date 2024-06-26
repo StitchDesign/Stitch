@@ -153,31 +153,11 @@ extension NodeRowObserver {
            updateInputColor(input: self, graphState: graph)
        }
    }
-
-   // TODO: return nil if outputs were empty (e.g. prototype has just been restarted) ?
-   static func getActiveValue(allLoopedValues: PortValues,
-                              activeIndex: ActiveIndex) -> PortValue {
-       let adjustedIndex = activeIndex.adjustedIndex(allLoopedValues.count)
-       guard let value = allLoopedValues[safe: adjustedIndex] else {
-           // Outputs may be instantiated as empty
-           //            fatalError()
-           log("getActiveValue: could not retrieve index \(adjustedIndex) in \(allLoopedValues)")
-           // See https://github.com/vpl-codesign/stitch/issues/5960
-           return PortValue.none
-       }
-
-       return value
-   }
-
-   func getActiveValue(activeIndex: ActiveIndex) -> PortValue {
-       Self.getActiveValue(allLoopedValues: self.allLoopedValues,
-                           activeIndex: activeIndex)
-   }
-
-   // Tracked by subscriber to know when a new view model should be created
-   private func getNodeRowType(activeIndex: ActiveIndex) -> NodeRowType {
-       let activeValue = self.getActiveValue(activeIndex: activeIndex)
-       return activeValue.getNodeRowType(nodeIO: self.nodeIOType)
-   }
+    
+//   // Tracked by subscriber to know when a new view model should be created
+//   private func getNodeRowType(activeIndex: ActiveIndex) -> NodeRowType {
+//       let activeValue = self.getActiveValue(activeIndex: activeIndex)
+//       return activeValue.getNodeRowType(nodeIO: self.nodeIOType)
+//   }
 }
 

@@ -18,13 +18,13 @@ import StitchSchemaKit
 protocol NodeDelegate: AnyObject {
     var id: NodeId { get }
     
-    var isVisibleInFrame: Bool { get set }
+//    var isVisibleInFrame: Bool { get set }
     
     var kind: NodeKind { get }
     
     var userVisibleType: UserVisibleType? { get }
     
-    var parentGroupNodeId: NodeId? { get }
+//    var parentGroupNodeId: NodeId? { get }
     
     var patchNodeViewModel: PatchNodeViewModel? { get }
     
@@ -36,10 +36,9 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var activeIndex: ActiveIndex { get }
     
-    @MainActor var isNodeMoving: Bool { get }
+//    @MainActor var isNodeMoving: Bool { get }
     
-    
-    @MainActor var isSelected: Bool { get set }
+//    @MainActor var isSelected: Bool { get set }
     
     @MainActor var inputs: PortValuesList { get }
     
@@ -56,7 +55,9 @@ protocol NodeDelegate: AnyObject {
     // TODO: why is this a function? is it the id of the node represented by the `NodeObserverDelegate`, or is it actually an accessor on GraphState?
     @MainActor func getNode(_ id: NodeId) -> NodeViewModel?
         
-    var getMathExpression: String? { get }
+//    var getMathExpression: String? { get }
+    
+    @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel]
     
     @MainActor func getInputRowObserver(_ portId: Int) -> NodeRowObserver?
     

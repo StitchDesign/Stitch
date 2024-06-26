@@ -172,6 +172,7 @@
 		B59660A42C1A526B00BE75D7 /* LayerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660A32C1A526B00BE75D7 /* LayerViewModel.swift */; };
 		B59660A72C1A52D500BE75D7 /* PreviewLayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660A62C1A52D500BE75D7 /* PreviewLayerView.swift */; };
 		B59660AA2C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59660A92C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift */; };
+		B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */; };
 		B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5976C1C2980CBC00082BF14 /* StitchEntity.swift */; };
 		B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */; };
 		B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */; };
@@ -1052,6 +1053,7 @@
 		B59660A32C1A526B00BE75D7 /* LayerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerViewModel.swift; sourceTree = "<group>"; };
 		B59660A62C1A52D500BE75D7 /* PreviewLayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLayerView.swift; sourceTree = "<group>"; };
 		B59660A92C1A53DC00BE75D7 /* LayerNodeEntityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeEntityUtils.swift; sourceTree = "<group>"; };
+		B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowViewModel.swift; sourceTree = "<group>"; };
 		B5976C1C2980CBC00082BF14 /* StitchEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntity.swift; sourceTree = "<group>"; };
 		B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowDefinitions.swift; sourceTree = "<group>"; };
 		B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaNodesUtil.swift; sourceTree = "<group>"; };
@@ -3735,6 +3737,7 @@
 				EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */,
 				EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */,
 				EC3A6C462C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift */,
+				B5969F8B2C2CAAA60012F4BD /* NodeRowViewModel.swift */,
 			);
 			path = NodeRowObserver;
 			sourceTree = "<group>";
@@ -4880,6 +4883,7 @@
 				ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */,
 				ECA92A58260A6C1D00281B52 /* Coordinate.swift in Sources */,
 				B5CF644A294B8B6200EF83DB /* NodeTitleTextField.swift in Sources */,
+				B5969F8C2C2CAAA60012F4BD /* NodeRowViewModel.swift in Sources */,
 				B57F3A822947B4BC00DFC0AE /* SideEffectCoordinator.swift in Sources */,
 				EC83D8942926E23D00255311 /* GraphStateCardinalPoints.swift in Sources */,
 				ECD50AC6285D34790009B564 /* ShortcutViewUtils.swift in Sources */,

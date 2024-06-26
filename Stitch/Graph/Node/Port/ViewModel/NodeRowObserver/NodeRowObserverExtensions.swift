@@ -10,13 +10,16 @@ import StitchSchemaKit
 
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
+//extension NodeViewModel {
+//    func updateValues(_ newValues: PortValues,
+//                      activeIndex: ActiveIndex) {
+//        
+//    }
+//}
+
 extension NodeRowObserver {
     @MainActor
-    func updateValues(_ newValues: PortValues,
-                      activeIndex: ActiveIndex,
-                      isVisibleInFrame: Bool,
-                      // Used for layer nodes which haven't yet initialized fields
-                      isInitialization: Bool = false) {
+    func updateValues(_ newValues: PortValues) {
         // Save these for `postProcessing`
         let oldValues = self.allLoopedValues
         
@@ -30,30 +33,56 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        
-        let oldViewValue = self.activeValue // the old cached
-        let newViewValue = self.getActiveValue(activeIndex: activeIndex)
-        let didViewValueChange = oldViewValue != newViewValue
-        
-        let isLayerFocusedInPropertySidebar = self.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == self.id.nodeId
-        
-        /*
-         Conditions for forcing fields update:
-         1. Is at time of initialization--used for layers, or
-         2. Did values change AND visible in frame, or
-         3. Is this an input for a layer node that is focused in the property sidebar?
-         */
-        let shouldUpdate = isInitialization || (didViewValueChange && isVisibleInFrame) || isLayerFocusedInPropertySidebar
-
-        if shouldUpdate {
-            self.activeValue = newViewValue
-
-            // TODO: pass in media to here!
-            self.activeValueChanged(oldValue: oldViewValue,
-                                    newValue: newViewValue)
+        switch self.nodeIOType {
+        case .input:
+            self.getVisibleInputRowViewModels()
+                .forEach { canvasItem in
+                    canvasItem.didPortValuesUpdate(values: newValues,
+                                                   rowDelegate: self)
+                }
+        case .output:
+            self.getVisibleOutputRowViewModels()
+                .forEach { canvasItem in
+                    canvasItem.didPortValuesUpdate(values: newValues,
+                                                   rowDelegate: self)
+                }
         }
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
+    }
+    
+    @MainActor
+    func getVisibleInputRowViewModels() -> [InputNodeRowViewModel] {
+        guard let nodeDelegate = self.nodeDelegate,
+              let inputId = self.portViewType?.input else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        return nodeDelegate
+            .getAllCanvasObservers()
+            .filter { $0.isVisibleInFrame }
+            .flatMap { canvasItem in
+                canvasItem.inputViewModels
+                    .filter { $0.id == inputId }
+            }
+    }
+    
+    @MainActor
+    func getVisibleOutputRowViewModels() -> [OutputNodeRowViewModel] {
+        guard let nodeDelegate = self.nodeDelegate,
+              let inputId = self.portViewType?.output else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        return nodeDelegate
+            .getAllCanvasObservers()
+            .filter { $0.isVisibleInFrame }
+            .flatMap { canvasItem in
+                canvasItem.outputViewModels
+                    .filter { $0.id == inputId }
+            }
     }
     
     @MainActor

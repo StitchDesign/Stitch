@@ -32,9 +32,6 @@ final class NodeRowObserver: Identifiable, Sendable {
     // NodeIO type cannot be changed over the life of a row, and is important enough that we should not let it default to some value
     let nodeIOType: NodeIO
     
-    // Holds view models for fields
-    var fieldValueTypes = FieldGroupTypeViewModelList()
-    
     // Connected upstream node, if input
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         @MainActor
@@ -90,8 +87,6 @@ final class NodeRowObserver: Identifiable, Sendable {
     // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
     // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
     var userVisibleType: UserVisibleType?
-    
-    
 
     // MARK: "derived data", cached for UI perf
     
@@ -102,22 +97,14 @@ final class NodeRowObserver: Identifiable, Sendable {
     // Tracks upstream/downstream nodes--cached for perf
     var connectedNodes: NodeIdSet = .init()
 
-    // View-specific value that only updates when visible
-    // separate propety for perf reasons:
-    var activeValue: PortValue = .number(.zero)
-
     // Only for outputs, designed for port edge color usage
     var containsDownstreamConnection = false
 
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
-    // TODO: what is this for?
-    var anchorPoint: CGPoint?
-    
     // Cached for perf
     var portColor: PortColor = .noEdge
-    
 
     @MainActor
     convenience init(from schema: NodePortInputEntity,
@@ -155,14 +142,8 @@ final class NodeRowObserver: Identifiable, Sendable {
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
-        self.activeValue = Self.getActiveValue(allLoopedValues: values,
-                                               activeIndex: activeIndex)
         self.hasLoopedValues = values.hasLoop
 
-        self.fieldValueTypes = .init(initialValue: self.getActiveValue(activeIndex: activeIndex),
-                                     coordinate: id,
-                                     nodeIO: nodeIOType, 
-                                     importedMediaObject: nil)
         self.nodeDelegate = nodeDelegate
         
 //        self.updatePortViewData() // Initialize NodeRowObserver with appropriate cached data
@@ -211,12 +192,17 @@ final class NodeRowObserver: Identifiable, Sendable {
     }
 }
 
-extension NodeRowObserver {
+extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
     @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
-        let nodeIO = self.nodeIOType
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let nodeIO = rowDelegate.nodeIOType
         let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO)
         self.activeValueChanged(oldRowType: oldRowType,
                                 newValue: newValue)
@@ -226,10 +212,15 @@ extension NodeRowObserver {
     @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
-        let nodeIO = self.nodeIOType
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let nodeIO = rowDelegate.nodeIOType
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
         let nodeRowTypeChanged = oldRowType != newRowType
-        let importedMediaObject = self.importedMediaObject
+        let importedMediaObject = rowDelegate.importedMediaObject
 
         // Create new field value observers if the row type changed
         // This can happen on various input changes
