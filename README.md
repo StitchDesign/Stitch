@@ -26,7 +26,7 @@ Part of the benifit of being all in on the Apple echosystem is that we get sever
 
 ## Helping test
 
-Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on the TestFlight.
+Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on the TestFlight. We're also just starting to head over to [Campsite](https://app.campsite.co/stitch/posts) to discuss progress and share prototypes. Join us, help us improve with ideas and code. 
 
 ## Who we are
 
