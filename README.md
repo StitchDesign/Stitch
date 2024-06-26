@@ -9,9 +9,9 @@ Stitch follows in the footsteps of giants, namely [QC](https://en.wikipedia.org/
 
 We created Stitch to solve three main problems:
 
-1. Open Source
-2. Modern Apple Frameworks
-3. Community Driven
+1. Make it Open Source. Freely avalible to everyone to modify and extend.
+2. Modern Apple Frameworks. Base it on the latest from Apple. iCloud Syncing, SwiftUI, and support on every device they create.
+3. Community Driven. Build it in the open with the community driving.
 
 The history of visual programming languages a wonderful one, but it has its woes. The two biggest examples [QC](https://en.wikipedia.org/wiki/Quartz_Composer) and [Origami](http://origami.design), are both examples of side projects for bigger companies and neither is open source. When QC became defunct, Facebook worked on creating Origami to fill the gap left by it. If QC was open source, Facebook wouldn’t have had to start from scratch. Not to discredit the incredible team at Facebook, but we’ve noticed Origami isn’t really their main focus. It’ll also never support things like ARKit and the Vision Pro for obvious reasons. There are so many wonderful people out there who relay on these tools for their work, and have incredible ideas on how to improve them, we think the world would be a better place with an open source, completely community driven visual programming language.
 
