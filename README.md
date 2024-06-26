@@ -15,7 +15,7 @@ We created Stitch to solve three main problems:
 
 1. **Make it Open Source:** Freely available for everyone to modify and extend.
 2. **Modern Apple Frameworks:** Base it on the latest from Apple. ARKit, CoreML, iCloud Syncing, SwiftUI, and support on every device they create.
-3. **Touch first:** We're weirdly in love with the iPad, but it needs more powerful software. We're trying to help fix that.
+3. **Touch First:** We're weirdly in love with the iPad, but it needs more powerful software. We're trying to help fix that.
 
 ## Apple Only
 Part of the benifit of being all in on the Apple echosystem is that we get several pretty amazing capabilities out of the box that others don't have.
