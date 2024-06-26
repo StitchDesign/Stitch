@@ -26,6 +26,8 @@ protocol NodeDelegate: AnyObject {
     
     var parentGroupNodeId: NodeId? { get }
     
+    var patchNodeViewModel: PatchNodeViewModel? { get }
+    
     @MainActor var longestLoopLength: Int { get }
 
     @MainActor var inputsRowCount: Int { get }
@@ -36,7 +38,6 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var isNodeMoving: Bool { get }
     
-//    @MainActor var zIndex: Double { get }
     
     @MainActor var isSelected: Bool { get set }
     

@@ -496,16 +496,6 @@ extension NodeViewModel: NodeDelegate {
         graphDelegate?.activeIndex ?? .init(.zero)
     }
 
-    @MainActor
-    func portCountShortened(to length: Int, nodeIO: NodeIO) {
-        switch nodeIO {
-        case .input:
-            self.patchNode?.inputsObservers = Array(self.patchNode.inputsObservers[0..<length])
-        case .output:
-            self.patchNode?.outputsObservers = Array(self.patchNode.outputsObservers[0..<length])
-        }
-    }
-
     // TODO: where is this used? Why would an input be retrieving some other node from GraphState? Why not just grab from GraphState directly?
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.graphDelegate?.getNodeViewModel(id)

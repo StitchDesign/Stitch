@@ -262,7 +262,7 @@ extension NodeRowObservers {
             // Helpers below will create any missing observers
             let arrayBoundary = Swift.min(newLongestPortLength, currentObserverCount)
 
-            nodeDelegate.portCountShortened(to: arrayBoundary, nodeIO: nodeIO)
+            nodeDelegate.patchNodeViewModel?.portCountShortened(to: arrayBoundary, nodeIO: nodeIO)
         }
 
         newValuesList.enumerated().forEach { portId, values in

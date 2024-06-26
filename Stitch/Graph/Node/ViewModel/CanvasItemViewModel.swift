@@ -186,7 +186,7 @@ extension CanvasItemViewModel {
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
 
-            if self.kind == .group {
+            if self.nodeDelegate.kind == .group {
                 // Group node needs to mark all input and output splitters as visible
                 // Fixes issue for setting visibility on groups
                 let inputsObservers = self.nodeDelegate?.inputRowObservers() ?? []

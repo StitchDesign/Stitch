@@ -20,11 +20,6 @@ extension NodeRowObserver: Equatable {
 
 @Observable
 final class NodeRowObserver: Identifiable, Sendable {
-    
-    var canvasUIData: CanvasItemViewModel? = nil
-    
-    // MARK: fundamental, non-derived data
-    
     // TODO: this initializer seems strange? Presumably we update and change this logic elsewhere?
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
     
