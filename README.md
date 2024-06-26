@@ -17,6 +17,10 @@ We created Stitch to solve three main problems:
 2. **Modern Apple Frameworks:** Base it on the latest from Apple. iCloud Syncing, SwiftUI, and support on every device they create.
 3. **Touch first:** We're weirdly in love with the iPad, but it needs more powerful software. We're trying to help fix that.
 
+## Helping test
+
+Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on the TestFlight.
+
 ## Who we are
 
 We’re a group of passionate engineers and designers who share a love for Apple and prototyping. We’re mainly living in SF, but have contributors from all over.
