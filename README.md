@@ -2,7 +2,9 @@
 
 ![header](README_Assets/airbnb-monthystays.png)
 
-We’re an open source, Apple first, and community driven prototyping environment. Stitch works accross iPad, iPhone, macOS with Vision Pro coming soon. Apple Watch too if anyone wants 😆.
+We’re an open source, Apple first, and community driven prototyping environment.
+
+Stitch works accross iPad, iPhone, macOS with Vision Pro coming soon. Apple Watch too if anyone wants. 😆
 
 We're in beta and have so much more we want to give.
 
