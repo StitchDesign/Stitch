@@ -175,6 +175,7 @@
 		B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5976C1C2980CBC00082BF14 /* StitchEntity.swift */; };
 		B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */; };
 		B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */; };
+		B5A1A4B32C2B956300063A67 /* CanvasItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A1A4B22C2B956300063A67 /* CanvasItemViewModel.swift */; };
 		B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */; };
 		B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */; };
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
@@ -1056,6 +1057,7 @@
 		B5976C1C2980CBC00082BF14 /* StitchEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEntity.swift; sourceTree = "<group>"; };
 		B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowDefinitions.swift; sourceTree = "<group>"; };
 		B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaNodesUtil.swift; sourceTree = "<group>"; };
+		B5A1A4B22C2B956300063A67 /* CanvasItemViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanvasItemViewModel.swift; sourceTree = "<group>"; };
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
@@ -1801,6 +1803,7 @@
 				E4CC7D0E28F48EF6008EA1C0 /* StitchQuickLookExtension */,
 				200BD858254F66EB00692903 /* Products */,
 				EC15E4282602A08B006F2E08 /* Frameworks */,
+				B5A1A4B12C2B94AD00063A67 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3007,6 +3010,7 @@
 		B56FFB542C195F1500623CC7 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				B5A1A4B22C2B956300063A67 /* CanvasItemViewModel.swift */,
 				EC0F33492BED93D9008093BC /* NodeDelegate.swift */,
 				B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */,
 				B5F8D6A52C22282900B99E5C /* CanvasNodeViewModel.swift */,
@@ -3522,6 +3526,14 @@
 				B59660A02C1A4D6800BE75D7 /* Util */,
 			);
 			path = Node;
+			sourceTree = "<group>";
+		};
+		B5A1A4B12C2B94AD00063A67 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				ECC30E112C234E8800F0F54C /* CanvasItemViewModel.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		B5C093CA2C1A590F0011B4E9 /* Type */ = {
@@ -5168,6 +5180,7 @@
 				EC39894027BDCA8400683EEE /* ValueImageView.swift in Sources */,
 				ECB7B5D12A72DD7600E2D30B /* NodeViewModelType.swift in Sources */,
 				EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */,
+				B5A1A4B32C2B956300063A67 /* CanvasItemViewModel.swift in Sources */,
 				EC60E57C27178DDD00AABE71 /* LayerUtils.swift in Sources */,
 				EC2DD178289B6BF80089D501 /* NodeInputChangedActions.swift in Sources */,
 				EC83D8962926E2E700255311 /* GraphUITappedActions.swift in Sources */,
