@@ -11,19 +11,19 @@ import StitchSchemaKit
 
 extension JSON {
     var caseInsensitiveX: Double? {
-        self["X"].double ?? self["x"].double
+        self["X"].double ?? self[X].double
     }
 
     var caseInsensitiveY: Double? {
-        self["Y"].double ?? self["y"].double
+        self["Y"].double ?? self[Y].double
     }
 
     var caseInsensitiveZ: Double? {
-        self["Z"].double ?? self["z"].double
+        self["Z"].double ?? self[Z].double
     }
 
     var caseInsensitiveW: Double? {
-        self["W"].double ?? self["w"].double
+        self["W"].double ?? self[W].double
     }
 }
 

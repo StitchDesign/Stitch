@@ -105,10 +105,9 @@ extension GraphState {
             // Only change the input if valued actually changed.
             inputObserver.setValuesInInput([value])
             
-            self.maybeCreateLLMSetField(node: nodeViewModel,
-                                              input: coordinate,
-                                              fieldIndex: 0,
-                                              value: value)
+            self.maybeCreateLLMSetInput(node: nodeViewModel,
+                                        input: coordinate,
+                                        value: value)
             
             self.calculate(coordinate.nodeId)
         }

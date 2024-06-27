@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StitchSchemaKit
 
 // MARK: Add Node
 
@@ -22,14 +23,19 @@ struct LLMAddNode: Equatable, Codable {
 struct LLMMoveNodeTranslation: Equatable, Codable {
     let x: CGFloat
     let y: CGFloat
+    
+    var asCGSize: CGSize {
+        .init(width: x, height: y)
+    }
 }
 
 struct LLMMoveNode: Equatable, Codable {
     let action: String = LLMActionNames.moveNode.rawValue
     let node: String
     
-    // empty string if we moved a patch node,
-    // non-empty string if we moved a layer input/field.
+    // empty string = we moved a patch node,
+    // non-empty string = we moved a layer input/output/field
+    // Non-empty Strings always represents LABELS
     let port: String
     
     // (position at end of movement - position at start of movement)
@@ -37,18 +43,18 @@ struct LLMMoveNode: Equatable, Codable {
 }
 
 
-// MARK: Set Field
+// MARK: Set Input
 
-struct LLMAFieldCoordinate: Equatable, Codable {
+struct LLMPortCoordinate: Equatable, Codable {
     let node: String
-    let port: String // can be key path or port number
-    let field: Int
+    
+    // Always the LABEL of the input/output/field
+    let port: String
 }
 
-//struct LLMSetFieldAction: Equatable, Codable {
-struct LLMSetFieldAction: Equatable, Encodable {
-    let action: String = LLMActionNames.setField.rawValue
-    let field: LLMAFieldCoordinate
+struct LLMSetInputAction: Equatable, Encodable {
+    let action: String = LLMActionNames.setInput.rawValue
+    let field: LLMPortCoordinate
     let value: JSONFriendlyFormat
     let nodeType: String
 }
@@ -56,18 +62,10 @@ struct LLMSetFieldAction: Equatable, Encodable {
 
 // MARK: Add Edge
 
-struct LLMAddEdgeCoordinate: Equatable, Codable {
-    let node: String
-    
-    // number = Patch Node input or output, Layer Node output
-    // string = Layer Node input
-    let port: String
-}
-
 struct LLMAddEdge: Equatable, Codable {
     let action: String = LLMActionNames.addEdge.rawValue
-    let from: LLMAddEdgeCoordinate
-    let to: LLMAddEdgeCoordinate
+    let from: LLMPortCoordinate
+    let to: LLMPortCoordinate
 }
 
 
@@ -76,9 +74,15 @@ struct LLMAddEdge: Equatable, Codable {
 struct LLMAChangeNodeTypeAction: Equatable, Codable {
     let action = LLMActionNames.changeNodeType.rawValue
     let node: String
-    let nodeType: NodeType
+    let nodeType: String
 }
 
+extension String {
+    var parseLLMNodeType: NodeType? {
+        // TODO: update NodeType rawValue so that we do not need to use `.display`
+        NodeType.allCases.first { $0.display == self }
+    }
+}
 
 // MARK: Add Layer Node Input/Output
 

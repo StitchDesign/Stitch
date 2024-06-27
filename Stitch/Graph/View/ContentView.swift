@@ -142,11 +142,17 @@ struct ContentView: View {
             // only set this state to true when we're animating into full screen mode
             showFullScreenAnimateCompleted = true
         })
-        .stitchSheet(isPresented: graph.graphUI.llmRecording.showPromptModal,
+        .stitchSheet(isPresented: graph.graphUI.llmRecording.promptState.showModal,
                      titleLabel: "LLM Recording",
                      hideAction: LLMRecordingPromptClosed(),
                      sheetBody: {
-            LLMPromptModalView(actionsAsDisplay: graph.graphUI.llmRecording.actionsAsDisplayString)
+            LLMPromptModalView(actionsAsDisplay: graph.graphUI.llmRecording.promptState.actionsAsDisplayString)
+        })
+        .stitchSheet(isPresented: graph.graphUI.llmRecording.jsonEntryState.showModal,
+                     titleLabel: "LLM JSON Entry",
+                     hideAction: LLMActionsJSONEntryModalClosed(),
+                     sheetBody: {
+            LLMActionsJSONEntryModalView()
         })
     }
 

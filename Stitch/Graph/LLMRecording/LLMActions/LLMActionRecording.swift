@@ -1,13 +1,19 @@
 //
-//  LLMEvents.swift
+//  LLMActionRecording.swift
 //  Stitch
 //
-//  Created by Christian J Clampitt on 6/12/24.
+//  Created by Christian J Clampitt on 6/27/24.
 //
 
 import Foundation
+import StitchSchemaKit
 
-// Redux-events associated with LLM recording etc.
+
+// MARK: recording user's actions in app as a JSON of LLM Actions, assigning a natural language prompt and writing JSON + prompt to file
+
+let LLM_START_RECORDING_SF_SYMBOL = "play.fill"
+let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
+
 
 struct LLMRecordingToggled: GraphEvent {
     
@@ -36,23 +42,25 @@ extension GraphState {
         self.graphUI.llmRecording.isRecording = false
         
         // Cache the json of the actions; else TextField changes cause constant encoding and thus json-order changes
-        self.graphUI.llmRecording.actionsAsDisplayString = self.graphUI.llmRecording.actions.asJSONDisplay()
+        self.graphUI.llmRecording.promptState.actionsAsDisplayString = self.graphUI.llmRecording.actions.asJSONDisplay()
         
         // If we stopped recording and have LLMActions, show the prompt
         if !self.graphUI.llmRecording.actions.isEmpty {
-            self.graphUI.llmRecording.showPromptModal = true
+            self.graphUI.llmRecording.promptState.showModal = true
+            self.graphUI.reduxFocusedField = .llmModal
         }
     }
 }
 
-
+// When prompt modal is closed, we write the JSON of prompt + actions to file.
 struct LLMRecordingPromptClosed: GraphEvent {
-
+    
     func handle(state: GraphState) {
         
         // log("LLMRecordingPromptClosed called")
         
-        state.graphUI.llmRecording.showPromptModal = false
+        state.graphUI.llmRecording.promptState.showModal = false
+        state.graphUI.reduxFocusedField = nil
         
         let actions = state.graphUI.llmRecording.actions
         
@@ -64,7 +72,7 @@ struct LLMRecordingPromptClosed: GraphEvent {
         
         // Write the JSONL/YAML to file
         let recordedData = LLMRecordingData(actions: actions,
-                                            prompt: state.graphUI.llmRecording.prompt)
+                                            prompt: state.graphUI.llmRecording.promptState.prompt)
         
         // log("LLMRecordingPromptClosed: recordedData: \(recordedData)")
         
@@ -91,10 +99,11 @@ struct LLMRecordingPromptClosed: GraphEvent {
                     try data.write(to: url,
                                    options: [.atomic, .completeFileProtection])
                     
-                    let input = try String(contentsOf: url)
+                    // DEBUG
+                    // let input = try String(contentsOf: url)
                     // log("LLMRecordingPromptClosed: success: \(input)")
                 } catch {
-                     log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
+                    log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
                 }
             }
         }

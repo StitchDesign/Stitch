@@ -38,7 +38,6 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
-
         .commands {
             StitchCommands(store: store,
                            activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)

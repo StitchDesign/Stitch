@@ -481,6 +481,7 @@
 		EC5734332B75BAD100D93A78 /* LegacyActionConversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */; };
 		EC5A2DDF2632020700D8DEE5 /* PreviewImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */; };
 		EC5A2DE3263202FC00D8DEE5 /* VisualMediaLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */; };
+		EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */; };
 		EC5E3A1828188DF5001E156F /* ProjectDestructiveActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */; };
 		EC5E6C872B717F0800B4CACC /* AnimatableCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */; };
 		EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */; };
@@ -750,7 +751,7 @@
 		ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */; };
 		ECD83F092C192BC600722AD7 /* LLMAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F082C192BC600722AD7 /* LLMAction.swift */; };
 		ECD83F0E2C19ED0800722AD7 /* LLMRecordingState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */; };
-		ECD83F192C19EDF100722AD7 /* LLMEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F182C19EDF100722AD7 /* LLMEvents.swift */; };
+		ECD83F192C19EDF100722AD7 /* LLMActionParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */; };
 		ECD83F1B2C1A0C5F00722AD7 /* LLMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */; };
 		ECD83F1D2C1A176900722AD7 /* LLMActionUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */; };
 		ECD8871C29410BF500003B47 /* LoopFilterNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD8871B29410BF500003B47 /* LoopFilterNode.swift */; };
@@ -1372,6 +1373,7 @@
 		EC5734322B75BAD100D93A78 /* LegacyActionConversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyActionConversionUtils.swift; sourceTree = "<group>"; };
 		EC5A2DDE2632020700D8DEE5 /* PreviewImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewImage.swift; sourceTree = "<group>"; };
 		EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMediaLayerNode.swift; sourceTree = "<group>"; };
+		EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionRecording.swift; sourceTree = "<group>"; };
 		EC5E3A1728188DF5001E156F /* ProjectDestructiveActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectDestructiveActions.swift; sourceTree = "<group>"; };
 		EC5E6C862B717F0800B4CACC /* AnimatableCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableCircuitLine.swift; sourceTree = "<group>"; };
 		EC5E6C882B71839600B4CACC /* AnimatableForwardCircuitLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatableForwardCircuitLine.swift; sourceTree = "<group>"; };
@@ -1638,7 +1640,7 @@
 		ECD7FA8C29D73E2D0073ACAC /* ComponentActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentActions.swift; sourceTree = "<group>"; };
 		ECD83F082C192BC600722AD7 /* LLMAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMAction.swift; sourceTree = "<group>"; };
 		ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMRecordingState.swift; sourceTree = "<group>"; };
-		ECD83F182C19EDF100722AD7 /* LLMEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMEvents.swift; sourceTree = "<group>"; };
+		ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionParsing.swift; sourceTree = "<group>"; };
 		ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMView.swift; sourceTree = "<group>"; };
 		ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActionUtil.swift; sourceTree = "<group>"; };
 		ECD8871B29410BF500003B47 /* LoopFilterNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopFilterNode.swift; sourceTree = "<group>"; };
@@ -2777,7 +2779,6 @@
 				B56FFB392C18F23000623CC7 /* Shortcut */,
 				B59660822C1A1AE600BE75D7 /* Customization */,
 				B55501282C1BFB430081C3F1 /* Serialization */,
-				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
 				ECEA4C3928A32821005C7B49 /* Logging */,
 				B59660812C1A19E600BE75D7 /* Model */,
 				B571E1E12A46D8DB00676778 /* ViewModel */,
@@ -2968,6 +2969,7 @@
 				B55501322C1C00AA0081C3F1 /* GraphStep */,
 				EC3420D92AF9BABE00EBD896 /* CommentBox */,
 				B55500CF2C1BA4CA0081C3F1 /* Sidebar */,
+				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
 				B50F416F2C1F52A70082262F /* LayerInspector */,
 				B56FFB632C19674000623CC7 /* Menu */,
 				B555011D2C1BF1FF0081C3F1 /* Toolbar */,
@@ -4113,8 +4115,9 @@
 		ECD83F0C2C193AB400722AD7 /* LLMRecording */ = {
 			isa = PBXGroup;
 			children = (
-				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
+				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
 				ECD83F0D2C19ED0800722AD7 /* LLMRecordingState.swift */,
+				ECD83F0F2C19ED8700722AD7 /* LLMActions */,
 			);
 			path = LLMRecording;
 			sourceTree = "<group>";
@@ -4123,10 +4126,10 @@
 			isa = PBXGroup;
 			children = (
 				ECD83F082C192BC600722AD7 /* LLMAction.swift */,
-				ECD83F182C19EDF100722AD7 /* LLMEvents.swift */,
-				ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */,
-				ECD83F1A2C1A0C5F00722AD7 /* LLMView.swift */,
 				EC5F64302C2B451C00A9E52F /* LLMActions.swift */,
+				ECD83F182C19EDF100722AD7 /* LLMActionParsing.swift */,
+				EC5C6C392C2DAE690023D0C0 /* LLMActionRecording.swift */,
+				ECD83F1C2C1A176900722AD7 /* LLMActionUtil.swift */,
 			);
 			path = LLMActions;
 			sourceTree = "<group>";
@@ -4696,6 +4699,7 @@
 				B55500ED2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift in Sources */,
 				ECA92A28260A6A3400281B52 /* DelayNode.swift in Sources */,
 				ECB9A86B2AEB4935006E65EE /* SaturationSliderView.swift in Sources */,
+				EC5C6C3A2C2DAE690023D0C0 /* LLMActionRecording.swift in Sources */,
 				E41685E128A3FA5800731889 /* PreviewModel3DLayer.swift in Sources */,
 				ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */,
 				ECB7C72028A56C3700252DE7 /* ClassicAnimationPoint3D.swift in Sources */,
@@ -5126,7 +5130,7 @@
 				ECC301AB293808BF00C34F10 /* ArraySortNode.swift in Sources */,
 				B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */,
 				ECA929F4260A690400281B52 /* RepeatingPulsePatchNode.swift in Sources */,
-				ECD83F192C19EDF100722AD7 /* LLMEvents.swift in Sources */,
+				ECD83F192C19EDF100722AD7 /* LLMActionParsing.swift in Sources */,
 				B58E3FCB290357E500700656 /* ToastView.swift in Sources */,
 				EC7451B2294D2C6200C7EB80 /* LocationData.swift in Sources */,
 				EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */,

@@ -64,6 +64,15 @@ extension NodeIOPortType {
             return nil
         }
     }
+    
+    var portId: Int? {
+        switch self {
+        case .portIndex(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }
 
 extension LayerInputType {

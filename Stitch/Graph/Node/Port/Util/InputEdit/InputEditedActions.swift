@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 // Note: used by number inputs etc. but not by JSON etc.
-struct InputEdited: ProjectEnvironmentEvent {
+struct InputEdited: GraphEventWithResponse {
 
     let fieldValue: FieldValue
 
@@ -20,9 +20,7 @@ struct InputEdited: ProjectEnvironmentEvent {
 
     var isCommitting: Bool = true
 
-    func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: GraphState) -> GraphResponse {
 
         //        #if DEV_DEBUG
         //        log("InputEdited: fieldValue: \(fieldValue)")
@@ -32,21 +30,21 @@ struct InputEdited: ProjectEnvironmentEvent {
 
         let coordinate = coordinate
 
-        guard let nodeViewModel = graphState.getNodeViewModel(coordinate.nodeId),
+        guard let nodeViewModel = state.getNodeViewModel(coordinate.nodeId),
               let parentPortValuesList = nodeViewModel
             .getInputRowObserver(for: coordinate.portType)?.allLoopedValues else {
             log("InputEdited error: no parent values list found.")
             return .noChange
         }
 
-        guard let nodeViewModel = graphState.getNodeViewModel(coordinate.nodeId),
+        guard let nodeViewModel = state.getNodeViewModel(coordinate.nodeId),
               let inputObserver = nodeViewModel
             .getInputRowObserver(for: coordinate.portType) else {
             log("InputEdited error: could not retrieve node schema for node \(coordinate.nodeId).")
             return .noChange
         }
 
-        let loopIndex = graphState.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
+        let loopIndex = state.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
 
         guard let parentPortValue = parentPortValuesList[safe: loopIndex] else {
             log("InputEdited error: no parent value found.")
@@ -66,17 +64,16 @@ struct InputEdited: ProjectEnvironmentEvent {
 
             // MARK: very important to remove edges before input changes
             nodeViewModel.removeIncomingEdge(at: coordinate,
-                                             activeIndex: graphState.activeIndex)
+                                             activeIndex: state.activeIndex)
 
             inputObserver.setValuesInInput([newValue])
         }
         
-        graphState.calculate(nodeViewModel.id)
+        state.calculate(nodeViewModel.id)
 
         if isCommitting {
-            graphState.maybeCreateLLMSetField(node: nodeViewModel,
+            state.maybeCreateLLMSetInput(node: nodeViewModel,
                                               input: coordinate,
-                                              fieldIndex: fieldIndex,
                                               value: newValue)
         }
         

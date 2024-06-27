@@ -44,11 +44,11 @@ extension GraphState {
                                         nodeIO: .output,
                                         nodeType: node.userVisibleType)
             
-            let addLayer = LLMAddLayerInput(
+            let addLayer = LLMAddLayerOutput(
                 node: node.llmNodeTitle,
                 port: port)
             
-            self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
+            self.graphUI.llmRecording.actions.append(.addLayerOutput(addLayer))
         }
     }
     
@@ -115,9 +115,8 @@ extension GraphState {
     
     
     @MainActor
-    func maybeCreateLLMSetField(node: NodeViewModel,
+    func maybeCreateLLMSetInput(node: NodeViewModel,
                                 input: InputCoordinate,
-                                fieldIndex: Int,
                                 value: PortValue) {
         
         if self.graphUI.llmRecording.isRecording {
@@ -127,13 +126,11 @@ extension GraphState {
                                        nodeType: node.userVisibleType)
             
             self.graphUI.llmRecording.actions.append(
-                .setField(LLMSetFieldAction(
-                    field: LLMAFieldCoordinate(node: node.llmNodeTitle,
-                                               port: port,
-                                               field: fieldIndex),
+                .setInput(LLMSetInputAction(
+                    field: LLMPortCoordinate(node: node.llmNodeTitle,
+                                             port: port),
                     value: value.asLLMValue,
-                    nodeType: NodeType(value).display))
-            )
+                    nodeType: NodeType(value).display)))
         }
     }
     
@@ -145,56 +142,9 @@ extension GraphState {
             self.graphUI.llmRecording.actions.append(
                 .changeNodeType(LLMAChangeNodeTypeAction(
                     node: node.llmNodeTitle,
-                    nodeType: newNodeType))
+                    nodeType: newNodeType.display))
             )
         }
     }
 }
 
-extension PortValue {
-    @MainActor
-    var asLLMValue: JSONFriendlyFormat {
-                
-        switch self {
-        // Use shorter ids for assigned-layer nodes
-        case .assignedLayer(let x):
-            let shorterId = x?.id.debugFriendlyId.description ?? self.display
-            return .init(value: .string(.init(shorterId)))
-            
-        default:
-            return .init(value: self)
-        }
-    }
-}
-
-extension NodeIOCoordinate {
-    // TODO: use labels if patch node input has that?
-    func asLLMPort(nodeKind: NodeKind,
-                   nodeIO: NodeIO,
-                   nodeType: NodeType?) -> String {
-        
-        switch self.portType {
-        
-            // If we have a LayerNode input, use that label
-        case .keyPath(let x):
-            return x.label()
-            
-            // If we have a PatchNode input/output, or LayerNode output,
-            // try to find the label per node definitions
-        case .portIndex(let portId):
-            
-            let definitions = nodeKind.rowDefinitions(for: nodeType)
-            
-            switch nodeIO {
-            
-            case .input:
-                let rowLabel = definitions.inputs[safe: portId]?.label ?? ""
-                return rowLabel.isEmpty ? portId.description : rowLabel
-            
-            case .output:
-                let rowLabel = definitions.outputs[safe: portId]?.label ?? ""
-                return rowLabel.isEmpty ? portId.description : rowLabel
-            }
-        }
-    }
-}

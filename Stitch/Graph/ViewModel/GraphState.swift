@@ -296,7 +296,7 @@ extension GraphState: SchemaObserver {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
         
         // Defocus the preview window's TextField layer
-        if self.graphUI.reduxFocusedField?.getTextieldLayerInputEdit.isDefined ?? false {
+        if self.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
             self.graphUI.reduxFocusedField = nil
         }
         

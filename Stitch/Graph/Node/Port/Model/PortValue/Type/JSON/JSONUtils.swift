@@ -152,6 +152,8 @@ extension JSONFriendlyFormat {
             json[index].string = x
         case .number(let x):
             json[index].double = x
+        case .layerSizeDictionary(let x):
+            json[index].dictionaryObject = x
         case .dictionary(let x):
             json[index].dictionaryObject = x
         case .json(let x):
@@ -175,6 +177,8 @@ extension JSONFriendlyFormat {
             json[keyPath].string = x
         case .number(let x):
             json[keyPath].double = x
+        case .layerSizeDictionary(let x):
+            json[keyPath].dictionaryObject = x
         case .dictionary(let x):
             json[keyPath].dictionaryObject = x
         case .json(let x):
@@ -182,33 +186,6 @@ extension JSONFriendlyFormat {
         }
 
         return json
-    }
-    
-    @MainActor
-    init(value: PortValue) {
-        switch value {
-
-        case .number(let x):
-            self = .number(x)
-
-        // Swift `struct`s are turned into dictionaries.
-        case .size(let x):
-            self = .dictionary(x.asAlgebraicCGSize.asDictionary)
-        case .position(let x):
-            self = .dictionary(x.asDictionary)
-        case .point3D(let x):
-            self = .dictionary(x.asDictionary)
-        case .point4D(let x):
-            self = .dictionary(x.asDictionary)
-
-        // Don't need to clean the json anymore?
-        case .json(let x):
-            self = .json(x.value)
-            
-        // Vast majority of PortValues can be treated as strings
-        default:
-            self = .string(value.display)
-        }
     }
 }
 
@@ -222,14 +199,22 @@ extension JSON {
         
         var j = JSON()
         switch JSONFriendlyFormat(value: value) {
+            
         case .string(let x):
             //        log("JSONObjectFromKeyAndValue: string: x: \(x)")
             j[key].string = x
+        
         case .number(let x):
             j[key].double = x
+            
+        case .layerSizeDictionary(let x):
+            //        log("JSONObjectFromKeyAndValue: dictionary: x: \(x)")
+            j[key].dictionaryObject = x
+            
         case .dictionary(let x):
             //        log("JSONObjectFromKeyAndValue: dictionary: x: \(x)")
             j[key].dictionaryObject = x
+            
         case .json(let x): // cleaned json
             //        log("JSONObjectFromKeyAndValue: json: x: \(x)")
             // Works just if the JSON was cleaned already
@@ -562,9 +547,9 @@ extension JSON {
         return nil
     }
 
-    var toSize: CGSize? {
-        if let width = self["width"].double,
-           let height = self["height"].double {
+    var toSize: LayerSize? {
+        if let width = self[WIDTH].string?.asLayerDimension,
+           let height = self[HEIGHT].string?.asLayerDimension {
             return .init(width: width, height: height)
         }
         return nil
@@ -590,16 +575,55 @@ extension JSON {
     }
 }
 
-enum JSONFriendlyFormat: Encodable, Equatable {
+//enum JSONFriendlyFormat: Encodable, Equatable {
+
+// Represents a PortValue in a way that displays "naturally" in a JSON.
+// e.g. avoids the `_0` etc. of `Codable` enums
+enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
     case string(String),
          number(Double),
          dictionary([String: Double]),
+         
+         // TODO: a LayerSize field may be .auto, .parentPercent(50%) etc.; so
+          layerSizeDictionary([String: String]),
+         
          json(JSON) // already a json
 
     var jsonWrapper: JSON {
         self.setInJSON(JSON(["a"]), index: 0)
     }
 
+    /*
+     How would you really decode this?
+     You have no keys etc. -- you just get a string or number or dictionary etc. back.
+    
+     (For LLM case, probably don't need JSON per se?)
+     
+     You don't know the type of the value that gets returned.
+     And Stitch nodes never really turn this format back into some PortValue etc.
+     
+     You could create a new struct or enum, and specify both 
+     */
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        if let s = try? container.decode(String.self) {
+            self = .string(s)
+        }
+        else if let n = try? container.decode(Double.self) {
+            self = .number(n)
+        } else if let d = try? container.decode([String: Double].self) {
+            self = .dictionary(d)
+        } else if let ld = try? container.decode([String: String].self) {
+            self = .layerSizeDictionary(ld)
+        } else if let j = try? container.decode(JSON.self) {
+            self = .json(j)
+        } else {
+            fatalErrorIfDebug()
+            self = .string("Decoding Failed")
+        }
+    }
+    
     func encode(to encoder: Encoder) throws {
         // Very important to use a single value container
         var container = encoder.singleValueContainer()
@@ -610,9 +634,121 @@ enum JSONFriendlyFormat: Encodable, Equatable {
             try container.encode(n)
         case .dictionary(let d):
             try container.encode(d)
+        case .layerSizeDictionary(let ld):
+            try container.encode(ld)
         case .json(let j):
             try container.encode(j)
         }
+    }
+}
+
+//extension LayerSize: Codable { }
+
+
+extension JSONFriendlyFormat {
+    
+    // PortValue -> JSONFriendlyFormat
+    @MainActor
+    init(value: PortValue) {
+        switch value {
+
+        case .number(let x):
+            self = .number(x)
+
+            // Swift `struct`s are turned into dictionaries.
+            // Most can be represented as `[String: Double]` except for LayerSize, which needs `[String: String]` since its width could be e.g. "50%" or "auto"
+        case .size(let x):
+            self = .layerSizeDictionary(x.asLayerDictionary)
+        case .position(let x):
+            self = .dictionary(x.asDictionary)
+        case .point3D(let x):
+            self = .dictionary(x.asDictionary)
+        case .point4D(let x):
+            self = .dictionary(x.asDictionary)
+
+        // Don't need to clean the json anymore?
+        case .json(let x):
+            self = .json(x.value)
+            
+        // Vast majority of PortValues can be treated as strings
+        default:
+            self = .string(value.display)
+        }
+    }
+    
+    @MainActor
+    func asPortValueForLLMSetField(_ nodeType: NodeType) -> PortValue? {
+        switch self {
+            
+        case .number(let x):
+            return .number(x)
+        
+        case .json(let x):
+            return .json(.init(x))
+        
+        case .layerSizeDictionary(let x):
+            
+            switch nodeType {
+                
+            case .size:
+                if let size = self
+                    // Turn into JSON Array, then retrieve JSON Object
+                    .jsonWrapper.first?.1
+                    // Parse JSON Object as having "width", "height" keys etc.
+                    .toSize {
+                    return .size(size)
+                }
+                return nil
+                
+            default:
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            
+        // .dictionary can only be .size, .position, .point3D, .point4D
+        case .dictionary:
+            
+            // TODO: this i
+            switch nodeType {
+            
+            case .position:
+                if let position = self
+                    .jsonWrapper.first?.1
+                    .toStitchPosition {
+                    return .position(position)
+                }
+                return nil
+                                
+            case .point3D:
+                if let point3D = self
+                    .jsonWrapper.first?.1
+                    .toPoint3D {
+                    return .point3D(point3D)
+                }
+                return nil
+                
+            case .point4D:
+                if let point4D = self
+                    .jsonWrapper.first?.1
+                    .toPoint4D {
+                    return .point4D(point4D)
+                }
+                return nil
+                
+            default:
+                fatalErrorIfDebug()
+                return nil
+                
+            }
+            
+            // .string is used for PortValue.string but also any other non-multifield value
+        case .string(let x):
+            // can actually just return a string,
+            // and the logic of `handleInputEdited` handles the rest
+            return .string(.init(x))
+        }
+        
     }
 }
 
