@@ -98,18 +98,32 @@ struct LayerOutputAddedToGraph: GraphEventWithResponse {
             fatalErrorIfDebug()
             return .noChange
         }
-                
-        output.canvasUIData = .init(
-            id: .layerOutputOnGraph(coordinate),
-            position: state.newNodeCenterLocation,
-            zIndex: state.highestZIndex + 1,
-            // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: state.groupNodeFocused,
-            nodeDelegate: node)
         
-        state.maybeCreateLLMAddLayerOutput(nodeId, coordinate.portId)
+        state.layerOutputAddedToGraph(node: node,
+                                      output: output,
+                                      portId: coordinate.portId)
         
         return .shouldPersist
+    }
+}
+
+extension GraphState {
+    
+    @MainActor
+    func layerOutputAddedToGraph(node: NodeViewModel,
+                                 output: NodeRowObserver,
+                                 portId: Int) {
+        
+        output.canvasUIData = .init(
+            id: .layerOutputOnGraph(.init(portId: portId,
+                                          nodeId: node.id)),
+            position: self.newNodeCenterLocation,
+            zIndex: self.highestZIndex + 1,
+            // Put newly-created LIG into graph's current traversal level
+            parentGroupNodeId: self.groupNodeFocused,
+            nodeDelegate: node)
+        
+        self.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
 }
 

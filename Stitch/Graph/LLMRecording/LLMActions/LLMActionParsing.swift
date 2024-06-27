@@ -176,39 +176,63 @@ extension GraphState {
 
         
         case .addLayerInput(let x):
+            self.handleLLMLayerInputOrOutputAdded(llmNode: x.node,
+                                                  llmPort: x.port,
+                                                  isInput: true)
+
+        case .addLayerOutput(let x):
+            self.handleLLMLayerInputOrOutputAdded(llmNode: x.node,
+                                                  llmPort: x.port,
+                                                  isInput: false)
             
-            // Layer node must already exist
-            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-                  let node = self.getNode(nodeId) else {
-                log("handleLLMAction: .addLayerInput: No node id or node")
-                return
-            }
-            
-            // `.port` should be some known layer input type
-            guard let layerInput = x.port.parseLLMPortAsLayerInputType else {
-                log("handleLLMAction: .addLayerInput: Unknown port")
-                return
-            }
-            
-            guard let input = node.getInputRowObserver(for: .keyPath(layerInput)) else {
-                log("handleLLMAction: .addLayerInput: No input for \(layerInput)")
+        default:
+            fatalError()
+        }
+        
+    }
+    
+    @MainActor
+    func handleLLMLayerInputOrOutputAdded(llmNode: String,
+                                          llmPort: String,
+                                          isInput: Bool) {
+        
+        // Layer node must already exist
+        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+              let node = self.getNode(nodeId) else {
+            log("handleLLMAction: .addLayerPort: No node id or node")
+            return
+        }
+        
+        guard let portType = llmPort.parseLLMPortAsPortType else {
+            log("handleLLMAction: .addLayerPort: No port")
+            return
+        }
+                
+        if isInput {
+            guard let layerInput = portType.keyPath,
+                  let input = node.getInputRowObserver(for: portType) else {
+                log("handleLLMAction: .addLayerPort: No input for \(portType)")
                 return
             }
             
             self.layerInputAddedToGraph(node: node,
                                         input: input,
                                         coordinate: layerInput)
+        } else {
+            guard let portId = portType.portId,
+                    let output = node.getOutputRowObserver(for: portType) else {
+                log("handleLLMAction: .addLayerPort: No output for \(portType)")
+                return
+            }
             
-//
-//        case .addLayerOutput(let x):
-//            <#code#>
-//            
-        default:
-            fatalError()
+            self.layerOutputAddedToGraph(node: node,
+                                         output: output,
+                                         portId: portId)
         }
-        
     }
 }
+
+
 
 func getCanvasId(llmNode: String,
                  llmPort: String,
@@ -263,4 +287,95 @@ extension String {
         }
         return nil
     }
+    
+    
+    var parseLLMNodeTitleId: String? {
+        self.parseLLMNodeTitle?.0
+    }
+    
+    // e.g. for llm node title = "Power (123456)",
+    // llm node id is "123456"
+    // llm node kind is "Power"
+    var parseLLMNodeTitle: (String, NodeKind)? {
+        
+        var s = self
+        
+        // drop closing parens
+        s.removeLast()
+        
+        // split at and remove opening parens
+        let _s = s.split(separator: "(")
+        
+        let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
+        let llmNodeKind = (_s.first ?? "").trimmingCharacters(in: .whitespaces).getNodeKind
+        
+        if let llmNodeKind = llmNodeKind {
+            return (llmNodeId, llmNodeKind)
+        } else {
+            log("parseLLMNodeTitle: unable to parse LLM Node Title")
+            return nil
+        }
+    }
+    
+    var getNodeKind: NodeKind? {
+        // Assumes `self` is already "human-readable" patch/layer name,
+        // e.g. "Convert Position" not "convertPosition"
+        // TODO: update Patch and Layer enums to use human-readable names for their cases' raw string values; then can just use `Patch(rawValue: self)`
+        if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
+            return .layer(layer)
+        } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
+            return .patch(patch)
+        }
+        
+        return nil
+    }
 }
+
+extension PortValue {
+    @MainActor
+    var asLLMValue: JSONFriendlyFormat {
+                
+        switch self {
+        // Use shorter ids for assigned-layer nodes
+        case .assignedLayer(let x):
+            let shorterId = x?.id.debugFriendlyId.description ?? self.display
+            return .init(value: .string(.init(shorterId)))
+            
+        default:
+            return .init(value: self)
+        }
+    }
+}
+
+extension NodeIOCoordinate {
+    // TODO: use labels if patch node input has that?
+    func asLLMPort(nodeKind: NodeKind,
+                   nodeIO: NodeIO,
+                   nodeType: NodeType?) -> String {
+        
+        switch self.portType {
+        
+            // If we have a LayerNode input, use that label
+        case .keyPath(let x):
+            return x.label()
+            
+            // If we have a PatchNode input/output, or LayerNode output,
+            // try to find the label per node definitions
+        case .portIndex(let portId):
+            
+            let definitions = nodeKind.rowDefinitions(for: nodeType)
+            
+            switch nodeIO {
+            
+            case .input:
+                let rowLabel = definitions.inputs[safe: portId]?.label ?? ""
+                return rowLabel.isEmpty ? portId.description : rowLabel
+            
+            case .output:
+                let rowLabel = definitions.outputs[safe: portId]?.label ?? ""
+                return rowLabel.isEmpty ? portId.description : rowLabel
+            }
+        }
+    }
+}
+     
