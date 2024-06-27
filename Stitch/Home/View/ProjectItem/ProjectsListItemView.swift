@@ -12,6 +12,8 @@ struct ProjectsListItemIconView: View {
 
     let projectThumbnail: UIImage?
     
+    let previewWindowBackgroundColor: Color?
+    
     // Important: UIImage is a reference type, and the thummbnail URL itself never changes;
     // so we trigger reunder-upon-thumbnail-write by listening to ProjectLoader's modifiedDate
     var modifiedDate: Date? = nil // nil = project is loading, or failed to load
@@ -33,6 +35,14 @@ struct ProjectsListItemIconView: View {
         // TODO: will be updated after small redesign?
             .frame(width: PROJECTSVIEW_ITEM_WIDTH,
                    height: PROJECTSVIEW_ITEM_WIDTH - (PROJECTSVIEW_ITEM_WIDTH/3))
+             .background {
+                 if projectThumbnail.isDefined,
+                    let previewWindowBackgroundColor = previewWindowBackgroundColor {
+                     previewWindowBackgroundColor.overlay {
+                         Color.black.opacity(0.2)
+                     }
+                }
+            }
             .contentShape(Rectangle()) // for consistent tappable thumbnail area
     }
 }
@@ -77,15 +87,16 @@ struct ProjectsListItemView: View {
             case .initialized, .loading:
                 ProjectThumbnailLoadingView()
             case .failed:
-                ProjectsListItemIconView(projectThumbnail: nil)
+                ProjectsListItemIconView(projectThumbnail: nil,
+                                         previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
             case .loaded(let document):
                 #if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
-                                
                 ProjectsListItemIconView(
                     projectThumbnail: document.getProjectThumbnailImage(),
+                    previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
                         dispatch(ProjectTapped(documentURL: projectLoader.url))
@@ -130,7 +141,8 @@ struct ProjectListItemSizingModifier: ViewModifier {
 
 struct ProjectThumbnailLoadingView: View {
     var body: some View {
-        ProjectsListItemIconView(projectThumbnail: nil)
+        ProjectsListItemIconView(projectThumbnail: nil,
+                                 previewWindowBackgroundColor: nil)
             .projectItemBlur()
             .overlay {
                 ProgressView()
