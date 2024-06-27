@@ -254,7 +254,7 @@ func sizeCoercer(_ values: PortValues,
         case .bool(let x):
             return .size(x ? .multiplicationIdentity : .zero)
         case .json(let x):
-            return .size(x.value.toSize?.toLayerSize ?? .zero)
+            return .size(x.value.toSize ?? .zero)
         default:
             return coerceToTruthyOrFalsey(value,
                                           graphTime: graphTime)

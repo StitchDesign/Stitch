@@ -114,10 +114,13 @@ extension LLMAction: Encodable, Decodable {
             self = .addEdge(.init(from: from, to: to))
             
         case LLMActionNames.setInput.rawValue:
-            log("LLMAction: Decoder: decoding .setField")
+            log("LLMAction: Decoder: decoding .setInput")
             let field = try container.decode(LLMPortCoordinate.self, forKey: .field)
+            log("LLMAction: Decoder: decoding .setInput: decoded field")
             let value = try container.decode(JSONFriendlyFormat.self, forKey: .value)
+            log("LLMAction: Decoder: decoding .setInput: decoded value")
             let nodeType = try container.decode(String.self, forKey: .nodeType)
+            log("LLMAction: Decoder: decoding .setInput: decoded nodeType")
             self = .setInput(.init(field: field, value: value, nodeType: nodeType))
                 
         case LLMActionNames.changeNodeType.rawValue:
@@ -169,6 +172,7 @@ extension LLMAction: Encodable, Decodable {
             
         case .setInput(let x):
             try container.encode(x.action, forKey: .action)
+            try container.encode(x.field, forKey: .field)
             try container.encode(x.value, forKey: .value)
             try container.encode(x.nodeType, forKey: .nodeType)
         

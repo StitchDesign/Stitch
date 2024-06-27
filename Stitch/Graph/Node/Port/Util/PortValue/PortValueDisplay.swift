@@ -11,11 +11,27 @@ import SwiftUI
 import SwiftyJSON
 import OrderedCollections
 
+let WIDTH = "width"
+let HEIGHT = "height"
+let X = "x"
+let Y = "y"
+let Z = "z"
+let W = "w"
+
+extension LayerSize {
+    var asLayerDictionary: [String: String] {
+        [
+            WIDTH: self.width.description,
+            HEIGHT: self.height.description
+        ]
+    }
+}
+
 extension CGSize {
     var asDictionary: [String: Double] {
         [
-            "x": self.width,
-            "y": self.height
+            WIDTH: self.width,
+            HEIGHT: self.height
         ]
     }
 }
@@ -23,9 +39,9 @@ extension CGSize {
 extension Point3D {
     var asDictionary: [String: Double] {
         [
-            "x": self.x,
-            "y": self.y,
-            "z": self.z
+            X: self.x,
+            Y: self.y,
+            Z: self.z
         ]
     }
 }
@@ -33,10 +49,10 @@ extension Point3D {
 extension Point4D {
     var asDictionary: [String: Double] {
         [
-            "x": self.x,
-            "y": self.y,
-            "z": self.z,
-            "w": self.w
+            X: self.x,
+            Y: self.y,
+            Z: self.z,
+            W: self.w
         ]
     }
 }

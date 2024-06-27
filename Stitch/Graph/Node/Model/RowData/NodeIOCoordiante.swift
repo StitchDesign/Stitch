@@ -67,7 +67,7 @@ extension NodeIOPortType {
     
     var portId: Int? {
         switch self {
-        case .portId(let x):
+        case .portIndex(let x):
             return x
         default:
             return nil

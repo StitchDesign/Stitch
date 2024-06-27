@@ -55,7 +55,7 @@ extension LayerDimension: CustomStringConvertible {
             return .AUTO_SIZE_STRING
         case .parentPercent(let x):
             //            return "\(x.coerceToUserFriendlyString)%"
-            return x.description
+            return "\(x.description)%"
         case .number(let x):
             //            return x.coerceToUserFriendlyString
             return x.description
@@ -64,6 +64,12 @@ extension LayerDimension: CustomStringConvertible {
         case .hug:
             return .HUG_SIZE_STRING
         }
+    }
+}
+
+extension String {
+    var asLayerDimension: LayerDimension? {
+        .fromUserEdit(edit: self)
     }
 }
 

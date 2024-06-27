@@ -184,9 +184,6 @@ extension GraphState {
             self.handleLLMLayerInputOrOutputAdded(llmNode: x.node,
                                                   llmPort: x.port,
                                                   isInput: false)
-            
-        default:
-            fatalError()
         }
         
     }
