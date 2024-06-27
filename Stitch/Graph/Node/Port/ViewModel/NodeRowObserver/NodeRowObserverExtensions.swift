@@ -53,8 +53,7 @@ extension NodeRowObserver {
     
     @MainActor
     func getVisibleInputRowViewModels() -> [InputNodeRowViewModel] {
-        guard let nodeDelegate = self.nodeDelegate,
-              let inputId = self.portViewType?.input else {
+        guard let nodeDelegate = self.nodeDelegate else {
             fatalErrorIfDebug()
             return []
         }
@@ -64,14 +63,13 @@ extension NodeRowObserver {
             .filter { $0.isVisibleInFrame }
             .flatMap { canvasItem in
                 canvasItem.inputViewModels
-                    .filter { $0.id == inputId }
+                    .filter { $0.rowDelegate?.id == self.id }
             }
     }
     
     @MainActor
     func getVisibleOutputRowViewModels() -> [OutputNodeRowViewModel] {
-        guard let nodeDelegate = self.nodeDelegate,
-              let inputId = self.portViewType?.output else {
+        guard let nodeDelegate = self.nodeDelegate else {
             fatalErrorIfDebug()
             return []
         }
@@ -81,7 +79,7 @@ extension NodeRowObserver {
             .filter { $0.isVisibleInFrame }
             .flatMap { canvasItem in
                 canvasItem.outputViewModels
-                    .filter { $0.id == inputId }
+                    .filter { $0.rowDelegate?.id == self.id }
             }
     }
     

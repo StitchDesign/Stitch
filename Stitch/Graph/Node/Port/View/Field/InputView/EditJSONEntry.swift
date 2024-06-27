@@ -15,7 +15,7 @@ struct EditJSONEntry: View {
     @FocusedValue(\.focusedField) private var focusedField
     @State var internalEditString: String = ""
 
-    let coordinate: InputCoordinate
+    let coordinate: InputPortViewData
     let json: StitchJSON? // nil helps with perf?
 
     @State var properJson = true

@@ -21,7 +21,7 @@ final class FieldGroupTypeViewModel: ObservableObject {
     let startingFieldIndex: Int
 
     init(type: FieldGroupType,
-         coordinate: NodeIOCoordinate,
+         coordinate: PortViewData,
          groupLabel: String? = nil,
          startingFieldIndex: Int = 0) {
         self.type = type
@@ -61,7 +61,7 @@ extension FieldGroupTypeViewModel: Identifiable {
 extension FieldGroupTypeViewModelList {
     @MainActor
     init(initialValue: PortValue,
-         coordinate: NodeIOCoordinate,
+         coordinate: PortViewData,
          nodeIO: NodeIO,
          importedMediaObject: StitchMediaObject?) {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {

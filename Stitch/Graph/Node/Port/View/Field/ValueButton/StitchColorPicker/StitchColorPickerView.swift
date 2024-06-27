@@ -39,7 +39,7 @@ struct StitchColorPickerView: View {
     // TODO: opening or closing the color-gradient-picker view should disable nodes copy-paste shortcut
     @State private var show: Bool = false
 
-    let coordinate: InputCoordinate
+    let coordinate: InputPortViewData
 
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false

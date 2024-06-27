@@ -39,11 +39,11 @@ extension NodeRowViewModel {
 }
 
 extension NodeRowObserver {
-   /// Caches perf-costly operations for tracking various data used for view.
-   @MainActor
-   func updatePortViewData() {
-       self.portViewType = self.getPortViewType()
-   }
+//   /// Caches perf-costly operations for tracking various data used for view.
+//   @MainActor
+//   func updatePortViewData() {
+//       self.portViewType = self.getPortViewType()
+//   }
    
    @MainActor
    func updateConnectedNodes() {
@@ -52,68 +52,68 @@ extension NodeRowObserver {
        // Update port color data
        self.updatePortColor()
    }
-   
-   @MainActor
-   var inputPortViewData: InputPortViewData? {
-       self.portViewType?.input
-   }
-   
-   @MainActor
-   var outputPortViewData: OutputPortViewData? {
-       self.portViewType?.output
-   }
-       
-   // MARK: This has expensive perf (esp `getGroupSplitters`) so it's been relegated to only be called on visible nodes sync.
-   @MainActor
-   private func getPortViewType() -> PortViewType? {
-       guard let nodeId = self.nodeDelegate?.id else {
-           return nil
-       }
 
-       // Row observers use splitters inside groups
-       let isGroup = self.nodeKind == .patch(.splitter) &&
-       // Splitter is visible if it's parent group ID is focused in graph
-       self.nodeDelegate?.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused
+//   @MainActor
+//   var inputPortViewData: InputPortViewData? {
+//       self.portViewType?.input
+//   }
+//   
+//   @MainActor
+//   var outputPortViewData: OutputPortViewData? {
+//       self.portViewType?.output
+//   }
        
-       guard !isGroup else {
-           let splitterType: SplitterType = self.nodeIOType == .input ? .input : .output
-           
-           // Groups can't use ID's directly since these are splitter IDs
-           guard let groupNodeId = self.nodeDelegate?.parentGroupNodeId,
-                 let groupSplitters = self.nodeDelegate?.graphDelegate?
-                     .getSplitterRowObservers(for: groupNodeId, type: splitterType),
-                 let groupPortId = groupSplitters
-               .firstIndex(where: { $0.id == self.id }) else {
-//                fatalErrorIfDebug()
-               return nil
-           }
-           
-           return .init(nodeIO: self.nodeIOType,
-                        portId: groupPortId,
-                        nodeId: groupNodeId)
-       }
-       
-       // Check for layers and patches
-       switch self.id.portType {
-       case .keyPath(let layerInputType):
-           assertInDebug(self.nodeIOType == .input)
-           
-           guard let layer = self.nodeKind.getLayer,
-                 let index = layer.layerGraphNode.inputDefinitions.firstIndex(of: layerInputType) else {
-               fatalErrorIfDebug()
-               return nil
-           }
-           
-           return .init(nodeIO: self.nodeIOType,
-                        portId: index,
-                        nodeId: nodeId)
-           
-       case .portIndex(let portId):
-           return .init(nodeIO: self.nodeIOType,
-                        portId: portId,
-                        nodeId: nodeId)
-       }
-   }
+//   // MARK: This has expensive perf (esp `getGroupSplitters`) so it's been relegated to only be called on visible nodes sync.
+//   @MainActor
+//   private func getPortViewType() -> PortViewType? {
+//       guard let nodeId = self.nodeDelegate?.id else {
+//           return nil
+//       }
+//
+//       // Row observers use splitters inside groups
+//       let isGroup = self.nodeKind == .patch(.splitter) &&
+//       // Splitter is visible if it's parent group ID is focused in graph
+//       self.nodeDelegate?.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused
+//       
+//       guard !isGroup else {
+//           let splitterType: SplitterType = self.nodeIOType == .input ? .input : .output
+//           
+//           // Groups can't use ID's directly since these are splitter IDs
+//           guard let groupNodeId = self.nodeDelegate?.parentGroupNodeId,
+//                 let groupSplitters = self.nodeDelegate?.graphDelegate?
+//                     .getSplitterRowObservers(for: groupNodeId, type: splitterType),
+//                 let groupPortId = groupSplitters
+//               .firstIndex(where: { $0.id == self.id }) else {
+////                fatalErrorIfDebug()
+//               return nil
+//           }
+//           
+//           return .init(nodeIO: self.nodeIOType,
+//                        portId: groupPortId,
+//                        nodeId: groupNodeId)
+//       }
+//       
+//       // Check for layers and patches
+//       switch self.id.portType {
+//       case .keyPath(let layerInputType):
+//           assertInDebug(self.nodeIOType == .input)
+//           
+//           guard let layer = self.nodeKind.getLayer,
+//                 let index = layer.layerGraphNode.inputDefinitions.firstIndex(of: layerInputType) else {
+//               fatalErrorIfDebug()
+//               return nil
+//           }
+//           
+//           return .init(nodeIO: self.nodeIOType,
+//                        portId: index,
+//                        nodeId: nodeId)
+//           
+//       case .portIndex(let portId):
+//           return .init(nodeIO: self.nodeIOType,
+//                        portId: portId,
+//                        nodeId: nodeId)
+//       }
+//   }
    
    /// Nodes connected via edge.
    @MainActor

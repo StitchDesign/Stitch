@@ -92,7 +92,7 @@ final class NodeRowObserver: Identifiable, Sendable {
     
     // TODO: can this really ever be nil? -- or does `nil` mean that the cache is not yet initialized?
     // Coordinate ID used for view--cached for perf
-    var portViewType: PortViewType?
+//    var portViewType: PortViewType?
     
     // Tracks upstream/downstream nodes--cached for perf
     var connectedNodes: NodeIdSet = .init()
@@ -192,7 +192,7 @@ final class NodeRowObserver: Identifiable, Sendable {
     }
 }
 
-extension NodeRowViewModel {
+extension InputNodeRowViewModel {
     /// Called by parent node view model to update fields.
     @MainActor
     func activeValueChanged(oldValue: PortValue,

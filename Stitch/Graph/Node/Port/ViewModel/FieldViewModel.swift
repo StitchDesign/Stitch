@@ -42,7 +42,7 @@ extension FieldViewModel: Identifiable {
 
 extension FieldViewModels {
     init(_ fieldGroupType: FieldGroupType,
-         coordinate: NodeIOCoordinate,
+         coordinate: PortViewData,
          startingFieldIndex: Int) {
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues

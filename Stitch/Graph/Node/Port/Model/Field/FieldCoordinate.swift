@@ -8,9 +8,9 @@
 import Foundation
 import StitchSchemaKit
 
-struct FieldCoordinate: Equatable, Hashable, Codable {
+struct FieldCoordinate: Hashable {
     // the input where this field belongs
-    let input: InputCoordinate
+    let input: InputPortViewData
 
     // the particular field in the
     // 0 for single-field inputs
@@ -18,7 +18,7 @@ struct FieldCoordinate: Equatable, Hashable, Codable {
 
     static var fakeFieldCoordinate: FieldCoordinate {
         FieldCoordinate(
-            input: .fakeInputCoordinate,
+            input: .init(portId: 0, canvasId: .node(.init())),
             fieldIndex: 0)
     }
 }
