@@ -109,19 +109,21 @@ extension StitchStore {
 
 
      NOTE 2: attempted an implementation with StitchDocument.exportDocument and StitchDocument.importDocument, but got multiple copies of same project, including some that were not able to be deleted
-
+     
      ```swift
      do {
-     try await finalDoc.installDocument()
-     try await finalDoc.encodeVersionedContents()
-     let result = await StitchDocument.exportDocument(finalDoc)
-     let importedDoc = try await StitchDocument.importDocument(from: result.file, isImport: true)
-     guard let importedDoc = importedDoc else {
-     log("copyExistingProject: no importedDoc")
-     return .failure(.copyFileFailed)
-     }
-     return .succcess
-     } // do
+        try await finalDoc.installDocument()
+        try await finalDoc.encodeVersionedContents()
+        let result = await StitchDocument.exportDocument(finalDoc)
+        let importedDoc = try await StitchDocument.importDocument(from: result.file, isImport: true)
+     
+        guard let importedDoc = importedDoc else {
+            log("copyExistingProject: no importedDoc")
+            return .failure(.copyFileFailed)
+        }
+     
+        return .succcess
+    } // do
      ```
      */
     func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
@@ -135,14 +137,14 @@ extension StitchStore {
             try await self.documentLoader.installDocument(document: finalDoc)
             try await self.documentLoader.encodeVersionedContents(document: finalDoc)
 
-            // Need to manually copy the original project's imported-files-dir url to the duplicated project's imported-files-dir
-            try FileManager.default.copyItem(at: document.getImportedFilesURL(),
-                                             to: finalDoc.getImportedFilesURL())
-            
             // Need to manually copy the original project's thumbnail
             try FileManager.default.copyItem(at: document.getProjectThumbnailURL(),
                                              to: finalDoc.getProjectThumbnailURL())
             
+            // Need to manually copy the original project's imported-files-dir url to the duplicated project's imported-files-dir
+            // Note: this is allowed to fail, since a project without media will not have an ImportedFiles directory.
+            let _ = try? FileManager.default.copyItem(at: document.getImportedFilesURL(),
+                                                      to: finalDoc.getImportedFilesURL())
 
             return .success
         } catch {
