@@ -210,7 +210,6 @@ extension GraphState {
     }
 }
 
-
 func getCanvasId(llmNode: String,
                  llmPort: String,
                  _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
