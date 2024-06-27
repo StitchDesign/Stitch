@@ -33,9 +33,9 @@ struct LLMMoveNode: Equatable, Codable {
     let action: String = LLMActionNames.moveNode.rawValue
     let node: String
     
-    // empty string if we moved a patch node,
-    // non-number string if we moved a layer input/field.
-    // number string if we moved a layer output.
+    // empty string = we moved a patch node,
+    // non-empty string = we moved a layer input/output/field
+    // Non-empty Strings always represents LABELS
     let port: String
     
     // (position at end of movement - position at start of movement)
@@ -48,8 +48,7 @@ struct LLMMoveNode: Equatable, Codable {
 struct LLMPortCoordinate: Equatable, Codable {
     let node: String
     
-    // number = Patch Node input or output, Layer Node output
-    // string = Layer Node input
+    // Always the LABEL of the input/output/field
     let port: String
 }
 

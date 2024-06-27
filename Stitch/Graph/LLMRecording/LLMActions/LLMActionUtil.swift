@@ -44,11 +44,11 @@ extension GraphState {
                                         nodeIO: .output,
                                         nodeType: node.userVisibleType)
             
-            let addLayer = LLMAddLayerInput(
+            let addLayer = LLMAddLayerOutput(
                 node: node.llmNodeTitle,
                 port: port)
             
-            self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
+            self.graphUI.llmRecording.actions.append(.addLayerOutput(addLayer))
         }
     }
     

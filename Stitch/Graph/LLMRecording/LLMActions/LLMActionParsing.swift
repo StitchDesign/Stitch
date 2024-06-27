@@ -93,24 +93,24 @@ extension GraphState {
         case .addEdge(let x):
             
             // Both to node and from node must exist
-            guard let fromNodeId = x.from.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
                 return
             }
             
-            guard let toNodeId = x.to.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
                 return
             }
             
-            guard let fromPort: NodeIOPortType = x.from.port.parseLLMPortAsPortType else {
+            guard let fromPort: NodeIOPortType = x.from.port.parseLLMPortAsPortType(fromNodeKind, .output) else {
                 log("handleLLMAction: .addEdge: No origin port")
                 return
             }
             
-            guard let toPort: NodeIOPortType = x.to.port.parseLLMPortAsPortType else {
+            guard let toPort: NodeIOPortType = x.to.port.parseLLMPortAsPortType(toNodeKind, .input) else {
                 log("handleLLMAction: .addEdge: No destination port")
                 return
             }
@@ -123,13 +123,13 @@ extension GraphState {
             
         case .setInput(let x):
             
-            guard let nodeId = x.field.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   let node = self.getNode(nodeId) else {
                 log("handleLLMAction: .setField: No node id or node")
                 return
             }
             
-            guard let portType = x.field.port.parseLLMPortAsPortType else {
+            guard let portType = x.field.port.parseLLMPortAsPortType(nodeKind, .input) else {
                 log("handleLLMAction: .setField: No port")
                 return
             }
@@ -194,21 +194,24 @@ extension GraphState {
                                           isInput: Bool) {
         
         // Layer node must already exist
-        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+              
+        guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
               let node = self.getNode(nodeId) else {
-            log("handleLLMAction: .addLayerPort: No node id or node")
+            log("handleLLMLayerInputOrOutputAdded: No node id or node")
             return
         }
-        
-        guard let portType = llmPort.parseLLMPortAsPortType else {
-            log("handleLLMAction: .addLayerPort: No port")
-            return
-        }
-                
+                        
         if isInput {
+            
+            guard let portType = llmPort.parseLLMPortAsPortType(nodeKind, .input) else {
+                log("handleLLMLayerInputOrOutputAdded: No input")
+                return
+            }
+            
             guard let layerInput = portType.keyPath,
                   let input = node.getInputRowObserver(for: portType) else {
-                log("handleLLMAction: .addLayerPort: No input for \(portType)")
+                log("handleLLMLayerInputOrOutputAdded: No input for \(portType)")
                 return
             }
             
@@ -216,9 +219,15 @@ extension GraphState {
                                         input: input,
                                         coordinate: layerInput)
         } else {
+            
+            guard let portType = llmPort.parseLLMPortAsPortType(nodeKind, .output) else {
+                log("handleLLMLayerInputOrOutputAdded: No output")
+                return
+            }
+            
             guard let portId = portType.portId,
                     let output = node.getOutputRowObserver(for: portType) else {
-                log("handleLLMAction: .addLayerPort: No output for \(portType)")
+                log("handleLLMLayerInputOrOutputAdded: No output for \(portType)")
                 return
             }
             
@@ -233,12 +242,15 @@ func getCanvasIdFromLLMAction(llmNode: String,
                               llmPort: String,
                               _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
     
-    if let llmNodeId = llmNode.parseLLMNodeTitleId,
-       let nodeId = mapping.get(llmNodeId) {
-            
+    if let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: mapping) {
+        
+        // Empty `port: String` = we moved a patch or group node
         if llmPort.isEmpty {
             return .node(nodeId)
-        } else if let portType = llmPort.parseLLMPortAsPortType {
+        } 
+        
+        // Tricky: don't know whether we moved an layer input or an output
+        else if let portType = llmPort.parseLLMPortAsPortType(nodeKind, nil) {
             switch portType {
             case .portIndex(let portId):
                 return .layerOutputOnGraph(.init(portId: portId, nodeId: nodeId))
@@ -253,6 +265,16 @@ func getCanvasIdFromLLMAction(llmNode: String,
 }
 
 extension String {
+        
+    func getNodeIdAndKindFromLLMNode(from mapping: LLMNodeIdMapping) -> (NodeId, NodeKind)? {
+        
+        if let (llmNodeId, nodeKind) = self.parseLLMNodeTitle,
+            let nodeId = mapping.get(llmNodeId) {
+            return (nodeId, nodeKind)
+        }
+        return nil
+    }
+    
     
     // meant to be called on the .node property of an LLMAction
     func getNodeIdFromLLMNode(from mapping: LLMNodeIdMapping) -> NodeId? {
@@ -263,18 +285,44 @@ extension String {
         return nil
     }
     
-    var parseLLMPortAsPortType: NodeIOPortType? {
+    // Non-empty llmPort is long-form label of the input/output/field;
+    // unless there is no label, in which case we use the `portId: Int`.
+    
+//    func parseLLMPortAsPortType() -> NodeIOPortType? {
+//
+//    }
+    
+    
+    // Not accurate -- llm-port is always a l
+    func parseLLMPortAsPortType(_ nodeKind: NodeKind,
+                                // nil when we don't know whether we moved input vs output
+                                _ nodeIO: NodeIO?) -> NodeIOPortType? {
         let llmPort = self
         
-        if let portId = Int.init(llmPort) {
-            return .portIndex(portId)
-        } else if let layerInput = llmPort.parseLLMPortAsLayerInputType {
+        // If the `port: String` is already a lon
+        if let layerInput = llmPort.parseLLMPortAsLabelForLayerInputType {
             return .keyPath(layerInput)
+        } else if let portId = llmPort.parseLLMPortAsPortId {
+            return .portIndex(portId)
+        } else {
+            return llmPort.parseLLMPortAsLabelForNonLayer(nodeKind, nodeIO)
         }
-        return nil
+        
+//        if let portId = Int.init(llmPort) {
+//            return .portIndex(portId)
+//        } else if let layerInput = llmPort.parseLLMPortAsLabelForLayerInputType {
+//            return .keyPath(layerInput)
+//        }
+//        return nil
     }
     
-    var parseLLMPortAsLayerInputType: LayerInputType? {
+    // Is this `port: String` for an input/output that has no label?
+    var parseLLMPortAsPortId: Int? {
+        Int(self)
+    }
+    
+    // Is the `port: String` a label for layer node input?
+    var parseLLMPortAsLabelForLayerInputType: LayerInputType? {
         
         if let layerInput = LayerInputType.allCases.first(where: {
             $0.label() == self }) {
@@ -283,6 +331,35 @@ extension String {
         return nil
     }
     
+    // Is the `port: String` a label for (1) an output or (2) an non-layer-node input?
+    // But if you get this back, it could be for an input (non-layer) or an output
+    // So what do you return ?
+    func parseLLMPortAsLabelForNonLayer(_ nodeKind: NodeKind,
+                                        _ nodeIO: NodeIO?) -> NodeIOPortType? {
+        
+//        // Should NOT be used for a label for a layer input
+//        guard !self.parseLLMPortAsLabelForLayerInputType.isDefined else {
+//            fatalErrorIfDebug()
+//            return nil
+//        }
+//        
+        
+        // Labels do not vary by overall node-type
+        let definitions = nodeKind.rowDefinitions(for: nil)
+        
+        let indexOfInputLabel = definitions.inputs.firstIndex { $0.label == self }
+        
+        let indexOfOutputLabel = definitions.outputs.firstIndex { $0.label == self }
+        
+        // Assumes that labels on a given patch/layer are unique.
+        // Seems a safe/workable assumption for patches and layers; but
+        guard let index = indexOfInputLabel ?? indexOfOutputLabel else {
+            fatalErrorIfDebug() // We were not able to find
+            return nil
+        }
+        
+        return .portIndex(index)
+    }
     
     var parseLLMNodeTitleId: String? {
         self.parseLLMNodeTitle?.0
