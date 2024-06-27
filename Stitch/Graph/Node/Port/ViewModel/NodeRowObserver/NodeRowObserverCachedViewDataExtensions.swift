@@ -10,6 +10,34 @@ import StitchSchemaKit
 
 // MARK: derived/cached data: PortViewData, ActiveValue, PortColor
 
+extension NodeRowViewModel {
+    /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
+    /// which save a differnt node ID.
+    @MainActor
+    var visibleNodeIds: NodeIdSet {
+        guard let nodeDelegate = self.rowDelegate?.nodeDelegate else {
+            return []
+        }
+        
+        let canvasItems = nodeDelegate.getAllCanvasObservers()
+        
+        return canvasItems.compactMap { canvasItem in
+            guard canvasItem.isVisibleInFrame else {
+                return nil
+            }
+            
+            // We use the group node ID only if it isn't in focus
+            if nodeDelegate.splitterType == .input &&
+                 nodeDelegate.graphDelegate?.groupNodeFocused != canvasItem.parentGroupNodeId {
+                return canvasItem.parentGroupNodeId
+            }
+            
+            return nodeDelegate.id
+        }
+        .toSet
+    }
+}
+
 extension NodeRowObserver {
    /// Caches perf-costly operations for tracking various data used for view.
    @MainActor
@@ -33,23 +61,6 @@ extension NodeRowObserver {
    @MainActor
    var outputPortViewData: OutputPortViewData? {
        self.portViewType?.output
-   }
-   
-   /// Gets node ID for currently visible node. Covers edge cause where group nodes use splitter nodes,
-   /// which save a differnt node ID.
-   @MainActor
-   var visibleNodeId: NodeId? {
-       guard self.nodeDelegate?.isVisibleInFrame ?? false else {
-           return nil
-       }
-       
-       // We use the group node ID only if it isn't in focus
-       if self.nodeDelegate?.splitterType == .input &&
-           self.nodeDelegate?.graphDelegate?.groupNodeFocused != self.nodeDelegate?.parentGroupNodeId {
-           return self.nodeDelegate?.parentGroupNodeId
-       }
-       
-       return self.id.nodeId
    }
        
    // MARK: This has expensive perf (esp `getGroupSplitters`) so it's been relegated to only be called on visible nodes sync.

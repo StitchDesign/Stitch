@@ -156,7 +156,7 @@ struct NodesView: View {
 
 
 struct EdgeInputLabelsView: View {
-    let inputs: NodeRowObservers
+    let inputs: [InputNodeRowViewModel]
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
 
@@ -166,11 +166,11 @@ struct EdgeInputLabelsView: View {
         
         ForEach(inputs) { inputRowObserver in
             // visibleNodeId property checks for group splitter inputs
-            let isInputForNearbyNode = nearbyNodeId == inputRowObserver.visibleNodeId
+            let isInputForNearbyNode = inputRowObserver.visibleNodeIds.contains(nearbyNodeId)
             let isVisible = isInputForNearbyNode && showLabels
             
             EdgeEditModeLabelsView(graph: graph,
-                                   portId: inputRowObserver.portViewType?.input?.portId ?? .zero)
+                                   portId: inputRowObserver.id.portId ?? .zero)
             .position(inputRowObserver.anchorPoint ?? .zero)
             .opacity(isVisible ? 1 : 0)
             .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
