@@ -79,7 +79,7 @@ extension GraphState {
         // A patch node or layer-input-on-graph was moved
         case .moveNode(let x):
             
-            if let canvasItemId = getCanvasId(
+            if let canvasItemId = getCanvasIdFromLLMAction(
                 llmNode: x.node,
                 llmPort: x.port,
                 self.graphUI.llmNodeIdMapping),
@@ -229,11 +229,9 @@ extension GraphState {
     }
 }
 
-
-
-func getCanvasId(llmNode: String,
-                 llmPort: String,
-                 _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
+func getCanvasIdFromLLMAction(llmNode: String,
+                              llmPort: String,
+                              _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
     
     if let llmNodeId = llmNode.parseLLMNodeTitleId,
        let nodeId = mapping.get(llmNodeId) {

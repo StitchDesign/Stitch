@@ -16,8 +16,6 @@ struct StitchApp: App {
     var body: some Scene {
         WindowGroup {
 
-//            DecodingLLMActionsView()
-            
             // iPad uses StitchRouter to use the project zoom in/out animation
             StitchRootView(store: self.store)
                 .onAppear {
@@ -40,7 +38,6 @@ struct StitchApp: App {
         //        .windowStyle(HiddenTitleBarWindowStyle())
         //        .windowStyle(.hiddenTitleBar)
         //        #endif
-        
         .commands {
             StitchCommands(store: store,
                            activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)

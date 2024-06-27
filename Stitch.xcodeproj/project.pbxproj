@@ -489,7 +489,6 @@
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
 		EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F64302C2B451C00A9E52F /* LLMActions.swift */; };
-		EC5F64332C2B888400A9E52F /* DecodingLLMActionsTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F64322C2B888400A9E52F /* DecodingLLMActionsTestView.swift */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1382,7 +1381,6 @@
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
 		EC5F64302C2B451C00A9E52F /* LLMActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActions.swift; sourceTree = "<group>"; };
-		EC5F64322C2B888400A9E52F /* DecodingLLMActionsTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingLLMActionsTestView.swift; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -2776,7 +2774,6 @@
 			isa = PBXGroup;
 			children = (
 				200BD85A254F66EB00692903 /* StitchApp.swift */,
-				EC5F64322C2B888400A9E52F /* DecodingLLMActionsTestView.swift */,
 				8B2A221826A3B5BE002D08BA /* FeatureFlags.swift */,
 				B5617A7C2C175C5500B53DAF /* Resources */,
 				B56FFB392C18F23000623CC7 /* Shortcut */,
@@ -4415,7 +4412,6 @@
 				B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */,
 				B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */,
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
-				EC5F64332C2B888400A9E52F /* DecodingLLMActionsTestView.swift in Sources */,
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
 				EC2942392BA13C8100D14CD1 /* SidebarListUIActions.swift in Sources */,
