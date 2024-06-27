@@ -14,7 +14,7 @@ struct GraphTappedAction: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
                 computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
-        // log("GraphTappedAction called")
+         log("GraphTappedAction called")
         graphState.resetAlertAndSelectionState()
         return .noChange
     }
@@ -24,7 +24,7 @@ struct GraphDoubleTappedAction: GraphUIEvent {
     let location: CGPoint
 
     func handle(state: GraphUIState) {
-        // log("GraphDoubleTappedAction called")
+         log("GraphDoubleTappedAction called")
         state.toggleInsertNodeMenu()
         
         if !state.llmRecording.isRecording {

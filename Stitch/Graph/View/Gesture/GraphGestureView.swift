@@ -42,11 +42,11 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
-        let tapGesture = UITapGestureRecognizer(
-            target: delegate,
-            action: #selector(delegate.tapInView))
-        tapGesture.delegate = delegate
-        vc.view.addGestureRecognizer(tapGesture)
+//        let tapGesture = UITapGestureRecognizer(
+//            target: delegate,
+//            action: #selector(delegate.tapInView))
+//        tapGesture.delegate = delegate
+//        vc.view.addGestureRecognizer(tapGesture)
 
         /*
          Note: we allow single and double taps on graph to happen simultaneously,

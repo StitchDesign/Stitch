@@ -79,6 +79,7 @@ struct GraphBaseView: View {
                     GraphGestureBackgroundView(graph: graph) {
                         Stitch.APP_BACKGROUND_COLOR
                             .edgesIgnoringSafeArea(.all)
+                        
                             // TODO: Location seems more accurate placed outside the UIKit wrapper,
                             // but doing so messes up rendering
                             .onTapGesture(count: 2) { newValue in
@@ -87,8 +88,10 @@ struct GraphBaseView: View {
                             .simultaneousGesture(TapGesture().onEnded {
                                 dispatch(GraphTappedAction())
                             })
+
                     } // GraphGestureBackgroundView
                 } // .background
+            
         } // GraphGestureView
     }
 
@@ -96,13 +99,22 @@ struct GraphBaseView: View {
     @MainActor
     var nodesAndCursor: some View {
         ZStack {
-            #if DEV_DEBUG
-            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
-            // to get in exact screen center.
-            Circle().fill(.cyan.opacity(0.5))
-                .frame(width: 60, height: 60)
-            #endif
+//            #if DEV_DEBUG
+//            // Use `ZStack { ...` instead of `ZStack(alignment: .top) { ...`
+//            // to get in exact screen center.
+//            Circle().fill(.cyan.opacity(0.5))
+//                .frame(width: 60, height: 60)
+//            #endif
 
+            Color.black.opacity(0.5)
+                .edgesIgnoringSafeArea(.all).zIndex(-10)
+                .onTapGesture(count: 2) { newValue in
+                    dispatch(GraphDoubleTappedAction(location: newValue))
+                }
+                .simultaneousGesture(TapGesture().onEnded {
+                    dispatch(GraphTappedAction())
+                })
+            
             nodesView
 
             // Selection box and cursor
@@ -116,17 +128,23 @@ struct GraphBaseView: View {
             }
 
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
-            Stitch.APP_BACKGROUND_COLOR
-                .edgesIgnoringSafeArea(.all).zIndex(-10)
+//            Stitch.APP_BACKGROUND_COLOR
+//                .edgesIgnoringSafeArea(.all).zIndex(-10)
+//                .onTapGesture(count: 2) { newValue in
+//                    dispatch(GraphDoubleTappedAction(location: newValue))
+//                }
+//                .simultaneousGesture(TapGesture().onEnded {
+//                    dispatch(GraphTappedAction())
+//                })
             
-            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
-            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
-                .frame(width: 1, height: 1)
-                .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
-                    LayerInspectorView(graph: graph)
-                    // TODO: setting an inspector width DOES move over the graph view content
-                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                }
+//            // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
+//            Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
+//                .frame(width: 1, height: 1)
+//                .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
+//                    LayerInspectorView(graph: graph)
+//                    // TODO: setting an inspector width DOES move over the graph view content
+//                        .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                }
         } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)
         .background {

@@ -30,15 +30,19 @@ struct NodesOnlyView: View {
         
     var body: some View {
         // HACK for when no nodes present
-        if nodes.isEmpty {
-            Rectangle().fill(.clear)
-        }
+//        if nodes.isEmpty {
+//            Rectangle().fill(.clear)
+//        }
         
         // Does ZStack e.g. put LIG views on top of patch node views?
-        ZStack {
+//        ZStack {
+            if nodes.isEmpty {
+                Rectangle().fill(.clear)
+            }
+        
             patchOrGroupNodesView
-            layerInputsOnGraphView
-        }
+//            layerInputsOnGraphView
+//        }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
             self.nodes.forEach { node in
