@@ -202,16 +202,32 @@ extension GraphState {
             self.edgeAdded(edge: portEdgeData)
             
             
-//        case .setField(let llmSetFieldAction):
-//            <#code#>
-//        case .changeNodeType(let llmAChangeNodeTypeAction):
-//            <#code#>
+//        case .setField(let x):
+            
+            
+            
+        case .changeNodeType(let x):
+            
+            // Node must already exist
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+                  self.getNode(nodeId).isDefined else {
+                log("handleLLMAction: .changeNodeType: No node id or node")
+                return
+            }
+            
+            guard let nodeType = x.nodeType.parseLLMNodeType else {
+                log("handleLLMAction: .changeNodeType: No node type")
+                return
+            }
+            
+            let _ = self.nodeTypeChanged(nodeId: nodeId, newNodeType: nodeType)
+
+            
         
         case .addLayerInput(let x):
             
             // Layer node must already exist
             guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
-                  // The layer node must exist already
                   let node = self.getNode(nodeId) else {
                 log("handleLLMAction: .addLayerInput: No node id or node")
                 return

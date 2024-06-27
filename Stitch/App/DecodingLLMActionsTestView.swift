@@ -175,3 +175,18 @@ let _addTwoNodesAndMoveAndCreateEdge = JSON.init(parseJSON: """
   }
 ]
 """)
+
+
+let _addNodeAndChangeType = JSON(parseJSON: """
+[
+  {
+    "action" : "Add Node",
+    "node" : "Add (DF86B2)"
+  },
+  {
+    "action" : "Change Node Type",
+    "nodeType" : "Position",
+    "node" : "Add (DF86B2)"
+  }
+]
+""")

@@ -140,6 +140,12 @@ struct LLMAChangeNodeTypeAction: Equatable, Codable {
     let nodeType: String
 }
 
+extension String {
+    var parseLLMNodeType: NodeType? {
+        // TODO: update NodeType rawValue so that we do not need to use `.display`
+        NodeType.allCases.first { $0.display == self }
+    }
+}
 
 // MARK: Add Layer Node Input/Output
 
