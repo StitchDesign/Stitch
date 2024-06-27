@@ -10,7 +10,6 @@ import StitchSchemaKit
 import SwiftyJSON
 
 
-
 struct DecodingLLMActionsView: View {
     
 //    let json: JSON = _addNode // good
@@ -131,6 +130,48 @@ let _addLayerInputAndMove = JSON.init(parseJSON: """
     },
     "action" : "Move Node",
     "node" : "Oval (FEB7AA)"
+  }
+]
+""")
+
+let _addTwoNodesAndMoveAndCreateEdge = JSON.init(parseJSON: """
+[
+  {
+    "node" : "Add (87FE4D)",
+    "action" : "Add Node"
+  },
+  {
+    "node" : "Add (87FE4D)",
+    "port" : "",
+    "translation" : {
+      "x" : -378,
+      "y" : -200
+    },
+    "action" : "Move Node"
+  },
+  {
+    "node" : "Subtract (CD0CB5)",
+    "action" : "Add Node"
+  },
+  {
+    "node" : "Subtract (CD0CB5)",
+    "translation" : {
+      "x" : 81,
+      "y" : 150
+    },
+    "port" : "",
+    "action" : "Move Node"
+  },
+  {
+    "to" : {
+      "port" : "0",
+      "node" : "Subtract (CD0CB5)"
+    },
+    "from" : {
+      "node" : "Add (87FE4D)",
+      "port" : "0"
+    },
+    "action" : "Add Edge"
   }
 ]
 """)

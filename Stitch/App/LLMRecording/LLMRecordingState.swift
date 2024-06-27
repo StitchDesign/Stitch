@@ -19,6 +19,14 @@ struct LLMRecordingState: Equatable {
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()
+    
+    var llmNodeIdMapping: LLMNodeIdMapping {
+        get {
+            self.jsonEntryState.llmNodeIdMapping
+        } set(newValue) {
+            self.jsonEntryState.llmNodeIdMapping = newValue
+        }
+    }
 }
 
 struct LLMPromptState: Equatable {
@@ -38,6 +46,7 @@ struct LLMJsonEntryState: Equatable {
     var jsonEntry: String = ""
     
     // Mapping of LLM node ids (e.g. "123456") to the id created
-//    var llmNodeIdMapping = [String: NodeId]()
-    var llmNodeIdMapping = [String: CanvasItemId]()
+    var llmNodeIdMapping = LLMNodeIdMapping()
 }
+
+typealias LLMNodeIdMapping = [String: NodeId]

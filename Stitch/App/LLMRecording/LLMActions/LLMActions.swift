@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import StitchSchemaKit
 
 // MARK: Add Node
 
@@ -33,13 +34,67 @@ struct LLMMoveNode: Equatable, Codable {
     let node: String
     
     // empty string if we moved a patch node,
-    // non-empty string if we moved a layer input/field.
+    // non-number string if we moved a layer input/field.
+    // number string if we moved a layer output.
     let port: String
     
     // (position at end of movement - position at start of movement)
     let translation: LLMMoveNodeTranslation
 }
 
+func getCanvasId(llmNode: String,
+                 llmPort: String,
+                 _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
+    if let llmNodeId = llmNode.parseLLMNodeTitleId,
+       let nodeId = mapping.get(llmNodeId) {
+            
+        if llmPort.isEmpty {
+            return .node(nodeId)
+        } else if let portType = llmPort.parseLLMPortAsPortType {
+            switch portType {
+            case .portIndex(let portId):
+                return .layerOutputOnGraph(.init(portId: portId, nodeId: nodeId))
+            case .keyPath(let layerInput):
+                return .layerInputOnGraph(.init(node: nodeId,
+                                                keyPath: layerInput))
+            }
+        }
+    }
+    
+    return nil
+}
+
+extension String {
+    
+    // meant to be called on the .node property of an LLMAction
+    func getNodeIdFromLLMNode(from mapping: LLMNodeIdMapping) -> NodeId? {
+        if let llmNodeId = self.parseLLMNodeTitleId,
+           let nodeId = mapping.get(llmNodeId) {
+            return nodeId
+        }
+        return nil
+    }
+    
+    var parseLLMPortAsPortType: NodeIOPortType? {
+        let llmPort = self
+        
+        if let portId = Int.init(llmPort) {
+            return .portIndex(portId)
+        } else if let layerInput = llmPort.parseLLMPortAsLayerInputType {
+            return .keyPath(layerInput)
+        }
+        return nil
+    }
+    
+    var parseLLMPortAsLayerInputType: LayerInputType? {
+        
+        if let layerInput = LayerInputType.allCases.first(where: {
+            $0.label() == self }) {
+            return layerInput
+        }
+        return nil
+    }
+}
 
 // MARK: Set Field
 

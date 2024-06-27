@@ -87,6 +87,10 @@ struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
 
 extension String {
             
+    var parseLLMNodeTitleId: String? {
+        self.parseLLMNodeTitle?.0
+    }
+    
     // e.g. for llm node title = "Power (123456)",
     // llm node id is "123456"
     // llm node kind is "Power"
@@ -139,46 +143,101 @@ extension GraphState {
                 
         switch action {
             
-        case .addNode(let llmAddNode):
+        case .addNode(let x):
             // AddNode action has a specific "LLM action node id" i.e. node default title + part of the node id
             // ... suppose we create a node, then move it;
             // the LLM-move-action will expect the specific "LLM action
             
-            if let (llmNodeId, nodeKind) = llmAddNode.node.parseLLMNodeTitle,
+            if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let nodeId = self.nodeCreated(choice: nodeKind) {
                 
-                self.graphUI.llmRecording.jsonEntryState
-                    .llmNodeIdMapping.updateValue(.node(nodeId),
-                                                  forKey: llmNodeId)
+                self.graphUI.llmRecording.llmNodeIdMapping.updateValue(nodeId,
+                                                                       forKey: llmNodeId)
             }
             
         // A patch node or layer-input-on-graph was moved
-        case .moveNode(let llmMoveNode):
+        case .moveNode(let x):
             
-            
-            if let (llmNodeId, _) = llmMoveNode.node.parseLLMNodeTitle,
-               let canvasItemId = self.graphUI.llmRecording.jsonEntryState.llmNodeIdMapping.get(llmNodeId),
-               // canvas item must exist
+            if let canvasItemId = getCanvasId(
+                llmNode: x.node,
+                llmPort: x.port,
+                self.graphUI.llmRecording.llmNodeIdMapping),
+               
+                // canvas item must exist
                let canvasItem = self.getCanvasItem(canvasItemId) {
-                
                 self.updateCanvasItemOnDragged(canvasItem,
-                                               translation: llmMoveNode.translation.asCGSize)
+                                               translation: x.translation.asCGSize)
+            }
+               
+        case .addEdge(let x):
+            
+            // Both to node and from node must exist
+            guard let fromNodeId = x.from.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+                  self.getNode(fromNodeId).isDefined else  {
+                log("handleLLMAction: .addEdge: No origin node")
+                return
             }
             
-        default:
-            fatalError()
+            guard let toNodeId = x.to.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+                  self.getNode(toNodeId).isDefined else  {
+                log("handleLLMAction: .addEdge: No destination node")
+                return
+            }
             
-//        case .addEdge(let llmAddEdge):
-//            <#code#>
+            guard let fromPort: NodeIOPortType = x.from.port.parseLLMPortAsPortType else {
+                log("handleLLMAction: .addEdge: No origin port")
+                return
+            }
+            
+            guard let toPort: NodeIOPortType = x.to.port.parseLLMPortAsPortType else {
+                log("handleLLMAction: .addEdge: No destination port")
+                return
+            }
+            
+            let portEdgeData = PortEdgeData(
+                from: .init(portType: fromPort, nodeId: fromNodeId),
+                to: .init(portType: toPort, nodeId: toNodeId))
+            
+            self.edgeAdded(edge: portEdgeData)
+            
+            
 //        case .setField(let llmSetFieldAction):
 //            <#code#>
 //        case .changeNodeType(let llmAChangeNodeTypeAction):
 //            <#code#>
-//        case .addLayerInput(let llmAddLayerInput):
+        
+        case .addLayerInput(let x):
+            
+            // Layer node must already exist
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+                  // The layer node must exist already
+                  let node = self.getNode(nodeId) else {
+                log("handleLLMAction: .addLayerInput: No node id or node")
+                return
+            }
+            
+            // `.port` should be some known layer input type
+            guard let layerInput = x.port.parseLLMPortAsLayerInputType else {
+                log("handleLLMAction: .addLayerInput: Unknown port")
+                return
+            }
+            
+            guard let input = node.getInputRowObserver(for: .keyPath(layerInput)) else {
+                log("handleLLMAction: .addLayerInput: No input for \(layerInput)")
+                return
+            }
+            
+            self.layerInputAddedToGraph(node: node,
+                                        input: input,
+                                        coordinate: layerInput)
+            
+//
+//        case .addLayerOutput(let x):
 //            <#code#>
-//        case .addLayerOutput(let llmAddLayerOutput):
-//            <#code#>
+//            
+        default:
+            fatalError()
         }
         
     }

@@ -51,19 +51,34 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
                 
+        state.layerInputAddedToGraph(node: node, 
+                                     input: input,
+                                     coordinate: coordinate)
+        
+        return .shouldPersist
+    }
+}
+
+extension GraphState {
+    
+    @MainActor
+    func layerInputAddedToGraph(node: NodeViewModel,
+                                input: NodeRowObserver,
+                                coordinate: LayerInputType) {
+        
+        let nodeId = node.id
+        
         input.canvasUIData = .init(
             id: .layerInputOnGraph(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: state.newNodeCenterLocation,
-            zIndex: state.highestZIndex + 1,
+            position: self.newNodeCenterLocation,
+            zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: state.groupNodeFocused,
+            parentGroupNodeId: self.groupNodeFocused,
             nodeDelegate: node)
         
-        state.maybeCreateLLMAddLayerInput(nodeId, coordinate)
-        
-        return .shouldPersist
+        self.maybeCreateLLMAddLayerInput(nodeId, coordinate)
     }
 }
 
