@@ -22,6 +22,8 @@ protocol NodeRowViewModel: AnyObject, Identifiable {
     var anchorPoint: CGPoint? { get set }
     
     var rowDelegate: NodeRowObserver? { get set }
+    
+    @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
 }
 
 extension NodeRowViewModel {
@@ -98,6 +100,33 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.rowDelegate = rowDelegate
         self.initializeValues(rowDelegate: rowDelegate)
     }
+    
+    @MainActor
+    func retrieveConnectedCanvasItems() -> Set<CanvasItemId> {
+       self.getConnectedUpstreamCanvasItems()
+    }
+    
+    @MainActor
+    private func getConnectedUpstreamCanvasItems() -> Set<CanvasItemId> {
+        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver,
+              let upstreamNodeDelegate = upstreamOutputObserver.nodeDelegate else {
+            return .init()
+        }
+        
+        // Find upstream canvas items whose output view models point to the same
+        // upstream row observer
+        return upstreamNodeDelegate.getAllCanvasObservers()
+            .compactMap { upstreamCanvasItem in
+                if upstreamCanvasItem.outputViewModels.contains(where: { outputViewModel in
+                    outputViewModel.rowDelegate?.id == upstreamOutputObserver.id
+                }) {
+                    return upstreamCanvasItem.id
+                }
+                
+                return nil
+            }
+            .toSet
+    }
 }
 
 final class OutputNodeRowViewModel: NodeRowViewModel {
@@ -114,6 +143,42 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.id = id
         self.rowDelegate = rowDelegate
         self.initializeValues(rowDelegate: rowDelegate)
+    }
+    
+    @MainActor
+    func retrieveConnectedCanvasItems() -> Set<CanvasItemId> {
+        self.getConnectedDownstreamNodes()
+    }
+    
+    @MainActor
+    private func getConnectedDownstreamNodes() -> Set<CanvasItemId> {
+        var canvasItems = Set<CanvasItemId>()
+        let portId = self.id.portId
+        
+        guard let nodeDelegate = self.rowDelegate?.nodeDelegate,
+              let connectedInputs = nodeDelegate.graphDelegate?.connections
+            .get(NodeIOCoordinate(portId: portId,
+                                  nodeId: nodeDelegate.id)) else {
+            return .init()
+        }
+        
+        // Find downstream canvas items whose inputs match connections here
+        return connectedInputs.flatMap { inputCoordinate -> [CanvasItemId] in
+            guard let node = nodeDelegate.graphDelegate?.getNodeViewModel(inputCoordinate.nodeId),
+                  let inputRowObserver = node.getInputRowObserver(for: inputCoordinate.portType) else {
+                return []
+            }
+        
+            let canvasItems = node.getAllCanvasObservers()
+            return canvasItems.compactMap { canvasItem in
+                guard canvasItem.inputViewModels.contains(where: { $0.rowDelegate?.id == inputCoordinate }) else {
+                    return nil
+                }
+                
+                return canvasItem.id
+            }
+        }
+        .toSet
     }
 }
 

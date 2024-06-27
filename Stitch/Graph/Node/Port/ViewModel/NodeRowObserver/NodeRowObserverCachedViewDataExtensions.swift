@@ -36,9 +36,7 @@ extension NodeRowViewModel {
         }
         .toSet
     }
-}
 
-extension NodeRowObserver {
 //   /// Caches perf-costly operations for tracking various data used for view.
 //   @MainActor
 //   func updatePortViewData() {
@@ -117,8 +115,8 @@ extension NodeRowObserver {
    
    /// Nodes connected via edge.
    @MainActor
-   private func getConnectedNodes() -> NodeIdSet {
-       guard let nodeId = self.nodeDelegate?.id else {
+   private func getConnectedCanvasItems() -> Set<CanvasItemId> {
+       guard let nodeId = self.rowDelegate?.nodeDelegate?.id else {
            fatalErrorIfDebug()
            return .init()
        }
@@ -127,20 +125,7 @@ extension NodeRowObserver {
        var nodes = Set([nodeId])
        
        // Must get port UI data. Helpers below will get group or splitter data depending on focused group.
-       switch self.portViewType {
-       case .none:
-           return .init()
-       case .input:
-           guard let connectedUpstreamNode = self.getConnectedUpstreamNode() else {
-               return nodes
-           }
-           
-           nodes.insert(connectedUpstreamNode)
-           return nodes
-           
-       case .output:
-           return nodes.union(getConnectedDownstreamNodes())
-       }
+       return nodes.union(self.retrieveConnectedCanvasItems())
    }
    
    var hasEdge: Bool {

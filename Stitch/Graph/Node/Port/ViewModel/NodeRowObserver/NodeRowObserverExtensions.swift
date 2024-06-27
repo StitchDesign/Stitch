@@ -194,43 +194,6 @@ extension NodeRowObserver {
         }
     }
     
-    @MainActor
-    func getConnectedUpstreamNode() -> NodeId? {
-        guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            return nil
-        }
-        
-        guard let outputPort = upstreamOutputObserver.outputPortViewData else {
-            return nil
-        }
-        
-        return outputPort.nodeId
-    }
-    
-    @MainActor
-    func getConnectedDownstreamNodes() -> NodeIdSet {
-        var nodes = NodeIdSet()
-        
-        guard let portId = self.id.portId,
-              let connectedInputs = self.nodeDelegate?.graphDelegate?.connections
-            .get(NodeIOCoordinate(portId: portId,
-                                  nodeId: id.nodeId)) else {
-            return nodes
-        }
-        
-        connectedInputs.forEach { inputCoordinate in
-            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(inputCoordinate.nodeId),
-                  let inputRowObserver = node.getInputRowObserver(for: inputCoordinate.portType),
-                  let inputPortViewData = inputRowObserver.inputPortViewData else {
-                return
-            }
-            
-            nodes.insert(inputPortViewData.nodeId)
-        }
-        
-        return nodes
-    }
-    
     /// Same as `createSchema()` but used for layer schema data.
     @MainActor
     func createLayerSchema() -> NodeConnectionType {
