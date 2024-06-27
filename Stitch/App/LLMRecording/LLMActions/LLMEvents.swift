@@ -43,6 +43,7 @@ extension GraphState {
         // If we stopped recording and have LLMActions, show the prompt
         if !self.graphUI.llmRecording.actions.isEmpty {
             self.graphUI.llmRecording.promptState.showModal = true
+            self.graphUI.reduxFocusedField = .llmModal
         }
     }
 }
@@ -50,7 +51,7 @@ extension GraphState {
 struct LLMActionsJSONEntryModalOpened: GraphUIEvent {
     func handle(state: GraphUIState) {
         state.llmRecording.jsonEntryState.showModal = true
-        state.reduxFocusedField = .llmJsonEntryModal
+        state.reduxFocusedField = .llmModal
     }
 }
 
@@ -201,9 +202,43 @@ extension GraphState {
             
             self.edgeAdded(edge: portEdgeData)
             
+        case .setField(let x):
             
-//        case .setField(let x):
+            guard let nodeId = x.field.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+                  let node = self.getNode(nodeId) else {
+                log("handleLLMAction: .setField: No node id or node")
+                return
+            }
             
+            guard let portType = x.field.port.parseLLMPortAsPortType else {
+                log("handleLLMAction: .setField: No port")
+                return
+            }
+            
+            let inputCoordinate = InputCoordinate(portType: portType, nodeId: nodeId)
+            
+            guard let nodeType = x.nodeType.parseLLMNodeType else {
+                log("handleLLMAction: .setField: No node type")
+                return
+            }
+            
+            guard let input = self.getInputObserver(coordinate: inputCoordinate) else {
+                log("handleLLMAction: .setField: No input")
+                return
+            }
+            
+            let fieldIndex = x.field.field
+            
+            // The new value for that entire input, not just for some field
+            guard let value: PortValue = x.value.asPortValueForLLMSetField(nodeType) else {
+                log("handleLLMAction: .setField: No port value")
+                return
+            }
+            
+            node.removeIncomingEdge(at: inputCoordinate,
+                                    activeIndex: self.activeIndex)
+            
+            input.setValuesInInput([value])
             
             
         case .changeNodeType(let x):
@@ -222,7 +257,6 @@ extension GraphState {
             
             let _ = self.nodeTypeChanged(nodeId: nodeId, newNodeType: nodeType)
 
-            
         
         case .addLayerInput(let x):
             
@@ -267,6 +301,7 @@ struct LLMRecordingPromptClosed: GraphEvent {
         // log("LLMRecordingPromptClosed called")
         
         state.graphUI.llmRecording.promptState.showModal = false
+        state.graphUI.reduxFocusedField = nil
         
         let actions = state.graphUI.llmRecording.actions
         

@@ -183,33 +183,6 @@ extension JSONFriendlyFormat {
 
         return json
     }
-    
-    @MainActor
-    init(value: PortValue) {
-        switch value {
-
-        case .number(let x):
-            self = .number(x)
-
-        // Swift `struct`s are turned into dictionaries.
-        case .size(let x):
-            self = .dictionary(x.asAlgebraicCGSize.asDictionary)
-        case .position(let x):
-            self = .dictionary(x.asDictionary)
-        case .point3D(let x):
-            self = .dictionary(x.asDictionary)
-        case .point4D(let x):
-            self = .dictionary(x.asDictionary)
-
-        // Don't need to clean the json anymore?
-        case .json(let x):
-            self = .json(x.value)
-            
-        // Vast majority of PortValues can be treated as strings
-        default:
-            self = .string(value.display)
-        }
-    }
 }
 
 extension JSON {
@@ -644,6 +617,91 @@ enum JSONFriendlyFormat: Encodable, Decodable, Equatable {
         case .json(let j):
             try container.encode(j)
         }
+    }
+}
+
+
+extension JSONFriendlyFormat {
+    
+    // PortValue -> JSONFriendlyFormat
+    @MainActor
+    init(value: PortValue) {
+        switch value {
+
+        case .number(let x):
+            self = .number(x)
+
+        // Swift `struct`s are turned into dictionaries.
+        case .size(let x):
+            self = .dictionary(x.asAlgebraicCGSize.asDictionary)
+        case .position(let x):
+            self = .dictionary(x.asDictionary)
+        case .point3D(let x):
+            self = .dictionary(x.asDictionary)
+        case .point4D(let x):
+            self = .dictionary(x.asDictionary)
+
+        // Don't need to clean the json anymore?
+        case .json(let x):
+            self = .json(x.value)
+            
+        // Vast majority of PortValues can be treated as strings
+        default:
+            self = .string(value.display)
+        }
+    }
+    
+    @MainActor
+    func asPortValueForLLMSetField(_ nodeType: NodeType) -> PortValue? {
+        switch self {
+            
+        case .number(let x):
+            return .number(x)
+        
+        case .json(let x):
+            return .json(.init(x))
+        
+        // .dictionary can only be .size, .position, .point3D, .point4D
+        case .dictionary(let x):
+            
+            switch nodeType {
+            
+            case .position:
+                if let position = self.jsonWrapper.toStitchPosition {
+                    return .position(position)
+                }
+                return nil
+                
+            case .size:
+                if let size = self.jsonWrapper.toSize {
+                    return .size(.init(size))
+                }
+                return nil
+                
+            case .point3D:
+                if let point3D = self.jsonWrapper.toPoint3D {
+                    return .point3D(point3D)
+                }
+                return nil
+                
+            case .point4D:
+                if let point4D = self.jsonWrapper.toPoint4D {
+                    return .point4D(point4D)
+                }
+                return nil
+                
+            default:
+                return nil
+                
+            }
+            
+            // .string is used for PortValue.string but also any other non-multifield value
+        case .string(let x):
+            // can actually just return a string,
+            // and the logic of `handleInputEdited` handles the rest
+            return .string(.init(x))
+        }
+        
     }
 }
 

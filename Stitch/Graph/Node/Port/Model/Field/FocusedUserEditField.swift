@@ -31,9 +31,9 @@ enum FocusedUserEditField: Equatable, Hashable {
          insertNodeMenu,
          textFieldLayer(PreviewCoordinate), // specific loop-index
          any,    // default option
-         llmJsonEntryModal
+         llmModal
 
-    var getTextieldLayerInputEdit: PreviewCoordinate? {
+    var getTextFieldLayerInputEdit: PreviewCoordinate? {
         switch self {
         case .textFieldLayer(let x):
             return x
