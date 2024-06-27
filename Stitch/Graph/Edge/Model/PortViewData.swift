@@ -8,8 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-typealias CanvasItemId = CanvasNodeEntity.ID
-
 // TODO: rename to `PortIdAddress`, since this is really a port-id-based way of representing an input's or output's address
 protocol PortViewData: Equatable, Hashable, Codable {
     var portId: Int { get set }

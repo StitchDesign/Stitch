@@ -9,43 +9,48 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: does this need to be `Identifiable`?
-//enum CanvasItemId: Equatable, Codable, Hashable {
-//    case node(NodeId)
-//    case layerInputOnGraph(LayerInputOnGraphId)
-//    case layerOutputOnGraph(LayerOutputOnGraphId)
-//    
-//    var nodeCase: NodeId? {
-//        switch self {
-//        case .node(let nodeId):
-//            return nodeId
-//        default:
-//            return nil
-//        }
-//    }
-//    
-//    var layerInputCase: LayerInputOnGraphId? {
-//        switch self {
-//        case .layerInputOnGraph(let layerInputOnGraphId):
-//            return layerInputOnGraphId
-//        default:
-//            return nil
-//        }
-//    }
-//    
-//    var layerOutputCase: LayerOutputOnGraphId? {
-//        switch self {
-//        case .layerOutputOnGraph(let layerOutputOnGraphId):
-//            return layerOutputOnGraphId
-//        default:
-//            return nil
-//        }
-//    }
-//}
+enum CanvasItemId: Hashable {
+    case node(NodeId)
+    case layerInputOnGraph(LayerInputCoordinate)
+    case layerOutputOnGraph(LayerOutputCoordinate)
+    
+    var nodeCase: NodeId? {
+        switch self {
+        case .node(let nodeId):
+            return nodeId
+        default:
+            return nil
+        }
+    }
+    
+    var layerInputCase: LayerInputCoordinate? {
+        switch self {
+        case .layerInputOnGraph(let layerInputOnGraphId):
+            return layerInputOnGraphId
+        default:
+            return nil
+        }
+    }
+    
+    var layerOutputCase: LayerOutputCoordinate? {
+        switch self {
+        case .layerOutputOnGraph(let layerOutputOnGraphId):
+            return layerOutputOnGraphId
+        default:
+            return nil
+        }
+    }
+}
+
+extension CanvasItemId: Identifiable {
+    var id: Int {
+        self.hashValue
+    }
+}
 
 // TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-struct LayerInputOnGraphId: Equatable, Codable, Hashable {
+struct LayerInputCoordinate: Hashable {
     let node: NodeId // id for the parent layer node
     let keyPath: LayerInputType // the keypath, i.e. unique port
     
@@ -55,12 +60,15 @@ struct LayerInputOnGraphId: Equatable, Codable, Hashable {
     }
 }
 
-typealias LayerOutputOnGraphId = OutputPortViewData
+struct LayerOutputCoordinate: Hashable {
+    let nodeId: NodeId
+    let layerInputType: LayerInputType
+}
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel {
+final class CanvasItemViewModel: Identifiable {
     var id: CanvasItemId
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
