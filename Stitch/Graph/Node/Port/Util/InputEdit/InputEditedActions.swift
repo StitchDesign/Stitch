@@ -72,9 +72,8 @@ struct InputEdited: GraphEventWithResponse {
         state.calculate(nodeViewModel.id)
 
         if isCommitting {
-            state.maybeCreateLLMSetField(node: nodeViewModel,
+            state.maybeCreateLLMSetInput(node: nodeViewModel,
                                               input: coordinate,
-                                              fieldIndex: fieldIndex,
                                               value: newValue)
         }
         

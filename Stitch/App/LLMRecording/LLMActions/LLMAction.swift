@@ -16,7 +16,6 @@ struct LLMRecordingData: Equatable, Encodable {
     let prompt: String // user-entered
 }
 
-
 extension LLMActions {
     func asJSON() -> JSON? {
         do {
@@ -38,7 +37,7 @@ extension LLMActions {
 enum LLMActionNames: String, Equatable {
     case addNode = "Add Node",
          moveNode = "Move Node",
-         setField = "Set Field",
+         setInput = "Set Input",
          addEdge = "Add Edge",
          changeNodeType = "Change Node Type",
          addLayerInput = "Add Layer Input",
@@ -51,7 +50,7 @@ enum LLMAction: Equatable {
     case addNode(LLMAddNode),
          moveNode(LLMMoveNode),
          addEdge(LLMAddEdge),
-         setField(LLMSetFieldAction),
+         setInput(LLMSetInputAction),
          changeNodeType(LLMAChangeNodeTypeAction),
          addLayerInput(LLMAddLayerInput),
          addLayerOutput(LLMAddLayerOutput)
@@ -73,7 +72,7 @@ extension LLMAction: Encodable, Decodable {
              // creating edge
              from, to,
              
-             // setting field
+             // setting input (`field` = port coordinate)
              field, value,
         
             // changing node type, setting field
@@ -110,17 +109,16 @@ extension LLMAction: Encodable, Decodable {
             
         case LLMActionNames.addEdge.rawValue:
             log("LLMAction: Decoder: decoding .addEdge")
-            let from = try container.decode(LLMAddEdgeCoordinate.self, forKey: .from)
-            let to = try container.decode(LLMAddEdgeCoordinate.self, forKey: .to)
+            let from = try container.decode(LLMPortCoordinate.self, forKey: .from)
+            let to = try container.decode(LLMPortCoordinate.self, forKey: .to)
             self = .addEdge(.init(from: from, to: to))
             
-        case LLMActionNames.setField.rawValue:
+        case LLMActionNames.setInput.rawValue:
             log("LLMAction: Decoder: decoding .setField")
-            let field = try container.decode(LLMAFieldCoordinate.self, forKey: .field)
+            let field = try container.decode(LLMPortCoordinate.self, forKey: .field)
             let value = try container.decode(JSONFriendlyFormat.self, forKey: .value)
-//            let nodeType = try container.decode(NodeType.self, forKey: .nodeType)
             let nodeType = try container.decode(String.self, forKey: .nodeType)
-            self = .setField(.init(field: field, value: value, nodeType: nodeType))
+            self = .setInput(.init(field: field, value: value, nodeType: nodeType))
                 
         case LLMActionNames.changeNodeType.rawValue:
             log("LLMAction: Decoder: decoding .changeNodeType")
@@ -146,18 +144,6 @@ extension LLMAction: Encodable, Decodable {
             self = .moveNode(.init(node: "", port: "", translation: .init(x: 0, y: 0)))
             return
         }
-        
-//        switch type {
-//
-//        case .addNode(value: llmAddNode):
-//            let point = try container.decode(Add.self, forKey: .addNode)
-//            self = .lineTo(point: point)
-//
-//        case .moveNode(value: llmMoveNode):
-//            let point = try container.decode(PathPoint.self, forKey: .moveNode)
-//            self = .moveTo(point: point)
-//        }
-
     }
 
     // Note: we encode a key-value pair (e.g. "type: moveTo")
@@ -181,9 +167,8 @@ extension LLMAction: Encodable, Decodable {
             try container.encode(x.from, forKey: .from)
             try container.encode(x.to, forKey: .to)
             
-        case .setField(let x):
+        case .setInput(let x):
             try container.encode(x.action, forKey: .action)
-            try container.encode(x.field, forKey: .field)
             try container.encode(x.value, forKey: .value)
             try container.encode(x.nodeType, forKey: .nodeType)
         

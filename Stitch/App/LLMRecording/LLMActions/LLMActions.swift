@@ -42,82 +42,10 @@ struct LLMMoveNode: Equatable, Codable {
     let translation: LLMMoveNodeTranslation
 }
 
-func getCanvasId(llmNode: String,
-                 llmPort: String,
-                 _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
-    if let llmNodeId = llmNode.parseLLMNodeTitleId,
-       let nodeId = mapping.get(llmNodeId) {
-            
-        if llmPort.isEmpty {
-            return .node(nodeId)
-        } else if let portType = llmPort.parseLLMPortAsPortType {
-            switch portType {
-            case .portIndex(let portId):
-                return .layerOutputOnGraph(.init(portId: portId, nodeId: nodeId))
-            case .keyPath(let layerInput):
-                return .layerInputOnGraph(.init(node: nodeId,
-                                                keyPath: layerInput))
-            }
-        }
-    }
-    
-    return nil
-}
 
-extension String {
-    
-    // meant to be called on the .node property of an LLMAction
-    func getNodeIdFromLLMNode(from mapping: LLMNodeIdMapping) -> NodeId? {
-        if let llmNodeId = self.parseLLMNodeTitleId,
-           let nodeId = mapping.get(llmNodeId) {
-            return nodeId
-        }
-        return nil
-    }
-    
-    var parseLLMPortAsPortType: NodeIOPortType? {
-        let llmPort = self
-        
-        if let portId = Int.init(llmPort) {
-            return .portIndex(portId)
-        } else if let layerInput = llmPort.parseLLMPortAsLayerInputType {
-            return .keyPath(layerInput)
-        }
-        return nil
-    }
-    
-    var parseLLMPortAsLayerInputType: LayerInputType? {
-        
-        if let layerInput = LayerInputType.allCases.first(where: {
-            $0.label() == self }) {
-            return layerInput
-        }
-        return nil
-    }
-}
+// MARK: Set Input
 
-// MARK: Set Field
-
-struct LLMAFieldCoordinate: Equatable, Codable {
-    let node: String
-    let port: String // can be key path or port number
-    let field: Int
-}
-
-//struct LLMSetFieldAction: Equatable, Codable {
-struct LLMSetFieldAction: Equatable, Encodable {
-    let action: String = LLMActionNames.setField.rawValue
-    let field: LLMAFieldCoordinate
-    
-    // put these together?
-    let value: JSONFriendlyFormat
-    let nodeType: String
-}
-
-
-// MARK: Add Edge
-
-struct LLMAddEdgeCoordinate: Equatable, Codable {
+struct LLMPortCoordinate: Equatable, Codable {
     let node: String
     
     // number = Patch Node input or output, Layer Node output
@@ -125,10 +53,20 @@ struct LLMAddEdgeCoordinate: Equatable, Codable {
     let port: String
 }
 
+struct LLMSetInputAction: Equatable, Encodable {
+    let action: String = LLMActionNames.setInput.rawValue
+    let field: LLMPortCoordinate
+    let value: JSONFriendlyFormat
+    let nodeType: String
+}
+
+
+// MARK: Add Edge
+
 struct LLMAddEdge: Equatable, Codable {
     let action: String = LLMActionNames.addEdge.rawValue
-    let from: LLMAddEdgeCoordinate
-    let to: LLMAddEdgeCoordinate
+    let from: LLMPortCoordinate
+    let to: LLMPortCoordinate
 }
 
 

@@ -19,14 +19,6 @@ struct LLMRecordingState: Equatable {
     var promptState = LLMPromptState()
     
     var jsonEntryState = LLMJsonEntryState()
-    
-    var llmNodeIdMapping: LLMNodeIdMapping {
-        get {
-            self.jsonEntryState.llmNodeIdMapping
-        } set(newValue) {
-            self.jsonEntryState.llmNodeIdMapping = newValue
-        }
-    }
 }
 
 struct LLMPromptState: Equatable {
@@ -50,3 +42,13 @@ struct LLMJsonEntryState: Equatable {
 }
 
 typealias LLMNodeIdMapping = [String: NodeId]
+
+extension GraphUIState {
+    var llmNodeIdMapping: LLMNodeIdMapping {
+        get {
+            self.llmRecording.jsonEntryState.llmNodeIdMapping
+        } set(newValue) {
+            self.llmRecording.jsonEntryState.llmNodeIdMapping = newValue
+        }
+    }
+}

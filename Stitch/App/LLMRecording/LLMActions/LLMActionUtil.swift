@@ -115,9 +115,8 @@ extension GraphState {
     
     
     @MainActor
-    func maybeCreateLLMSetField(node: NodeViewModel,
+    func maybeCreateLLMSetInput(node: NodeViewModel,
                                 input: InputCoordinate,
-                                fieldIndex: Int,
                                 value: PortValue) {
         
         if self.graphUI.llmRecording.isRecording {
@@ -127,10 +126,9 @@ extension GraphState {
                                        nodeType: node.userVisibleType)
             
             self.graphUI.llmRecording.actions.append(
-                .setField(LLMSetFieldAction(
-                    field: LLMAFieldCoordinate(node: node.llmNodeTitle,
-                                               port: port,
-                                               field: fieldIndex),
+                .setInput(LLMSetInputAction(
+                    field: LLMPortCoordinate(node: node.llmNodeTitle,
+                                             port: port),
                     value: value.asLLMValue,
                     nodeType: NodeType(value).display)))
         }
@@ -149,6 +147,9 @@ extension GraphState {
         }
     }
 }
+
+
+
 
 extension PortValue {
     @MainActor
@@ -197,3 +198,49 @@ extension NodeIOCoordinate {
         }
     }
 }
+
+extension String {
+            
+    var parseLLMNodeTitleId: String? {
+        self.parseLLMNodeTitle?.0
+    }
+    
+    // e.g. for llm node title = "Power (123456)",
+    // llm node id is "123456"
+    // llm node kind is "Power"
+    var parseLLMNodeTitle: (String, NodeKind)? {
+        
+        var s = self
+        
+        // drop closing parens
+        s.removeLast()
+        
+        // split at and remove opening parens
+        let _s = s.split(separator: "(")
+        
+        let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
+        let llmNodeKind = (_s.first ?? "").trimmingCharacters(in: .whitespaces).getNodeKind
+        
+        if let llmNodeKind = llmNodeKind {
+            return (llmNodeId, llmNodeKind)
+        } else {
+            log("parseLLMNodeTitle: unable to parse LLM Node Title")
+            return nil
+        }
+    }
+    
+    var getNodeKind: NodeKind? {
+        // Assumes `self` is already "human-readable" patch/layer name,
+        // e.g. "Convert Position" not "convertPosition"
+        // TODO: update Patch and Layer enums to use human-readable names for their cases' raw string values; then can just use `Patch(rawValue: self)`
+        if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
+            return .layer(layer)
+        } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
+            return .patch(patch)
+        }
+        
+        return nil
+    }
+}
+     
+typealias LLMNodeTitleIdToNodeId = [String: NodeId]

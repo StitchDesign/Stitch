@@ -99,10 +99,10 @@ struct iPadGraphTopBarButtons: View {
         Group {
             
             iPadNavBarButton(action: { dispatch(LLMActionsJSONEntryModalOpened()) },
-                             iconName: .sfSymbol("rectangle.and.pencil.and.ellipsis"))
+                             iconName: .sfSymbol(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL))
             
             iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },
-                             iconName: .sfSymbol(llmRecordingModeActive ? "stop.fill" : "play.fill"))
+                             iconName: .sfSymbol(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL))
             
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             

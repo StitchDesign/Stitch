@@ -9,44 +9,9 @@ import Foundation
 import SwiftyJSON
 import StitchSchemaKit
 
-// Redux-events associated with LLM recording etc.
+// MARK: turning a JSON of LLM Actions into state changes in the app
 
-struct LLMRecordingToggled: GraphEvent {
-    
-    func handle(state: GraphState) {
-        if state.graphUI.llmRecording.isRecording {
-            state.llmRecordingEnded()
-        } else {
-            state.llmRecordingStarted()
-        }
-    }
-}
-
-extension GraphState {
-    
-    @MainActor
-    func llmRecordingStarted() {
-        self.graphUI.llmRecording.isRecording = true
-        
-        // Jump back to center, so the LLMMoveNde.position can be diff'd against 0,0
-        self.graphMovement.localPosition = .zero
-        self.graphMovement.localPreviousPosition = .zero
-    }
-    
-    @MainActor
-    func llmRecordingEnded() {
-        self.graphUI.llmRecording.isRecording = false
-        
-        // Cache the json of the actions; else TextField changes cause constant encoding and thus json-order changes
-        self.graphUI.llmRecording.promptState.actionsAsDisplayString = self.graphUI.llmRecording.actions.asJSONDisplay()
-        
-        // If we stopped recording and have LLMActions, show the prompt
-        if !self.graphUI.llmRecording.actions.isEmpty {
-            self.graphUI.llmRecording.promptState.showModal = true
-            self.graphUI.reduxFocusedField = .llmModal
-        }
-    }
-}
+let LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL = "rectangle.and.pencil.and.ellipsis"
 
 struct LLMActionsJSONEntryModalOpened: GraphUIEvent {
     func handle(state: GraphUIState) {
@@ -86,52 +51,6 @@ struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
     }
 }
 
-extension String {
-            
-    var parseLLMNodeTitleId: String? {
-        self.parseLLMNodeTitle?.0
-    }
-    
-    // e.g. for llm node title = "Power (123456)",
-    // llm node id is "123456"
-    // llm node kind is "Power"
-    var parseLLMNodeTitle: (String, NodeKind)? {
-        
-        var s = self
-        
-        // drop closing parens
-        s.removeLast()
-        
-        // split at and remove opening parens
-        var _s = s.split(separator: "(")
-        
-        let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
-        let llmNodeKind = (_s.first ?? "").trimmingCharacters(in: .whitespaces).getNodeKind
-        
-        if let llmNodeKind = llmNodeKind {
-            return (llmNodeId, llmNodeKind)
-        } else {
-            log("parseLLMNodeTitle: unable to parse LLM Node Title")
-            return nil
-        }
-    }
-    
-    var getNodeKind: NodeKind? {
-        // Assumes `self` is already "human-readable" patch/layer name,
-        // e.g. "Convert Position" not "convertPosition"
-        // TODO: update Patch and Layer enums to use human-readable names for their cases' raw string values; then can just use `Patch(rawValue: self)`
-        if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .layer(layer)
-        } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .patch(patch)
-        }
-        
-        return nil
-    }
-}
-     
-typealias LLMNodeTitleIdToNodeId = [String: NodeId]
-
 extension GraphState {
     
     @MainActor
@@ -153,7 +72,7 @@ extension GraphState {
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let nodeId = self.nodeCreated(choice: nodeKind) {
                 
-                self.graphUI.llmRecording.llmNodeIdMapping.updateValue(nodeId,
+                self.graphUI.llmNodeIdMapping.updateValue(nodeId,
                                                                        forKey: llmNodeId)
             }
             
@@ -163,7 +82,7 @@ extension GraphState {
             if let canvasItemId = getCanvasId(
                 llmNode: x.node,
                 llmPort: x.port,
-                self.graphUI.llmRecording.llmNodeIdMapping),
+                self.graphUI.llmNodeIdMapping),
                
                 // canvas item must exist
                let canvasItem = self.getCanvasItem(canvasItemId) {
@@ -174,13 +93,13 @@ extension GraphState {
         case .addEdge(let x):
             
             // Both to node and from node must exist
-            guard let fromNodeId = x.from.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+            guard let fromNodeId = x.from.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
                 return
             }
             
-            guard let toNodeId = x.to.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+            guard let toNodeId = x.to.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
                 return
@@ -202,9 +121,9 @@ extension GraphState {
             
             self.edgeAdded(edge: portEdgeData)
             
-        case .setField(let x):
+        case .setInput(let x):
             
-            guard let nodeId = x.field.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+            guard let nodeId = x.field.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   let node = self.getNode(nodeId) else {
                 log("handleLLMAction: .setField: No node id or node")
                 return
@@ -226,9 +145,7 @@ extension GraphState {
                 log("handleLLMAction: .setField: No input")
                 return
             }
-            
-            let fieldIndex = x.field.field
-            
+                        
             // The new value for that entire input, not just for some field
             guard let value: PortValue = x.value.asPortValueForLLMSetField(nodeType) else {
                 log("handleLLMAction: .setField: No port value")
@@ -244,7 +161,7 @@ extension GraphState {
         case .changeNodeType(let x):
             
             // Node must already exist
-            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(nodeId).isDefined else {
                 log("handleLLMAction: .changeNodeType: No node id or node")
                 return
@@ -261,7 +178,7 @@ extension GraphState {
         case .addLayerInput(let x):
             
             // Layer node must already exist
-            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmRecording.llmNodeIdMapping),
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   let node = self.getNode(nodeId) else {
                 log("handleLLMAction: .addLayerInput: No node id or node")
                 return
@@ -293,80 +210,58 @@ extension GraphState {
     }
 }
 
-// When prompt modal is closed, we write the JSON of prompt + actions to file.
-struct LLMRecordingPromptClosed: GraphEvent {
+
+func getCanvasId(llmNode: String,
+                 llmPort: String,
+                 _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
     
-    func handle(state: GraphState) {
-        
-        // log("LLMRecordingPromptClosed called")
-        
-        state.graphUI.llmRecording.promptState.showModal = false
-        state.graphUI.reduxFocusedField = nil
-        
-        let actions = state.graphUI.llmRecording.actions
-        
-        // TODO: somehow we're getting this called twice
-        guard !actions.isEmpty else {
-            state.graphUI.llmRecording = .init()
-            return
-        }
-        
-        // Write the JSONL/YAML to file
-        let recordedData = LLMRecordingData(actions: actions,
-                                            prompt: state.graphUI.llmRecording.promptState.prompt)
-        
-        // log("LLMRecordingPromptClosed: recordedData: \(recordedData)")
-        
-        if !recordedData.actions.isEmpty {
-            Task {
-                do {
-                    let data = try JSONEncoder().encode(recordedData)
-                    
-                    // need to create a directory
-                    let docsURL = StitchFileManager.documentsURL.url
-                    let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
-                    let filename = "\(state.projectName)_\(state.projectId)_\(Date().description).json"
-                    let url = dataCollectionURL.appending(path: filename)
-                    
-                    // log("LLMRecordingPromptClosed: docsURL: \(docsURL)")
-                    // log("LLMRecordingPromptClosed: dataCollectionURL: \(dataCollectionURL)")
-                    // log("LLMRecordingPromptClosed: url: \(url)")
-                    
-                    // It's okay if this fails because directory already exists
-                    try? FileManager.default.createDirectory(
-                        at: dataCollectionURL,
-                        withIntermediateDirectories: false)
-                    
-                    try data.write(to: url,
-                                   options: [.atomic, .completeFileProtection])
-                    
-                    // DEBUG
-                    // let input = try String(contentsOf: url)
-                    // log("LLMRecordingPromptClosed: success: \(input)")
-                } catch {
-                    log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
-                }
+    if let llmNodeId = llmNode.parseLLMNodeTitleId,
+       let nodeId = mapping.get(llmNodeId) {
+            
+        if llmPort.isEmpty {
+            return .node(nodeId)
+        } else if let portType = llmPort.parseLLMPortAsPortType {
+            switch portType {
+            case .portIndex(let portId):
+                return .layerOutputOnGraph(.init(portId: portId, nodeId: nodeId))
+            case .keyPath(let layerInput):
+                return .layerInputOnGraph(.init(node: nodeId,
+                                                keyPath: layerInput))
             }
         }
-        
-        // Reset LLMRecordingState
-        state.graphUI.llmRecording = .init()
     }
+    
+    return nil
 }
 
-struct LLMRecordingModeEnabledChanged: StitchStoreEvent {
+extension String {
     
-    let enabled: Bool
+    // meant to be called on the .node property of an LLMAction
+    func getNodeIdFromLLMNode(from mapping: LLMNodeIdMapping) -> NodeId? {
+        if let llmNodeId = self.parseLLMNodeTitleId,
+           let nodeId = mapping.get(llmNodeId) {
+            return nodeId
+        }
+        return nil
+    }
     
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        log("LLMRecordingModeSet: enabled: \(enabled)")
-        store.llmRecordingModeEnabled = enabled
+    var parseLLMPortAsPortType: NodeIOPortType? {
+        let llmPort = self
         
-        // Also update the UserDefaults:
-        UserDefaults.standard.setValue(
-            enabled,
-            forKey: LLM_RECORDING_MODE_KEY_NAME)
+        if let portId = Int.init(llmPort) {
+            return .portIndex(portId)
+        } else if let layerInput = llmPort.parseLLMPortAsLayerInputType {
+            return .keyPath(layerInput)
+        }
+        return nil
+    }
+    
+    var parseLLMPortAsLayerInputType: LayerInputType? {
         
-        return .noChange
+        if let layerInput = LayerInputType.allCases.first(where: {
+            $0.label() == self }) {
+            return layerInput
+        }
+        return nil
     }
 }

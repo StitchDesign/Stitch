@@ -667,25 +667,35 @@ extension JSONFriendlyFormat {
             switch nodeType {
             
             case .position:
-                if let position = self.jsonWrapper.toStitchPosition {
+                if let position = self
+                    // Turn into JSON Array, then retrieve JSON Object
+                    .jsonWrapper.first?.1
+                    // Parse JSON Object as having "x", "y" keys etc.
+                    .toStitchPosition {
                     return .position(position)
                 }
                 return nil
                 
             case .size:
-                if let size = self.jsonWrapper.toSize {
+                if let size = self
+                    .jsonWrapper.first?.1
+                    .toSize {
                     return .size(.init(size))
                 }
                 return nil
                 
             case .point3D:
-                if let point3D = self.jsonWrapper.toPoint3D {
+                if let point3D = self
+                    .jsonWrapper.first?.1
+                    .toPoint3D {
                     return .point3D(point3D)
                 }
                 return nil
                 
             case .point4D:
-                if let point4D = self.jsonWrapper.toPoint4D {
+                if let point4D = self
+                    .jsonWrapper.first?.1
+                    .toPoint4D {
                     return .point4D(point4D)
                 }
                 return nil
