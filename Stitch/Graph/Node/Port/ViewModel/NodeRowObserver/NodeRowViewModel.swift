@@ -30,10 +30,10 @@ protocol NodeRowViewModel: AnyObject, Identifiable {
     @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
 }
 
-extension InputNodeRowViewModel {
+extension NodeRowViewModel {
     @MainActor
     func initializeValues(rowDelegate: NodeRowObserver,
-                          coordinate: InputPortViewData) {
+                          coordinate: Self.FieldType.PortId) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = Self.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
@@ -44,9 +44,7 @@ extension InputNodeRowViewModel {
                                    nodeIO: rowDelegate.nodeIOType,
                                    importedMediaObject: nil)
     }
-}
-
-extension NodeRowViewModel {
+    
     @MainActor
     func didPortValuesUpdate(values: PortValues,
                              rowDelegate: NodeRowObserver) {
@@ -99,7 +97,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
-
     weak var rowDelegate: NodeRowObserver?
     
     @MainActor
@@ -108,7 +105,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          rowDelegate: NodeRowObserver) {
         self.id = id
         self.rowDelegate = rowDelegate
-        self.initializeValues(rowDelegate: rowDelegate)
+        self.initializeValues(rowDelegate: rowDelegate,
+                              coordinate: id)
     }
     
     @MainActor
@@ -142,8 +140,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 final class OutputNodeRowViewModel: NodeRowViewModel {
     var id: OutputPortViewData
     var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList()
+    var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var anchorPoint: CGPoint?
+    var connectedCanvasItems: Set<CanvasItemId>
     weak var rowDelegate: NodeRowObserver?
     
     @MainActor
@@ -152,7 +151,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
          rowDelegate: NodeRowObserver) {
         self.id = id
         self.rowDelegate = rowDelegate
-        self.initializeValues(rowDelegate: rowDelegate)
+        self.initializeValues(rowDelegate: rowDelegate, 
+                              coordinate: id)
     }
     
     @MainActor
