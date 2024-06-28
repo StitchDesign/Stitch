@@ -60,31 +60,32 @@ extension FieldGroupTypeViewModel<InputFieldViewModel>: Identifiable {
     }
 }
 
-extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
+//extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
+extension NodeRowViewModel {
     @MainActor
-    init(initialValue: PortValue,
-         coordinate: InputFieldViewModel.PortId,
-         nodeIO: NodeIO,
-         importedMediaObject: StitchMediaObject?) {
+    func createFieldValueTypes(initialValue: PortValue,
+                               coordinate: Self.FieldType.PortId,
+                               nodeIO: NodeIO,
+                               importedMediaObject: StitchMediaObject?) -> FieldGroupTypeViewModelList<Self.FieldType> {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {
         case .size:
-            self = [.init(type: .hW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .hW, coordinate: coordinate)]
 
         case .position:
-            self = [.init(type: .xY, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xY, coordinate: coordinate)]
 
         case .point3D:
-            self = [.init(type: .xYZ, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZ, coordinate: coordinate)]
 
         case .point4D:
-            self = [.init(type: .xYZW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZW, coordinate: coordinate)]
 
         case .shapeCommand(let shapeCommand):
             switch shapeCommand {
             case .closePath:
-                self = [.init(type: .dropdown, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate)]
             case .lineTo: // i.e. .moveTo or .lineTo
-                self = [.init(type: .dropdown, coordinate: coordinate),
+                self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate),
                         .init(type: .xY,
                               coordinate: coordinate,
                               groupLabel: "Point", // optional
@@ -92,57 +93,57 @@ extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
                               startingFieldIndex: 1)
                 ]
             case .curveTo:
-                self = .init([
+                self.fieldValueTypes = .init([
                     .init(type: .dropdown, coordinate: coordinate),
                     .init(type: .xY, coordinate: coordinate, groupLabel: "Point", startingFieldIndex: 1),
                     .init(type: .xY, coordinate: coordinate, groupLabel: "Curve From", startingFieldIndex: 3),
                     .init(type: .xY, coordinate: coordinate, groupLabel: "Curve To", startingFieldIndex: 5)
                 ])
             case .output:
-                self = [.init(type: .readOnly, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .readOnly, coordinate: coordinate)]
             }
 
         case .singleDropdown:
-            self = [.init(type: .dropdown, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate)]
 
         case .textFontDropdown:
             // TODO: Can keep using .dropdown ?
-            self = [.init(type: .dropdown,
+            self.fieldValueTypes = [.init(type: .dropdown,
                           coordinate: coordinate)
             ]
 
         case .bool:
-            self = [.init(type: .bool, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .bool, coordinate: coordinate)]
 
         case .asyncMedia:
-            self = [.init(type: .asyncMedia, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .asyncMedia, coordinate: coordinate)]
 
         case .number:
-            self = [.init(type: .number, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .number, coordinate: coordinate)]
 
         case .string:
-            self = [.init(type: .string, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .string, coordinate: coordinate)]
 
         case .layerDimension:
-            self = [.init(type: .layerDimension, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .layerDimension, coordinate: coordinate)]
 
         case .pulse:
-            self = [.init(type: .pulse, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .pulse, coordinate: coordinate)]
 
         case .color:
-            self = [.init(type: .color, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .color, coordinate: coordinate)]
 
         case .json:
-            self = [.init(type: .json, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .json, coordinate: coordinate)]
 
         case .assignedLayer:
-            self = [.init(type: .assignedLayer, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .assignedLayer, coordinate: coordinate)]
 
         case .anchoring:
-            self = [.init(type: .anchoring, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .anchoring, coordinate: coordinate)]
 
         case .readOnly:
-            self = [.init(type: .readOnly, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .readOnly, coordinate: coordinate)]
         }
 
         self.updateAllFields(with: initialValue,
@@ -157,13 +158,14 @@ extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
                          importedMediaObject: StitchMediaObject?) {
         let fieldValuesList = portValue.createFieldValues(nodeIO: nodeIO,
                                                           importedMediaObject: importedMediaObject)
+        let fieldsCount = self.fieldValueTypes.count
 
-        guard fieldValuesList.count == self.count else {
+        guard fieldValuesList.count == fieldsCount else {
             log("FieldGroupTypeViewModelList error: counts incorrect.")
             return
         }
 
-        zip(self, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
+        zip(self.fieldValueTypes, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
             fieldObserverGroup.updateFieldValues(fieldValues: fieldValues)
         }
     }

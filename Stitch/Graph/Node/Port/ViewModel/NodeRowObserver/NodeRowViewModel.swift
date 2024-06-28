@@ -10,14 +10,16 @@ import SwiftUI
 import StitchSchemaKit
 
 protocol NodeRowViewModel: AnyObject, Identifiable {
-    var id: Self.ID { get set }
+    associatedtype FieldType: FieldViewModel
+    
+    var id: FieldType.PortId { get set }
     
     // View-specific value that only updates when visible
     // separate propety for perf reasons:
     var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    var fieldValueTypes: FieldGroupTypeViewModelList { get set }
+    var fieldValueTypes: FieldGroupTypeViewModelList<FieldType> { get set }
     
     var anchorPoint: CGPoint? { get set }
     
@@ -30,15 +32,17 @@ protocol NodeRowViewModel: AnyObject, Identifiable {
 
 extension InputNodeRowViewModel {
     @MainActor
-    func initializeValues(rowDelegate: NodeRowObserver) {
+    func initializeValues(rowDelegate: NodeRowObserver,
+                          coordinate: InputPortViewData) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = Self.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                activeIndex: activeIndex)
-        self.fieldValueTypes = .init(initialValue: self.activeValue,
-                                     coordinate: rowDelegate.id,
-                                     nodeIO: rowDelegate.nodeIOType,
-                                     importedMediaObject: nil)
+        self.fieldValueTypes = self
+            .createFieldValueTypes(initialValue: self.activeValue,
+                                   coordinate: coordinate,
+                                   nodeIO: rowDelegate.nodeIOType,
+                                   importedMediaObject: nil)
     }
 }
 
@@ -92,8 +96,10 @@ extension NodeRowViewModel {
 final class InputNodeRowViewModel: NodeRowViewModel {
     var id: InputPortViewData
     var activeValue: PortValue = .number(.zero)
-    var fieldValueTypes = FieldGroupTypeViewModelList()
+    var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var anchorPoint: CGPoint?
+    var connectedCanvasItems: Set<CanvasItemId>
+
     weak var rowDelegate: NodeRowObserver?
     
     @MainActor

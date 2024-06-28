@@ -192,7 +192,7 @@ final class NodeRowObserver: Identifiable, Sendable {
     }
 }
 
-extension InputNodeRowViewModel {
+extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
     @MainActor
     func activeValueChanged(oldValue: PortValue,
@@ -221,26 +221,27 @@ extension InputNodeRowViewModel {
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
         let nodeRowTypeChanged = oldRowType != newRowType
         let importedMediaObject = rowDelegate.importedMediaObject
-
+        
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.fieldValueTypes = .init(initialValue: newValue,
-                                         coordinate: self.id,
-                                         nodeIO: nodeIO,
-                                         importedMediaObject: importedMediaObject)
+            self.fieldValueTypes = self
+                .createFieldValueTypes(initialValue: newValue,
+                                       coordinate: self.id,
+                                       nodeIO: nodeIO,
+                                       importedMediaObject: importedMediaObject)
             return
         }
-
+        
         let newFieldsByGroup = newValue.createFieldValues(nodeIO: nodeIO,
                                                           importedMediaObject: importedMediaObject)
-
+        
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {
             log("NodeRowObserver error: incorrect counts of groups.")
             return
         }
-
+        
         zip(self.fieldValueTypes, newFieldsByGroup).forEach { fieldObserverGroup, newFields in
             
             // If existing field observer group's count does not match the new fields count,
@@ -251,10 +252,11 @@ extension InputNodeRowViewModel {
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
             if willUpdateField {
-                self.fieldValueTypes = .init(initialValue: newValue,
-                                             coordinate: self.id,
-                                             nodeIO: nodeIO,
-                                             importedMediaObject: importedMediaObject)
+                self.fieldValueTypes = self
+                    .createFieldValueTypes(initialValue: newValue,
+                                           coordinate: self.id,
+                                           nodeIO: nodeIO,
+                                           importedMediaObject: importedMediaObject)
                 return
             }
             
