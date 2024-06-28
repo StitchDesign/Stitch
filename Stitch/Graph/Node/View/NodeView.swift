@@ -184,8 +184,9 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     var nodeTitle: some View {
         CanvasItemTitleView(graph: graph,
-                      node: node,
-                      isNodeSelected: isSelected)
+                            node: node,
+                            isNodeSelected: isSelected,
+                            canvasId: node.canvasItemId)
     }
 
     var nodeBodyKind: some View {

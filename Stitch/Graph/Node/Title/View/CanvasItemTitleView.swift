@@ -20,11 +20,11 @@ struct CanvasItemTitleView: View {
     //    @FocusedValue(\.focusedField) private var focusedField
     
     @Bindable var graph: GraphState
-
     @Bindable var node: NodeViewModel
     let isNodeSelected: Bool
+    let canvasId: CanvasItemId
 
-    var id: NodeId {
+    var nodeId: NodeId {
         node.id
     }
     
@@ -42,7 +42,7 @@ struct CanvasItemTitleView: View {
             let _title = node.currentBroadcastChoiceId.flatMap { graph.getNodeViewModel($0)?.displayTitle } ?? name
             
             #if DEV_DEBUG
-            StitchTextView(string: _title + " " + id.debugFriendlyId)
+            StitchTextView(string: _title + " " + nodeId.debugFriendlyId)
             #else
             StitchTextView(string: _title)
             #endif
@@ -63,7 +63,7 @@ struct CanvasItemTitleView: View {
         // logInView("NodeTitleView editableTitle \(id)")
         
         #if DEV_DEBUG
-        let label = name + " " + id.debugFriendlyId
+        let label = name + " " + nodeId.debugFriendlyId
         #else
         let label = name
         #endif
@@ -75,16 +75,16 @@ struct CanvasItemTitleView: View {
             VStack {
                 // Always shows node title
                 NodeTitleTextField(graph: graph,
-                                   id: id,
+                                   id: canvasId,
                                    label: label)
                 
                 // Always needs some math expression;
                 // if none yet exists (because math-expr node just created),
                 // use blank string.
                 .modifier(MathExpressionPopoverViewModifier(
-                    id: id,
+                    id: nodeId,
                     mathExpression: mathExpression ?? "",
-                    isFocused: graph.graphUI.reduxFocusedField == .mathExpression(id)))
+                    isFocused: graph.graphUI.reduxFocusedField == .mathExpression(nodeId)))
                 
                 // Show formula if not empty
                 if let mathExpression = mathExpression,
@@ -103,7 +103,7 @@ struct CanvasItemTitleView: View {
                             .foregroundColor(Color(.nodeTitleFont))
                     }
                     NodeTitleTextField(graph: graph,
-                                       id: id,
+                                       id: canvasId,
                                        label: label)
                 }
                 
