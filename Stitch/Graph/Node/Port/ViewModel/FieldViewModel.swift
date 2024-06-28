@@ -8,26 +8,39 @@
 import Foundation
 import StitchSchemaKit
 
-typealias FieldViewModels = [FieldViewModel]
+typealias InputFieldViewModels = [InputFieldViewModel]
+typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-@Observable
-class FieldViewModel {
-    var fieldValue: FieldValue
+protocol FieldViewModel: AnyObject, Identifiable {
+    associatedtype PortId = PortViewData
+    
+    var fieldValue: FieldValue { get set }
 
-    let coordinate: NodeIOCoordinate
+    var coordinate: PortId { get set }
 
     // A port has 1 to many relationship with fields
-    let fieldIndex: Int
+    var fieldIndex: Int { get set }
 
     // eg "X" vs "Y" vs "Z" for .point3D parent-value
     // eg "X" vs "Y" for .position parent-value
-    var fieldLabel: String
-
+    var fieldLabel: String { get set }
+    
     init(fieldValue: FieldValue,
-         coordinate: NodeIOCoordinate,
+         coordinate: PortId,
+         fieldIndex: Int,
+         fieldLabel: String)
+}
+
+final class InputFieldViewModel: FieldViewModel {
+    var fieldValue: FieldValue
+    var coordinate: InputPortViewData
+    var fieldIndex: Int
+    var fieldLabel: String
+    
+    init(fieldValue: FieldValue,
+         coordinate: InputPortViewData,
          fieldIndex: Int,
          fieldLabel: String) {
-
         self.fieldValue = fieldValue
         self.coordinate = coordinate
         self.fieldIndex = fieldIndex
@@ -35,14 +48,31 @@ class FieldViewModel {
     }
 }
 
-extension FieldViewModel: Identifiable {
+final class OutputFieldViewModel: FieldViewModel {
+    var fieldValue: FieldValue
+    var coordinate: OutputPortViewData
+    var fieldIndex: Int
+    var fieldLabel: String
+    
+    init(fieldValue: FieldValue,
+         coordinate: OutputPortViewData,
+         fieldIndex: Int,
+         fieldLabel: String) {
+        self.fieldValue = fieldValue
+        self.coordinate = coordinate
+        self.fieldIndex = fieldIndex
+        self.fieldLabel = fieldLabel
+    }
+}
+
+extension InputFieldViewModel {
     var id: FieldCoordinate { .init(input: self.coordinate,
                                     fieldIndex: self.fieldIndex) }
 }
 
-extension FieldViewModels {
+extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
-         coordinate: PortViewData,
+         coordinate: Element.PortId,
          startingFieldIndex: Int) {
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues

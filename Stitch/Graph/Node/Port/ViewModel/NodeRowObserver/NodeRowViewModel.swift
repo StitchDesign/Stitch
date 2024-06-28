@@ -21,12 +21,14 @@ protocol NodeRowViewModel: AnyObject, Identifiable {
     
     var anchorPoint: CGPoint? { get set }
     
+    var connectedCanvasItems: Set<CanvasItemId> { get set }
+    
     var rowDelegate: NodeRowObserver? { get set }
     
     @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
 }
 
-extension NodeRowViewModel {
+extension InputNodeRowViewModel {
     @MainActor
     func initializeValues(rowDelegate: NodeRowObserver) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
@@ -38,7 +40,9 @@ extension NodeRowViewModel {
                                      nodeIO: rowDelegate.nodeIOType,
                                      importedMediaObject: nil)
     }
-    
+}
+
+extension NodeRowViewModel {
     @MainActor
     func didPortValuesUpdate(values: PortValues,
                              rowDelegate: NodeRowObserver) {

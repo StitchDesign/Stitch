@@ -16,7 +16,7 @@ struct FieldCoordinate: Hashable {
     // 0 for single-field inputs
     var fieldIndex: Int
 
-    static var fakeFieldCoordinate: FieldCoordinate {
+    static var fakeFieldCoordinate: Self {
         FieldCoordinate(
             input: .init(portId: 0, canvasId: .node(.init())),
             fieldIndex: 0)

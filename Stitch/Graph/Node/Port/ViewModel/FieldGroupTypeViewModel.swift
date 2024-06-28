@@ -9,11 +9,12 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias FieldGroupTypeViewModelList = [FieldGroupTypeViewModel]
+typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
 
-final class FieldGroupTypeViewModel: ObservableObject {
+@Observable
+final class FieldGroupTypeViewModel<FieldType: FieldViewModel> {
     let type: FieldGroupType
-    @Published var fieldObservers: FieldViewModels
+    var fieldObservers: [FieldType]
 
     let groupLabel: String?
 
@@ -21,7 +22,7 @@ final class FieldGroupTypeViewModel: ObservableObject {
     let startingFieldIndex: Int
 
     init(type: FieldGroupType,
-         coordinate: PortViewData,
+         coordinate: FieldType.PortId,
          groupLabel: String? = nil,
          startingFieldIndex: Int = 0) {
         self.type = type
@@ -51,17 +52,18 @@ final class FieldGroupTypeViewModel: ObservableObject {
     }
 }
 
-extension FieldGroupTypeViewModel: Identifiable {
+extension FieldGroupTypeViewModel<InputFieldViewModel>: Identifiable {
     var id: FieldCoordinate {
-        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1, nodeId: UUID()),
+        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1, 
+                                                            canvasId: .node(.init())),
                                                fieldIndex: -1)
     }
 }
 
-extension FieldGroupTypeViewModelList {
+extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
     @MainActor
     init(initialValue: PortValue,
-         coordinate: PortViewData,
+         coordinate: InputFieldViewModel.PortId,
          nodeIO: NodeIO,
          importedMediaObject: StitchMediaObject?) {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {
