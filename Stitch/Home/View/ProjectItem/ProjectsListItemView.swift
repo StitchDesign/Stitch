@@ -33,6 +33,7 @@ struct ProjectsListItemIconView: View {
             .aspectRatio(contentMode: .fit)
         // The original ~size of the old project icon; needed for contentShape
         // TODO: will be updated after small redesign?
+            .padding([.top, .bottom], 8)
             .frame(width: PROJECTSVIEW_ITEM_WIDTH,
                    height: PROJECTSVIEW_ITEM_WIDTH - (PROJECTSVIEW_ITEM_WIDTH/3))
              .background {
@@ -43,6 +44,7 @@ struct ProjectsListItemIconView: View {
                      }
                 }
             }
+             .cornerRadius(8)
             .contentShape(Rectangle()) // for consistent tappable thumbnail area
     }
 }
@@ -58,7 +60,6 @@ struct ProjectsListItemThumbnailView<Thumbnail: View, Label: View>: View {
             labelView()
                 .frame(height: PROJECTSVIEW_ITEM_TEXT_HEIGHT,
                        alignment: .leading)
-                .padding(PROJECTSVIEW_ITEM_TEXT_PADDING)
         }
         .modifier(ProjectListItemSizingModifier())
     }
