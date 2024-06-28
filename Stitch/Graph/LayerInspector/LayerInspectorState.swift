@@ -73,10 +73,7 @@ extension LayerInspectorView {
         // Canvas
         .canvasLineColor,
         .canvasLineWidth,
-        
-        // text
-        .text,
-        
+                
         // Media
         .image,
         .video,

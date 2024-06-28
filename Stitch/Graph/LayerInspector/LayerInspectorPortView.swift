@@ -75,27 +75,32 @@ struct LayerInspectorPortView: View {
         // See if layer node uses this input
         Group {
             switch layerProperty {
-            case .layerInput(let layerInputType):
+            case .layerInput:
                 inputView
-            case .layerOutput(let outputPortViewData):
+            case .layerOutput:
                 outputView
             }
         }
-            .listRowBackground(listBackgroundColor)
-            //            .listRowSpacing(12)
-//            .contentShape(Rectangle())
-            .gesture(
-                TapGesture().onEnded({ _ in
-                    // log("LayerInspectorPortView tapped")
-                    if isOnGraphAlready,
-                       let canvasItemId = rowObserver.canvasUIData?.id {
-                        dispatch(JumpToCanvasItem(id: canvasItemId))
-                    } else {
-                        withAnimation {
-                            graph.graphUI.layerPropertyTapped(layerProperty)
-                        }
+        .background {
+            // Extending the hit area of the NodeInputOutputView view
+            Color.white.opacity(0.001)
+                .padding(-12)
+                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+        }
+        .listRowBackground(listBackgroundColor)
+        //            .listRowSpacing(12)
+        .gesture(
+            TapGesture().onEnded({ _ in
+                // log("LayerInspectorPortView tapped")
+                if isOnGraphAlready,
+                   let canvasItemId = rowObserver.canvasUIData?.id {
+                    dispatch(JumpToCanvasItem(id: canvasItemId))
+                } else {
+                    withAnimation {
+                        graph.graphUI.layerPropertyTapped(layerProperty)
                     }
-                })
-            )
+                }
+            })
+        )
     }
 }

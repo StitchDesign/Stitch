@@ -130,11 +130,13 @@ extension GraphState {
 extension GraphUIState {
     func layerPropertyTapped(_ property: LayerInspectorRowId) {
         let alreadySelected = self.propertySidebar.selectedProperties.contains(property)
-        
+                
         if alreadySelected {
-            self.propertySidebar.selectedProperties.remove(property)
+//            self.propertySidebar.selectedProperties.remove(property)
+            self.propertySidebar.selectedProperties = .init()
         } else {
-            self.propertySidebar.selectedProperties.insert(property)
+//            self.propertySidebar.selectedProperties.insert(property)
+            self.propertySidebar.selectedProperties = .init([property])
         }
     }
 }
