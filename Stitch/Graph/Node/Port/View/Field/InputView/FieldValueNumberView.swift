@@ -14,10 +14,7 @@ struct  FieldValueNumberView: View {
     @Bindable var graph: GraphState
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
-    let coordinate: NodeIOCoordinate
-    let nodeIO: NodeIO
     let fieldCoordinate: FieldCoordinate
-    let outputAlignment: Alignment
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
@@ -28,36 +25,27 @@ struct  FieldValueNumberView: View {
 
     var body: some View {
         let stringValue = fieldValue.stringValue
-
-        Group {
-            switch nodeIO {
-            case .input:
-                HStack {
-                    // Default to zero if "auto" currently selected
-                    // Limit renders by not passing in number value unless button pressed
-                    NumberValueButtonView(
-                        graph: graph,
-                        value: isButtonPressed ? fieldValue.numberValue : .zero,
-                        fieldCoordinate: fieldCoordinate,
-                        fieldValueNumberType: fieldValueNumberType,
-                        adjustmentBarSessionId: adjustmentBarSessionId,
-                        isPressed: $isButtonPressed)
-
-                    CommonEditingView(inputString: stringValue,
-                                      id: coordinate,
-                                      graph: graph,
-                                      fieldIndex: fieldCoordinate.fieldIndex,
-                                      isCanvasItemSelected: isCanvasItemSelected,
-                                      hasIncomingEdge: hasIncomingEdge,
-                                      isAdjustmentBarInUse: isButtonPressed,
-                                      forPropertySidebar: forPropertySidebar,
-                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-                }
-            case .output:
-                ReadOnlyValueEntry(value: stringValue,
-                                   alignment: outputAlignment,
-                                   fontColor: STITCH_FONT_GRAY_COLOR)
-            }
+        
+        HStack {
+            // Default to zero if "auto" currently selected
+            // Limit renders by not passing in number value unless button pressed
+            NumberValueButtonView(
+                graph: graph,
+                value: isButtonPressed ? fieldValue.numberValue : .zero,
+                fieldCoordinate: fieldCoordinate,
+                fieldValueNumberType: fieldValueNumberType,
+                adjustmentBarSessionId: adjustmentBarSessionId,
+                isPressed: $isButtonPressed)
+            
+            CommonEditingView(inputString: stringValue,
+                              id: fieldCoordinate,
+                              graph: graph,
+                              fieldIndex: fieldCoordinate.fieldIndex,
+                              isCanvasItemSelected: isCanvasItemSelected,
+                              hasIncomingEdge: hasIncomingEdge,
+                              isAdjustmentBarInUse: isButtonPressed,
+                              forPropertySidebar: forPropertySidebar,
+                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
         }
     }
 }

@@ -21,7 +21,7 @@ struct CommonEditingView: View {
     @State private var isBase64 = false
     
     let inputString: String
-    let id: InputCoordinate
+    let id: FieldCoordinate
     @Bindable var graph: GraphState
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
@@ -32,10 +32,10 @@ struct CommonEditingView: View {
     let forPropertySidebar: Bool // = false
     let propertyIsAlreadyOnGraph: Bool
     
-    var fieldCoordinate: FieldCoordinate {
-        FieldCoordinate(input: id,
-                        fieldIndex: fieldIndex)
-    }
+//    var fieldCoordinate: FieldCoordinate {
+//        FieldCoordinate(input: id,
+//                        fieldIndex: fieldIndex)
+//    }
 
     // Important perf check to prevent instantiations of editing view
     @MainActor

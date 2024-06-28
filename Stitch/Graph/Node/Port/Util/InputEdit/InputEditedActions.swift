@@ -16,7 +16,7 @@ struct InputEdited: ProjectEnvironmentEvent {
     // Single-fields always 0, multi-fields are like size or position inputs
     let fieldIndex: Int
 
-    let coordinate: InputCoordinate
+    let coordinate: FieldCoordinate
 
     var isCommitting: Bool = true
 

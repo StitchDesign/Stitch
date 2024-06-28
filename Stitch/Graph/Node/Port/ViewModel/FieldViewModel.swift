@@ -11,7 +11,7 @@ import StitchSchemaKit
 typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
-protocol FieldViewModel: AnyObject, Identifiable {
+protocol FieldViewModel: AnyObject, Observable, Identifiable {
     associatedtype PortId = PortViewData
     
     var fieldValue: FieldValue { get set }
