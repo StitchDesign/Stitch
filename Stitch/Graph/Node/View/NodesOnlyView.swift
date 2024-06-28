@@ -29,10 +29,8 @@ struct NodesOnlyView: View {
     }
         
     var body: some View {
-        // HACK for when no nodes present
-        if nodes.isEmpty {
-            Rectangle().fill(.clear)
-        }
+        // HACK: fixes hit area issue
+        Rectangle().fill(.clear)
         
         // Does ZStack e.g. put LIG views on top of patch node views?
         ZStack {
