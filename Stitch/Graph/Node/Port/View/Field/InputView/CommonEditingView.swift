@@ -37,6 +37,8 @@ struct CommonEditingView: View {
                         fieldIndex: fieldIndex)
     }
 
+    @State var isHovering: Bool = false
+    
     // Important perf check to prevent instantiations of editing view
     @MainActor
     var showEditingView: Bool {
@@ -95,7 +97,10 @@ struct CommonEditingView: View {
                 #if targetEnvironment(macCatalyst)
                     .offset(y: -0.5) // slight adjustment required
                 #endif
-                    .modifier(InputViewBackground(backgroundColor: Self.editableTextFieldBackgroundColor))                   
+                    .modifier(InputViewBackground(
+                        backgroundColor: Self.editableTextFieldBackgroundColor,
+                        show: true // always show background for a focused input
+                    ))
             } else {
                 // If can tap to edit, and this is a number field,
                 // then bring up the number-adjustment-bar first;
@@ -103,7 +108,9 @@ struct CommonEditingView: View {
                 StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
                                font: STITCH_FONT,
                                fontColor: STITCH_FONT_GRAY_COLOR)
-                .modifier(InputViewBackground(backgroundColor: Self.readOnlyTextBackgroundColor))
+                .modifier(InputViewBackground(
+                    backgroundColor: Self.readOnlyTextBackgroundColor,
+                    show: self.isHovering))
                 // Manually focus this field when user taps.
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
                 .onTapGesture {
@@ -115,6 +122,11 @@ struct CommonEditingView: View {
             // Fixes beach balls for base 64 strings
             if showEditingView {
                 self.updateCurrentEdit()
+            }
+        }
+        .onHover { isHovering in
+            withAnimation {
+                self.isHovering = isHovering
             }
         }
     }
@@ -147,6 +159,7 @@ struct CommonEditingView: View {
 struct InputViewBackground: ViewModifier {
     
     var backgroundColor: Color
+    let show: Bool // if hovering or selected
     
     func body(content: Content) -> some View {
         content
@@ -154,7 +167,8 @@ struct InputViewBackground: ViewModifier {
                    alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {
-                RoundedRectangle(cornerRadius: 4).fill(backgroundColor)
+                let color = show ? backgroundColor : .clear
+                RoundedRectangle(cornerRadius: 4).fill(color)
             }
             .contentShape(Rectangle())
     }
