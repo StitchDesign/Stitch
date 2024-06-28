@@ -19,7 +19,7 @@ struct NodeTitleTextField: View {
         graph.graphUI.reduxFocusedField?.getNodeTitleEdit == id
     }
     
-    let id: NodeId
+    let id: CanvasItemId
     let label: String
 
     var body: some View {

@@ -147,7 +147,8 @@ struct LayerRowOnGraphView: View {
     var title: some View {
         CanvasItemTitleView(graph: graph,
                             node: node,
-                            isNodeSelected: isSelected)
+                            isNodeSelected: isSelected,
+                            canvasId: canvasItem.id)
     }
     
     @MainActor

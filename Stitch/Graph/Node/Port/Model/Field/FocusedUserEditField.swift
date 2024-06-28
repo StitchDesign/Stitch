@@ -20,7 +20,7 @@ import StitchSchemaKit
  */
 enum FocusedUserEditField: Equatable, Hashable {
     case textInput(FieldCoordinate), // focused text input
-         nodeTitle(NodeId), // focused node title text input
+         nodeTitle(CanvasItemId), // focused canvas item's title text
          mathExpression(NodeId), // editing a math expression
          projectTitle, // i.e. for Catalyst
          // when a JSON Popover output is open,
@@ -51,10 +51,10 @@ enum FocusedUserEditField: Equatable, Hashable {
         }
     }
 
-    var getNodeTitleEdit: NodeId? {
+    var getNodeTitleEdit: CanvasItemId? {
         switch self {
-        case .nodeTitle(let nodeId):
-            return nodeId
+        case .nodeTitle(let canvasItemId):
+            return canvasItemId
         default:
             return nil
         }
