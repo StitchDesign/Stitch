@@ -321,7 +321,6 @@ struct CanvasItemTag: View {
     
     var body: some View {
         
-//        if isSelected {
             Menu {
                 nodeTagMenu
             } label: {
@@ -333,7 +332,6 @@ struct CanvasItemTag: View {
                     .padding(16) // increase hit area
 #endif
             }
-//            .opacity(isSelected ? 1 : 0)
         
 #if targetEnvironment(macCatalyst)
             .buttonStyle(.plain)
@@ -342,15 +340,11 @@ struct CanvasItemTag: View {
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
             .padding(.trailing, 8)
 #else
-            
             // iPad
             .menuStyle(.button)
             .buttonStyle(.borderless)
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
-            .offset(x: -2, y: -4)
 #endif
-        
             .opacity(isSelected ? 1 : 0)
-//        }
     }
 }
