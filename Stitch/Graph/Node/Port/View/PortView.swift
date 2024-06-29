@@ -56,14 +56,30 @@ struct PortEntryView: View {
     }
     
     var body: some View {
+        
+        let hasEdge = rowObserver.hasEdge
+        
+        // TODO: revisit empty port color after node body color has changed
+//        let portBodyColor = hasEdge ? portColor : NodeUIColor.patchNode.body.opacity(0.05)
+        
         ZStack {
             Rectangle().fill(portColor)
+//            Rectangle().fill(portBodyColor)
+//                .overlay {
+//                    if !hasEdge {
+//                        let color = STITCH_TITLE_FONT_COLOR.opacity(0.5)  // Color(.sheetBackground).opacity(0.5)
+//                        Circle().fill(color)
+//                            .frame(width: 4, height: 4)
+//                            .offset(x: coordinate.isInput ? 2 : -2)
+//                    }
+//                }
                 .frame(PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE)
             // TODO: use `UnevenRoundedRectangle` ?
                 .clipShape(RoundedRectangle(cornerRadius: CANVAS_ITEM_CORNER_RADIUS))
                 .background {
                     Rectangle()
                         .fill(portColor)
+//                        .fill(portBodyColor)
                         .frame(width: Self.height)
                         .offset(x: coordinate.isInput ? -4 : 4)
                 }

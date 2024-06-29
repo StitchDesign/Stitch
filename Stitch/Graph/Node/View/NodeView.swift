@@ -64,16 +64,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         self.node.position
     }
 
-    var nodeTagMenuIcon: some View {
-        Image(systemName: "ellipsis.rectangle")
-    }
-
     var body: some View {
-        // TODO: remove
-//        logInView("NodeView body \(self.node.id)")
-//        if self.node.patch == .wirelessReceiver {
-//            logInView("NodeView body isWirelessReceiver \(self.node.id)")
-//        }
         
         ZStack {
             nodeBody
@@ -102,37 +93,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     graph.canvasItemTapped(node.canvasItemId)
                 }))
             
-            // TODO: put into a separate ViewModifier
-                .overlay(alignment: .topTrailing) {
-                    if isSelected {
-                        Menu {
-                            nodeTagMenu
-                        } label: {
-                            nodeTagMenuIcon
-#if !targetEnvironment(macCatalyst)
-                            // .border(.yellow)
-                                .padding(16) // increase hit area
-                            // .border(.blue)
-#endif
-                        }
-#if targetEnvironment(macCatalyst)
-                        .buttonStyle(.plain)
-                        .scaleEffect(1.4)
-                        .frame(width: 24, height: 12)
-                        .padding(16)
-                        .foregroundColor(STITCH_TITLE_FONT_COLOR)
-                        .offset(x: -4, y: -4)
-#else
-                        
-                        // iPad
-                        .menuStyle(.button)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(STITCH_TITLE_FONT_COLOR)
-                        .offset(x: -2, y: -4)
-#endif
-                        // .border(.red)
-                    }
-                }
+//                .modifier(CanvasItemTag(isSelected: isSelected,
+//                                        nodeTagMenu: nodeTagMenu))
         } // ZStack
         .canvasItemPositionHandler(graph: graph,
                                    node: node.canvasUIData,
@@ -144,49 +106,50 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
 
     @MainActor
     var nodeBody: some View {
-        VStack(spacing: .zero) {
+        VStack(alignment: .leading, spacing: .zero) {
             nodeTitle
-                .padding([.leading, .trailing], 62)
-                .padding(NODE_BODY_PADDING)
-
+            
+            CanvasItemBodyDivider()
+            
             nodeBodyKind
-                .padding(.top, NODE_BODY_PADDING * 2)
-                .padding(.bottom, NODE_BODY_PADDING + 4)
-                .overlay(
-                    // A hack to get a border on one edge without having it push the boundaries
-                    // of the view, which was the problem with Divider.
-                    Divider()
-                        .height(1)
-                        .overlay(STITCH_FONT_WHITE_COLOR),
-                    alignment: .top)
+                .modifier(CanvasItemBodyPadding())
         }
         .fixedSize()
-        //        .background(nodeUIColor.body) // ORIGINAL
-        .background {
-            ZStack {
-                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                nodeUIColor.body.opacity(0.1)
-                //                nodeUIColor.body.opacity(0.3)
-                //                nodeUIColor.body.opacity(0.5)
-                //                nodeUIColor.body.opacity(0.7)
-            }
-            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-        }
+        .modifier(CanvasItemBackground(color: nodeUIColor.body))
         .modifier(CanvasItemBoundsReader(
             graph: graph,
             canvasItem: node.canvasUIData,
             splitterType: splitterType,
             disabled: boundsReaderDisabled,
             updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds))
-        //        .cornerRadius(NODE_CORNER_RADIUS)
+        
         .modifier(CanvasItemSelectedViewModifier(isSelected: isSelected))
     }
 
     var nodeTitle: some View {
-        CanvasItemTitleView(graph: graph,
-                            node: node,
-                            isNodeSelected: isSelected,
-                            canvasId: node.canvasItemId)
+        
+        HStack {
+            CanvasItemTitleView(graph: graph,
+                                node: node,
+                                isNodeSelected: isSelected,
+                                canvasId: node.canvasItemId)
+            .modifier(CanvasItemTitlePadding())
+            
+            Spacer()
+            CanvasItemTag(isSelected: isSelected,
+                          nodeTagMenu: nodeTagMenu)
+//            Menu {
+//                nodeTagMenu
+//            } label: {
+//                Image(systemName: "ellipsis.rectangle")
+//            }
+//            .buttonStyle(.plain)
+//            .scaleEffect(1.4)
+//            .frame(width: 24, height: 12)
+//            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+//            .padding(.trailing, 8) // 8 from right edge, per Figma
+            
+        }
     }
 
     var nodeBodyKind: some View {
@@ -232,15 +195,6 @@ struct NodeView_REPL: View {
         //        .offset(y: -500)
     }
 }
-
-//struct SpecNodeView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        NodeView_REPL()
-//            .environment(GraphState(id: .mockProjectId))
-//
-//        // .previewInterfaceOrientation(.landscapeLeft)
-//    }
-//}
 
 struct FakeNodeView: View {
 
@@ -308,5 +262,89 @@ extension Layer {
                     nodePosition,
                     zIndex,
                     customName: customName)
+    }
+}
+
+#Preview {
+    FakeNodeView(node: getFakeNode(choice: .patch(.add))!)
+}
+
+struct CanvasItemBodyDivider: View {
+    var body: some View {
+        Divider().height(1)
+    }
+}
+
+struct CanvasItemTitlePadding: ViewModifier {
+    func body(content: Content) -> some View {
+        // Figma: 8 padding on left, 12 padding on top and bottom
+        content
+            .padding(.leading, 8)
+//            .padding(.trailing, 64) // enough distance from canvas item menu icon
+//            .padding(.trailing, 32) // enough distance from canvas item menu icon
+            .padding(.trailing, 16) // enough distance from canvas item menu icon
+            .padding([.top, .bottom], 12)
+    }
+}
+
+struct CanvasItemBodyPadding: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.top, 8)
+            .padding(.bottom, NODE_BODY_PADDING + 4)
+    }
+}
+
+struct CanvasItemBackground: ViewModifier {
+    
+    let color: Color
+    
+    func body(content: Content) -> some View {
+        content
+            .background {
+                ZStack {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                    color.opacity(0.1)
+//                    color.opacity(0.3)
+                    //                nodeUIColor.body.opacity(0.5)
+                    //                nodeUIColor.body.opacity(0.7)
+                }
+                .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+            }
+    }
+}
+
+struct CanvasItemTag: View {
+    
+    let isSelected: Bool
+    let nodeTagMenu: NodeTagMenuButtonsView
+    
+    var body: some View {
+        
+            Menu {
+                nodeTagMenu
+            } label: {
+                let iconName = "ellipsis.rectangle"
+                //                        let iconName = "ellipsis.circle"
+                Image(systemName: iconName)
+                
+#if !targetEnvironment(macCatalyst)
+                    .padding(16) // increase hit area
+#endif
+            }
+        
+#if targetEnvironment(macCatalyst)
+            .buttonStyle(.plain)
+            .scaleEffect(1.4)
+            .frame(width: 24, height: 12)
+            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+            .padding(.trailing, 8)
+#else
+            // iPad
+            .menuStyle(.button)
+            .buttonStyle(.borderless)
+            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+#endif
+            .opacity(isSelected ? 1 : 0)
     }
 }
