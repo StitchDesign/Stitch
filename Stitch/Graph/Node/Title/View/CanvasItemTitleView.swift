@@ -72,7 +72,7 @@ struct CanvasItemTitleView: View {
             
             let mathExpression = node.patchNode?.mathExpression
             
-            VStack {
+            VStack(alignment: .leading) {
                 // Always shows node title
                 NodeTitleTextField(graph: graph,
                                    id: canvasId,
@@ -95,7 +95,7 @@ struct CanvasItemTitleView: View {
                 }
             }
         } else {
-            VStack {
+            VStack(alignment: .leading) {
                 
                 HStack {
                     if node.kind == .group {

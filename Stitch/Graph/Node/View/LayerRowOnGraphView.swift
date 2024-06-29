@@ -43,38 +43,6 @@ struct LayerRowOnGraphView: View {
                     log("LayerInputOnGraphView: .simultaneousGesture(TapGesture(count: 1)")
                     graph.canvasItemTapped(canvasItem.id)
                 }))
-            
-                .overlay(alignment: .topTrailing) {
-                    if isSelected {
-                        Menu {
-                            tagMenu
-                        } label: {
-                            nodeTagMenuIcon
-#if !targetEnvironment(macCatalyst)
-                            // .border(.yellow)
-                                .padding(16) // increase hit area
-                            // .border(.blue)
-#endif
-                        }
-#if targetEnvironment(macCatalyst)
-                        .buttonStyle(.plain)
-                        .scaleEffect(1.4)
-                        .frame(width: 24, height: 12)
-                        .padding(16)
-                        .foregroundColor(STITCH_TITLE_FONT_COLOR)
-                        .offset(x: -4, y: -4)
-#else
-                        
-                        // iPad
-                        .menuStyle(.button)
-                        .buttonStyle(.borderless)
-                        .foregroundColor(STITCH_TITLE_FONT_COLOR)
-                        .offset(x: -2, y: -4)
-#endif
-                        // .border(.red)
-                    }
-                }
-            
         } // ZStack
         .canvasItemPositionHandler(graph: graph,
                                    node: canvasItem,
@@ -82,41 +50,17 @@ struct LayerRowOnGraphView: View {
                                    zIndex: self.canvasItem.zIndex,
                                    usePositionHandler: true)
     }
-    
-    var nodeTagMenuIcon: some View {
-        Image(systemName: "ellipsis.rectangle")
-    }
-    
+        
     @MainActor
     var rowBody: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 0) {
             title
-                .padding([.leading, .trailing], 62)
-                .padding(NODE_BODY_PADDING)
-            
+            CanvasItemBodyDivider()
             rowView
-                .padding(.top, NODE_BODY_PADDING * 2)
-                .padding(.bottom, NODE_BODY_PADDING + 4)
-                .overlay(
-                    // A hack to get a border on one edge without having it push the boundaries
-                    // of the view, which was the problem with Divider.
-                    Divider()
-                        .height(1)
-                        .overlay(STITCH_FONT_WHITE_COLOR),
-                    alignment: .top)
+                .modifier(CanvasItemBodyPadding())
         }
         .fixedSize()
-        .background {
-            ZStack {
-                VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                self.node.color.body.opacity(0.1)
-                //                nodeUIColor.body.opacity(0.3)
-                //                nodeUIColor.body.opacity(0.5)
-                //                nodeUIColor.body.opacity(0.7)
-            }
-            .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
-        }
-        
+        .modifier(CanvasItemBackground(color: self.node.color.body))
         .overlay(content: {
             if isHiddenLayer {
                 /*
@@ -145,10 +89,32 @@ struct LayerRowOnGraphView: View {
  
     @MainActor
     var title: some View {
-        CanvasItemTitleView(graph: graph,
-                            node: node,
-                            isNodeSelected: isSelected,
-                            canvasId: canvasItem.id)
+        HStack {
+            CanvasItemTitleView(graph: graph,
+                                node: node,
+                                isNodeSelected: isSelected,
+                                canvasId: canvasItem.id)
+            .modifier(CanvasItemTitlePadding())
+            
+            Spacer()
+            
+            CanvasItemTag(isSelected: isSelected,
+                          nodeTagMenu: tagMenu)
+            .opacity(isSelected ? 1 : 0)
+            
+//            Menu {
+//                nodeTagMenu
+//            } label: {
+//                Image(systemName: "ellipsis.rectangle")
+//            }
+//            .buttonStyle(.plain)
+//            .scaleEffect(1.4)
+//            .frame(width: 24, height: 12)
+//            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+//            .padding(.trailing, 8)
+        }
+        
+        
     }
     
     @MainActor
