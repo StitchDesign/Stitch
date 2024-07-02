@@ -21,8 +21,7 @@ struct LayerInspectorPortView: View {
     // Is this property-row selected?
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar
-            .selectedProperties.contains(layerProperty)
+        graph.graphUI.propertySidebar.selectedProperties == layerProperty
     }
     
     var isOnGraphAlready: Bool {

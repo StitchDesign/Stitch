@@ -12,7 +12,7 @@ struct SidebarLayerHovered: GraphUIEvent {
     let layer: LayerNodeId
     
     func handle(state: GraphUIState) {
-        state.highlightedSidebbarLayers.insert(layer)
+        state.highlightedSidebarLayers.insert(layer)
     }
 }
 
@@ -20,7 +20,7 @@ struct SidebarLayerHoverEnded: GraphUIEvent {
     let layer: LayerNodeId
     
     func handle(state: GraphUIState) {
-        state.highlightedSidebbarLayers.remove(layer)
+        state.highlightedSidebarLayers.remove(layer)
     }
 }
 

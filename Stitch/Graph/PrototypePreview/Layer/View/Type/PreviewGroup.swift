@@ -11,12 +11,18 @@ import StitchSchemaKit
 extension LayerViewModel {
     var getGridData: PreviewGridData? {
         guard self.layer == .group else {
+            fatalErrorIfDebug()
             return nil
         }
         
+        // TODO: update when StitchSpacing is added as a PortValue in schema
+        let horizontalSpacingBetweenColumns = self.spacingBetweenGridColumns.getNumber.map { StitchSpacing.point($0) } ?? .defaultStitchSpacing
+        
+        let verticalSpacingBetweenRows = self.spacingBetweenGridRows.getNumber.map { StitchSpacing.point($0) } ?? .defaultStitchSpacing
+        
         return .init(
-            horizontalSpacingBetweenColumns: self.spacingBetweenGridColumns.getNumber ?? .zero,
-            verticalSpacingBetweenRows: self.spacingBetweenGridRows.getNumber ?? .zero,
+            horizontalSpacingBetweenColumns: horizontalSpacingBetweenColumns,
+            verticalSpacingBetweenRows: verticalSpacingBetweenRows,
             alignmentOfItemWithinGridCell: (self.itemAlignmentWithinGridCell.getAnchoring ?? .centerCenter).toAlignment
         )
     }
@@ -48,7 +54,7 @@ struct PreviewGroupLayer: View {
     let pivot: Anchoring
 
     let orientation: StitchOrientation
-    let padding: CGFloat
+    let padding: StitchPadding
     
     let cornerRadius: CGFloat
     let blurRadius: CGFloat
@@ -115,7 +121,7 @@ struct PreviewGroupLayer: View {
         
             .modifier(PreviewSidebarHighlightModifier(
                 nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.graphUI.highlightedSidebbarLayers,
+                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                 scale: scale))
                 
             .modifier(PreviewLayerRotationModifier(
@@ -156,7 +162,7 @@ struct PreviewGroupLayer: View {
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,
                           parentOrientation: orientation,
-                          parentOrientationPadding: padding,
+                          parentPadding: padding,
                           parentCornerRadius: cornerRadius,
                           // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
                           parentUsesHug: usesHug,

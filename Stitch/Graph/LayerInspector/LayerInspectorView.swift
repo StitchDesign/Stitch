@@ -186,7 +186,9 @@ struct LayerInspectorInputsSectionView: View {
                 withAnimation {
                     self.expanded.toggle()
                     layerInputs.forEach {
-                        graph.graphUI.propertySidebar.selectedProperties.remove(.layerInput($0))
+                        if graph.graphUI.propertySidebar.selectedProperties == .layerInput($0) {
+                            graph.graphUI.propertySidebar.selectedProperties = nil
+                        }
                     }
                 }
             }

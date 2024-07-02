@@ -107,7 +107,10 @@ struct GroupLayerNode: LayerNodeDefinition {
             opacity: viewModel.opacity.getNumber ?? 1,
             pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
             orientation: viewModel.orientation.getOrientation ?? .defaultOrientation,
-            padding: viewModel.padding.asCGFloat,
+            
+            // TODO: update once StitchPadding is saved in schema
+            padding: .init(viewModel.padding.asCGFloat),
+            
             cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
             blurRadius: viewModel.blur.getNumber ?? .zero,
             blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,

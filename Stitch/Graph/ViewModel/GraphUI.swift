@@ -40,7 +40,7 @@ final class GraphUIState {
     var lastMomentumRunTime: TimeInterval = .zero
     
     // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
-    var highlightedSidebbarLayers: LayerIdSet = .init()
+    var highlightedSidebarLayers: LayerIdSet = .init()
 
     var edgeEditingState: EdgeEditingState?
 
