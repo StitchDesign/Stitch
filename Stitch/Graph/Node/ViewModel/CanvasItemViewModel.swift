@@ -12,7 +12,7 @@ import StitchSchemaKit
 enum CanvasItemId: Hashable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputCoordinate)
-    case layerOutputOnGraph(LayerOutputCoordinate)
+    case layerOutputOnGraph(OutputPortViewData)
     
     var nodeCase: NodeId? {
         switch self {
@@ -58,11 +58,6 @@ struct LayerInputCoordinate: Hashable {
         .init(portType: .keyPath(keyPath),
               nodeId: node)
     }
-}
-
-struct LayerOutputCoordinate: Hashable {
-    let nodeId: NodeId
-    let layerInputType: LayerInputType
 }
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]

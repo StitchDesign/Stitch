@@ -15,11 +15,10 @@ struct InputValueEntry: View {
     @Bindable var viewModel: InputFieldViewModel
 
     let fieldCoordinate: FieldCoordinate
-    let isMultiField: Bool
+//    let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
 
@@ -31,10 +30,6 @@ struct InputValueEntry: View {
         // input is a bad name--could be either here
         self.viewModel.coordinate
     }
-
-//    var isInput: Bool {
-//        self.nodeIO == .input
-//    }
     
     var label: String {
         self.viewModel.fieldLabel
@@ -51,19 +46,16 @@ struct InputValueEntry: View {
 
     var valueDisplay: some View {
         InputValueView(graph: graph,
-                  rowObserver: rowObserver,
-                  viewModel: viewModel,
-                  fieldCoordinate: fieldCoordinate,
-                  coordinate: coordinate,
-                  nodeIO: nodeIO,
-                  isMultiField: isMultiField,
-                  nodeKind: nodeKind,
-                  isCanvasItemSelected: isCanvasItemSelected,
-                  hasIncomingEdge: hasIncomingEdge,
-                  adjustmentBarSessionId: adjustmentBarSessionId,
-                  forPropertySidebar: forPropertySidebar,
-                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                  isButtonPressed: $isButtonPressed)
+                       rowObserver: rowObserver,
+                       viewModel: viewModel,
+                       fieldCoordinate: fieldCoordinate,
+                       coordinate: rowObserver.id,
+                       nodeKind: nodeKind,
+                       isCanvasItemSelected: isCanvasItemSelected,
+                       hasIncomingEdge: hasIncomingEdge,
+                       forPropertySidebar: forPropertySidebar,
+                       propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                       isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
@@ -90,11 +82,9 @@ struct InputValueView: View {
     
     let fieldCoordinate: FieldCoordinate
     let coordinate: NodeIOCoordinate
-    let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
@@ -102,6 +92,10 @@ struct InputValueView: View {
 
     var fieldValue: FieldValue {
         viewModel.fieldValue
+    }
+
+    @MainActor var adjustmentBarSessionId: AdjustmentBarSessionId {
+        self.graph.graphUI.adjustmentBarSessionId
     }
 
     // Which part of the port-value this value is for.

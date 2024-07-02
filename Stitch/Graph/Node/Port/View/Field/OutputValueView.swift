@@ -12,14 +12,11 @@ struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
     @Bindable var rowObserver: NodeRowObserver
-    @Bindable var viewModel: InputFieldViewModel
+    @Bindable var viewModel: OutputFieldViewModel
 
-    let fieldCoordinate: FieldCoordinate
     let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
 
@@ -27,7 +24,7 @@ struct OutputValueEntry: View {
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
 
-    var coordinate: InputPortViewData {
+    var coordinate: OutputPortViewData {
         // input is a bad name--could be either here
         self.viewModel.coordinate
     }
@@ -46,20 +43,16 @@ struct OutputValueEntry: View {
     }
 
     var valueDisplay: some View {
-        InputValueView(graph: graph,
-                  rowObserver: rowObserver,
-                  viewModel: viewModel,
-                  fieldCoordinate: fieldCoordinate,
-                  coordinate: coordinate,
-                  nodeIO: nodeIO,
-                  isMultiField: isMultiField,
-                  nodeKind: nodeKind,
-                  isCanvasItemSelected: isCanvasItemSelected,
-                  hasIncomingEdge: hasIncomingEdge,
-                  adjustmentBarSessionId: adjustmentBarSessionId,
-                  forPropertySidebar: forPropertySidebar,
-                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                  isButtonPressed: $isButtonPressed)
+        OutputValueView(graph: graph,
+                        rowObserver: rowObserver,
+                        viewModel: viewModel,
+                        coordinate: rowObserver.id,
+                        isMultiField: isMultiField,
+                        nodeKind: nodeKind,
+                        isCanvasItemSelected: isCanvasItemSelected,
+                        forPropertySidebar: forPropertySidebar,
+                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
@@ -82,15 +75,12 @@ struct OutputValueEntry: View {
 struct OutputValueView: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: NodeRowObserver
-    @Bindable var viewModel: InputFieldViewModel
+    @Bindable var viewModel: OutputFieldViewModel
     
-    let fieldCoordinate: FieldCoordinate
     let coordinate: NodeIOCoordinate
     let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
@@ -179,7 +169,7 @@ struct OutputValueView: View {
                                 isInput: false,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
-                                hasIncomingEdge: hasIncomingEdge)
+                                hasIncomingEdge: false)
 
         case .color(let color):
             StitchColorPickerOrb(chosenColor: color)

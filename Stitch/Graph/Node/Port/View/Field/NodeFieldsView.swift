@@ -8,28 +8,22 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeFieldsView: View {
+struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
+                                                             ValueEntryView: View {
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
-    @ObservedObject var fieldGroupViewModel: FieldGroupTypeViewModel
-    let coordinate: NodeIOCoordinate
-    let nodeKind: NodeKind
-    let nodeIO: NodeIO
-    let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
-    let adjustmentBarSessionId: AdjustmentBarSessionId
+    @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
+    let nodeId: NodeId
+    let isGroupNodeKind: Bool
+    let isMultiField: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
-
-    var isMultiField: Bool {
-        self.fieldGroupViewModel.fieldObservers.count > 1
-    }
+    @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
 
     var label: String? {
         // if this is an input or output on a splitter node for a group node,
         // then use the splitter node's title directly:
-           if nodeKind == .group {
-               if let nodeVM = graph.getNodeViewModel(coordinate.nodeId) {
+           if isGroupNodeKind {
+               if let nodeVM = graph.getNodeViewModel(nodeId) {
                    @Bindable var nodeViewModel = nodeVM
                    let title = nodeViewModel.title
                    // Don't use label if group splitter does not have custom title
@@ -54,25 +48,25 @@ struct NodeFieldsView: View {
             StitchTextView(string: groupLabel)
         }
 
-        ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
-            self.valueEntryView(fieldViewModel)
+        ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
+            self.valueEntryView(fieldViewModel, isMultiField)
         }
         .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
 
-    @ViewBuilder
-    func valueEntryView(_ viewModel: FieldViewModel) -> ValueEntry {
-        ValueEntry(graph: graph,
-                   rowObserver: rowObserver,
-                   viewModel: viewModel,
-                   fieldCoordinate: .init(input: coordinate, fieldIndex: viewModel.fieldIndex),
-                   nodeIO: nodeIO,
-                   isMultiField: isMultiField,
-                   nodeKind: nodeKind,
-                   isCanvasItemSelected: isCanvasItemSelected,
-                   hasIncomingEdge: hasIncomingEdge,
-                   adjustmentBarSessionId: adjustmentBarSessionId,
-                   forPropertySidebar: forPropertySidebar,
-                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-    }
+//    @ViewBuilder
+//    func valueEntryView(_ viewModel: FieldType) -> ValueEntry {
+//        ValueEntry(graph: graph,
+//                   rowObserver: rowObserver,
+//                   viewModel: viewModel,
+//                   fieldCoordinate: .init(input: coordinate, fieldIndex: viewModel.fieldIndex),
+//                   nodeIO: nodeIO,
+//                   isMultiField: isMultiField,
+//                   nodeKind: nodeKind,
+//                   isCanvasItemSelected: isCanvasItemSelected,
+//                   hasIncomingEdge: hasIncomingEdge,
+//                   adjustmentBarSessionId: adjustmentBarSessionId,
+//                   forPropertySidebar: forPropertySidebar,
+//                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+//    }
 }

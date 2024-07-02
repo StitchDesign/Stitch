@@ -55,7 +55,7 @@ protocol NodeDelegate: AnyObject {
     // TODO: why is this a function? is it the id of the node represented by the `NodeObserverDelegate`, or is it actually an accessor on GraphState?
     @MainActor func getNode(_ id: NodeId) -> NodeViewModel?
         
-//    var getMathExpression: String? { get }
+    var getMathExpression: String? { get }
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel]
     

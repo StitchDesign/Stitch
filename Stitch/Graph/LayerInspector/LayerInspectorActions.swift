@@ -70,7 +70,7 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
 struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
     let nodeId: NodeId
-    let coordinate: LayerOutputOnGraphId
+    let coordinate: OutputPortViewData
     
     func handle(state: GraphState) -> GraphResponse {
         

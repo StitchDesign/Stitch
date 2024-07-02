@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-protocol NodeRowViewModel: AnyObject, Identifiable {
+protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
     
     var id: FieldType.PortId { get set }
@@ -26,6 +26,8 @@ protocol NodeRowViewModel: AnyObject, Identifiable {
     var connectedCanvasItems: Set<CanvasItemId> { get set }
     
     var rowDelegate: NodeRowObserver? { get set }
+    
+    static var nodeIO: NodeIO { get }
     
     @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
 }
@@ -92,6 +94,8 @@ extension NodeRowViewModel {
 }
 
 final class InputNodeRowViewModel: NodeRowViewModel {
+    static let nodeIO: NodeIO = .input
+    
     var id: InputPortViewData
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
@@ -138,6 +142,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 }
 
 final class OutputNodeRowViewModel: NodeRowViewModel {
+    static let nodeIO: NodeIO = .output
+    
     var id: OutputPortViewData
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
