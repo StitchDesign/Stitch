@@ -410,6 +410,7 @@
 		EC3A6C472C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3A6C462C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift */; };
 		EC3A6C492C20C2A400CCBACC /* NodeRowObserverExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */; };
 		EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */; };
+		EC3B27D82C34495A00865843 /* PreviewLayersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3B27D72C34495A00865843 /* PreviewLayersView.swift */; };
 		EC3BAABE299D83190047EFF7 /* StitchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3BAABD299D83190047EFF7 /* StitchRootView.swift */; };
 		EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4081242C0114060047989F /* StitchCustomURL.swift */; };
 		EC4081272C014CD70047989F /* StitchRootModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4081262C014CD70047989F /* StitchRootModifier.swift */; };
@@ -1303,6 +1304,7 @@
 		EC3A6C462C20C27300CCBACC /* NodeRowObserverSchemaObserverIdentifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverSchemaObserverIdentifiable.swift; sourceTree = "<group>"; };
 		EC3A6C482C20C2A400CCBACC /* NodeRowObserverExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverExtensions.swift; sourceTree = "<group>"; };
 		EC3A6C4A2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserverCachedViewDataExtensions.swift; sourceTree = "<group>"; };
+		EC3B27D72C34495A00865843 /* PreviewLayersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLayersView.swift; sourceTree = "<group>"; };
 		EC3BAABD299D83190047EFF7 /* StitchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchRootView.swift; sourceTree = "<group>"; };
 		EC4081242C0114060047989F /* StitchCustomURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchCustomURL.swift; sourceTree = "<group>"; };
 		EC4081262C014CD70047989F /* StitchRootModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchRootModifier.swift; sourceTree = "<group>"; };
@@ -3486,6 +3488,7 @@
 			isa = PBXGroup;
 			children = (
 				B59660A62C1A52D500BE75D7 /* PreviewLayerView.swift */,
+				EC3B27D72C34495A00865843 /* PreviewLayersView.swift */,
 				EC0957DB27208C1200B4027F /* GeneratePreview.swift */,
 				B55500E32C1BABBC0081C3F1 /* CommonModifier */,
 				B55500DA2C1BA96D0081C3F1 /* Type */,
@@ -5044,6 +5047,7 @@
 				EC0957DC27208C1200B4027F /* GeneratePreview.swift in Sources */,
 				EC4081292C014E310047989F /* VersionedURL.swift in Sources */,
 				EC22972D268D337900E6DC8D /* MicrophoneFeedNode.swift in Sources */,
+				EC3B27D82C34495A00865843 /* PreviewLayersView.swift in Sources */,
 				B56FFB3C2C18F3C700623CC7 /* StitchFileError.swift in Sources */,
 				ECB90B7629689A8300CF2F45 /* BouncyConverterUtils.swift in Sources */,
 				B539C2E62B92BDA900C6CEC3 /* CameraFeedActor.swift in Sources */,

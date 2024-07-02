@@ -53,11 +53,18 @@ struct PreviewLayersView: View {
     
     // Non-nil and non-zero when this view called by GroupLayer
     let parentId: LayerNodeId?
+    
+    // Are we a ZStack, an HStack, a VStack or an Adaptive Grid?
     var parentOrientation: StitchOrientation = .none
-    var parentOrientationPadding: CGFloat = .zero
+    
+    // Padding on the children overall
+    var parentPadding: StitchPadding = .init()
+    
+    // Spacing between the children; N/A for ZStack
+    var parentSpacing: StitchSpacing = .defaultStitchSpacing
+    
     let parentCornerRadius: CGFloat
     let parentUsesHug: Bool
-    
     let parentGridData: PreviewGridData?
     
      /*
@@ -81,12 +88,28 @@ struct PreviewLayersView: View {
     }
 
     @ViewBuilder
-    var layersAsViews: some View {
+    func layersAsViews(_ spacing: StitchSpacing) -> some View {
+        
+        // `spacing: .evenly` = one spacer before and after each element
+        // `spacing: .between` = one spacer between elements
+        
+        if spacing.isEvenly {
+            Spacer()
+        }
+        
         ForEach(layersInProperOrder) { layerData in
             LayerDataView(graph: graph,
                           layerData: layerData,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
+            
+            if spacing.isEvenly {
+                Spacer()
+            } else if spacing.isBetween,
+               layerData.id != layersInProperOrder.last?.id {
+                Spacer()
+            }
+            
         } // ForEach
     }
     
@@ -100,6 +123,10 @@ struct PreviewLayersView: View {
             
             // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
             orientationFromParent
+                .padding(.top, parentPadding.top)
+                .padding(.bottom, parentPadding.bottom)
+                .padding(.leading, parentPadding.left)
+                .padding(.trailing, parentPadding.right)
             
         } // Group
         .modifier(LayerGroupInteractableViewModifier(
@@ -112,15 +139,15 @@ struct PreviewLayersView: View {
         switch parentOrientation {
         case .none:
             ZStack {
-                layersAsViews
+                layersAsViews(parentSpacing)
             }
         case .horizontal:
-            HStack(spacing: parentOrientationPadding) {
-                layersAsViews
+            HStack(spacing: parentSpacing.asPointSpacing) {
+                layersAsViews(parentSpacing)
             }
         case .vertical:
-            VStack(spacing: parentOrientationPadding) {
-                layersAsViews
+            VStack(spacing: parentSpacing.asPointSpacing) {
+                layersAsViews(parentSpacing)
             }
         case .grid:
             gridView
@@ -142,14 +169,10 @@ struct PreviewLayersView: View {
             // logInView("gridView: longestReadWidth: \(longestReadWidth)")
             
             // Note: very important: `.adaptive(minimum: .zero)` causes SwiftUI to crash
+            // TODO: why `30`? What other number to use instead? `1` ? Does it matter?
             let gridCellMinimumWidth = max(longestReadWidth, 30.0)
                             
             // logInView("gridView: gridCellMinimumWidth: \(gridCellMinimumWidth)")
-            
-            let horizontalSpacingBetweenColumns = parentGridData.horizontalSpacingBetweenColumns
-            let verticalSpacingBetweenRows = parentGridData.verticalSpacingBetweenRows
-            let alignmentOfItemWithinGridCell = parentGridData.alignmentOfItemWithinGridCell
-            let horizontalAlignmentOfGrid = parentGridData.horizontalAlignmentOfGrid
             
             let adaptiveColumns: [GridItem] = [
                 // one adaptive GridItem with LazyVStack = lay all the items out in a single row that snakes like a Z
@@ -159,20 +182,20 @@ struct PreviewLayersView: View {
                     .adaptive(minimum: gridCellMinimumWidth),
                     
                     // In a LazyVGrid, horizontal spacing between columns.
-                    spacing: horizontalSpacingBetweenColumns,
+                    spacing: parentGridData.horizontalSpacingBetweenColumns.asPointSpacing,
                     
                     // Alignment of an item within the min/max allowed space.
                     // Only relevant when grid cell is larger than child's own size.
-                    alignment: alignmentOfItemWithinGridCell)
+                    alignment: parentGridData.alignmentOfItemWithinGridCell)
             ]
             
             LazyVGrid(columns: adaptiveColumns,
                       // Only relevant LazyVGrid is wider than needed to accomodate all the columns.
-                      alignment: horizontalAlignmentOfGrid,
+                      alignment: parentGridData.horizontalAlignmentOfGrid,
                       
                       // In a LazyVGrid, vertical spacing between rows:
-                      spacing: verticalSpacingBetweenRows) {
-                layersAsViews
+                      spacing: parentGridData.verticalSpacingBetweenRows.asPointSpacing) {
+                layersAsViews(parentSpacing)
             }
             
         } else {

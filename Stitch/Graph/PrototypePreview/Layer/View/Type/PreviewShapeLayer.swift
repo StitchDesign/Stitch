@@ -74,7 +74,7 @@ struct PreviewShapeLayer: View {
                 .opacity(opacity)
                 .modifier(PreviewSidebarHighlightModifier(
                     nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebbarLayers,
+                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                     scale: scale))
             // order of .blur vs other modiifers doesn't matter?
                 .blur(radius: blurRadius)
@@ -107,7 +107,7 @@ struct PreviewShapeLayer: View {
                 .opacity(opacity)
                 .modifier(PreviewSidebarHighlightModifier(
                     nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebbarLayers,
+                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                     scale: scale))
                 .modifier(PreviewCommonModifierWithoutFrame(
                     graph: graph,

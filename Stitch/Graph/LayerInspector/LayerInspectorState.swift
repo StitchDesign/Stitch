@@ -17,11 +17,9 @@ enum LayerInspectorRowId: Equatable, Hashable {
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 struct PropertySidebarState: Equatable {
-    // Which rows in the property sidebar are currently selected
-    var selectedProperties = LayerInspectorRowIdSet()
+    var selectedProperties: LayerInspectorRowId?
 }
 
-// MARK: each one of these corresponds to a section
 extension LayerInspectorView {
     // TODO: fill these out
         
