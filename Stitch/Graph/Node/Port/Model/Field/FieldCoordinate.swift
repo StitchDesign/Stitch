@@ -8,17 +8,17 @@
 import Foundation
 import StitchSchemaKit
 
-struct FieldCoordinate: Hashable {
+struct FieldCoordinate<PortData: PortViewData>: Hashable {
     // the input where this field belongs
-    let input: InputPortViewData
+    let portData: PortData
 
     // the particular field in the
     // 0 for single-field inputs
     var fieldIndex: Int
 
     static var fakeFieldCoordinate: Self {
-        FieldCoordinate(
-            input: .init(portId: 0, canvasId: .node(.init())),
+        .init(
+            portData: .init(portId: 0, canvasId: .node(.init())),
             fieldIndex: 0)
     }
 }

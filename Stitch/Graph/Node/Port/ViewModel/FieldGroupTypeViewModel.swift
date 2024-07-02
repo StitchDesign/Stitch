@@ -12,7 +12,7 @@ import StitchSchemaKit
 typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
 
 @Observable
-final class FieldGroupTypeViewModel<FieldType: FieldViewModel> {
+final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     let type: FieldGroupType
     var fieldObservers: [FieldType]
 
@@ -50,11 +50,9 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel> {
             }
         }
     }
-}
 
-extension FieldGroupTypeViewModel<InputFieldViewModel>: Identifiable {
-    var id: FieldCoordinate {
-        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1, 
+    var id: FieldCoordinate<FieldType.PortId> {
+        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1,
                                                             canvasId: .node(.init())),
                                                fieldIndex: -1)
     }

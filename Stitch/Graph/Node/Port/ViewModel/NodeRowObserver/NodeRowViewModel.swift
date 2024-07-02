@@ -19,7 +19,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     var activeValue: PortValue { get set }
     
     // Holds view models for fields
-    var fieldValueTypes: FieldGroupTypeViewModelList<FieldType> { get set }
+    var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
     var anchorPoint: CGPoint? { get set }
     

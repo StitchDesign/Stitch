@@ -245,7 +245,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     }
     
     var body: some View {
-        ForEach(rowViewModel.fieldValueTypes) { fieldGroupViewModel in
+        ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
             NodeFieldsView(
                 graph: graph,
                 fieldGroupViewModel: fieldGroupViewModel,

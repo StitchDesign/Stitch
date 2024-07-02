@@ -12,7 +12,7 @@ import StitchSchemaKit
 enum CanvasItemId: Hashable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputCoordinate)
-    case layerOutputOnGraph(OutputPortViewData)
+    case layerOutputOnGraph(LayerOutputCoordinate)
     
     var nodeCase: NodeId? {
         switch self {
@@ -48,16 +48,29 @@ extension CanvasItemId: Identifiable {
     }
 }
 
+protocol LayerCoordinate: Hashable {
+    // id for the parent layer node
+    var node: NodeId  { get set }
+    
+    // the keypath, i.e. unique port
+    var keyPath: LayerInputType { get set }
+}
+
 // TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-struct LayerInputCoordinate: Hashable {
-    let node: NodeId // id for the parent layer node
-    let keyPath: LayerInputType // the keypath, i.e. unique port
+struct LayerInputCoordinate: LayerCoordinate {
+    var node: NodeId // id for the parent layer node
+    var keyPath: LayerInputType // the keypath, i.e. unique port
     
     var asInputCoordinate: InputCoordinate {
         .init(portType: .keyPath(keyPath),
               nodeId: node)
     }
+}
+
+struct LayerOutputCoordinate: LayerCoordinate {
+    var node: NodeId // id for the parent layer node
+    var keyPath: LayerInputType // the keypath, i.e. unique port
 }
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]
