@@ -27,6 +27,11 @@ struct NodeInputOutputView<NodeRowType: NodeRowViewModel,
         self.graph.graphUI
     }
     
+    @MainActor
+    var label: String {
+        self.rowObserver.label(forPropertySidebar)
+    }
+    
     var body: some View {
         let coordinate = rowData.id
         HStack(spacing: NODE_COMMON_SPACING) {
@@ -60,16 +65,6 @@ struct NodeInputOutputView<NodeRowType: NodeRowViewModel,
     
     @ViewBuilder @MainActor
     var labelView: LabelDisplayView {
-        LabelDisplayView(label: label,
-                         isLeftAligned: false,
-                         fontColor: STITCH_FONT_GRAY_COLOR)
-    }
-}
-
-struct NodePortLabelView: View {
-    let label: String
-    
-    var body: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
                          fontColor: STITCH_FONT_GRAY_COLOR)
@@ -114,7 +109,6 @@ struct NodeInputView: View {
         InputValueEntry(graph: graph,
                         rowObserver: rowObserver,
                         viewModel: portViewModel,
-                        fieldCoordinate: ,
                         nodeKind: node.kind,
                         isCanvasItemSelected: canvasItem.isSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,

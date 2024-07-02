@@ -14,8 +14,6 @@ struct InputValueEntry: View {
     @Bindable var rowObserver: NodeRowObserver
     @Bindable var viewModel: InputFieldViewModel
 
-    let fieldCoordinate: FieldCoordinate
-//    let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
@@ -48,11 +46,8 @@ struct InputValueEntry: View {
         InputValueView(graph: graph,
                        rowObserver: rowObserver,
                        viewModel: viewModel,
-                       fieldCoordinate: fieldCoordinate,
-                       coordinate: rowObserver.id,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
-                       hasIncomingEdge: hasIncomingEdge,
                        forPropertySidebar: forPropertySidebar,
                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                        isButtonPressed: $isButtonPressed)
@@ -80,16 +75,25 @@ struct InputValueView: View {
     @Bindable var rowObserver: NodeRowObserver
     @Bindable var viewModel: InputFieldViewModel
     
-    let fieldCoordinate: FieldCoordinate
-    let coordinate: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
     @Binding var isButtonPressed: Bool
 
+    var fieldCoordinate: FieldCoordinate {
+        self.viewModel.id
+    }
+    
+    var coordinate: NodeIOCoordinate {
+        self.rowObserver.id
+    }
+    
+    var hasIncomingEdge: Bool {
+        self.rowObserver.upstreamOutputCoordinate.isDefined
+    }
+    
     var fieldValue: FieldValue {
         viewModel.fieldValue
     }
