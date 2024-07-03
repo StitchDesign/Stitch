@@ -101,42 +101,44 @@ struct PreviewShapeLayer: View {
                 .eraseToAnyView()
         }
         
-        else if stroke.stroke.isOutsideStroke {
-            return shape
-            // TODO: this applies opacity to the shape's stroke as well; is that desired behavior?
-                .opacity(opacity)
-                .modifier(PreviewSidebarHighlightModifier(
-                    nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
-                    scale: scale))
-                .modifier(PreviewCommonModifierWithoutFrame(
-                    graph: graph,
-                    layerViewModel: layerViewModel,
-                    interactiveLayer: interactiveLayer,
-                    position: position,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ,
-                    size: size,
-                    minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE,
-                    scale: scale,
-                    anchoring: anchoring,
-                    blurRadius: blurRadius,
-                    blendMode: blendMode,
-                    brightness: brightness,
-                    colorInvert: colorInvert,
-                    contrast: contrast,
-                    hueRotation: hueRotation,
-                    saturation: saturation,
-                    pivot: pivot,
-                    shadowColor: shadowColor,
-                    shadowOpacity: shadowOpacity,
-                    shadowRadius: shadowRadius,
-                    shadowOffset: shadowOffset,
-                    parentSize: parentSize,
-                    parentDisablesPosition: parentDisablesPosition))
-                .eraseToAnyView()
-        } else {
+//        else if stroke.stroke.isOutsideStroke {
+//            return shape
+//            // TODO: this applies opacity to the shape's stroke as well; is that desired behavior?
+//                .opacity(opacity)
+//                .modifier(PreviewSidebarHighlightModifier(
+//                    nodeId: interactiveLayer.id.layerNodeId,
+//                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+//                    scale: scale))
+//                .modifier(PreviewCommonModifierWithoutFrame(
+//                    graph: graph,
+//                    layerViewModel: layerViewModel,
+//                    interactiveLayer: interactiveLayer,
+//                    position: position,
+//                    rotationX: rotationX,
+//                    rotationY: rotationY,
+//                    rotationZ: rotationZ,
+//                    size: size,
+//                    minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE,
+//                    scale: scale,
+//                    anchoring: anchoring,
+//                    blurRadius: blurRadius,
+//                    blendMode: blendMode,
+//                    brightness: brightness,
+//                    colorInvert: colorInvert,
+//                    contrast: contrast,
+//                    hueRotation: hueRotation,
+//                    saturation: saturation,
+//                    pivot: pivot,
+//                    shadowColor: shadowColor,
+//                    shadowOpacity: shadowOpacity,
+//                    shadowRadius: shadowRadius,
+//                    shadowOffset: shadowOffset,
+//                    isForShapeLayer: true,
+//                    parentSize: parentSize,
+//                    parentDisablesPosition: parentDisablesPosition))
+//                .eraseToAnyView()
+//        } 
+        else {
             return shape
                 .opacity(opacity)
                 .modifier(PreviewCommonModifier(
@@ -162,6 +164,7 @@ struct PreviewShapeLayer: View {
                     shadowOpacity: shadowOpacity,
                     shadowRadius: shadowRadius,
                     shadowOffset: shadowOffset,
+                    isForShapeLayer: true,
                     parentSize: parentSize,
                     parentDisablesPosition: parentDisablesPosition))
                 .eraseToAnyView()

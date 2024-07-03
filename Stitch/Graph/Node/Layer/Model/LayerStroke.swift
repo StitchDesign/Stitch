@@ -54,23 +54,21 @@ struct LayerStrokeData: Equatable {
 }
 
 extension LayerStrokeData {
-    static var defaultEmptyStroke: LayerStrokeData {
-        .init(stroke: .none,
-              color: .black,
-              width: 0,
-              strokeStart: .zero,
-              strokeEnd: 1.0,
-              strokeLineCap: .defaultStrokeLineCap,
-              strokeLineJoin: .defaultStrokeLineJoin)
-    }
-
-    static var defaultStroke: LayerStrokeData {
-        .init(stroke: .outside,
-              color: .black,
-              width: 4,
-              strokeStart: .zero,
-              strokeEnd: 1.0,
-              strokeLineCap: .defaultStrokeLineCap,
-              strokeLineJoin: .defaultStrokeLineJoin)
-    }
+    static let defaultEmptyStroke: LayerStrokeData = .init(
+        stroke: .none,
+        color: .black,
+        width: 0,
+        strokeStart: .zero,
+        strokeEnd: 1.0,
+        strokeLineCap: .defaultStrokeLineCap,
+        strokeLineJoin: .defaultStrokeLineJoin)
+    
+    static let defaultStroke: LayerStrokeData = .init(
+        stroke: .outside,
+        color: .black,
+        width: 4,
+        strokeStart: .zero,
+        strokeEnd: 1.0,
+        strokeLineCap: .defaultStrokeLineCap,
+        strokeLineJoin: .defaultStrokeLineJoin)
 }

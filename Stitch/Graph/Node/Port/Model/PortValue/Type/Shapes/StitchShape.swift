@@ -22,35 +22,31 @@ struct StitchShape: View {
 
     var body: some View {
         switch previewShapeKind {
-
+            
         case .pathBased(let customShape):
-            return CustomShapeView(
+            CustomShapeView(
                 shape: customShape,
                 shapeLayerNodeColor: color.opacity(opacity),
                 shapeLayerNodeSize: layerNodeSize,
                 strokeData: stroke,
                 usesAbsoluteCoordinates: usesAbsoluteCoordinates)
-                .eraseToAnyView()
-
+            
         case .swiftUIRectangle(let cornerRadius):
-            return RoundedRectangle(cornerRadius: cornerRadius)
-                .applyStrokeToShape(stroke,
-                                    color,
-                                    opacity,
-                                    size: size)
-                .eraseToAnyView()
-
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .createStitchShape(stroke,
+                                   color,
+                                   opacity,
+                                   size: size)
+            
         case .swiftUIOval:
-            return Ellipse()
-                .applyStrokeToShape(stroke,
-                                    color,
-                                    opacity,
-                                    size: size)
-                .eraseToAnyView()
-
+            Ellipse()
+                .createStitchShape(stroke,
+                                   color,
+                                   opacity,
+                                   size: size)
+            
         case .none:
-            return EmptyView()
-                .eraseToAnyView()
+            EmptyView()
         }
     }
 }

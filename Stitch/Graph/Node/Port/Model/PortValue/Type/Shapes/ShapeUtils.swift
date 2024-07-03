@@ -14,40 +14,39 @@ struct ApplyStroke: ViewModifier {
     
     let stroke: LayerStrokeData
     
-    // When used with a non-shape layer, will be a Rectangle
-//    let shape: InsettableShape
-    
     @ViewBuilder
     func body(content: Content) -> some View {
         
         switch stroke.stroke {
                         
         case .none:
-            content //.overlay { } // no change
+            content
             
         case .inside, .outside:
             
-            let strokeWidth = stroke.width
-            let strokeStart = stroke.strokeStart
-            let strokeEnd = stroke.strokeEnd
+//            let strokeWidth = stroke.width
+//            let strokeStart = stroke.strokeStart
+//            let strokeEnd = stroke.strokeEnd
             
 //            let strokedShape = shape
-            let strokedShape = Rectangle()
-                // applying .trim to filled-shape would affect the shape itself
-                .trim(from: strokeStart, to: strokeEnd)
-                .fill(.clear)
-                .stroke(stroke.color,
-                        style: .init(lineWidth: strokeWidth,
-                                     lineCap: stroke.strokeLineCap.toCGLineCap,
-                                     lineJoin: stroke.strokeLineJoin.toCGLineJoin))
+//            let strokedShape = Rectangle()
+//                // applying .trim to filled-shape would affect the shape itself
+//                .trim(from: strokeStart, to: strokeEnd)
+//                .fill(.clear)
+//                .stroke(stroke.color,
+//                        style: .init(lineWidth: strokeWidth,
+//                                     lineCap: stroke.strokeLineCap.toCGLineCap,
+//                                     lineJoin: stroke.strokeLineJoin.toCGLineJoin))
+//            
+//            // Using padding means we don't need to know the size of the view receiving the `.stroke`.
+//            // negative padding = moves stroke completely outside
+//            // positive padding = moves stroke completely inside
+//            let strokeWidthPadding = stroke.stroke == .outside ? -strokeWidth : strokeWidth
             
-            // Using padding means we don't need to know the size of the view receiving the `.stroke`.
-            // negative padding = moves stroke completely outside
-            // positive padding = moves stroke completely inside
-            let strokeWidthPadding = stroke.stroke == .outside ? -strokeWidth : strokeWidth
+            let strokedShape = Rectangle().stitchStroke(stroke)
             
             content.overlay {
-                strokedShape.padding(strokeWidthPadding/2)
+                strokedShape // .padding(strokeWidthPadding/2)
             }
         }
     }
@@ -55,63 +54,99 @@ struct ApplyStroke: ViewModifier {
 
 
 
-
 extension InsettableShape {
-    // Note: SwiftUI cannot combine `.strokeBorder` with `.fill` or `.trim`; so we prefer `.stroke` instead
-    func applyStrokeToShape(_ stroke: LayerStrokeData,
-                            _ color: Color,
-                            _ opacity: Double,
-                            size: CGSize) -> AnyView {
-
-        let shape = self
-
-        let strokeWidth = stroke.width
-        let strokeStart = stroke.strokeStart
-        let strokeEnd = stroke.strokeEnd
-                
-        let filledShape = shape
-            .fill(color.opacity(opacity))
-            .frame(width: size.width, height: size.height)
+    
+    func stitchStroke(_ stroke: LayerStrokeData) -> some View {
         
-        let strokedShape = shape
-            // applying .trim to filled-shape would affect the shape itself
-            .trim(from: strokeStart, to: strokeEnd)
+        let strokeWidth = stroke.width
+        
+        let strokedShape = self
+            .trim(from: stroke.strokeStart,
+                  to: stroke.strokeEnd)
             .fill(.clear)
             .stroke(stroke.color,
                     style: .init(lineWidth: strokeWidth,
                                  lineCap: stroke.strokeLineCap.toCGLineCap,
                                  lineJoin: stroke.strokeLineJoin.toCGLineJoin))
         
-        switch stroke.stroke {
-
-        case .inside:
-            return filledShape
-                // .overlay the stroke-shape over the filled-shape, so that inside-border is not covered up
-                .overlay {
-                    strokedShape
-                    // - strokeWidth = stroke completely inside
-                        .frame(width: size.width - strokeWidth,
-                               height: size.height - strokeWidth)
-                }
-                .eraseToAnyView()
+        let strokeWidthPadding = stroke.stroke == .outside ? -strokeWidth : strokeWidth
+        
+        return strokedShape.padding(strokeWidthPadding/2)
+    }
+    
+    // Note: SwiftUI cannot combine `.strokeBorder` with `.fill` or `.trim`; so we prefer `.stroke` instead
+    // fka `applyStrokeToShape`
+    func createStitchShape(_ stroke: LayerStrokeData,
+                           _ color: Color,
+                           _ opacity: Double,
+                           size: CGSize) -> some View {
+        
+        let filledShape = self.fill(color.opacity(opacity))
+        let strokedShape = self.stitchStroke(stroke)
+        
+        return filledShape.overlay { strokedShape }
+    
+        
+        
+//        let shape = self
+//
+//        let strokeWidth = stroke.width
+//        let strokeStart = stroke.strokeStart
+//        let strokeEnd = stroke.strokeEnd
+                
+//        let filledShape = shape
+//            .fill(color.opacity(opacity))
+        
+//        filledShape
+        
+        // can apply .frame LATER
+//            .frame(width: size.width, height: size.height)
+        
             
-        case .outside:
-            return filledShape
-                .overlay {
-                    strokedShape
-                    // + strokeWidth = stroke completely outside
-                        .frame(width: size.width + strokeWidth,
-                               height: size.height + strokeWidth)
-                }
-                .eraseToAnyView()
-            
-        case .none:
-            // TODO: why is .fill broken in some cases for path-based shapes?
-            return shape
-                .fill(color)
-                .opacity(opacity)
-                .eraseToAnyView()
-
-        } // switch stroke.stroke
+        
+        
+//        return filledShape.modifier(ApplyStroke(stroke: stroke))
+//
+//        
+//        let strokedShape = shape
+//            // applying .trim to filled-shape would affect the shape itself
+//            .trim(from: strokeStart, to: strokeEnd)
+//            .fill(.clear)
+//            .stroke(stroke.color,
+//                    style: .init(lineWidth: strokeWidth,
+//                                 lineCap: stroke.strokeLineCap.toCGLineCap,
+//                                 lineJoin: stroke.strokeLineJoin.toCGLineJoin))
+//        
+//        switch stroke.stroke {
+//
+//        case .inside:
+//            return filledShape
+//                // .overlay the stroke-shape over the filled-shape, so that inside-border is not covered up
+//                .overlay {
+//                    strokedShape
+//                    // - strokeWidth = stroke completely inside
+//                        .frame(width: size.width - strokeWidth,
+//                               height: size.height - strokeWidth)
+//                }
+//                .eraseToAnyView()
+//            
+//        case .outside:
+//            return filledShape
+//                .overlay {
+//                    strokedShape
+//                    // + strokeWidth = stroke completely outside
+//                        .frame(width: size.width + strokeWidth,
+//                               height: size.height + strokeWidth)
+//                }
+//                .eraseToAnyView()
+//            
+//        case .none:
+//            // TODO: why is .fill broken in some cases for path-based shapes?
+//            return shape
+//                .fill(color)
+//                .opacity(opacity)
+//                .eraseToAnyView()
+//
+//        } // switch stroke.stroke
     }
 }

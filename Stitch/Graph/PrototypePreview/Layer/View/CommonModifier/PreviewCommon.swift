@@ -38,6 +38,8 @@ struct PreviewCommonModifier: ViewModifier {
     let shadowRadius: CGFloat
     let shadowOffset: StitchPosition
     
+    var isForShapeLayer: Bool = false
+    
     // Assumes parentSize has already been scaled etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -89,6 +91,7 @@ struct PreviewCommonModifier: ViewModifier {
                 shadowOpacity: shadowOpacity,
                 shadowRadius: shadowRadius,
                 shadowOffset: shadowOffset,
+                isForShapeLayer: isForShapeLayer,
                 parentSize: parentSize,
                 parentDisablesPosition: parentDisablesPosition))
     }
