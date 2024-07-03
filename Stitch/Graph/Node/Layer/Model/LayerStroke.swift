@@ -9,19 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 extension LayerStroke: PortValueEnum {
-    var isInsideStroke: Bool {
-        switch self {
-        case .inside: return true
-        default: return false
-        }
-    }
-
-    var isOutsideStroke: Bool {
-        switch self {
-        case .outside: return true
-        default: return false
-        }
-    }
 
     static var defaultStroke: LayerStroke {
         .none

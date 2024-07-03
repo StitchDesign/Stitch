@@ -59,8 +59,7 @@ extension InsettableShape {
     // fka `applyStrokeToShape`
     func createStitchShape(_ stroke: LayerStrokeData,
                            _ color: Color,
-                           _ opacity: Double,
-                           size: CGSize) -> some View {
+                           _ opacity: Double) -> some View {
         
         let filledShape = self.fill(color.opacity(opacity))
         let strokedShape = self.stitchStroke(stroke)

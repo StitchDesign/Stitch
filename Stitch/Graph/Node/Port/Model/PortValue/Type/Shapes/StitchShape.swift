@@ -17,9 +17,6 @@ struct StitchShape: View {
     let previewShapeKind: PreviewShapeLayerKind
     let usesAbsoluteCoordinates: Bool
 
-    // For outside-stroke on non-custom shapes
-    let size: CGSize // non-scaled size
-
     var body: some View {
         switch previewShapeKind {
             
@@ -35,15 +32,13 @@ struct StitchShape: View {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .createStitchShape(stroke,
                                    color,
-                                   opacity,
-                                   size: size)
+                                   opacity)
             
         case .swiftUIOval:
             Ellipse()
                 .createStitchShape(stroke,
                                    color,
-                                   opacity,
-                                   size: size)
+                                   opacity)
             
         case .none:
             EmptyView()

@@ -98,7 +98,6 @@ struct PreviewShapeLayer: View {
                     saturation: saturation,
                     pivot: pivot,
                     previewWindowSize: parentSize))
-                .eraseToAnyView()
         } else {
             shape
                 .opacity(opacity)
@@ -128,7 +127,6 @@ struct PreviewShapeLayer: View {
                     isForShapeLayer: true,
                     parentSize: parentSize,
                     parentDisablesPosition: parentDisablesPosition))
-                .eraseToAnyView()
         }
     }
     
@@ -140,10 +138,6 @@ struct PreviewShapeLayer: View {
             opacity: opacity,
             layerNodeSize: layerNodeSize,
             previewShapeKind: previewShapeKind,
-            usesAbsoluteCoordinates: usesAbsoluteCoordinates,
-//            // needs to be the adjusted position
-//            position: pos,
-            // needs to be the unscaled size
-            size: layerNodeSize)
+            usesAbsoluteCoordinates: usesAbsoluteCoordinates)
     }
 }
