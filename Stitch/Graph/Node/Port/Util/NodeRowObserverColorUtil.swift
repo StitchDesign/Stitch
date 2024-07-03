@@ -41,67 +41,68 @@ extension NodeRowViewModel {
     }
 }
 
-/*
- When a node is selected or deselected, for each of its inputs/outptus we must re-derive the color for:
- 
- 1. the input/output itself
- 2. if input: the upstream output, if there is one
- 3. if output: the downstream inputs, if there are any
- 
- ASSUMES NODE VIEW MODEL'S `isSelected` HAS BEEN UPDATED.
- */
-@MainActor
-func updatePortColorDataUponNodeSelection(node: NodeDelegate,
-                                          graphState: GraphDelegate) {
-    
-    updatePortColorDataUponNodeSelection(
-        inputs: node.inputRowObservers(),
-        outputs: node.outputRowObservers(),
-        graphState: graphState)
+extension NodeDelegate {
+    /*
+     When a node is selected or deselected, for each of its inputs/outptus we must re-derive the color for:
+     
+     1. the input/output itself
+     2. if input: the upstream output, if there is one
+     3. if output: the downstream inputs, if there are any
+     
+     ASSUMES NODE VIEW MODEL'S `isSelected` HAS BEEN UPDATED.
+     */
+    @MainActor
+    func updatePortColorDataUponNodeSelection() {
+        Stitch.updatePortColorDataUponNodeSelection(
+            inputs: self.allInputRowViewModels,
+            outputs: self.allOutputRowViewModels)
+    }
 }
 
 @MainActor
-func updatePortColorDataUponNodeSelection(inputs: NodeRowObservers,
-                                          outputs: NodeRowObservers,
-                                          graphState: GraphDelegate) {
+func updatePortColorDataUponNodeSelection(inputs: [InputNodeRowViewModel],
+                                          outputs: [OutputNodeRowViewModel]) {
     inputs.forEach { input in
-        updateColorOfInputAndUpstreamOutput(input: input,
-                                            graphState: graphState)
+        input.updateColorOfInputAndUpstreamOutput()
     }
     
     outputs.forEach { output in
-        updateColorOfOutputAndDownstreamInputs(output: output,
-                                               graphState: graphState)
+        output.updateColorOfOutputAndDownstreamInputs()
     }
 }
 
-@MainActor
-func updateColorOfInputAndUpstreamOutput(input: NodeRowObserver,
-                                         // Note: can use the more restricted type `GraphDelegate` instead of gigantic `GraphState`
-                                         graphState: GraphDelegate) {
-    
-    updateInputColor(input: input, graphState: graphState)
+extension InputNodeRowViewModel {
+    @MainActor
+    func updateColorOfInputAndUpstreamOutput() {
         
-    // Update upstream-output
-    if let output = input.upstreamOutputObserver {
-        updateOutputColor(output: output, 
-                          graphState: graphState)
+        self.updatePortColor()
+        
+        // Update upstream-output
+        if let output = self.rowDelegate?.upstreamOutputObserver {
+            output.allOutputRowViewModels.forEach {
+                $0.updatePortColor()
+            }
+        }
     }
 }
 
-@MainActor
-func updateColorOfOutputAndDownstreamInputs(output: NodeRowObserver,
-                                            graphState: GraphDelegate) {
-    updateOutputColor(output: output, graphState: graphState)
-    
-    // Update downstream-inputs
-    graphState.connections
-        .get(output.id)?
-        .compactMap { graphState.getInputObserver(coordinate: $0) }
-        .forEach { downstreamInput in
-            updateInputColor(input: downstreamInput, 
-                             graphState: graphState)
+extension OutputNodeRowViewModel {
+    @MainActor
+    func updateColorOfOutputAndDownstreamInputs() {
+        self.updatePortColor()
+        
+        // Update downstream-inputs
+        if let rowDelegate = self.rowDelegate,
+           let graphDelegate = rowDelegate.nodeDelegate?.graphDelegate {
+            graphDelegate.connections
+                .get(rowDelegate.id)?
+                .compactMap { graphDelegate.getInputObserver(coordinate: $0) }
+                .flatMap { $0.allInputRowViewModels }
+                .forEach { downstreamInput in
+                    downstreamInput.updatePortColor()
+                }
         }
+    }
 }
 
 

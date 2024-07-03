@@ -102,18 +102,12 @@ extension NodeRowObserver {
     
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
-        self.nodeDelegate?.getAllCanvasObservers()
-            .flatMap { canvasItem in
-                canvasItem.inputViewModels
-            } ?? []
+        self.nodeDelegate?.allInputRowViewModels ?? []
     }
     
     @MainActor
     var allOutputRowViewModels: [OutputNodeRowViewModel] {
-        self.nodeDelegate?.getAllCanvasObservers()
-            .flatMap { canvasItem in
-                canvasItem.outputViewModels
-            } ?? []
+        self.nodeDelegate?.allOutputRowViewModels ?? []
     }
     
     var hasEdge: Bool {

@@ -86,4 +86,20 @@ extension NodeDelegate {
     var defaultOutputsList: PortValuesList {
         self.defaultOutputs.map { [$0] }
     }
+    
+    @MainActor
+    var allInputRowViewModels: [InputNodeRowViewModel] {
+        self.getAllCanvasObservers()
+            .flatMap { canvasItem in
+                canvasItem.inputViewModels
+            }
+    }
+    
+    @MainActor
+    var allOutputRowViewModels: [OutputNodeRowViewModel] {
+        self.getAllCanvasObservers()
+            .flatMap { canvasItem in
+                canvasItem.outputViewModels
+            }
+    }
 }
