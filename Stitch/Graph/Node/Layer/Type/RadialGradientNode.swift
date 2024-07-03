@@ -16,7 +16,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.radialGradient
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .startColor,
         .endColor,
@@ -25,15 +25,9 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
         .endRadius,
         .opacity,
         .scale,
-        .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
+        .zIndex
+    ])
+        .union(.layerEffects)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

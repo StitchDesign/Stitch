@@ -36,7 +36,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.model3D
 
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .model3D,
         .position,
         .rotationX,
@@ -47,18 +47,13 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

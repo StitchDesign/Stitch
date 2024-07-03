@@ -41,6 +41,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     let shadowRadius: CGFloat
     let shadowOffset: StitchPosition
     
+    var isForShapeLayer: Bool = false
+    
     var sizeForAnchoringAndGestures: CGSize {
         size.asCGSize(parentSize)
     }
@@ -49,6 +51,11 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     let parentSize: CGSize
     let parentDisablesPosition: Bool
 
+    var stroke: LayerStrokeData {
+        // shape layers will already have had their strokes applied
+        isForShapeLayer ? .defaultEmptyStroke : layerViewModel.getLayerStrokeData()
+    }
+    
     var pos: StitchPosition {
         adjustPosition(
 //            size: size, // does not need to be scaled when using `anchor:` in `.scaleEffect`
@@ -63,6 +70,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     func body(content: Content) -> some View {
 
         return content
+
+            .modifier(ApplyStroke(stroke: stroke))
         
             .modifier(PreviewLayerEffectsModifier(
                 blurRadius: blurRadius,

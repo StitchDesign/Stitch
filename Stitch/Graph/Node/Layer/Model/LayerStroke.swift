@@ -9,19 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 extension LayerStroke: PortValueEnum {
-    var isInsideStroke: Bool {
-        switch self {
-        case .inside: return true
-        default: return false
-        }
-    }
-
-    var isOutsideStroke: Bool {
-        switch self {
-        case .outside: return true
-        default: return false
-        }
-    }
 
     static var defaultStroke: LayerStroke {
         .none
@@ -54,23 +41,21 @@ struct LayerStrokeData: Equatable {
 }
 
 extension LayerStrokeData {
-    static var defaultEmptyStroke: LayerStrokeData {
-        .init(stroke: .none,
-              color: .black,
-              width: 0,
-              strokeStart: .zero,
-              strokeEnd: 1.0,
-              strokeLineCap: .defaultStrokeLineCap,
-              strokeLineJoin: .defaultStrokeLineJoin)
-    }
-
-    static var defaultStroke: LayerStrokeData {
-        .init(stroke: .outside,
-              color: .black,
-              width: 4,
-              strokeStart: .zero,
-              strokeEnd: 1.0,
-              strokeLineCap: .defaultStrokeLineCap,
-              strokeLineJoin: .defaultStrokeLineJoin)
-    }
+    static let defaultEmptyStroke: LayerStrokeData = .init(
+        stroke: .none,
+        color: .black,
+        width: 0,
+        strokeStart: .zero,
+        strokeEnd: 1.0,
+        strokeLineCap: .defaultStrokeLineCap,
+        strokeLineJoin: .defaultStrokeLineJoin)
+    
+    static let defaultStroke: LayerStrokeData = .init(
+        stroke: .outside,
+        color: .black,
+        width: 4,
+        strokeStart: .zero,
+        strokeEnd: 1.0,
+        strokeLineCap: .defaultStrokeLineCap,
+        strokeLineJoin: .defaultStrokeLineJoin)
 }

@@ -13,7 +13,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.progressIndicator
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .isAnimating,
         .progressIndicatorStyle,
         .progress,
@@ -22,18 +22,13 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

@@ -38,6 +38,8 @@ struct PreviewCommonModifier: ViewModifier {
     let shadowRadius: CGFloat
     let shadowOffset: StitchPosition
     
+    var isForShapeLayer: Bool = false
+    
     // Assumes parentSize has already been scaled etc.
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -57,13 +59,13 @@ struct PreviewCommonModifier: ViewModifier {
                 size: size,
                 parentSize: parentSize,
                 frameAlignment: frameAlignment))
-            
-            // Only for MapLayer
+                    
+            // Only for MapLayer, specifically for thumbnail-creation edge case
             .modifier(ClippedModifier(
                 isClipped: clipForMapLayerProjetThumbnailCreation,
                 // no clipping for map
                 cornerRadius: .zero))
-        
+
             .modifier(PreviewCommonModifierWithoutFrame(
                 graph: graph,
                 layerViewModel: layerViewModel,
@@ -89,6 +91,7 @@ struct PreviewCommonModifier: ViewModifier {
                 shadowOpacity: shadowOpacity,
                 shadowRadius: shadowRadius,
                 shadowOffset: shadowOffset,
+                isForShapeLayer: isForShapeLayer,
                 parentSize: parentSize,
                 parentDisablesPosition: parentDisablesPosition))
     }

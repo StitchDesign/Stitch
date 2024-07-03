@@ -31,11 +31,15 @@ struct PreviewTextLayer: View {
     let opacity: Double
     let scale: Double
     let anchoring: Anchoring
+    
     let fontSize: LayerDimension
     let textAlignment: LayerTextAlignment
     let verticalAlignment: LayerTextVerticalAlignment
     let textDecoration: LayerTextDecoration
     let textFont: StitchFont
+    
+//    let stroke: LamyerStrokeData
+    
     let blurRadius: CGFloat
     let blendMode: StitchBlendMode
     let brightness: Double
@@ -62,6 +66,7 @@ struct PreviewTextLayer: View {
                                  verticalAlignment: verticalAlignment,
                                  textDecoration: textDecoration,
                                  textFont: textFont)
+//            .modifier(ApplyStroke(stroke: stroke))
             .opacity(opacity)
             .padding()
 

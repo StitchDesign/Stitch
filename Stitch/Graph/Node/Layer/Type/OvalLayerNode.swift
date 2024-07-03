@@ -31,8 +31,7 @@ extension Bool {
 struct OvalLayerNode: LayerNodeDefinition {
     static let layer = Layer.oval
         
-    static let inputDefinitions: LayerInputTypeSet =
-    [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .color,
         .position,
         .rotationX,
@@ -43,27 +42,15 @@ struct OvalLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .strokePosition,
-        .strokeWidth,
-        .strokeColor,
-        .strokeStart,
-        .strokeEnd,
-        .strokeLineCap,
-        .strokeLineJoin,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .pivot,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     
     static func content(graph: GraphState,

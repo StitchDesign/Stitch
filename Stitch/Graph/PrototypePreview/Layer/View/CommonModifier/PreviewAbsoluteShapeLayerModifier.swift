@@ -10,6 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 // TODO: should a shape that uses absolute-coordinate-space be able to use `grow` and group orientation?
+// TODO: revisit this modifier; main purpose is just to use .offset instead of .position when a Shape is using Absolute Coordinate Space ?
 struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
 
     @Bindable var graph: GraphState

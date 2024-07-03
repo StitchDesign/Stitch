@@ -43,8 +43,7 @@ extension StitchPosition {
 struct RectangleLayerNode: LayerNodeDefinition {
     static let layer = Layer.rectangle
     
-    static let inputDefinitions: LayerInputTypeSet =
-        [
+    static let inputDefinitions: LayerInputTypeSet = .init([
             .color,
             .position,
             .rotationX,
@@ -55,29 +54,16 @@ struct RectangleLayerNode: LayerNodeDefinition {
             .scale,
             .anchoring,
             .zIndex,
-            .strokePosition,
-            .strokeWidth,
-            .strokeColor,
-            .strokeStart,
-            .strokeEnd,
-            .strokeLineCap,
-            .strokeLineJoin,
             .cornerRadius,
-            .blurRadius,
-            .blendMode,
-            .brightness,
-            .colorInvert,
-            .contrast,
-            .hueRotation,
-            .saturation,
             .pivot,
             .masks,
             .shadowColor,
             .shadowOpacity,
             .shadowRadius,
             .shadowOffset
-            
-        ]
+        ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

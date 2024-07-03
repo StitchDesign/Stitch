@@ -13,7 +13,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.realityView
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .allAnchors,
         .cameraDirection,
         .position,
@@ -27,18 +27,13 @@ struct RealityViewLayerNode: LayerNodeDefinition {
         .zIndex,
         .isCameraEnabled,
         .isShadowsEnabled,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

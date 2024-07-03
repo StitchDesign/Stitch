@@ -21,7 +21,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.videoStreaming
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .videoURL,
         .volume,
@@ -33,14 +33,10 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
         .opacity,
         .scale,
         .anchoring,
-        .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
+        .zIndex
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

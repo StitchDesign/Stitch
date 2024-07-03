@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct ImageLayerNode: LayerNodeDefinition {
     static let layer = Layer.image
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .image,
         .position,
         .rotationX,
@@ -25,19 +25,14 @@ struct ImageLayerNode: LayerNodeDefinition {
         .anchoring,
         .zIndex,
         .clipped,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

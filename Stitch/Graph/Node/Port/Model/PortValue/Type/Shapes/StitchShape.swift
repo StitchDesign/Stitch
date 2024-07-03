@@ -17,43 +17,31 @@ struct StitchShape: View {
     let previewShapeKind: PreviewShapeLayerKind
     let usesAbsoluteCoordinates: Bool
 
-    // For outside-stroke on non-custom shapes
-    let position: StitchPosition // adjusted position
-    let size: CGSize // non-scaled size
-
     var body: some View {
         switch previewShapeKind {
-
+            
         case .pathBased(let customShape):
-            return CustomShapeView(
+            CustomShapeView(
                 shape: customShape,
                 shapeLayerNodeColor: color.opacity(opacity),
                 shapeLayerNodeSize: layerNodeSize,
                 strokeData: stroke,
                 usesAbsoluteCoordinates: usesAbsoluteCoordinates)
-                .eraseToAnyView()
-
+            
         case .swiftUIRectangle(let cornerRadius):
-            return RoundedRectangle(cornerRadius: cornerRadius)
-                .applyStrokeToShape(stroke,
-                                    color,
-                                    opacity,
-                                    position: position,
-                                    size: size)
-                .eraseToAnyView()
-
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .createStitchShape(stroke,
+                                   color,
+                                   opacity)
+            
         case .swiftUIOval:
-            return Ellipse()
-                .applyStrokeToShape(stroke,
-                                    color,
-                                    opacity,
-                                    position: position,
-                                    size: size)
-                .eraseToAnyView()
-
+            Ellipse()
+                .createStitchShape(stroke,
+                                   color,
+                                   opacity)
+            
         case .none:
-            return EmptyView()
-                .eraseToAnyView()
+            EmptyView()
         }
     }
 }

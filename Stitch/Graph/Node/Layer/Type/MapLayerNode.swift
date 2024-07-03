@@ -22,7 +22,7 @@ struct MapLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.map
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .mapType,
         .mapLatLong,
         .mapSpan,
@@ -35,17 +35,13 @@ struct MapLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .blurRadius,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

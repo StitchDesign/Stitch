@@ -9,6 +9,37 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension LayerInputTypeSet {
+    
+    static let strokeInputs: LayerInputTypeSet = [
+        .strokePosition,
+        .strokeWidth,
+        .strokeColor,
+        .strokeStart,
+        .strokeEnd,
+        .strokeLineCap,
+        .strokeLineJoin
+    ]
+    
+    static let layerEffects: LayerInputTypeSet = [
+        .blurRadius,
+        .blendMode,
+        .brightness,
+        .colorInvert,
+        .contrast,
+        .hueRotation,
+        .saturation
+    ]
+    
+    static let typography: LayerInputTypeSet = [
+        .fontSize,
+        .textAlignment,
+        .verticalAlignment,
+        .textDecoration,
+        .textFont,
+    ]
+}
+
 extension StrokeLineCap: PortValueEnum {
     static let defaultStrokeLineCap: Self = .round
     
@@ -100,7 +131,7 @@ extension ShapeCoordinates: PortValueEnum {
 struct ShapeLayerNode: LayerNodeDefinition {
     static let layer = Layer.shape
 
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .shape,
         .color,
         .position,
@@ -112,26 +143,16 @@ struct ShapeLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .strokePosition,
-        .strokeWidth,
-        .strokeColor,
-        .strokeLineCap,
-        .strokeLineJoin,
         .coordinateSystem,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .pivot,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

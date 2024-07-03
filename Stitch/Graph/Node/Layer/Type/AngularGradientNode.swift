@@ -16,7 +16,7 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.angularGradient
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .startColor,
         .endColor,
@@ -25,15 +25,9 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
         .endAngle,
         .opacity,
         .scale,
-        .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
+        .zIndex
+    ])
+        .union(.layerEffects)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

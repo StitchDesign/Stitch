@@ -22,7 +22,7 @@ struct SwitchLayerNode: LayerNodeDefinition {
               layer: Self.layer)
     }
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .isSwitchToggled,
         .position,
         .rotationX,
@@ -31,18 +31,13 @@ struct SwitchLayerNode: LayerNodeDefinition {
         .opacity,
         .anchoring,
         .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

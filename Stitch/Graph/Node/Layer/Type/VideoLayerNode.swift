@@ -15,7 +15,7 @@ let defaultMediaFitStyle = VisualMediaFitStyle.fill
 struct VideoLayerNode: LayerNodeDefinition {
     static let layer = Layer.video
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .video,
         .position,
         .rotationX,
@@ -28,15 +28,10 @@ struct VideoLayerNode: LayerNodeDefinition {
         .anchoring,
         .zIndex,
         .clipped,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .masks
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

@@ -20,7 +20,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
               layer: Self.layer)
     }
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .placeholderText,
         .color,
         .position,
@@ -37,20 +37,15 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .verticalAlignment,
         .textDecoration,
         .textFont,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .pivot,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
