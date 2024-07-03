@@ -8,9 +8,12 @@
 import Foundation
 import StitchSchemaKit
 
-struct FieldCoordinate<PortData: PortViewData>: Hashable {
-    // the input where this field belongs
-    let portData: PortData
+struct FieldCoordinate: Hashable {
+    // the input index where this field belongs
+    var portId: Int
+    
+    // the canvas item where this resides
+    var canvasId: CanvasItemId
 
     // the particular field in the
     // 0 for single-field inputs

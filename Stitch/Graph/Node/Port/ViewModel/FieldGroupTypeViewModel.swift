@@ -51,10 +51,8 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
         }
     }
 
-    var id: FieldCoordinate<FieldType.PortId> {
-        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1,
-                                                            canvasId: .node(.init())),
-                                               fieldIndex: -1)
+    var id: FieldCoordinate {
+        self.fieldObservers.first?.id ?? .fakeFieldCoordinate
     }
 }
 

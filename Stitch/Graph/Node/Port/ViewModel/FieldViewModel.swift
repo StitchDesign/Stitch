@@ -12,7 +12,7 @@ typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
 protocol FieldViewModel: AnyObject, Observable, Identifiable {
-    associatedtype PortId = PortViewData
+    associatedtype PortId: PortViewData
     
     var fieldValue: FieldValue { get set }
 
@@ -65,9 +65,12 @@ final class OutputFieldViewModel: FieldViewModel {
     }
 }
 
-extension InputFieldViewModel {
-    var id: FieldCoordinate { .init(input: self.coordinate,
-                                    fieldIndex: self.fieldIndex) }
+extension FieldViewModel {
+    var id: FieldCoordinate {
+        .init(portId: self.coordinate.portId,
+              canvasId: self.coordinate.canvasId,
+              fieldIndex: self.fieldIndex)
+    }
 }
 
 extension Array where Element: FieldViewModel {
