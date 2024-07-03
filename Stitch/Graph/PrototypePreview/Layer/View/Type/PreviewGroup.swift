@@ -112,9 +112,7 @@ struct PreviewGroupLayer: View {
                 size: size,
                 parentSize: parentSize,
                 frameAlignment: anchoring.toAlignment))
-        // No longer used?
-                // useParentSizeForAnchoring: useParentSizeForAnchoring))
-                
+
             .background(backgroundColor)
         
         //            // DEBUG ONLY

@@ -77,21 +77,13 @@ struct PreviewCommonModifier: ViewModifier {
                     aspectRatio: aspectRatio,
                     constraint: constraint,
                     size: size,
-//                    width: width,
                     minWidth: minWidth,
                     maxWidth: maxWidth,
-//                    height: height,
                     minHeight: minHeight,
                     maxHeight: maxHeight,
                     parentSize: parentSize,
                     frameAlignment: frameAlignment))
         
-//            .modifier(PreviewCommonSizeModifier(
-//                viewModel: layerViewModel,
-//                size: size,
-//                parentSize: parentSize,
-//                frameAlignment: frameAlignment))
-                    
             // Only for MapLayer, specifically for thumbnail-creation edge case
             .modifier(ClippedModifier(
                 isClipped: clipForMapLayerProjetThumbnailCreation,

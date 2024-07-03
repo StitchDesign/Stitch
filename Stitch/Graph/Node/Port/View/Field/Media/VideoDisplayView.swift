@@ -62,11 +62,6 @@ struct VideoDisplayView: View {
             viewModel: layerViewModel,
             size: size,
             parentSize: parentSize,
-//            frameAlignment: nil
-            frameAlignment: .center
-        ))
-        //            .frame(width: size.width,
-        //                   height: size.height)
-
+            frameAlignment: .center))
     }
 }
