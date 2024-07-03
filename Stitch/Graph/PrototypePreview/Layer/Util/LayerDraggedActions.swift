@@ -38,7 +38,7 @@ extension GraphState {
 
         let mouseNodeIds: NodeIdSet = self.mouseNodes
         
-        // Set chld and parent size of interactive layer--scroll interaction uses this
+        // Set child and parent size of interactive layer--scroll interaction uses this
         interactiveLayer.childSize = childSize
         interactiveLayer.parentSize = parentSize
 

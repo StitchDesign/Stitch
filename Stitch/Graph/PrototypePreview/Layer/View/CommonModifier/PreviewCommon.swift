@@ -19,9 +19,27 @@ struct PreviewCommonModifier: ViewModifier {
     let rotationY: CGFloat
     let rotationZ: CGFloat
     
+    let aspectRatio: AspectRatioData? = nil
+    let constraint: LengthDimension? = nil
+    
     // should receive LayerSize, so can use `nil` for a .frame dimension when we have LayerDimension.fill/grow
     let size: LayerSize
     
+    // TODO: can be `nil` if we're using min/max width etc.
+//    var width: LayerDimension {
+//        size.width
+//    }
+    
+    let minWidth: NumericalLayerDimension? = nil
+    let maxWidth: NumericalLayerDimension? = nil
+
+//    var height: LayerDimension {
+//        size.height
+//    }
+    
+    let minHeight: NumericalLayerDimension? = nil
+    let maxHeight: NumericalLayerDimension? = nil
+        
     let scale: Double
     let anchoring: Anchoring
     let blurRadius: CGFloat
@@ -54,11 +72,25 @@ struct PreviewCommonModifier: ViewModifier {
     func body(content: Content) -> some View {
 
         content
-            .modifier(PreviewCommonSizeModifier(
-                viewModel: layerViewModel,
-                size: size,
-                parentSize: parentSize,
-                frameAlignment: frameAlignment))
+            .modifier(PreviewCommonSizeModifier2(
+                    viewModel: layerViewModel,
+                    aspectRatio: aspectRatio,
+                    constraint: constraint,
+                    size: size,
+//                    width: width,
+                    minWidth: minWidth,
+                    maxWidth: maxWidth,
+//                    height: height,
+                    minHeight: minHeight,
+                    maxHeight: maxHeight,
+                    parentSize: parentSize,
+                    frameAlignment: frameAlignment))
+        
+//            .modifier(PreviewCommonSizeModifier(
+//                viewModel: layerViewModel,
+//                size: size,
+//                parentSize: parentSize,
+//                frameAlignment: frameAlignment))
                     
             // Only for MapLayer, specifically for thumbnail-creation edge case
             .modifier(ClippedModifier(

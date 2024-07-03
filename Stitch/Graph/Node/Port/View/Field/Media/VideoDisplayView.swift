@@ -58,11 +58,13 @@ struct VideoDisplayView: View {
             }
         }
         .opacity(opacity)
-        .modifier(PreviewCommonSizeModifier(
+        .modifier(PreviewCommonSizeModifier2(
             viewModel: layerViewModel,
             size: size,
             parentSize: parentSize,
-            frameAlignment: nil))
+//            frameAlignment: nil
+            frameAlignment: .center
+        ))
         //            .frame(width: size.width,
         //                   height: size.height)
 

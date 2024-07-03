@@ -7,10 +7,8 @@
 
 import Foundation
 
-// TODO: create PortValue.dimension
+// TODO: create PortValue.lengthDimension(LengthDimension)
 // TODO: isn't there some similar enum we had somewhere?
 enum LengthDimension: Equatable, Codable, Hashable {
     case width, height
 }
-
-typealias ConstrainedDimension = LengthDimension
