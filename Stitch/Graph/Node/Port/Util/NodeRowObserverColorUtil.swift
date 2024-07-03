@@ -31,7 +31,7 @@ extension PortColor {
     }
 }
 
-extension NodeRowObserver {
+extension NodeRowViewModel {
     // TODO: don't we have an abstract helper here for ANY property?
     // e.g. `self.portColor.setOnChange(newPortColor)`
     func setPortColorIfChanged(_ newPortColor: PortColor) {
@@ -76,20 +76,6 @@ func updatePortColorDataUponNodeSelection(inputs: NodeRowObservers,
 }
 
 @MainActor
-func updateInputColor(input: NodeRowObserver,
-                      graphState: GraphDelegate) {
-    
-    let newInputColor = getInputColor(
-        isNodeSelected: input.getIsNodeSelectedForPortColor(),
-        hasEdge: input.hasEdge,
-        hasLoop: input.hasLoopedValues,
-        isConnectedToASelectedNode: input.getIsConnectedToASelectedNode(),
-        isEdgeSelected: graphState.hasSelectedEdge(at: input))
-    
-    input.setPortColorIfChanged(newInputColor)
-}
-
-@MainActor
 func updateColorOfInputAndUpstreamOutput(input: NodeRowObserver,
                                          // Note: can use the more restricted type `GraphDelegate` instead of gigantic `GraphState`
                                          graphState: GraphDelegate) {
@@ -101,22 +87,6 @@ func updateColorOfInputAndUpstreamOutput(input: NodeRowObserver,
         updateOutputColor(output: output, 
                           graphState: graphState)
     }
-}
-
-@MainActor
-func updateOutputColor(output: NodeRowObserver,
-                       graphState: GraphDelegate) {
-    
-    let newOutputColor = getOutputColor(
-        outputId: output.id,
-        isNodeSelected: output.getIsNodeSelectedForPortColor(),
-        hasEdge: output.hasEdge,
-        hasLoop: output.hasLoopedValues,
-        isConnectedToASelectedNode: output.getIsConnectedToASelectedNode(),
-        isEdgeSelected: graphState.hasSelectedEdge(at: output),
-        drawingObserver: graphState.edgeDrawingObserver)
-    
-    output.setPortColorIfChanged(newOutputColor)
 }
 
 @MainActor

@@ -25,11 +25,15 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var connectedCanvasItems: Set<CanvasItemId> { get set }
     
+    var portColor: PortColor { get set }
+    
     var rowDelegate: NodeRowObserver? { get set }
     
     static var nodeIO: NodeIO { get }
     
     @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
+    
+    @MainActor func updatePortColor()
 }
 
 extension NodeRowViewModel {
@@ -101,6 +105,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
+    var portColor: PortColor = .noEdge
     weak var rowDelegate: NodeRowObserver?
     
     @MainActor
@@ -139,6 +144,17 @@ final class InputNodeRowViewModel: NodeRowViewModel {
             }
             .toSet
     }
+    
+    func updatePortColor() {
+        let newInputColor = getInputColor(
+            isNodeSelected: input.getIsNodeSelectedForPortColor(),
+            hasEdge: input.hasEdge,
+            hasLoop: input.hasLoopedValues,
+            isConnectedToASelectedNode: input.getIsConnectedToASelectedNode(),
+            isEdgeSelected: graphState.hasSelectedEdge(at: input))
+        
+        input.setPortColorIfChanged(newInputColor)
+    }
 }
 
 final class OutputNodeRowViewModel: NodeRowViewModel {
@@ -149,6 +165,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
+    var portColor: PortColor = .noEdge
     weak var rowDelegate: NodeRowObserver?
     
     @MainActor
@@ -195,6 +212,19 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
             }
         }
         .toSet
+    }
+    
+    func updatePortColor() {
+        let newOutputColor = getOutputColor(
+            outputId: output.id,
+            isNodeSelected: output.getIsNodeSelectedForPortColor(),
+            hasEdge: output.hasEdge,
+            hasLoop: output.hasLoopedValues,
+            isConnectedToASelectedNode: output.getIsConnectedToASelectedNode(),
+            isEdgeSelected: graphState.hasSelectedEdge(at: output),
+            drawingObserver: graphState.edgeDrawingObserver)
+        
+        output.setPortColorIfChanged(newOutputColor)
     }
 }
 

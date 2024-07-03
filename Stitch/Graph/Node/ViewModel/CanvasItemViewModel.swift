@@ -212,6 +212,10 @@ extension CanvasItemViewModel {
         }
     }
     
+//    @MainActor var allRowViewModels: [any NodeRowViewModel] {
+//        self.inputViewModels + self.outputViewModels
+//    }
+    
     // @MainActor
     // static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(
     //     id: fakeCanvasItemIdForLayerInputOnGraph,

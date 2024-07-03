@@ -129,27 +129,22 @@ extension NodeRowViewModel {
        return canvasIds.union(self.retrieveConnectedCanvasItems())
    }
    
-   var hasEdge: Bool {
-       self.upstreamOutputCoordinate.isDefined ||
-           self.containsDownstreamConnection
-   }
-   
-   @MainActor
-   func updatePortColor() {
-       guard let graph = self.nodeDelegate?.graphDelegate,
-             let portViewType = self.portViewType else {
-           // log("updatePortColor: did not have graph delegate and/or portViewType; will default to noEdge")
-           self.setPortColorIfChanged(.noEdge)
-           return
-       }
-       
-       switch portViewType {
-       case .output:
-           updateOutputColor(output: self, graphState: graph)
-       case .input:
-           updateInputColor(input: self, graphState: graph)
-       }
-   }
+//   @MainActor
+//   func updatePortColor() {
+//       guard let graph = self.rowDelegate?.nodeDelegate?.graphDelegate,
+//             let portViewType = self.portViewType else {
+//           // log("updatePortColor: did not have graph delegate and/or portViewType; will default to noEdge")
+//           self.setPortColorIfChanged(.noEdge)
+//           return
+//       }
+//       
+//       switch portViewType {
+//       case .output:
+//           updateOutputColor(output: self, graphState: graph)
+//       case .input:
+//           updateInputColor(input: self, graphState: graph)
+//       }
+//   }
     
 //   // Tracked by subscriber to know when a new view model should be created
 //   private func getNodeRowType(activeIndex: ActiveIndex) -> NodeRowType {

@@ -102,9 +102,6 @@ final class NodeRowObserver: Identifiable, Sendable {
 
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
-    
-    // Cached for perf
-    var portColor: PortColor = .noEdge
 
     @MainActor
     convenience init(from schema: NodePortInputEntity,

@@ -91,7 +91,34 @@ extension NodeRowObserver {
                                        newValues: newValues)
         
         // Update visual color data
-        self.updatePortColor()
+        self.allInputRowViewModels.forEach {
+            $0.updatePortColor()
+        }
+        
+        self.allOutputRowViewModels.forEach {
+            $0.updatePortColor()
+        }
+    }
+    
+    @MainActor
+    var allInputRowViewModels: [InputNodeRowViewModel] {
+        self.nodeDelegate?.getAllCanvasObservers()
+            .flatMap { canvasItem in
+                canvasItem.inputViewModels
+            } ?? []
+    }
+    
+    @MainActor
+    var allOutputRowViewModels: [OutputNodeRowViewModel] {
+        self.nodeDelegate?.getAllCanvasObservers()
+            .flatMap { canvasItem in
+                canvasItem.outputViewModels
+            } ?? []
+    }
+    
+    var hasEdge: Bool {
+        self.upstreamOutputCoordinate.isDefined ||
+            self.containsDownstreamConnection
     }
     
     /// Updates layer selections for interaction patch nodes for perf.
