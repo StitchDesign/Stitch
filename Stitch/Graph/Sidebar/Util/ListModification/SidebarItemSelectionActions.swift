@@ -26,6 +26,8 @@ struct SidebarItemTapped: GraphEvent {
             state.sidebarSelectionState.nonEditModeSelections = .init([id])
         }
         
+        // Reset selected row in property sidebar when focused-layers changes
+        state.graphUI.propertySidebar.selectedProperty = nil
         
         // TODO: better: allow multiple selections via cmd+click, not single click
 //        if alreadySelected {

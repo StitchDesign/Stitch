@@ -78,7 +78,7 @@ extension GraphState {
             parentGroupNodeId: self.groupNodeFocused,
             nodeDelegate: node)
         
-        self.graphUI.propertySidebar.selectedProperties = nil
+        self.graphUI.propertySidebar.selectedProperty = nil
         
         self.maybeCreateLLMAddLayerInput(nodeId, coordinate)
     }
@@ -125,7 +125,7 @@ extension GraphState {
             parentGroupNodeId: self.groupNodeFocused,
             nodeDelegate: node)
         
-        self.graphUI.propertySidebar.selectedProperties = nil
+        self.graphUI.propertySidebar.selectedProperty = nil
         
         self.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
@@ -133,12 +133,12 @@ extension GraphState {
 
 extension GraphUIState {
     func layerPropertyTapped(_ property: LayerInspectorRowId) {
-        let alreadySelected = self.propertySidebar.selectedProperties == property
+        let alreadySelected = self.propertySidebar.selectedProperty == property
                 
         if alreadySelected {
-            self.propertySidebar.selectedProperties = nil
+            self.propertySidebar.selectedProperty = nil
         } else {
-            self.propertySidebar.selectedProperties = property
+            self.propertySidebar.selectedProperty = property
         }
     }
 }

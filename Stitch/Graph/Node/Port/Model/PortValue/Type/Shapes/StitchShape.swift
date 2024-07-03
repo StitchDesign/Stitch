@@ -18,7 +18,6 @@ struct StitchShape: View {
     let usesAbsoluteCoordinates: Bool
 
     // For outside-stroke on non-custom shapes
-    let position: StitchPosition // adjusted position
     let size: CGSize // non-scaled size
 
     var body: some View {
@@ -38,7 +37,6 @@ struct StitchShape: View {
                 .applyStrokeToShape(stroke,
                                     color,
                                     opacity,
-                                    position: position,
                                     size: size)
                 .eraseToAnyView()
 
@@ -47,7 +45,6 @@ struct StitchShape: View {
                 .applyStrokeToShape(stroke,
                                     color,
                                     opacity,
-                                    position: position,
                                     size: size)
                 .eraseToAnyView()
 

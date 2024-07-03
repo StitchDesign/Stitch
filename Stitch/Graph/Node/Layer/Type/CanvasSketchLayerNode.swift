@@ -21,7 +21,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
               layer: Self.layer)
     }
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .canvasLineColor,
         .canvasLineWidth,
         .position,
@@ -45,7 +45,8 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.strokeInputs)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

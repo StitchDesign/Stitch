@@ -36,7 +36,48 @@ let defaultTextSize = CGSize(width: 200, height: 75).toLayerSize
 struct TextLayerNode: LayerNodeDefinition {
     static let layer = Layer.text
     
-    static let inputDefinitions: LayerInputTypeSet = [
+//    static let inputDefinitions: LayerInputTypeSet = [
+//        .text,
+//        .color,
+//        .position,
+//        .rotationX,
+//        .rotationY,
+//        .rotationZ,
+//        .size,
+//        .opacity,
+//        .scale,
+//        .anchoring,
+//        .zIndex,
+//        .fontSize,
+//        .textAlignment,
+//        .verticalAlignment,
+//        .textDecoration,
+//        .textFont,
+//        
+//            .strokePosition,
+//        .strokeWidth,
+//        .strokeColor,
+//        .strokeStart,
+//        .strokeEnd,
+//        .strokeLineCap,
+//        .strokeLineJoin,
+//        
+//        .blurRadius,
+//        .blendMode,
+//        .brightness,
+//        .colorInvert,
+//        .contrast,
+//        .hueRotation,
+//        .saturation,
+//        .pivot,
+//        .masks,
+//        .shadowColor,
+//        .shadowOpacity,
+//        .shadowRadius,
+//        .shadowOffset
+//    ]
+    
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .text,
         .color,
         .position,
@@ -53,20 +94,34 @@ struct TextLayerNode: LayerNodeDefinition {
         .verticalAlignment,
         .textDecoration,
         .textFont,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
+//        
+//            .strokePosition,
+//        .strokeWidth,
+//        .strokeColor,
+//        .strokeStart,
+//        .strokeEnd,
+//        .strokeLineCap,
+//        .strokeLineJoin,
+        
+//        .blurRadius,
+//        .blendMode,
+//        .brightness,
+//        .colorInvert,
+//        .contrast,
+//        .hueRotation,
+//        .saturation,
+        
         .pivot,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+    .union(.layerEffects)
+    .union(.strokeInputs)
+    
+    
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
@@ -87,11 +142,15 @@ struct TextLayerNode: LayerNodeDefinition {
             opacity: viewModel.opacity.getNumber ?? .zero,
             scale: viewModel.scale.getNumber ?? .zero,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
+            
             fontSize: viewModel.fontSize.getLayerDimension ?? .DEFAULT_FONT_SIZE,
             textAlignment: viewModel.textAlignment.getLayerTextAlignment ?? DEFAULT_TEXT_ALIGNMENT,
             verticalAlignment: viewModel.verticalAlignment.getLayerTextVerticalAlignment ?? DEFAULT_TEXT_VERTICAL_ALIGNMENT,
             textDecoration: viewModel.textDecoration.getTextDecoration ?? .defaultLayerTextDecoration,
             textFont: viewModel.textFont.getTextFont ?? .defaultStitchFont,
+            
+//            stroke: viewModel.getLayerStrokeData(),
+            
             blurRadius: viewModel.blurRadius.getNumber ?? .zero,
             blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,
             brightness: viewModel.brightness.getNumber ?? .defaultBrightnessForLayerEffect,

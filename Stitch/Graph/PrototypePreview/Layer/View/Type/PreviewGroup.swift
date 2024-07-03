@@ -70,6 +70,8 @@ struct PreviewGroupLayer: View {
     
     let gridData: PreviewGridData?
     
+    let stroke: LayerStrokeData
+    
     var debugBorderColor: Color {
         #if DEV_DEBUG
         return .red
@@ -133,6 +135,9 @@ struct PreviewGroupLayer: View {
         // so that it's affected by the offset/position modifier
             .modifier(ClippedModifier(isClipped: isClipped,
                                      cornerRadius: cornerRadius))
+        
+        // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
+            .modifier(ApplyStroke(stroke: stroke))
 
             .opacity(opacity) // opacity on group and all its contents
         

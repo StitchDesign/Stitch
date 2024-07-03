@@ -162,7 +162,7 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs) { layerInput in
                 if inputsList.contains(layerInput) {
                     LayerInspectorPortView(
-                        layerProperty: .layerInput(layerInput),
+                        layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
                         rowObserver: layerNode[keyPath: layerInput.layerNodeKeyPath],
                         node: node,
                         layerNode: layerNode,
@@ -185,9 +185,10 @@ struct LayerInspectorInputsSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
-                    layerInputs.forEach {
-                        if graph.graphUI.propertySidebar.selectedProperties == .layerInput($0) {
-                            graph.graphUI.propertySidebar.selectedProperties = nil
+                    layerInputs.forEach { layerInput in
+                        if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
+                           x.keyPath == layerInput {
+                            graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
                 }

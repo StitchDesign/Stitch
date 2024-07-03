@@ -9,12 +9,58 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+// Always applied BEFORE .frame and .position
+struct ApplyStroke: ViewModifier {
+    
+    let stroke: LayerStrokeData
+    
+    // When used with a non-shape layer, will be a Rectangle
+//    let shape: InsettableShape
+    
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        
+        switch stroke.stroke {
+                        
+        case .none:
+            content //.overlay { } // no change
+            
+        case .inside, .outside:
+            
+            let strokeWidth = stroke.width
+            let strokeStart = stroke.strokeStart
+            let strokeEnd = stroke.strokeEnd
+            
+//            let strokedShape = shape
+            let strokedShape = Rectangle()
+                // applying .trim to filled-shape would affect the shape itself
+                .trim(from: strokeStart, to: strokeEnd)
+                .fill(.clear)
+                .stroke(stroke.color,
+                        style: .init(lineWidth: strokeWidth,
+                                     lineCap: stroke.strokeLineCap.toCGLineCap,
+                                     lineJoin: stroke.strokeLineJoin.toCGLineJoin))
+            
+            // Using padding means we don't need to know the size of the view receiving the `.stroke`.
+            // negative padding = moves stroke completely outside
+            // positive padding = moves stroke completely inside
+            let strokeWidthPadding = stroke.stroke == .outside ? -strokeWidth : strokeWidth
+            
+            content.overlay {
+                strokedShape.padding(strokeWidthPadding/2)
+            }
+        }
+    }
+}
+
+
+
+
 extension InsettableShape {
     // Note: SwiftUI cannot combine `.strokeBorder` with `.fill` or `.trim`; so we prefer `.stroke` instead
     func applyStrokeToShape(_ stroke: LayerStrokeData,
                             _ color: Color,
                             _ opacity: Double,
-                            position: StitchPosition,
                             size: CGSize) -> AnyView {
 
         let shape = self

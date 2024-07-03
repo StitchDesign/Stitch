@@ -47,42 +47,48 @@ let DEFAULT_GROUP_PADDING: CGFloat = 0
 let DEFAULT_GROUP_BACKGROUND_COLOR: Color = .clear
 
 struct GroupLayerNode: LayerNodeDefinition {
-    static var layer = Layer.group
+    static let layer = Layer.group
     
-    static var inputDefinitions: LayerInputTypeSet {
-        [
-            .position,
-            .size,
-            .zIndex,
-            .isClipped,
-            .scale,
-            .anchoring,
-            .rotationX,
-            .rotationY,
-            .rotationZ,
-            .opacity,
-            .pivot,
-            .orientation,
-            .padding,
-            .cornerRadius,
+    static let inputDefinitions: LayerInputTypeSet = .init([
+        .position,
+        .size,
+        .zIndex,
+        .isClipped,
+        .scale,
+        .anchoring,
+        .rotationX,
+        .rotationY,
+        .rotationZ,
+        .opacity,
+        .pivot,
+        .orientation,
+        .padding,
+        .cornerRadius,
+        //            .strokePosition,
+        //            .strokeWidth,
+        //            .strokeColor,
+        //            .strokeStart,
+        //            .strokeEnd,
+        //            .strokeLineCap,
+        //            .strokeLineJoin,
             .blur,
-            .blendMode,
-            .backgroundColor,
-            .brightness,
-            .colorInvert,
-            .contrast,
-            .hueRotation,
-            .saturation,
-            .masks,
-            .shadowColor,
-            .shadowOpacity,
-            .shadowRadius,
-            .shadowOffset,
-            .spacingBetweenGridColumns,
-            .spacingBetweenGridRows,
-            .itemAlignmentWithinGridCell
-        ]
-    }
+        .blendMode,
+        .backgroundColor,
+        .brightness,
+        .colorInvert,
+        .contrast,
+        .hueRotation,
+        .saturation,
+        .masks,
+        .shadowColor,
+        .shadowOpacity,
+        .shadowRadius,
+        .shadowOffset,
+        .spacingBetweenGridColumns,
+        .spacingBetweenGridRows,
+        .itemAlignmentWithinGridCell
+    ])
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
@@ -120,7 +126,8 @@ struct GroupLayerNode: LayerNodeDefinition {
             contrast: viewModel.contrast.getNumber ?? .defaultContrastForLayerEffect,
             hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
             saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
-            gridData: viewModel.getGridData)
+            gridData: viewModel.getGridData,
+            stroke: viewModel.getLayerStrokeData())
     }
 }
 

@@ -57,13 +57,13 @@ struct PreviewCommonModifier: ViewModifier {
                 size: size,
                 parentSize: parentSize,
                 frameAlignment: frameAlignment))
-            
-            // Only for MapLayer
+                    
+            // Only for MapLayer, specifically for thumbnail-creation edge case
             .modifier(ClippedModifier(
                 isClipped: clipForMapLayerProjetThumbnailCreation,
                 // no clipping for map
                 cornerRadius: .zero))
-        
+
             .modifier(PreviewCommonModifierWithoutFrame(
                 graph: graph,
                 layerViewModel: layerViewModel,

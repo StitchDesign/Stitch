@@ -17,19 +17,13 @@ struct ColorFillLayerNode: LayerNodeDefinition {
 
     static let layer = Layer.colorFill
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .color,
         .opacity,
-        .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation
-    ]
+        .zIndex
+    ])
+        .union(.layerEffects)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

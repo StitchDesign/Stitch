@@ -64,6 +64,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
         return content
         
+            .modifier(ApplyStroke(stroke: layerViewModel.getLayerStrokeData()))
+        
             .modifier(PreviewLayerEffectsModifier(
                 blurRadius: blurRadius,
                 blendMode: blendMode,

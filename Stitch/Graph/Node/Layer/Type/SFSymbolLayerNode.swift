@@ -13,7 +13,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.sfSymbol
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .sfSymbol,
         .color,
         .position,
@@ -26,26 +26,28 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .strokePosition,
-        .strokeWidth,
-        .strokeColor,
-        .strokeStart,
-        .strokeEnd,
-        .cornerRadius,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
+//        .strokePosition,
+//        .strokeWidth,
+//        .strokeColor,
+//        .strokeStart,
+//        .strokeEnd,
+        .cornerRadius, // not used?
+//        .blurRadius,
+//        .blendMode,
+//        .brightness,
+//        .colorInvert,
+//        .contrast,
+//        .hueRotation,
+//        .saturation,
         .pivot,
         .masks,
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
         .shadowOffset
-    ]
+    ])
+        .union(.layerEffects)
+        .union(.strokeInputs)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

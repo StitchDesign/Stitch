@@ -177,8 +177,8 @@ struct PreviewShapeLayer: View {
             layerNodeSize: layerNodeSize,
             previewShapeKind: previewShapeKind,
             usesAbsoluteCoordinates: usesAbsoluteCoordinates,
-            // needs to be the adjusted position
-            position: pos,
+//            // needs to be the adjusted position
+//            position: pos,
             // needs to be the unscaled size
             size: layerNodeSize)
     }
