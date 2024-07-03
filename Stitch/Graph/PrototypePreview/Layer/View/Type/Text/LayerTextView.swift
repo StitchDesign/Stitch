@@ -14,9 +14,8 @@ import StitchSchemaKit
 struct LayerTextView: View {
     let value: String
     let color: Color
+    let alignment: Alignment?
     let fontSize: LayerDimension
-    let textAlignment: LayerTextAlignment
-    let verticalAlignment: LayerTextVerticalAlignment
     let textDecoration: LayerTextDecoration
     let textFont: StitchFont
 
@@ -29,8 +28,7 @@ struct LayerTextView: View {
     }
     
     var body: some View {
-        if getSwiftUIAlignment(textAlignment,
-                               verticalAlignment).isDefined {
+        if alignment.isDefined {
             Text(value)
                 .modifier(StitchFontModifier(fontSize: fontSize,
                                              fontDesign: fontDesign,

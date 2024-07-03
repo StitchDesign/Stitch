@@ -111,9 +111,8 @@ struct PreviewGroupLayer: View {
                 viewModel: layerViewModel,
                 size: size,
                 parentSize: parentSize,
-                frameAlignment: anchoring.toAlignment,
-                useParentSizeForAnchoring: useParentSizeForAnchoring))
-                
+                frameAlignment: anchoring.toAlignment))
+
             .background(backgroundColor)
         
         //            // DEBUG ONLY

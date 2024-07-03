@@ -43,6 +43,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     
     var isForShapeLayer: Bool = false
     
+    // TODO: can you just use the layerViewModel.readSize ?
     var sizeForAnchoringAndGestures: CGSize {
         size.asCGSize(parentSize)
     }
@@ -58,8 +59,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     
     var pos: StitchPosition {
         adjustPosition(
-//            size: size, // does not need to be scaled when using `anchor:` in `.scaleEffect`
-            //            size: size.asCGSize(parentSize),
             size: layerViewModel.readSize,
             position: position,
             anchor: anchoring,

@@ -145,20 +145,6 @@ extension LayerDimension {
         self == .fill
     }
     
-    func asFrameDimension(_ parentLength: CGFloat) -> CGFloat? {
-        switch self {
-            // fill or hug = no set value along this dimension
-        case .fill, .hug,
-            // auto on shapes = fill
-            // auto on text, textfield = hug
-            // auto on media = see either image or video display views
-                .auto:
-            return nil
-        case .number, .parentPercent:
-            return self.asCGFloat(parentLength)
-        }
-    }
-
     // Adjustment bar expects parent-percentage of e.g. "50%" to be 50, not 0.5
     var asAdjustmentbarNumber: Double {
         switch self {

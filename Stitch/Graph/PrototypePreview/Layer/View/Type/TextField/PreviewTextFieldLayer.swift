@@ -66,9 +66,9 @@ struct PreviewTextFieldLayer: View {
         if graph.isGeneratingProjectThumbnail {
             LayerTextView(value: viewModel.textFieldInput,
                           color: color,
+                          alignment: getSwiftUIAlignment(textAlignment,
+                                                         verticalAlignment),
                           fontSize: fontSize,
-                          textAlignment: textAlignment,
-                          verticalAlignment: verticalAlignment,
                           textDecoration: textDecoration,
                           textFont: textFont)
             .opacity(opacity)

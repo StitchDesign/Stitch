@@ -19,9 +19,27 @@ struct PreviewCommonModifier: ViewModifier {
     let rotationY: CGFloat
     let rotationZ: CGFloat
     
+    let aspectRatio: AspectRatioData? = nil
+    let constraint: LengthDimension? = nil
+    
     // should receive LayerSize, so can use `nil` for a .frame dimension when we have LayerDimension.fill/grow
     let size: LayerSize
     
+    // TODO: can be `nil` if we're using min/max width etc.
+//    var width: LayerDimension {
+//        size.width
+//    }
+    
+    let minWidth: NumericalLayerDimension? = nil
+    let maxWidth: NumericalLayerDimension? = nil
+
+//    var height: LayerDimension {
+//        size.height
+//    }
+    
+    let minHeight: NumericalLayerDimension? = nil
+    let maxHeight: NumericalLayerDimension? = nil
+        
     let scale: Double
     let anchoring: Anchoring
     let blurRadius: CGFloat
@@ -55,11 +73,17 @@ struct PreviewCommonModifier: ViewModifier {
 
         content
             .modifier(PreviewCommonSizeModifier(
-                viewModel: layerViewModel,
-                size: size,
-                parentSize: parentSize,
-                frameAlignment: frameAlignment))
-                    
+                    viewModel: layerViewModel,
+                    aspectRatio: aspectRatio,
+                    constraint: constraint,
+                    size: size,
+                    minWidth: minWidth,
+                    maxWidth: maxWidth,
+                    minHeight: minHeight,
+                    maxHeight: maxHeight,
+                    parentSize: parentSize,
+                    frameAlignment: frameAlignment))
+        
             // Only for MapLayer, specifically for thumbnail-creation edge case
             .modifier(ClippedModifier(
                 isClipped: clipForMapLayerProjetThumbnailCreation,

@@ -112,7 +112,6 @@
 		B55500DD2C1BA9E40081C3F1 /* PreviewTextFieldLayerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500DC2C1BA9E40081C3F1 /* PreviewTextFieldLayerUtils.swift */; };
 		B55500E02C1BAA440081C3F1 /* LayerTextUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500DF2C1BAA440081C3F1 /* LayerTextUtils.swift */; };
 		B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500E12C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift */; };
-		B55500E52C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500E42C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift */; };
 		B55500E72C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500E62C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift */; };
 		B55500E92C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500E82C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift */; };
 		B55500EB2C1BAD0E0081C3F1 /* ColorInvertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */; };
@@ -733,6 +732,12 @@
 		ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */; };
 		ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26D2963B10F007E35D1 /* CustomShape.swift */; };
 		ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */; };
+		ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */; };
+		ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3652C35E09400E94D60 /* LengthDimension.swift */; };
+		ECCFB3682C35E0FD00E94D60 /* AspectRatioData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */; };
+		ECCFB36A2C35E14000E94D60 /* PreviewAspectRatioModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3692C35E14000E94D60 /* PreviewAspectRatioModifier.swift */; };
+		ECCFB36C2C35E16300E94D60 /* PreviewLayerSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB36B2C35E16300E94D60 /* PreviewLayerSizeModifier.swift */; };
+		ECCFB36E2C35E18800E94D60 /* PreviewCommonSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */; };
 		ECD039252641F28E003926B4 /* GroupLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD039242641F28E003926B4 /* GroupLayerNode.swift */; };
 		ECD039272641F3C9003926B4 /* PreviewGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD039262641F3C9003926B4 /* PreviewGroup.swift */; };
 		ECD0E1A028D3697D00133045 /* Base64StringToImagePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD0E19F28D3697D00133045 /* Base64StringToImagePatchNode.swift */; };
@@ -992,7 +997,6 @@
 		B55500DC2C1BA9E40081C3F1 /* PreviewTextFieldLayerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewTextFieldLayerUtils.swift; sourceTree = "<group>"; };
 		B55500DF2C1BAA440081C3F1 /* LayerTextUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerTextUtils.swift; sourceTree = "<group>"; };
 		B55500E12C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewSidebarHighlightModifier.swift; sourceTree = "<group>"; };
-		B55500E42C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonSizeModifier.swift; sourceTree = "<group>"; };
 		B55500E62C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonPositionModifier.swift; sourceTree = "<group>"; };
 		B55500E82C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonModifierWithoutFrame.swift; sourceTree = "<group>"; };
 		B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorInvertModifier.swift; sourceTree = "<group>"; };
@@ -1623,6 +1627,12 @@
 		ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangleData.swift; sourceTree = "<group>"; };
 		ECCEB26D2963B10F007E35D1 /* CustomShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomShape.swift; sourceTree = "<group>"; };
 		ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadFloatingWindowHandleView.swift; sourceTree = "<group>"; };
+		ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericalLayerDimension.swift; sourceTree = "<group>"; };
+		ECCFB3652C35E09400E94D60 /* LengthDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LengthDimension.swift; sourceTree = "<group>"; };
+		ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectRatioData.swift; sourceTree = "<group>"; };
+		ECCFB3692C35E14000E94D60 /* PreviewAspectRatioModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewAspectRatioModifier.swift; sourceTree = "<group>"; };
+		ECCFB36B2C35E16300E94D60 /* PreviewLayerSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewLayerSizeModifier.swift; sourceTree = "<group>"; };
+		ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonSizeModifier.swift; sourceTree = "<group>"; };
 		ECD039242641F28E003926B4 /* GroupLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupLayerNode.swift; sourceTree = "<group>"; };
 		ECD039262641F3C9003926B4 /* PreviewGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewGroup.swift; sourceTree = "<group>"; };
 		ECD0E19F28D3697D00133045 /* Base64StringToImagePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64StringToImagePatchNode.swift; sourceTree = "<group>"; };
@@ -2009,6 +2019,9 @@
 			children = (
 				ECE35EDB27CEDB3F00CB8F5C /* LayerSizeUtils.swift */,
 				ECE35EDD27CEDB7100CB8F5C /* LayerDimensionUtils.swift */,
+				ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */,
+				ECCFB3652C35E09400E94D60 /* LengthDimension.swift */,
+				ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */,
 			);
 			path = Layer;
 			sourceTree = "<group>";
@@ -2230,12 +2243,14 @@
 			isa = PBXGroup;
 			children = (
 				ECF01AEC264F2151003B5AF2 /* PreviewCommon.swift */,
-				B55500E42C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift */,
 				B55500E12C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift */,
 				B55500E62C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift */,
 				B55500E82C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift */,
 				B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */,
 				B55500EC2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift */,
+				ECCFB3692C35E14000E94D60 /* PreviewAspectRatioModifier.swift */,
+				ECCFB36B2C35E16300E94D60 /* PreviewLayerSizeModifier.swift */,
+				ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */,
 				EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */,
 				B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */,
 				ECEF8D0C2BFD4460004FABCD /* LayerSizeReader.swift */,
@@ -4474,7 +4489,6 @@
 				B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */,
 				ECDCE3562821EA5800D83EC3 /* PortValueDisplay.swift in Sources */,
 				EC1A357A2C25CE8100E5A6D8 /* LayerInspectorActions.swift in Sources */,
-				B55500E52C1BAC0F0081C3F1 /* PreviewCommonSizeModifier.swift in Sources */,
 				ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */,
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
 				B55500C02C1B9D890081C3F1 /* FieldGroupTypeViewModel.swift in Sources */,
@@ -4551,6 +4565,7 @@
 				ECDD303B27A882A200E91530 /* GlobalDispatch.swift in Sources */,
 				EC609DBC293530B700BF60A5 /* CollectionExtensionUtils.swift in Sources */,
 				ECC506E7267BB2CA00A2D015 /* VideoImportNode.swift in Sources */,
+				ECCFB36E2C35E18800E94D60 /* PreviewCommonSizeModifier.swift in Sources */,
 				EC560E09293A72B900350046 /* AnyPatchNode.swift in Sources */,
 				EC82540A287DE2E80020D943 /* LabelDisplayView.swift in Sources */,
 				EC560E13293A913D00350046 /* LoopRemoveNode.swift in Sources */,
@@ -4751,6 +4766,7 @@
 				ECB6EEA129317E50003D60C7 /* UserVisibleTypeSet.swift in Sources */,
 				204B24FF25B68C790041424F /* Constants.swift in Sources */,
 				ECA92A14260A69DC00281B52 /* DivideNode.swift in Sources */,
+				ECCFB36C2C35E16300E94D60 /* PreviewLayerSizeModifier.swift in Sources */,
 				EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */,
 				EC0F334E2BED9415008093BC /* StoreDelegate.swift in Sources */,
 				B55500F92C1BC2D20081C3F1 /* SidebarListItemSwipeMenu.swift in Sources */,
@@ -4867,9 +4883,11 @@
 				B5976C1D2980CBC00082BF14 /* StitchEntity.swift in Sources */,
 				ECB7C71E28A56C2200252DE7 /* ClassicAnimationPosition.swift in Sources */,
 				B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */,
+				ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */,
 				ECB1B7B426FB9DFF006D9C95 /* MediaLibrary.swift in Sources */,
 				B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */,
 				EC9C6F9B298C45EE00E05523 /* NodeTagMenuButtonsView.swift in Sources */,
+				ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */,
 				ECDE943428089FCE00005401 /* NodesView.swift in Sources */,
 				B55500CA2C1BA37D0081C3F1 /* PortViewData.swift in Sources */,
 				EC6D036628A6C227003CE9A8 /* LogState.swift in Sources */,
@@ -4884,6 +4902,7 @@
 				ECF0B0E828774FA7001D7CFC /* LessThanOrEqualNode.swift in Sources */,
 				EC733DC42639E24C00DD4EC1 /* LayerNodeViewModel.swift in Sources */,
 				ECDCE35C2821EAC700D83EC3 /* PortValueEdit.swift in Sources */,
+				ECCFB36A2C35E14000E94D60 /* PreviewAspectRatioModifier.swift in Sources */,
 				EC49148C29357DF400D74344 /* GreaterThanNode.swift in Sources */,
 				ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */,
 				2084200C25AD1C4F00E26728 /* LoopLengths.swift in Sources */,
@@ -4895,6 +4914,7 @@
 				20308FA125AD1721008CE3BE /* PreviewHelpers.swift in Sources */,
 				B55500F62C1BC2660081C3F1 /* SidebarListItemSwipeInnerView.swift in Sources */,
 				EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */,
+				ECCFB3682C35E0FD00E94D60 /* AspectRatioData.swift in Sources */,
 				EC40812B2C014EAC0047989F /* MediaDocumentEncodable.swift in Sources */,
 				EC80448E2944303B00DCFCF4 /* ShapeUtils.swift in Sources */,
 				EC1318C52B8801CF00F74E93 /* CoercerUtils.swift in Sources */,

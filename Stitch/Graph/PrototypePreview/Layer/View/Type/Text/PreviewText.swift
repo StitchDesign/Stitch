@@ -38,8 +38,6 @@ struct PreviewTextLayer: View {
     let textDecoration: LayerTextDecoration
     let textFont: StitchFont
     
-//    let stroke: LamyerStrokeData
-    
     let blurRadius: CGFloat
     let blendMode: StitchBlendMode
     let brightness: Double
@@ -59,18 +57,16 @@ struct PreviewTextLayer: View {
 
     var body: some View {
 
+        let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
+        
         let view = LayerTextView(value: text,
                                  color: color,
+                                 alignment: alignment,
                                  fontSize: fontSize,
-                                 textAlignment: textAlignment,
-                                 verticalAlignment: verticalAlignment,
                                  textDecoration: textDecoration,
                                  textFont: textFont)
-//            .modifier(ApplyStroke(stroke: stroke))
             .opacity(opacity)
             .padding()
-
-        let alignment = getSwiftUIAlignment(textAlignment, verticalAlignment)
 
         return view.modifier(PreviewCommonModifier(
             graph: graph,
