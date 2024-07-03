@@ -64,21 +64,8 @@ struct GroupLayerNode: LayerNodeDefinition {
         .orientation,
         .padding,
         .cornerRadius,
-        //            .strokePosition,
-        //            .strokeWidth,
-        //            .strokeColor,
-        //            .strokeStart,
-        //            .strokeEnd,
-        //            .strokeLineCap,
-        //            .strokeLineJoin,
-            .blur,
-        .blendMode,
         .backgroundColor,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
+        .blur,
         .masks,
         .shadowColor,
         .shadowOpacity,
@@ -88,6 +75,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         .spacingBetweenGridRows,
         .itemAlignmentWithinGridCell
     ])
+        .union(.layerEffects)
         .union(.strokeInputs)
     
     static func content(graph: GraphState,

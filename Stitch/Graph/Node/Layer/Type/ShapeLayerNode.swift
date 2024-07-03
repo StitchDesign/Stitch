@@ -30,6 +30,14 @@ extension LayerInputTypeSet {
         .hueRotation,
         .saturation
     ]
+    
+    static let typography: LayerInputTypeSet = [
+        .fontSize,
+        .textAlignment,
+        .verticalAlignment,
+        .textDecoration,
+        .textFont,
+    ]
 }
 
 extension StrokeLineCap: PortValueEnum {
@@ -135,19 +143,7 @@ struct ShapeLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-//        .strokePosition,
-//        .strokeWidth,
-//        .strokeColor,
-//        .strokeLineCap,
-//        .strokeLineJoin,
         .coordinateSystem,
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .colorInvert,
-//        .contrast,
-//        .hueRotation,
-//        .saturation,
         .pivot,
         .masks,
         .shadowColor,

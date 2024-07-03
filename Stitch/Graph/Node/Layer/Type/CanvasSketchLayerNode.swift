@@ -33,13 +33,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .blur,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
+        .blur, // .blur vs .blurRadius ?
         .masks,
         .shadowColor,
         .shadowOpacity,
@@ -47,6 +41,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .shadowOffset
     ])
         .union(.strokeInputs)
+        .union(.layerEffects)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

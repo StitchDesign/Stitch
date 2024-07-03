@@ -35,48 +35,7 @@ let defaultTextSize = CGSize(width: 200, height: 75).toLayerSize
 
 struct TextLayerNode: LayerNodeDefinition {
     static let layer = Layer.text
-    
-//    static let inputDefinitions: LayerInputTypeSet = [
-//        .text,
-//        .color,
-//        .position,
-//        .rotationX,
-//        .rotationY,
-//        .rotationZ,
-//        .size,
-//        .opacity,
-//        .scale,
-//        .anchoring,
-//        .zIndex,
-//        .fontSize,
-//        .textAlignment,
-//        .verticalAlignment,
-//        .textDecoration,
-//        .textFont,
-//        
-//            .strokePosition,
-//        .strokeWidth,
-//        .strokeColor,
-//        .strokeStart,
-//        .strokeEnd,
-//        .strokeLineCap,
-//        .strokeLineJoin,
-//        
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .colorInvert,
-//        .contrast,
-//        .hueRotation,
-//        .saturation,
-//        .pivot,
-//        .masks,
-//        .shadowColor,
-//        .shadowOpacity,
-//        .shadowRadius,
-//        .shadowOffset
-//    ]
-    
+
     static let inputDefinitions: LayerInputTypeSet = .init([
         .text,
         .color,
@@ -89,28 +48,6 @@ struct TextLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex,
-        .fontSize,
-        .textAlignment,
-        .verticalAlignment,
-        .textDecoration,
-        .textFont,
-//        
-//            .strokePosition,
-//        .strokeWidth,
-//        .strokeColor,
-//        .strokeStart,
-//        .strokeEnd,
-//        .strokeLineCap,
-//        .strokeLineJoin,
-        
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .colorInvert,
-//        .contrast,
-//        .hueRotation,
-//        .saturation,
-        
         .pivot,
         .masks,
         .shadowColor,
@@ -120,6 +57,7 @@ struct TextLayerNode: LayerNodeDefinition {
     ])
     .union(.layerEffects)
     .union(.strokeInputs)
+    .union(.typography)
     
     
     

@@ -28,20 +28,6 @@ struct VideoLayerNode: LayerNodeDefinition {
         .anchoring,
         .zIndex,
         .clipped,
-//        .strokePosition,
-//        .strokeWidth,
-//        .strokeColor,
-//        .strokeStart,
-//        .strokeEnd,
-//        .strokeLineCap,
-//        .strokeLineJoin,
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .colorInvert,
-//        .contrast,
-//        .hueRotation,
-//        .saturation,
         .masks
     ])
         .union(.layerEffects)

@@ -18,23 +18,18 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.linearGradient
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .opacity,
         .scale,
         .zIndex,
-        .blurRadius,
-        .blendMode,
-        .brightness,
-        .colorInvert,
-        .contrast,
-        .hueRotation,
-        .saturation,
         .startAnchor,
         .endAnchor,
         .startColor,
         .endColor
-    ]
+    ])
+        .union(.layerEffects)
+    
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

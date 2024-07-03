@@ -34,19 +34,6 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
         .scale,
         .anchoring,
         .zIndex
-//        .strokePosition,
-//        .strokeWidth,
-//        .strokeColor,
-//        .strokeStart,
-//        .strokeEnd,
-//        .strokeLineCap,
-//        .strokeLineJoin,
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .contrast,
-//        .hueRotation,
-//        .saturation
     ])
         .union(.layerEffects)
         .union(.strokeInputs)

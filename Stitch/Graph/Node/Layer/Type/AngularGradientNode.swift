@@ -25,14 +25,7 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
         .endAngle,
         .opacity,
         .scale,
-        .zIndex,
-//        .blurRadius,
-//        .blendMode,
-//        .brightness,
-//        .colorInvert,
-//        .contrast,
-//        .hueRotation,
-//        .saturation
+        .zIndex
     ])
         .union(.layerEffects)
     
