@@ -107,7 +107,7 @@ struct PreviewGroupLayer: View {
         
         // TODO: add "child alignment" input on Group Layer node? or find some other solution for how a group with an orientation can position children that have static sizes
         // TODO: don't need this if we're using the "hug" case in `LayerGroupPositionModifier` ?
-            .modifier(PreviewCommonSizeModifier2(
+            .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 size: size,
                 parentSize: parentSize,

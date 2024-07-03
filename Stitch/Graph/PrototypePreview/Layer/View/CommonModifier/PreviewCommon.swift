@@ -72,7 +72,7 @@ struct PreviewCommonModifier: ViewModifier {
     func body(content: Content) -> some View {
 
         content
-            .modifier(PreviewCommonSizeModifier2(
+            .modifier(PreviewCommonSizeModifier(
                     viewModel: layerViewModel,
                     aspectRatio: aspectRatio,
                     constraint: constraint,

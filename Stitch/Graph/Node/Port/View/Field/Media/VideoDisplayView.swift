@@ -58,7 +58,7 @@ struct VideoDisplayView: View {
             }
         }
         .opacity(opacity)
-        .modifier(PreviewCommonSizeModifier2(
+        .modifier(PreviewCommonSizeModifier(
             viewModel: layerViewModel,
             size: size,
             parentSize: parentSize,

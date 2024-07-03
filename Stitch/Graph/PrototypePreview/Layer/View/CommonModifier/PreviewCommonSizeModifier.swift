@@ -36,7 +36,7 @@ extension LayerDimension {
 
 // Receives a variety of properties (width, minWidth, constrainedWidth etc.)
 // and turns them into appropriate SwiftUI .frame and .aspectRatio API calls.
-struct PreviewCommonSizeModifier2: ViewModifier {
+struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
     
