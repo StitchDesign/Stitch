@@ -9,20 +9,13 @@ import Foundation
 import StitchSchemaKit
 
 // Note: used by number inputs etc. but not by JSON etc.
-struct InputEdited: ProjectEnvironmentEvent {
-
-    let fieldValue: FieldValue
-
-    // Single-fields always 0, multi-fields are like size or position inputs
-    let fieldIndex: Int
-
-    let coordinate: FieldCoordinate
-
-    var isCommitting: Bool = true
-
-    func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+extension GraphState {
+    @MainActor
+    func inputEdited(fieldValue: FieldValue,
+                     // Single-fields always 0, multi-fields are like size or position inputs
+                     fieldIndex: Int,
+                     inputField: InputFieldViewModel,
+                     isCommitting: Bool = true) {
 
         //        #if DEV_DEBUG
         //        log("InputEdited: fieldValue: \(fieldValue)")
@@ -30,28 +23,26 @@ struct InputEdited: ProjectEnvironmentEvent {
         //        log("InputEdited: coordinate: \(coordinate)")
         //        #endif
 
-        let coordinate = coordinate
+        let coordinate = inputField.coordinate
 
-        guard let nodeViewModel = graphState.getNodeViewModel(coordinate.nodeId),
-              let parentPortValuesList = nodeViewModel
-            .getInputRowObserver(for: coordinate.portType)?.allLoopedValues else {
+        guard let rowViewModel = inputField.rowViewModelDelegate,
+              let rowObserver = rowViewModel.rowDelegate,
+              let nodeId = rowViewModel.nodeDelegate?.id,
+              let nodeViewModel = self.getNodeViewModel(nodeId) else {
             log("InputEdited error: no parent values list found.")
-            return .noChange
+            return
         }
-
-        guard let nodeViewModel = graphState.getNodeViewModel(coordinate.nodeId),
-              let inputObserver = nodeViewModel
-            .getInputRowObserver(for: coordinate.portType) else {
-            log("InputEdited error: could not retrieve node schema for node \(coordinate.nodeId).")
-            return .noChange
-        }
-
-        let loopIndex = graphState.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
-
-        guard let parentPortValue = parentPortValuesList[safe: loopIndex] else {
-            log("InputEdited error: no parent value found.")
-            return .noChange
-        }
+//        
+//        let parentPortValuesList = rowObserver.allLoopedValues
+//
+//        let loopIndex = self.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
+//
+//        guard let parentPortValue = parentPortValuesList[safe: loopIndex] else {
+//            log("InputEdited error: no parent value found.")
+//            return .noChange
+//        }
+        
+        let parentPortValue = rowViewModel.activeValue
 
         //        log("InputEdited: state.graphUI.focusedField: \(state.graphUI.focusedField)")
 
@@ -65,21 +56,21 @@ struct InputEdited: ProjectEnvironmentEvent {
         if newValue != parentPortValue {
 
             // MARK: very important to remove edges before input changes
-            nodeViewModel.removeIncomingEdge(at: coordinate,
-                                             activeIndex: graphState.activeIndex)
+            nodeViewModel.removeIncomingEdge(at: rowObserver.id,
+                                             activeIndex: self.activeIndex)
 
-            inputObserver.setValuesInInput([newValue])
+            rowObserver.setValuesInInput([newValue])
         }
         
-        graphState.calculate(nodeViewModel.id)
+        self.calculate(nodeViewModel.id)
 
         if isCommitting {
-            graphState.maybeCreateLLMSetField(node: nodeViewModel,
-                                              input: coordinate,
+            self.maybeCreateLLMSetField(node: nodeViewModel,
+                                              input: rowObserver.id,
                                               fieldIndex: fieldIndex,
                                               value: newValue)
         }
         
-        return .init(willPersist: isCommitting)
+        self.encodeProjectInBackground()
     }
 }

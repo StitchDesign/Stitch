@@ -398,6 +398,7 @@ extension GraphState {
     var highestZIndex: Double {
         let zIndices = self.visibleNodesViewModel
             .nodes.values
+            .flatMap { $0.getAllCanvasObservers() }
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }

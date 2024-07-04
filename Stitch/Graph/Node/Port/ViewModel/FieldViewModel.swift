@@ -13,6 +13,7 @@ typealias OutputFieldViewModels = [OutputFieldViewModel]
 
 protocol FieldViewModel: AnyObject, Observable, Identifiable {
     associatedtype PortId: PortViewData
+    associatedtype NodeRowType: NodeRowViewModel
     
     var fieldValue: FieldValue { get set }
 
@@ -25,10 +26,13 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
     // eg "X" vs "Y" for .position parent-value
     var fieldLabel: String { get set }
     
+    var rowViewModelDelegate: NodeRowType? { get }
+    
     init(fieldValue: FieldValue,
          coordinate: PortId,
          fieldIndex: Int,
-         fieldLabel: String)
+         fieldLabel: String,
+         rowViewModelDelegate: NodeRowType)
 }
 
 final class InputFieldViewModel: FieldViewModel {
@@ -36,15 +40,18 @@ final class InputFieldViewModel: FieldViewModel {
     var coordinate: InputPortViewData
     var fieldIndex: Int
     var fieldLabel: String
+    weak var rowViewModelDelegate: InputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
          coordinate: InputPortViewData,
          fieldIndex: Int,
-         fieldLabel: String) {
+         fieldLabel: String,
+         rowViewModelDelegate: InputNodeRowViewModel) {
         self.fieldValue = fieldValue
         self.coordinate = coordinate
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
+        self.rowViewModelDelegate = rowViewModelDelegate
     }
 }
 
@@ -53,15 +60,18 @@ final class OutputFieldViewModel: FieldViewModel {
     var coordinate: OutputPortViewData
     var fieldIndex: Int
     var fieldLabel: String
+    weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
          coordinate: OutputPortViewData,
          fieldIndex: Int,
-         fieldLabel: String) {
+         fieldLabel: String,
+         rowViewModelDelegate: OutputNodeRowViewModel) {
         self.fieldValue = fieldValue
         self.coordinate = coordinate
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
+        self.rowViewModelDelegate = rowViewModelDelegate
     }
 }
 
@@ -76,7 +86,8 @@ extension FieldViewModel {
 extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
          coordinate: Element.PortId,
-         startingFieldIndex: Int) {
+         startingFieldIndex: Int,
+         rowViewModel: Element.NodeRowType) {
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues
 
@@ -86,7 +97,8 @@ extension Array where Element: FieldViewModel {
             return .init(fieldValue: fieldValue,
                          coordinate: coordinate,
                          fieldIndex: startingFieldIndex + index,
-                         fieldLabel: fieldLabel)
+                         fieldLabel: fieldLabel,
+                         rowViewModelDelegate: rowViewModel)
         }
     }
 }
