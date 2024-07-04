@@ -98,7 +98,7 @@ extension NodeRowViewModel {
     }
 }
 
-extension NodeRowViewModel {
+extension NodeRowObserver {
     // TODO: return nil if outputs were empty (e.g. prototype has just been restarted) ?
     static func getActiveValue(allLoopedValues: PortValues,
                                activeIndex: ActiveIndex) -> PortValue {

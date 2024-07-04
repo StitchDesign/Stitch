@@ -52,7 +52,9 @@ struct NodeInputOutputView<NodeRowType: NodeRowViewModel,
         .frame(height: NODE_ROW_HEIGHT)
         .onChange(of: self.graph.graphUI.activeIndex) {
             let oldViewValue = self.rowData.activeValue
-            let newViewValue = self.rowData.getActiveValue(activeIndex: self.graphUI.activeIndex)
+            let newViewValue = NodeRowObserver
+                .getActiveValue(allLoopedValues: self.rowObserver.allLoopedValues,
+                                activeIndex: self.graphUI.activeIndex)
             self.rowData.activeValueChanged(oldValue: oldViewValue,
                                             newValue: newViewValue)
         }
