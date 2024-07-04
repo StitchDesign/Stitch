@@ -293,6 +293,17 @@ extension NodeViewModel {
         }
     }
     
+    var patchCanvasItem: CanvasItemViewModel? {
+        switch nodeType {
+        case .patch(let patchNode):
+            return patchNode.canvasObserver
+        case .layer:
+            return nil
+        case .group(let canvasObserver):
+            return canvasObserver
+        }
+    }
+    
     /// Checks if any canvas entity for this node is visible.
     var isVisibleInFrame: Bool {
         for canvasObserver in self.getAllCanvasObservers() {

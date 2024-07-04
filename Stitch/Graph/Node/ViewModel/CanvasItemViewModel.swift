@@ -199,9 +199,9 @@ extension CanvasItemViewModel {
                 let inputsObservers = self.nodeDelegate?.inputRowObservers() ?? []
                 let outputsObservers = self.nodeDelegate?.outputRowObservers() ?? []
                 let allObservers = inputsObservers + outputsObservers
-                allObservers.forEach {
-                    $0.nodeDelegate?.isVisibleInFrame = newValue
-                }
+                allObservers
+                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+                    .forEach { $0.isVisibleInFrame = newValue }
             }
 
             // Refresh values if node back in frame

@@ -366,13 +366,9 @@ extension GraphState {
      An output is highlighted if there is a selected edge whose destination == output
      */
     @MainActor
-    func hasSelectedEdge(at rowObserver: NodeRowObserver) -> Bool {
+    func hasSelectedEdge<Row>(at row: Row) -> Bool where Row: NodeRowViewModel {
         // TODO: update this for splitters
-        guard let portUI = rowObserver.portViewType else {
-//            fatalErrorIfDebug()
-            return false
-        }
-        
+        let portUI = row.portViewType
         switch portUI {
         case .input(let port):
             return self.selectedEdges.contains { $0.to == port }

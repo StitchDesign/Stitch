@@ -11,36 +11,48 @@ import StitchSchemaKit
 // MARK: -- Extension methods that need some love
 
 // TODO: we can't have a NodeRowObserver without also having a GraphDelegate (i.e. GraphState); can we pass down GraphDelegate to avoid the Optional unwrapping?
-extension NodeRowObserver {
-    
-    @MainActor
-    func getIsNodeSelected() -> Bool {
-        self.nodeDelegate?.isSelected ?? false
+extension NodeRowViewModel {
+    var nodeDelegate: NodeDelegate? {
+        self.rowDelegate?.nodeDelegate
     }
     
-    //
-    @MainActor
-    func getIsNodeSelectedForPortColor() -> Bool {
+    var graphDelegate: GraphDelegate? {
+        self.nodeDelegate?.graphDelegate
+    }
+    
+    var nodeKind: NodeKind {
+        guard let node = self.nodeDelegate else {
+            fatalErrorIfDebug()
+            return .patch(.splitter)
+        }
         
-        /*
-         If this is row is for a splitter node in a group node, and the group node is selected, then consider this splitter selected as well.
-         NOTE: this is only for port/edge-color purposes; do not use this for e.g. node movement etc.
-         
-         TODO: we only care about splitterType = .input or .output; add `splitterType` to `NodeDelegate`.
-         */
+        return node.kind
+    }
+
+    @MainActor
+    var isCanvasItemSelected: Bool {
+        self.canvasItemDelegate?.isSelected ?? false
+    }
+    
+    /// If this is row is for a splitter node in a group node, and the group node is selected, then consider this splitter selected as well.
+    // MARK: this is only for port/edge-color purposes; do not use this for e.g. node movement etc.
+    // TODO: we only care about splitterType = .input or .output; add `splitterType` to `NodeDelegate`.
+    @MainActor
+    var isCanvasItemSelectedDeep: Bool {
         if self.nodeKind == .patch(.splitter),
-           let parentId = self.nodeDelegate?.parentGroupNodeId,
-           self.nodeDelegate?.graphDelegate?.getNodeViewModel(parentId)?.isSelected ?? false {
+           let parentId = self.canvasItemDelegate?.parentGroupNodeId,
+           self.graphDelegate?.getNodeViewModel(parentId)?.patchCanvasItem?.isSelected ?? false {
             return true
         } else {
-            return self.getIsNodeSelected()
+            return self.isCanvasItemSelected
         }
     }
     
     @MainActor
-    func getIsConnectedToASelectedNode() -> Bool {
-        if let graph = self.nodeDelegate?.graphDelegate {
-            return graph.isConnectedToASelectedNode(at: self)
+    var isConnectedToASelectedCanvasItem: Bool {
+        if let graph = self.graphDelegate,
+           let row = self.rowDelegate {
+            return graph.isConnectedToASelectedNode(at: row)
         } else {
             log("NodeRowObserver: getIsConnectedToASelectedNode: could not retrieve delegates")
             return false
@@ -48,7 +60,7 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    func getHasSelectedEdge() -> Bool {
+    var hasSelectedEdge: Bool {
         if let graph =  self.nodeDelegate?.graphDelegate {
             return graph.hasSelectedEdge(at: self)
         } else {

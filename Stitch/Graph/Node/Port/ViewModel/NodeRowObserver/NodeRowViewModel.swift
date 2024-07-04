@@ -29,11 +29,15 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var rowDelegate: NodeRowObserver? { get set }
     
+    var canvasItemDelegate: CanvasItemViewModel? { get set }
+    
+    var portViewType: PortViewType { get }
+    
     static var nodeIO: NodeIO { get }
     
     @MainActor func retrieveConnectedCanvasItems() -> Set<CanvasItemId>
     
-    @MainActor func updatePortColor()
+    @MainActor func calculatePortColor() -> PortColor
 }
 
 extension NodeRowViewModel {
@@ -77,6 +81,12 @@ extension NodeRowViewModel {
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)
         }
+    }
+    
+    @MainActor
+    func updatePortColor() {
+        let newColor = self.calculatePortColor()
+        self.setPortColorIfChanged(newColor)
     }
 }
 
@@ -145,15 +155,19 @@ final class InputNodeRowViewModel: NodeRowViewModel {
             .toSet
     }
     
-    func updatePortColor() {
-        let newInputColor = getInputColor(
-            isNodeSelected: input.getIsNodeSelectedForPortColor(),
-            hasEdge: input.hasEdge,
-            hasLoop: input.hasLoopedValues,
-            isConnectedToASelectedNode: input.getIsConnectedToASelectedNode(),
-            isEdgeSelected: graphState.hasSelectedEdge(at: input))
+    var portViewType: PortViewType { .input(self.id) }
+    
+    func calculatePortColor() -> PortColor {
+    
+    hasEdge: input.hasEdge,
+    hasLoop: input.hasLoopedValues,
+    isConnectedToASelectedNode: input.getIsConnectedToASelectedNode(),
+    isEdgeSelected: graphState.hasSelectedEdge(at: input)
         
-        input.setPortColorIfChanged(newInputColor)
+        // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
+        .init(isSelected: self.isCanvasSelected || isConnectedToASelectedNode || isEdgeSelected,
+              hasEdge: hasEdge,
+              hasLoop: hasLoop)
     }
 }
 
@@ -214,6 +228,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         .toSet
     }
     
+    var portViewType: PortViewType { .output(self.id) }
+    
     func updatePortColor() {
         let newOutputColor = getOutputColor(
             outputId: output.id,
@@ -225,6 +241,32 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
             drawingObserver: graphState.edgeDrawingObserver)
         
         output.setPortColorIfChanged(newOutputColor)
+    }
+    
+    func calculatePortColor() -> PortColor {
+        /*
+         Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
+         
+         An actively-drawn edge's color is determined only by:
+         1. "Do we have a loop?" (blue vs theme-color) and
+         2. "Do we have an eligible input?" (highlight vs non-highlighted)
+         */
+        if let drawnEdge = drawingObserver.drawingGesture,
+            drawnEdge.output.id == outputId {
+            return PortColor(
+                isSelected: drawingObserver.nearestEligibleInput.isDefined,
+    //                     hasEdge: true, // TODO: should be able to
+                         hasEdge: hasEdge,
+                         hasLoop: hasLoop)
+        }
+        
+        
+        // Otherwise, common port color logic applies:
+        else {
+            return PortColor(isSelected: isNodeSelected || isConnectedToASelectedNode || isEdgeSelected,
+                         hasEdge: hasEdge,
+                         hasLoop: hasLoop)
+        }
     }
 }
 
