@@ -26,13 +26,13 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
     // eg "X" vs "Y" for .position parent-value
     var fieldLabel: String { get set }
     
-    var rowViewModelDelegate: NodeRowType? { get }
+    var rowViewModelDelegate: NodeRowType? { get set }
     
     init(fieldValue: FieldValue,
          coordinate: PortId,
          fieldIndex: Int,
          fieldLabel: String,
-         rowViewModelDelegate: NodeRowType)
+         rowViewModelDelegate: NodeRowType?)
 }
 
 final class InputFieldViewModel: FieldViewModel {
@@ -46,7 +46,7 @@ final class InputFieldViewModel: FieldViewModel {
          coordinate: InputPortViewData,
          fieldIndex: Int,
          fieldLabel: String,
-         rowViewModelDelegate: InputNodeRowViewModel) {
+         rowViewModelDelegate: InputNodeRowViewModel?) {
         self.fieldValue = fieldValue
         self.coordinate = coordinate
         self.fieldIndex = fieldIndex
@@ -66,7 +66,7 @@ final class OutputFieldViewModel: FieldViewModel {
          coordinate: OutputPortViewData,
          fieldIndex: Int,
          fieldLabel: String,
-         rowViewModelDelegate: OutputNodeRowViewModel) {
+         rowViewModelDelegate: OutputNodeRowViewModel?) {
         self.fieldValue = fieldValue
         self.coordinate = coordinate
         self.fieldIndex = fieldIndex
@@ -87,7 +87,7 @@ extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
          coordinate: Element.PortId,
          startingFieldIndex: Int,
-         rowViewModel: Element.NodeRowType) {
+         rowViewModel: Element.NodeRowType?) {
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues
 

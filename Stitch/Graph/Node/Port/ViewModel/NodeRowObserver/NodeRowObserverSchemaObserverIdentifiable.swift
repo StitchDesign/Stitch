@@ -15,26 +15,17 @@ extension NodeRowObserver: SchemaObserverIdentifiable {
                   nodeDelegate: nil)
     }
 
-    /// Only updates values for inputs without connections.
+    /// Updates values for inputs.
     @MainActor
-    func update(from schema: NodePortInputEntity,
-                activeIndex: ActiveIndex) {
+    func update(from schema: NodePortInputEntity) {
         self.upstreamOutputCoordinate = schema.upstreamOutputCoordinate
 
         // Update values if no upstream connection
         if let values = schema.values {
-            self.updateValues(values,
-                              activeIndex: activeIndex,
-                              isVisibleInFrame: true)
+            self.updateValues(values)
         }
     }
 
-    /// Only updates values for inputs without connections.
-    @MainActor
-    func update(from schema: NodePortInputEntity) {
-        self.update(from: schema, activeIndex: .init(.zero))
-    }
-    
     /// Schema updates from layer.
     @MainActor
     func update(from nodeConnection: NodeConnectionType,
@@ -50,9 +41,7 @@ extension NodeRowObserver: SchemaObserverIdentifiable {
             }
             
             let values = values.isEmpty ? [inputType.getDefaultValue(for: layer)] : values
-            self.updateValues(values,
-                              activeIndex: .init(.zero),
-                              isVisibleInFrame: true)
+            self.updateValues(values)
         }
     }
 
@@ -91,10 +80,7 @@ extension NodeRowObserver: SchemaObserverIdentifiable {
                                                                         patch: patch) {
                     
                     // log("will reset patch node input \(self.id) to default value \(defaultValues)")
-                    self.updateValues(
-                        defaultValues,
-                        activeIndex: self.nodeDelegate?.graphDelegate?.activeIndex ?? .init(0),
-                        isVisibleInFrame: true)
+                    self.updateValues(defaultValues)
                 }
                 //                else {
                 //                    log("was not able to reset patch node input to default value")

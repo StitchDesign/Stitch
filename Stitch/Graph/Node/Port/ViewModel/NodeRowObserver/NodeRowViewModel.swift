@@ -46,8 +46,8 @@ extension NodeRowViewModel {
                           coordinate: Self.FieldType.PortId) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
-        self.activeValue = Self.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
-                                               activeIndex: activeIndex)
+        self.activeValue = NodeRowObserver.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
+                                                          activeIndex: activeIndex)
         self.fieldValueTypes = self
             .createFieldValueTypes(initialValue: self.activeValue,
                                    coordinate: coordinate,
@@ -62,8 +62,8 @@ extension NodeRowViewModel {
         let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
         
         let oldViewValue = self.activeValue // the old cached
-        let newViewValue = Self.getActiveValue(allLoopedValues: values,
-                                               activeIndex: activeIndex)
+        let newViewValue = NodeRowObserver.getActiveValue(allLoopedValues: values,
+                                                          activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
         
         /*

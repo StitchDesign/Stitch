@@ -37,7 +37,6 @@ final class NodeRowObserver: Identifiable, Sendable {
         @MainActor
         didSet(oldValue) {
             let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
-            let activeIndex = self.nodeDelegate?.activeIndex ?? .init(.zero)
 
             guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
                 if let oldUpstreamObserver = self.upstreamOutputObserver {
@@ -50,9 +49,7 @@ final class NodeRowObserver: Identifiable, Sendable {
                 if coordinateValueChanged {
                     // Flatten values
                     let newFlattenedValues = self.allLoopedValues.flattenValues()
-                    self.updateValues(newFlattenedValues,
-                                      activeIndex: activeIndex,
-                                      isVisibleInFrame: self.nodeDelegate?.isVisibleInFrame ?? false)
+                    self.updateValues(newFlattenedValues)
 
                     // Recalculate node once values update
                     self.nodeDelegate?.calculate()

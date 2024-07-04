@@ -24,13 +24,15 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     init(type: FieldGroupType,
          coordinate: FieldType.PortId,
          groupLabel: String? = nil,
-         startingFieldIndex: Int = 0) {
+         startingFieldIndex: Int = 0,
+         rowViewModel: FieldType.NodeRowType? = nil) {
         self.type = type
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex
         self.fieldObservers = .init(type,
                                     coordinate: coordinate,
-                                    startingFieldIndex: startingFieldIndex)
+                                    startingFieldIndex: startingFieldIndex, 
+                                    rowViewModel: rowViewModel)
     }
 
     /// Updates observer objects with latest data.
@@ -140,6 +142,17 @@ extension NodeRowViewModel {
 
         case .readOnly:
             self.fieldValueTypes = [.init(type: .readOnly, coordinate: coordinate)]
+        }
+        
+        self.fieldValueTypes.forEach { fieldValueType in
+            fieldValueType.fieldObservers.forEach {
+                guard let rowViewModel = self as? Self.FieldType.NodeRowType else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                $0.rowViewModelDelegate = rowViewModel
+            }
         }
 
         self.updateAllFields(with: initialValue,
