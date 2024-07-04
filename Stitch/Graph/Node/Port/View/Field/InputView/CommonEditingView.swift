@@ -20,8 +20,8 @@ struct CommonEditingView: View {
     @State private var currentEdit = ""
     @State private var isBase64 = false
     
+    @Bindable var inputField: InputFieldViewModel
     let inputString: String
-    let id: FieldCoordinate
     @Bindable var graph: GraphState
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
@@ -32,10 +32,9 @@ struct CommonEditingView: View {
     let forPropertySidebar: Bool // = false
     let propertyIsAlreadyOnGraph: Bool
     
-//    var fieldCoordinate: FieldCoordinate {
-//        FieldCoordinate(input: id,
-//                        fieldIndex: fieldIndex)
-//    }
+    var id: FieldCoordinate {
+        self.inputField.id
+    }
 
     // Important perf check to prevent instantiations of editing view
     @MainActor
@@ -56,7 +55,7 @@ struct CommonEditingView: View {
     var thisFieldIsFocused: Bool {
         switch graph.graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
-            let k = focusedFieldCoordinate == fieldCoordinate
+            let k = focusedFieldCoordinate == id
 //             log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
             return k
         default:
@@ -74,10 +73,10 @@ struct CommonEditingView: View {
                 // Render NodeTextFieldView if its the focused field.
                 StitchTextEditingBindingField(
                     currentEdit: $currentEdit,
-                    fieldType: .textInput(fieldCoordinate),
+                    fieldType: .textInput(id),
                     font: STITCH_FONT,
                     fontColor: STITCH_FONT_GRAY_COLOR,
-                    fieldEditActionCreation: inputEdited,
+                    fieldEditCallback: inputEdited,
                     isBase64: isBase64)
                     .onDisappear {
                         // Fixes issue where default false values aren't shown after clearing inputs
@@ -85,10 +84,9 @@ struct CommonEditingView: View {
 
                         // Fixes issue where edits sometimes don't save if focus is lost
                         if self.currentEdit != self.inputString {
-                            let inputEditAction = self.inputEdited(
+                            self.inputEdited(
                                 newEdit: self.currentEdit,
                                 isCommitting: true)
-                            dispatch(inputEditAction)
                         }
                     }
 
@@ -107,7 +105,7 @@ struct CommonEditingView: View {
                 // Manually focus this field when user taps.
                 // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
                 .onTapGesture {
-                    dispatch(ReduxFieldFocused(focusedField: .textInput(fieldCoordinate)))
+                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
                 }
             }
         }
@@ -133,13 +131,13 @@ struct CommonEditingView: View {
     }
 
     // fka `createInputEditAction`
-    func inputEdited(newEdit: String,
-                     isCommitting: Bool) -> Action {
-        
-        InputEdited(fieldValue: .string(.init(newEdit)),
-                    fieldIndex: fieldIndex,
-                    coordinate: id,
-                    isCommitting: isCommitting)
+    @MainActor func inputEdited(newEdit: String,
+                     isCommitting: Bool) {
+        self.graph.inputEdited(
+            fieldValue: .string(.init(newEdit)),
+            fieldIndex: fieldIndex,
+            inputField: inputField,
+            isCommitting: isCommitting)
     }
 }
 
