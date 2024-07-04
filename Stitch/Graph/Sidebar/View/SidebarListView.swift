@@ -117,14 +117,14 @@ struct SidebarListView: View {
             .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * masterList.items.count),
                    alignment: .top)
         
-            #if DEV_DEBUG
-            .border(.purple)
-            #endif
+//            #if DEV_DEBUG
+//            .border(.purple)
+//            #endif
         } // ScrollView // added
         
-        #if DEV_DEBUG
-        .border(.green)
-        #endif
+//        #if DEV_DEBUG
+//        .border(.green)
+//        #endif
         
         .animation(.spring(), value: selections)
         .animation(.spring(), value: isBeingEdited)
