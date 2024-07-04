@@ -56,18 +56,22 @@ extension InsettableShape {
     
     // Note: SwiftUI cannot combine `.strokeBorder` with `.fill` or `.trim`; so we prefer `.stroke` instead
     // fka `applyStrokeToShape`
+    @ViewBuilder
     func createStitchShape(_ stroke: LayerStrokeData,
                            _ color: Color,
                            _ opacity: Double) -> some View {
                 
         let filledShape = self.fill(color.opacity(opacity))
         
-        return filledShape.overlay {
-            if stroke.stroke == .none {
-                EmptyView()
-            } else {
-                // Stroked Shape gets overlay'd over the FilledShape
-                self.stitchStroke(stroke)
+        switch stroke.stroke {
+        
+        case .none:
+            filledShape
+        
+        case .inside, .outside:
+            let strokedShape = self.stitchStroke(stroke)
+            filledShape.overlay {
+                strokedShape
             }
         }
     }
