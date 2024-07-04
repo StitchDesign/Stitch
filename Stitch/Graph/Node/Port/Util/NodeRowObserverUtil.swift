@@ -28,7 +28,7 @@ extension NodeRowViewModel {
         
         return node.kind
     }
-
+    
     @MainActor
     var isCanvasItemSelected: Bool {
         self.canvasItemDelegate?.isSelected ?? false
@@ -68,7 +68,7 @@ extension NodeRowViewModel {
             return false
         }
     }
-
+    
     @MainActor
     func getEdgeDrawingObserver() -> EdgeDrawingObserver {
         if let drawing = self.nodeDelegate?.graphDelegate?.edgeDrawingObserver {
@@ -78,7 +78,9 @@ extension NodeRowViewModel {
             return .init()
         }
     }
-    
+}
+
+extension NodeRowObserver {
     @MainActor
     func didInputsUpdate(newValues: PortValues,
                          oldValues: PortValues) {
@@ -102,16 +104,12 @@ extension NodeRowViewModel {
 
         // Some values for some node inputs (like delay node) can directly be copied into the input and must bypass the type coercion logic
         if canCopyInputValues {
-            self.updateValues(newValues,
-                                       activeIndex: activeIndex,
-                                       isVisibleInFrame: node.isVisibleInFrame)
+            self.updateValues(newValues)
         } else {
             if let firstOriginalValues = oldValues.first {
                 self.coerceUpdate(these: newValues,
                                            to: firstOriginalValues,
-                                           currentGraphTime: graphTime,
-                                           activeIndex: activeIndex,
-                                           isVisible: node.isVisibleInFrame)
+                                           currentGraphTime: graphTime)
             } else {
                 fatalErrorIfDebug()
             }
