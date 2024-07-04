@@ -116,6 +116,7 @@ extension NodeRowViewModel {
 }
 
 final class InputNodeRowViewModel: NodeRowViewModel {
+    
     static let nodeIO: NodeIO = .input
     
     var id: InputPortViewData
@@ -125,13 +126,16 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
     weak var rowDelegate: NodeRowObserver?
+    weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
     init(id: InputPortViewData,
          activeValue: PortValue,
-         rowDelegate: NodeRowObserver) {
+         rowDelegate: NodeRowObserver,
+         canvasItemDelegate: CanvasItemViewModel) {
         self.id = id
         self.rowDelegate = rowDelegate
+        self.canvasItemDelegate = canvasItemDelegate
         self.initializeValues(rowDelegate: rowDelegate,
                               coordinate: id)
     }
@@ -178,6 +182,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 }
 
 final class OutputNodeRowViewModel: NodeRowViewModel {
+    
     static let nodeIO: NodeIO = .output
     
     var id: OutputPortViewData
@@ -187,14 +192,17 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
     weak var rowDelegate: NodeRowObserver?
+    weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
     init(id: OutputPortViewData,
          activeValue: PortValue,
-         rowDelegate: NodeRowObserver) {
+         rowDelegate: NodeRowObserver,
+         canvasItemDelegate: CanvasItemViewModel) {
         self.id = id
         self.rowDelegate = rowDelegate
-        self.initializeValues(rowDelegate: rowDelegate, 
+        self.canvasItemDelegate = canvasItemDelegate
+        self.initializeValues(rowDelegate: rowDelegate,
                               coordinate: id)
     }
     
