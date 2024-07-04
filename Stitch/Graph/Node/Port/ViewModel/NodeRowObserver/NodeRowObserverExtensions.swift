@@ -290,9 +290,7 @@ extension NodeRowObservers {
 
             // Only update values if there's no upstream connection
             if !observer.upstreamOutputObserver.isDefined {
-                observer.updateValues(values,
-                                      activeIndex: nodeDelegate.activeIndex,
-                                      isVisibleInFrame: nodeDelegate.isVisibleInFrame)
+                observer.updateValues(values)
             }
         }
     }
