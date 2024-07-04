@@ -25,7 +25,6 @@ struct ApplyStroke: ViewModifier {
             
         case .inside, .outside:
             content.overlay {
-                //
                 Rectangle().stitchStroke(stroke)
             }
         }
@@ -60,10 +59,16 @@ extension InsettableShape {
     func createStitchShape(_ stroke: LayerStrokeData,
                            _ color: Color,
                            _ opacity: Double) -> some View {
-        
+                
         let filledShape = self.fill(color.opacity(opacity))
-        let strokedShape = self.stitchStroke(stroke)
         
-        return filledShape.overlay { strokedShape }
+        return filledShape.overlay {
+            if stroke.stroke == .none {
+                EmptyView()
+            } else {
+                // Stroked Shape gets overlay'd over the FilledShape
+                self.stitchStroke(stroke)
+            }
+        }
     }
 }
