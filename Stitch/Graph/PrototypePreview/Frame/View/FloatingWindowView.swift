@@ -128,12 +128,12 @@ struct FloatingWindowView: View {
     var catalystFloatingWindowHandleView: some View {
         Circle()
             
-        #if DEV_DEBUG
-            .fill(Color.cyan.opacity(0.6)) // easier debug
-        #else
+//        #if DEV_DEBUG
+//            .fill(Color.cyan.opacity(0.6)) // easier debug
+//        #else
             // Note: cannot use .clear
             .fill(Color.PREVIEW_WINDOW_BORDER_COLOR.opacity(0.001))
-        #endif
+//        #endif
             .onChange(of: self.isDragging) { _, newValue in
                 log(".onChange(of: self.isDragging): newValue: \(newValue)")
                 if newValue {

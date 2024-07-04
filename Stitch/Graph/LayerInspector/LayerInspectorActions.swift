@@ -72,7 +72,7 @@ extension GraphState {
             id: .layerInputOnGraph(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: self.newNodeCenterLocation,
+            position: self.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
@@ -119,7 +119,7 @@ extension GraphState {
         output.canvasUIData = .init(
             id: .layerOutputOnGraph(.init(portId: portId,
                                           nodeId: node.id)),
-            position: self.newNodeCenterLocation,
+            position: self.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
