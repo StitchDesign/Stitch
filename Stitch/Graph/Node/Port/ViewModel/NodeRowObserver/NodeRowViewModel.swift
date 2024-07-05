@@ -44,7 +44,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 extension NodeRowViewModel {
     @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
-                          coordinate: Self.FieldType.PortId) {
+                          coordinate: NodeIOPortType) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = Self.RowObserver.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
@@ -128,6 +128,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var portColor: PortColor = .noEdge
     weak var rowDelegate: InputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
+    
+    // TODO: temporary property for old-style layer nodes
+    var layerPortId: Int?
     
     @MainActor
     init(id: NodeIOPortType,

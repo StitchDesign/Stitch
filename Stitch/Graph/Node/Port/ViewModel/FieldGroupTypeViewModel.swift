@@ -22,7 +22,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     let startingFieldIndex: Int
 
     init(type: FieldGroupType,
-         coordinate: FieldType.PortId,
+         coordinate: NodeIOPortType,
          groupLabel: String? = nil,
          startingFieldIndex: Int = 0,
          rowViewModel: FieldType.NodeRowType? = nil) {
@@ -30,7 +30,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex
         self.fieldObservers = .init(type,
-                                    coordinate: coordinate,
+                                    id: coordinate,
                                     startingFieldIndex: startingFieldIndex, 
                                     rowViewModel: rowViewModel)
     }
@@ -62,7 +62,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
 extension NodeRowViewModel {
     @MainActor
     func createFieldValueTypes(initialValue: PortValue,
-                               coordinate: Self.FieldType.PortId,
+                               coordinate: NodeIOPortType,
                                nodeIO: NodeIO,
                                importedMediaObject: StitchMediaObject?) -> FieldGroupTypeViewModelList<Self.FieldType> {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {
