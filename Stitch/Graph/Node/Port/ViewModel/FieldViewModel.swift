@@ -85,6 +85,10 @@ extension FieldViewModel {
                      nodeId: nodeId,
                      fieldIndex: self.fieldIndex)
     }
+    
+    var rowDelegate: Self.NodeRowType.RowObserver? {
+        self.rowViewModelDelegate?.rowDelegate
+    }
 }
 
 extension Array where Element: FieldViewModel {

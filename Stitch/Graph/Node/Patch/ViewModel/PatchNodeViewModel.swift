@@ -39,8 +39,8 @@ final class PatchNodeViewModel: Sendable {
     let canvasObserver: CanvasItemViewModel
     
     // Used for data-intensive purposes (eval)
-    var inputsObservers: NodeRowObservers = []
-    var outputsObservers: NodeRowObservers = []
+    var inputsObservers: [InputNodeRowObserver] = []
+    var outputsObservers: [OutputNodeRowObserver] = []
     
     // Only for Math Expression nodes
     var mathExpression: String?

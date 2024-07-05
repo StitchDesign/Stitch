@@ -39,7 +39,7 @@ struct StitchColorPickerView: View {
     // TODO: opening or closing the color-gradient-picker view should disable nodes copy-paste shortcut
     @State private var show: Bool = false
 
-    let coordinate: InputPortViewData
+    @Bindable var viewModel: InputFieldViewModel
 
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false
@@ -140,7 +140,7 @@ struct StitchColorPickerView: View {
                   text: self.$hexEdit)
             //            .focused($hexFocus) // not needed?
         
-        .focusedValue(\.focusedField, .textInput(coordinate.toSingleFieldCoordinate))
+        .focusedValue(\.focusedField, .textInput(viewModel.id))
         
             .onSubmit {
                 //                log("StitchColorPickerView: onSubmit: self.hexEdit: \(self.hexEdit)")
@@ -218,12 +218,13 @@ struct StitchColorPickerView: View {
 
                 // When user manually clicks a pre-selected color,
                 // we should persist that change.
-                if self.chosenColor.asHexDisplay != color.asHexDisplay {
+                if let inputId = self.viewModel.rowDelegate?.id,
+                   self.chosenColor.asHexDisplay != color.asHexDisplay {
                     dispatch(PickerOptionSelected(
-                                input: coordinate,
-                                choice: .color(color),
-                                // Lots of small changes so don't persist everything
-                                isPersistence: true))
+                        input: inputId,
+                        choice: .color(color),
+                        // Lots of small changes so don't persist everything
+                        isPersistence: true))
                 }
 
                 self.chosenColor = color
@@ -259,17 +260,17 @@ struct StitchColorPickerView: View {
     }
 }
 
-#Preview {
-    
-    VStack(spacing: 100) {
-        
-        StitchColorPickerOrb(chosenColor: .green)
-            .scaleEffect(2)
-        
-        StitchColorPickerView(coordinate: .fakeInputCoordinate,
-                              chosenColor: .constant(.red),
-                              graph: .init(id: .init(), store: nil))
-            .scaleEffect(2)
-    }
-    
-}
+//#Preview {
+//    
+//    VStack(spacing: 100) {
+//        
+//        StitchColorPickerOrb(chosenColor: .green)
+//            .scaleEffect(2)
+//        
+//        StitchColorPickerView(coordinate: .fakeInputCoordinate,
+//                              chosenColor: .constant(.red),
+//                              graph: .init(id: .init(), store: nil))
+//            .scaleEffect(2)
+//    }
+//    
+//}

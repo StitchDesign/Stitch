@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 struct LayerNodeRowData {
-    let rowObserver: NodeRowObserver
+    let rowObserver: InputNodeRowObserver
     var canvasObsever: CanvasItemViewModel?
 }
 

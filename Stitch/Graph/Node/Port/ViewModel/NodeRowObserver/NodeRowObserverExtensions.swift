@@ -33,7 +33,7 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        switch self.nodeIOType {
+        switch Self.nodeIOType {
         case .input:
             self.getVisibleInputRowViewModels()
                 .forEach { canvasItem in

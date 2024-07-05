@@ -374,7 +374,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func getInputRowObserver(for portType: NodeIOPortType) -> NodeRowObserver? {
+    func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver? {
         switch portType {
         case .portIndex(let portId):
             // Assumes patch node for port ID

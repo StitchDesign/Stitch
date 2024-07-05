@@ -23,8 +23,6 @@ extension GraphState {
         //        log("InputEdited: coordinate: \(coordinate)")
         //        #endif
 
-        let coordinate = inputField.coordinate
-
         guard let rowViewModel = inputField.rowViewModelDelegate,
               let rowObserver = rowViewModel.rowDelegate,
               let nodeId = rowViewModel.nodeDelegate?.id,

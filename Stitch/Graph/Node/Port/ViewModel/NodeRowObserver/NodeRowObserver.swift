@@ -18,7 +18,7 @@ import StitchEngine
 //    }
 //}
 
-protocol NodeRowObserver: Identifiable, Sendable {
+protocol NodeRowObserver: AnyObject, Identifiable, Sendable {
     associatedtype RowViewModelType: NodeRowViewModel
     
     var id: NodeIOCoordinate { get set }
