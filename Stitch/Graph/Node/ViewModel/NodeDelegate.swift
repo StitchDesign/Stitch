@@ -59,13 +59,13 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel]
     
-    @MainActor func getInputRowObserver(_ portId: Int) -> NodeRowObserver?
+    @MainActor func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver?
     
-    @MainActor func getOutputRowObserver(_ portId: Int) -> NodeRowObserver?
+    @MainActor func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver?
     
-    @MainActor func inputRowObservers() -> NodeRowObservers
+    @MainActor func inputRowObservers() -> [InputNodeRowObserver]
     
-    @MainActor func outputRowObservers() -> NodeRowObservers
+    @MainActor func outputRowObservers() -> [OutputNodeRowObserver]
     
     func updateRowObservers(activeIndex: ActiveIndex)
     

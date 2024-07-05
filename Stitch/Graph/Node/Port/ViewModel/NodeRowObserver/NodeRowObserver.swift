@@ -40,6 +40,8 @@ protocol NodeRowObserver: Identifiable, Sendable {
     var connectedNodes: NodeIdSet { get set }
     
     var hasLoopedValues: Bool { get set }
+    
+    @MainActor var importedMediaObject: StitchMediaObject? { get }
 }
 
 @Observable
@@ -104,23 +106,22 @@ final class InputNodeRowObserver: NodeRowObserver {
     // Tracks upstream/downstream nodes--cached for perf
     var connectedNodes: NodeIdSet = .init()
     
-    // Only for outputs, designed for port edge color usage
-    var containsDownstreamConnection = false
-    
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
-                     nodeDelegate: NodeDelegate?) {
+                     nodeDelegate: NodeDelegate?,
+                     canvasItemDelegate: CanvasItemViewModel?) {
         self.init(values: schema.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
                   upstreamOutputCoordinate: schema.upstreamOutputCoordinate,
-                  nodeDelegate: nodeDelegate)
+                  nodeDelegate: nodeDelegate,
+                  canvasItemDelegate: canvasItemDelegate)
     }
     
     @MainActor
@@ -130,14 +131,89 @@ final class InputNodeRowObserver: NodeRowObserver {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?) {
+         nodeDelegate: NodeDelegate?,
+         canvasItemDelegate: CanvasItemViewModel?) {
         
         self.id = id
-        let portViewType: InputPortViewData = self.portview
         
-        self.rowViewModel = .init(id: <#T##InputPortViewData#>, activeValue: <#T##PortValue#>, rowDelegate: <#T##any NodeRowObserver#>, canvasItemDelegate: <#T##CanvasItemViewModel#>)
+        self.rowViewModel = .init(id: id.portType,
+                                  activeValue: Self.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  rowDelegate: self,
+                                  canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
-        self.rowViewModel = .init(id: <#T##InputPortViewData#>, activeValue: <#T##PortValue#>, rowDelegate: <#T##any NodeRowObserver#>, canvasItemDelegate: <#T##CanvasItemViewModel#>)
+        self.allLoopedValues = values
+        self.nodeKind = nodeKind
+        self.userVisibleType = userVisibleType
+        self.hasLoopedValues = values.hasLoop
+        
+        self.nodeDelegate = nodeDelegate
+        
+        postProcessing(oldValues: [], newValues: values)
+    }
+}
+
+@Observable
+final class OutputNodeRowObserver: NodeRowObserver {
+    static let nodeIOType: NodeIO = .output
+
+    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    
+    // Data-side for values
+    var allLoopedValues: PortValues = .init()
+    
+    // statically defined inputs
+    var nodeKind: NodeKind
+    
+    var rowViewModel: OutputNodeRowViewModel
+    
+    // NodeRowObserver holds a reference to its parent, the Node
+    weak var nodeDelegate: NodeDelegate?
+    
+    var userVisibleType: UserVisibleType?
+    
+    // MARK: "derived data", cached for UI perf
+    
+    // Tracks upstream/downstream nodes--cached for perf
+    var connectedNodes: NodeIdSet = .init()
+    
+    // Only for outputs, designed for port edge color usage
+    var containsDownstreamConnection = false
+    
+    // Can't be computed for rendering purposes
+    var hasLoopedValues: Bool = false
+    
+    // Always nil for outputs
+    let importedMediaObject: StitchMediaObject? = nil
+    
+//    @MainActor
+//    convenience init(from schema: NodePortInputEntity,
+//                     activeIndex: ActiveIndex,
+//                     nodeDelegate: NodeDelegate?,
+//                     canvasItemDelegate: CanvasItemViewModel?) {
+//        self.init(values: schema.values ?? [],
+//                  nodeKind: schema.nodeKind,
+//                  userVisibleType: schema.userVisibleType,
+//                  id: schema.id,
+//                  activeIndex: activeIndex,
+//                  nodeDelegate: nodeDelegate,
+//                  canvasItemDelegate: canvasItemDelegate)
+//    }
+    
+    @MainActor
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         nodeDelegate: NodeDelegate?,
+         canvasItemDelegate: CanvasItemViewModel?) {
+        
+        self.id = id
+        
+        self.rowViewModel = .init(id: id.portType,
+                                  activeValue: Self.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  rowDelegate: self,
+                                  canvasItemDelegate: canvasItemDelegate)
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
@@ -189,7 +265,7 @@ extension NodeRowViewModel {
             return
         }
         
-        let nodeIO = rowDelegate.nodeIOType
+        let nodeIO = Self.RowObserver.nodeIOType
         let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO)
         self.activeValueChanged(oldRowType: oldRowType,
                                 newValue: newValue)
@@ -204,7 +280,7 @@ extension NodeRowViewModel {
             return
         }
         
-        let nodeIO = rowDelegate.nodeIOType
+        let nodeIO = Self.RowObserver.nodeIOType
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
         let nodeRowTypeChanged = oldRowType != newRowType
         let importedMediaObject = rowDelegate.importedMediaObject
@@ -269,7 +345,7 @@ extension NodeIOCoordinate: NodeRowId {
     }
 }
 
-extension NodeRowObserver: NodeRowCalculatable {
+extension InputNodeRowObserver: NodeRowCalculatable {
     var values: PortValues {
         get {
             self.allLoopedValues

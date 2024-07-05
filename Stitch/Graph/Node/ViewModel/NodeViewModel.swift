@@ -408,7 +408,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func getOutputRowObserver(for portType: NodeIOPortType) -> NodeRowObserver? {
+    func getOutputRowObserver(for portType: NodeIOPortType) -> OutputNodeRowObserver? {
         switch portType {
         case .keyPath:
             // No support here
@@ -421,7 +421,7 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func getOutputRowObserver(_ portId: Int) -> NodeRowObserver? {
+    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
         if kind == .group {
             return self.graphDelegate?
                 .getSplitterRowObservers(for: self.id,

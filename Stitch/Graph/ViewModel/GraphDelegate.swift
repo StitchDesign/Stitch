@@ -47,27 +47,30 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
-    @MainActor func getInputObserver(coordinate: InputCoordinate) -> NodeRowObserver?
+    @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output
     @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver?
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     
-    @MainActor func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver?
+    @MainActor func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowObserver?
     
-    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver?
+    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowObserver?
     
     @MainActor func getMediaUrl(forKey: MediaKey) -> URL?
     
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult
     
-    @MainActor func getSplitterRowObservers(for groupNodeId: NodeId,
-                                            type: SplitterType) -> NodeRowObservers
+    @MainActor func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver]
     
-    @MainActor func hasSelectedEdge(at row: NodeRowViewModel) -> Bool
+    @MainActor func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver]
     
-    @MainActor func isConnectedToASelectedNode(at rowObserver: NodeRowObserver) -> Bool
+    @MainActor func hasSelectedEdge<RowViewModel: NodeRowViewModel>(at row: RowViewModel) -> Bool
+    
+    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
+    
+    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
     
     @MainActor var graphStepState: GraphStepState { get }
     

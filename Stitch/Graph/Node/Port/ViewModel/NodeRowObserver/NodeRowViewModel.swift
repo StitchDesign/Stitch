@@ -133,7 +133,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     init(id: NodeIOPortType,
          activeValue: PortValue,
          rowDelegate: InputNodeRowObserver,
-         canvasItemDelegate: CanvasItemViewModel) {
+         canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
@@ -168,7 +168,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
             .toSet
     }
     
-    var portViewType: PortViewType { .input(self.id) }
+//    var portViewType: PortViewType { .input(self.id) }
     
     func calculatePortColor() -> PortColor {
         let isEdgeSelected = graphDelegate?.hasSelectedEdge(at: self) ?? false
@@ -186,20 +186,20 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     static let nodeIO: NodeIO = .output
     
-    var id: OutputPortViewData
+    var id: NodeIOPortType
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
-    weak var rowDelegate: NodeRowObserver?
+    weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
-    init(id: OutputPortViewData,
+    init(id: NodeIOPortType,
          activeValue: PortValue,
-         rowDelegate: NodeRowObserver,
-         canvasItemDelegate: CanvasItemViewModel) {
+         rowDelegate: OutputNodeRowObserver,
+         canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
@@ -215,7 +215,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     private func getConnectedDownstreamNodes() -> Set<CanvasItemId> {
         var canvasItems = Set<CanvasItemId>()
-        let portId = self.id.portId
+        let portId = self.id.id
         
         guard let nodeDelegate = self.rowDelegate?.nodeDelegate,
               let connectedInputs = nodeDelegate.graphDelegate?.connections
@@ -243,7 +243,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         .toSet
     }
     
-    var portViewType: PortViewType { .output(self.id) }
+//    var portViewType: PortViewType { .output(self.id) }
     
     /// Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
     /// An actively-drawn edge's color is determined only by:
