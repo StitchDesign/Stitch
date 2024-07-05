@@ -12,12 +12,11 @@ typealias InputFieldViewModels = [InputFieldViewModel]
 typealias OutputFieldViewModels = [OutputFieldViewModel]
 
 protocol FieldViewModel: AnyObject, Observable, Identifiable {
-    associatedtype PortId: PortViewData
     associatedtype NodeRowType: NodeRowViewModel
     
     var fieldValue: FieldValue { get set }
 
-    var coordinate: PortId { get set }
+    var id: NodeIOPortType { get set }
 
     // A port has 1 to many relationship with fields
     var fieldIndex: Int { get set }
@@ -29,7 +28,7 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
     var rowViewModelDelegate: NodeRowType? { get set }
     
     init(fieldValue: FieldValue,
-         coordinate: PortId,
+         id: NodeIOPortType,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: NodeRowType?)
@@ -37,18 +36,18 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
 
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
-    var coordinate: InputPortViewData
+    var id: NodeIOPortType
     var fieldIndex: Int
     var fieldLabel: String
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
-         coordinate: InputPortViewData,
+         id: NodeIOPortType,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: InputNodeRowViewModel?) {
         self.fieldValue = fieldValue
-        self.coordinate = coordinate
+        self.id = id
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
         self.rowViewModelDelegate = rowViewModelDelegate
@@ -57,18 +56,18 @@ final class InputFieldViewModel: FieldViewModel {
 
 final class OutputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
-    var coordinate: OutputPortViewData
+    var id: NodeIOPortType
     var fieldIndex: Int
     var fieldLabel: String
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
-         coordinate: OutputPortViewData,
+         id: NodeIOPortType,
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: OutputNodeRowViewModel?) {
         self.fieldValue = fieldValue
-        self.coordinate = coordinate
+        self.id = id
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
         self.rowViewModelDelegate = rowViewModelDelegate
@@ -77,15 +76,20 @@ final class OutputFieldViewModel: FieldViewModel {
 
 extension FieldViewModel {
     var id: FieldCoordinate {
-        .init(portId: self.coordinate.portId,
-              canvasId: self.coordinate.canvasId,
-              fieldIndex: self.fieldIndex)
+        guard let nodeId = self.rowViewModelDelegate?.nodeDelegate?.id else {
+            fatalErrorIfDebug()
+            return .fakeFieldCoordinate
+        }
+        
+        return .init(rowId: self.id,
+                     nodeId: nodeId,
+                     fieldIndex: self.fieldIndex)
     }
 }
 
 extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
-         coordinate: Element.PortId,
+         id: NodeIOPortType,
          startingFieldIndex: Int,
          rowViewModel: Element.NodeRowType?) {
         let labels = fieldGroupType.labels
@@ -95,7 +99,7 @@ extension Array where Element: FieldViewModel {
             let fieldLabel = labels[safe: index] ?? ""
 
             return .init(fieldValue: fieldValue,
-                         coordinate: coordinate,
+                         id: id,
                          fieldIndex: startingFieldIndex + index,
                          fieldLabel: fieldLabel,
                          rowViewModelDelegate: rowViewModel)

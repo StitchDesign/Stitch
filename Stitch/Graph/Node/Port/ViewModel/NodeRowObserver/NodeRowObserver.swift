@@ -9,18 +9,43 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-typealias NodeRowObservers = [NodeRowObserver]
+//typealias NodeRowObservers = [NodeRowObserver]
 
 // Keep this at top of file; very important information:
-extension NodeRowObserver: Equatable {
-    static func == (lhs: NodeRowObserver, rhs: NodeRowObserver) -> Bool {
-        lhs.id == rhs.id
-    }
+//extension NodeRowObserver: Equatable {
+//    static func == (lhs: NodeRowObserver, rhs: NodeRowObserver) -> Bool {
+//        lhs.id == rhs.id
+//    }
+//}
+
+protocol NodeRowObserver: Identifiable, Sendable {
+    associatedtype RowViewModelType: NodeRowViewModel
+    
+    var id: NodeIOCoordinate { get set }
+    
+    // Data-side for values
+    var allLoopedValues: PortValues { get set }
+    
+    static var nodeIOType: NodeIO { get }
+    
+    var rowViewModel: RowViewModelType { get set }
+    
+    var nodeDelegate: NodeDelegate? { get set }
+    
+    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
+    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
+    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
+    var userVisibleType: UserVisibleType? { get set }
+    
+    var connectedNodes: NodeIdSet { get set }
+    
+    var hasLoopedValues: Bool { get set }
 }
 
 @Observable
-final class NodeRowObserver: Identifiable, Sendable {
-    // TODO: this initializer seems strange? Presumably we update and change this logic elsewhere?
+final class InputNodeRowObserver: NodeRowObserver {
+    static let nodeIOType: NodeIO = .input
+
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
     
     // Data-side for values
@@ -29,77 +54,62 @@ final class NodeRowObserver: Identifiable, Sendable {
     // statically defined inputs
     var nodeKind: NodeKind
     
-    // NodeIO type cannot be changed over the life of a row, and is important enough that we should not let it default to some value
-    let nodeIOType: NodeIO
+    var rowViewModel: InputNodeRowViewModel
     
     // Connected upstream node, if input
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         @MainActor
         didSet(oldValue) {
             let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
-
+            
             guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
                 if let oldUpstreamObserver = self.upstreamOutputObserver {
                     log("upstreamOutputCoordinate: removing edge")
-
+                    
                     // Remove edge data
                     oldUpstreamObserver.containsDownstreamConnection = false
                 }
-
+                
                 if coordinateValueChanged {
                     // Flatten values
                     let newFlattenedValues = self.allLoopedValues.flattenValues()
                     self.updateValues(newFlattenedValues)
-
+                    
                     // Recalculate node once values update
                     self.nodeDelegate?.calculate()
                 }
-
+                
                 return
             }
-
+            
             // Update that upstream observer of new edge
             self.upstreamOutputObserver?.containsDownstreamConnection = true
         }
     }
-
+    
     // TODO: an output row can NEVER have an `upstream output` (i.e. incoming edge)
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
-    var upstreamOutputObserver: NodeRowObserver? {
+    var upstreamOutputObserver: OutputNodeRowObserver? {
         self.getUpstreamOutputObserver()
     }
     
-    
-    // MARK: NodeRowObserver holds a reference to its parent, the Node
-    
-    // TODO: better?: in contexts where we have the NodeRowObserver (Input or Output) and need the Node, just retrieve the Node directly from GraphState; don't need an additional property on the NodeRowObserver
-    // Informs parent class of row-specific changes
+    // NodeRowObserver holds a reference to its parent, the Node
     weak var nodeDelegate: NodeDelegate?
     
-    
-    // MARK: legacy data to ignore
-    
-    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
-    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
-    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
     var userVisibleType: UserVisibleType?
-
-    // MARK: "derived data", cached for UI perf
     
-    // TODO: can this really ever be nil? -- or does `nil` mean that the cache is not yet initialized?
-    // Coordinate ID used for view--cached for perf
-//    var portViewType: PortViewType?
+    // MARK: "derived data", cached for UI perf
     
     // Tracks upstream/downstream nodes--cached for perf
     var connectedNodes: NodeIdSet = .init()
-
+    
     // Only for outputs, designed for port edge color usage
     var containsDownstreamConnection = false
-
+    
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
-
+    
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
@@ -110,10 +120,9 @@ final class NodeRowObserver: Identifiable, Sendable {
                   id: schema.id,
                   activeIndex: activeIndex,
                   upstreamOutputCoordinate: schema.upstreamOutputCoordinate,
-                  nodeIOType: .input,
                   nodeDelegate: nodeDelegate)
     }
-
+    
     @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
@@ -121,42 +130,26 @@ final class NodeRowObserver: Identifiable, Sendable {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeIOType: NodeIO,
          nodeDelegate: NodeDelegate?) {
-        #if DEBUG || DEV_DEBUG
-        if nodeIOType == .input {
-            assert(!values.isEmpty || upstreamOutputCoordinate != nil)
-        }
-        #endif
         
         self.id = id
-
+        let portViewType: InputPortViewData = self.portview
+        
+        self.rowViewModel = .init(id: <#T##InputPortViewData#>, activeValue: <#T##PortValue#>, rowDelegate: <#T##any NodeRowObserver#>, canvasItemDelegate: <#T##CanvasItemViewModel#>)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
-        self.nodeIOType = nodeIOType
+        self.rowViewModel = .init(id: <#T##InputPortViewData#>, activeValue: <#T##PortValue#>, rowDelegate: <#T##any NodeRowObserver#>, canvasItemDelegate: <#T##CanvasItemViewModel#>)
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-
+        
         self.nodeDelegate = nodeDelegate
         
-//        self.updatePortViewData() // Initialize NodeRowObserver with appropriate cached data
         postProcessing(oldValues: [], newValues: values)
     }
-    
-//    @MainActor
-//    static func empty(_ layerInputType: LayerInputType,
-//                      layer: Layer) -> Self {
-//        Self.init(values: [layerInputType.getDefaultValue(for: layer)],
-//                  nodeKind: .layer(.rectangle),
-//                  userVisibleType: nil,
-//                  id: .init(portId: -1, nodeId: .init()),
-//                  activeIndex: .init(.zero),
-//                  upstreamOutputCoordinate: nil,
-//                  nodeIOType: .input,
-//                  nodeDelegate: nil)
-//    }
-    
+}
+
+extension InputNodeRowObserver {
     /// Values for import dropdowns don't hold media directly, so we need to find it.
     @MainActor var importedMediaObject: StitchMediaObject? {
         guard self.id.portId == 0,
@@ -174,7 +167,7 @@ final class NodeRowObserver: Identifiable, Sendable {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> NodeRowObserver? {
+    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil

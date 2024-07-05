@@ -11,8 +11,9 @@ import StitchSchemaKit
 
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
+    associatedtype RowObserver: NodeRowObserver
     
-    var id: FieldType.PortId { get set }
+    var id: NodeIOPortType { get set }
     
     // View-specific value that only updates when visible
     // separate propety for perf reasons:
@@ -27,11 +28,11 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var portColor: PortColor { get set }
     
-    var rowDelegate: NodeRowObserver? { get set }
+    var rowDelegate: RowObserver? { get set }
     
     var canvasItemDelegate: CanvasItemViewModel? { get set }
     
-    var portViewType: PortViewType { get }
+//    var portViewType: PortViewType { get }
     
     static var nodeIO: NodeIO { get }
     
@@ -42,27 +43,27 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 
 extension NodeRowViewModel {
     @MainActor
-    func initializeValues(rowDelegate: NodeRowObserver,
+    func initializeValues(rowDelegate: Self.RowObserver,
                           coordinate: Self.FieldType.PortId) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
-        self.activeValue = NodeRowObserver.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
+        self.activeValue = Self.RowObserver.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                           activeIndex: activeIndex)
         self.fieldValueTypes = self
             .createFieldValueTypes(initialValue: self.activeValue,
                                    coordinate: coordinate,
-                                   nodeIO: rowDelegate.nodeIOType,
+                                   nodeIO: Self.nodeIO,
                                    importedMediaObject: nil)
     }
     
     @MainActor
     func didPortValuesUpdate(values: PortValues,
-                             rowDelegate: NodeRowObserver) {
+                             rowDelegate: Self.RowObserver) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
         
         let oldViewValue = self.activeValue // the old cached
-        let newViewValue = NodeRowObserver.getActiveValue(allLoopedValues: values,
+        let newViewValue = Self.RowObserver.getActiveValue(allLoopedValues: values,
                                                           activeIndex: activeIndex)
         let didViewValueChange = oldViewValue != newViewValue
         
@@ -119,19 +120,19 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     
     static let nodeIO: NodeIO = .input
     
-    var id: InputPortViewData
+    var id: NodeIOPortType
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
-    weak var rowDelegate: NodeRowObserver?
+    weak var rowDelegate: InputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
-    init(id: InputPortViewData,
+    init(id: NodeIOPortType,
          activeValue: PortValue,
-         rowDelegate: NodeRowObserver,
+         rowDelegate: InputNodeRowObserver,
          canvasItemDelegate: CanvasItemViewModel) {
         self.id = id
         self.rowDelegate = rowDelegate
