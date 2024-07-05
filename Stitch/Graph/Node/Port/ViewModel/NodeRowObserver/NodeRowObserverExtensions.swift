@@ -58,6 +58,10 @@ extension NodeRowObserver {
 //            }
     }
     
+    @MainActor var activeValue: PortValue {
+        self.rowViewModel.activeValue
+    }
+    
     @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {

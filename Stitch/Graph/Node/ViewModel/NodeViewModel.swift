@@ -173,11 +173,11 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
-    @MainActor func getAllInputsObservers() -> [NodeRowObserver] {
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
         self.getRowObservers(.input)
     }
     
-    @MainActor func getAllOutputsObservers() -> [NodeRowObserver] {
+    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
         self.getRowObservers(.output)
     }
     
@@ -588,7 +588,7 @@ extension NodeViewModel: SchemaObserver {
         // Reset outputs
         // TODO: should we really be resetting inputs?
         self.getAllInputsObservers().onPrototypeRestart()
-        self.getAllOutputsObservers().onPrototypeRestart()
+        self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
         // Flatten interaction nodes' outputs when graph reset
         if patchNode?.patch.isInteractionPatchNode ?? false {
@@ -604,14 +604,19 @@ extension NodeViewModel {
     func activeIndexChanged(activeIndex: ActiveIndex) {
         self.getAllInputsObservers().forEach { observer in
             let oldValue = observer.activeValue
-            let newValue = observer.getActiveValue(activeIndex: activeIndex)
-            observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
+            let newValue = PortValue
+                .getActiveValue(allLoopedValues: observer.allLoopedValues,
+                                activeIndex: activeIndex)
+            observer.rowViewModel.activeValueChanged(oldValue: oldValue,
+                                                     newValue: newValue)
         }
 
         self.getAllOutputsObservers().forEach { observer in
             let oldValue = observer.activeValue
-            let newValue = observer.getActiveValue(activeIndex: activeIndex)
-            observer.activeValueChanged(oldValue: oldValue, newValue: newValue)
+            let newValue = PortValue
+                .getActiveValue(allLoopedValues: observer.allLoopedValues,
+                                activeIndex: activeIndex)
+            observer.rowViewModel.activeValueChanged(oldValue: oldValue, newValue: newValue)
         }
     }
     

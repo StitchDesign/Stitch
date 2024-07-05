@@ -8,11 +8,12 @@
 import Foundation
 import StitchSchemaKit
 
-extension NodeRowObserver: SchemaObserverIdentifiable {
+extension InputNodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
         self.init(from: entity,
                   activeIndex: .init(.zero),
-                  nodeDelegate: nil)
+                  nodeDelegate: nil,
+                  canvasItemDelegate: nil)
     }
 
     /// Updates values for inputs.
@@ -61,37 +62,35 @@ extension NodeRowObserver: SchemaObserverIdentifiable {
                                    upstreamOutputCoordinate: upstreamOutputObserver.id)
     }
     
+    // Set inputs to defaultValue
     func onPrototypeRestart() {
-        
-        // Set inputs to defaultValue
-        if self.nodeIOType == .input {
+        // test out first on just non-layer-node inputs
+        if self.upstreamOutputCoordinate.isDefined,
+           let patch = self.nodeKind.getPatch,
+           let portId = self.id.portId {
             
-            // test out first on just non-layer-node inputs
-            if self.upstreamOutputCoordinate.isDefined,
-               let patch = self.nodeKind.getPatch,
-               let portId = self.id.portId {
+            let defaultInputs: NodeInputDefinitions = self.nodeKind
+                .rowDefinitions(for: self.userVisibleType)
+                .inputs
+            
+            if let defaultValues = getDefaultValueForPatchNodeInput(portId,
+                                                                    defaultInputs,
+                                                                    patch: patch) {
                 
-                let defaultInputs: NodeInputDefinitions = self.nodeKind
-                    .rowDefinitions(for: self.userVisibleType)
-                    .inputs
-                
-                if let defaultValues = getDefaultValueForPatchNodeInput(portId,
-                                                                        defaultInputs,
-                                                                        patch: patch) {
-                    
-                    // log("will reset patch node input \(self.id) to default value \(defaultValues)")
-                    self.updateValues(defaultValues)
-                }
-                //                else {
-                //                    log("was not able to reset patch node input to default value")
-                //                }
-                                
+                // log("will reset patch node input \(self.id) to default value \(defaultValues)")
+                self.updateValues(defaultValues)
             }
+            //                else {
+            //                    log("was not able to reset patch node input to default value")
+            //                }
+            
         }
-        
+    }
+}
+
+extension OutputNodeRowObserver {
+    func onPrototypeRestart() {
         // Set outputs to be empty
-        if self.nodeIOType == .output {
-            self.allLoopedValues = []
-        }
+        self.allLoopedValues = []
     }
 }
