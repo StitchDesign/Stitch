@@ -28,6 +28,8 @@ protocol NodeRowObserver: AnyObject, Identifiable, Sendable {
     
     static var nodeIOType: NodeIO { get }
     
+    var nodeKind: NodeKind { get set }
+    
     var rowViewModel: RowViewModelType { get set }
     
     var nodeDelegate: NodeDelegate? { get set }
@@ -42,6 +44,18 @@ protocol NodeRowObserver: AnyObject, Identifiable, Sendable {
     var hasLoopedValues: Bool { get set }
     
     @MainActor var importedMediaObject: StitchMediaObject? { get }
+    
+    var hasEdge: Bool { get }
+    
+//    @MainActor
+//    init(values: PortValues,
+//         nodeKind: NodeKind,
+//         userVisibleType: UserVisibleType?,
+//         id: NodeIOCoordinate,
+//         activeIndex: ActiveIndex,
+//         upstreamOutputCoordinate: NodeIOCoordinate?,
+//         nodeDelegate: NodeDelegate?,
+//         canvasItemDelegate: CanvasItemViewModel?)
 }
 
 @Observable
@@ -252,6 +266,16 @@ extension InputNodeRowObserver {
         // Set current upstream observer
         return self.nodeDelegate?.getNode(upstreamCoordinate.nodeId)?
             .getOutputRowObserver(upstreamPortId)
+    }
+    
+    var hasEdge: Bool {
+        self.upstreamOutputCoordinate.isDefined
+    }
+}
+
+extension OutputNodeRowObserver {
+    var hasEdge: Bool {
+        self.containsDownstreamConnection
     }
 }
 

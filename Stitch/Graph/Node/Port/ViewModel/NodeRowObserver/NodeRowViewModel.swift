@@ -57,8 +57,11 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func didPortValuesUpdate(values: PortValues,
-                             rowDelegate: Self.RowObserver) {
+    func didPortValuesUpdate(values: PortValues) {
+        guard let rowDelegate = self.rowDelegate else {
+            return
+        }
+        
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
         

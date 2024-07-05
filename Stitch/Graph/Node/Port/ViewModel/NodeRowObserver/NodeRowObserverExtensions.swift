@@ -33,54 +33,29 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        switch Self.nodeIOType {
-        case .input:
-            self.getVisibleInputRowViewModels()
-                .forEach { canvasItem in
-                    canvasItem.didPortValuesUpdate(values: newValues,
-                                                   rowDelegate: self)
-                }
-        case .output:
-            self.getVisibleOutputRowViewModels()
-                .forEach { canvasItem in
-                    canvasItem.didPortValuesUpdate(values: newValues,
-                                                   rowDelegate: self)
-                }
+        if let rowViewModel = self.getVisibleRowViewModel() {
+            rowViewModel.didPortValuesUpdate(values: newValues)
         }
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
     
     @MainActor
-    func getVisibleInputRowViewModels() -> [InputNodeRowViewModel] {
+    func getVisibleRowViewModel() -> Self.RowViewModelType? {
         guard let nodeDelegate = self.nodeDelegate else {
             fatalErrorIfDebug()
-            return []
+            return nil
         }
         
-        return nodeDelegate
-            .getAllCanvasObservers()
-            .filter { $0.isVisibleInFrame }
-            .flatMap { canvasItem in
-                canvasItem.inputViewModels
-                    .filter { $0.rowDelegate?.id == self.id }
-            }
-    }
-    
-    @MainActor
-    func getVisibleOutputRowViewModels() -> [OutputNodeRowViewModel] {
-        guard let nodeDelegate = self.nodeDelegate else {
-            fatalErrorIfDebug()
-            return []
-        }
+        return nodeDelegate.isVisibleInFrame ? self.rowViewModel : nil
         
-        return nodeDelegate
-            .getAllCanvasObservers()
-            .filter { $0.isVisibleInFrame }
-            .flatMap { canvasItem in
-                canvasItem.outputViewModels
-                    .filter { $0.rowDelegate?.id == self.id }
-            }
+//        return nodeDelegate
+//            .getAllCanvasObservers()
+//            .filter { $0.isVisibleInFrame }
+//            .flatMap { canvasItem in
+//                canvasItem.inputViewModels
+//                    .filter { $0.rowDelegate?.id == self.id }
+//            }
     }
     
     @MainActor
@@ -110,11 +85,6 @@ extension NodeRowObserver {
         self.nodeDelegate?.allOutputRowViewModels ?? []
     }
     
-    var hasEdge: Bool {
-        self.upstreamOutputCoordinate.isDefined ||
-            self.containsDownstreamConnection
-    }
-    
     /// Updates layer selections for interaction patch nodes for perf.
     @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
@@ -126,7 +96,7 @@ extension NodeRowObserver {
         guard let graphDelegate = self.nodeDelegate?.graphDelegate,
               let patch = self.nodeKind.getPatch,
               patch.isInteractionPatchNode,
-              self.nodeIOType == .input,
+              Self.nodeIOType == .input,
               self.id.portId == 0 else { //, // the "assigned layer" input
             
             // TODO: how was `updateInteractionNodeData` being called with the exact same value for `firstValueOld` and `firstValueNew`?
@@ -175,27 +145,11 @@ extension NodeRowObserver {
             .compactMap { $0.asyncMedia?.mediaObject }
     }
     
-    var currentBroadcastChoiceId: NodeId? {
-        guard self.nodeKind == .patch(.wirelessReceiver),
-              self.id.portId == 0,
-              self.nodeIOType == .input else {
-            // log("NodeRowObserver: currentBroadcastChoice: did not have wireless node: returning nil")
-            return nil
-        }
-
-        // the id of the connected wireless broadcast node
-        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
-        //        let wirelessBroadcastId = self.upstreamOutputObserver?.id.nodeId
-        let wirelessBroadcastId = self.upstreamOutputCoordinate?.nodeId
-        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
-        return wirelessBroadcastId
-    }
-    
     @MainActor
     func label(_ useShortLabel: Bool = false) -> String {
         switch id.portType {
         case .portIndex(let portId):
-            if self.nodeIOType == .input,
+            if Self.nodeIOType == .input,
                let mathExpr = self.nodeDelegate?.getMathExpression?.getSoulverVariables(),
                let variableChar = mathExpr[safe: portId] {
                 return String(variableChar)
@@ -206,7 +160,7 @@ extension NodeRowObserver {
             // Note: when an input is added (e.g. adding an input to an Add node),
             // the newly-added input will not be found in the rowDefinitions,
             // so we can use an empty string as its label.
-            return self.nodeIOType == .input
+            return Self.nodeIOType == .input
             ? rowDefinitions.inputs[safe: portId]?.label ?? ""
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
             
@@ -214,19 +168,17 @@ extension NodeRowObserver {
             return keyPath.label(useShortLabel)
         }
     }
-    
-    /// Same as `createSchema()` but used for layer schema data.
-    @MainActor
-    func createLayerSchema() -> NodeConnectionType {
-        guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            return .values(self.allLoopedValues)
+}
+
+extension Array where Element: NodeRowObserver {
+    var values: PortValuesList {
+        self.map {
+            $0.allLoopedValues
         }
-        
-        return .upstreamConnection(upstreamOutputObserver.id)
     }
 }
 
-extension NodeRowObservers {
+extension [InputNodeRowObserver] {
     @MainActor
     init(values: PortValuesList,
          kind: NodeKind,
@@ -234,28 +186,23 @@ extension NodeRowObservers {
          id: NodeId,
          nodeIO: NodeIO,
          activeIndex: ActiveIndex,
-         nodeDelegate: NodeDelegate) {
+         nodeDelegate: NodeDelegate,
+         canvasItem: CanvasItemViewModel?) {
         self = values.enumerated().map { portId, values in
-            NodeRowObserver(values: values,
-                            nodeKind: kind,
-                            userVisibleType: userVisibleType,
-                            id: NodeIOCoordinate(portId: portId, nodeId: id),
-                            activeIndex: activeIndex,
-                            upstreamOutputCoordinate: nil,
-                            nodeIOType: nodeIO,
-                            nodeDelegate: nodeDelegate)
+            Element(values: values,
+                    nodeKind: kind,
+                    userVisibleType: userVisibleType,
+                    id: NodeIOCoordinate(portId: portId, nodeId: id),
+                    activeIndex: activeIndex,
+                    upstreamOutputCoordinate: nil,
+                    nodeDelegate: nodeDelegate,
+                    canvasItemDelegate: canvasItem)
         }
     }
-
-    var values: PortValuesList {
-        self.map {
-            $0.allLoopedValues
-        }
-    }
-
+    
     @MainActor
     func updateAllValues(_ newValuesList: PortValuesList,
-                         nodeIO: NodeIO,
+//                         nodeIO: NodeIO,
                          nodeId: NodeId,
                          nodeKind: NodeKind,
                          userVisibleType: UserVisibleType?,
@@ -273,25 +220,54 @@ extension NodeRowObservers {
             // Helpers below will create any missing observers
             let arrayBoundary = Swift.min(newLongestPortLength, currentObserverCount)
 
-            nodeDelegate.patchNodeViewModel?.portCountShortened(to: arrayBoundary, nodeIO: nodeIO)
+            nodeDelegate.patchNodeViewModel?.portCountShortened(to: arrayBoundary,
+                                                                nodeIO: .input)
         }
 
         newValuesList.enumerated().forEach { portId, values in
             let observer = self[safe: portId] ??
                 // Sometimes observers aren't yet created for nodes with adjustable inputs
-                NodeRowObserver(values: values,
-                                nodeKind: nodeDelegate.kind,
-                                userVisibleType: userVisibleType,
-                                id: .init(portId: portId, nodeId: nodeId),
-                                activeIndex: .init(.zero),
-                                upstreamOutputCoordinate: nil,
-                                nodeIOType: nodeIO,
-                                nodeDelegate: nodeDelegate)
+            InputNodeRowObserver(values: values,
+                                 nodeKind: nodeDelegate.kind,
+                                 userVisibleType: userVisibleType,
+                                 id: .init(portId: portId, nodeId: nodeId),
+                                 activeIndex: .init(.zero),
+                                 upstreamOutputCoordinate: nil,
+                                 nodeDelegate: nodeDelegate,
+                                 canvasItemDelegate: nil)
 
             // Only update values if there's no upstream connection
             if !observer.upstreamOutputObserver.isDefined {
                 observer.updateValues(values)
             }
         }
+    }
+}
+
+extension InputNodeRowObserver {
+    var currentBroadcastChoiceId: NodeId? {
+        guard self.nodeKind == .patch(.wirelessReceiver),
+              self.id.portId == 0,
+              Self.nodeIOType == .input else {
+            // log("NodeRowObserver: currentBroadcastChoice: did not have wireless node: returning nil")
+            return nil
+        }
+
+        // the id of the connected wireless broadcast node
+        // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
+        //        let wirelessBroadcastId = self.upstreamOutputObserver?.id.nodeId
+        let wirelessBroadcastId = self.upstreamOutputCoordinate?.nodeId
+        // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
+        return wirelessBroadcastId
+    }
+    
+    /// Same as `createSchema()` but used for layer schema data.
+    @MainActor
+    func createLayerSchema() -> NodeConnectionType {
+        guard let upstreamOutputObserver = self.upstreamOutputObserver else {
+            return .values(self.allLoopedValues)
+        }
+        
+        return .upstreamConnection(upstreamOutputObserver.id)
     }
 }
