@@ -42,6 +42,8 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
     ])
         .union(.strokeInputs)
         .union(.layerEffects)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

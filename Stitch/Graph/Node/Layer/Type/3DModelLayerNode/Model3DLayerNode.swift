@@ -54,6 +54,8 @@ struct Model3DLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

@@ -109,6 +109,19 @@ final class LayerViewModel {
     var spacingBetweenGridColumns: PortValue
     var spacingBetweenGridRows: PortValue
     var itemAlignmentWithinGridCell: PortValue
+
+    var widthAxis: PortValue
+    var heightAxis: PortValue
+    var contentMode: PortValue
+    
+    // Min/max size
+    var minSize: PortValue
+    var maxSize: PortValue
+    
+    // Spacing
+    var spacing: PortValue
+
+    // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
     var lines: DrawingViewLines = .init()
@@ -219,6 +232,13 @@ final class LayerViewModel {
         self.spacingBetweenGridRows = LayerInputType.spacingBetweenGridRows.getDefaultValue(for: layer)
         
         self.itemAlignmentWithinGridCell = LayerInputType.itemAlignmentWithinGridCell.getDefaultValue(for: layer)
+
+        self.widthAxis = LayerInputType.widthAxis.getDefaultValue(for: layer)
+        self.heightAxis = LayerInputType.heightAxis.getDefaultValue(for: layer)
+        self.contentMode = LayerInputType.contentMode.getDefaultValue(for: layer)
+        self.minSize = LayerInputType.minSize.getDefaultValue(for: layer)
+        self.maxSize = LayerInputType.maxSize.getDefaultValue(for: layer)
+        self.spacing = LayerInputType.spacing.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

@@ -195,6 +195,16 @@ extension PortValue {
                 let value = self.getStrokeLineJoin ?? .defaultStrokeLineJoin
                 let choices = StrokeLineJoin.choices
                 return [[.dropdown(value.rawValue, choices)]]
+                
+            case .contentMode:
+                let value = self.getContentMode ?? .defaultContentMode
+                return [[.dropdown(value.rawValue,
+                                   StitchContentMode.choices)]]
+                
+            case .spacing:
+                let value = self.getStitchSpacing ?? .defaultStitchSpacing
+                return [[.dropdown(value.display,
+                                   [.spacing(.evenly), .spacing(.between)])]]
             } // case .singleDropdown
             
         case .textFontDropdown:

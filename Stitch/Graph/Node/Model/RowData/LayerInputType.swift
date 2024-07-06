@@ -87,7 +87,7 @@ extension LayerInputType {
         case .orientation:
             return .orientation(.none)
         case .padding:
-            return .number(.zero)
+            return .point4D(.zero)
         case .setupMode:
             return .bool(true)
         case .allAnchors:
@@ -196,6 +196,18 @@ extension LayerInputType {
             return .number(.zero)
         case .itemAlignmentWithinGridCell:
             return .anchoring(.centerCenter)
+        case .widthAxis:
+            return .number(1)
+        case .heightAxis:
+            return .number(1)
+        case .contentMode:
+            return .contentMode(.defaultContentMode)
+        case .minSize:
+            return .size(.LAYER_DEFAULT_SIZE)
+        case .maxSize:
+            return .size(.LAYER_DEFAULT_SIZE)
+        case .spacing:
+            return .spacing(.defaultStitchSpacing)
         }
     }
     
@@ -375,6 +387,21 @@ extension LayerInputType {
             return \.spacingBetweenGridRowsPort
         case .itemAlignmentWithinGridCell:
             return \.itemAlignmentWithinGridCellPort
+        
+        case .widthAxis:
+            return \.widthAxisPort
+        case .heightAxis:
+            return \.heightAxisPort
+        case .contentMode:
+            return \.contentModePort
+  
+        case .minSize:
+            return \.minSizePort
+        case .maxSize:
+            return \.maxSizePort
+        
+        case .spacing:
+            return \.spacingPort
         }
     }
     
@@ -592,6 +619,18 @@ extension LayerViewModel {
             return self.spacingBetweenGridRows
         case .itemAlignmentWithinGridCell:
             return self.itemAlignmentWithinGridCell
+        case .widthAxis:
+            return self.widthAxis
+        case .heightAxis:
+            return self.heightAxis
+        case .contentMode:
+            return self.contentMode
+        case .minSize:
+            return self.minSize
+        case .maxSize:
+            return self.maxSize
+        case .spacing:
+            return self.spacing
         }
     }
     
@@ -772,6 +811,18 @@ extension LayerViewModel {
             self.spacingBetweenGridRows = value
         case .itemAlignmentWithinGridCell:
             self.itemAlignmentWithinGridCell = value
+        case .widthAxis:
+            self.widthAxis = value
+        case .heightAxis:
+            self.heightAxis = value
+        case .contentMode:
+            self.contentMode = value
+        case .minSize:
+            self.minSize = value
+        case .maxSize:
+            self.maxSize = value
+        case .spacing:
+            self.spacing = value
         }
     }
 }
@@ -947,14 +998,23 @@ extension LayerInputType {
             return \.spacingBetweenGridRowsPort
         case .itemAlignmentWithinGridCell:
             return \.itemAlignmentWithinGridCellPort
+        case .widthAxis:
+            return \.widthAxisPort
+        case .heightAxis:
+            return \.heightAxisPort
+        case .contentMode:
+            return \.contentModePort
+        case .minSize:
+            return \.minSizePort
+        case .maxSize:
+            return \.maxSizePort
+        case .spacing:
+            return \.spacingPort
         }
     }
-    
-//    var label: String {
-    
+        
     // shortLabel = used for property sidebar
     func label(_ useShortLabel: Bool = false) -> String {
-//    func label(_ useShortLabel: Bool) -> String {
         switch self {
             // Required everywhere
         case .position:
@@ -1127,6 +1187,19 @@ extension LayerInputType {
             return "Row Spacing"
         case .itemAlignmentWithinGridCell:
             return "Cell Anchoring"
+            
+        case .widthAxis:
+            return "Width Axis"
+        case .heightAxis:
+            return "Height Axis"
+        case .contentMode:
+            return "Content Mode"
+        case .minSize:
+            return "Min Size"
+        case .maxSize:
+            return "Max Size"
+        case .spacing:
+            return "Spacing"
         }
     }
     

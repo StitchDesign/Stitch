@@ -893,3 +893,43 @@ func comparableCoercer(_ values: PortValues) -> PortValues {
         }
     }
 }
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToContentMode() -> StitchContentMode {
+        switch self {
+        case .contentMode(let x):
+            return x
+        case .number(let x):
+            return StitchContentMode.fromNumber(x)
+                .getContentMode ?? .defaultContentMode
+        default:
+            return .defaultContentMode
+        }
+    }
+}
+
+func contentModeCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { $0.coerceToContentMode() }
+        .map(PortValue.contentMode)
+}
+
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToStitchSpacing() -> StitchSpacing {
+        switch self {
+        case .spacing(let x):
+            return x
+        default:
+            return .defaultStitchSpacing
+        }
+    }
+}
+
+func spacingCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { $0.coerceToStitchSpacing() }
+        .map(PortValue.spacing)
+}

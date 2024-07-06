@@ -147,6 +147,12 @@ extension PortValue {
             return .singleDropdown(.strokeLineCap)
         case .strokeLineJoin(_):
             return .singleDropdown(.strokeLineJoin)
+        case .contentMode(_):
+            return .singleDropdown(.contentMode)
+            
+            // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
+        case .spacing:
+            return .singleDropdown(.spacing)
         }
     }
 

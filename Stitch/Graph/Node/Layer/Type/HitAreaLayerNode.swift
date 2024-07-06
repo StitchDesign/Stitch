@@ -15,14 +15,16 @@ let defaultHitAreaSize = LayerSize(width: 50,
 struct HitAreaLayerNode: LayerNodeDefinition {
     static var layer: Layer = .hitArea
     
-    static let inputDefinitions: LayerInputTypeSet = [
+    static let inputDefinitions: LayerInputTypeSet = .init([
         .enabled,
         .position,
         .size,
         .anchoring,
         .zIndex,
         .setupMode
-    ]
+    ])
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

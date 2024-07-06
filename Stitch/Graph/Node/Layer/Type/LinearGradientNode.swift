@@ -29,6 +29,8 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
         .endColor
     ])
         .union(.layerEffects)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
     
     
     static func content(graph: GraphState,
