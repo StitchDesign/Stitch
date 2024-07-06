@@ -30,8 +30,6 @@ Want to help test it? [Email us](mailto:bricks.muzzle_0t@icloud.com) to get on t
 
 ## Who we are
 
-<img src="README_Assets/IMG_1489.jpeg" width=50% height=50%>
-
 We’re a group of passionate engineers and designers who share a love for Apple and prototyping. We’re mainly living in SF, but have contributors from all over.
 
 #### Collaborators
@@ -42,7 +40,7 @@ We’re a group of passionate engineers and designers who share a love for Apple
 * [Josh](https://x.com/joshuapekera)
 * [Adam](https://adammenges.com)
 
-Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com).
+Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@icloud.com). We're looking for both engineering and design help.
 
 Join in and help us, we’ll be keeping this list up to date.
 
