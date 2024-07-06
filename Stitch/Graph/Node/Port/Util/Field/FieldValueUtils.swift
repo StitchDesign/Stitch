@@ -200,6 +200,11 @@ extension PortValue {
                 let value = self.getContentMode ?? .defaultContentMode
                 return [[.dropdown(value.rawValue,
                                    StitchContentMode.choices)]]
+                
+            case .spacing:
+                let value = self.getStitchSpacing ?? .defaultStitchSpacing
+                return [[.dropdown(value.display,
+                                   [.spacing(.evenly), .spacing(.between)])]]
             } // case .singleDropdown
             
         case .textFontDropdown:

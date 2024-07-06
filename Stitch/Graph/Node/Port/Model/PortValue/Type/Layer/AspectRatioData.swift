@@ -17,6 +17,8 @@ extension StitchContentMode: PortValueEnum {
 
 extension StitchContentMode {
     
+    static let defaultContentMode: Self = .fit
+    
     var toSwiftUIContent: ContentMode {
         switch self {
         case .fit:

@@ -32,6 +32,8 @@ struct VideoLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

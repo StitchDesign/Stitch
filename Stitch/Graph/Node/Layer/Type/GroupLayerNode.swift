@@ -62,7 +62,6 @@ struct GroupLayerNode: LayerNodeDefinition {
         .opacity,
         .pivot,
         .orientation,
-        .padding,
         .cornerRadius,
         .backgroundColor,
         .blur,
@@ -77,6 +76,9 @@ struct GroupLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
+        .union(.paddingAndSpacing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
@@ -103,7 +105,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             orientation: viewModel.orientation.getOrientation ?? .defaultOrientation,
             
             // TODO: update once StitchPadding is saved in schema
-            padding: .init(viewModel.padding.asCGFloat),
+            padding: viewModel.padding.getPoint4D?.toStitchPadding ?? .zero,
             
             cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
             blurRadius: viewModel.blur.getNumber ?? .zero,

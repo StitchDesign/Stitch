@@ -914,3 +914,22 @@ func contentModeCoercer(_ values: PortValues) -> PortValues {
         .map { $0.coerceToContentMode() }
         .map(PortValue.contentMode)
 }
+
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToStitchSpacing() -> StitchSpacing {
+        switch self {
+        case .spacing(let x):
+            return x
+        default:
+            return .defaultStitchSpacing
+        }
+    }
+}
+
+func spacingCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { $0.coerceToStitchSpacing() }
+        .map(PortValue.spacing)
+}

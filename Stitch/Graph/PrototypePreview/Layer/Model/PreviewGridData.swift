@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StitchSchemaKit
 
 
 // TODO: combine with Point4D ? Or will the names `x, y, z, w` be too unfamiliar vers `top`, `bottom` etc.; e.g. does `x` refer to `left` or `right`?
@@ -14,6 +15,7 @@ struct StitchPadding: Equatable, Hashable, Codable {
     var bottom: CGFloat = .zero
     var left: CGFloat = .zero
     var right: CGFloat = .zero
+
 }
 
 extension StitchPadding {
@@ -23,13 +25,23 @@ extension StitchPadding {
         self.left = number
         self.right = number
     }
+    
+    static let zero: Self = Self.init(0)
+}
+
+extension Point4D {
+    var toStitchPadding: StitchPadding {
+        .init(top: self.x,
+              bottom: self.y,
+              left: self.z,
+              right: self.w)
+    }
 }
                             
                             
-enum StitchSpacing: Equatable, Hashable, Codable {
-    case point(CGFloat), evenly, between
+extension StitchSpacing {
     
-    static let defaultStitchSpacing: Self = .point(.zero)
+    static let defaultStitchSpacing: Self = .number(.zero)
     
     var isEvenly: Bool {
         self == .evenly
@@ -44,11 +56,23 @@ enum StitchSpacing: Equatable, Hashable, Codable {
         switch self {
         case .evenly, .between:
             return .zero
-        case .point(let x):
+        case .number(let x):
             return x
         }
     }
+    
+    var display: String {
+        switch self {
+        case .number(let x):
+            return x.description
+        case .between:
+            return "Between"
+        case .evenly:
+            return "Evenly"
+        }
+    }
 }
+
 
 struct PreviewGridData: Equatable {
     var horizontalSpacingBetweenColumns: StitchSpacing = .defaultStitchSpacing

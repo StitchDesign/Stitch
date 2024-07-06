@@ -16,9 +16,9 @@ extension LayerViewModel {
         }
         
         // TODO: update when StitchSpacing is added as a PortValue in schema
-        let horizontalSpacingBetweenColumns = self.spacingBetweenGridColumns.getNumber.map { StitchSpacing.point($0) } ?? .defaultStitchSpacing
+        let horizontalSpacingBetweenColumns = self.spacingBetweenGridColumns.getNumber.map { StitchSpacing.number($0) } ?? .defaultStitchSpacing
         
-        let verticalSpacingBetweenRows = self.spacingBetweenGridRows.getNumber.map { StitchSpacing.point($0) } ?? .defaultStitchSpacing
+        let verticalSpacingBetweenRows = self.spacingBetweenGridRows.getNumber.map { StitchSpacing.number($0) } ?? .defaultStitchSpacing
         
         return .init(
             horizontalSpacingBetweenColumns: horizontalSpacingBetweenColumns,

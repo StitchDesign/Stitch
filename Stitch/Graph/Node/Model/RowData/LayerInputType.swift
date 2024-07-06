@@ -207,7 +207,7 @@ extension LayerInputType {
         case .maxSize:
             return .size(.LAYER_DEFAULT_SIZE)
         case .spacing:
-            return .point4D(.zero)
+            return .spacing(.defaultStitchSpacing)
         }
     }
     

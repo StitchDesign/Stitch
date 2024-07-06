@@ -28,6 +28,8 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
         .zIndex
     ])
         .union(.layerEffects)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 extension LayerInputTypeSet {
     
+    @MainActor
     static let strokeInputs: LayerInputTypeSet = [
         .strokePosition,
         .strokeWidth,
@@ -21,6 +22,7 @@ extension LayerInputTypeSet {
         .strokeLineJoin
     ]
     
+    @MainActor
     static let layerEffects: LayerInputTypeSet = [
         .blurRadius,
         .blendMode,
@@ -31,12 +33,33 @@ extension LayerInputTypeSet {
         .saturation
     ]
     
+    @MainActor
     static let typography: LayerInputTypeSet = [
         .fontSize,
         .textAlignment,
         .verticalAlignment,
         .textDecoration,
         .textFont,
+    ]
+    
+    @MainActor
+    static let aspectRatio: LayerInputTypeSet = [
+        .widthAxis,
+        .heightAxis,
+        .contentMode
+    ]
+    
+    @MainActor
+    static let minAndMaxSize: LayerInputTypeSet = [
+        .minSize,
+        .maxSize
+    ]
+    
+    // LayerGroup only?
+    @MainActor
+    static let paddingAndSpacing: LayerInputTypeSet = [
+        .padding,
+        .spacing
     ]
 }
 
@@ -150,6 +173,8 @@ struct ShapeLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
+        .union(.aspectRatio)
+        .union(.minAndMaxSize)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

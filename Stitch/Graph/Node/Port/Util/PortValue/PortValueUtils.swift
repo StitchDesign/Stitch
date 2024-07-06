@@ -453,4 +453,13 @@ extension PortValue {
             return nil
         }
     }    
+    
+    var getStitchSpacing: StitchSpacing? {
+        switch self {
+        case .spacing(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }

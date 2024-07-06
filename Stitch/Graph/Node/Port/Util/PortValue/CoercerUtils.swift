@@ -164,6 +164,8 @@ extension PortValues {
             return strokeLineJoinCoercer(values)
         case .contentMode:
             return contentModeCoercer(values)
+        case .spacing:
+            return spacingCoercer(values)
         }
     }
 }

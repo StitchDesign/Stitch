@@ -44,7 +44,16 @@ extension LayerInspectorView {
         .anchoring,
         .opacity,
         .zIndex,
-        .pivot // pivot point for scaling; put with
+        .pivot, // pivot point for scaling; put with
+        
+            // Min and max size
+            .minSize,
+        .maxSize,
+        
+            // Aspect Ratio
+        .widthAxis,
+        .heightAxis,
+        .contentMode
     ]
     
     // Includes some
@@ -122,6 +131,7 @@ extension LayerInspectorView {
         .isClipped,
         .orientation,
         .padding,
+        .spacing, // added
         // Grid
         .spacingBetweenGridColumns,
         .spacingBetweenGridRows,

@@ -110,7 +110,7 @@ extension UserVisibleType {
             return "Progress Style"
         case .mobileHapticStyle:
             return "Haptic Style"
-        case .strokeLineCap, .strokeLineJoin, .contentMode:
+        case .strokeLineCap, .strokeLineJoin, .contentMode, .spacing:
             return self.rawValue
         }
     }
@@ -240,6 +240,8 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .strokeLineJoin
     case .contentMode:
         return .contentMode
+    case .spacing:
+        return .spacing
     }
 
 }
@@ -357,11 +359,9 @@ extension UserVisibleType {
             return .strokeLineJoin(.defaultStrokeLineJoin)
         case .contentMode:
             return .contentMode(.defaultContentMode)
+        case .spacing:
+            return .spacing(.defaultStitchSpacing)
         }
     }
 
-}
-
-extension StitchContentMode {
-    static let defaultContentMode: Self = .fit
 }

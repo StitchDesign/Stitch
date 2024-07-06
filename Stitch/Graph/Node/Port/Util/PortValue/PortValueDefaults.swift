@@ -188,6 +188,8 @@ extension PortValue {
             return .strokeLineJoin(.defaultStrokeLineJoin)
         case .contentMode:
             return .contentMode(.defaultContentMode)
+        case .spacing:
+            return .spacing(.defaultStitchSpacing)
         }
     }
 }
