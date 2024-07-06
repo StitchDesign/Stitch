@@ -99,8 +99,6 @@ extension StrokeLineJoin: PortValueEnum {
     }
 }
 
-
-
 extension PortValue {
     // Takes any PortValue, and returns a MobileHapticStyle
     func coerceToStrokeLineJoin() -> StrokeLineJoin {
@@ -120,7 +118,6 @@ func strokeLineJoinCoercer(_ values: PortValues) -> PortValues {
         .map { $0.coerceToStrokeLineJoin() }
         .map(PortValue.strokeLineJoin)
 }
-
 
 extension ShapeCoordinates: PortValueEnum {
     static var portValueTypeGetter: PortValueTypeGetter<ShapeCoordinates> {

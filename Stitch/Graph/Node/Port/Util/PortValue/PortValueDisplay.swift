@@ -168,6 +168,8 @@ extension PortValue {
             return x.rawValue
         case .strokeLineJoin(let x):
             return x.rawValue
+        case .contentMode(let x):
+            return x.rawValue
 
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

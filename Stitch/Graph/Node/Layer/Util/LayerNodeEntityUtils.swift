@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 extension LayerNodeEntity {
+    // TODO: can we move this initialzier to StitchSchemaKit ?
     init(nodeId: NodeId,
          layer: Layer,
          positionPort: NodeConnectionType = .values([]),
@@ -94,6 +95,14 @@ extension LayerNodeEntity {
          spacingBetweenGridColumnsPort: NodeConnectionType = .values([]),
          spacingBetweenGridRowsPort: NodeConnectionType = .values([]),
          itemAlignmentWithinGridCellPort: NodeConnectionType = .values([]),
+         
+         widthAxisPort: NodeConnectionType = .values([]),
+         heightAxisPort: NodeConnectionType = .values([]),
+         contentModePort: NodeConnectionType = .values([]),
+         minSizePort: NodeConnectionType = .values([]),
+         maxSizePort: NodeConnectionType = .values([]),
+         spacingPort: NodeConnectionType = .values([]),
+         
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?,
          isExpandedInSidebar: Bool?) {
@@ -191,6 +200,13 @@ extension LayerNodeEntity {
             spacingBetweenGridColumnsPort: spacingBetweenGridColumnsPort,
             spacingBetweenGridRowsPort: spacingBetweenGridRowsPort,
             itemAlignmentWithinGridCellPort: itemAlignmentWithinGridCellPort,
+            
+            widthAxisPort: widthAxisPort,
+            heightAxisPort: heightAxisPort,
+            contentModePort: contentModePort,
+            minSizePort: minSizePort,
+            maxSizePort: maxSizePort,
+            spacingPort: spacingPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId,

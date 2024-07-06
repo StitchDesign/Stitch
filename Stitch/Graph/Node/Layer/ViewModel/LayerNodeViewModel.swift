@@ -113,6 +113,13 @@ final class LayerNodeViewModel {
     @MainActor var spacingBetweenGridColumnsPort: NodeRowObserver
     @MainActor var spacingBetweenGridRowsPort: NodeRowObserver
     @MainActor var itemAlignmentWithinGridCellPort: NodeRowObserver
+    
+    @MainActor var widthAxisPort: NodeRowObserver
+    @MainActor var heightAxisPort: NodeRowObserver
+    @MainActor var contentModePort: NodeRowObserver
+    @MainActor var minSizePort: NodeRowObserver
+    @MainActor var maxSizePort: NodeRowObserver
+    @MainActor var spacingPort: NodeRowObserver
 
     weak var nodeDelegate: NodeDelegate?
 
@@ -238,6 +245,13 @@ final class LayerNodeViewModel {
         self.spacingBetweenGridRowsPort = .empty(.spacingBetweenGridRows, layer: schema.layer)
         self.itemAlignmentWithinGridCellPort = .empty(.itemAlignmentWithinGridCell, layer: schema.layer)
 
+        self.widthAxisPort = .empty(.widthAxis, layer: schema.layer)
+        self.heightAxisPort = .empty(.heightAxis, layer: schema.layer)
+        self.contentModePort = .empty(.contentMode, layer: schema.layer)
+        self.minSizePort = .empty(.minSize, layer: schema.layer)
+        self.maxSizePort = .empty(.maxSize, layer: schema.layer)
+        self.spacingPort = .empty(.spacing, layer: schema.layer)
+        
         let graphNode = schema.layer.layerGraphNode
         
         // Note: this should never actually be empty; only empty here as part of initialization; populated by a later call to `LayerNodeViewModel.didValuesUpdate`

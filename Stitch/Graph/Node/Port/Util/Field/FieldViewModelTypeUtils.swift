@@ -147,6 +147,8 @@ extension PortValue {
             return .singleDropdown(.strokeLineCap)
         case .strokeLineJoin(_):
             return .singleDropdown(.strokeLineJoin)
+        case .contentMode(_):
+            return .singleDropdown(.contentMode)
         }
     }
 
