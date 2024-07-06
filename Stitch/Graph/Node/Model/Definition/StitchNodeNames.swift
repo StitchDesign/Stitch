@@ -650,10 +650,10 @@ Example: `..artist` will find all instances of the key 'artist', regardless of n
 • The value that exists at the given path
 """
 
-// MARK: Layer Nodes
+// MARK: Layers
 
 let colorFillDescription = """
-A layer node for filling the preview window with a specified color.
+A layer for filling the preview window with a specified color.
 
 *Inputs*
 • A Bool for enabling/disabling the fill
@@ -689,7 +689,7 @@ Adds interaction to a specific rectangle in the Preview Window.
 """
 
 let imageDescription = """
-The Image node is a Layer Node that will display an image asset in the Preview Window.
+The Image node is a Layer that will display an image asset in the Preview Window.
 
 *Inputs*
 • An image asset
@@ -710,7 +710,7 @@ let groupDescription = """
 """
 
 let layerInfoDescription = """
-Returns information about a specified layer node.
+Returns information about a specified layer.
 
 *Inputs*
 • The layer to get info about.
@@ -780,7 +780,7 @@ The Map node will display an Apple Maps UI in the preview window.
 """
 
 let model3DDescription = """
-The 3D Model Layer Node will display a 3D model asset (of a USDZ file type) in the preivew window.
+The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preivew window.
 
 *Inputs*
 • An 3D Model Asset
@@ -796,7 +796,7 @@ The 3D Model Layer Node will display a 3D model asset (of a USDZ file type) in t
 """
 
 let ovalDescription = """
-The Oval Layer Node will display an Oval shape in the Preivew Window.
+The Oval Layer will display an Oval shape in the Preivew Window.
 
 *Inputs*
 • Color
@@ -854,7 +854,7 @@ The RealityView node will display the output of an Augmented Reality scene. It t
 """
 
 let rectangleDescription = """
-The Rectnagle Layer Node will display a rectangle shape in the Preivew Window.
+The Rectnagle Layer will display a rectangle shape in the Preivew Window.
 
 *Inputs*
 • Color
@@ -874,7 +874,7 @@ The Rectnagle Layer Node will display a rectangle shape in the Preivew Window.
 """
 
 let shapeDescription = """
-The Shape Layer node can take a shape as an input and display it in the preview window. The shape can be modified via a variety of inputs.
+The Shape Layer can take a shape as an input and display it in the preview window. The shape can be modified via a variety of inputs.
 
 *Inputs*
 • Shape
@@ -962,7 +962,7 @@ Enter text into the preview window.
 """
 
 let videoDescription = """
-The Video Layer Node displays a video asset in the preview window.
+The Video Layer displays a video asset in the preview window.
 
 *Inputs*
 • A video asset
@@ -980,7 +980,7 @@ The Video Layer Node displays a video asset in the preview window.
 """
 
 let videoStreamingDescription = """
-The Video Streaming Layer Node streams a video from a given URL string.
+The Video Streaming Layer streams a video from a given URL string.
 
 *Inputs*
 • A URL to stream a video from
@@ -1668,7 +1668,7 @@ Enables importing and modifying USDZ 3D assets.
 • An AR Transform for adjusting the transform of the 3D model
 
 *Outputs*
-• The 3D model; can be connected to a 3D Model Layer view for displaying in the Preview Window
+• The 3D model; can be connected to a 3D Model Layer for displaying in the Preview Window
 """
 
 let soundImportDescription = """
@@ -1690,7 +1690,7 @@ A node for importing a sound file.
 """
 
 let videoImportDescription = """
-Allows for importing video file assets. The video can be displayed in the Preview Window by connecting this node to a Video Layer View.
+Allows for importing video file assets. The video can be displayed in the Preview Window by connecting this node to a Video Layer.
 
 *Inputs*
 • A selctor for importing a video file
