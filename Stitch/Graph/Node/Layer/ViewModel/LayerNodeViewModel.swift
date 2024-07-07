@@ -27,7 +27,9 @@ final class LayerNodeViewModel {
     var previewLayerViewModels: [LayerViewModel]
     
     // Some layer nodes contain outputs
-    @MainActor var outputsObservers: NodeRowObservers = []
+    @MainActor var outputsObservers: [OutputNodeRowObserver] = []
+    
+    // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
     @MainActor var positionPort: LayerNodeRowData
     @MainActor var sizePort: LayerNodeRowData

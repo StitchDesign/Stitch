@@ -164,22 +164,22 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
 extension GraphState {
 
     @MainActor
-    func getEligibleNearbyNode(eastOf originOutputNodeId: NodeId) -> NodeId? {
+    func getEligibleNearbyNode(eastOf originOutputNodeId: NodeId) -> CanvasItemId? {
 
-        guard let originOutputNode = self.getNodeViewModel(originOutputNodeId) else {
+        guard let originOutputNode = self.getNodeViewModel(originOutputNodeId)?.patchCanvasItem else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
 
         let groupNodeFouced = self.graphUI.groupNodeFocused?.asNodeId
         let nodes = self.visibleNodesViewModel
-            .getVisibleNodes(at: groupNodeFouced)
+            .getVisibleCanvasItems(at: groupNodeFouced)
             // "Nearby node" for edge-edit mode can never be a wireless receiver node
-            .filter { $0.patch != .wirelessReceiver }
+            .filter { $0.nodeDelegate?.kind.getPatch != .wirelessReceiver }
 
         // Note: we compare the origin node's output against the other nodes' inputs.
         // The *input* must be east of the output.
-        let nodesEast = nodes.filter { (node: NodeViewModel) in
+        let nodesEast = nodes.filter { node in
             /*
              Note: although SwiftUI's .position modifier is from top-left corner, we actually adjust the node's `position: CGPoint`, such that position = center of node.
 

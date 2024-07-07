@@ -137,18 +137,18 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func allRowObservers() -> NodeRowObservers {
+    func allRowObservers() -> [any NodeRowObserver] {
         self.inputRowObservers() + self.outputRowObservers()
     }
     
     @MainActor
-    func inputRowObservers() -> NodeRowObservers {
-        self.getRowObservers(.input)
+    func inputRowObservers() -> [InputNodeRowObserver] {
+        self.getAllInputsObservers()
     }
     
     @MainActor
-    func outputRowObservers() -> NodeRowObservers {
-        self.getRowObservers(.output)
+    func outputRowObservers() -> [OutputNodeRowObserver] {
+        self.getAllOutputsObservers()
     }
     
     @MainActor

@@ -183,20 +183,25 @@ extension VisibleNodesViewModel {
         }   
     }
 
-    func getVisibleNodes(at focusedGroup: NodeId?) -> NodeViewModels {
-        self.allViewModels
+    @MainActor
+    func getVisibleNodes(at focusedGroup: NodeId?) -> [NodeDelegate] {
+        self.getVisibleCanvasItems(at: focusedGroup)
             .filter { $0.parentGroupNodeId ==  focusedGroup }
+            .compactMap { $0.nodeDelegate }
     }
 
-    // TODO: combine with getVisibleCanvasItems and just provide an additional param?
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
-        self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                    partialResult.append(node.canvasUIData)
-            case .layer:
-                partialResult.append(contentsOf: node.allRowObservers().compactMap(\.canvasUIData))
+        self.allViewModels.flatMap { node in
+            switch node.nodeType {
+            case .patch(let patchNode):
+                return [patchNode.canvasObserver]
+            case .layer(let layerNode):
+                return layerNode.layer.layerGraphNode.inputDefinitions.compactMap {
+                    layerNode[keyPath: $0.layerNodeKeyPath].canvasObsever
+                }
+            case .group(let canvas):
+                return [canvas]
             }
         }
     }
@@ -204,23 +209,8 @@ extension VisibleNodesViewModel {
     // TODO: "visible" is ambiguous between "canvas item is on-screen" vs "canvas item is at this traversal level"
     @MainActor
     func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
-        self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                if node.canvasUIData.parentGroupNodeId == focusedGroup {
-                    partialResult.append(node.canvasUIData)
-                }
-            case .layer:
-                let visibleLayerRowsOnGraph = node.allRowObservers()
-                    .compactMap { row in
-                        if let canvasData = row.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
-                            return canvasData
-                        }
-                        return nil
-                    }
-                partialResult.append(contentsOf: visibleLayerRowsOnGraph)
-            }
-        }
+        self.getCanvasItems()
+            .filter { $0.parentGroupNodeId == focusedGroup }
     }
 
     /// Obtains input row observers directly from splitter patch nodes given its parent group node.
