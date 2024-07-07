@@ -301,30 +301,17 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getInputSplitters(for id: NodeId) -> [InputNodeRowObserver]? {
-        self._getSplitters(for: id, splitterType: .input)
-    }
-
-    @MainActor
-    func getInputSplitterInputPorts(for id: NodeId) -> [InputPortViewData]? {
-        if let observers = self.getInputSplitters(for: id) {
-            return (0..<observers.count).map { portId in
-                return InputPortViewData(portId: portId, nodeId: id)
-            }
+    func getInputSplitters(for canvasItem: CanvasItemViewModel) -> [InputNodeRowObserver]? {
+        guard let node = canvasItem.nodeDelegate else {
+            return nil
         }
-        return nil
-    }
-
-    // Nil if not a group node or if group had no splitters for that splitter-type
-    @MainActor
-    private func _getSplitters(for id: NodeId, splitterType: SplitterType) -> NodeRowObservers? {
-
-        let isGroup = self.isGroupNode(id)
-        let splitters = self.getSplitterRowObservers(for: id, type: splitterType)
+        
+        let isGroup = self.isGroupNode(node.id)
+        let splitters = self.getSplitterInputRowObservers(for: node.id)
 
         guard isGroup else {
             #if DEBUG
-            log("_getSplitters: id \(id) was not for group")
+            log("_getSplitters: id \(node.id) was not for group")
             #endif
             return nil
         }
@@ -337,6 +324,16 @@ extension VisibleNodesViewModel {
         }
 
         return splitters
+    }
+
+    @MainActor
+    func getInputSplitterInputPorts(for canvasItem: CanvasItemViewModel) -> [InputPortViewData]? {
+        if let observers = self.getInputSplitters(for: canvasItem) {
+            return (0..<observers.count).map { portId in
+                return InputPortViewData(portId: portId, canvasId: canvasItem.id)
+            }
+        }
+        return nil
     }
 
     func isGroupNode(_ id: NodeId) -> Bool {
@@ -376,7 +373,7 @@ extension VisibleNodesViewModel {
     }
     
     @MainActor
-    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> NodeRowObserver? {
+    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
         self.nodes.get(coordinate.nodeId)?
             .getOutputRowObserver(for: coordinate.portType)
     }
