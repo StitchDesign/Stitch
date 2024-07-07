@@ -677,7 +677,9 @@ extension JSONFriendlyFormat {
     }
     
     @MainActor
-    func asPortValueForLLMSetField(_ nodeType: NodeType) -> PortValue? {
+    func asPortValueForLLMSetField(_ nodeType: NodeType,
+                                   // for turning a string into a LayerNodeId
+                                   with mapping: LLMNodeIdMapping) -> PortValue? {
         switch self {
             
         case .number(let x):
@@ -686,7 +688,7 @@ extension JSONFriendlyFormat {
         case .json(let x):
             return .json(.init(x))
         
-        case .layerSizeDictionary(let x):
+        case .layerSizeDictionary:
             
             switch nodeType {
                 
@@ -746,7 +748,15 @@ extension JSONFriendlyFormat {
         case .string(let x):
             // can actually just return a string,
             // and the logic of `handleInputEdited` handles the rest
-            return .string(.init(x))
+            switch nodeType {
+            case .interactionId:
+                if let layerNodeId = mapping.get(x) {
+                    return .assignedLayer(.init(layerNodeId))
+                }
+                return .assignedLayer(nil)
+            default:
+                return .string(.init(x))
+            }
         }
         
     }
