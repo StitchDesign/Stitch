@@ -33,9 +33,14 @@ struct NodesOnlyView: View {
         Rectangle().fill(.clear)
         
         // Does ZStack e.g. put LIG views on top of patch node views?
+                
         ZStack {
-            patchOrGroupNodesView
-            layerInputsOnGraphView
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                patchOrGroupNodesView
+                layerInputsOnGraphView
+            } else {
+                nodesView
+            }
         }
         .onChange(of: self.activeIndex) {
             // Update values when active index changes
@@ -73,6 +78,28 @@ struct NodesOnlyView: View {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @MainActor @ViewBuilder
+    var nodesView: some View {
+        ForEach(nodes) { node in
+            // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
+            // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
+            let isAtThisTraversalLevel = node.parentGroupNodeId == currentlyFocusedGroup
+            if isAtThisTraversalLevel {
+                NodeTypeView(
+                    graph: graph,
+                    node: node,
+                    atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
+                    activeIndex: activeIndex,
+                    groupNodeFocused: graphUI.groupNodeFocused,
+                    adjustmentBarSessionId: adjustmentBarSessionId,
+                    isHiddenDuringAnimation: insertNodeMenuHiddenNode.map { $0 == node.id } ?? false
+                )
+            } else {
+                EmptyView()
             }
         }
     }

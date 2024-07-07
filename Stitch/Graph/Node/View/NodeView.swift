@@ -28,6 +28,8 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     // This node is the "real" node of an active insert-node-animation,
     let isHiddenDuringAnimation: Bool
 
+    var isHiddenLayer: Bool = false
+    
     @ViewBuilder var inputsViews: () -> InputsViews
     @ViewBuilder var outputsViews: () -> OutputsViews
 
@@ -116,6 +118,23 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
         .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
+        
+        .overlay(content: {
+            if isHiddenLayer {
+                /*
+                 TODO: how to indicate from the graph view that a given layer node's layers are hidden?
+                 - use 30% black overlay in Light mode, 30% white overlay in Dark mode?
+                 - use theme color?
+                 - use crossed-out eye icon near node title?
+                 */
+                Color.black.opacity(0.3)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    .allowsHitTesting(false)
+            } else {
+                EmptyView()
+            }
+        })
+        
         .modifier(CanvasItemBoundsReader(
             graph: graph,
             canvasItem: node.canvasUIData,

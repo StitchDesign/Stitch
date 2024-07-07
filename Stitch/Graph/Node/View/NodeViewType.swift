@@ -28,12 +28,28 @@ struct NodeTypeView: View {
 
     var body: some View {
         switch node.nodeType {
-        case .layer:
-            // LayerNodes use `LayerInputOnGraphView`
-            EmptyView()
-                .onAppear {
-                    fatalErrorIfDebug()
-                }
+        case .layer(let layerViewModel):
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                // LayerNodes use `LayerInputOnGraphView`
+                EmptyView()
+                    .onAppear {
+                        fatalErrorIfDebug()
+                    }
+            } else {
+                LayerNodeView(graph: graph,
+                              viewModel: node,
+                              layerNode: layerViewModel,
+                              atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                              activeGroupId: groupNodeFocused,
+                              activeIndex: activeIndex,
+                              boundsReaderDisabled: boundsReaderDisabled,
+                              usePositionHandler: usePositionHandler,
+                              updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
+                              isHiddenDuringAnimation: isHiddenDuringAnimation,
+                              adjustmentBarSessionId: adjustmentBarSessionId)
+            }
+            
+            
             
         case .patch(let patchViewModel):
             PatchNodeView(graph: graph,

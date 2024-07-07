@@ -685,6 +685,7 @@
 		ECB9A86D2AEB4944006E65EE /* LightnessSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86C2AEB4944006E65EE /* LightnessSliderView.swift */; };
 		ECB9A86F2AEB4950006E65EE /* AlphaSliderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */; };
 		ECBB853F25E9BA5500C1EE40 /* PreviewText.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */; };
+		ECBC61A52C3B06A200A6EBF0 /* LayerNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC61A42C3B06A200A6EBF0 /* LayerNodeView.swift */; };
 		ECBC95FB27613D9200508966 /* evalTests+2.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBC95FA27613D9200508966 /* evalTests+2.swift */; };
 		ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */; };
 		ECBD32FF2988A36F00C778BE /* PureEvaluation.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */; };
@@ -1580,6 +1581,7 @@
 		ECB9A86C2AEB4944006E65EE /* LightnessSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightnessSliderView.swift; sourceTree = "<group>"; };
 		ECB9A86E2AEB4950006E65EE /* AlphaSliderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlphaSliderView.swift; sourceTree = "<group>"; };
 		ECBB853E25E9BA5500C1EE40 /* PreviewText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewText.swift; sourceTree = "<group>"; };
+		ECBC61A42C3B06A200A6EBF0 /* LayerNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodeView.swift; sourceTree = "<group>"; };
 		ECBC95FA27613D9200508966 /* evalTests+2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "evalTests+2.swift"; sourceTree = "<group>"; };
 		ECBD32FC2988A31E00C778BE /* ImpureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpureEvaluation.swift; sourceTree = "<group>"; };
 		ECBD32FE2988A36F00C778BE /* PureEvaluation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PureEvaluation.swift; sourceTree = "<group>"; };
@@ -2444,6 +2446,7 @@
 				ECDE943128089DF500005401 /* NodeView.swift */,
 				ECC30E0F2C234DAF00F0F54C /* LayerRowOnGraphView.swift */,
 				B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */,
+				ECBC61A42C3B06A200A6EBF0 /* LayerNodeView.swift */,
 				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
 				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
@@ -4616,6 +4619,7 @@
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
 				B5EC61F32A5DF7AA002A639F /* PatchNodeView.swift in Sources */,
+				ECBC61A52C3B06A200A6EBF0 /* LayerNodeView.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
 				B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */,
 				EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */,
