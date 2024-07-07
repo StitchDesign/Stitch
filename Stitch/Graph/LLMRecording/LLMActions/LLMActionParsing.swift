@@ -79,7 +79,7 @@ extension GraphState {
         // A patch node or layer-input-on-graph was moved
         case .moveNode(let x):
             
-            if let canvasItemId = getCanvasIdFromLLMAction(
+            if let canvasItemId = getCanvasIdFromLLMMoveNodeAction(
                 llmNode: x.node,
                 llmPort: x.port,
                 self.graphUI.llmNodeIdMapping),
@@ -96,22 +96,26 @@ extension GraphState {
             guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
+                fatalErrorIfDebug()
                 return
             }
             
             guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
                   self.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
+                fatalErrorIfDebug()
                 return
             }
             
             guard let fromPort: NodeIOPortType = x.from.port.parseLLMPortAsPortType(fromNodeKind, .output) else {
                 log("handleLLMAction: .addEdge: No origin port")
+                fatalErrorIfDebug()
                 return
             }
             
             guard let toPort: NodeIOPortType = x.to.port.parseLLMPortAsPortType(toNodeKind, .input) else {
                 log("handleLLMAction: .addEdge: No destination port")
+                fatalErrorIfDebug()
                 return
             }
             
@@ -238,25 +242,24 @@ extension GraphState {
     }
 }
 
-func getCanvasIdFromLLMAction(llmNode: String,
-                              llmPort: String,
-                              _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
+func getCanvasIdFromLLMMoveNodeAction(llmNode: String,
+                                      llmPort: String,
+                                      _ mapping: LLMNodeIdMapping) -> CanvasItemId? {
     
     if let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: mapping) {
         
         // Empty `port: String` = we moved a patch or group node
         if llmPort.isEmpty {
             return .node(nodeId)
-        } 
+        }
         
-        // Tricky: don't know whether we moved an layer input or an output
-        else if let portType = llmPort.parseLLMPortAsPortType(nodeKind, nil) {
-            switch portType {
-            case .portIndex(let portId):
-                return .layerOutputOnGraph(.init(portId: portId, nodeId: nodeId))
-            case .keyPath(let layerInput):
-                return .layerInputOnGraph(.init(node: nodeId,
-                                                keyPath: layerInput))
+        // Tricky: we know that we have a layer, but don't know whether we moved an input or output
+        else if let layerLabel = llmPort.parseLLMPortAsLabelForLayer(nodeKind) {
+            switch layerLabel {
+            case .keyPath(let x):
+                return .layerInputOnGraph(.init(node: nodeId, keyPath: x))
+            case .portIndex(let x):
+                return .layerOutputOnGraph(.init(portId: x, nodeId: nodeId))
             }
         }
     }
@@ -265,6 +268,23 @@ func getCanvasIdFromLLMAction(llmNode: String,
 }
 
 extension String {
+    
+    func parseLLMPortAsLabelForLayer(_ nodeKind: NodeKind) -> NodeIOPortType? {
+        
+        let llmPort = self
+        
+        // Prefer to look for layer input first; ASSUMES every layer input has a label
+        if let inputLabel = llmPort.parseLLMPortAsLabelForLayerInputType {
+            return .keyPath(inputLabel)
+        }
+        
+        // Else, we must have a layer output; note: do layer outputs ALWAYS have labels?
+        else if let indexOfOutputLabel = nodeKind.rowDefinitions(for: nil).outputs.firstIndex(where: { $0.label == llmPort }) {
+            return .portIndex(indexOfOutputLabel)
+        }
+        
+        return nil
+    }
         
     func getNodeIdAndKindFromLLMNode(from mapping: LLMNodeIdMapping) -> (NodeId, NodeKind)? {
         
@@ -292,20 +312,18 @@ extension String {
 //
 //    }
     
-    
-    // Not accurate -- llm-port is always a l
     func parseLLMPortAsPortType(_ nodeKind: NodeKind,
-                                // nil when we don't know whether we moved input vs output
-                                _ nodeIO: NodeIO?) -> NodeIOPortType? {
+                                _ nodeIO: NodeIO) -> NodeIOPortType? {
         let llmPort = self
-        
-        // If the `port: String` is already a lon
-        if let layerInput = llmPort.parseLLMPortAsLabelForLayerInputType {
-            return .keyPath(layerInput)
-        } else if let portId = llmPort.parseLLMPortAsPortId {
-            return .portIndex(portId)
-        } else {
+                        
+        switch nodeKind {
+        case .patch:
             return llmPort.parseLLMPortAsLabelForNonLayer(nodeKind, nodeIO)
+        case .layer:
+            return llmPort.parseLLMPortAsLabelForLayer(nodeKind)
+        case .group:
+            fatalErrorIfDebug()
+            return nil
         }
         
 //        if let portId = Int.init(llmPort) {
@@ -335,21 +353,26 @@ extension String {
     // But if you get this back, it could be for an input (non-layer) or an output
     // So what do you return ?
     func parseLLMPortAsLabelForNonLayer(_ nodeKind: NodeKind,
-                                        _ nodeIO: NodeIO?) -> NodeIOPortType? {
+                                        _ nodeIO: NodeIO) -> NodeIOPortType? {
         
 //        // Should NOT be used for a label for a layer input
 //        guard !self.parseLLMPortAsLabelForLayerInputType.isDefined else {
 //            fatalErrorIfDebug()
 //            return nil
 //        }
-//        
         
+        let llmPort = self
+        
+        // if llmPort is an integer-string, then we have an un-labeled input/output on a patch node,
+        // and can just return that
+        if let portId = llmPort.parseLLMPortAsPortId {
+            return .portIndex(portId)
+        }
+
         // Labels do not vary by overall node-type
         let definitions = nodeKind.rowDefinitions(for: nil)
-        
-        let indexOfInputLabel = definitions.inputs.firstIndex { $0.label == self }
-        
-        let indexOfOutputLabel = definitions.outputs.firstIndex { $0.label == self }
+        let indexOfInputLabel = definitions.inputs.firstIndex { $0.label == llmPort }
+        let indexOfOutputLabel = definitions.outputs.firstIndex { $0.label == llmPort }
         
         // Assumes that labels on a given patch/layer are unique.
         // Seems a safe/workable assumption for patches and layers; but
