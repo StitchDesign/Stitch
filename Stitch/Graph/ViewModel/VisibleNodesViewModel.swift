@@ -89,7 +89,8 @@ extension VisibleNodesViewModel {
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
         let incomingGroupIds = nodesDict
-            .compactMap { $0.value.parentGroupNodeId?.asGroupNodeId }
+            .flatMap { $0.value.canvasEntities }
+            .compactMap { $0.parentGroupNodeId?.asGroupNodeId }
             .toSet
 
         // Check for groups (traversal levels) to add for position/zoom data
@@ -105,7 +106,7 @@ extension VisibleNodesViewModel {
                                                    activeIndex: activeIndex)
 
                 // Toggle output downstream connections to false, will correct below
-                node.getRowObservers(.output).forEach {
+                node.getAllOutputsObservers().forEach {
                     $0.containsDownstreamConnection = false
                 }
             } else {
@@ -139,7 +140,7 @@ extension VisibleNodesViewModel {
            let layerNodeViewModel = nodeViewModel.layerNode {
             layerEntity.layer.layerGraphNode.inputDefinitions.forEach { inputType in
                 let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
-                let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath]
+                let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].rowObserver
                 
                 guard let connectedOutputCoordinate = schemaInput.upstreamConnection else {
                     inputObserver.upstreamOutputCoordinate = nil
@@ -165,7 +166,7 @@ extension VisibleNodesViewModel {
                     return
                 }
                 
-                guard let connectedOutputCoordinate = inputEntity.upstreamOutputCoordinate else {
+                guard let connectedOutputCoordinate = inputEntity.upstreamConnection else {
                     inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
