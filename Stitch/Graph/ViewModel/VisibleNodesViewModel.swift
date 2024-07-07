@@ -222,41 +222,78 @@ extension VisibleNodesViewModel {
         }
     }
 
-    /// Obtains row observers directly from splitter patch nodes given its parent group node.
+    /// Obtains input row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterRowObservers(for groupNodeId: NodeId,
-                                 type: SplitterType) -> NodeRowObservers {
+    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
         // find splitters inside this group node
-        let allSplitterNodes = self.nodes.values
+        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
+            .compactMap { $0.patchNode }
             .filter {
-                $0.splitterType == type
+                $0.splitterType == .input
             }
 
         // filter splitters relevant to this group node
         let splittersInThisGroup = allSplitterNodes
             .filter { splitterNode in
-                splitterNode.parentGroupNodeId == groupNodeId
+                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
             }
-            // sort new inputs/outputs by the date the splitter was created
+            // sort new inputs/inputs by the date the splitter was created
             .sorted {
-                ($0.patchNode?.splitterNode?.lastModifiedDate ?? Date.now) <
-                    ($1.patchNode?.splitterNode?.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
-        let splitterRowObservers: NodeRowObservers = splittersInThisGroup
+        let splitterRowObservers: [InputNodeRowObserver] = splittersInThisGroup
             // get the NodeViewModel for this splitter
             .compactMap { self.nodes.get($0.id) }
             .compactMap { node in
                 switch node.splitterType {
-                case .inline, .none:
+                case .input:
+                    return node.getInputRowObserver(0)
+                default:
                     // Shouldn't be called
                     fatalErrorIfDebug()
                     return nil
-                case .input:
-                    return node.getInputRowObserver(0)
+                }
+            }
+
+        return splitterRowObservers
+    }
+    
+    /// Obtains output row observers directly from splitter patch nodes given its parent group node.
+    @MainActor
+    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+        // find splitters inside this group node
+        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
+            .compactMap { $0.patchNode }
+            .filter {
+                $0.splitterType == .output
+            }
+
+        // filter splitters relevant to this group node
+        let splittersInThisGroup = allSplitterNodes
+            .filter { splitterNode in
+                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
+            }
+            // sort new inputs/outputs by the date the splitter was created
+            .sorted {
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
+            }
+
+        // get the first (and only) row observer for this splitter node
+        let splitterRowObservers: [OutputNodeRowObserver] = splittersInThisGroup
+            // get the NodeViewModel for this splitter
+            .compactMap { self.nodes.get($0.id) }
+            .compactMap { node in
+                switch node.splitterType {
                 case .output:
                     return node.getOutputRowObserver(0)
+                default:
+                    // Shouldn't be called
+                    fatalErrorIfDebug()
+                    return nil
                 }
             }
 
@@ -264,7 +301,7 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getInputSplitters(for id: NodeId) -> NodeRowObservers? {
+    func getInputSplitters(for id: NodeId) -> [InputNodeRowObserver]? {
         self._getSplitters(for: id, splitterType: .input)
     }
 

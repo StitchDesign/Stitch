@@ -391,7 +391,7 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func getInputRowObserver(_ portId: Int) -> NodeRowObserver? {
+    func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
         // Layers use key paths instead of array
         if let layerNode = self.layerNode {
             return layerNode.getSortedInputObservers()[safe: portId]
