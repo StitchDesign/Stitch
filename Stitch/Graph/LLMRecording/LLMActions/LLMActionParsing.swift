@@ -151,7 +151,10 @@ extension GraphState {
             }
                         
             // The new value for that entire input, not just for some field
-            guard let value: PortValue = x.value.asPortValueForLLMSetField(nodeType) else {
+            guard let value: PortValue = x.value.asPortValueForLLMSetField(
+                nodeType,
+                with: self.graphUI.llmNodeIdMapping
+            ) else {
                 log("handleLLMAction: .setField: No port value")
                 return
             }
