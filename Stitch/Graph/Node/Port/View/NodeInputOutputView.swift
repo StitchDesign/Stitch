@@ -51,7 +51,8 @@ struct NodeInputOutputView: View {
 
     var body: some View {
         let coordinate = rowData.id
-        HStack(spacing: NODE_COMMON_SPACING) {
+//        HStack(spacing: NODE_COMMON_SPACING) {
+        HStack(alignment: .firstTextBaseline, spacing: NODE_COMMON_SPACING) {
             if forPropertySidebar {
                 Image(systemName: "plus.circle")
                     .resizable()
@@ -83,6 +84,12 @@ struct NodeInputOutputView: View {
                 }
                 
                 labelView
+                
+                // TODO: fields in layer-inspector flush with right screen edge?
+                //                if forPropertySidebar {
+                //                    Spacer()
+                //                }
+                
                 inputOutputRow(coordinate: coordinate)
 
             case .output(let outputCoordinate):
@@ -90,6 +97,9 @@ struct NodeInputOutputView: View {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
                     labelView
+                    
+                    // TODO: fields in layer-inspector flush with right screen edge?
+                    //                    Spacer()
                 }
                 
                 // Hide outputs for value node
@@ -107,7 +117,13 @@ struct NodeInputOutputView: View {
                 }
             }
         }
-        .frame(height: NODE_ROW_HEIGHT)
+//        .frame(height: NODE_ROW_HEIGHT)
+        
+        // Don't specify height for layer inspector property row, so that multifields can be shown vertically
+        .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
+        
+        .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
+        
         .onChange(of: self.graphUI.activeIndex) {
             let oldViewValue = self.rowData.activeValue
             let newViewValue = self.rowData.getActiveValue(activeIndex: self.graphUI.activeIndex)

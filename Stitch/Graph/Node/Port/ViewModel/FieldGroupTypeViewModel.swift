@@ -15,6 +15,7 @@ final class FieldGroupTypeViewModel: ObservableObject {
     let type: FieldGroupType
     @Published var fieldObservers: FieldViewModels
 
+    // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
     let groupLabel: String?
 
     // Since this could be one of many in a node's row
