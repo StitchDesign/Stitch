@@ -273,6 +273,7 @@ final class LayerNodeViewModel {
 }
 
 extension LayerNodeViewModel: SchemaObserver {
+    @MainActor
     static func createObject(from entity: LayerNodeEntity) -> Self {
         .init(from: entity,
               nodeDelegate: nil)
@@ -324,7 +325,7 @@ extension LayerNodeViewModel {
     }
     
     @MainActor
-    func getSortedInputObservers() -> NodeRowObservers {
+    func getSortedInputObservers() -> [InputNodeRowObserver] {
         self.layer.layerGraphNode.inputDefinitions.map {
             self[keyPath: $0.layerNodeKeyPath].rowObserver
         }
@@ -332,8 +333,7 @@ extension LayerNodeViewModel {
     
     @MainActor
     func layerSize(_ activeIndex: ActiveIndex) -> LayerSize? {
-        self.sizePort.rowObserver
-            .getActiveValue(activeIndex: activeIndex).getSize
+        self.sizePort.rowObserver.activeValue.getSize
     }
     
     /// Updates one or more preview layers given some layer node.
@@ -447,19 +447,16 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort.rowObserver
-            .getActiveValue(activeIndex: activeIndex).getPoint
+        self.positionPort.rowObserver.activeValue.getPoint
     }
     
     @MainActor
     func scaledLayerSize(for nodeId: NodeId,
                          parentSize: CGSize,
                          activeIndex: ActiveIndex) -> ScaledSize? {
-        let scale = self.scalePort.rowObserver
-            .getActiveValue(activeIndex: activeIndex).getNumber ?? .zero
+        let scale = self.scalePort.rowObserver.activeValue.getNumber ?? .zero
         
-        return self.sizePort.rowObserver
-            .getActiveValue(activeIndex: activeIndex)
+        return self.sizePort.rowObserver.activeValue
             .getSize?.asCGSize(parentSize)
             .asScaledSize(scale)
     }

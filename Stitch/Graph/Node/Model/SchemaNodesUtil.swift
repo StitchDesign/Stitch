@@ -120,16 +120,16 @@ extension NodeRowDefinitions {
                                values: PortValuesList,
                                kind: NodeKind,
                                userVisibleType: UserVisibleType?,
-                               nodeDelegate: NodeDelegate?) -> NodeRowObservers {
+                               nodeDelegate: NodeDelegate?) -> [OutputNodeRowObserver] {
         self.outputs.enumerated().map { portId, _ in
-            NodeRowObserver(values: values[safe: portId] ?? [],
-                            nodeKind: kind,
-                            userVisibleType: userVisibleType,
-                            id: .init(portId: portId, nodeId: nodeId),
-                            activeIndex: .init(.zero),
-                            upstreamOutputCoordinate: nil,
-                            nodeIOType: .output,
-                            nodeDelegate: nodeDelegate)
+            OutputNodeRowObserver(values: values[safe: portId] ?? [],
+                                  nodeKind: kind,
+                                  userVisibleType: userVisibleType,
+                                  id: .init(portId: portId, nodeId: nodeId),
+                                  activeIndex: .init(.zero),
+                                  nodeDelegate: nodeDelegate,
+                                  // nil for now but corrected later
+                                  canvasItemDelegate: nil)
         }
     }
 }
