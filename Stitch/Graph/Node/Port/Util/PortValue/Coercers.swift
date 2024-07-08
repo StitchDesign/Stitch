@@ -88,37 +88,50 @@ func numberCoercer(_ values: PortValues,
     }
 }
 
-func layerDimensionCoercer(_ values: PortValues,
-                           graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-
+extension PortValue {
+    var coerceToLayerDimension: LayerDimension {
+        
+        let value = self
+        
         // port-value to use if we cannot coerce the value
         // to a meaningful LayerDimension
-        let defaultValue = coerceToTruthyOrFalsey(value, graphTime: graphTime)
-            ? layerDimensionDefaultTrue
-            : layerDimensionDefaultFalse
+        let defaultValue: LayerDimension = .number(
+            coerceToTruthyOrFalsey(value,
+                                   // graphTime irrelevant for non-pulse PortValues
+                                   graphTime: .zero)
+            ? 1.0
+            : .zero)
 
         switch value {
 
         // If value is already a layer dimension,
         // then just return it.
-        case .layerDimension:
-            return value
+        case .layerDimension(let x):
+            return x
 
+        case .int(let x):
+            return LayerDimension.number(CGFloat(x))
+            
         // If value is a number,
         // wrap it in a regular number.
         case .number(let x):
-            return .layerDimension(LayerDimension.number(x))
+            return LayerDimension.number(x)
 
         // If a string, try to parse to a layer-dimension.
         case .string(let x):
-            return LayerDimension.fromUserEdit(edit: x.string)
-                .map { .layerDimension($0) } ?? defaultValue
+            return LayerDimension.fromUserEdit(edit: x.string) ?? defaultValue
 
         default:
             return defaultValue
         }
     }
+}
+
+func layerDimensionCoercer(_ values: PortValues,
+                           graphTime: TimeInterval) -> PortValues {
+    values
+        .map(\.coerceToLayerDimension)
+        .map(PortValue.layerDimension)
 }
 
 // this is not quite correct?
@@ -229,7 +242,14 @@ func colorCoercer(_ values: PortValues) -> PortValues {
 // Takes a PortValue; returns a .size PortValue
 func sizeCoercer(_ values: PortValues,
                  graphTime: TimeInterval) -> PortValues {
+    
     return values.map { (value: PortValue) -> PortValue in
+        
+        let defaultValue = coerceToTruthyOrFalsey(value,
+                                                  graphTime: graphTime)
+        ? defaultPositionTrue
+        : defaultPositionFalse
+        
         switch value {
         case .size:
             return value
@@ -255,11 +275,14 @@ func sizeCoercer(_ values: PortValues,
             return .size(x ? .multiplicationIdentity : .zero)
         case .json(let x):
             return .size(x.value.toSize ?? .zero)
+        case .string(let x):
+            if let dimension = LayerDimension.fromUserEdit(edit: x.string) {
+                return .size(LayerSize(width: dimension,
+                                       height: dimension))
+            }
+            return defaultValue
         default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? defaultPositionTrue
-                : defaultPositionFalse
+            return defaultValue
         }
     }
 }
