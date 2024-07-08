@@ -50,10 +50,29 @@ struct NodeFieldsView: View {
     }
     
     var body: some View {
+        // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
         if let groupLabel = label {
             StitchTextView(string: groupLabel)
         }
-
+        
+        fieldsStack
+    }
+    
+    @ViewBuilder
+    var fieldsStack: some View {
+        if forPropertySidebar {
+            VStack {
+                fields
+            }
+        } else {
+            if let groupLabel = label {
+                StitchTextView(string: groupLabel)
+            }
+            fields
+        }
+    }
+    
+    var fields: some View {
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
             self.valueEntryView(fieldViewModel)
         }
