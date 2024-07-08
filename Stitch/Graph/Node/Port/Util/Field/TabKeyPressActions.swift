@@ -93,7 +93,7 @@ extension NodeViewModel {
             // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
             // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
             // would have tab-eligible-input indices like `[1, 3]`
-            let allInputs = self.inputRowObservers()
+            let allInputs = self.getAllInputsObservers()
             let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
             
             guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
@@ -229,7 +229,7 @@ extension NodeViewModel {
             // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
             // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
             // would have tab-eligible-input indices like `[1, 3]`
-            let allInputs = self.inputRowObservers()
+            let allInputs = self.getAllInputsObservers()
             let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
             
             guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
@@ -302,7 +302,7 @@ extension NodeViewModel {
     
     @MainActor
     var maxInputIndex: Int {
-        self.inputRowObservers().count - 1
+        self.getAllInputsObservers().count - 1
     }
 }
 

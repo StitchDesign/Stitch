@@ -80,7 +80,7 @@ struct NodesView: View {
                                 return []
                             }
                             
-                            return node.inputRowObservers()
+                            return node.getAllInputsObservers()
                         }
                     }
                 

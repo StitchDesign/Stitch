@@ -147,8 +147,7 @@ final class NodeViewModel: Sendable {
 //                                upstreamOutputCoordinate: nil)
 //        }
         
-        let canvasEntity = CanvasNodeEntity(id: .init(),
-                                            position: position.toCGPoint,
+        let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,
                                             zIndex: zIndex,
                                             parentGroupNodeId: parentGroupNodeId)
 
@@ -162,13 +161,13 @@ final class NodeViewModel: Sendable {
                   graphDelegate: graphDelegate)
         
         self.nodeType = nodeType
-        self.patchNode?.outputsObservers = NodeRowObservers(values: outputs,
-                                                            kind: self.kind,
-                                                            userVisibleType: self.userVisibleType,
-                                                            id: id,
-                                                            nodeIO: .output,
-                                                            activeIndex: activeIndex,
-                                                            nodeDelegate: self)
+//        self.patchNode?.outputsObservers = .init(values: outputs,
+//                                                            kind: self.kind,
+//                                                            userVisibleType: self.userVisibleType,
+//                                                            id: id,
+//                                                            nodeIO: .output,
+//                                                            activeIndex: activeIndex,
+//                                                            nodeDelegate: self)
     }
 }
 
@@ -277,7 +276,11 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
         
         // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
         if let patchNode = self.patchNode {
-            (patchNode.inputsObservers + patchNode.outputsObservers).forEach {
+            patchNode.inputsObservers.forEach {
+                $0.userVisibleType = newType
+            }
+            
+            patchNode.outputsObservers.forEach {
                 $0.userVisibleType = newType
             }
         }
@@ -337,11 +340,8 @@ extension NodeViewModel {
         return false
     }
     
-    // fka `func updateRowObservers(activeIndex: ActiveIndex)`
     @MainActor
-    func updateRowObservers(activeIndex: ActiveIndex) {
-        // TODO: iterate over each row observer for each canvas....
-        
+    func updateInputsObservers(activeIndex: ActiveIndex) {
         // Do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
@@ -352,28 +352,20 @@ extension NodeViewModel {
                 activeIndex: activeIndex,
                 isVisible: self.isVisibleInFrame)
         }
-        
+    }
+
+    @MainActor
+    func updateOutputsObservers(activeIndex: ActiveIndex) {
+        // Do nothing if not in frame
+        guard self.isVisibleInFrame else {
+            return
+        }
+
         self.getAllOutputsObservers().forEach { rowObserver in
             rowObserver.onVisibilityChange(
                 activeIndex: activeIndex,
                 isVisible: self.isVisibleInFrame)
         }
-    }
-    
-    @MainActor
-    func updateInputsObservers(newValuesList: PortValuesList,
-                               activeIndex: ActiveIndex) {
-        self.updateRowObservers(rowObservers: self.getAllInputsObservers(),
-                                newIOValues: newValuesList,
-                                activeIndex: activeIndex)
-    }
-
-    @MainActor
-    func updateOutputsObservers(newValuesList: PortValuesList,
-                                activeIndex: ActiveIndex) {
-        self.updateRowObservers(rowObservers: self.getAllOutputsObservers(),
-                                newIOValues: newValuesList,
-                                activeIndex: activeIndex)
     }
     
     @MainActor
@@ -402,8 +394,7 @@ extension NodeViewModel {
         
         if kind == .group {
             return self.graphDelegate?
-                .getSplitterRowObservers(for: self.id,
-                                         type: .input)[safe: portId]
+                .getSplitterInputRowObservers(for: self.id)[safe: portId]
         }
         
         // Sometimes observers aren't yet created for nodes with adjustable inputs
@@ -427,33 +418,32 @@ extension NodeViewModel {
     func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
         if kind == .group {
             return self.graphDelegate?
-                .getSplitterRowObservers(for: self.id,
-                                         type: .output)[safe: portId]
+                .getSplitterOutputRowObservers(for: self.id)[safe: portId]
         }
         
         return self.patchNode?.outputsObservers[safe: portId]
     }
 
-    @MainActor
-    private func updateRowObservers(rowObservers: NodeRowObservers,
-                                    newIOValues: PortValuesList,
-                                    activeIndex: ActiveIndex) {
-
-        newIOValues.enumerated().forEach { portId, newValues in
-            guard let observer = rowObservers[safe: portId] else {
-                #if DEV_DEBUG
-                log("NodeViewModel.initializeThrottlers error: no observer found, this shouldn't happen.")
-                log("NodeViewModel.initializeThrottlers: error: node.id: \(self.id)")
-                log("NodeViewModel.initializeThrottlers: error: portId: \(portId)")
-                #endif
-                return
-            }
-
-            observer.updateValues(newValues,
-                                  activeIndex: activeIndex,
-                                  isVisibleInFrame: self.isVisibleInFrame)
-        }
-    }
+//    @MainActor
+//    private func updateRowObservers(rowObservers: NodeRowObservers,
+//                                    newIOValues: PortValuesList,
+//                                    activeIndex: ActiveIndex) {
+//
+//        newIOValues.enumerated().forEach { portId, newValues in
+//            guard let observer = rowObservers[safe: portId] else {
+//                #if DEV_DEBUG
+//                log("NodeViewModel.initializeThrottlers error: no observer found, this shouldn't happen.")
+//                log("NodeViewModel.initializeThrottlers: error: node.id: \(self.id)")
+//                log("NodeViewModel.initializeThrottlers: error: portId: \(portId)")
+//                #endif
+//                return
+//            }
+//
+//            observer.updateValues(newValues,
+//                                  activeIndex: activeIndex,
+//                                  isVisibleInFrame: self.isVisibleInFrame)
+//        }
+//    }
     
     var color: NodeUIColor {
         switch self.kind {

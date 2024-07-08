@@ -128,27 +128,17 @@ extension NodeViewModel {
 
     @MainActor
     var inputs: PortValuesList {
-        self.inputRowObservers().map { $0.allLoopedValues }
+        self.getAllInputsObservers().map { $0.allLoopedValues }
     }
 
     @MainActor
     var outputs: PortValuesList {
-        self.outputRowObservers().map { $0.allLoopedValues }
+        self.getAllOutputsObservers().map { $0.allLoopedValues }
     }
     
     @MainActor
     func allRowObservers() -> [any NodeRowObserver] {
-        self.inputRowObservers() + self.outputRowObservers()
-    }
-    
-    @MainActor
-    func inputRowObservers() -> [InputNodeRowObserver] {
-        self.getAllInputsObservers()
-    }
-    
-    @MainActor
-    func outputRowObservers() -> [OutputNodeRowObserver] {
-        self.getAllOutputsObservers()
+        self.getAllInputsObservers() + self.getAllOutputsObservers()
     }
     
     @MainActor
@@ -183,7 +173,7 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
-        self.inputRowObservers().enumerated().forEach { index, inputObserver in
+        self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
                 nodeKind: self.kind,

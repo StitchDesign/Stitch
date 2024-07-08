@@ -60,7 +60,7 @@ extension EdgeAnchorUpstreamData {
             return
         }
         
-        let downstreamInputs = connectedDownstreamNode.inputRowObservers()
+        let downstreamInputs = connectedDownstreamNode.getAllInputsObservers()
         
         // Find top and bottom-most edges from upstream node connecting to this node
         var firstConnectedUpstreamObserver: NodeRowObserver?
@@ -114,7 +114,7 @@ extension EdgeAnchorDownstreamData {
             return nil
         }
 
-        let allInputs = node.inputRowObservers()
+        let allInputs = node.getAllInputsObservers()
         
         // Iterate through inputs at this node to find other connected edges from same upstream node id
         var firstConnectedInputObserver: NodeRowObserver?

@@ -74,7 +74,7 @@ struct NodesOnlyView: View {
     // var layerInputsOnGraphView: some View {
     //     let layerNodes = self.nodes.filter(\.layerNode.isDefined)
     //     ForEach(layerNodes) { node in
-    //         let layerRowsOnGraph = (node.inputRowObservers() + node.outputRowObservers()).filter(\.canvasUIData.isDefined)
+    //         let layerRowsOnGraph = (node.getAllInputsObservers() + node.getAllOutputsObservers()).filter(\.canvasUIData.isDefined)
             
     //         ForEach(layerRowsOnGraph) { layerRowOnGraph in
     //             let isAtThisTraversalLevel = layerRowOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup

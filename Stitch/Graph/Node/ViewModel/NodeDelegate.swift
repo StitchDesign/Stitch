@@ -18,7 +18,7 @@ import StitchSchemaKit
 protocol NodeDelegate: AnyObject {
     var id: NodeId { get }
     
-    var isVisibleInFrame: Bool { get set }
+//    var isVisibleInFrame: Bool { get set }
     
     var kind: NodeKind { get }
     
@@ -63,11 +63,11 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver?
     
-    @MainActor func inputRowObservers() -> [InputNodeRowObserver]
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver]
     
-    @MainActor func outputRowObservers() -> [OutputNodeRowObserver]
+    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver]
     
-    func updateRowObservers(activeIndex: ActiveIndex)
+//    @MainActor func updateRowObservers(activeIndex: ActiveIndex)
     
     @MainActor func calculate()
 }

@@ -196,8 +196,8 @@ extension CanvasItemViewModel {
             if self.nodeDelegate?.kind == .group {
                 // Group node needs to mark all input and output splitters as visible
                 // Fixes issue for setting visibility on groups
-                let inputsObservers = self.nodeDelegate?.inputRowObservers() ?? []
-                let outputsObservers = self.nodeDelegate?.outputRowObservers() ?? []
+                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
+                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
                 let allObservers = inputsObservers + outputsObservers
                 allObservers
                     .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }

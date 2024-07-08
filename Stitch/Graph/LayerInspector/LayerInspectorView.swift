@@ -202,7 +202,7 @@ struct LayerInspectorOutputsSectionView: View {
         
     var body: some View {
         
-        let outputs = node.outputRowObservers()
+        let outputs = node.getAllOutputsObservers()
         
         if outputs.isEmpty {
             EmptyView()

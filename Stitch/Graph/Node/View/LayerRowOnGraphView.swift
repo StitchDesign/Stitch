@@ -200,7 +200,7 @@ struct FakeLayerInputOnGraphView: View {
         LayerRowOnGraphView(
             graph: .fakeEmptyGraphState,
             node: node,
-            row: node.inputRowObservers()[1],
+            row: node.getAllInputsObservers()[1],
             canvasItem: .fakeCanvasItemForLayerInputOnGraph,
             layerNode: node.layerNode!)
     }
