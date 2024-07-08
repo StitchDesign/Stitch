@@ -41,7 +41,9 @@ extension Point4D {
                             
 extension StitchSpacing {
     
-    static let defaultStitchSpacing: Self = .number(.zero)
+    static let defaultStitchSpacing: Self = .zero
+
+    static let zero: Self = .number(.zero)
     
     var isEvenly: Bool {
         self == .evenly

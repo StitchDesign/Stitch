@@ -28,8 +28,11 @@ struct GeneratePreview: View {
                           layers: sortedLayerDataList,
                           parentSize: graph.previewWindowSize, 
                           parentId: nil,
+                          parentOrientation: .none,
+                          parentPadding: .zero,
+                          parentSpacing: .zero,
                           // Always false at top-level
-                          parentCornerRadius: 0, 
+                          parentCornerRadius: 0,
                           parentUsesHug: false,
                           parentGridData: nil)
         .modifier(HoverGestureModifier(graph: graph,
@@ -55,13 +58,13 @@ struct PreviewLayersView: View {
     let parentId: LayerNodeId?
     
     // Are we a ZStack, an HStack, a VStack or an Adaptive Grid?
-    var parentOrientation: StitchOrientation = .none
+    var parentOrientation: StitchOrientation // = .none
     
     // Padding on the children overall
-    var parentPadding: StitchPadding = .init()
+    var parentPadding: StitchPadding // = .init()
     
     // Spacing between the children; N/A for ZStack
-    var parentSpacing: StitchSpacing = .defaultStitchSpacing
+    var parentSpacing: StitchSpacing // = .defaultStitchSpacing
     
     let parentCornerRadius: CGFloat
     let parentUsesHug: Bool
