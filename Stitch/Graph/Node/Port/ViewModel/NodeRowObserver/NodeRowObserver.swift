@@ -18,7 +18,7 @@ import StitchEngine
 //    }
 //}
 
-protocol NodeRowObserver: AnyObject, Identifiable, Sendable {
+protocol NodeRowObserver: AnyObject, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
     
     var id: NodeIOCoordinate { get set }
@@ -59,7 +59,7 @@ protocol NodeRowObserver: AnyObject, Identifiable, Sendable {
 }
 
 @Observable
-final class InputNodeRowObserver: NodeRowObserver {
+final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     static let nodeIOType: NodeIO = .input
 
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())

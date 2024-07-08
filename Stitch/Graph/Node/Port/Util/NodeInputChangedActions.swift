@@ -66,7 +66,7 @@ struct InputRemovedAction: GraphEventWithResponse {
         if let node = state.getNodeViewModel(nodeId),
            let inputChanger = node.kind.getPatch?.inputCountChanged,
            // It's always the last input that is removed.
-           let lastObserver = node.getRowObservers(.input).last {
+           let lastObserver = node.getAllInputsObservers().last {
 
             // Remove connections pointing to the input.
             lastObserver.upstreamOutputCoordinate = nil

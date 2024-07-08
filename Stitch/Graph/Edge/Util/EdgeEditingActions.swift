@@ -100,7 +100,7 @@ extension NodeViewModel {
             return inputSplitters
         }
         
-        return self.getRowObservers(.input).enumerated().map { portId, inputObserver in
+        return self.getAllInputsObservers().enumerated().map { portId, inputObserver in
             InputPortViewData(portId: portId, nodeId: inputObserver.id.nodeId)
         }
     }

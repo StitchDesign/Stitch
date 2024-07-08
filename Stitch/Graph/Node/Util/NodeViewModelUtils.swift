@@ -197,8 +197,8 @@ extension NodeViewModel {
     /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
     @MainActor
     func updateAllPortViewData() {
-        let inputsObservers = self.getRowObservers(.input)
-        let outputsObservers = self.getRowObservers(.output)
+        let inputsObservers = self.getAllInputsObservers()
+        let outputsObservers = self.getAllOutputsObservers()
         
         inputsObservers.forEach { $0.updatePortViewData() }
         outputsObservers.forEach { $0.updatePortViewData() }
@@ -206,8 +206,8 @@ extension NodeViewModel {
     
     @MainActor
     func updateAllConnectedNodes() {
-        let inputsObservers = self.getRowObservers(.input)
-        let outputsObservers = self.getRowObservers(.output)
+        let inputsObservers = self.getAllInputsObservers()
+        let outputsObservers = self.getAllOutputsObservers()
         
         inputsObservers.forEach { $0.updateConnectedNodes() }
         outputsObservers.forEach { $0.updateConnectedNodes() }

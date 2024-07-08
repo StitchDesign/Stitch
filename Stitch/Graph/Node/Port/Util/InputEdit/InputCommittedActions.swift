@@ -78,9 +78,7 @@ extension GraphState {
             }
 
             // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
-            let valueAtIndex = InputNodeRowObserver
-                .getActiveValue(allLoopedValues: inputObserver.allLoopedValues,
-                                activeIndex: self.activeIndex)
+            let valueAtIndex = inputObserver.activeValue
             let nodeKind = nodeViewModel.kind
             let valueChange = (valueAtIndex != value)
 

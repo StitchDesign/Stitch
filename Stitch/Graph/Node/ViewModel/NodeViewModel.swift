@@ -174,11 +174,33 @@ final class NodeViewModel: Sendable {
 
 extension NodeViewModel: NodeCalculatable {
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-        self.getRowObservers(.input)
+        guard self.kind != .group else {
+            return self.graphDelegate?.getSplitterInputRowObservers(for: self.id) ?? []
+        }
+        
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.inputsObservers
+        case .layer(let layer):
+            return layer.getSortedInputObservers()
+        case .group:
+            return []
+        }
     }
     
     @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-        self.getRowObservers(.output)
+        guard self.kind != .group else {
+            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id) ?? []
+        }
+        
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.outputsObservers
+        case .layer(let layer):
+            return layer.outputsObservers
+        case .group:
+            return []
+        }
     }
     
     // after we eval a node, we sets its current inputs to be its previous inputs,
@@ -341,7 +363,7 @@ extension NodeViewModel {
     @MainActor
     func updateInputsObservers(newValuesList: PortValuesList,
                                activeIndex: ActiveIndex) {
-        self.updateRowObservers(rowObservers: self.getRowObservers(.input),
+        self.updateRowObservers(rowObservers: self.getAllInputsObservers(),
                                 newIOValues: newValuesList,
                                 activeIndex: activeIndex)
     }
@@ -349,28 +371,9 @@ extension NodeViewModel {
     @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList,
                                 activeIndex: ActiveIndex) {
-        self.updateRowObservers(rowObservers: self.getRowObservers(.output),
+        self.updateRowObservers(rowObservers: self.getAllOutputsObservers(),
                                 newIOValues: newValuesList,
                                 activeIndex: activeIndex)
-    }
-
-    @MainActor
-    func getRowObservers(_ nodeIO: NodeIO) -> NodeRowObservers {
-        guard self.kind != .group else {
-            return self.graphDelegate?.getSplitterRowObservers(for: self.id,
-                                                               type: nodeIO == .input ? .input : .output) ?? []
-        }
-        
-        switch nodeIO {
-        case .input:
-            // Layers use key paths instead of array
-            if let layerNode = self.layerNode {
-                return layerNode.getSortedInputObservers()
-            }
-            return self.patchNode?.inputsObservers ?? []
-        case .output:
-            return self.patchNode?.outputsObservers ?? []
-        }
     }
     
     @MainActor
@@ -505,11 +508,11 @@ extension NodeViewModel: NodeDelegate {
     }
     
     var inputsRowCount: Int {
-        self.getRowObservers(.input).count
+        self.getAllInputsObservers().count
     }
     
     var outputsRowCount: Int {
-        self.getRowObservers(.output).count
+        self.getAllOutputsObservers().count
     }
     
     var activeIndex: ActiveIndex {
@@ -693,7 +696,7 @@ extension NodeViewModel {
         
         // assumes new input has no label, etc.
         log("inputAdded called")
-        let allInputsObservers = self.getRowObservers(.input)
+        let allInputsObservers = self.getAllInputsObservers()
 
         // New value needs to be a default of same type as other inputs
         // Grab the type's default, based on value of last input;
