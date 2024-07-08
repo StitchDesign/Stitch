@@ -46,15 +46,6 @@
       }
     },
     {
-      "identity" : "stitchengine",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/StitchEngine.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "087eb20926ffac4ecbbe03f4db362c3f13f05afe"
-      }
-    },
-    {
       "identity" : "stitchviewkit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchViewKit.git",

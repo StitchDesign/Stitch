@@ -128,12 +128,12 @@ final class InputNodeRowObserver: NodeRowObserver {
                      activeIndex: ActiveIndex,
                      nodeDelegate: NodeDelegate?,
                      canvasItemDelegate: CanvasItemViewModel?) {
-        self.init(values: schema.values ?? [],
+        self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
-                  upstreamOutputCoordinate: schema.upstreamOutputCoordinate,
+                  upstreamOutputCoordinate: schema.portData.upstreamConnection,
                   nodeDelegate: nodeDelegate,
                   canvasItemDelegate: canvasItemDelegate)
     }
@@ -151,7 +151,7 @@ final class InputNodeRowObserver: NodeRowObserver {
         self.id = id
         
         self.rowViewModel = .init(id: id.portType,
-                                  activeValue: Self.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
                                   rowDelegate: self,
                                   canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
@@ -225,7 +225,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.id = id
         
         self.rowViewModel = .init(id: id.portType,
-                                  activeValue: Self.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
                                   rowDelegate: self,
                                   canvasItemDelegate: canvasItemDelegate)
         self.allLoopedValues = values

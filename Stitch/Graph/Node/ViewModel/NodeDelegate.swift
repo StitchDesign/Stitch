@@ -89,17 +89,13 @@ extension NodeDelegate {
     
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
-        self.getAllCanvasObservers()
-            .flatMap { canvasItem in
-                canvasItem.inputViewModels
-            }
+        self.getAllInputsObservers()
+            .map { $0.rowViewModel }
     }
     
     @MainActor
     var allOutputRowViewModels: [OutputNodeRowViewModel] {
-        self.getAllCanvasObservers()
-            .flatMap { canvasItem in
-                canvasItem.outputViewModels
-            }
+        self.getAllOutputsObservers()
+            .map { $0.rowViewModel }
     }
 }

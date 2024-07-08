@@ -126,7 +126,7 @@ extension NodeRowViewModel {
        }
        
        // Must get port UI data. Helpers below will get group or splitter data depending on focused group.
-       return canvasIds.union(self.retrieveConnectedCanvasItems())
+       return canvasIds.union(self.connectedCanvasItems)
    }
    
 //   @MainActor

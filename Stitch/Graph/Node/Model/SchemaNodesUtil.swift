@@ -13,7 +13,7 @@ extension [NodePortInputEntity] {
     func createInputObservers(nodeId: NodeId,
                               kind: NodeKind,
                               userVisibleType: UserVisibleType?,
-                              nodeDelegate: NodeDelegate?) -> NodeRowObservers {
+                              nodeDelegate: NodeDelegate?) -> [InputNodeRowObserver] {
         
         // Note: can be called for GroupNode as well?
         guard !kind.isLayer else {
