@@ -106,7 +106,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             
             // TODO: update once StitchPadding is saved in schema
             padding: viewModel.padding.getPoint4D?.toStitchPadding ?? .zero,
-            
+            spacing: viewModel.spacing.getStitchSpacing ?? .defaultStitchSpacing,
             cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
             blurRadius: viewModel.blur.getNumber ?? .zero,
             blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,
