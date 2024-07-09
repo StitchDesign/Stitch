@@ -11,9 +11,10 @@ import StitchSchemaKit
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
+    @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
 
+    let coordinate: PortViewData
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
@@ -23,11 +24,6 @@ struct InputValueEntry: View {
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
-
-    var coordinate: InputPortViewData {
-        // input is a bad name--could be either here
-        self.viewModel.coordinate
-    }
     
     var label: String {
         self.viewModel.fieldLabel
@@ -44,7 +40,7 @@ struct InputValueEntry: View {
 
     var valueDisplay: some View {
         InputValueView(graph: graph,
-                       rowObserver: rowObserver,
+                       rowViewModel: rowViewModel,
                        viewModel: viewModel,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
@@ -72,7 +68,7 @@ struct InputValueEntry: View {
 
 struct InputValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
+    @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
     
     let nodeKind: NodeKind
@@ -86,12 +82,8 @@ struct InputValueView: View {
         self.viewModel.id
     }
     
-    var coordinate: NodeIOCoordinate {
-        self.rowObserver.id
-    }
-    
     var hasIncomingEdge: Bool {
-        self.rowObserver.upstreamOutputCoordinate.isDefined
+        self.rowViewModel.rowDelegate?.upstreamOutputCoordinate != nil
     }
     
     var fieldValue: FieldValue {

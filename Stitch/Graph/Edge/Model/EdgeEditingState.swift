@@ -54,7 +54,7 @@ struct EdgeEditingState {
      Not the same thing as the edge's isCommitted, since e.g. de-committing an edge sets is isCommitted = false
      but we still need to show the edge until the withdrawal animation completes.
      */
-    var shownIds: Set<InputPortViewData> = .init()
+    var shownIds: Set<PortViewData> = .init()
 
     /*
      Possible edge id found in set = edge is currently animating (extending or withdrawing).

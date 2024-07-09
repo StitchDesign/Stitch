@@ -9,13 +9,13 @@ import Foundation
 import StitchSchemaKit
 import SwiftyJSON
 
-struct JsonEditCommitted: GraphEvent {
-    let coordinate: InputCoordinate
-    let json: JSON
 
-    func handle(state: GraphState) {
-        state.inputEditCommitted(
-            input: coordinate,
+extension GraphState {
+    @MainActor
+    func jsonEditCommitted(input: InputNodeRowViewModel,
+                           json: JSON) {
+        self.inputEditCommitted(
+            input: input,
             value: .json(json.toStitchJSON)
         )
     }
@@ -24,7 +24,7 @@ struct JsonEditCommitted: GraphEvent {
 extension StitchStore {
     // TODO: reuse the logic in `InputEdited` ?
     @MainActor
-    func inputEditCommitted(input: InputCoordinate,
+    func inputEditCommitted(input: InputNodeRowViewModel,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
         guard let graphState = self.currentGraph else {
@@ -59,58 +59,53 @@ extension GraphState {
 
      */
     @MainActor
-    func inputEditCommitted(input: InputCoordinate,
+    func inputEditCommitted(input: InputNodeRowViewModel,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
-
-        let nodeId = input.nodeId
-        let coordinate = input
-
-        // NOTE: THIS IS BAD; WE COMPARE THE INCOMING VALUE FROM THE COMMIT-ACTION AGAINST THE NODE SCHEMA, WHEREAS THE RELEVANT INPUT VALUE MIGHT INSTEAD BE FROM THE NODE VIEW MODEL IF WE HAD A HOSE-FLOW ETC.
-        if var value = value {
-
-            // if we had a value, and the value was different than the existing value,
-            // THEN we detach the edge.
-            guard let nodeViewModel = self.getNodeViewModel(nodeId),
-                  let inputObserver = nodeViewModel.getInputRowObserver(for: input.portType) else {
-                log("GraphState.inputEditCommitted error: could not find node data.")
-                return
-            }
-
-            // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
-            let valueAtIndex = inputObserver.activeValue
-            let nodeKind = nodeViewModel.kind
-            let valueChange = (valueAtIndex != value)
-
-            guard valueChange else {
-                log("GraphState.inputEditCommitted: value did not change, so returning early")
-                return
-            }
-
-            nodeViewModel.removeIncomingEdge(at: input,
-                                             activeIndex: self.activeIndex)
-
-            let newCommandType = value.shapeCommandType
-
-            // If we changed the command type on a ShapeCommand input,
-            // then we may need to change the ShapeCommand case
-            // (e.g. from .moveTo -> .curveTo).
-
-            if let shapeCommand = valueAtIndex.shapeCommand,
-               let newCommandType = newCommandType {
-                value = .shapeCommand(shapeCommand.convert(to: newCommandType))
-                log("GraphState.inputEditCommitted: value is now: \(value)")
-            }
-
-            // Only change the input if valued actually changed.
-            inputObserver.setValuesInInput([value])
-            
-            self.maybeCreateLLMSetField(node: nodeViewModel,
-                                              input: coordinate,
-                                              fieldIndex: 0,
-                                              value: value)
-            
-            self.calculate(coordinate.nodeId)
+        
+        guard let nodeId = input.nodeDelegate?.id,
+              let nodeViewModel = self.getNodeViewModel(nodeId),
+              let inputObserver = input.rowDelegate,
+              var value = value else {
+            log("GraphState.inputEditCommitted error: could not find node data.")
+            return
         }
+        
+        // if we had a value, and the value was different than the existing value,
+        // THEN we detach the edge.
+        // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
+        let valueAtIndex = inputObserver.activeValue
+        let nodeKind = nodeViewModel.kind
+        let valueChange = (valueAtIndex != value)
+        
+        guard valueChange else {
+            log("GraphState.inputEditCommitted: value did not change, so returning early")
+            return
+        }
+        
+        nodeViewModel.removeIncomingEdge(at: inputObserver.id,
+                                         activeIndex: self.activeIndex)
+        
+        let newCommandType = value.shapeCommandType
+        
+        // If we changed the command type on a ShapeCommand input,
+        // then we may need to change the ShapeCommand case
+        // (e.g. from .moveTo -> .curveTo).
+        
+        if let shapeCommand = valueAtIndex.shapeCommand,
+           let newCommandType = newCommandType {
+            value = .shapeCommand(shapeCommand.convert(to: newCommandType))
+            log("GraphState.inputEditCommitted: value is now: \(value)")
+        }
+        
+        // Only change the input if valued actually changed.
+        inputObserver.setValuesInInput([value])
+        
+        self.maybeCreateLLMSetField(node: nodeViewModel,
+                                    input: inputObserver.id,
+                                    fieldIndex: 0,
+                                    value: value)
+        
+        self.calculate(nodeId)
     }
 }

@@ -42,12 +42,12 @@ extension NodeRowObserver {
     
     @MainActor
     func getVisibleRowViewModel() -> Self.RowViewModelType? {
-        guard let nodeDelegate = self.nodeDelegate else {
+        guard let node = self.rowViewModel.canvasItemDelegate else {
             fatalErrorIfDebug()
             return nil
         }
         
-        return nodeDelegate.isVisibleInFrame ? self.rowViewModel : nil
+        return node.isVisibleInFrame ? self.rowViewModel : nil
         
 //        return nodeDelegate
 //            .getAllCanvasObservers()
@@ -190,6 +190,7 @@ extension [InputNodeRowObserver] {
          id: NodeId,
          nodeIO: NodeIO,
          activeIndex: ActiveIndex,
+         nodeRowIndex: Int?,
          nodeDelegate: NodeDelegate,
          canvasItem: CanvasItemViewModel?) {
         self = values.enumerated().map { portId, values in
@@ -198,6 +199,7 @@ extension [InputNodeRowObserver] {
                     userVisibleType: userVisibleType,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
                     activeIndex: activeIndex,
+                    nodeRowIndex: nodeRowIndex,
                     upstreamOutputCoordinate: nil,
                     nodeDelegate: nodeDelegate,
                     canvasItemDelegate: canvasItem)
@@ -236,6 +238,7 @@ extension [InputNodeRowObserver] {
                                  userVisibleType: userVisibleType,
                                  id: .init(portId: portId, nodeId: nodeId),
                                  activeIndex: .init(.zero),
+                                 nodeRowIndex: portId,
                                  upstreamOutputCoordinate: nil,
                                  nodeDelegate: nodeDelegate,
                                  canvasItemDelegate: nil)
