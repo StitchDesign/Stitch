@@ -490,24 +490,26 @@ extension GraphState {
     func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel? {
         switch id {
         case .node(let x):
-            return self.getNodeViewModel(x)?.patchNodeViewModel
+            return self.getNodeViewModel(x)?
+                .getAllCanvasObservers()
+                .first { $0.id == id }
         case .layerInputOnGraph(let x):
-            return self.getLayerInputOnGraph(x)?.canvasUIData
+            return self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate
         case .layerOutputOnGraph(let x):
-            return self.getLayerOutputOnGraph(x)?.canvasUIData
+            return self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate
         }
     }
     
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
-    func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver? {
+    func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.node)?
             .getInputRowObserver(for: .keyPath(id.keyPath))
     }
     
     @MainActor
-    func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver? {
-        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(id.portId)
+    func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowObserver? {
+        self.getNodeViewModel(id.node)?.getOutputRowObserver(id.portId)
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
@@ -545,7 +547,7 @@ extension GraphState {
     }
 
     @MainActor
-    func getVisibleNodes() -> NodeViewModels {
+    func getVisibleNodes() -> [NodeDelegate] {
         self.visibleNodesViewModel
             .getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
     }
@@ -600,7 +602,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
+    func getInputCoordinate(from viewData: PortViewData) -> NodeIOCoordinate? {
         guard let node = self.getNodeViewModel(viewData.nodeId),
               let inputRow = node.getInputRowObserver(viewData.portId) else {
             return nil
@@ -610,7 +612,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getOutputCoordinate(from viewData: OutputPortViewData) -> NodeIOCoordinate? {
+    func getOutputCoordinate(from viewData: PortViewData) -> NodeIOCoordinate? {
         guard let node = self.getNodeViewModel(viewData.nodeId),
               let outputRow = node.getOutputRowObserver(viewData.portId) else {
             return nil
