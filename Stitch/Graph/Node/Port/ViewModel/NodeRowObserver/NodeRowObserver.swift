@@ -126,6 +126,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
+                     nodeRowIndex: Int?,
                      nodeDelegate: NodeDelegate?,
                      canvasItemDelegate: CanvasItemViewModel?) {
         self.init(values: schema.portData.values ?? [],
@@ -133,6 +134,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
+                  nodeRowIndex: nodeRowIndex,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection,
                   nodeDelegate: nodeDelegate,
                   canvasItemDelegate: canvasItemDelegate)
@@ -144,6 +146,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
+         nodeRowIndex: Int?,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate?,
          canvasItemDelegate: CanvasItemViewModel?) {
@@ -151,7 +154,8 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.id = id
         
         self.rowViewModel = .init(id: id.portType,
-                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
+                                  nodeRowIndex: nodeRowIndex,
                                   rowDelegate: self,
                                   canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
@@ -225,7 +229,8 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.id = id
         
         self.rowViewModel = .init(id: id.portType,
-                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
+                                  nodeRowIndex: <#Int?#>,
                                   rowDelegate: self,
                                   canvasItemDelegate: canvasItemDelegate)
         self.allLoopedValues = values

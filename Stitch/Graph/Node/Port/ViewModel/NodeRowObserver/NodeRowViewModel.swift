@@ -135,12 +135,12 @@ extension PortValue {
 }
 
 final class InputNodeRowViewModel: NodeRowViewModel {
-    
     static let nodeIO: NodeIO = .input
     
     var id: NodeIOPortType
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
+    var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
@@ -153,9 +153,11 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeIOPortType,
          activeValue: PortValue,
+         nodeRowIndex: Int?,
          rowDelegate: InputNodeRowObserver,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
+        self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         self.initializeValues(rowDelegate: rowDelegate,
@@ -192,6 +194,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var id: NodeIOPortType
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
+    var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId>
     var portColor: PortColor = .noEdge
@@ -201,9 +204,11 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeIOPortType,
          activeValue: PortValue,
+         nodeRowIndex: Int?,
          rowDelegate: OutputNodeRowObserver,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
+        self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         self.initializeValues(rowDelegate: rowDelegate,

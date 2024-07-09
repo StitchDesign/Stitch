@@ -49,7 +49,7 @@ struct NodesView: View {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: groupNodeFocused) {
                                 
-                let inputs: NodeRowObservers = self.graph
+                let inputs: [InputNodeRowObserver] = self.graph
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> NodeRowObservers in
                         
@@ -121,7 +121,7 @@ struct NodesView: View {
     }
     
     @MainActor
-    func connectedEdgesView(allInputs: NodeRowObservers) -> some View {
+    func connectedEdgesView(allInputs: [InputNodeRowObserver]) -> some View {
         GraphConnectedEdgesView(graph: graph,
                                 graphUI: graphUI,
                                 allInputs: allInputs)

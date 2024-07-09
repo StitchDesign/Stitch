@@ -8,7 +8,7 @@
 import StitchSchemaKit
 import SwiftUI
 
-typealias PossibleEdgeId = InputPortViewData
+typealias PossibleEdgeId = PortViewData
 
 struct PossibleEdge: Hashable {
     var edge: PortEdgeUI
@@ -22,17 +22,17 @@ struct PossibleEdge: Hashable {
 }
 
 extension PossibleEdge {
-    var id: InputPortViewData {
+    var id: PortViewData {
         edge.id
     }
 }
 
 typealias PossibleEdgeSet = Set<PossibleEdge>
 
-struct EdgeEditingState: Equatable, Hashable {
+struct EdgeEditingState {
 
     // currently hovered-over output
-    var originOutput: OutputPortViewData
+    var originOutput: PortViewData
 
     // the node that is east of, and the shortest distance from, the origin node
     var nearbyNode: NodeId
