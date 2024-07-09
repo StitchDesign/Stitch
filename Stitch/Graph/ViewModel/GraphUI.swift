@@ -99,8 +99,8 @@ final class GraphUIState {
     var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
     
     #if DEV_DEBUG
-//    var showsLayerInspector = true  during dev
-        var showsLayerInspector = false // during dev
+    var showsLayerInspector = true //  during dev
+//        var showsLayerInspector = false // during dev
     #else
     var showsLayerInspector = false
     #endif

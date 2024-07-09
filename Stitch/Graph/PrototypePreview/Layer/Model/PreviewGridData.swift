@@ -77,9 +77,9 @@ extension GraphState {
             maxSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = false
             
             // ... and unblock the aspect ratio inputs:
-            widthAxisInput.isBlockedOut = true
-            heightAxisInput.isBlockedOut = true
-            contentModeInput.isBlockedOut = true
+            widthAxisInput.isBlockedOut = false
+            heightAxisInput.isBlockedOut = false
+            contentModeInput.isBlockedOut = false
             
         case .constrainWidth:
             // if width is constrained, block-out the width inputs (width, min width, max width):
@@ -93,9 +93,9 @@ extension GraphState {
             maxSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = false
             
             // ... and unblock the aspect ratio inputs:
-            widthAxisInput.isBlockedOut = true
-            heightAxisInput.isBlockedOut = true
-            contentModeInput.isBlockedOut = true
+            widthAxisInput.isBlockedOut = false
+            heightAxisInput.isBlockedOut = false
+            contentModeInput.isBlockedOut = false
         }
     }
 }

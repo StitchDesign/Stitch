@@ -182,10 +182,17 @@ struct LayerInspectorInputsSectionView: View {
         
         Section(isExpanded: $expanded) {
             ForEach(layerInputs) { layerInput in
-                if inputsList.contains(layerInput) {
+                
+                let inputListContainsInput = inputsList.contains(layerInput)
+                
+                let rowObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                
+                let allFieldsBlockedOut = rowObserver.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                
+                if inputsList.contains(layerInput) && !allFieldsBlockedOut {
                     LayerInspectorPortView(
                         layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
-                        rowObserver: layerNode[keyPath: layerInput.layerNodeKeyPath],
+                        rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)

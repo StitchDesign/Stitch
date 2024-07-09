@@ -83,20 +83,20 @@ struct NodeFieldsView: View {
         
     var fields: some View {
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
-            self.valueEntryView(fieldViewModel)
-                .overlay {
-                    if fieldViewModel.isBlockedOut {
-                        Color.black.opacity(0.3)
-                            .cornerRadius(4)
-                            .allowsHitTesting(false)
-                    } else {
-                        Color.clear
-                    }
-                }
+//            self.valueEntryView(fieldViewModel)
+//                .overlay {
+//                    if fieldViewModel.isBlockedOut {
+//                        Color.black.opacity(0.3)
+//                            .cornerRadius(4)
+//                            .allowsHitTesting(false)
+//                    } else {
+//                        Color.clear
+//                    }
+//                }
             
-//            if !fieldViewModel.isBlockedOut {
-//                self.valueEntryView(fieldViewModel)
-//            }
+            if !fieldViewModel.isBlockedOut {
+                self.valueEntryView(fieldViewModel)
+            }
         }
         .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
