@@ -9,6 +9,8 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+let DEFAULT_TEXT_VALUE = String("Text")
+
 extension CGSize {
     static let LAYER_DEFAULT_SIZE: Self = .init(width: 100, height: 100)
 }
