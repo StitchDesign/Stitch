@@ -34,12 +34,29 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
 //    var portViewType: PortViewType { get }
     
+    // Saves the port index if there's a node
+    var nodeRowIndex: Int? { get set }
+    
     static var nodeIO: NodeIO { get }
     
     @MainActor func calculatePortColor() -> PortColor
+    
+    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
+    
+    @MainActor func portDragEnded(graphState: GraphState)
 }
 
 extension NodeRowViewModel {
+    var portViewData: PortViewData? {
+        guard let nodeRowIndex = self.nodeRowIndex,
+              let canvasId = self.canvasItemDelegate?.id else {
+            return nil
+        }
+        
+        return .init(portId: nodeRowIndex,
+                     canvasId: canvasId)
+    }
+    
     @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           coordinate: NodeIOPortType) {

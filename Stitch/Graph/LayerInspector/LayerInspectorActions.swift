@@ -70,29 +70,31 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
 struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
     let nodeId: NodeId
-    let coordinate: OutputPortViewData
+    let coordinate: NodeIOPortType
     
     func handle(state: GraphState) -> GraphResponse {
         
         // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         
-        guard let node = state.getNodeViewModel(coordinate.nodeId),
-              let output = node.getOutputRowObserver(coordinate.portId) else {
+        guard let node = state.getNodeViewModel(nodeId),
+              let portId = coordinate.portIndex,
+              let layerNode = node.layerNode,
+              let outputPort = layerNode.outputPorts[safe: portId] else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")
             fatalErrorIfDebug()
             return .noChange
         }
-                
-        output.canvasUIData = .init(
-            id: .layerOutputOnGraph(coordinate),
+        
+        outputPort.canvasObsever = .init(
+            id: .layerOutputOnGraph(.init(node: nodeId, portId: portId)),
             position: state.newNodeCenterLocation,
             zIndex: state.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: state.groupNodeFocused,
             nodeDelegate: node)
         
-        state.maybeCreateLLMAddLayerOutput(nodeId, coordinate.portId)
+        state.maybeCreateLLMAddLayerOutput(nodeId, portId)
         
         return .shouldPersist
     }

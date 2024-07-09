@@ -70,7 +70,7 @@ struct LayerInputCoordinate: LayerCoordinate {
 
 struct LayerOutputCoordinate: LayerCoordinate {
     var node: NodeId // id for the parent layer node
-    var keyPath: LayerInputType // the keypath, i.e. unique port
+    var portId: Int
 }
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]

@@ -123,16 +123,12 @@ extension GraphState {
 
     // `addEdgeWithoutGraphRecalc` + graph recalc
     @MainActor
-    func edgeAdded(edge: PortEdgeData) {
+    func edgeUIAdded(edge: PortEdgeData) {
 
         // Add edge
         self.addEdgeWithoutGraphRecalc(edge: edge)
         
         self.maybeCreateLLMAddEdge(edge)
-
-        // Then recalculate the graph again, with new edge,
-        // starting at the 'from' node downward:
-        self.calculate(edge.from.nodeId)
     }
     
     @MainActor

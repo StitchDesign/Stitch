@@ -8,13 +8,15 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeInputOutputView<NodeRowType: NodeRowViewModel,
+struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                            FieldsView: View>: View {
+    typealias NodeRowType = NodeRowObserverType.RowViewModelType
+    
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    @Bindable var rowObserver: NodeRowObserver
+    @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowData: NodeRowType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
@@ -52,7 +54,7 @@ struct NodeInputOutputView<NodeRowType: NodeRowViewModel,
         .frame(height: NODE_ROW_HEIGHT)
         .onChange(of: self.graph.graphUI.activeIndex) {
             let oldViewValue = self.rowData.activeValue
-            let newViewValue = NodeRowObserver
+            let newViewValue = PortValue
                 .getActiveValue(allLoopedValues: self.rowObserver.allLoopedValues,
                                 activeIndex: self.graphUI.activeIndex)
             self.rowData.activeValueChanged(oldValue: oldViewValue,
@@ -79,8 +81,8 @@ struct NodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
-    @Bindable var rowObserver: NodeRowObserver
-    @Bindable var rowData: InputNodeRowViewModel
+    @Bindable var rowObserver: InputNodeRowObserver
+    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -133,7 +135,7 @@ struct NodeInputView: View {
                                     node: node,
                                     rowData: rowObserver,
                                     showPopover: $showPopover,
-                                    coordinate: .input(inputViewModel.id))
+                                    coordinate: inputViewModel.id)
                 }
                 
                 labelView
@@ -156,8 +158,8 @@ struct NodeOutputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
-    @Bindable var rowObserver: NodeRowObserver
-    @Bindable var rowData: OutputNodeRowViewModel
+    @Bindable var rowObserver: OutputNodeRowObserver
+    @Bindable var rowData: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -262,22 +264,22 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     }
 }
 
-struct NodeRowPortView: View {
+struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
 //    @Bindable var canvasItem: CanvasItemViewModel
-    @Bindable var rowData: NodeRowObserver
+    @Bindable var rowData: NodeRowObserverType
 
     @Binding var showPopover: Bool
-    let coordinate: PortViewType
+    let coordinate: NodeIOPortType
 
-    @MainActor
-    var hasIncomingEdge: Bool {
-        self.rowData.upstreamOutputObserver.isDefined
-    }
+//    @MainActor
+//    var hasIncomingEdge: Bool {
+//        self.rowData.upstreamOutputObserver.isDefined
+//    }
 
     var nodeIO: NodeIO {
-        self.rowData.nodeIOType
+        NodeRowObserverType.nodeIOType
     }
     
     var nodeDelegate: NodeDelegate? {
@@ -296,7 +298,7 @@ struct NodeRowPortView: View {
         PortEntryView(rowObserver: rowData,
                       graph: graph,
                       coordinate: coordinate,
-                      color: self.rowData.portColor, 
+//                      color: self.rowData.portColor, 
                       nodeDelegate: nodeDelegate)
         /*
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.
