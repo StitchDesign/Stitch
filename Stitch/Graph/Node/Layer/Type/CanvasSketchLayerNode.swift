@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension LayerSize {
+    static let CANVAS_LAYER_DEFAULT_SIZE: Self = .init(width: 200, height: 200)
+}
+
 // TODO: maybe?: add `Reset`, `Undo` and `Redo` pulse inputs
 struct CanvasSketchLayerNode: LayerNodeDefinition {
     
