@@ -11,7 +11,7 @@ import StitchSchemaKit
 extension InputNodeRowViewModel {
     @MainActor
     func portDragged(gesture: DragGesture.Value,
-                     graphState: GraphState) -> GraphResponse {
+                     graphState: GraphState) {
         
         let dragLocation = gesture.location
         graphState.graphUI.edgeAnimationEnabled = true
@@ -21,7 +21,7 @@ extension InputNodeRowViewModel {
             
             guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver else {
 //                fatalErrorIfDebug()
-                return .noChange
+                return
             }
             
             graphState.edgeDrawingObserver.nearestEligibleInput = self
@@ -38,8 +38,6 @@ extension InputNodeRowViewModel {
         // Called when drag has already started
         existingDrawingGesture.dragLocation = dragLocation
         graphState.edgeDrawingObserver.drawingGesture = existingDrawingGesture
-
-        return .noChange
     }
     
     @MainActor

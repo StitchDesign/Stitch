@@ -369,7 +369,7 @@ extension NodeIOCoordinate: NodeRowId {
     }
 }
 
-extension InputNodeRowObserver: NodeRowCalculatable {
+extension NodeRowObserver {
     var values: PortValues {
         get {
             self.allLoopedValues
@@ -379,3 +379,5 @@ extension InputNodeRowObserver: NodeRowCalculatable {
         }
     }
 }
+
+extension InputNodeRowObserver: NodeRowCalculatable { }
