@@ -476,7 +476,7 @@ extension GraphState {
             .getInputRowObserver(for: coordinate.portType)
     }
     
-    @MainActor func getOutputObserver(coordinate: PortViewData) -> OutputNodeRowObserver? {
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver? {
         self.getCanvasItem(coordinate.canvasId)?
             .nodeDelegate?
             .getOutputRowObserver(coordinate.portId)
@@ -603,7 +603,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getInputCoordinate(from viewData: PortViewData) -> NodeIOCoordinate? {
+    func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
         guard let node = self.getNodeViewModel(viewData.nodeId),
               let inputRow = node.getInputRowObserver(viewData.portId) else {
             return nil
@@ -613,7 +613,7 @@ extension GraphState {
     }
     
     @MainActor
-    func getOutputCoordinate(from viewData: PortViewData) -> NodeIOCoordinate? {
+    func getOutputCoordinate(from viewData: OutputPortViewData) -> NodeIOCoordinate? {
         guard let node = self.getNodeViewModel(viewData.nodeId),
               let outputRow = node.getOutputRowObserver(viewData.portId) else {
             return nil

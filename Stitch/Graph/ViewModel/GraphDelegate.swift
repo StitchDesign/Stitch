@@ -52,7 +52,7 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output
-    @MainActor func getOutputObserver(coordinate: PortViewData) -> OutputNodeRowObserver?
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver?
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     

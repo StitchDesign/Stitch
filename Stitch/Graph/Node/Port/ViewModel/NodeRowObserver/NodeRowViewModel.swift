@@ -12,6 +12,7 @@ import StitchSchemaKit
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
     associatedtype RowObserver: NodeRowObserver
+    associatedtype PortViewType: PortViewData
     
     var id: NodeIOPortType { get set }
     
@@ -49,7 +50,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
-    var portViewData: PortViewData? {
+    var portViewData: PortViewType? {
         guard let nodeRowIndex = self.nodeRowIndex,
               let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -137,6 +138,8 @@ extension PortValue {
 }
 
 final class InputNodeRowViewModel: NodeRowViewModel {
+    typealias PortViewType = InputPortViewData
+    
     static let nodeIO: NodeIO = .input
     
     var id: NodeIOPortType
@@ -199,6 +202,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 }
 
 final class OutputNodeRowViewModel: NodeRowViewModel {
+    typealias PortViewType = OutputPortViewData
     
     static let nodeIO: NodeIO = .output
     

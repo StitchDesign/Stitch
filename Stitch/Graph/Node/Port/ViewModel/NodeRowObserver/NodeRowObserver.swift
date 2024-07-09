@@ -230,7 +230,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
         
         self.rowViewModel = .init(id: id.portType,
                                   activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
-                                  nodeRowIndex: <#Int?#>,
+                                  nodeRowIndex: Int?,
                                   rowDelegate: self,
                                   canvasItemDelegate: canvasItemDelegate)
         self.allLoopedValues = values
