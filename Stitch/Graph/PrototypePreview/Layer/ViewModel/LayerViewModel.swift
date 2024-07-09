@@ -16,6 +16,9 @@ final class LayerViewModel {
     let interactiveLayer: InteractiveLayer
     weak var nodeDelegate: NodeDelegate?
     
+    // TODO: use `PortValue.sizingScenario` and retrieve from actual
+    var sizingScenario: SizingScenario = .constrainHeight
+    
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
     var readSize: CGSize = .zero

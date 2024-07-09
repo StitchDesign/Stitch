@@ -23,6 +23,10 @@ class FieldViewModel {
     // eg "X" vs "Y" for .position parent-value
     var fieldLabel: String
 
+    // e.g. Layer's size-scenario is "Constrain Height",
+    // so we "block out" the Height fields on the Layer: size.height, minSize.height, maxSize.height
+    var isBlockedOut: Bool = false
+    
     init(fieldValue: FieldValue,
          coordinate: NodeIOCoordinate,
          fieldIndex: Int,

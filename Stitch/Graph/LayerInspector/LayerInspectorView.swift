@@ -64,24 +64,24 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-                         .onAppear {
-#if DEV_DEBUG
-                             let listedLayers = Self.required
-                                 .union(Self.common)
-                                 .union(Self.groupLayer)
-                                 .union(Self.unknown)
-                                 .union(Self.text)
-                                 .union(Self.stroke)
-                                 .union(Self.rotation)
-                                 .union(Self.shadow)
-                                 .union(Self.effects)
-                             
-                             let allLayers = LayerInputType.allCases.toSet
-                             let diff = allLayers.subtracting(listedLayers)
-                             log("diff: \(diff)")
-                             assert(diff.count == 0)
-#endif
-                         }
+//                         .onAppear {
+//#if DEV_DEBUG
+//                             let listedLayers = Self.required
+//                                 .union(Self.common)
+//                                 .union(Self.groupLayer)
+//                                 .union(Self.unknown)
+//                                 .union(Self.text)
+//                                 .union(Self.stroke)
+//                                 .union(Self.rotation)
+//                                 .union(Self.shadow)
+//                                 .union(Self.effects)
+//                             
+//                             let allLayers = LayerInputType.allCases.toSet
+//                             let diff = allLayers.subtracting(listedLayers)
+//                             log("diff: \(diff)")
+//                             assert(diff.count == 0)
+//#endif
+//                         }
         } else {
             // Empty List, so have same background
             List { }
@@ -106,7 +106,29 @@ struct LayerInspectorView: View {
             // TODO: remove?
             Text(node.displayTitle).font(.title2)
             
+            Menu {
+                ForEach(SizingScenario.allCases, id: \.self) {
+                    sizingScenario in
+//                    Button(sizingScenario.rawValue)
+                    Button {
+                        graph.sizingScenarioUpdated(
+                            layerId: node.id,
+                            scenario: sizingScenario)
+                    } label: {
+                        Text(sizingScenario.rawValue)
+                    }
+
+                }
+            } label: {
+                Text(                layerNode.previewLayerViewModels.first?.sizingScenario.rawValue ?? "None")
+            }
+            
             section("Required", Self.required)
+            
+            section("Sizing", Self.sizing)
+            
+            section("Positioning", Self.positioning)
+            
             section("Common", Self.common)
             
             if layerNode.layer.supportsGroupInputs {

@@ -170,7 +170,7 @@ extension Layer {
             $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
         })
         
-        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use tex-field
+        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use text-field
         let layerInputs = LayerInspectorView.allInputs.filter { masterListInput in
             thisLayersTextUsingInputs.contains(masterListInput)
         }
