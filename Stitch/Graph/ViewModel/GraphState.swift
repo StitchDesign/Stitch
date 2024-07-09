@@ -596,8 +596,9 @@ extension GraphState {
 
     func getGroupChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
+            .flatMap { $0.getAllCanvasObservers() }
             .filter { $0.parentGroupNodeId == groupId }
-            .map { $0.id }
+            .compactMap { $0.nodeDelegate?.id }
             .toSet
     }
     
