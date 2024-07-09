@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+let DEFAULT_TEXT_PLACEHOLDER_VALUE = String("PlaceHolder")
+
 extension LayerSize {
     static let DEFAULT_TEXT_FIELD_SIZE: Self = .init(width: 300, height: 100)
 }

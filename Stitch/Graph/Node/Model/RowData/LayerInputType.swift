@@ -127,7 +127,7 @@ extension LayerInputType {
         case .cornerRadius:
             return .number(.zero)
         case .text:
-            return .string(.init("Text"))
+            return .string(.init(DEFAULT_TEXT_VALUE))
         case .fontSize:
             return .layerDimension(.number(.DEFAULT_FONT_SIZE))
         case .textAlignment:
@@ -159,7 +159,7 @@ extension LayerInputType {
         case .progress:
             return .number(DEFAULT_PROGRESS_VALUE)
         case .placeholderText:
-            return .string(.init("PlaceHolder"))
+            return .string(.init(DEFAULT_TEXT_PLACEHOLDER_VALUE))
         case .startColor:
             return .color(DEFAULT_GRADIENT_START_COLOR)
         case .endColor:
