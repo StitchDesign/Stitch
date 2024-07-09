@@ -178,11 +178,11 @@ extension GraphState: GraphDelegate {
         self.mediaLibrary.get(key)
     }
     
-    func getSplitterRowObservers(for groupNodeId: NodeId,
-                                 type: SplitterType) -> NodeRowObservers {
-        self.visibleNodesViewModel.getSplitterRowObservers(for: groupNodeId,
-                                                           type: type)
-    }
+//    func getSplitterRowObservers(for groupNodeId: NodeId,
+//                                 type: SplitterType) -> NodeRowObservers {
+//        self.visibleNodesViewModel.getSplitterRowObservers(for: groupNodeId,
+//                                                           type: type)
+//    }
 }
 
 extension GraphState: SchemaObserver {
@@ -214,6 +214,7 @@ extension GraphState: SchemaObserver {
         self.init(from: document, store: store)
     }
 
+    @MainActor
     static func createObject(from entity: CurrentStitchDocument.StitchDocument) -> Self {
         // Unused
         fatalErrorIfDebug()
@@ -331,7 +332,7 @@ extension GraphState {
         }
         let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
 
-        var graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
+        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 
         // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
         // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
@@ -359,31 +360,14 @@ extension GraphState {
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
     }
-
-    /*
-     An input is highlighted if there is a selected edge whose destination == input
-
-     An output is highlighted if there is a selected edge whose destination == output
-     */
-    @MainActor
-    func hasSelectedEdge<Row>(at row: Row) -> Bool where Row: NodeRowViewModel {
-        // TODO: update this for splitters
-        let portUI = row.portViewType
-        switch portUI {
-        case .input(let port):
-            return self.selectedEdges.contains { $0.to == port }
-        case .output(let port):
-            return self.selectedEdges.contains { $0.from == port }
-        }
-    }
     
     @MainActor
-    func isConnectedToASelectedNode(at rowObserver: NodeRowObserver) -> Bool {
+    func isConnectedToASelectedNode<RowObserver>(at rowObserver: RowObserver) -> Bool where RowObserver: NodeRowObserver {
         !self.selectedNodeIds.intersection(rowObserver.connectedNodes).isEmpty
     }
 
     @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel() -> NodeViewModels {
+    func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
@@ -487,13 +471,15 @@ extension GraphState {
     }
 
     @MainActor
-    func getInputObserver(coordinate: InputCoordinate) -> NodeRowObserver? {
+    func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
     
-    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver? {
-        self.getNode(coordinate.nodeId)?.getOutputRowObserver(coordinate.portId)
+    @MainActor func getOutputObserver(coordinate: PortViewData) -> OutputNodeRowObserver? {
+        self.getCanvasItem(coordinate.canvasId)?
+            .nodeDelegate?
+            .getOutputRowObserver(coordinate.portId)
     }
 
     func getNode(_ id: NodeId) -> NodeViewModel? {
@@ -504,7 +490,7 @@ extension GraphState {
     func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel? {
         switch id {
         case .node(let x):
-            return self.getNodeViewModel(x)?.canvasUIData
+            return self.getNodeViewModel(x)?.patchNodeViewModel
         case .layerInputOnGraph(let x):
             return self.getLayerInputOnGraph(x)?.canvasUIData
         case .layerOutputOnGraph(let x):
@@ -540,8 +526,8 @@ extension GraphState {
             return [patchNode.canvasObserver]
         case .layer(let layerNode):
             return layerNode.getAllCanvasObservers()
-        case .group:
-            
+        case .group(let canvas):
+            return [canvas]
         }
     }
 

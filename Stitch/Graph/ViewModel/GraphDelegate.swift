@@ -47,10 +47,12 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
+    @MainActor var selectedEdges: Set<PortEdgeUI> { get }
+    
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output
-    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver?
+    @MainActor func getOutputObserver(coordinate: PortViewData) -> OutputNodeRowObserver?
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     

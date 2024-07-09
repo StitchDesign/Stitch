@@ -60,16 +60,6 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    var hasSelectedEdge: Bool {
-        if let graph =  self.nodeDelegate?.graphDelegate {
-            return graph.hasSelectedEdge(at: self)
-        } else {
-            log("NodeRowObserver: getHasSelectedEdge: could not retrieve delegates")
-            return false
-        }
-    }
-    
-    @MainActor
     func getEdgeDrawingObserver() -> EdgeDrawingObserver {
         if let drawing = self.nodeDelegate?.graphDelegate?.edgeDrawingObserver {
             return drawing

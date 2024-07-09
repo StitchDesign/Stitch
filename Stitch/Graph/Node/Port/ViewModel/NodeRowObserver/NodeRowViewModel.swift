@@ -44,6 +44,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
     @MainActor func portDragEnded(graphState: GraphState)
+    
+    @MainActor func hasSelectedEdge() -> Bool
 }
 
 extension NodeRowViewModel {
@@ -176,7 +178,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
 //    var portViewType: PortViewType { .input(self.id) }
     
     func calculatePortColor() -> PortColor {
-        let isEdgeSelected = graphDelegate?.hasSelectedEdge(at: self) ?? false
+        let isEdgeSelected = self.hasSelectedEdge()
         
         // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
         return .init(isSelected: self.isCanvasItemSelected ||
@@ -184,6 +186,15 @@ final class InputNodeRowViewModel: NodeRowViewModel {
                      isEdgeSelected,
                      hasEdge: hasEdge,
                      hasLoop: hasLoop)
+    }
+    
+    @MainActor func hasSelectedEdge() -> Bool {
+        guard let portViewData = portViewData,
+              let graphDelegate = graphDelegate else {
+            return false
+        }
+        
+        return graphDelegate.selectedEdges.contains { $0.to == portViewData }
     }
 }
 
@@ -258,10 +269,19 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         else {
             return PortColor(isSelected: self.isCanvasItemSelected ||
                              self.isConnectedToASelectedCanvasItem ||
-                             graphDelegate?.hasSelectedEdge(at: self) ?? false,
+                             self.hasSelectedEdge(),
                          hasEdge: hasEdge,
                          hasLoop: hasLoop)
         }
+    }
+    
+    @MainActor func hasSelectedEdge() -> Bool {
+        guard let portViewData = portViewData,
+              let graphDelegate = graphDelegate else {
+            return false
+        }
+        
+        return graphDelegate.selectedEdges.contains { $0.from == portViewData }
     }
 }
 

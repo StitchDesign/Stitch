@@ -12,8 +12,6 @@ import StitchSchemaKit
 struct PortViewData: Hashable {
     var portId: Int
     var canvasId: CanvasItemId
-    
-//    init(portId: Int, canvasId: CanvasItemId)
 }
 
 //// TODO: rename to `InputPortIdAddress`
