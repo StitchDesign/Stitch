@@ -9,10 +9,14 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension LayerSize {
+    static let DEFAULT_TEXT_FIELD_SIZE: Self = .init(width: 300, height: 100)
+}
+
 struct TextFieldLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.textField
-    
+        
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(layerInputs: Self.inputDefinitions,
               outputs: [.init(label: "Field",
