@@ -33,7 +33,7 @@ extension LayerInputType {
                 return .size(LayerSize.DEFAULT_MAP_SIZE)
             case .videoStreaming:
                 return .size(LayerSize.DEFAULT_VIDEO_STREAMING_SIZE)
-            case .textField:
+            case .textField, .text:
                 return .size(LayerSize.DEFAULT_TEXT_FIELD_SIZE)
             case .group:
                 return .size(.init(width: .hug, height: .hug))

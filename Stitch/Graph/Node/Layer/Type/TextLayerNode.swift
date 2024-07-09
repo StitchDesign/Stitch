@@ -15,7 +15,6 @@ extension CGSize {
 
 extension LayerSize {
     static let LAYER_DEFAULT_SIZE: Self = .init(width: 100, height: 100)
-    static let CANVAS_LAYER_DEFAULT_SIZE: Self = .init(width: 200, height: 200)
 }
 
 extension Color {
