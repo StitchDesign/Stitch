@@ -158,6 +158,14 @@ extension GraphState: GraphCalculatable {
 }
 
 extension GraphState: GraphDelegate {
+    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
+        self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupNodeId)
+    }
+    
+    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+        self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupNodeId)
+    }
+    
     var groupNodeFocused: NodeId? {
         self.graphUI.groupNodeFocused?.asNodeId
     }
@@ -604,7 +612,7 @@ extension GraphState {
     
     @MainActor
     func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
-        guard let node = self.getNodeViewModel(viewData.nodeId),
+        guard let node = self.getCanvasItem(viewData.canvasId)?.nodeDelegate,
               let inputRow = node.getInputRowObserver(viewData.portId) else {
             return nil
         }
@@ -614,7 +622,7 @@ extension GraphState {
     
     @MainActor
     func getOutputCoordinate(from viewData: OutputPortViewData) -> NodeIOCoordinate? {
-        guard let node = self.getNodeViewModel(viewData.nodeId),
+        guard let node = self.getCanvasItem(viewData.canvasId)?.nodeDelegate,
               let outputRow = node.getOutputRowObserver(viewData.portId) else {
             return nil
         }

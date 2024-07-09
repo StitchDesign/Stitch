@@ -67,9 +67,7 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver]
     
     @MainActor func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver]
-    
-    @MainActor func hasSelectedEdge<RowViewModel: NodeRowViewModel>(at row: RowViewModel) -> Bool
-    
+        
     @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
     
     @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
