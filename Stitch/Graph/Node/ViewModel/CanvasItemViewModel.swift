@@ -232,7 +232,7 @@ extension CanvasItemViewModel {
 //     keyPath: .size))
 
 
-extension LayerNodeRowData {
+extension InputLayerNodeRowData {
     @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {

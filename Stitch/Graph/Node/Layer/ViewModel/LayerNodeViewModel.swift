@@ -158,12 +158,12 @@ final class LayerNodeViewModel {
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar
         
-        self.outputsObservers = rowDefinitions
-            .createOutputObservers(nodeId: schema.id,
-                                   values: rowDefinitions.outputs.defaultList,
-                                   kind: .layer(schema.layer),
-                                   userVisibleType: nil,
-                                   nodeDelegate: nodeDelegate)
+        self.outputPorts = rowDefinitions
+            .createOutputLayerPorts(schema: schema,
+                                    values: rowDefinitions.outputs.defaultList,
+                                    kind: .layer(schema.layer),
+                                    userVisibleType: nil,
+                                    nodeDelegate: nodeDelegate)
         
         self.positionPort = .empty(.position, layer: schema.layer)
         self.sizePort = .empty(.size, layer: schema.layer)

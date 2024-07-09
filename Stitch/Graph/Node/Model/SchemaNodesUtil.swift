@@ -115,21 +115,39 @@ extension NodePortInputEntity {
 
 extension NodeRowDefinitions {
     @MainActor
-    func createOutputObservers(nodeId: NodeId,
+    func createOutputLayerPorts(schema: LayerNodeEntity,
                                // Pass in values directly from eval
                                values: PortValuesList,
-                               kind: NodeKind,
                                userVisibleType: UserVisibleType?,
-                               nodeDelegate: NodeDelegate?) -> [OutputNodeRowObserver] {
-        self.outputs.enumerated().map { portId, _ in
-            OutputNodeRowObserver(values: values[safe: portId] ?? [],
-                                  nodeKind: kind,
-                                  userVisibleType: userVisibleType,
-                                  id: .init(portId: portId, nodeId: nodeId),
-                                  activeIndex: .init(.zero),
-                                  nodeDelegate: nodeDelegate,
-                                  // nil for now but corrected later
-                                  canvasItemDelegate: nil)
+                               nodeDelegate: NodeDelegate?) -> [OutputLayerNodeRowData] {
+        let nodeId = schema.id
+        let kind = NodeKind.layer(schema.layer)
+        
+        assertInDebug(self.outputs.count == schema.outputCanvasPorts.count)
+        
+        return zip(self.outputs.enumerated(), schema.outputCanvasPorts).map { outputData, canvasEntity in
+            var canvasObserver: CanvasItemViewModel?
+            let portId = outputData.0
+            
+            if let canvasEntity = canvasEntity {
+                let canvasObserver = CanvasItemViewModel(
+                    from: canvasEntity,
+                    id: .layerOutputOnGraph(.init(node: nodeId,
+                                                  portId: portId)),
+                    node: nodeDelegate)
+            }
+            let observer = OutputNodeRowObserver(values: values[safe: portId] ?? [],
+                                                 nodeKind: kind,
+                                                 userVisibleType: userVisibleType,
+                                                 id: .init(portId: portId, nodeId: nodeId),
+                                                 activeIndex: .init(.zero),
+                                                 nodeDelegate: nodeDelegate,
+                                                 // nil for now but corrected later
+                                                 canvasItemDelegate: canvasObserver)
+            
+            
+            return OutputLayerNodeRowData(rowObserver: observer,
+                                          canvasObsever: canvasObserver)
         }
     }
 }
