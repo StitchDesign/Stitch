@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+let DEFAULT_SF_SYMBOL = String("pencil.and.scribble")
+
 struct SFSymbolLayerNode: LayerNodeDefinition {
     
     static let layer = Layer.sfSymbol

@@ -187,7 +187,7 @@ extension LayerInputType {
         case .shadowOffset:
             return .position(.defaultShadowOffset)
         case .sfSymbol:
-            return .string(.init(""))
+            return .string(.init(DEFAULT_SF_SYMBOL))
         case .volume:
             return .number(DEFAULT_VIDEO_VOLUME)
         case .videoURL:
