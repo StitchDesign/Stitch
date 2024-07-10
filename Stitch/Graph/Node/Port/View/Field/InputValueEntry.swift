@@ -14,7 +14,6 @@ struct InputValueEntry: View {
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
 
-    let coordinate: PortViewData
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool

@@ -80,13 +80,12 @@ struct NodeInputView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    @Bindable var canvasItem: CanvasItemViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
-    @Binding var isButtonPressed: Bool
+    let isCanvasItemSelected: Bool
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -111,10 +110,10 @@ struct NodeInputView: View {
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> some View {
         InputValueEntry(graph: graph,
-                        rowObserver: rowObserver,
+                        rowViewModel: rowData,
                         viewModel: portViewModel,
                         nodeKind: node.kind,
-                        isCanvasItemSelected: canvasItem.isSelected,
+                        isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
@@ -157,12 +156,12 @@ struct NodeOutputView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    @Bindable var canvasItem: CanvasItemViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowData: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isCanvasItemSelected: Bool
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -191,7 +190,7 @@ struct NodeOutputView: View {
                          viewModel: portViewModel,
                          isMultiField: isMultiField,
                          nodeKind: node.kind,
-                         isCanvasItemSelected: canvasItem.isSelected,
+                         isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
     }
