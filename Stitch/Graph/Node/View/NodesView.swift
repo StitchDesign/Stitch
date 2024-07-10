@@ -49,9 +49,9 @@ struct NodesView: View {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: groupNodeFocused) {
                                 
-                let inputs: [InputNodeRowObserver] = self.graph
+                let inputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
-                    .flatMap { canvasItem -> NodeRowObservers in
+                    .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         
                         switch canvasItem.id {
                             
@@ -59,7 +59,7 @@ struct NodesView: View {
                             guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
                                 return []
                             }
-                            return [input]
+                            return [input.rowViewModel]
                         case .layerOutputOnGraph(let x):
                             guard let output = graph.getOutputObserver(coordinate: x) else {
                                 return []
@@ -114,14 +114,14 @@ struct NodesView: View {
                 EmptyView()
             }
         }
-        .onChange(of: groupNodeFocused) {
-            // Updates cached data inside row observers when group changes
-            self.visibleNodesViewModel.updateAllNodeViewData()
-        }
+//        .onChange(of: groupNodeFocused) {
+//            // Updates cached data inside row observers when group changes
+//            self.visibleNodesViewModel.updateAllNodeViewData()
+//        }
     }
     
     @MainActor
-    func connectedEdgesView(allInputs: [InputNodeRowObserver]) -> some View {
+    func connectedEdgesView(allInputs: [InputNodeRowViewModel]) -> some View {
         GraphConnectedEdgesView(graph: graph,
                                 graphUI: graphUI,
                                 allInputs: allInputs)
@@ -148,8 +148,10 @@ struct NodesView: View {
     }
     
     @MainActor
-    func edgeDrawingView(inputs: NodeRowObservers) -> some View {
-        EdgeDrawingView(edgeDrawingObserver: graph.edgeDrawingObserver,
+    func edgeDrawingView(inputs: [InputNodeRowViewModel],
+                         graph: GraphState) -> some View {
+        EdgeDrawingView(graph: graph,
+                        edgeDrawingObserver: graph.edgeDrawingObserver,
                         inputsAtThisTraversalLevel: inputs)
     }
 }

@@ -235,7 +235,7 @@ extension GraphState {
             return
         }
         
-        guard let nearbyNode = self.getNodeViewModel(edgeEditingState.nearbyNode) else {
+        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyNode) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyNode)")
             return
         }
@@ -249,7 +249,7 @@ extension GraphState {
          */
         //    let destinationInput = NodeIOCoordinate(portId: labelAsPortId, nodeId: nearbyNode.id)
         let destinationInput: InputPortViewData = self.visibleNodesViewModel
-            .getInputSplitterInputPorts(for: nearbyNode.id)?[safe: labelAsPortId] ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
+            .getInputSplitterPorts(for: nearbyNode)?[safe: labelAsPortId] ?? .init(portId: labelAsPortId, canvasId: nearbyNode.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         

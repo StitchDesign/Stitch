@@ -353,9 +353,11 @@ extension VisibleNodesViewModel {
     @MainActor
     func updateAllNodeViewData() {
         // Port view data first
-        self.nodes.values.forEach { node in
-            node.updateAllPortViewData()
-        }
+//        self.nodes.values.forEach { node in
+//            node.getAllCanvasObservers().forEach {
+//                $0.updateAllPortViewData()
+//            }
+//        }
         
         // Connected nodes data relies on port view data so we call this later
         self.nodes.values.forEach { node in
