@@ -195,37 +195,37 @@ extension NodeViewModel {
         outputsObservers.forEach { $0.rowViewModel.updateConnectedCanvasItems() }
     }
     
-    /// Helper to update value at some specific port and loop.
-    @MainActor
-    func updateValue(_ value: PortValue,
-                     nodeIO: NodeIO,
-                     port: Int,
-                     loop: Int,
-                     activeIndex: ActiveIndex,
-                     isVisibleInFrame: Bool) {
-        guard let observer = self.getRowObservers(nodeIO)[safe: port],
-              let oldValue = observer.allLoopedValues[safe: loop] else {
-            #if DEBUG
-            fatalError()
-            #endif
-            return
-        }
-
-        if oldValue != value {
-            var newValues = observer.allLoopedValues
-            guard loop < newValues.count else {
-                #if DEBUG
-                fatalError()
-                #endif
-                return
-            }
-
-            newValues[port] = value
-            observer.updateValues(newValues,
-                                  activeIndex: activeIndex,
-                                  isVisibleInFrame: isVisibleInFrame)
-        }
-    }
+//    /// Helper to update value at some specific port and loop.
+//    @MainActor
+//    func updateValue(_ value: PortValue,
+//                     nodeIO: NodeIO,
+//                     port: Int,
+//                     loop: Int,
+//                     activeIndex: ActiveIndex,
+//                     isVisibleInFrame: Bool) {
+//        guard let observer = self.getRowObservers(nodeIO)[safe: port],
+//              let oldValue = observer.allLoopedValues[safe: loop] else {
+//            #if DEBUG
+//            fatalError()
+//            #endif
+//            return
+//        }
+//
+//        if oldValue != value {
+//            var newValues = observer.allLoopedValues
+//            guard loop < newValues.count else {
+//                #if DEBUG
+//                fatalError()
+//                #endif
+//                return
+//            }
+//
+//            newValues[port] = value
+//            observer.updateValues(newValues,
+//                                  activeIndex: activeIndex,
+//                                  isVisibleInFrame: isVisibleInFrame)
+//        }
+//    }
     
     // MARK: heavy perf cost due to human readable strings.**
     func getDisplayTitle() -> String {

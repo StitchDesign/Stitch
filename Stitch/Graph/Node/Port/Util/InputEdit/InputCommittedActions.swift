@@ -22,7 +22,19 @@ extension GraphState {
 }
 
 extension StitchStore {
-    // TODO: reuse the logic in `InputEdited` ?
+    @MainActor
+    func inputEditCommitted(input: NodeIOCoordinate,
+                            value: PortValue?,
+                            wasAdjustmentBarSelection: Bool = false) {
+        guard let inputViewModel = self.currentGraph?.getInputObserver(coordinate: input)?.rowViewModel else {
+            return
+        }
+        
+        self.inputEditCommitted(input: inputViewModel,
+                                value: value,
+                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+    }
+    
     @MainActor
     func inputEditCommitted(input: InputNodeRowViewModel,
                             value: PortValue?,

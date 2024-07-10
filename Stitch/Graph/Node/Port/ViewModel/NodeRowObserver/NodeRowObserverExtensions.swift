@@ -180,35 +180,9 @@ extension Array where Element: NodeRowObserver {
             $0.allLoopedValues
         }
     }
-}
-
-extension [InputNodeRowObserver] {
-    @MainActor
-    init(values: PortValuesList,
-         kind: NodeKind,
-         userVisibleType: UserVisibleType?,
-         id: NodeId,
-         nodeIO: NodeIO,
-         activeIndex: ActiveIndex,
-         nodeRowIndex: Int?,
-         nodeDelegate: NodeDelegate,
-         canvasItem: CanvasItemViewModel?) {
-        self = values.enumerated().map { portId, values in
-            Element(values: values,
-                    nodeKind: kind,
-                    userVisibleType: userVisibleType,
-                    id: NodeIOCoordinate(portId: portId, nodeId: id),
-                    activeIndex: activeIndex,
-                    nodeRowIndex: nodeRowIndex,
-                    upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate,
-                    canvasItemDelegate: canvasItem)
-        }
-    }
     
     @MainActor
     func updateAllValues(_ newValuesList: PortValuesList,
-//                         nodeIO: NodeIO,
                          nodeId: NodeId,
                          nodeKind: NodeKind,
                          userVisibleType: UserVisibleType?,
@@ -233,20 +207,45 @@ extension [InputNodeRowObserver] {
         newValuesList.enumerated().forEach { portId, values in
             let observer = self[safe: portId] ??
                 // Sometimes observers aren't yet created for nodes with adjustable inputs
-            InputNodeRowObserver(values: values,
-                                 nodeKind: nodeDelegate.kind,
-                                 userVisibleType: userVisibleType,
-                                 id: .init(portId: portId, nodeId: nodeId),
-                                 activeIndex: .init(.zero),
-                                 nodeRowIndex: portId,
-                                 upstreamOutputCoordinate: nil,
-                                 nodeDelegate: nodeDelegate,
-                                 canvasItemDelegate: nil)
+            Element(values: values,
+                    nodeKind: nodeDelegate.kind,
+                    userVisibleType: userVisibleType,
+                    id: .init(portId: portId, nodeId: nodeId),
+                    activeIndex: .init(.zero),
+                    nodeRowIndex: portId,
+                    upstreamOutputCoordinate: nil,
+                    nodeDelegate: nodeDelegate,
+                    canvasItemDelegate: nil)
 
             // Only update values if there's no upstream connection
-            if !observer.upstreamOutputObserver.isDefined {
-                observer.updateValues(values)
-            }
+//            if !observer.upstreamOutputObserver.isDefined {
+//                observer.updateValues(values)
+//            }
+        }
+    }
+}
+
+extension [InputNodeRowObserver] {
+    @MainActor
+    init(values: PortValuesList,
+         kind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeId,
+         nodeIO: NodeIO,
+         activeIndex: ActiveIndex,
+         nodeRowIndex: Int?,
+         nodeDelegate: NodeDelegate,
+         canvasItem: CanvasItemViewModel?) {
+        self = values.enumerated().map { portId, values in
+            Element(values: values,
+                    nodeKind: kind,
+                    userVisibleType: userVisibleType,
+                    id: NodeIOCoordinate(portId: portId, nodeId: id),
+                    activeIndex: activeIndex,
+                    nodeRowIndex: nodeRowIndex,
+                    upstreamOutputCoordinate: nil,
+                    nodeDelegate: nodeDelegate,
+                    canvasItemDelegate: canvasItem)
         }
     }
 }

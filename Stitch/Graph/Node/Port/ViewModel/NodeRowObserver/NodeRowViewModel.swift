@@ -66,7 +66,7 @@ extension NodeRowViewModel {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
-                                                          activeIndex: activeIndex)
+                                                    activeIndex: activeIndex)
         self.fieldValueTypes = self
             .createFieldValueTypes(initialValue: self.activeValue,
                                    coordinate: coordinate,
@@ -159,14 +159,17 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     init(id: NodeIOPortType,
          activeValue: PortValue,
          nodeRowIndex: Int?,
-         rowDelegate: InputNodeRowObserver,
+         rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        self.initializeValues(rowDelegate: rowDelegate,
-                              coordinate: id)
+        
+        if let rowDelegate = rowDelegate {
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  coordinate: id)            
+        }
     }
 
     @MainActor
@@ -220,7 +223,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     init(id: NodeIOPortType,
          activeValue: PortValue,
          nodeRowIndex: Int?,
-         rowDelegate: OutputNodeRowObserver,
+         rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.nodeRowIndex = nodeRowIndex

@@ -47,15 +47,16 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var hasEdge: Bool { get }
     
-//    @MainActor
-//    init(values: PortValues,
-//         nodeKind: NodeKind,
-//         userVisibleType: UserVisibleType?,
-//         id: NodeIOCoordinate,
-//         activeIndex: ActiveIndex,
-//         upstreamOutputCoordinate: NodeIOCoordinate?,
-//         nodeDelegate: NodeDelegate?,
-//         canvasItemDelegate: CanvasItemViewModel?)
+    @MainActor
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         nodeRowIndex: Int?,
+         upstreamOutputCoordinate: NodeIOCoordinate?,
+         nodeDelegate: NodeDelegate?,
+         canvasItemDelegate: CanvasItemViewModel?)
 }
 
 @Observable
@@ -156,7 +157,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.rowViewModel = .init(id: id.portType,
                                   activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
                                   nodeRowIndex: nodeRowIndex,
-                                  rowDelegate: self,
+                                  rowDelegate: nil,
                                   canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
@@ -164,6 +165,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
         
+        self.rowViewModel.rowDelegate = self
         self.nodeDelegate = nodeDelegate
         
         postProcessing(oldValues: [], newValues: values)
@@ -223,21 +225,27 @@ final class OutputNodeRowObserver: NodeRowObserver {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
+         nodeRowIndex: Int?,
+         // always nil but needed for protocol
+         upstreamOutputCoordinate: NodeIOCoordinate? = nil,
          nodeDelegate: NodeDelegate?,
          canvasItemDelegate: CanvasItemViewModel?) {
         
-        self.id = id
+        assertInDebug(upstreamOutputCoordinate == nil)
         
-        self.rowViewModel = .init(id: id.portType,
-                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
-                                  nodeRowIndex: Int?,
-                                  rowDelegate: self,
-                                  canvasItemDelegate: canvasItemDelegate)
-        self.allLoopedValues = values
+        self.id = id
         self.nodeKind = nodeKind
+        self.allLoopedValues = values
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
         
+        self.rowViewModel = .init(id: id.portType,
+                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+                                  nodeRowIndex: nodeRowIndex,
+                                  rowDelegate: nil,
+                                  canvasItemDelegate: canvasItemDelegate)
+        
+        self.rowViewModel.rowDelegate = self
         self.nodeDelegate = nodeDelegate
         
         postProcessing(oldValues: [], newValues: values)

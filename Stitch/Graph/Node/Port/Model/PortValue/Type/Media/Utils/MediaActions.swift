@@ -197,7 +197,7 @@ extension GraphState {
 
         // Can now be patch- OR layer-node
         guard let existingNode = self.getNodeViewModel(nodeId),
-        let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+              let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
             dispatch(DisplayError(error: .mediaCopiedFailed))
             return
         }

@@ -423,27 +423,24 @@ extension NodeViewModel {
         
         return self.patchNode?.outputsObservers[safe: portId]
     }
-
-//    @MainActor
-//    private func updateRowObservers(rowObservers: NodeRowObservers,
-//                                    newIOValues: PortValuesList,
-//                                    activeIndex: ActiveIndex) {
-//
-//        newIOValues.enumerated().forEach { portId, newValues in
-//            guard let observer = rowObservers[safe: portId] else {
-//                #if DEV_DEBUG
-//                log("NodeViewModel.initializeThrottlers error: no observer found, this shouldn't happen.")
-//                log("NodeViewModel.initializeThrottlers: error: node.id: \(self.id)")
-//                log("NodeViewModel.initializeThrottlers: error: portId: \(portId)")
-//                #endif
-//                return
-//            }
-//
-//            observer.updateValues(newValues,
-//                                  activeIndex: activeIndex,
-//                                  isVisibleInFrame: self.isVisibleInFrame)
-//        }
-//    }
+    
+    @MainActor
+    private func updateRowObservers<RowObserver>(rowObservers: [RowObserver],
+                                                 newIOValues: PortValuesList) where RowObserver: NodeRowObserver {
+        
+        newIOValues.enumerated().forEach { portId, newValues in
+            guard let observer = rowObservers[safe: portId] else {
+#if DEV_DEBUG
+                log("NodeViewModel.initializeThrottlers error: no observer found, this shouldn't happen.")
+                log("NodeViewModel.initializeThrottlers: error: node.id: \(self.id)")
+                log("NodeViewModel.initializeThrottlers: error: portId: \(portId)")
+#endif
+                return
+            }
+            
+            observer.updateValues(newValues)
+        }
+    }
     
     var color: NodeUIColor {
         switch self.kind {
@@ -620,8 +617,7 @@ extension NodeViewModel {
             return layerNode.layer
                 .layerGraphNode.inputDefinitions.count
         case .group:
-            return self.graphDelegate?.getSplitterRowObservers(for: self.id,
-                                                               type: .input).count ?? 0
+            return self.graphDelegate?.getSplitterInputRowObservers(for: self.id).count ?? 0
         case .patch(let patchNode):
             return patchNode.inputsObservers.count
         }
@@ -631,8 +627,7 @@ extension NodeViewModel {
     var outputPortCount: Int {
         switch kind {
         case .group:
-            return self.graphDelegate?.getSplitterRowObservers(for: self.id,
-                                                               type: .output).count ?? 0
+            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id).count ?? 0
         default:
             // Layers also use this
             return self.getAllOutputsObservers().count
@@ -656,10 +651,7 @@ extension NodeViewModel {
             return
         }
 
-        self.getAllOutputsObservers()[safe: portId]?
-            .updateValues(values,
-                          activeIndex: activeIndex,
-                          isVisibleInFrame: self.isVisibleInFrame)
+        self.getAllOutputsObservers()[safe: portId]?.updateValues(values)
     }
 
     @MainActor
@@ -667,7 +659,6 @@ extension NodeViewModel {
                        activeIndex: ActiveIndex) {
         self.getAllOutputsObservers()
             .updateAllValues(newOutputsValues,
-                             nodeIO: .output,
                              nodeId: self.id,
                              nodeKind: self.kind,
                              userVisibleType: self.userVisibleType,
