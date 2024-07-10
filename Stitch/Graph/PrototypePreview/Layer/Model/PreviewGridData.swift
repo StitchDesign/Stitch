@@ -11,20 +11,16 @@ import StitchSchemaKit
 let WIDTH_FIELD_INDEX = 0
 let HEIGHT_FIELD_INDEX = 1
 
-extension GraphState {
+extension NodeViewModel {
     
     // When LayerDimension is `pt` or `parent percent`, disable the min/max along that same dimension.
     //
     @MainActor
-    func layerDimensionUpdated(layerId: NodeId,
-                               newValue: LayerDimension,
+    func layerDimensionUpdated(newValue: LayerDimension,
                                dimension: LengthDimension) {
         
-        guard let stitch = self.getNode(layerId) else {
-            fatalErrorIfDebug("could not find layer for id \(layerId)")
-            return
-        }
-        
+        let stitch = self
+                
         switch newValue {
             
         case .number,
@@ -51,34 +47,13 @@ extension GraphState {
     
     // Assumes input was already updated via e.g. PickerOptionSelected
     @MainActor
-    func sizingScenarioUpdated(layerId: NodeId,
-                               scenario: SizingScenario) {
+    func sizingScenarioUpdated(scenario: SizingScenario) {
         
-        log("sizingScenarioUpdated: layerId: \(layerId)")
         log("sizingScenarioUpdated: scenario: \(scenario)")
         
-        guard let stitch = self.getNode(layerId) else {
-            fatalErrorIfDebug("sizingScenarioUpdated: could not find layer for id \(layerId)")
-            return
-        }
+        let stitch = self
                 
         // NOTE: does this work with loops? What is the relationship between a loop of fields
-        
-//        guard let sizeInputFields = stitch.getInputRowObserver(for: .keyPath(.size))?.fieldValueTypes.first?.fieldObservers,
-//
-//                // min/max inputs
-//              let minSizeInputFields = stitch.getInputRowObserver(for: .keyPath(.minSize))?.fieldValueTypes.first?.fieldObservers,
-//              let maxSizeInputFields = stitch.getInputRowObserver(for: .keyPath(.maxSize))?.fieldValueTypes.first?.fieldObservers,
-//
-//                // Aspect ratio inputs
-//              let widthAxisInput = stitch.getInputRowObserver(for: .keyPath(.widthAxis))?.fieldValueTypes.first?.fieldObservers.first,
-//              let heightAxisInput = stitch.getInputRowObserver(for: .keyPath(.heightAxis))?.fieldValueTypes.first?.fieldObservers.first,
-//              let contentModeInput = stitch.getInputRowObserver(for: .keyPath(.contentMode))?.fieldValueTypes.first?.fieldObservers.first else {
-//            
-//            fatalErrorIfDebug("sizingScenarioUpdated: could not find required input for sizing scenario")
-//            return
-//        }
-        
         
         switch scenario {
             
@@ -88,70 +63,31 @@ extension GraphState {
             // if sizing scenario is auto, unblock the width and height fields:
             stitch.unblockSizeInput()
             
-//            sizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = false
-//            sizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = false
-            
-            
             // ... and block the min and max width and height (until width and height are set to grow or hug)
             stitch.blockMinAndMaxSizeInputs()
-            
-//            minSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = true
-//            maxSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = true
-//            minSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = true
-//            maxSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = true
                         
             // ... and block the aspect ratio inputs:
             stitch.blockAspectRatio()
             
-//            widthAxisInput.isBlockedOut = true
-//            heightAxisInput.isBlockedOut = true
-//            contentModeInput.isBlockedOut = true
-            
         case .constrainHeight:
             // if height is constrained, block-out the height inputs (height, min height, max height):
             stitch.blockHeightFields()
-            
-//            sizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = true
-//            minSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = true
-//            maxSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = true
-            
-            
+                        
             // ... and unblock the width fields:
             stitch.unblockWidthFields()
             
-//            sizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = false
-//            minSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = false
-//            maxSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = false
-            
-            
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
-            
-//            widthAxisInput.isBlockedOut = false
-//            heightAxisInput.isBlockedOut = false
-//            contentModeInput.isBlockedOut = false
             
         case .constrainWidth:
             // if width is constrained, block-out the width inputs (width, min width, max width):
             stitch.blockWidthFields()
             
-//            sizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = true
-//            minSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = true
-//            maxSizeInputFields[safe: WIDTH_FIELD_INDEX]?.isBlockedOut = true
-            
             // ... and unblock the height fields:
             stitch.unblockHeightFields()
             
-//            sizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = false
-//            minSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = false
-//            maxSizeInputFields[safe: HEIGHT_FIELD_INDEX]?.isBlockedOut = false
-            
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
-            
-//            widthAxisInput.isBlockedOut = false
-//            heightAxisInput.isBlockedOut = false
-//            contentModeInput.isBlockedOut = false
         }
     }
 }

@@ -72,25 +72,11 @@ struct InputEdited: GraphEventWithResponse {
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.
         // Note: this logic is very similar to `sizeParent`
         if let layerSize = newValue.getSize,
-           let dimension = LayerLengthDimension(edit: fieldValue.stringValue, fieldIndex: fieldIndex) {
+           let dimension = LayerLengthDimension.fromUserEdit(edit: fieldValue.stringValue, fieldIndex: fieldIndex) {
             
-            state.layerDimensionUpdated(
-                layerId: nodeViewModel.id,
+            nodeViewModel.layerDimensionUpdated(
                 newValue: dimension.layerDimension,
                 dimension: dimension.lengthDimension)
-//
-//            
-//            if fieldIndex == WIDTH_FIELD_INDEX {
-//                state.layerDimensionUpdated(layerId: nodeViewModel.id,
-//                                            newValue: layerSize.width,
-//                                            dimension: .width)
-//            } else if fieldIndex == HEIGHT_FIELD_INDEX {
-//                state.layerDimensionUpdated(layerId: nodeViewModel.id,
-//                                            newValue: layerSize.height,
-//                                            dimension: .height)
-//            } else {
-//                fatalErrorIfDebug()
-//            }
         }
                 
         state.calculate(nodeViewModel.id)

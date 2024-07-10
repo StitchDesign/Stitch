@@ -92,10 +92,8 @@ extension GraphState {
 
             
             if let sizingScenario = value.getSizingScenario {
-                self.sizingScenarioUpdated(layerId: nodeViewModel.id,
-                                           scenario: sizingScenario)
+                nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario)
             }
-            
             
             let newCommandType = value.shapeCommandType
 
