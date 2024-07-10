@@ -50,23 +50,25 @@ struct PreviewCommonSizeModifier: ViewModifier {
     var size: LayerSize
     
         // Can actually be optional, if
-    var width: LayerDimension? {
+    var width: LayerDimension {
         size.width
     }
     
     // TODO: actually pass these properties down
-    var minWidth: NumericalLayerDimension? = nil
-    var maxWidth: NumericalLayerDimension? = nil
+    let minWidth: NumericalLayerDimension? // = nil
+    let maxWidth: NumericalLayerDimension? // = nil
     
-    var height: LayerDimension? {
+    var height: LayerDimension {
         size.height
     }
     
-    var minHeight: NumericalLayerDimension? = nil
-    var maxHeight: NumericalLayerDimension? = nil
+    let minHeight: NumericalLayerDimension? // = nil
+    let maxHeight: NumericalLayerDimension? // = nil
     
     let parentSize: CGSize
     
+    var sizingScenario: SizingScenario
+        
     /*
      Only for:
      - Text and TextField layers, which have their own alignment (based on text-alignment and text-vertical-alignment);
@@ -79,30 +81,96 @@ struct PreviewCommonSizeModifier: ViewModifier {
     let frameAlignment: Alignment
 
     func body(content: Content) -> some View {
-        content
-
-            .modifier(LayerSizeModifier(
-                
-                alignment: frameAlignment,
-                
-                width: width?.asFrameDimension(parentSize.width,
-                                               constrained: constraint == .width),
-                
-                height: height?.asFrameDimension(parentSize.height,
-                                                 constrained: constraint == .height),
-                
-                minWidth: minWidth?.asFrameDimension(parentSize.width),
-                maxWidth: maxWidth?.asFrameDimension(parentSize.width),
-                
-                minHeight: minHeight?.asFrameDimension(parentSize.height),
-                maxHeight: maxHeight?.asFrameDimension(parentSize.height)
-            ))
         
-        // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-            .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+        switch sizingScenario {
+        case .auto:
+            logInView("case .auto")
+            // i.e. disallow min and max sizes
+            // TODO: allow min and max length when that length = grow/hug/nil
+            content
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    width: width.asFrameDimension(parentSize.width,
+                                                   constrained: false),
+                    height: height.asFrameDimension(parentSize.height,
+                                                     constrained: false),
+                    minWidth: nil,
+                    maxWidth: nil,
+                    minHeight: nil,
+                    maxHeight: nil
+                ))
+                        
+            // place the LayerSizeReader after the .aspectRatio modifier ?
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainHeight:
+            logInView("case .constrainHeight")
+            // i.e. only allow us to specify width and aspect ratio
+            content
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    
+                    /// SHOULD NOT USE THE `CONSTRAINED` PARAM BECAUSE THAT IS COMPLETELY WRONG!! LOL
+//                    width: width.asFrameDimension(parentSize.width,
+//                                                   constrained: true),
+                    width: width.asFrameDimension(parentSize.width),
+                    height: nil,
+                    minWidth: minWidth?.asFrameDimension(parentSize.width),
+                    maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+                    minHeight: nil,
+                    maxHeight: nil
+                ))
+            
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+            
+            // place the LayerSizeReader after the .aspectRatio modifier ?
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainWidth:
+            logInView("case .constrainWidth")
+            // i.e. only allow us to specify height and aspect ratio
+            content
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    width: nil,
+                    height: height.asFrameDimension(parentSize.height,
+                                                     constrained: true),
+                    minWidth: nil,
+                    maxWidth: nil,
+                    minHeight: minHeight?.asFrameDimension(parentSize.height),
+                    maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+                ))
+            
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+            
+            // place the LayerSizeReader after the .aspectRatio modifier ?
+                .modifier(LayerSizeReader(viewModel: viewModel))
+        }
         
-        // place the LayerSizeReader after the .aspectRatio modifier ?
-            .modifier(LayerSizeReader(viewModel: viewModel))
+//        content
+//            .modifier(LayerSizeModifier(
+//                alignment: frameAlignment,
+//
+//                width: width?.asFrameDimension(parentSize.width,
+//                                               constrained: constraint == .width),
+//                
+//                height: height?.asFrameDimension(parentSize.height,
+//                                                 constrained: constraint == .height),
+//                
+//                minWidth: minWidth?.asFrameDimension(parentSize.width),
+//                maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+//                
+//                minHeight: minHeight?.asFrameDimension(parentSize.height),
+//                maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+//            ))
+//        
+//        // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+//            .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+//        
+//        // place the LayerSizeReader after the .aspectRatio modifier ?
+//            .modifier(LayerSizeReader(viewModel: viewModel))
     }
     
 }

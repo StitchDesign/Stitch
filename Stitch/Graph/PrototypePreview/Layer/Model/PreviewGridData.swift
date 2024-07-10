@@ -21,17 +21,11 @@ extension GraphState {
         log("sizingScenarioUpdated: layerId: \(layerId)")
         log("sizingScenarioUpdated: scenario: \(scenario)")
         
-        guard let stitch = self.getNode(layerId),
-              let layer = stitch.layerNode else {
+        guard let stitch = self.getNode(layerId) else {
             fatalErrorIfDebug("could not find layer for id \(layerId)")
             return
         }
-        
-//        // Update the layer's per-index view models
-//        layer.previewLayerViewModels.forEach { (layerViewModel: LayerViewModel) in
-//            layerViewModel.sizingScenario = scenario
-//        }
-        
+                
         // NOTE: does this work with loops? What is the relationship between a loop of fields
         guard let sizeInputFields = stitch.getInputRowObserver(for: .keyPath(.size))?.fieldValueTypes.first?.fieldObservers,
 

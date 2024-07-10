@@ -30,15 +30,33 @@ struct PreviewCommonModifier: ViewModifier {
 //        size.width
 //    }
     
-    let minWidth: NumericalLayerDimension? = nil
-    let maxWidth: NumericalLayerDimension? = nil
+//    let minWidth: NumericalLayerDimension? = nil
+//    let maxWidth: NumericalLayerDimension? = nil
+    
+    var minWidth: NumericalLayerDimension? {
+        .number(layerViewModel.minSize.getSize!.asAlgebraicCGSize.width)
+    }
+    
+    var maxWidth: NumericalLayerDimension? {
+        .number(layerViewModel.maxSize.getSize!.asAlgebraicCGSize.width)
+    }
 
 //    var height: LayerDimension {
 //        size.height
 //    }
     
-    let minHeight: NumericalLayerDimension? = nil
-    let maxHeight: NumericalLayerDimension? = nil
+//    let minHeight: NumericalLayerDimension? = nil
+//    let maxHeight: NumericalLayerDimension? = nil
+    
+    var minHeight: NumericalLayerDimension? {
+//        layerViewModel.minSize.height
+        .number(layerViewModel.minSize.getSize!.asAlgebraicCGSize.height)
+    }
+    
+    var maxHeight: NumericalLayerDimension? {
+//        layerViewModel.maxSize.height
+        .number(layerViewModel.maxSize.getSize!.asAlgebraicCGSize.height)
+    }
         
     let scale: Double
     let anchoring: Anchoring
@@ -82,6 +100,7 @@ struct PreviewCommonModifier: ViewModifier {
                     minHeight: minHeight,
                     maxHeight: maxHeight,
                     parentSize: parentSize,
+                    sizingScenario: layerViewModel.sizingScenario.getSizingScenario ?? .defaultSizingScenario,
                     frameAlignment: frameAlignment))
         
             // Only for MapLayer, specifically for thumbnail-creation edge case

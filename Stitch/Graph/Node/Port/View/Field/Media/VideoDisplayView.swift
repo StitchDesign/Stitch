@@ -58,10 +58,13 @@ struct VideoDisplayView: View {
             }
         }
         .opacity(opacity)
-        .modifier(PreviewCommonSizeModifier(
-            viewModel: layerViewModel,
-            size: size,
-            parentSize: parentSize,
-            frameAlignment: .center))
+        .onAppear {
+            fatalErrorIfDebug()
+        }
+//        .modifier(PreviewCommonSizeModifier(
+//            viewModel: layerViewModel,
+//            size: size,
+//            parentSize: parentSize,
+//            frameAlignment: .center))
     }
 }

@@ -37,16 +37,21 @@ struct LayerSizeModifier: ViewModifier {
         
         // If we have at least one min-max dimension,
         // we cannot use the `.frame(width:height:)` API
-        if someMinMaxDefined {
-            content.frame(minWidth: minWidth?.atleastZero(),
-                          maxWidth: maxWidth?.atleastZero(),
-                          minHeight: minHeight?.atleastZero(),
-                          maxHeight: maxHeight?.atleastZero(),
-                          alignment: alignment)
-        } else {
-            content.frame(width: width?.atleastZero(),
+//        if someMinMaxDefined {
+//            content.frame(minWidth: minWidth?.atleastZero(),
+//                          maxWidth: maxWidth?.atleastZero(),
+//                          minHeight: minHeight?.atleastZero(),
+//                          maxHeight: maxHeight?.atleastZero(),
+//                          alignment: alignment)
+//        } else {
+            content
+            .aspectRatio(CGSize(width: 1, height: 2),
+                         contentMode: .fit)
+            .frame(width: width?.atleastZero(),
                           height: height?.atleastZero(),
                           alignment: alignment)
-        }
+//            .aspectRatio(CGSize(width: 1, height: 2),
+//                         contentMode: .fit)
+//        }
     }
 }
