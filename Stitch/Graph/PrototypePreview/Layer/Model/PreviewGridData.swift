@@ -18,6 +18,9 @@ extension GraphState {
     func sizingScenarioUpdated(layerId: NodeId,
                                scenario: SizingScenario) {
         
+        log("sizingScenarioUpdated: layerId: \(layerId)")
+        log("sizingScenarioUpdated: scenario: \(scenario)")
+        
         guard let stitch = self.getNode(layerId),
               let layer = stitch.layerNode else {
             fatalErrorIfDebug("could not find layer for id \(layerId)")

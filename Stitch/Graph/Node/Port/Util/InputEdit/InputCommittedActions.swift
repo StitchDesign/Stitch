@@ -90,6 +90,13 @@ extension GraphState {
             nodeViewModel.removeIncomingEdge(at: input,
                                              activeIndex: self.activeIndex)
 
+            
+            if let sizingScenario = value.getSizingScenario {
+                self.sizingScenarioUpdated(layerId: nodeViewModel.id,
+                                           scenario: sizingScenario)
+            }
+            
+            
             let newCommandType = value.shapeCommandType
 
             // If we changed the command type on a ShapeCommand input,

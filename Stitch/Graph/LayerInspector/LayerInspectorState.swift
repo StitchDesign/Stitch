@@ -56,7 +56,7 @@ extension LayerInspectorView {
     @MainActor
     static let sizing: LayerInputTypeSet = [
         
-        // .sizingScenario // TO BE ADDED
+        .sizingScenario,
 
         // Aspect Ratio
         .widthAxis,
@@ -100,7 +100,6 @@ extension LayerInspectorView {
         .video,
         .model3D,
         .fitStyle,
-        
         
         // Progress Indicator
         .progressIndicatorStyle,
