@@ -152,19 +152,11 @@ extension NodeViewModel {
     @MainActor
     func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
         
+        // Check the input itself (the value at the active-index), not the field view model.
         guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
-            // default to blocking these fields ?
-//            self.blockMinAndMaxWidthFields()
             return
         }
-        
-//        guard let widthIsNumber = self.getLayerInputFields(.size)?[safe: WIDTH_FIELD_INDEX]?.fieldValue.layerDimensionField else {
-//            log("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
-//            // default to blocking these fields ?
-//            self.blockMinAndMaxWidthFields()
-//            return
-//        }
         
         if !widthIsNumber {
             self.unblockMinAndMaxWidthFields()
@@ -175,15 +167,10 @@ extension NodeViewModel {
     
     @MainActor
     func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
-//        guard let heightIsNumber = self.getLayerInputFields(.size)?[safe: HEIGHT_FIELD_INDEX]?.fieldValue.layerDimensionField else {
-//            log("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
-//            self.blockMinAndMaxWidthFields()
-//            return
-//        }
-        
+
+        // Check the input itself (the value at the active-index), not the field view model.
         guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
-            // default to blocking these fields ?
             return
         }
         
