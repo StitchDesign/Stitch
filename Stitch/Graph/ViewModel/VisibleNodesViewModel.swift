@@ -318,7 +318,7 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func getInputSplitterInputPorts(for canvasItem: CanvasItemViewModel) -> [InputPortViewData]? {
+    func getInputSplitterPorts(for canvasItem: CanvasItemViewModel) -> [InputPortViewData]? {
         if let observers = self.getInputSplitters(for: canvasItem) {
             return (0..<observers.count).map { portId in
                 return InputPortViewData(portId: portId, canvasId: canvasItem.id)

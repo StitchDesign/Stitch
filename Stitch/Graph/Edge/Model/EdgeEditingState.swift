@@ -8,7 +8,7 @@
 import StitchSchemaKit
 import SwiftUI
 
-typealias PossibleEdgeId = PortViewData
+typealias PossibleEdgeId = InputPortViewData
 
 struct PossibleEdge: Hashable {
     var edge: PortEdgeUI
@@ -22,7 +22,7 @@ struct PossibleEdge: Hashable {
 }
 
 extension PossibleEdge {
-    var id: PortViewData {
+    var id: InputPortViewData {
         edge.id
     }
 }
@@ -32,10 +32,10 @@ typealias PossibleEdgeSet = Set<PossibleEdge>
 struct EdgeEditingState {
 
     // currently hovered-over output
-    var originOutput: PortViewData
+    var originOutput: OutputPortViewData
 
     // the node that is east of, and the shortest distance from, the origin node
-    var nearbyNode: NodeId
+    var nearbyNode: CanvasItemId
 
     var possibleEdges: PossibleEdgeSet
 
@@ -54,7 +54,7 @@ struct EdgeEditingState {
      Not the same thing as the edge's isCommitted, since e.g. de-committing an edge sets is isCommitted = false
      but we still need to show the edge until the withdrawal animation completes.
      */
-    var shownIds: Set<PortViewData> = .init()
+    var shownIds: Set<InputPortViewData> = .init()
 
     /*
      Possible edge id found in set = edge is currently animating (extending or withdrawing).
