@@ -33,29 +33,29 @@ struct PreviewCommonModifier: ViewModifier {
 //    let minWidth: NumericalLayerDimension? = nil
 //    let maxWidth: NumericalLayerDimension? = nil
     
-    var minWidth: NumericalLayerDimension? {
-        .number(layerViewModel.minSize.getSize!.asAlgebraicCGSize.width)
+    var minWidth: LayerDimension? {
+        layerViewModel.minSize.getSize!.width
     }
     
-    var maxWidth: NumericalLayerDimension? {
-        .number(layerViewModel.maxSize.getSize!.asAlgebraicCGSize.width)
+    var maxWidth: LayerDimension? {
+        layerViewModel.maxSize.getSize!.width
     }
 
 //    var height: LayerDimension {
 //        size.height
 //    }
     
-//    let minHeight: NumericalLayerDimension? = nil
-//    let maxHeight: NumericalLayerDimension? = nil
+//    let minHeight: LayerDimension? = nil
+//    let maxHeight: LayerDimension? = nil
     
-    var minHeight: NumericalLayerDimension? {
+    var minHeight: LayerDimension? {
 //        layerViewModel.minSize.height
-        .number(layerViewModel.minSize.getSize!.asAlgebraicCGSize.height)
+        layerViewModel.minSize.getSize!.height
     }
     
-    var maxHeight: NumericalLayerDimension? {
+    var maxHeight: LayerDimension? {
 //        layerViewModel.maxSize.height
-        .number(layerViewModel.maxSize.getSize!.asAlgebraicCGSize.height)
+        layerViewModel.maxSize.getSize!.height
     }
         
     let scale: Double

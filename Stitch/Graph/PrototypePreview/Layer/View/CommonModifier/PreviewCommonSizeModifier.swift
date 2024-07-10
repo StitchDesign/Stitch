@@ -55,15 +55,19 @@ struct PreviewCommonSizeModifier: ViewModifier {
     }
     
     // TODO: actually pass these properties down
-    let minWidth: NumericalLayerDimension? // = nil
-    let maxWidth: NumericalLayerDimension? // = nil
+//    let minWidth: NumericalLayerDimension? // = nil
+    let minWidth: LayerDimension? // = nil
+//    let maxWidth: NumericalLayerDimension? // = nil
+    let maxWidth: LayerDimension? // = nil
     
     var height: LayerDimension {
         size.height
     }
     
-    let minHeight: NumericalLayerDimension? // = nil
-    let maxHeight: NumericalLayerDimension? // = nil
+//    let minHeight: NumericalLayerDimension? // = nil
+    let minHeight: LayerDimension? // = nil
+//    let maxHeight: NumericalLayerDimension? // = nil
+    let maxHeight: LayerDimension? // = nil
     
     let parentSize: CGSize
     
@@ -80,16 +84,24 @@ struct PreviewCommonSizeModifier: ViewModifier {
     // `.frame(alignment:)` only matters if there is a size gap between the layer and its frame; can happen for Text, TextField, ProgressIndicator and other native views which do not resize just by .frame
     let frameAlignment: Alignment
 
+    var usesParentPercentForWidth: Bool {
+        width.isParentPercentage
+    }
+    
+    var usesParentPercentForHeight: Bool {
+        height.isParentPercentage
+    }
+    
     func body(content: Content) -> some View {
         
         switch sizingScenario {
         case .auto:
             logInView("case .auto")
-            // i.e. disallow min and max sizes
-            // TODO: allow min and max length when that length = grow/hug/nil
             content
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
                     width: width.asFrameDimension(parentSize.width,
                                                    constrained: false),
                     height: height.asFrameDimension(parentSize.height,
@@ -113,6 +125,9 @@ struct PreviewCommonSizeModifier: ViewModifier {
             
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
+                    
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
                     
                     /// SHOULD NOT USE THE `CONSTRAINED` PARAM BECAUSE THAT IS COMPLETELY WRONG!! LOL
 //                    width: width.asFrameDimension(parentSize.width,
@@ -139,6 +154,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
             
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
                     width: nil,
                     height: height.asFrameDimension(parentSize.height),
                     minWidth: nil,

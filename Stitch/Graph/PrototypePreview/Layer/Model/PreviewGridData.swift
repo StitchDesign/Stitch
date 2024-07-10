@@ -23,9 +23,7 @@ extension NodeViewModel {
                 
         switch newValue {
             
-        case .number,
-            // TODO: treat parent-percent as allowing min/max; e.g. "Width is 50% of parent, but never less than 100 and never greater than 1000"
-                .parentPercent:
+        case .number:
             // block min and max along this given dimension
             switch dimension {
             case .width:
@@ -35,7 +33,7 @@ extension NodeViewModel {
                 stitch.blockMinAndMaxHeightFields()
             }
             
-        case .auto, .fill, .hug:
+        case .auto, .fill, .hug, .parentPercent:
             switch dimension {
             case .width:
                 stitch.unblockMinAndMaxWidthFields()
