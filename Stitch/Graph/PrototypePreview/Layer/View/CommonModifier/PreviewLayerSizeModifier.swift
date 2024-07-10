@@ -45,8 +45,8 @@ struct LayerSizeModifier: ViewModifier {
 //                          alignment: alignment)
 //        } else {
             content
-            .aspectRatio(CGSize(width: 1, height: 2),
-                         contentMode: .fit)
+//            .aspectRatio(CGSize(width: 1, height: 2),
+//                         contentMode: .fit)
             .frame(width: width?.atleastZero(),
                           height: height?.atleastZero(),
                           alignment: alignment)

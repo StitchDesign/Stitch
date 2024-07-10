@@ -41,7 +41,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
     @Bindable var viewModel: LayerViewModel
     
     // TODO: actually pass these properties down
-    var aspectRatio: AspectRatioData? = nil
+    var aspectRatio: AspectRatioData //? = nil
     
     // If a dimension is constrained, then we use .unspecified for that dimension.
     var constraint: LengthDimension? = nil
@@ -107,6 +107,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
             logInView("case .constrainHeight")
             // i.e. only allow us to specify width and aspect ratio
             content
+            
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+            
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
                     
@@ -120,9 +124,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: nil,
                     maxHeight: nil
                 ))
-            
-            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+           
             
             // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))
@@ -131,19 +133,22 @@ struct PreviewCommonSizeModifier: ViewModifier {
             logInView("case .constrainWidth")
             // i.e. only allow us to specify height and aspect ratio
             content
+            
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+            
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
                     width: nil,
-                    height: height.asFrameDimension(parentSize.height,
-                                                     constrained: true),
+                    height: height.asFrameDimension(parentSize.height),
                     minWidth: nil,
                     maxWidth: nil,
                     minHeight: minHeight?.asFrameDimension(parentSize.height),
                     maxHeight: maxHeight?.asFrameDimension(parentSize.height)
                 ))
             
-            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+//            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+//                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
             
             // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))

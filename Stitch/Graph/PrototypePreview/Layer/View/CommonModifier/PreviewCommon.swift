@@ -19,7 +19,7 @@ struct PreviewCommonModifier: ViewModifier {
     let rotationY: CGFloat
     let rotationZ: CGFloat
     
-    let aspectRatio: AspectRatioData? = nil
+//    let aspectRatio: AspectRatioData?  = nil
     let constraint: LengthDimension? = nil
     
     // should receive LayerSize, so can use `nil` for a .frame dimension when we have LayerDimension.fill/grow
@@ -92,7 +92,13 @@ struct PreviewCommonModifier: ViewModifier {
         content
             .modifier(PreviewCommonSizeModifier(
                     viewModel: layerViewModel,
-                    aspectRatio: aspectRatio,
+                    
+                    aspectRatio: .init(
+                        widthAxis: layerViewModel.widthAxis.getNumber!,
+                        heightAxis: layerViewModel.heightAxis.getNumber!,
+                        contentMode: layerViewModel.contentMode.getContentMode!.toSwiftUIContent),
+                    
+                    //aspectRatio,
                     constraint: constraint,
                     size: size,
                     minWidth: minWidth,
