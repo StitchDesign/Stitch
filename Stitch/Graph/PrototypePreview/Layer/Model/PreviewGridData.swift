@@ -45,7 +45,8 @@ extension NodeViewModel {
     
     // Assumes input was already updated via e.g. PickerOptionSelected
     @MainActor
-    func sizingScenarioUpdated(scenario: SizingScenario) {
+    func sizingScenarioUpdated(scenario: SizingScenario,
+                               activeIndex: ActiveIndex) {
         
         log("sizingScenarioUpdated: scenario: \(scenario)")
         
@@ -62,8 +63,11 @@ extension NodeViewModel {
             stitch.unblockSizeInput()
             
             // ... and block the min and max width and height (until width and height are set to grow or hug)
-            stitch.blockMinAndMaxSizeInputs()
-                        
+            // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
+//            stitch.blockMinAndMaxSizeInputs()
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
+                                    
             // ... and block the aspect ratio inputs:
             stitch.blockAspectRatio()
             
@@ -71,8 +75,10 @@ extension NodeViewModel {
             // if height is constrained, block-out the height inputs (height, min height, max height):
             stitch.blockHeightFields()
                         
-            // ... and unblock the width fields:
-            stitch.unblockWidthFields()
+            // ... and unblock the width field:
+            // TODO: also unblock min/max width fields if width field != point
+            stitch.unblockWidthField()
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -82,7 +88,9 @@ extension NodeViewModel {
             stitch.blockWidthFields()
             
             // ... and unblock the height fields:
-            stitch.unblockHeightFields()
+            // TODO: also unblock min/max height fields if height field != point
+            stitch.unblockHeightField()
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -142,6 +150,51 @@ extension NodeViewModel {
     }
     
     @MainActor
+    func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
+        
+        guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.width.isNumber else {
+            fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
+            // default to blocking these fields ?
+//            self.blockMinAndMaxWidthFields()
+            return
+        }
+        
+//        guard let widthIsNumber = self.getLayerInputFields(.size)?[safe: WIDTH_FIELD_INDEX]?.fieldValue.layerDimensionField else {
+//            log("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
+//            // default to blocking these fields ?
+//            self.blockMinAndMaxWidthFields()
+//            return
+//        }
+        
+        if !widthIsNumber {
+            self.unblockMinAndMaxWidthFields()
+        } else {
+            self.blockMinAndMaxWidthFields()
+        }
+    }
+    
+    @MainActor
+    func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
+//        guard let heightIsNumber = self.getLayerInputFields(.size)?[safe: HEIGHT_FIELD_INDEX]?.fieldValue.layerDimensionField else {
+//            log("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
+//            self.blockMinAndMaxWidthFields()
+//            return
+//        }
+        
+        guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?.getActiveValue(activeIndex: activeIndex).getSize?.height.isNumber else {
+            fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
+            // default to blocking these fields ?
+            return
+        }
+        
+        if !heightIsNumber {
+            self.unblockMinAndMaxHeightFields()
+        } else {
+            self.blockMinAndMaxHeightFields()
+        }
+    }
+    
+    @MainActor
     func blockAspectRatio() {
         [LayerInputType.widthAxis, .heightAxis, .contentMode]
             .forEach {
@@ -157,11 +210,16 @@ extension NodeViewModel {
         setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
     }
     
-    @MainActor func unblockWidthFields() {
+    // Only unblock min/max width fields if user has a
+    @MainActor func unblockWidthField() {
         setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
     }
+    
+//    @MainActor func unblockWidthFields() {
+//        setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//    }
     
     @MainActor
     func unblockAspectRatio() {
@@ -178,11 +236,15 @@ extension NodeViewModel {
         setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
     }
     
-    @MainActor func unblockHeightFields() {
+    @MainActor func unblockHeightField() {
         setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
     }
+    
+//    @MainActor func unblockHeightFields() {
+//        setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//    }
     
     
     // SizingScenario = Auto, LayerDimension = Point, Width
