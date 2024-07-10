@@ -190,6 +190,10 @@ extension PortValue {
             return .contentMode(.defaultContentMode)
         case .spacing:
             return .spacing(.defaultStitchSpacing)
+        case .padding:
+            return .padding(.zero)
+        case .sizingScenario:
+            return .sizingScenario(.defaultSizingScenario)
         }
     }
 }

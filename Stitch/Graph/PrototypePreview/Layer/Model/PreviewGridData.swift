@@ -126,31 +126,9 @@ extension NodeViewModel {
     }
 }
 
-
-enum SizingScenario: String, Equatable, Hashable, Codable, CaseIterable {
-    case auto = "Auto", // manually specify both H and W
-         constrainHeight = "Constrain Height", // manually specify W; H will follow
-         constrainWidth = "Constrain Width" // manually specify H; W will follow
-}
-
-// TODO: combine with Point4D ? Or will the names `x, y, z, w` be too unfamiliar vers `top`, `bottom` etc.; e.g. does `x` refer to `left` or `right`?
-struct StitchPadding: Equatable, Hashable, Codable {
-    var top: CGFloat = .zero
-    var bottom: CGFloat = .zero
-    var left: CGFloat = .zero
-    var right: CGFloat = .zero
-
-}
-
-extension StitchPadding {
-    init(_ number: CGFloat) {
-        self.top = number
-        self.bottom = number
-        self.left = number
-        self.right = number
-    }
-    
-    static let zero: Self = Self.init(0)
+extension StitchPadding {    
+    static let zero: Self = StitchPadding()
+    static let defaultPadding = .zero
 }
 
 extension Point4D {

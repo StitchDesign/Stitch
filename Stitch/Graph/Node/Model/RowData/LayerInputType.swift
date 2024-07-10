@@ -208,6 +208,8 @@ extension LayerInputType {
             return .size(.LAYER_DEFAULT_SIZE)
         case .spacing:
             return .spacing(.defaultStitchSpacing)
+        case .sizingScenario:
+            return .sizingScenario(.auto)
         }
     }
     
@@ -402,6 +404,9 @@ extension LayerInputType {
         
         case .spacing:
             return \.spacingPort
+            
+        case .sizingScenario:
+            return \.sizingScenarioPort
         }
     }
     
@@ -631,6 +636,8 @@ extension LayerViewModel {
             return self.maxSize
         case .spacing:
             return self.spacing
+        case .sizingScenario:
+            return self.sizingScenario
         }
     }
     
@@ -823,6 +830,8 @@ extension LayerViewModel {
             self.maxSize = value
         case .spacing:
             self.spacing = value
+        case .sizingScenario:
+            self.sizingScenario = value
         }
     }
 }
@@ -1010,6 +1019,8 @@ extension LayerInputType {
             return \.maxSizePort
         case .spacing:
             return \.spacingPort
+        case .sizingScenario:
+            return \.sizingScenarioPort
         }
     }
         
@@ -1200,6 +1211,8 @@ extension LayerInputType {
             return "Max Size"
         case .spacing:
             return "Spacing"
+        case .sizingScenario:
+            return "Sizing Scenario"
         }
     }
     

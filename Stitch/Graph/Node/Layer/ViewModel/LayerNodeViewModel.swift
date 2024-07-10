@@ -120,6 +120,7 @@ final class LayerNodeViewModel {
     @MainActor var minSizePort: NodeRowObserver
     @MainActor var maxSizePort: NodeRowObserver
     @MainActor var spacingPort: NodeRowObserver
+    @MainActor var sizingScenarioPort: NodeRowObserver
 
     weak var nodeDelegate: NodeDelegate?
 

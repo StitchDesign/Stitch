@@ -38,3 +38,14 @@ extension Point4D {
         [.number(self.x), .number(self.y), .number(self.z), .number(self.w)]
     }
 }
+
+extension StitchPadding {
+    var fieldValues: FieldValues {
+        [
+            .number(self.top),
+            .number(self.right),
+            .number(self.bottom),
+            .number(self.left)
+        ]
+    }
+}

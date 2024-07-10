@@ -18,6 +18,13 @@ let Y = "y"
 let Z = "z"
 let W = "w"
 
+let TOP = "Top"
+let RIGHT = "Right"
+let BOTTOM = "Bottom"
+let LEFT = "Left"
+
+
+
 extension LayerSize {
     var asLayerDictionary: [String: String] {
         [
@@ -53,6 +60,17 @@ extension Point4D {
             Y: self.y,
             Z: self.z,
             W: self.w
+        ]
+    }
+}
+
+extension StitchPadding {
+    var asDictionary: [String: Double] {
+        [
+            TOP: self.top,
+            RIGHT: self.right,
+            BOTTOM: self.bottom,
+            LEFT: self.left
         ]
     }
 }
@@ -172,6 +190,10 @@ extension PortValue {
             return x.rawValue
         case .spacing(let x):
             return x.display
+        case .padding(let x):
+            return x.asDictionary.description
+        case .sizingScenario(let x):
+            return x.rawValue
 
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022

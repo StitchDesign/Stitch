@@ -28,7 +28,11 @@ extension PortValue {
         case .point4D:
             let point4D = self.getPoint4D ?? .zero
             return [point4D.fieldValues]
-
+        
+        case .padding:
+            let padding = self.getPadding ?? .zero
+            return [padding.fieldValues]
+            
         case .shapeCommand(let shapeCommandType):
             let shapeCommandValue = self.shapeCommand ?? .defaultFalseShapeCommand
 
@@ -205,6 +209,11 @@ extension PortValue {
                 let value = self.getStitchSpacing ?? .defaultStitchSpacing
                 return [[.dropdown(value.display,
                                    [.spacing(.evenly), .spacing(.between)])]]
+            case .sizingScenario:
+                let value = self.getSizingScenario ?? .defaultSizingScenario
+                return [[.dropdown(value.rawValue,
+                                   SizingScenario.choices)]]
+                
             } // case .singleDropdown
             
         case .textFontDropdown:
