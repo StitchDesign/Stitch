@@ -391,6 +391,10 @@ extension NodeRowObserver {
             self.allLoopedValues = newValue
         }
     }
+    
+    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
+        self.rowViewModel.fieldValueTypes
+    }
 }
 
 extension InputNodeRowObserver: NodeRowCalculatable { }
