@@ -94,10 +94,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
                                                    constrained: false),
                     height: height.asFrameDimension(parentSize.height,
                                                      constrained: false),
-                    minWidth: nil,
-                    maxWidth: nil,
-                    minHeight: nil,
-                    maxHeight: nil
+                    minWidth: minWidth?.asFrameDimension(parentSize.width),
+                    maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+                    minHeight: minHeight?.asFrameDimension(parentSize.height),
+                    maxHeight: maxHeight?.asFrameDimension(parentSize.height)
                 ))
                         
             // place the LayerSizeReader after the .aspectRatio modifier ?
