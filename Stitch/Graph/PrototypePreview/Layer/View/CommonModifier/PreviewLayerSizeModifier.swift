@@ -11,6 +11,10 @@ extension CGFloat {
     func atleastZero() -> CGFloat {
         CGFloat.maximum(self, .zero)
     }
+    
+    func atleastOne() -> CGFloat {
+        CGFloat.maximum(self, 1.0)
+    }
 }
 
 // Directly calling SwiftUI's .frame API
@@ -33,25 +37,39 @@ struct LayerSizeModifier: ViewModifier {
         minWidth.isDefined || maxWidth.isDefined || minHeight.isDefined || maxHeight.isDefined
     }
     
+    // If user provided a pt  dimension (width or height),
+    // then we must use SwiftUI's `.frame(width:height:)`.
+    // Note that grow/hug for a dimension = `nil`, and so we can instead provide
+    var someDimensionFixed: Bool {
+        width.isDefined || height.isDefined
+    }
+    
     func body(content: Content) -> some View {
         
-        // If we have at least one min-max dimension,
-        // we cannot use the `.frame(width:height:)` API
-//        if someMinMaxDefined {
-//            content.frame(minWidth: minWidth?.atleastZero(),
-//                          maxWidth: maxWidth?.atleastZero(),
-//                          minHeight: minHeight?.atleastZero(),
-//                          maxHeight: maxHeight?.atleastZero(),
-//                          alignment: alignment)
-//        } else {
+        if someDimensionFixed {
             content
-//            .aspectRatio(CGSize(width: 1, height: 2),
-//                         contentMode: .fit)
-            .frame(width: width?.atleastZero(),
-                          height: height?.atleastZero(),
+                .frame(width: width?.atleastZero(),
+                       height: height?.atleastZero(),
+                       alignment: alignment)
+            
+        } else {
+                        
+            // If we have at least one min-max dimension,
+            // we cannot use the `.frame(width:height:)` API
+            //        if someMinMaxDefined {
+            content.frame(minWidth: minWidth?.atleastZero(),
+                          maxWidth: maxWidth?.atleastOne(),
+                          minHeight: minHeight?.atleastZero(),
+                          maxHeight: maxHeight?.atleastOne(),
                           alignment: alignment)
-//            .aspectRatio(CGSize(width: 1, height: 2),
-//                         contentMode: .fit)
-//        }
+        }
+        
+        
+        //        } else {
+        //            content
+        //            .frame(width: width?.atleastZero(),
+        //                          height: height?.atleastZero(),
+        //                          alignment: alignment)
+        //        }
     }
 }

@@ -218,18 +218,39 @@ func sizeParent(_ size: LayerSize,
                 _ fieldIndex: Int,
                 _ edit: String) -> LayerSize? {
 
-    if let dimension = LayerDimension.fromUserEdit(edit: edit) {
-
-        if fieldIndex == 0 {
-            return LayerSize(width: dimension,
+    if let dimension = LayerLengthDimension(edit: edit, fieldIndex: fieldIndex) {
+        switch dimension.lengthDimension {
+        case .width:
+            return LayerSize(width: dimension.layerDimension,
                              height: size.height)
-        } else if fieldIndex == 1 {
+        case .height:
             return LayerSize(width: size.width,
-                             height: dimension)
-        } else {
-            fatalError() // we had valid edit but unexpected field index
+                             height: dimension.layerDimension)
         }
     }
+    
+    return nil
+}
 
-    return nil // did not have a valid edit
+struct LayerLengthDimension: Codable, Equatable {
+    var layerDimension: LayerDimension
+    var lengthDimension: LengthDimension
+}
+
+extension LayerLengthDimension {
+
+    init?(edit: String, fieldIndex: Int) {
+        if let dimension = LayerDimension.fromUserEdit(edit: edit) {
+            self.layerDimension = dimension
+            if fieldIndex == WIDTH_FIELD_INDEX {
+                self.lengthDimension = .width
+            } else if fieldIndex == HEIGHT_FIELD_INDEX {
+                self.lengthDimension = .height
+            } else {
+                fatalErrorIfDebug() // had valid edit but unexpected field index
+                return nil
+            }
+        }
+        return nil // did not have a valid edit
+    }
 }
