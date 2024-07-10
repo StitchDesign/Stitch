@@ -106,22 +106,22 @@ struct LayerInspectorView: View {
             // TODO: remove?
             Text(node.displayTitle).font(.title2)
             
-            Menu {
-                ForEach(SizingScenario.allCases, id: \.self) {
-                    sizingScenario in
-//                    Button(sizingScenario.rawValue)
-                    Button {
-                        graph.sizingScenarioUpdated(
-                            layerId: node.id,
-                            scenario: sizingScenario)
-                    } label: {
-                        Text(sizingScenario.rawValue)
-                    }
-
-                }
-            } label: {
-                Text(                layerNode.previewLayerViewModels.first?.sizingScenario.rawValue ?? "None")
-            }
+//            Menu {
+//                ForEach(SizingScenario.allCases, id: \.self) {
+//                    sizingScenario in
+////                    Button(sizingScenario.rawValue)
+//                    Button {
+//                        graph.sizingScenarioUpdated(
+//                            layerId: node.id,
+//                            scenario: sizingScenario)
+//                    } label: {
+//                        Text(sizingScenario.rawValue)
+//                    }
+//
+//                }
+//            } label: {
+//                Text(                layerNode.previewLayerViewModels.first?.sizingScenario.rawValue ?? "None")
+//            }
             
             section("Required", Self.required)
             

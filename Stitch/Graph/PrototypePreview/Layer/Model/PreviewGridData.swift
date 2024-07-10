@@ -24,10 +24,10 @@ extension GraphState {
             return
         }
         
-        // Update the layer's per-index view models
-        layer.previewLayerViewModels.forEach { (layerViewModel: LayerViewModel) in
-            layerViewModel.sizingScenario = scenario
-        }
+//        // Update the layer's per-index view models
+//        layer.previewLayerViewModels.forEach { (layerViewModel: LayerViewModel) in
+//            layerViewModel.sizingScenario = scenario
+//        }
         
         // NOTE: does this work with loops? What is the relationship between a loop of fields
         guard let sizeInputFields = stitch.getInputRowObserver(for: .keyPath(.size))?.fieldValueTypes.first?.fieldObservers,
@@ -127,19 +127,22 @@ extension NodeViewModel {
 }
 
 extension StitchPadding {    
-    static let zero: Self = StitchPadding()
-    static let defaultPadding = .zero
+    static let zero: StitchPadding = .init(top: .zero,
+                                           right: .zero,
+                                           bottom: .zero,
+                                           left: .zero)
+    
+    static let defaultPadding = Self.zero
 }
 
 extension Point4D {
     var toStitchPadding: StitchPadding {
         .init(top: self.x,
-              bottom: self.y,
-              left: self.z,
-              right: self.w)
+              right: self.y,
+              bottom: self.z,
+              left: self.w)
     }
 }
-                            
                             
 extension StitchSpacing {
     

@@ -252,6 +252,7 @@ final class LayerNodeViewModel {
         self.minSizePort = .empty(.minSize, layer: schema.layer)
         self.maxSizePort = .empty(.maxSize, layer: schema.layer)
         self.spacingPort = .empty(.spacing, layer: schema.layer)
+        self.sizingScenarioPort = .empty(.sizingScenario, layer: schema.layer)
         
         let graphNode = schema.layer.layerGraphNode
         
