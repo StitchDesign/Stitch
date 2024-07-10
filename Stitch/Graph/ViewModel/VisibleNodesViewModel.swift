@@ -24,8 +24,10 @@ extension VisibleNodesViewModel {
         self.nodes.keys.toSet
     }
 
-    var allViewModels: [NodeViewModel] {
-        Array(self.nodes.values)
+    var allViewModels: CanvasItemViewModels {
+        Array(self.nodes.values.flatMap { node in
+            node.getAllCanvasObservers()
+        })
     }
 
     /// Returns list of view models to display given the actively selected group (or lack thereof).

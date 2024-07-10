@@ -60,11 +60,13 @@ struct NodesView: View {
                                 return []
                             }
                             return [input.rowViewModel]
-                        case .layerOutputOnGraph(let x):
-                            guard let output = graph.getOutputObserver(coordinate: x) else {
-                                return []
-                            }
-                            return [output]
+                        
+                        case .layerOutputOnGraph:
+                            return []
+//                            guard let output = graph.getOutputObserver(coordinate: x) else {
+//                                return []
+//                            }
+//                            return [output]
                             
                         case .node(let x):
                             // Hides edges from group input splitters
@@ -80,7 +82,9 @@ struct NodesView: View {
                                 return []
                             }
                             
-                            return node.getAllInputsObservers()
+                            return node.getAllInputsObservers().map {
+                                $0.rowViewModel
+                            }
                         }
                     }
                 
@@ -97,7 +101,8 @@ struct NodesView: View {
                         connectedEdgesView(allInputs: inputs)
                     }
                     .overlay {
-                        edgeDrawingView(inputs: inputs)
+                        edgeDrawingView(inputs: inputs, 
+                                        graph: self.graph)
                         EdgeInputLabelsView(inputs: inputs,
                                             graph: graph,
                                             graphUI: graph.graphUI)
@@ -143,7 +148,7 @@ struct NodesView: View {
         NodesOnlyView(graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData,
-                      nodes: visibleNodesViewModel.allViewModels,
+                      canvasNodes: visibleNodesViewModel.allViewModels,
                       insertNodeMenuHiddenNode: insertNodeMenuHiddenNodeId)
     }
     
@@ -164,19 +169,22 @@ struct EdgeInputLabelsView: View {
 
     var body: some View {
         let showLabels = graph.graphUI.edgeEditingState?.labelsShown ?? false
-        let nearbyNodeId = graph.graphUI.edgeEditingState?.nearbyNode
         
-        ForEach(inputs) { inputRowObserver in
-            // visibleNodeId property checks for group splitter inputs
-            let isInputForNearbyNode = inputRowObserver.visibleNodeIds.contains(nearbyNodeId)
-            let isVisible = isInputForNearbyNode && showLabels
-            
-            EdgeEditModeLabelsView(graph: graph,
-                                   portId: inputRowObserver.id.portId ?? .zero)
-            .position(inputRowObserver.anchorPoint ?? .zero)
-            .opacity(isVisible ? 1 : 0)
-            .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
-                       value: isVisible)
+        if let nearbyNodeId = graph.graphUI.edgeEditingState?.nearbyNode {
+            ForEach(inputs) { inputRowViewModel in
+                // visibleNodeId property checks for group splitter inputs
+                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyNodeId)
+                let isVisible = isInputForNearbyNode && showLabels
+                
+                EdgeEditModeLabelsView(graph: graph,
+                                       portId: inputRowViewModel.portViewData?.portId ?? .zero)
+                .position(inputRowViewModel.anchorPoint ?? .zero)
+                .opacity(isVisible ? 1 : 0)
+                .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),
+                           value: isVisible)
+            }
+        } else {
+            EmptyView()
         }
     }
 }
