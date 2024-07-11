@@ -123,7 +123,9 @@ struct GraphBaseView: View {
             Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
                 .frame(width: 1, height: 1)
                 .inspector(isPresented: FeatureFlags.USE_LAYER_INSPECTOR ? $graphUI.showsLayerInspector : .constant(false)) {
+                    
                     LayerInspectorView(graph: graph)
+                    
                     // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                 }

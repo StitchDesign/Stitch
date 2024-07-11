@@ -95,6 +95,10 @@ extension GraphState {
                 nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario, activeIndex: self.activeIndex)
             }
             
+            if let orientation = value.getOrientation {
+                nodeViewModel.layerGroupOrientationUpdated(newValue: orientation)
+            }
+            
             let newCommandType = value.shapeCommandType
 
             // If we changed the command type on a ShapeCommand input,
