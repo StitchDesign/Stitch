@@ -376,7 +376,7 @@ Performs a NOT Boolean operation where the input is inverted. For example, if th
 // MARK: Colors
 
 let colorToHexDescription = """
-Converts a provided color into a corresonding Hex string
+Converts a provided color into a corresonding Hex string.
 
 *Inputs*
 • A color value
@@ -386,7 +386,7 @@ Converts a provided color into a corresonding Hex string
 """
 
 let colorToHSLDescription = """
-Converts a provided color into its constituent HSL (Hue/Saturation/Light) components
+Converts a provided color into its constituent HSL (Hue/Saturation/Light) components.
 
 *Inputs*
 • A color value
@@ -399,7 +399,7 @@ Converts a provided color into its constituent HSL (Hue/Saturation/Light) compon
 """
 
 let colorToRGBDescription = """
-Converts a provided color into its constituent RGB (Red/Green/Blue) components
+Converts a provided color into its constituent RGB (Red/Green/Blue) components (from 0 - 1).
 
 *Inputs*
 • A color value
@@ -435,7 +435,7 @@ A node for generating a color from HSL (Hue/Saturation/Light) input values.
 """
 
 let rgbaDescription = """
-Creates a Color out of specified RGBA (Red/Green/Blue/Alpha) values.
+Creates a Color out of specified RGBA (Red/Green/Blue/Alpha) values (from 0 -1).
 
 *Inputs*
 
