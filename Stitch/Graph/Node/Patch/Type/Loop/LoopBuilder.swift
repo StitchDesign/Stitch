@@ -12,20 +12,20 @@ import StitchSchemaKit
 struct LoopBuilderNode: PatchNodeDefinition {
     static let patch: Patch = .loopBuilder
     
-    static let defaultUserVisibleType: UserVisibleType? = .media
+    static let defaultUserVisibleType: UserVisibleType? = .number
 
     static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
         .init(inputs: [
-            .init(label: "", defaultType: .media),
-            .init(label: "", defaultType: .media),
-            .init(label: "", defaultType: .media),
-            .init(label: "", defaultType: .media),
-            .init(label: "", defaultType: .media)
+            .init(label: "", defaultType: .number),
+            .init(label: "", defaultType: .number),
+            .init(label: "", defaultType: .number),
+            .init(label: "", defaultType: .number),
+            .init(label: "", defaultType: .number)
         ], outputs: [
             .init(label: "Index",
                   type: .number),
             .init(label: "Values",
-                  type: type ?? Self.defaultUserVisibleType ?? .media)
+                  type: type ?? Self.defaultUserVisibleType ?? .number)
         ])
     }
     
@@ -34,7 +34,7 @@ struct LoopBuilderNode: PatchNodeDefinition {
     }
     
     static let defaultOutputs: PortValuesList = [[.number(0)],
-                                                 [.asyncMedia(nil)]]
+                                                 [.number(0)]]
 }
 
 func buildIndicesLoop(loop: PortValues) -> PortValues {
