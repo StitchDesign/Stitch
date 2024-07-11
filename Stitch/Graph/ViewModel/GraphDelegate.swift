@@ -68,6 +68,8 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver]
         
+    @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
+    
     @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
     
     @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool

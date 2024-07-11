@@ -12,7 +12,7 @@ struct FieldCoordinate: Hashable {
     // the index where this field belongs
     var rowId: NodeIOPortType
     
-    var nodeId: NodeId
+    var canvasId: CanvasItemId
 
     // the particular field in the
     // 0 for single-field inputs
@@ -21,7 +21,7 @@ struct FieldCoordinate: Hashable {
     static var fakeFieldCoordinate: Self {
         .init(
             rowId: .portIndex(0),
-            nodeId: .init(),
+            canvasId: .node(.init()),
             fieldIndex: 0)
     }
 }

@@ -59,6 +59,8 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel]
     
+    @MainActor func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver?
+    
     @MainActor func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver?
     
     @MainActor func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver?
@@ -68,6 +70,8 @@ protocol NodeDelegate: AnyObject {
     @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver]
     
 //    @MainActor func updateRowObservers(activeIndex: ActiveIndex)
+    
+    @MainActor func nextInput(_ currentInputCoordinate: NodeIOPortType) -> FieldCoordinate
     
     @MainActor func calculate()
 }
