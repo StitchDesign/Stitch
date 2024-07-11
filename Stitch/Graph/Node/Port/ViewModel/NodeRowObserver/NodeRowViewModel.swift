@@ -147,7 +147,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
-    var connectedCanvasItems: Set<CanvasItemId>
+    var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
     weak var rowDelegate: InputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
@@ -168,7 +168,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         
         if let rowDelegate = rowDelegate {
             self.initializeValues(rowDelegate: rowDelegate,
-                                  coordinate: id)            
+                                  coordinate: id)
         }
     }
 
@@ -214,7 +214,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
-    var connectedCanvasItems: Set<CanvasItemId>
+    var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
@@ -229,8 +229,11 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        self.initializeValues(rowDelegate: rowDelegate,
-                              coordinate: id)
+        
+        if let rowDelegate = rowDelegate {
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  coordinate: id)
+        }
     }
     
     @MainActor
