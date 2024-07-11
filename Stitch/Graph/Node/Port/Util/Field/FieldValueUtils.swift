@@ -14,9 +14,11 @@ extension PortValue {
     func createFieldValues(nodeIO: NodeIO,
                            importedMediaObject: StitchMediaObject?) -> [FieldValues] {
         switch self.getNodeRowType(nodeIO: nodeIO) {
+        
         case .size:
             let size = self.getSize ?? .zero
             return [size.fieldValues]
+        
         case .position:
             let position = self.getPosition ?? .zero
             return [position.fieldValues]
@@ -59,7 +61,9 @@ extension PortValue {
             }
 
         case .singleDropdown(let singleDropdownKind):
+            
             switch singleDropdownKind {
+            
             case .textAlignment:
                 let textAlignment = self.getLayerTextAlignment?.display ?? .empty
                 let choices = LayerTextAlignment.choices
