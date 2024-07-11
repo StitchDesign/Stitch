@@ -9,16 +9,48 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension Double {
+    static let defaultWidthAxisRatio = 1.0
+    static let defaultHeightAxisRatio = 1.0
+}
+
 // TODO: tech debt: do this for shadow-data, rotation-data, layer-effect-data
 extension LayerViewModel {
+    
+    var getMinWidth: LayerDimension? {
+        self.minSize.getSize?.width
+    }
+    
+    var getMaxWidth: LayerDimension? {
+        self.maxSize.getSize?.width
+    }
+    
+    var getMinHeight: LayerDimension? {
+        self.minSize.getSize?.height
+    }
+    
+    var getMaxHeight: LayerDimension? {
+        self.maxSize.getSize?.height
+    }
+    
+    var getSizingScenario: SizingScenario {
+        self.sizingScenario.getSizingScenario ?? .defaultSizingScenario
+    }
+    
+    func getAspectRatioData() -> AspectRatioData {
+        .init(widthAxis: self.widthAxis.getNumber ?? .defaultWidthAxisRatio,
+              heightAxis: self.heightAxis.getNumber ?? .defaultHeightAxisRatio,
+              contentMode: (self.contentMode.getContentMode ?? .defaultContentMode).toSwiftUIContent)
+    }
+    
     func getLayerStrokeData() -> LayerStrokeData {
-        LayerStrokeData(stroke: self.strokePosition.getLayerStroke ?? .defaultStroke,
-                        color: self.strokeColor.getColor ?? .black,
-                        width: self.strokeWidth.getNumber ?? .zero,
-                        strokeStart: self.strokeStart.getNumber ?? .zero,
-                        strokeEnd: self.strokeEnd.getNumber ?? 1.0,
-                        strokeLineCap: self.strokeLineCap.getStrokeLineCap ?? .defaultStrokeLineCap,
-                        strokeLineJoin: self.strokeLineJoin.getStrokeLineJoin ?? .defaultStrokeLineJoin)
+        .init(stroke: self.strokePosition.getLayerStroke ?? .defaultStroke,
+              color: self.strokeColor.getColor ?? .black,
+              width: self.strokeWidth.getNumber ?? .zero,
+              strokeStart: self.strokeStart.getNumber ?? .zero,
+              strokeEnd: self.strokeEnd.getNumber ?? 1.0,
+              strokeLineCap: self.strokeLineCap.getStrokeLineCap ?? .defaultStrokeLineCap,
+              strokeLineJoin: self.strokeLineJoin.getStrokeLineJoin ?? .defaultStrokeLineJoin)
     }
 }
 

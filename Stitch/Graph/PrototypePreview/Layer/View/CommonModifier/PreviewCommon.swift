@@ -20,43 +20,10 @@ struct PreviewCommonModifier: ViewModifier {
     let rotationZ: CGFloat
     
 //    let aspectRatio: AspectRatioData?  = nil
-    let constraint: LengthDimension? = nil
+    let constraint: LengthDimension? = nil // No longer uses?
     
     // should receive LayerSize, so can use `nil` for a .frame dimension when we have LayerDimension.fill/grow
     let size: LayerSize
-    
-    // TODO: can be `nil` if we're using min/max width etc.
-//    var width: LayerDimension {
-//        size.width
-//    }
-    
-//    let minWidth: NumericalLayerDimension? = nil
-//    let maxWidth: NumericalLayerDimension? = nil
-    
-    var minWidth: LayerDimension? {
-        layerViewModel.minSize.getSize!.width
-    }
-    
-    var maxWidth: LayerDimension? {
-        layerViewModel.maxSize.getSize!.width
-    }
-
-//    var height: LayerDimension {
-//        size.height
-//    }
-    
-//    let minHeight: LayerDimension? = nil
-//    let maxHeight: LayerDimension? = nil
-    
-    var minHeight: LayerDimension? {
-//        layerViewModel.minSize.height
-        layerViewModel.minSize.getSize!.height
-    }
-    
-    var maxHeight: LayerDimension? {
-//        layerViewModel.maxSize.height
-        layerViewModel.maxSize.getSize!.height
-    }
         
     let scale: Double
     let anchoring: Anchoring
@@ -92,21 +59,14 @@ struct PreviewCommonModifier: ViewModifier {
         content
             .modifier(PreviewCommonSizeModifier(
                     viewModel: layerViewModel,
-                    
-                    aspectRatio: .init(
-                        widthAxis: layerViewModel.widthAxis.getNumber!,
-                        heightAxis: layerViewModel.heightAxis.getNumber!,
-                        contentMode: layerViewModel.contentMode.getContentMode!.toSwiftUIContent),
-                    
-                    //aspectRatio,
-                    constraint: constraint,
+                    aspectRatio: layerViewModel.getAspectRatioData(),
                     size: size,
-                    minWidth: minWidth,
-                    maxWidth: maxWidth,
-                    minHeight: minHeight,
-                    maxHeight: maxHeight,
+                    minWidth: layerViewModel.getMinWidth,
+                    maxWidth: layerViewModel.getMaxWidth,
+                    minHeight: layerViewModel.getMinHeight,
+                    maxHeight: layerViewModel.getMaxHeight,
                     parentSize: parentSize,
-                    sizingScenario: layerViewModel.sizingScenario.getSizingScenario ?? .defaultSizingScenario,
+                    sizingScenario: layerViewModel.getSizingScenario,
                     frameAlignment: frameAlignment))
         
             // Only for MapLayer, specifically for thumbnail-creation edge case

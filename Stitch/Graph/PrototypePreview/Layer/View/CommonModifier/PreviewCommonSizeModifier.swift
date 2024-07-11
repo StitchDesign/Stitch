@@ -1,5 +1,5 @@
 //
-//  PreviewCommonSizeModifier2.swift
+//  PreviewCommonSizeModifier.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 7/3/24.
@@ -7,15 +7,9 @@
 
 import SwiftUI
 import StitchSchemaKit
-
+ 
 extension LayerDimension {
-    func asFrameDimension(_ parentLength: CGFloat,
-                          constrained: Bool = false) -> CGFloat? {
-
-           if constrained {
-               return nil // i.e. unspecified, just like .fill, .hug, .auto
-           }
-           
+    func asFrameDimension(_ parentLength: CGFloat) -> CGFloat? {
            switch self {
                // fill or hug = no set value along this dimension
            case .fill, .hug,
@@ -40,38 +34,20 @@ struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
     
-    // TODO: actually pass these properties down
-    var aspectRatio: AspectRatioData //? = nil
+    let aspectRatio: AspectRatioData
+    let size: LayerSize
     
-    // If a dimension is constrained, then we use .unspecified for that dimension.
-    var constraint: LengthDimension? = nil
+    var width: LayerDimension { size.width }
+    let minWidth: LayerDimension?
+    let maxWidth: LayerDimension?
     
-    // TODO: remove once properties are actually passed down
-    var size: LayerSize
-    
-        // Can actually be optional, if
-    var width: LayerDimension {
-        size.width
-    }
-    
-    // TODO: actually pass these properties down
-//    let minWidth: NumericalLayerDimension? // = nil
-    let minWidth: LayerDimension? // = nil
-//    let maxWidth: NumericalLayerDimension? // = nil
-    let maxWidth: LayerDimension? // = nil
-    
-    var height: LayerDimension {
-        size.height
-    }
-    
-//    let minHeight: NumericalLayerDimension? // = nil
-    let minHeight: LayerDimension? // = nil
-//    let maxHeight: NumericalLayerDimension? // = nil
-    let maxHeight: LayerDimension? // = nil
+    var height: LayerDimension { size.height }
+    let minHeight: LayerDimension?
+    let maxHeight: LayerDimension?
     
     let parentSize: CGSize
-    
-    var sizingScenario: SizingScenario
+
+    let sizingScenario: SizingScenario
         
     /*
      Only for:
@@ -102,10 +78,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
-                    width: width.asFrameDimension(parentSize.width,
-                                                   constrained: false),
-                    height: height.asFrameDimension(parentSize.height,
-                                                     constrained: false),
+                    width: width.asFrameDimension(parentSize.width),
+                    height: height.asFrameDimension(parentSize.height),
                     minWidth: minWidth?.asFrameDimension(parentSize.width),
                     maxWidth: maxWidth?.asFrameDimension(parentSize.width),
                     minHeight: minHeight?.asFrameDimension(parentSize.height),
@@ -128,10 +102,6 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
-                    
-                    /// SHOULD NOT USE THE `CONSTRAINED` PARAM BECAUSE THAT IS COMPLETELY WRONG!! LOL
-//                    width: width.asFrameDimension(parentSize.width,
-//                                                   constrained: true),
                     width: width.asFrameDimension(parentSize.width),
                     height: nil,
                     minWidth: minWidth?.asFrameDimension(parentSize.width),
@@ -148,10 +118,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
             logInView("case .constrainWidth")
             // i.e. only allow us to specify height and aspect ratio
             content
-            
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-            
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
@@ -164,35 +132,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     maxHeight: maxHeight?.asFrameDimension(parentSize.height)
                 ))
             
-//            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-//                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-            
             // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))
         }
-        
-//        content
-//            .modifier(LayerSizeModifier(
-//                alignment: frameAlignment,
-//
-//                width: width?.asFrameDimension(parentSize.width,
-//                                               constrained: constraint == .width),
-//                
-//                height: height?.asFrameDimension(parentSize.height,
-//                                                 constrained: constraint == .height),
-//                
-//                minWidth: minWidth?.asFrameDimension(parentSize.width),
-//                maxWidth: maxWidth?.asFrameDimension(parentSize.width),
-//                
-//                minHeight: minHeight?.asFrameDimension(parentSize.height),
-//                maxHeight: maxHeight?.asFrameDimension(parentSize.height)
-//            ))
-//        
-//        // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-//            .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-//        
-//        // place the LayerSizeReader after the .aspectRatio modifier ?
-//            .modifier(LayerSizeReader(viewModel: viewModel))
     }
-    
 }

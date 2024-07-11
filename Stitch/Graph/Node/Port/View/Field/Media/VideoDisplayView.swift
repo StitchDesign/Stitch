@@ -58,13 +58,16 @@ struct VideoDisplayView: View {
             }
         }
         .opacity(opacity)
-        .onAppear {
-            fatalErrorIfDebug()
-        }
-//        .modifier(PreviewCommonSizeModifier(
-//            viewModel: layerViewModel,
-//            size: size,
-//            parentSize: parentSize,
-//            frameAlignment: .center))
+        .modifier(PreviewCommonSizeModifier(
+            viewModel: layerViewModel,
+            aspectRatio: layerViewModel.getAspectRatioData(),
+            size: size,
+            minWidth: layerViewModel.getMinWidth,
+            maxWidth: layerViewModel.getMaxWidth,
+            minHeight: layerViewModel.getMinHeight,
+            maxHeight: layerViewModel.getMaxHeight,
+            parentSize: parentSize,
+            sizingScenario: layerViewModel.getSizingScenario,
+            frameAlignment: .center))
     }
 }
