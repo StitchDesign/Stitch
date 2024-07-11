@@ -938,6 +938,26 @@ func contentModeCoercer(_ values: PortValues) -> PortValues {
         .map(PortValue.contentMode)
 }
 
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToSizingScenario() -> SizingScenario {
+        switch self {
+        case .sizingScenario(let x):
+            return x
+        case .number(let x):
+            return SizingScenario.fromNumber(x)
+                .getSizingScenario ?? .defaultSizingScenario
+        default:
+            return .defaultSizingScenario
+        }
+    }
+}
+
+func sizingScenarioCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { $0.coerceToSizingScenario() }
+        .map(PortValue.sizingScenario)
+}
 
 extension PortValue {
     // Takes any PortValue, and returns a MobileHapticStyle
@@ -946,6 +966,7 @@ extension PortValue {
         case .spacing(let x):
             return x
         default:
+            // TODO: smarter coercion of other PortValues
             return .defaultStitchSpacing
         }
     }
@@ -955,4 +976,23 @@ func spacingCoercer(_ values: PortValues) -> PortValues {
     values
         .map { $0.coerceToStitchSpacing() }
         .map(PortValue.spacing)
+}
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToStitchPadding() -> StitchPadding {
+        switch self {
+        case .padding(let x):
+            return x
+        default:
+            // TODO: smarter coercion of other PortValues
+            return .defaultPadding
+        }
+    }
+}
+
+func paddingCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { $0.coerceToStitchPadding() }
+        .map(PortValue.padding)
 }

@@ -93,6 +93,13 @@ extension PortValue {
         default: return nil
         }
     }
+    
+    var getPadding: StitchPadding? {
+        switch self {
+        case .padding(let x): return x
+        default: return nil
+        }
+    }
 
     var getMatrix: StitchMatrix? {
         switch self {
@@ -461,5 +468,22 @@ extension PortValue {
         default:
             return nil
         }
+    }
+    
+    var getSizingScenario: SizingScenario? {
+        switch self {
+        case .sizingScenario(let x):
+            return x
+        default:
+            return nil
+        }
+    }
+}
+
+extension SizingScenario {
+    static let defaultSizingScenario: Self = .auto
+    
+    var display: String {
+        self.rawValue
     }
 }

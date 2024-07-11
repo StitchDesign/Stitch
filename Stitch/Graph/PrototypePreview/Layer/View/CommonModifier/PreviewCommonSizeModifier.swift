@@ -1,5 +1,5 @@
 //
-//  PreviewCommonSizeModifier2.swift
+//  PreviewCommonSizeModifier.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 7/3/24.
@@ -7,15 +7,9 @@
 
 import SwiftUI
 import StitchSchemaKit
-
+ 
 extension LayerDimension {
-    func asFrameDimension(_ parentLength: CGFloat,
-                          constrained: Bool = false) -> CGFloat? {
-
-           if constrained {
-               return nil // i.e. unspecified, just like .fill, .hug, .auto
-           }
-           
+    func asFrameDimension(_ parentLength: CGFloat) -> CGFloat? {
            switch self {
                // fill or hug = no set value along this dimension
            case .fill, .hug,
@@ -40,33 +34,21 @@ struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
     
-    // TODO: actually pass these properties down
-    var aspectRatio: AspectRatioData? = nil
+    let aspectRatio: AspectRatioData
+    let size: LayerSize
     
-    // If a dimension is constrained, then we use .unspecified for that dimension.
-    var constraint: LengthDimension? = nil
+    var width: LayerDimension { size.width }
+    let minWidth: LayerDimension?
+    let maxWidth: LayerDimension?
     
-    // TODO: remove once properties are actually passed down
-    var size: LayerSize
-    
-        // Can actually be optional, if
-    var width: LayerDimension? {
-        size.width
-    }
-    
-    // TODO: actually pass these properties down
-    var minWidth: NumericalLayerDimension? = nil
-    var maxWidth: NumericalLayerDimension? = nil
-    
-    var height: LayerDimension? {
-        size.height
-    }
-    
-    var minHeight: NumericalLayerDimension? = nil
-    var maxHeight: NumericalLayerDimension? = nil
+    var height: LayerDimension { size.height }
+    let minHeight: LayerDimension?
+    let maxHeight: LayerDimension?
     
     let parentSize: CGSize
-    
+
+    let sizingScenario: SizingScenario
+        
     /*
      Only for:
      - Text and TextField layers, which have their own alignment (based on text-alignment and text-vertical-alignment);
@@ -78,31 +60,68 @@ struct PreviewCommonSizeModifier: ViewModifier {
     // `.frame(alignment:)` only matters if there is a size gap between the layer and its frame; can happen for Text, TextField, ProgressIndicator and other native views which do not resize just by .frame
     let frameAlignment: Alignment
 
-    func body(content: Content) -> some View {
-        content
-
-            .modifier(LayerSizeModifier(
-                
-                alignment: frameAlignment,
-                
-                width: width?.asFrameDimension(parentSize.width,
-                                               constrained: constraint == .width),
-                
-                height: height?.asFrameDimension(parentSize.height,
-                                                 constrained: constraint == .height),
-                
-                minWidth: minWidth?.asFrameDimension(parentSize.width),
-                maxWidth: maxWidth?.asFrameDimension(parentSize.width),
-                
-                minHeight: minHeight?.asFrameDimension(parentSize.height),
-                maxHeight: maxHeight?.asFrameDimension(parentSize.height)
-            ))
-        
-        // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-            .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-        
-        // place the LayerSizeReader after the .aspectRatio modifier ?
-            .modifier(LayerSizeReader(viewModel: viewModel))
+    var usesParentPercentForWidth: Bool {
+        width.isParentPercentage
     }
     
+    var usesParentPercentForHeight: Bool {
+        height.isParentPercentage
+    }
+    
+    func body(content: Content) -> some View {
+        
+        switch sizingScenario {
+        case .auto:
+            logInView("case .auto")
+            content
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: width.asFrameDimension(parentSize.width),
+                    height: height.asFrameDimension(parentSize.height),
+                    minWidth: minWidth?.asFrameDimension(parentSize.width),
+                    maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+                    minHeight: minHeight?.asFrameDimension(parentSize.height),
+                    maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+                ))
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainHeight:
+            logInView("case .constrainHeight")
+            content
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: width.asFrameDimension(parentSize.width),
+                    height: nil,
+                    minWidth: minWidth?.asFrameDimension(parentSize.width),
+                    maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+                    minHeight: nil,
+                    maxHeight: nil
+                ))
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainWidth:
+            logInView("case .constrainWidth")
+            content
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: nil,
+                    height: height.asFrameDimension(parentSize.height),
+                    minWidth: nil,
+                    maxWidth: nil,
+                    minHeight: minHeight?.asFrameDimension(parentSize.height),
+                    maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+                ))
+                .modifier(LayerSizeReader(viewModel: viewModel))
+        }
+    }
 }

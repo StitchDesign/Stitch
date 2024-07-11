@@ -77,6 +77,9 @@ extension FieldGroupTypeViewModelList {
 
         case .point4D:
             self = [.init(type: .xYZW, coordinate: coordinate)]
+            
+        case .padding:
+            self = [.init(type: .padding, coordinate: coordinate)]
 
         case .shapeCommand(let shapeCommand):
             switch shapeCommand {

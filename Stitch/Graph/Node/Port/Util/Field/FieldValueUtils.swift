@@ -14,9 +14,11 @@ extension PortValue {
     func createFieldValues(nodeIO: NodeIO,
                            importedMediaObject: StitchMediaObject?) -> [FieldValues] {
         switch self.getNodeRowType(nodeIO: nodeIO) {
+        
         case .size:
             let size = self.getSize ?? .zero
             return [size.fieldValues]
+        
         case .position:
             let position = self.getPosition ?? .zero
             return [position.fieldValues]
@@ -28,7 +30,11 @@ extension PortValue {
         case .point4D:
             let point4D = self.getPoint4D ?? .zero
             return [point4D.fieldValues]
-
+        
+        case .padding:
+            let padding = self.getPadding ?? .zero
+            return [padding.fieldValues]
+            
         case .shapeCommand(let shapeCommandType):
             let shapeCommandValue = self.shapeCommand ?? .defaultFalseShapeCommand
 
@@ -55,7 +61,9 @@ extension PortValue {
             }
 
         case .singleDropdown(let singleDropdownKind):
+            
             switch singleDropdownKind {
+            
             case .textAlignment:
                 let textAlignment = self.getLayerTextAlignment?.display ?? .empty
                 let choices = LayerTextAlignment.choices
@@ -205,6 +213,11 @@ extension PortValue {
                 let value = self.getStitchSpacing ?? .defaultStitchSpacing
                 return [[.dropdown(value.display,
                                    [.spacing(.evenly), .spacing(.between)])]]
+            case .sizingScenario:
+                let value = self.getSizingScenario ?? .defaultSizingScenario
+                return [[.dropdown(value.rawValue,
+                                   SizingScenario.choices)]]
+                
             } // case .singleDropdown
             
         case .textFontDropdown:

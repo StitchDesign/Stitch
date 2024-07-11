@@ -37,7 +37,10 @@ final class NodeRowObserver: Identifiable, Sendable {
     // NodeIO type cannot be changed over the life of a row, and is important enough that we should not let it default to some value
     let nodeIOType: NodeIO
     
-    // Holds view models for fields
+    // Holds view models for fields;
+    // Note: this is [FieldGroupTypeViewModel] where a single `FieldGroupTypeViewModel` containers a list: `fieldObservers: [FieldViewModel]`
+    // Vast majority of inputs have single `FieldGroupTypeViewModel`;
+    // only ShapeCommands have more than one `FieldGroupTypeViewModel`.
     var fieldValueTypes = FieldGroupTypeViewModelList()
     
     // Connected upstream node, if input

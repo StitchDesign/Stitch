@@ -50,12 +50,20 @@ struct NodeFieldsView: View {
     }
     
     var body: some View {
-        // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
-        if let groupLabel = label {
-            StitchTextView(string: groupLabel)
+        
+        if allFieldsBlockedOut {
+            EmptyView()
+        } else {
+            
+            // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
+            if let groupLabel = label {
+                StitchTextView(string: groupLabel)
+            }
+            
+            fieldsStack
         }
         
-        fieldsStack
+       
     }
     
     @ViewBuilder
@@ -65,16 +73,30 @@ struct NodeFieldsView: View {
                 fields
             }
         } else {
-            if let groupLabel = label {
-                StitchTextView(string: groupLabel)
-            }
             fields
         }
     }
     
+    var allFieldsBlockedOut: Bool {
+        fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
+    }
+        
     var fields: some View {
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
-            self.valueEntryView(fieldViewModel)
+//            self.valueEntryView(fieldViewModel)
+//                .overlay {
+//                    if fieldViewModel.isBlockedOut {
+//                        Color.black.opacity(0.3)
+//                            .cornerRadius(4)
+//                            .allowsHitTesting(false)
+//                    } else {
+//                        Color.clear
+//                    }
+//                }
+            
+            if !fieldViewModel.isBlockedOut {
+                self.valueEntryView(fieldViewModel)
+            }
         }
         .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }

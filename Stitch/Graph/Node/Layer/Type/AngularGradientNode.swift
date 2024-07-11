@@ -29,7 +29,7 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.minAndMaxSize)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

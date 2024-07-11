@@ -120,6 +120,7 @@ final class LayerNodeViewModel {
     @MainActor var minSizePort: NodeRowObserver
     @MainActor var maxSizePort: NodeRowObserver
     @MainActor var spacingPort: NodeRowObserver
+    @MainActor var sizingScenarioPort: NodeRowObserver
 
     weak var nodeDelegate: NodeDelegate?
 
@@ -251,6 +252,7 @@ final class LayerNodeViewModel {
         self.minSizePort = .empty(.minSize, layer: schema.layer)
         self.maxSizePort = .empty(.maxSize, layer: schema.layer)
         self.spacingPort = .empty(.spacing, layer: schema.layer)
+        self.sizingScenarioPort = .empty(.sizingScenario, layer: schema.layer)
         
         let graphNode = schema.layer.layerGraphNode
         

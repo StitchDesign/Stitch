@@ -31,6 +31,8 @@ extension PortValue {
             return .point3D
         case .point4D:
             return .point4D
+        case .padding:
+            return .padding
         case .shapeCommand(let shapeCommand):
             switch nodeIO {
             case .input:
@@ -153,6 +155,8 @@ extension PortValue {
             // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
         case .spacing:
             return .singleDropdown(.spacing)
+        case .sizingScenario:
+            return .singleDropdown(.sizingScenario)
         }
     }
 

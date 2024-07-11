@@ -182,6 +182,15 @@ extension LayerDimension {
         }
     }
 
+    var isNumber: Bool {
+        switch self {
+        case .number:
+            return true
+        default:
+            return false
+        }
+    }
+    
     var getNumber: CGFloat? {
         switch self {
         case .number(let x):

@@ -10,7 +10,7 @@ import StitchSchemaKit
 import Vision
 
 enum SingleDropdownKind {
-    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, orientation, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, spacing
+    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, orientation, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, spacing, sizingScenario
 }
 
 extension SingleDropdownKind {
@@ -78,6 +78,14 @@ extension SingleDropdownKind {
         // TODO: replace? StitchSpacing is "number filed or dropdown"
         case .spacing:
             return [.spacing(.between), .spacing(.evenly)]
+        case .sizingScenario:
+            return SizingScenario.choices
         }
+    }
+}
+
+extension SizingScenario: PortValueEnum {
+    static var portValueTypeGetter: PortValueTypeGetter<Self> {
+        PortValue.sizingScenario
     }
 }

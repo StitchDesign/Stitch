@@ -39,7 +39,7 @@ struct SwitchLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.minAndMaxSize)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

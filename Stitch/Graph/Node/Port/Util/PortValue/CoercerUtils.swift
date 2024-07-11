@@ -166,6 +166,10 @@ extension PortValues {
             return contentModeCoercer(values)
         case .spacing:
             return spacingCoercer(values)
+        case .padding:
+            return paddingCoercer(values)
+        case .sizingScenario:
+            return sizingScenarioCoercer(values)
         }
     }
 }

@@ -16,6 +16,7 @@ enum NodeRowType: Equatable {
          position,
          point3D,
          point4D,
+         padding,
          shapeCommand(ShapeCommandFieldType),
          singleDropdown(SingleDropdownKind),
          textFontDropdown, // TODO: special case because nested?
@@ -37,7 +38,7 @@ extension NodeRowType {
     // TODO: smarter / easier to way to do this?
     var inputUsesTextField: Bool {
         switch self {
-          case .size, .position, .point3D, .point4D, .layerDimension, .number, .string:
+        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string:
             return true
         case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring:
             return false
@@ -54,6 +55,8 @@ extension NodeRowType {
             return .point3D(.init(x: 0, y: 0, z: 0))
         case .point4D:
             return .point4D(.init(x: 0, y: 0, z: 0, w: 0))
+        case .padding:
+            return .padding(.zero)
         case .shapeCommand:
             return .shapeCommand(ShapeCommand.defaultFalseShapeCommand)
         case .singleDropdown(let singleDropdownKind):

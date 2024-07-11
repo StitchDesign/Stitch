@@ -26,6 +26,8 @@ extension LayerInspectorView {
     // TODO: better?: make the LayerInputTypeSet enum CaseIterable and have the enum ordering as the source of truth for this order
     @MainActor
     static let allInputs: LayerInputTypeSet = Self.required
+        .union(Self.positioning)
+        .union(Self.sizing)
         .union(Self.common)
         .union(Self.groupLayer)
         .union(Self.unknown)
@@ -38,22 +40,34 @@ extension LayerInspectorView {
     
     @MainActor
     static let required: LayerInputTypeSet = [
-        .position,
-        .size,
         .scale,
-        .anchoring,
         .opacity,
-        .zIndex,
         .pivot, // pivot point for scaling; put with
+    ]
+    
+    @MainActor
+    static let positioning: LayerInputTypeSet = [
+        .position,
+        .anchoring,
+        .zIndex,
+        // .offset // TO BE ADED
+    ]
+    
+    @MainActor
+    static let sizing: LayerInputTypeSet = [
         
-            // Min and max size
-            .minSize,
-        .maxSize,
-        
-            // Aspect Ratio
+        .sizingScenario,
+
+        // Aspect Ratio
         .widthAxis,
         .heightAxis,
-        .contentMode
+        .contentMode, // Don't show?
+
+        .size,
+
+            // Min and max size
+        .minSize,
+        .maxSize,
     ]
     
     // Includes some
@@ -86,7 +100,6 @@ extension LayerInspectorView {
         .video,
         .model3D,
         .fitStyle,
-        
         
         // Progress Indicator
         .progressIndicatorStyle,
@@ -129,15 +142,18 @@ extension LayerInspectorView {
     static let groupLayer: LayerInputTypeSet = [
         .backgroundColor, // actually for many layers?
         .isClipped,
+        
         .orientation,
+        
         .padding,
         .spacing, // added
+        
         // Grid
         .spacingBetweenGridColumns,
         .spacingBetweenGridRows,
         .itemAlignmentWithinGridCell
     ]
-     
+    
     // TODO: what are these inputs?
     @MainActor
     static let unknown: LayerInputTypeSet = [

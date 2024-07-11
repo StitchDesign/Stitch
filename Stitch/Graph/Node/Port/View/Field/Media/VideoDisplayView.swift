@@ -60,8 +60,14 @@ struct VideoDisplayView: View {
         .opacity(opacity)
         .modifier(PreviewCommonSizeModifier(
             viewModel: layerViewModel,
+            aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
+            minWidth: layerViewModel.getMinWidth,
+            maxWidth: layerViewModel.getMaxWidth,
+            minHeight: layerViewModel.getMinHeight,
+            maxHeight: layerViewModel.getMaxHeight,
             parentSize: parentSize,
+            sizingScenario: layerViewModel.getSizingScenario,
             frameAlignment: .center))
     }
 }

@@ -96,6 +96,8 @@ extension LayerNodeEntity {
          spacingBetweenGridRowsPort: NodeConnectionType = .values([]),
          itemAlignmentWithinGridCellPort: NodeConnectionType = .values([]),
          
+         sizingScenarioPort: NodeConnectionType = .values([]),
+         
          widthAxisPort: NodeConnectionType = .values([]),
          heightAxisPort: NodeConnectionType = .values([]),
          contentModePort: NodeConnectionType = .values([]),
@@ -200,6 +202,8 @@ extension LayerNodeEntity {
             spacingBetweenGridColumnsPort: spacingBetweenGridColumnsPort,
             spacingBetweenGridRowsPort: spacingBetweenGridRowsPort,
             itemAlignmentWithinGridCellPort: itemAlignmentWithinGridCellPort,
+            
+            sizingScenarioPort: sizingScenarioPort,
             
             widthAxisPort: widthAxisPort,
             heightAxisPort: heightAxisPort,

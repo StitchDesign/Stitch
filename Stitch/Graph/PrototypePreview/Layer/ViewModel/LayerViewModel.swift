@@ -16,6 +16,9 @@ final class LayerViewModel {
     let interactiveLayer: InteractiveLayer
     weak var nodeDelegate: NodeDelegate?
     
+    // TODO: use `PortValue.sizingScenario` and retrieve from actual
+//    var sizingScenario: SizingScenario = .constrainHeight
+    
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
     var readSize: CGSize = .zero
@@ -110,6 +113,8 @@ final class LayerViewModel {
     var spacingBetweenGridRows: PortValue
     var itemAlignmentWithinGridCell: PortValue
 
+    var sizingScenario: PortValue
+    
     var widthAxis: PortValue
     var heightAxis: PortValue
     var contentMode: PortValue
@@ -239,6 +244,8 @@ final class LayerViewModel {
         self.minSize = LayerInputType.minSize.getDefaultValue(for: layer)
         self.maxSize = LayerInputType.maxSize.getDefaultValue(for: layer)
         self.spacing = LayerInputType.spacing.getDefaultValue(for: layer)
+        
+        self.sizingScenario = LayerInputType.sizingScenario.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

@@ -78,6 +78,7 @@ extension PortValue {
             }
 
             return .size(newSize)
+            
         case .position(let position):
             guard let newPosition = positionParent(position, fieldIndex, fieldValue.stringValue) else {
                 log("parseInputEdit error: unable to parse position")
@@ -99,6 +100,13 @@ extension PortValue {
             }
             return .point4D(newPoint4D)
 
+        case .padding(let x):
+            guard let newPadding = paddingParent(x, fieldIndex, fieldValue.stringValue) else {
+                log("parseInputEdit error: unable to parse padding")
+                return self
+            }
+            return .padding(newPadding)
+            
         case .layerDimension:
             switch fieldValue.layerDimensionField {
             case .none:
@@ -213,23 +221,94 @@ func point4DParent(_ point4D: Point4D,
     return nil // did not have a valid edit
 }
 
+// Put in namespace
+let PADDING_TOP_FIELD_INDEX = 0
+let PADDING_RIGHT_FIELD_INDEX = 1
+let PADDING_BOTTOM_FIELD_INDEX = 2
+let PADDING_LEFT_FIELD_INDEX = 3
+
+let PADDING_TOP_FIELD_LABEL = "T"
+let PADDING_RIGHT_FIELD_LABEL = "R"
+let PADDING_BOTTOM_FIELD_LABEL = "B"
+let PADDING_LEFT_FIELD_LABEL = "L"
+
+func paddingParent(_ padding: StitchPadding,
+                   _ fieldIndex: Int,
+                   _ edit: String) -> StitchPadding? {
+
+    let number = toNumber(edit)
+
+    if let number = number {
+        if fieldIndex == PADDING_TOP_FIELD_INDEX {
+            return StitchPadding(top: number,
+                                 right: padding.right,
+                                 bottom: padding.bottom,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_RIGHT_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: number,
+                                 bottom: padding.bottom,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_BOTTOM_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: padding.right,
+                                 bottom: number,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_LEFT_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: padding.right,
+                                 bottom: padding.bottom,
+                                 left: number)
+        } else {
+            log("paddingParent: valid edit \(edit) but unexpected field index \(fieldIndex) ")
+            return nil
+        }
+    }
+    return nil // did not have a valid edit
+}
+
 // TODO: handle video
 func sizeParent(_ size: LayerSize,
                 _ fieldIndex: Int,
                 _ edit: String) -> LayerSize? {
 
-    if let dimension = LayerDimension.fromUserEdit(edit: edit) {
-
-        if fieldIndex == 0 {
-            return LayerSize(width: dimension,
+    if let dimension = LayerLengthDimension.fromUserEdit(edit: edit, fieldIndex: fieldIndex) {
+        switch dimension.lengthDimension {
+        case .width:
+            return LayerSize(width: dimension.layerDimension,
                              height: size.height)
-        } else if fieldIndex == 1 {
+        case .height:
             return LayerSize(width: size.width,
-                             height: dimension)
-        } else {
-            fatalError() // we had valid edit but unexpected field index
+                             height: dimension.layerDimension)
         }
     }
+    
+    return nil
+}
 
-    return nil // did not have a valid edit
+struct LayerLengthDimension: Codable, Equatable {
+    var layerDimension: LayerDimension
+    var lengthDimension: LengthDimension
+}
+
+extension LayerLengthDimension {
+
+    static func fromUserEdit(edit: String, fieldIndex: Int) -> Self? {
+        
+        guard let dimension = LayerDimension.fromUserEdit(edit: edit) else {
+            return nil
+        }
+        
+        if fieldIndex == WIDTH_FIELD_INDEX {
+            return .init(layerDimension: dimension,
+                         lengthDimension: .width)
+        } else if fieldIndex == HEIGHT_FIELD_INDEX {
+            return .init(layerDimension: dimension,
+                         lengthDimension: .height)
+        } else {
+            // had valid edit but unexpected field index
+            fatalErrorIfDebug()
+            return nil
+        }
+    }
 }

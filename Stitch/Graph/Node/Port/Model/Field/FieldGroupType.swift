@@ -10,8 +10,7 @@ import StitchSchemaKit
 
 /// Represents each individual field grouping encompassing an entire port value) (i.e. x + y coordinate)
 enum FieldGroupType {
-    case hW, xY, xYZ, xYZW, dropdown, bool, asyncMedia, number, string,
-         readOnly, layerDimension, pulse, color, json, assignedLayer, anchoring
+    case hW, xY, xYZ, xYZW, padding, dropdown, bool, asyncMedia, number, string, readOnly, layerDimension, pulse, color, json, assignedLayer, anchoring
 }
 
 extension FieldGroupType {
@@ -25,7 +24,14 @@ extension FieldGroupType {
             return [POINT3D_X_LABEL, POINT3D_Y_LABEL, POINT3D_Z_LABEL]
         case .xYZW:
             return [POINT3D_X_LABEL, POINT3D_Y_LABEL, POINT3D_Z_LABEL, POINT4D_W_LABEL]
-        default:
+        case .padding:
+            return [
+                PADDING_TOP_FIELD_LABEL,
+                PADDING_RIGHT_FIELD_LABEL,
+                PADDING_BOTTOM_FIELD_LABEL,
+                PADDING_LEFT_FIELD_LABEL
+            ]
+        case .dropdown, .bool, .asyncMedia, .number, .string, .readOnly, .layerDimension, .pulse, .color, .json, .assignedLayer, .anchoring:
             return [""]
         }
     }
@@ -41,6 +47,9 @@ extension FieldGroupType {
         case .xYZW:
             return [.number(.zero), .number(.zero), .number(.zero), .number(.zero)]
 
+        case .padding:
+            return [.number(.zero), .number(.zero), .number(.zero), .number(.zero)]
+            
         case .number:
             return [.number(.zero)]
 
