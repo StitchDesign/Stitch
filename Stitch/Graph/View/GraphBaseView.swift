@@ -128,6 +128,8 @@ struct GraphBaseView: View {
                     
                     // TODO: setting an inspector width DOES move over the graph view content
                         .inspectorColumnWidth(LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                        .navigationTitle("Test")
+                        .navigationBarTitleDisplayMode(.large)
                 }
         } // ZStack
         .coordinateSpace(name: Self.coordinateNamespace)

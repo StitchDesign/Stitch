@@ -57,12 +57,15 @@ struct LayerInspectorView: View {
 
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
-            #if targetEnvironment(macCatalyst)
-                         .padding(.top, -40)
-            #else
-                         .padding(.top, -60)
-                         .padding(.bottom, -20)
-            #endif
+//#if targetEnvironment(macCatalyst)
+//                         .padding(.top, -40)
+//#else
+//                         .padding(.top, -60)
+//                         .padding(.bottom, -20)
+//#endif
+//            
+//                         .navigationTitle("Test")
+//                         .navigationBarTitleDisplayMode(.large)
             
 //                         .onAppear {
 //#if DEV_DEBUG
@@ -118,7 +121,7 @@ struct LayerInspectorView: View {
             
             List {
                 // TODO: remove?
-                Text(node.displayTitle).font(.title2)
+//                Text(node.displayTitle).font(.title2)
                 
                 section("Required", Self.required)
                 
