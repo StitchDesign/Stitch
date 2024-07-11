@@ -85,21 +85,15 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: minHeight?.asFrameDimension(parentSize.height),
                     maxHeight: maxHeight?.asFrameDimension(parentSize.height)
                 ))
-                        
-            // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))
             
         case .constrainHeight:
             logInView("case .constrainHeight")
-            // i.e. only allow us to specify width and aspect ratio
             content
-            
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-            
                 .modifier(LayerSizeModifier(
                     alignment: frameAlignment,
-                    
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
                     width: width.asFrameDimension(parentSize.width),
@@ -109,14 +103,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: nil,
                     maxHeight: nil
                 ))
-           
-            
-            // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))
             
         case .constrainWidth:
             logInView("case .constrainWidth")
-            // i.e. only allow us to specify height and aspect ratio
             content
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
@@ -131,8 +121,6 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: minHeight?.asFrameDimension(parentSize.height),
                     maxHeight: maxHeight?.asFrameDimension(parentSize.height)
                 ))
-            
-            // place the LayerSizeReader after the .aspectRatio modifier ?
                 .modifier(LayerSizeReader(viewModel: viewModel))
         }
     }
