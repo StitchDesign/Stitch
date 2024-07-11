@@ -78,6 +78,7 @@ extension PortValue {
             }
 
             return .size(newSize)
+            
         case .position(let position):
             guard let newPosition = positionParent(position, fieldIndex, fieldValue.stringValue) else {
                 log("parseInputEdit error: unable to parse position")
@@ -99,6 +100,13 @@ extension PortValue {
             }
             return .point4D(newPoint4D)
 
+        case .padding(let x):
+            guard let newPadding = paddingParent(x, fieldIndex, fieldValue.stringValue) else {
+                log("parseInputEdit error: unable to parse padding")
+                return self
+            }
+            return .padding(newPadding)
+            
         case .layerDimension:
             switch fieldValue.layerDimensionField {
             case .none:
@@ -207,6 +215,52 @@ func point4DParent(_ point4D: Point4D,
                            w: number)
         } else {
             log("point4DParent: valid edit \(edit) but unexpected field index \(fieldIndex) ")
+            return nil
+        }
+    }
+    return nil // did not have a valid edit
+}
+
+// Put in namespace
+let PADDING_TOP_FIELD_INDEX = 0
+let PADDING_RIGHT_FIELD_INDEX = 1
+let PADDING_BOTTOM_FIELD_INDEX = 2
+let PADDING_LEFT_FIELD_INDEX = 3
+
+let PADDING_TOP_FIELD_LABEL = "T"
+let PADDING_RIGHT_FIELD_LABEL = "R"
+let PADDING_BOTTOM_FIELD_LABEL = "B"
+let PADDING_LEFT_FIELD_LABEL = "L"
+
+func paddingParent(_ padding: StitchPadding,
+                   _ fieldIndex: Int,
+                   _ edit: String) -> StitchPadding? {
+
+    let number = toNumber(edit)
+
+    if let number = number {
+        if fieldIndex == PADDING_TOP_FIELD_INDEX {
+            return StitchPadding(top: number,
+                                 right: padding.right,
+                                 bottom: padding.bottom,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_RIGHT_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: number,
+                                 bottom: padding.bottom,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_BOTTOM_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: padding.right,
+                                 bottom: number,
+                                 left: padding.left)
+        } else if fieldIndex == PADDING_LEFT_FIELD_INDEX {
+            return StitchPadding(top: padding.top,
+                                 right: padding.right,
+                                 bottom: padding.bottom,
+                                 left: number)
+        } else {
+            log("paddingParent: valid edit \(edit) but unexpected field index \(fieldIndex) ")
             return nil
         }
     }
