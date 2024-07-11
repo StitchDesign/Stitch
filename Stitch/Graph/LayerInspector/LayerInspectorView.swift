@@ -23,7 +23,7 @@ struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     static let LAYER_INSPECTOR_WIDTH = 360.0
-        
+    
     @Bindable var graph: GraphState // should be Bindable?
     
     // TODO: property sidebar changes when multiple sidebar layers are selected
@@ -33,7 +33,7 @@ struct LayerInspectorView: View {
         guard !graph.orderedSidebarLayers.isEmpty else {
             return nil
         }
-     
+        
         // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
         let inspectedLayer = graph.layerFocusedInPropertyInspector
         guard let inspectedLayerId = inspectedLayer,
@@ -102,50 +102,66 @@ struct LayerInspectorView: View {
                 graph: graph)
         }
         
-        List {
-            // TODO: remove?
-            Text(node.displayTitle).font(.title2)
+        VStack(alignment: .leading) {
             
-            section("Required", Self.required)
+            //            // TODO: remove? make editable TextField for renaming etc.?
+            //            // TODO: want something that
+            //            Text(node.displayTitle).font(.title2)
+            //                            .padding()
+            //#if targetEnvironment(macCatalyst)
+            //                .padding(.top, 12)
+            //#else
+            //                .padding(.top, 12)
+            //#endif
+            ////                         .background(.clear)
+            //
             
-            section("Sizing", Self.sizing)
-            
-            section("Positioning", Self.positioning)
-            
-            section("Common", Self.common)
-            
-            if layerNode.layer.supportsGroupInputs {
-                section("Group", Self.groupLayer)
+            List {
+                // TODO: remove?
+                Text(node.displayTitle).font(.title2)
+                
+                section("Required", Self.required)
+                
+                section("Sizing", Self.sizing)
+                
+                section("Positioning", Self.positioning)
+                
+                section("Common", Self.common)
+                
+                if layerNode.layer.supportsGroupInputs {
+                    section("Group", Self.groupLayer)
+                }
+                
+                if layerNode.layer.supportsUnknownInputs {
+                    section("Enabled", Self.unknown)
+                }
+                
+                if layerNode.layer.supportsTypographyInputs {
+                    section("Typography", Self.text)
+                }
+                
+                if layerNode.layer.supportsStrokeInputs {
+                    section("Stroke", Self.stroke)
+                }
+                
+                if layerNode.layer.supportsRotationInputs {
+                    section("Rotation", Self.rotation)
+                }
+                
+                if layerNode.layer.supportsShadowInputs {
+                    section("Shadow", Self.shadow)
+                }
+                
+                if layerNode.layer.supportsLayerEffectInputs {
+                    section("Layer Effects", Self.effects)
+                }
+                
+                LayerInspectorOutputsSectionView(node: node,
+                                                 layerNode: layerNode,
+                                                 graph: graph)
             }
             
-            if layerNode.layer.supportsUnknownInputs {
-                section("Enabled", Self.unknown)
-            }
-            
-            if layerNode.layer.supportsTypographyInputs {
-                section("Typography", Self.text)
-            }
-            
-            if layerNode.layer.supportsStrokeInputs {
-                section("Stroke", Self.stroke)
-            }
-            
-            if layerNode.layer.supportsRotationInputs {
-                section("Rotation", Self.rotation)
-            }
-            
-            if layerNode.layer.supportsShadowInputs {
-                section("Shadow", Self.shadow)
-            }
-            
-            if layerNode.layer.supportsLayerEffectInputs {
-                section("Layer Effects", Self.effects)
-            }
-            
-            LayerInspectorOutputsSectionView(node: node, 
-                                             layerNode: layerNode,
-                                             graph: graph)
-        }
+        } // VStack
     }
 }
 
@@ -214,7 +230,7 @@ struct LayerInspectorOutputsSectionView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-        
+    
     var body: some View {
         
         let outputs = node.outputRowObservers()

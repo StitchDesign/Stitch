@@ -96,7 +96,7 @@ class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     }
 
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
-        graph?.graphTappedDuringMouseScroll()
+        // graph?.graphTappedDuringMouseScroll()
     }
 
     private static func shouldDisableDueToPinchGesture(_ gestureRecognizer: UIGestureRecognizer,

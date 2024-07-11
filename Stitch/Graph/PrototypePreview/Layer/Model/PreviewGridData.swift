@@ -13,8 +13,32 @@ let HEIGHT_FIELD_INDEX = 1
 
 extension NodeViewModel {
     
+    @MainActor
+    func layerGroupOrientationUpdated(newValue: StitchOrientation) {
+        
+        let stitch = self
+        
+        switch newValue {
+        
+        case .none:
+            // Block `spacing` input on the LayerGroup
+            // TODO: block `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
+            stitch.blockSpacingInput()
+            stitch.blockGridLayoutInputs()
+            
+        case .horizontal, .vertical:
+            // Unblock `spacing` input on the LayerGroup
+            // TODO: unblock `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
+            stitch.unblockSpacingInput()
+            stitch.blockGridLayoutInputs()
+            
+        case .grid:
+            stitch.unblockSpacingInput()
+            stitch.unblockGridLayoutInputs()
+        }
+    }
+    
     // When LayerDimension is `pt` or `parent percent`, disable the min/max along that same dimension.
-    //
     @MainActor
     func layerDimensionUpdated(newValue: LayerDimension,
                                dimension: LengthDimension) {
@@ -136,6 +160,42 @@ extension NodeViewModel {
         }
     }
         
+    // LayerGroup's StitchOrientation = None
+    
+    @MainActor
+    func blockSpacingInput() {
+        setBlockStatus(.spacing, isBlocked: true)
+        
+        // Note: a layer group can be padded, no matter its orientation
+        // setBlockStatus(.padding, isBlocked: true)
+    }
+    
+    @MainActor
+    func blockGridLayoutInputs() {
+        setBlockStatus(.spacingBetweenGridColumns, isBlocked: true)
+        setBlockStatus(.spacingBetweenGridRows, isBlocked: true)
+        setBlockStatus(.itemAlignmentWithinGridCell, isBlocked: true)
+    }
+    
+    // LayerGroup's StitchOrientation = Vertical, Horizontal
+    
+    @MainActor
+    func unblockSpacingInput() {
+        setBlockStatus(.spacing, isBlocked: false)
+        
+        // Note: a layer group can be padded, no matter its orientation
+        // setBlockStatus(.padding, isBlocked: false)
+    }
+    
+    // LayerGroup's StitchOrientation = Grid
+    
+    @MainActor
+    func unblockGridLayoutInputs() {
+        setBlockStatus(.spacingBetweenGridColumns, isBlocked: false)
+        setBlockStatus(.spacingBetweenGridRows, isBlocked: false)
+        setBlockStatus(.itemAlignmentWithinGridCell, isBlocked: false)
+    }
+    
     // SizingScenario = Auto
     
     @MainActor

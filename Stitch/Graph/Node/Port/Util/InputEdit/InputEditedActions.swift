@@ -79,7 +79,7 @@ struct InputEdited: GraphEventWithResponse {
                 newValue: dimension.layerDimension,
                 dimension: dimension.lengthDimension)
         }
-                
+                        
         state.calculate(nodeViewModel.id)
 
         if isCommitting {
