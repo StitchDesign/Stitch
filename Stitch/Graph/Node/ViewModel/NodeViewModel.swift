@@ -196,7 +196,7 @@ extension NodeViewModel: NodeCalculatable {
         case .patch(let patch):
             return patch.outputsObservers
         case .layer(let layer):
-            return layer.outputsObservers
+            return layer.outputPorts.map { $0.rowObserver }
         case .group:
             return []
         }
@@ -691,14 +691,15 @@ extension NodeViewModel {
         
         let newInputCoordinate = InputCoordinate(portId: allInputsObservers.count,
                                                  nodeId: self.id)
-        let newInputObserver = NodeRowObserver(values: lastRowObserver.allLoopedValues,
-                                               nodeKind: self.kind,
-                                               userVisibleType: self.userVisibleType,
-                                               id: newInputCoordinate,
-                                               activeIndex: self.activeIndex,
-                                               upstreamOutputCoordinate: nil,
-                                               nodeIOType: .input,
-                                               nodeDelegate: lastRowObserver.nodeDelegate)
+        let newInputObserver = InputNodeRowObserver(values: lastRowObserver.allLoopedValues,
+                                                    nodeKind: self.kind,
+                                                    userVisibleType: self.userVisibleType,
+                                                    id: newInputCoordinate,
+                                                    activeIndex: self.activeIndex,
+                                                    nodeRowIndex: allInputsObservers.count,
+                                                    upstreamOutputCoordinate: nil,
+                                                    nodeDelegate: lastRowObserver.nodeDelegate,
+                                                    canvasItemDelegate: lastRowObserver.rowViewModel.canvasItemDelegate)
         
         patchNode.inputsObservers.append(newInputObserver)
     }
@@ -728,7 +729,7 @@ extension NodeViewModel {
         }
     }
     
-    func appendInputRowObserver(_ rowObserver: NodeRowObserver) {
+    func appendInputRowObserver(_ rowObserver: InputNodeRowObserver) {
         guard let patchNode = self.patchNode else {
             fatalErrorIfDebug()
             return

@@ -71,8 +71,6 @@ protocol NodeDelegate: AnyObject {
     
 //    @MainActor func updateRowObservers(activeIndex: ActiveIndex)
     
-    @MainActor func nextInput(_ currentInputCoordinate: NodeIOPortType) -> FieldCoordinate
-    
     @MainActor func calculate()
 }
 
