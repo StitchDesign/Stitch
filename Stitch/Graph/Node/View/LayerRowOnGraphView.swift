@@ -8,16 +8,91 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct LayerRowOnGraphView: View {
+struct LayerNodeInputView: View {
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel // for overall layer node
+
+    @Bindable var row: InputNodeRowObserver
+    @Bindable var canvasItem: CanvasItemViewModel
+    
+    @Bindable var layerNode: LayerNodeViewModel
+    
+    // TODO: fix when comment boxes added back
+    let atleastOneCommentBoxSelected: Bool = false
+    
+    var body: some View {
+        LayerNodeRowView(graph: graph,
+                         node: node,
+                         row: row,
+                         canvasItem: canvasItem,
+                         layerNode: layerNode,
+                         atleastOneCommentBoxSelected: atleastOneCommentBoxSelected) {
+            HStack {
+                NodeInputView(graph: graph,
+                              node: node,
+                              rowObserver: row,
+                              rowData: row.rowViewModel,
+                              forPropertySidebar: false,
+                              propertyIsSelected: false,
+                              propertyIsAlreadyOnGraph: true,
+                              isCanvasItemSelected: canvasItem.isSelected)
+                Spacer()
+            }
+        }
+    }
+}
+
+struct LayerNodeOutputView: View {
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel // for overall layer node
+
+    @Bindable var row: OutputNodeRowObserver
+    @Bindable var canvasItem: CanvasItemViewModel
+    
+    @Bindable var layerNode: LayerNodeViewModel
+    
+    // TODO: fix when comment boxes added back
+    let atleastOneCommentBoxSelected: Bool = false
+    
+    var body: some View {
+        LayerNodeRowView(graph: graph,
+                         node: node,
+                         row: row,
+                         canvasItem: canvasItem,
+                         layerNode: layerNode,
+                         atleastOneCommentBoxSelected: atleastOneCommentBoxSelected) {
+            HStack {
+                Spacer()
+                NodeOutputView(graph: graph,
+                              node: node,
+                              rowObserver: row,
+                              rowData: row.rowViewModel,
+                              forPropertySidebar: false,
+                              propertyIsSelected: false,
+                              propertyIsAlreadyOnGraph: true,
+                              isCanvasItemSelected: canvasItem.isSelected)
+            }
+        }
+    }
+}
+
+
+struct LayerNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowObserver,
+                                                                       RowView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel // for overall layer node
 
-    @Bindable var row: NodeRowObserver
+    @Bindable var row: RowObserver
     @Bindable var canvasItem: CanvasItemViewModel
     
     @Bindable var layerNode: LayerNodeViewModel
-        
+    
+    // TODO: fix when comment boxes added back
+    let atleastOneCommentBoxSelected: Bool = false
+    
+    @ViewBuilder var rowView: () -> RowView
+    
     @MainActor
     var isSelected: Bool {
         self.canvasItem.isSelected
@@ -28,11 +103,7 @@ struct LayerRowOnGraphView: View {
         return !isVisibleInSidebar
     }
     
-    // TODO: fix when comment boxes added back
-    let atleastOneCommentBoxSelected: Bool = false
-    
     var body: some View {
-                    
         // Node title with node tag menu button etc.
         ZStack {
             rowBody
@@ -94,7 +165,7 @@ struct LayerRowOnGraphView: View {
                 .padding([.leading, .trailing], 62)
                 .padding(NODE_BODY_PADDING)
             
-            rowView
+            rowView()
                 .padding(.top, NODE_BODY_PADDING * 2)
                 .padding(.bottom, NODE_BODY_PADDING + 4)
                 .overlay(
@@ -162,57 +233,29 @@ struct LayerRowOnGraphView: View {
                                atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                                isHiddenLayer: isHiddenLayer)
     }
-    
-    @ViewBuilder @MainActor
-    var rowView: some View {
-        HStack {
-            switch self.row.nodeIOType {
-            case .input:
-                rowFieldsView
-                Spacer()
-            case .output:
-                Spacer()
-                rowFieldsView
-            }
-        }
-    }
-    
-    @ViewBuilder @MainActor
-    var rowFieldsView: some View {
-        if let portViewType = row.portViewType {
-            NodeInputOutputView(graph: graph,
-                                node: node,
-                                rowData: row,
-                                coordinateType: portViewType,
-                                nodeKind: .layer(layerNode.layer),
-                                isCanvasItemSelected: canvasItem.isSelected,
-                                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId)
-        } else {
-            EmptyView()
-        }
-    }
 }
 
-struct FakeLayerInputOnGraphView: View {
-    
-    var body: some View {
-        let node = Layer.oval.getFakeLayerNode()!
-        LayerRowOnGraphView(
-            graph: .fakeEmptyGraphState,
-            node: node,
-            row: node.getAllInputsObservers()[1],
-            canvasItem: .fakeCanvasItemForLayerInputOnGraph,
-            layerNode: node.layerNode!)
-    }
-}
-
-#Preview {
-    ZStack {
-        Color.blue
-        Color.black.opacity(0.2)
-        FakeLayerInputOnGraphView()
-    }
-}
+//#Preview {
+//    let canvas = CanvasItemViewModel(
+//        id: .layerInputOnGraph(.init(node: .init(),
+//                                     keyPath: .size)),
+//        // So that we roughly get in the middle of the device screen;
+//        // (since we use
+//        position: .init(x: 350, y: 350),
+//        zIndex: 0,
+//        parentGroupNodeId: nil,
+//        nodeDelegate: nil)
+//    
+//    ZStack {
+//        Color.blue
+//        Color.black.opacity(0.2)
+//        LayerNodeInputView(graph: .fakeEmptyGraphState,
+//                           node: .mock,
+//                           row: ,
+//                           canvasItem: canvas,
+//                           layerNode: .mock)
+//    }
+//}
 
 // want to reuse: title, tag menu, position
 //

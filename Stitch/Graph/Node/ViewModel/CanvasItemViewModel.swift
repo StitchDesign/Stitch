@@ -207,22 +207,7 @@ extension CanvasItemViewModel {
 //    @MainActor var allRowViewModels: [any NodeRowViewModel] {
 //        self.inputViewModels + self.outputViewModels
 //    }
-    
-    // @MainActor
-    // static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(
-    //     id: fakeCanvasItemIdForLayerInputOnGraph,
-    //     // So that we roughly get in the middle of the device screen;
-    //     // (since we use
-    //     position: .init(x: 350, y: 350),
-    //     zIndex: 0,
-    //     parentGroupNodeId: nil,
-    //     nodeDelegate: nil)
 }
-
-// let fakeCanvasItemIdForLayerInputOnGraph: CanvasItemId = .layerInputOnGraph(.init(
-//     node: .fakeNodeId,
-//     keyPath: .size))
-
 
 extension InputLayerNodeRowData {
     @MainActor
