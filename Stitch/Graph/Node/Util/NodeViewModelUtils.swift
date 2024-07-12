@@ -188,11 +188,8 @@ extension NodeViewModel {
     
     @MainActor
     func updateAllConnectedNodes() {
-        let inputsObservers = self.getAllInputsObservers()
-        let outputsObservers = self.getAllOutputsObservers()
-        
-        inputsObservers.forEach { $0.rowViewModel.updateConnectedCanvasItems() }
-        outputsObservers.forEach { $0.rowViewModel.updateConnectedCanvasItems() }
+        self.allInputViewModels.forEach { $0.updateConnectedCanvasItems() }
+        self.allOutputViewModels.forEach { $0.updateConnectedCanvasItems() }
     }
     
 //    /// Helper to update value at some specific port and loop.

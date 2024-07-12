@@ -50,13 +50,7 @@ extension NodeRowViewModel {
     
     @MainActor
     var isConnectedToASelectedCanvasItem: Bool {
-        if let graph = self.graphDelegate,
-           let row = self.rowDelegate {
-            return graph.isConnectedToASelectedNode(at: row)
-        } else {
-            log("NodeRowObserver: getIsConnectedToASelectedNode: could not retrieve delegates")
-            return false
-        }
+        self.canvasItemDelegate?.isSelected ?? false
     }
     
     @MainActor
