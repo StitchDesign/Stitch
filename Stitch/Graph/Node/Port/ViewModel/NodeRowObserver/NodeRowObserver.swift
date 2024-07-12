@@ -30,7 +30,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeKind: NodeKind { get set }
     
-    var rowViewModel: RowViewModelType { get set }
+    @MainActor var allRowViewModels: [RowViewModelType] { get }
     
     var nodeDelegate: NodeDelegate? { get set }
     
@@ -53,7 +53,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         nodeRowIndex: Int?,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate?,
          canvasItemDelegate: CanvasItemViewModel?)
@@ -70,8 +69,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     // statically defined inputs
     var nodeKind: NodeKind
-    
-    var rowViewModel: InputNodeRowViewModel
     
     // Connected upstream node, if input
     var upstreamOutputCoordinate: NodeIOCoordinate? {
@@ -127,7 +124,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
-                     nodeRowIndex: Int?,
                      nodeDelegate: NodeDelegate?,
                      canvasItemDelegate: CanvasItemViewModel?) {
         self.init(values: schema.portData.values ?? [],
@@ -135,7 +131,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
-                  nodeRowIndex: nodeRowIndex,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection,
                   nodeDelegate: nodeDelegate,
                   canvasItemDelegate: canvasItemDelegate)
@@ -147,25 +142,23 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         nodeRowIndex: Int?,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate?,
          canvasItemDelegate: CanvasItemViewModel?) {
         
         self.id = id
-        
-        self.rowViewModel = .init(id: id.portType,
-                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex), 
-                                  nodeRowIndex: nodeRowIndex,
-                                  rowDelegate: nil,
-                                  canvasItemDelegate: canvasItemDelegate)
+//        
+//        self.rowViewModel = .init(id: id.portType,
+//                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+//                                  nodeRowIndex: nodeRowIndex,
+//                                  rowDelegate: nil,
+//                                  canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
         
-        self.rowViewModel.rowDelegate = self
         self.nodeDelegate = nodeDelegate
         
         postProcessing(oldValues: [], newValues: values)
@@ -183,8 +176,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
     
     // statically defined inputs
     var nodeKind: NodeKind
-    
-    var rowViewModel: OutputNodeRowViewModel
     
     // NodeRowObserver holds a reference to its parent, the Node
     weak var nodeDelegate: NodeDelegate?
@@ -225,7 +216,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         nodeRowIndex: Int?,
          // always nil but needed for protocol
          upstreamOutputCoordinate: NodeIOCoordinate? = nil,
          nodeDelegate: NodeDelegate?,
@@ -239,13 +229,12 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
         
-        self.rowViewModel = .init(id: id.portType,
-                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
-                                  nodeRowIndex: nodeRowIndex,
-                                  rowDelegate: nil,
-                                  canvasItemDelegate: canvasItemDelegate)
+//        self.rowViewModel = .init(id: id.portType,
+//                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
+//                                  nodeRowIndex: nodeRowIndex,
+//                                  rowDelegate: nil,
+//                                  canvasItemDelegate: canvasItemDelegate)
         
-        self.rowViewModel.rowDelegate = self
         self.nodeDelegate = nodeDelegate
         
         postProcessing(oldValues: [], newValues: values)
@@ -284,11 +273,31 @@ extension InputNodeRowObserver {
     var hasEdge: Bool {
         self.upstreamOutputCoordinate.isDefined
     }
+    
+    @MainActor var allRowViewModels: [InputNodeRowViewModel] {
+        guard let inputs = self.nodeDelegate?.allInputViewModels else {
+            return []
+        }
+        
+        return inputs.filter {
+            $0.id == self.id.portType
+        }
+    }
 }
 
 extension OutputNodeRowObserver {
     var hasEdge: Bool {
         self.containsDownstreamConnection
+    }
+    
+    @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
+        guard let outputs = self.nodeDelegate?.allOutputViewModels else {
+            return []
+        }
+        
+        return outputs.filter {
+            $0.id == self.id.portType
+        }
     }
 }
 
@@ -392,9 +401,9 @@ extension NodeRowObserver {
         }
     }
     
-    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
-        self.rowViewModel.fieldValueTypes
-    }
+//    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
+//        self.rowViewModel.fieldValueTypes
+//    }
 }
 
 extension InputNodeRowObserver: NodeRowCalculatable { }

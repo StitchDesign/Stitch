@@ -28,6 +28,10 @@ protocol NodeDelegate: AnyObject {
     
     var patchNodeViewModel: PatchNodeViewModel? { get }
     
+    @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
+    
+    @MainActor var allOutputViewModels: [OutputNodeRowViewModel] { get }
+    
     @MainActor var longestLoopLength: Int { get }
 
     @MainActor var inputsRowCount: Int { get }

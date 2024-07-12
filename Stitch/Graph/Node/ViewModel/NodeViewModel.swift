@@ -514,6 +514,42 @@ extension NodeViewModel: NodeDelegate {
     var getMathExpression: String? {
         self.patchNode?.mathExpression
     }
+    
+    @MainActor var allInputViewModels: [InputNodeRowViewModel] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.canvasObserver.inputViewModels
+        
+        case .group(let canvas):
+            return canvas.inputViewModels
+            
+        case .layer(let layer):
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                let inputData = layer[keyPath: $0.layerNodeKeyPath]
+                
+                if let canvas = inputData.canvasObsever {
+                    return canvas.inputViewModels + [inputData.inspectorRowViewModel]
+                }
+                
+                return [inputData.inspectorRowViewModel]
+            }
+        }
+    }
+    
+    @MainActor var allOutputViewModels: [OutputNodeRowViewModel] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.canvasObserver.outputViewModels
+        
+        case .group(let canvas):
+            return canvas.outputViewModels
+            
+        case .layer(let layer):
+            return layer.outputPorts.flatMap {
+                return $0.canvasObsever?.outputViewModels ?? []
+            }
+        }
+    }
 }
 
 

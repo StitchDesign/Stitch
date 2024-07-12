@@ -17,6 +17,7 @@ protocol LayerNodeRowData: AnyObject {
 
 final class InputLayerNodeRowData {
     let rowObserver: InputNodeRowObserver
+    let inspectorRowViewModel: InputNodeRowViewModel
     var canvasObsever: CanvasItemViewModel?
     
     init(rowObserver: InputNodeRowObserver,
