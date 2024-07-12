@@ -190,23 +190,33 @@ extension CanvasItemViewModel {
                 // Fixes issue for setting visibility on groups
                 let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
                 let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
-                let allObservers = inputsObservers + outputsObservers
-                allObservers
+
+                inputsObservers
+                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+                    .forEach { $0.isVisibleInFrame = newValue }
+                
+                outputsObservers
                     .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
                     .forEach { $0.isVisibleInFrame = newValue }
             }
 
             // Refresh values if node back in frame
             if newValue {
-                self.nodeDelegate?
-                    .updateRowObservers(activeIndex: activeIndex)
+                self.nodeDelegate?.updateInputsObservers(activeIndex: activeIndex)
+                self.nodeDelegate?.updateOutputsObservers(activeIndex: activeIndex)
             }
         }
     }
     
-//    @MainActor var allRowViewModels: [any NodeRowViewModel] {
-//        self.inputViewModels + self.outputViewModels
-//    }
+    func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
+        let gridLineLength = CGFloat(gridLineLength)
+        
+        self.position = .init(
+            x: self.position.x + gridLineLength,
+            y: self.position.y + gridLineLength)
+        
+        self.previousPosition = self.position
+    }
 }
 
 extension InputLayerNodeRowData {

@@ -293,16 +293,6 @@ extension NodeViewModel {
                             longestLoopLength: getLongestLoopLength(self.inputs))
     }
     
-    func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
-        let gridLineLength = CGFloat(gridLineLength)
-        
-        self.position = .init(
-            x: self.position.x + gridLineLength,
-            y: self.position.y + gridLineLength)
-        
-        self.previousPosition = self.position
-    }
-    
     @MainActor
     var outputCoordinates: NodeIOCoordinates {
         (

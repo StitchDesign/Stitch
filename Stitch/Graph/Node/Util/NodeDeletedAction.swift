@@ -49,7 +49,7 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
-    func selectedGraphNodesDeleted(selectedNodes: IdSet) {
+    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
 
         self.selectedCanvasItems.forEach {
             self.deleteCanvasItem($0.id)
@@ -88,11 +88,11 @@ extension GraphState {
         
         case .layerInputOnGraph(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerInputOnGraph(x)?.canvasUIData = nil
+            self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
             
         case .layerOutputOnGraph(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerOutputOnGraph(x)?.canvasUIData = nil
+            self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
         }
     }
 
