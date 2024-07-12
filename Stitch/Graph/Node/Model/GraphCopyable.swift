@@ -77,8 +77,7 @@ extension CanvasNodeEntity: GraphCopyable {
                     copiedNodeIds: NodeIdSet) -> CanvasNodeEntity {
         let newGroupId = mappableData.get(self.parentGroupNodeId)
 
-        return .init(id: self.id,
-                     position: self.position,
+        return .init(position: self.position,
                      zIndex: self.zIndex,
                      parentGroupNodeId: newGroupId)
     }
@@ -103,37 +102,15 @@ extension NodePortInputEntity: GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> NodePortInputEntity {
-        let newValues = self.values.map { values in
-            values.map {
-                $0.createCopy(newId: newId,
-                              mappableData: mappableData,
-                              copiedNodeIds: copiedNodeIds)
-            }
-        }
-
-        var newUpstreamOutputCoordinate: NodeIOCoordinate?
         let newInputId = NodeIOCoordinate(portType: self.id.portType,
                                           nodeId: newId)
 
-        if let upstreamOutputCoordinate = self.upstreamOutputCoordinate {
-            let willChangeUpstreamCoordinate = copiedNodeIds.contains(upstreamOutputCoordinate.nodeId)
-
-            if willChangeUpstreamCoordinate,
-               let newUpstreamNodeId = mappableData.get(upstreamOutputCoordinate.nodeId) {
-                newUpstreamOutputCoordinate = .init(portType: upstreamOutputCoordinate.portType,
-                                                    nodeId: newUpstreamNodeId)
-            } else {
-                // Do not change upstream ID if node was not copied--this retains edges for copied nodes
-                // pasted in the same project
-                newUpstreamOutputCoordinate = upstreamOutputCoordinate
-            }
-        }
-
-        return .init(id: newInputId,
+        return .init(id: newInputId, 
+                     portData: self.portData.createCopy(newId: newId,
+                                                        mappableData: mappableData,
+                                                        copiedNodeIds: copiedNodeIds),
                      nodeKind: self.nodeKind,
-                     userVisibleType: self.userVisibleType,
-                     values: newValues,
-                     upstreamOutputCoordinate: newUpstreamOutputCoordinate)
+                     userVisibleType: self.userVisibleType)
     }
 }
 
@@ -149,7 +126,11 @@ extension PatchNodeEntity: GraphCopyable {
         
         return .init(id: newId,
                      patch: self.patch,
-                     inputs: newInputs,
+                     inputs: newInputs, 
+                     canvasEntity: self.canvasEntity
+            .createCopy(newId: newId,
+                        mappableData: mappableData,
+                        copiedNodeIds: copiedNodeIds),
                      userVisibleType: self.userVisibleType,
                      splitterNode: self.splitterNode?
             .createCopy(newId: newId,
@@ -166,6 +147,19 @@ extension SplitterNodeEntity: GraphCopyable {
         .init(id: newId,
               lastModifiedDate: self.lastModifiedDate,
               type: self.type)
+    }
+}
+
+extension LayerInputDataEntity: GraphCopyable {
+    func createCopy(newId: NodeId,
+                    mappableData: [NodeId : NodeId],
+                    copiedNodeIds: NodeIdSet) -> LayerInputDataEntity {
+        .init(inputPort: self.inputPort.createCopy(newId: newId,
+                                                   mappableData: mappableData,
+                                                   copiedNodeIds: copiedNodeIds),
+              canvasItem: self.canvasItem?.createCopy(newId: newId,
+                                                      mappableData: mappableData,
+                                                      copiedNodeIds: copiedNodeIds))
     }
 }
 
@@ -199,10 +193,21 @@ extension NodeConnectionType: GraphCopyable {
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> NodeConnectionType {
         switch self {
-        case .upstreamConnection(let coordinate):
-            var coordinate = coordinate
-            coordinate.nodeId = mappableData.get(coordinate.nodeId) ?? coordinate.nodeId
-            return .upstreamConnection(coordinate)
+        case .upstreamConnection(let upstreamOutputCoordinate):
+            let willChangeUpstreamCoordinate = copiedNodeIds.contains(upstreamOutputCoordinate.nodeId)
+
+            if willChangeUpstreamCoordinate,
+               let newUpstreamNodeId = mappableData.get(upstreamOutputCoordinate.nodeId) {
+                return .upstreamConnection(
+                    .init(portType: upstreamOutputCoordinate.portType,
+                                                    nodeId: newUpstreamNodeId)
+                    )
+            } else {
+                // Do not change upstream ID if node was not copied--this retains edges for copied nodes
+                // pasted in the same project
+                return .upstreamConnection(upstreamOutputCoordinate)
+            }
+            
         case .values(let values):
             let changedValues = values.map {
                 $0.createCopy(newId: newId,
