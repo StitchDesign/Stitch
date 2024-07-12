@@ -28,7 +28,7 @@ final class StitchEnvironment {
         // Track changes to projects in cloud. Keeps `ProjectsView` up to date
         // while visible.
         let docsUrl = StitchFileManager.documentsURL.url
-        self.dirObserver = DirectoryObserver(URL: docsUrl)
+        self.dirObserver = DirectoryObserver(url: docsUrl)
         self.fileManager = fileManager
 
         self.store = store

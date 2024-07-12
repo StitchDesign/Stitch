@@ -1,5 +1,5 @@
 {
-  "originHash" : "fa62414f3ffde63efcf96a3e2f8f06cdb8551ff9a33d61d5f1fa2ad8c3db93d0",
+  "originHash" : "470f4fb871a75e152eef73ab6445ab83674473c81d7a19dfcf1312da5eeeb382",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "0a159109e2393c3e1db4e2b638009c82e6650b4d",
         "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "directorywatcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GianniCarlo/DirectoryWatcher.git",
+      "state" : {
+        "revision" : "76af69f1d19146b0c5d3e38747bb5eabe547143b",
+        "version" : "2.7.3"
       }
     },
     {

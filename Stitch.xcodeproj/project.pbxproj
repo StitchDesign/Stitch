@@ -226,6 +226,7 @@
 		B5F5FD432B37564500BBD9A2 /* WhatToTest.en-US.txt in Resources */ = {isa = PBXBuildFile; fileRef = B5F5FD422B37564500BBD9A2 /* WhatToTest.en-US.txt */; };
 		B5F9EB9B28D3848A00112799 /* FileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9A28D3848A00112799 /* FileManagerTests.swift */; };
 		B5F9EB9E28D3927F00112799 /* MockFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5F9EB9D28D3927F00112799 /* MockFileManager.swift */; };
+		B5FBE3C42C4195B3006DA0A7 /* DirectoryWatcher in Frameworks */ = {isa = PBXBuildFile; productRef = B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */; };
 		B5FE64B329641ACD004EB04B /* AsyncMediaImpureEvalResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FE64B229641ACD004EB04B /* AsyncMediaImpureEvalResult.swift */; };
 		B5FE67F52A73962A00DABD19 /* FieldValueData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FE67F42A73962A00DABD19 /* FieldValueData.swift */; };
 		B5FEE4B428AC443500B50BCD /* StitchVideoDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE4B328AC443500B50BCD /* StitchVideoDelegate.swift */; };
@@ -1761,6 +1762,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B50F416E2C1EB4830082262F /* StitchEngine in Frameworks */,
+				B5FBE3C42C4195B3006DA0A7 /* DirectoryWatcher in Frameworks */,
 				B5EB3F072C165FE900879947 /* (null) in Frameworks */,
 				20D1601925A802FF005AEB72 /* NonEmpty in Frameworks */,
 				B50F416B2C1EB45B0082262F /* StitchSchemaKit in Frameworks */,
@@ -4266,6 +4268,7 @@
 				B50F41672C1EB4320082262F /* StitchViewKit */,
 				B50F416A2C1EB45B0082262F /* StitchSchemaKit */,
 				B50F416D2C1EB4830082262F /* StitchEngine */,
+				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4351,6 +4354,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				B50F416C2C1EB4830082262F /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5950,6 +5954,14 @@
 				kind = branch;
 			};
 		};
+		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/GianniCarlo/DirectoryWatcher.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.7.3;
+			};
+		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
@@ -6046,6 +6058,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B50F416C2C1EB4830082262F /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
+		};
+		B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
+			productName = DirectoryWatcher;
 		};
 		EC1137372719F9B400ADCA72 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;
