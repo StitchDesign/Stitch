@@ -17,21 +17,21 @@ struct GroupNodeView: View {
     let activeGroupId: GroupNodeId?
     let activeIndex: ActiveIndex
     let adjustmentBarSessionId: AdjustmentBarSessionId
-
+    
     var id: NodeId {
         self.nodeViewModel.id
     }
-
+    
     @MainActor
     var displayTitle: String {
         self.nodeViewModel.displayTitle
     }
-
+    
     @MainActor
     var isSelected: Bool {
         canvasViewModel.isSelected
     }
-
+    
     var body: some View {
         NodeView(graph: graph,
                  node: nodeViewModel,
@@ -47,22 +47,20 @@ struct GroupNodeView: View {
                  inputsViews: inputsViews,
                  outputsViews: outputsViews)
     }
-
+    
     @MainActor
     func inputsViews() -> some View {
-        DefaultNodeRowView(graph: graph,
-                           node: nodeViewModel,
-                           nodeIO: .input,
-                           isNodeSelected: isSelected,
-                           adjustmentBarSessionId: adjustmentBarSessionId)
+        DefaultNodeInputView(graph: graph,
+                             node: nodeViewModel,
+                             isNodeSelected: isSelected,
+                             adjustmentBarSessionId: adjustmentBarSessionId)
     }
-
+    
     @ViewBuilder @MainActor
     func outputsViews() -> some View {
-        DefaultNodeRowView(graph: graph,
-                           node: nodeViewModel,
-                           nodeIO: .output,
-                           isNodeSelected: isSelected,
-                           adjustmentBarSessionId: adjustmentBarSessionId)
+        DefaultNodeOutputView(graph: graph,
+                              node: nodeViewModel,
+                              isNodeSelected: isSelected,
+                              adjustmentBarSessionId: adjustmentBarSessionId)
     }
 }

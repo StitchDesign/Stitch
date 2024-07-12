@@ -17,6 +17,7 @@ enum NodeViewModelType {
 extension NodeViewModelType {
     @MainActor
     init(from nodeType: NodeTypeEntity,
+         nodeId: NodeId,
          nodeDelegate: NodeDelegate?) {
         switch nodeType {
         case .patch(let patchNode):
@@ -28,7 +29,8 @@ extension NodeViewModelType {
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
         case .group(let canvasNode):
-            self = .group(.init(from: canvasNode,
+            self = .group(.init(from: canvasNode, 
+                                id: .node(nodeId),
                                 node: nodeDelegate))
         }
     }
