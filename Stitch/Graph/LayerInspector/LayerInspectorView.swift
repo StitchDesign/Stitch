@@ -232,16 +232,16 @@ struct LayerInspectorOutputsSectionView: View {
 }
 
 
-#Preview {
-    let graph = GraphState(from: .init(), store: nil)
-    let nodeTest = TextLayerNode.createViewModel(position: .zero,
-                                                 zIndex: .zero,
-                                                 activeIndex: .init(.zero),
-                                                 graphDelegate: graph)
-    nodeTest.isSelected = true
-    
-    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
-    
-    return LayerInspectorView(graph: graph)
-}
+//#Preview {
+//    let graph = GraphState(from: .init(), store: nil)
+//    let nodeTest = TextLayerNode.createViewModel(position: .zero,
+//                                                 zIndex: .zero,
+//                                                 activeIndex: .init(.zero),
+//                                                 graphDelegate: graph)
+//    nodeTest.isSelected = true
+//    
+//    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
+//    
+//    return LayerInspectorView(graph: graph)
+//}
 

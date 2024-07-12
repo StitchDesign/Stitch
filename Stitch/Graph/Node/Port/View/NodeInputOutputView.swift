@@ -155,7 +155,7 @@ struct NodeOutputView: View {
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
+
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowData: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
@@ -172,8 +172,12 @@ struct NodeOutputView: View {
         self.rowObserver.id.nodeId
     }
     
+    var nodeKind: NodeKind {
+        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
+    }
+    
     var isSplitter: Bool {
-        self.node.kind == .patch(.splitter)
+        self.nodeKind == .patch(.splitter)
     }
     
     @MainActor func onPortTap(layerInputType: LayerInputType) {
@@ -189,7 +193,7 @@ struct NodeOutputView: View {
                          rowObserver: rowObserver,
                          viewModel: portViewModel,
                          isMultiField: isMultiField,
-                         nodeKind: node.kind,
+                         nodeKind: nodeKind,
                          isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
@@ -213,8 +217,8 @@ struct NodeOutputView: View {
                 if !isSplitter {
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
-                                   nodeId: node.id,
-                                   isGroupNodeKind: !node.kind.isGroup,
+                                   nodeId: nodeId,
+                                   isGroupNodeKind: !nodeKind.isGroup,
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)

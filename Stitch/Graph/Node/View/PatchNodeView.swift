@@ -86,11 +86,10 @@ struct PatchNodeView: View {
                 WirelessPortView(isOutput: false, id: id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
-                DefaultNodeRowView(graph: graph,
-                                   node: viewModel,
-                                   nodeIO: .input,
-                                   isNodeSelected: isSelected,
-                                   adjustmentBarSessionId: adjustmentBarSessionId)
+                DefaultNodeInputView(graph: graph,
+                                     node: viewModel,
+                                     isNodeSelected: isSelected,
+                                     adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -104,11 +103,10 @@ struct PatchNodeView: View {
                 WirelessPortView(isOutput: true, id: id)
                     .padding(.leading, NODE_BODY_SPACING)
             } else {
-                DefaultNodeRowView(graph: graph,
-                                   node: viewModel,
-                                   nodeIO: .output,
-                                   isNodeSelected: isSelected,
-                                   adjustmentBarSessionId: adjustmentBarSessionId)
+                DefaultNodeOutputView(graph: graph,
+                                      node: viewModel,
+                                      isNodeSelected: isSelected,
+                                      adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }

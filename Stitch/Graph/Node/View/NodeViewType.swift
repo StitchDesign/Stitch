@@ -60,21 +60,64 @@ struct NodeTypeView: View {
     }
 }
 
-struct DefaultNodeRowView: View {
+struct DefaultNodeInputView: View {
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
+    let isNodeSelected: Bool
+    let adjustmentBarSessionId: AdjustmentBarSessionId
+    
+    var body: some View {
+        DefaultNodeRowView(graph: graph,
+                           node: node,
+                           nodeRowDataList: node.getAllInputsObservers(),
+                           nodeIO: .input,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver in
+            NodeInputView(graph: graph,
+                          rowObserver: rowObserver,
+                          rowData: rowObserver.rowViewModel,
+                          forPropertySidebar: false,
+                          propertyIsSelected: false,
+                          propertyIsAlreadyOnGraph: true,
+                          isCanvasItemSelected: isNodeSelected)
+        }
+    }
+}
+
+struct DefaultNodeOutputView: View {
+    @Bindable var graph: GraphState
+    @Bindable var node: NodeViewModel
+    let isNodeSelected: Bool
+    let adjustmentBarSessionId: AdjustmentBarSessionId
+    
+    var body: some View {
+        DefaultNodeRowView(graph: graph,
+                           node: node,
+                           nodeRowDataList: node.getAllOutputsObservers(),
+                           nodeIO: .output,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver in
+            NodeOutputView(graph: graph,
+                           rowObserver: rowObserver,
+                           rowData: rowObserver.rowViewModel,
+                           forPropertySidebar: false,
+                           propertyIsSelected: false,
+                           propertyIsAlreadyOnGraph: true,
+                           isCanvasItemSelected: isNodeSelected)
+        }
+    }
+}
+
+struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowObserver,
+                                                            RowView: View {
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    let nodeRowDataList: [RowObserver]
     let nodeIO: NodeIO
-    let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
+    @ViewBuilder var rowView: (RowObserver) -> RowView
 
     var id: NodeId {
         self.node.id
-    }
-    
-    @MainActor
-    var nodeRowDataList: NodeRowObservers {
-        self.node.getRowObservers(nodeIO)
     }
     
     var nodeKind: NodeKind {
@@ -119,30 +162,9 @@ struct DefaultNodeRowView: View {
                            height: NODE_ROW_HEIGHT)
             } else {
                 ForEach(nodeRowDataList) { data in
-                    if let coordinate = data.portViewType {
-                        self.rowView(data: data,
-                                     coordinateType: coordinate)
-                    } else {
-                        EmptyView()
-                            .onAppear {
-                                fatalErrorIfDebug()
-                            }
-                    }
+                    self.rowView(data)
                 }
             }
         }
-    }
-
-    @ViewBuilder @MainActor
-    func rowView(data: NodeRowObserver,
-                 coordinateType: PortViewType) -> some View {
-        NodeInputOutputView(
-            graph: graph,
-            node: node,
-            rowData: data,
-            coordinateType: coordinateType,
-            nodeKind: nodeKind,
-            isCanvasItemSelected: isNodeSelected,
-            adjustmentBarSessionId: adjustmentBarSessionId)
     }
 }
