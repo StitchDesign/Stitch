@@ -172,14 +172,14 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         }
     }
 
-    @MainActor
-    var connectedUpstreamCanvasItem: CanvasItemViewModel? {
-        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver else {
-            return nil
-        }
-        
-        return upstreamOutputObserver.rowViewModel.canvasItemDelegate
-    }
+//    @MainActor
+//    var connectedUpstreamCanvasItem: CanvasItemViewModel? {
+//        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver else {
+//            return nil
+//        }
+//        
+//        return upstreamOutputObserver.rowViewModel.canvasItemDelegate
+//    }
     
 //    var portViewType: PortViewType { .input(self.id) }
     
@@ -234,28 +234,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
             self.initializeValues(rowDelegate: rowDelegate,
                                   coordinate: id)
         }
-    }
-    
-    @MainActor
-    func getConnectedDownstreamNodes() -> Set<CanvasItemId> {
-        var canvasItems = Set<CanvasItemId>()
-        let portId = self.id.id
-        
-        guard let nodeDelegate = self.rowDelegate?.nodeDelegate,
-              let graphDelegate = nodeDelegate.graphDelegate,
-              let connectedInputs = nodeDelegate.graphDelegate?.connections
-            .get(NodeIOCoordinate(portId: portId,
-                                  nodeId: nodeDelegate.id)) else {
-            return .init()
-        }
-        
-        // Find downstream canvas items whose inputs match connections here
-        return connectedInputs
-            .compactMap {
-                graphDelegate.getInputObserver(coordinate: $0)?
-                    .rowViewModel.canvasItemDelegate?.id
-            }
-            .toSet
     }
     
 //    var portViewType: PortViewType { .output(self.id) }

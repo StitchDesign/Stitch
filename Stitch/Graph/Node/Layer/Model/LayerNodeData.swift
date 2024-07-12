@@ -20,10 +20,18 @@ final class InputLayerNodeRowData {
     let inspectorRowViewModel: InputNodeRowViewModel
     var canvasObsever: CanvasItemViewModel?
     
+    @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObsever: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObsever = canvasObsever
+        
+        self.inspectorRowViewModel = .init(id: rowObserver.id.portType,
+                                           activeValue: rowObserver.activeValue,
+                                           nodeRowIndex: nil,
+                                           rowDelegate: rowObserver,
+                                           // specifically not a row view model for canvas
+                                           canvasItemDelegate: nil)
     }
 }
 

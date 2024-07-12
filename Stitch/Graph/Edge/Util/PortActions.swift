@@ -17,13 +17,8 @@ extension InputNodeRowObserver {
     @MainActor
     func removeUpstreamConnection(activeIndex: ActiveIndex? = nil,
                                   isVisible: Bool? = nil) {
-        // Nothing to do if no canvas item
-        guard let canvasItemId = self.rowViewModel.canvasItemDelegate?.id else {
-            return
-        }
         let activeIndex = activeIndex ?? self.nodeDelegate?.activeIndex ?? .init(.zero)
-        let isVisible = isVisible ?? self.nodeDelegate?.isVisibleInFrame ?? false
-        let willUpstreamBeDisconnected = self.upstreamOutputObserver?.rowViewModel.getConnectedDownstreamNodes() == Set([canvasItemId])
+        let willUpstreamBeDisconnected = self.upstreamOutputObserver?.getConnectedDownstreamNodes() == Set([self.id.nodeId])
 
         // Videos and audios need to be cleared from a now-disconnected node
         // TODO: this logic only works if the destination node of a removed edge is a speaker/video, and not if an edge was disconnected upstream from those nodes.

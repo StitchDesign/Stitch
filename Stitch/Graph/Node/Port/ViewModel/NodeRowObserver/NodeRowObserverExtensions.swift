@@ -33,7 +33,7 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        if let rowViewModel = self.getVisibleRowViewModel() {
+        self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: newValues)
         }
         
@@ -41,13 +41,16 @@ extension NodeRowObserver {
     }
     
     @MainActor
-    func getVisibleRowViewModel() -> Self.RowViewModelType? {
-        guard let node = self.rowViewModel.canvasItemDelegate else {
-            fatalErrorIfDebug()
-            return nil
+    func getVisibleRowViewModels() -> [Self.RowViewModelType] {
+        self.allRowViewModels.compactMap { rowViewModel in
+            // No canvas means inspector, which for here practically speaking is visible
+            if let canvas = rowViewModel.canvasItemDelegate,
+               !canvas.isVisibleInFrame {
+                return nil
+            }
+            
+            return rowViewModel
         }
-        
-        return node.isVisibleInFrame ? self.rowViewModel : nil
         
 //        return nodeDelegate
 //            .getAllCanvasObservers()
@@ -59,7 +62,11 @@ extension NodeRowObserver {
     }
     
     @MainActor var activeValue: PortValue {
-        self.rowViewModel.activeValue
+        guard let graph = self.nodeDelegate?.graphDelegate else {
+            return self.allLoopedValues.first ?? .none
+        }
+        
+        return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
     @MainActor
