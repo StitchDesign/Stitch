@@ -161,7 +161,6 @@ final class LayerNodeViewModel {
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
                                     values: rowDefinitions.outputs.defaultList,
-                                    kind: .layer(schema.layer),
                                     userVisibleType: nil,
                                     nodeDelegate: nodeDelegate)
         
@@ -292,9 +291,9 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Process input data
         self.layer.layerGraphNode.inputDefinitions.forEach {
-            self[keyPath: $0.layerNodeKeyPath].rowObserver
+            self[keyPath: $0.layerNodeKeyPath]
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
-                        inputType: $0)
+                        layerInputType: $0)
         }
     }
 

@@ -223,14 +223,15 @@ extension InputLayerNodeRowData {
     @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
-        let rowObserver = NodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
-                                          nodeKind: .layer(.rectangle),
-                                          userVisibleType: nil,
-                                          id: .init(portId: -1, nodeId: .init()),
-                                          activeIndex: .init(.zero),
-                                          upstreamOutputCoordinate: nil,
-                                          nodeIOType: .input,
-                                          nodeDelegate: nil)
+        let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
+                                               nodeKind: .layer(.rectangle),
+                                               userVisibleType: nil,
+                                               id: .init(portId: -1, nodeId: .init()),
+                                               activeIndex: .init(.zero), 
+                                               nodeRowIndex: 0,
+                                               upstreamOutputCoordinate: nil,
+                                               nodeDelegate: nil,
+                                               canvasItemDelegate: nil)
         
         fatalError()
         

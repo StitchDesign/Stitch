@@ -47,3 +47,22 @@ extension LayerNodeRowData {
         }
     }
 }
+
+extension InputLayerNodeRowData {
+    @MainActor
+    func update(from schema: LayerInputDataEntity,
+                layerInputType: LayerInputType) {
+        self.rowObserver.update(from: schema.inputPort,
+                                inputType: layerInputType)
+        
+        if let canvas = schema.canvasItem {
+            self.canvasObsever?.update(from: canvas)
+        }
+    }
+    
+    @MainActor
+    func createSchema() -> LayerInputDataEntity {
+        .init(inputPort: self.rowObserver.createSchema().portData,
+              canvasItem: self.canvasObsever?.createSchema())
+    }
+}
