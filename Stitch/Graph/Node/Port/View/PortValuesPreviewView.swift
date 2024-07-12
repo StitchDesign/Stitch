@@ -18,7 +18,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
 
     // Pin `NodeRowData` via `@ValuesObserver` so that this view re-renders as `NodeRowData.values` changes
     @Bindable var data: RowObserver
-
+    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
     let coordinate: NodeIOCoordinate
     let nodeIO: NodeIO
 
@@ -93,12 +93,10 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
                                           userVisibleType: data.userVisibleType,
                                           id: self.data.id,
                                           activeIndex: .init(index),
-                                          nodeRowIndex: self.data.rowViewModel.portViewData?.portId,
                                           upstreamOutputCoordinate: nil,
-                                          nodeDelegate: self.data.nodeDelegate,
-                                          canvasItemDelegate: self.data.rowViewModel.canvasItemDelegate)
+                                          nodeDelegate: self.data.nodeDelegate)
 
-            let fields = rowObserver.fieldValueTypes.flatMap { $0.fieldObservers }
+            let fields = fieldValueTypes.flatMap { $0.fieldObservers }
 
             return .init(loopIndex: index,
                          fields: fields)

@@ -413,6 +413,20 @@ extension NodeViewModel {
             return self.getOutputRowObserver(portId)
         }
     }
+    
+    @MainActor
+    func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
+        self.getAllInputsObservers()
+            .flatMap { $0.allRowViewModels }
+            .first { $0.id == id }
+    }
+    
+    @MainActor
+    func getOutputRowViewModel(for id: NodeRowViewModelId) -> OutputNodeRowViewModel? {
+        self.getAllOutputsObservers()
+            .flatMap { $0.allRowViewModels }
+            .first { $0.id == id }
+    }
 
     @MainActor
     func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {

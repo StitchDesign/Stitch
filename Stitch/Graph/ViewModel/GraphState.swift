@@ -489,6 +489,15 @@ extension GraphState {
             .nodeDelegate?
             .getOutputRowObserver(coordinate.portId)
     }
+    
+    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
+                                         nodeId: NodeId) -> InputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            return nil
+        }
+        
+        return node.getInputRowViewModel(for: rowId)
+    }
 
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
@@ -502,22 +511,25 @@ extension GraphState {
                 .getAllCanvasObservers()
                 .first { $0.id == id }
         case .layerInput(let x):
-            return self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate
+            return self.getLayerInputOnGraph(x)?.canvasItemDelegate
         case .layerOutput(let x):
-            return self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate
+            return self.getLayerOutputOnGraph(x)?.canvasItemDelegate
         }
     }
     
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
-    func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowObserver? {
+    func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
         self.getNodeViewModel(id.node)?
-            .getInputRowObserver(for: .keyPath(id.keyPath))
+            .getInputRowViewModel(for: .init(graphItemType: .node,
+                                             portType: .keyPath(id.keyPath)))
     }
     
     @MainActor
-    func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowObserver? {
-        self.getNodeViewModel(id.node)?.getOutputRowObserver(id.portId)
+    func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
+        self.getNodeViewModel(id.node)?
+            .getOutputRowViewModel(for: .init(graphItemType: .node,
+                                              portType: .portIndex(id.portId)))
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {

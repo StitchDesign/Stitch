@@ -23,10 +23,12 @@ extension GraphState {
 
 extension StitchStore {
     @MainActor
-    func inputEditCommitted(input: NodeIOCoordinate,
+    func inputEditCommitted(input: NodeRowViewModelId,
+                            nodeId: NodeId,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
-        guard let inputViewModel = self.currentGraph?.getInputObserver(coordinate: input)?.rowViewModel else {
+        guard let inputViewModel = self.currentGraph?.getInputRowViewModel(for: input,
+                                                                           nodeId: nodeId) else {
             return
         }
         
@@ -71,11 +73,12 @@ extension GraphState {
 
      */
     @MainActor
-    func inputEditCommitted(input: NodeIOCoordinate,
+    func inputEditCommitted(input: NodeRowViewModelId,
+                            nodeId: NodeId,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
-        guard let inputViewModel = self.getInputObserver(coordinate: input)?
-                .rowViewModel else {
+        guard let inputViewModel = self.getInputRowViewModel(for: input,
+                                                             nodeId: nodeId) else {
             fatalErrorIfDebug()
             return
         }

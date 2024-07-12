@@ -9,12 +9,22 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+enum GraphItemType {
+    case node
+    case layerInspector
+}
+
+struct NodeRowViewModelId: Hashable {
+    var graphItemType: GraphItemType
+    var portType: NodeIOPortType
+}
+
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
     associatedtype RowObserver: NodeRowObserver
     associatedtype PortViewType: PortViewData
     
-    var id: NodeIOPortType { get set }
+    var id: NodeRowViewModelId { get set }
     
     // View-specific value that only updates when visible
     // separate propety for perf reasons:
@@ -50,6 +60,10 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    var portType: NodeIOPortType {
+        self.id.portType
+    }
+    
     var portViewData: PortViewType? {
         guard let nodeRowIndex = self.nodeRowIndex,
               let canvasId = self.canvasItemDelegate?.id else {
@@ -142,7 +156,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     
     static let nodeIO: NodeIO = .input
     
-    var id: NodeIOPortType
+    var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var nodeRowIndex: Int?
@@ -156,7 +170,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var layerPortId: Int?
     
     @MainActor
-    init(id: NodeIOPortType,
+    init(id: NodeRowViewModelId,
          activeValue: PortValue,
          nodeRowIndex: Int?,
          rowDelegate: InputNodeRowObserver?,
@@ -168,7 +182,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         
         if let rowDelegate = rowDelegate {
             self.initializeValues(rowDelegate: rowDelegate,
-                                  coordinate: id)
+                                  coordinate: id.portType)
         }
     }
 
@@ -209,7 +223,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     static let nodeIO: NodeIO = .output
     
-    var id: NodeIOPortType
+    var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
     var nodeRowIndex: Int?
@@ -220,7 +234,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
-    init(id: NodeIOPortType,
+    init(id: NodeRowViewModelId,
          activeValue: PortValue,
          nodeRowIndex: Int?,
          rowDelegate: OutputNodeRowObserver?,
@@ -232,7 +246,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         
         if let rowDelegate = rowDelegate {
             self.initializeValues(rowDelegate: rowDelegate,
-                                  coordinate: id)
+                                  coordinate: id.portType)
         }
     }
     
