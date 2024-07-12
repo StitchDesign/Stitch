@@ -98,12 +98,12 @@ extension NodeDelegate {
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
         self.getAllInputsObservers()
-            .map { $0.rowViewModel }
+            .flatMap { $0.allRowViewModels }
     }
     
     @MainActor
     var allOutputRowViewModels: [OutputNodeRowViewModel] {
         self.getAllOutputsObservers()
-            .map { $0.rowViewModel }
+            .flatMap { $0.allRowViewModels }
     }
 }

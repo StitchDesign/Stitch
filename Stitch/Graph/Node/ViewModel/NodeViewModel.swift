@@ -633,8 +633,10 @@ extension NodeViewModel {
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)
-            observer.rowViewModel.activeValueChanged(oldValue: oldValue,
-                                                     newValue: newValue)
+            observer.allRowViewModels.forEach {
+                $0.activeValueChanged(oldValue: oldValue,
+                                      newValue: newValue)
+            }
         }
 
         self.getAllOutputsObservers().forEach { observer in
@@ -642,7 +644,9 @@ extension NodeViewModel {
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
                                 activeIndex: activeIndex)
-            observer.rowViewModel.activeValueChanged(oldValue: oldValue, newValue: newValue)
+            observer.allRowViewModels.forEach {
+                $0.activeValueChanged(oldValue: oldValue, newValue: newValue)
+            }
         }
     }
     
@@ -732,12 +736,17 @@ extension NodeViewModel {
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
                                                     activeIndex: self.activeIndex,
-                                                    nodeRowIndex: allInputsObservers.count,
                                                     upstreamOutputCoordinate: nil,
-                                                    nodeDelegate: lastRowObserver.nodeDelegate,
-                                                    canvasItemDelegate: lastRowObserver.rowViewModel.canvasItemDelegate)
+                                                    nodeDelegate: lastRowObserver.nodeDelegate)
+        
+        let newInputViewModel = InputNodeRowViewModel(id: newInputCoordinate.portType,
+                                                      activeValue: newInputObserver.activeValue,
+                                                      nodeRowIndex: allInputsObservers.count,
+                                                      rowDelegate: newInputObserver,
+                                                      canvasItemDelegate: patchNode.canvasObserver)
         
         patchNode.inputsObservers.append(newInputObserver)
+        patchNode.canvasObserver.inputViewModels.append(newInputViewModel)
     }
 
     @MainActor

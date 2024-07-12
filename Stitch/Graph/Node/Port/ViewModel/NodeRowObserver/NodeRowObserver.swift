@@ -54,8 +54,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?,
-         canvasItemDelegate: CanvasItemViewModel?)
+         nodeDelegate: NodeDelegate?)
 }
 
 @Observable
@@ -124,16 +123,14 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
-                     nodeDelegate: NodeDelegate?,
-                     canvasItemDelegate: CanvasItemViewModel?) {
+                     nodeDelegate: NodeDelegate?) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection,
-                  nodeDelegate: nodeDelegate,
-                  canvasItemDelegate: canvasItemDelegate)
+                  nodeDelegate: nodeDelegate)
     }
     
     @MainActor
@@ -143,8 +140,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?,
-         canvasItemDelegate: CanvasItemViewModel?) {
+         nodeDelegate: NodeDelegate?) {
         
         self.id = id
 //        
@@ -218,8 +214,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
          activeIndex: ActiveIndex,
          // always nil but needed for protocol
          upstreamOutputCoordinate: NodeIOCoordinate? = nil,
-         nodeDelegate: NodeDelegate?,
-         canvasItemDelegate: CanvasItemViewModel?) {
+         nodeDelegate: NodeDelegate?) {
         
         assertInDebug(upstreamOutputCoordinate == nil)
         

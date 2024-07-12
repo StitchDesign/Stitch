@@ -60,8 +60,8 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                                             newValue: newViewValue)
         }
         .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                           portId: rowObserver.rowViewModel.nodeRowIndex,
-                                           nodeId: rowObserver.rowViewModel.canvasItemDelegate?.id,
+                                           portId: rowData.nodeRowIndex,
+                                           nodeId: rowData.canvasItemDelegate?.id,
                                            nodeIOType: NodeRowObserverType.nodeIOType,
                                            forPropertySidebar: forPropertySidebar))
     }
@@ -132,7 +132,8 @@ struct NodeInputView: View {
             HStack {
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
-                                    rowData: rowObserver,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowData,
                                     showPopover: $showPopover,
                                     coordinate: inputViewModel.id)
                 }
@@ -227,7 +228,8 @@ struct NodeOutputView: View {
                 if !forPropertySidebar {
                     labelView
                     NodeRowPortView(graph: graph,
-                                    rowData: rowObserver,
+                                    rowObserver: rowObserver,
+                                    rowViewModel: rowData,
                                     showPopover: $showPopover,
                                     coordinate: rowData.id)
                 }
@@ -268,7 +270,8 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
 //    @Bindable var node: CanvasItemViewModel
-    @Bindable var rowData: NodeRowObserverType
+    @Bindable var rowObserver: NodeRowObserverType
+    @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
 
     @Binding var showPopover: Bool
     let coordinate: NodeIOPortType
@@ -283,23 +286,23 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     }
     
     var isGroup: Bool {
-        self.rowData.nodeDelegate?.kind.isGroup ?? false
+        self.rowObserver.nodeDelegate?.kind.isGroup ?? false
     }
     
 //    var nodeDelegate: NodeDelegate? {
-//        let isSplitterRowAndInvisible = isGroup && rowData.nodeDelegate?.id != self.node.nodeDelegate?.id
-//        
+//        let isSplitterRowAndInvisible = isGroup && rowObserver.nodeDelegate?.id != self.node.nodeDelegate?.id
+//
 //        // Use passed-in group node so we can obtain view-pertinent information for splitters.
 //        // Fixes issue where output splitters use wrong node delegate.
 //        if isSplitterRowAndInvisible {
 //            return self.node.nodeDelegate
 //        }
 //        
-//        return rowData.nodeDelegate
+//        return rowObserver.nodeDelegate
 //    }
 
     var body: some View {
-        PortEntryView(rowViewModel: rowData.rowViewModel,
+        PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
                       coordinate: coordinate)
         /*
@@ -307,7 +310,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
          */
         .onTapGesture {
             // Do nothing when input/output doesn't contain a loop
-            if rowData.hasLoopedValues {
+            if rowObserver.hasLoopedValues {
                 self.showPopover.toggle()
             } else {
                 // If input/output count is no longer a loop,
@@ -319,8 +322,8 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         .popover(isPresented: $showPopover) {
             // Conditional is a hack that cuts down on perf
             if showPopover {
-                PortValuesPreviewView(data: rowData,
-                                      coordinate: self.rowData.id,
+                PortValuesPreviewView(data: rowObserver,
+                                      coordinate: self.rowObserver.id,
                                       nodeIO: nodeIO)
             }
         }
