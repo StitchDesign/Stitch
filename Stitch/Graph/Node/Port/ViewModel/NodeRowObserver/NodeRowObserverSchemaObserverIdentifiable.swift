@@ -12,6 +12,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
         self.init(from: entity,
                   activeIndex: .init(.zero),
+                  nodeRowIndex: entity.id.portId ?? 0,
                   nodeDelegate: nil,
                   canvasItemDelegate: nil)
     }
@@ -19,10 +20,10 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     /// Updates values for inputs.
     @MainActor
     func update(from schema: NodePortInputEntity) {
-        self.upstreamOutputCoordinate = schema.upstreamOutputCoordinate
+        self.upstreamOutputCoordinate = schema.portData.upstreamConnection
 
         // Update values if no upstream connection
-        if let values = schema.values {
+        if let values = schema.portData.values {
             self.updateValues(values)
         }
     }
@@ -48,18 +49,16 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
 
     func createSchema() -> NodePortInputEntity {
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            return NodePortInputEntity(id: id,
+            return NodePortInputEntity(id: id, 
+                                       portData: .values(self.allLoopedValues),
                                        nodeKind: self.nodeKind,
-                                       userVisibleType: self.userVisibleType,
-                                       values: self.allLoopedValues,
-                                       upstreamOutputCoordinate: self.upstreamOutputCoordinate)
+                                       userVisibleType: self.userVisibleType)
         }
 
         return NodePortInputEntity(id: id,
+                                   portData: .upstreamConnection(upstreamOutputObserver.id),
                                    nodeKind: self.nodeKind,
-                                   userVisibleType: self.userVisibleType,
-                                   values: nil,
-                                   upstreamOutputCoordinate: upstreamOutputObserver.id)
+                                   userVisibleType: self.userVisibleType)
     }
     
     // Set inputs to defaultValue

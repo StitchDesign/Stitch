@@ -71,6 +71,21 @@ extension GraphState {
 
      */
     @MainActor
+    func inputEditCommitted(input: NodeIOCoordinate,
+                            value: PortValue?,
+                            wasAdjustmentBarSelection: Bool = false) {
+        guard let inputViewModel = self.getInputObserver(coordinate: input)?
+                .rowViewModel else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.inputEditCommitted(input: inputViewModel,
+                                value: value,
+                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+    }
+    
+    @MainActor
     func inputEditCommitted(input: InputNodeRowViewModel,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
