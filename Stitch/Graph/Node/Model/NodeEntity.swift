@@ -21,7 +21,7 @@ extension NodeEntity {
             // Layer nodes save values data directy in its schema
             return layerNode.layer.layerGraphNode.inputDefinitions
                 .map { keyPath in
-                    layerNode[keyPath: keyPath.schemaPortKeyPath].values
+                    layerNode[keyPath: keyPath.schemaPortKeyPath].inputPort.values
                 }
         case .patch(let patchNode):
             return patchNode.inputs.map { $0.portData.values }
@@ -35,10 +35,32 @@ extension NodeEntity {
         case .patch(let patch):
             return [patch.canvasEntity]
         case .layer(let layer):
-            // TODO: support multiple canvas items when inspector is enabled
-            return [layer.canvasItem]
+            return layer.layer.layerGraphNode.inputDefinitions.compactMap {
+                layer[keyPath: $0.schemaPortKeyPath].canvasItem
+            }
         case .group(let canvas):
             return [canvas]
+        }
+    }
+    
+    /// Helper for mutating all canvas entities under some node.
+    mutating func canvasEntityMap(_ callback: @escaping (CanvasNodeEntity) -> CanvasNodeEntity) {
+        switch self.nodeTypeEntity {
+        case .patch(var patch):
+            patch.canvasEntity = callback(patch.canvasEntity)
+            self.nodeTypeEntity = .patch(patch)
+        case .layer(var layer):
+            layer.layer.layerGraphNode.inputDefinitions.forEach {
+                if let canvas = layer[keyPath: $0.schemaPortKeyPath].canvasItem {
+                    let newCanvas = callback(canvas)
+                    layer[keyPath: $0.schemaPortKeyPath].canvasItem = newCanvas
+                }
+            }
+            
+            self.nodeTypeEntity = .layer(layer)
+        case .group(let canvas):
+            let newCanvas = callback(canvas)
+            self.nodeTypeEntity = .group(newCanvas)
         }
     }
     
@@ -57,7 +79,7 @@ extension NodeEntity {
             return patch.inputs.map { $0.portData }
         case .layer(let layer):
             return layer.layer.layerGraphNode.inputDefinitions.map {
-                layer[keyPath: $0.schemaPortKeyPath]
+                layer[keyPath: $0.schemaPortKeyPath].inputPort
             }
         case .group:
             return []

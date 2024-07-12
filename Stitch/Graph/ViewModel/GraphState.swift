@@ -371,7 +371,7 @@ extension GraphState {
     
     @MainActor
     func isConnectedToASelectedNode<RowObserver>(at rowObserver: RowObserver) -> Bool where RowObserver: NodeRowObserver {
-        !self.selectedNodeIds.intersection(rowObserver.connectedNodes).isEmpty
+        !self.selectedNodeIds.intersection(rowObserver.rowViewModel.connectedCanvasItems).isEmpty
     }
 
     @MainActor

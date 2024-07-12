@@ -13,7 +13,9 @@ enum CanvasItemId: Hashable, Equatable {
     case node(NodeId)
     case layerInputOnGraph(LayerInputCoordinate)
     case layerOutputOnGraph(LayerOutputCoordinate)
-    
+}
+
+extension CanvasItemId {    
     var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
