@@ -302,6 +302,7 @@ extension GraphState {
     func createCopiedComponent(groupNodeFocused: NodeId?) -> StitchComponentCopiedResult {
         let selectedNodeIds = self.selectedNodeIds
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
+            .flatMap { $0.canvasEntities }
             .map { node in
                 var node = node
                 let isTopLevel = node.parentGroupNodeId == groupNodeFocused
