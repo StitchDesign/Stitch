@@ -15,7 +15,6 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowData: NodeRowType
     let forPropertySidebar: Bool
@@ -61,9 +60,9 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                                             newValue: newViewValue)
         }
         .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                           portId: coordinate.portId,
-                                           nodeId: coordinate.nodeId,
-                                           nodeIOType: self.rowData.nodeIOType,
+                                           portId: rowObserver.rowViewModel.nodeRowIndex,
+                                           nodeId: rowObserver.rowViewModel.canvasItemDelegate?.id,
+                                           nodeIOType: NodeRowObserverType.nodeIOType,
                                            forPropertySidebar: forPropertySidebar))
     }
     
@@ -79,7 +78,6 @@ struct NodeInputView: View {
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
@@ -97,7 +95,11 @@ struct NodeInputView: View {
     }
     
     var isSplitter: Bool {
-        self.node.kind == .patch(.splitter)
+        self.nodeKind == .patch(.splitter)
+    }
+    
+    var nodeKind: NodeKind {
+        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
     
     @MainActor func onPortTap(layerInputType: LayerInputType) {
@@ -112,7 +114,7 @@ struct NodeInputView: View {
         InputValueEntry(graph: graph,
                         rowViewModel: rowData,
                         viewModel: portViewModel,
-                        nodeKind: node.kind,
+                        nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
@@ -121,7 +123,6 @@ struct NodeInputView: View {
 
     var body: some View {
         NodeInputOutputView(graph: graph,
-                            node: node,
                             rowObserver: rowObserver,
                             rowData: rowData,
                             forPropertySidebar: forPropertySidebar,
@@ -131,7 +132,6 @@ struct NodeInputView: View {
             HStack {
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
-                                    node: node,
                                     rowData: rowObserver,
                                     showPopover: $showPopover,
                                     coordinate: inputViewModel.id)
@@ -140,9 +140,9 @@ struct NodeInputView: View {
                 labelView
                 
                 FieldsListView(graph: graph,
-                               rowObserver: rowObserver,
                                rowViewModel: rowData,
-                               isGroupNodeKind: !node.kind.isGroup,
+                               nodeId: nodeId,
+                               isGroupNodeKind: !(rowObserver.nodeDelegate?.kind.isGroup ?? true),
                                forPropertySidebar: forPropertySidebar,
                                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                valueEntryView: valueEntryView)
@@ -197,7 +197,6 @@ struct NodeOutputView: View {
 
     var body: some View {
         NodeInputOutputView(graph: graph,
-                            node: node,
                             rowObserver: rowObserver,
                             rowData: rowData,
                             forPropertySidebar: forPropertySidebar,
@@ -213,8 +212,8 @@ struct NodeOutputView: View {
                 // Hide outputs for value node
                 if !isSplitter {
                     FieldsListView(graph: graph,
-                                   rowObserver: rowObserver,
                                    rowViewModel: rowData,
+                                   nodeId: node.id,
                                    isGroupNodeKind: !node.kind.isGroup,
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
@@ -224,10 +223,9 @@ struct NodeOutputView: View {
                 if !forPropertySidebar {
                     labelView
                     NodeRowPortView(graph: graph,
-                                    node: node,
                                     rowData: rowObserver,
                                     showPopover: $showPopover,
-                                    coordinate: .output(rowData.id))
+                                    coordinate: rowData.id)
                 }
             }
         }
@@ -236,8 +234,8 @@ struct NodeOutputView: View {
 
 struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
     @Bindable var rowViewModel: PortType
+    let nodeId: NodeId
     let isGroupNodeKind: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -252,7 +250,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
             NodeFieldsView(
                 graph: graph,
                 fieldGroupViewModel: fieldGroupViewModel,
-                nodeId: rowObserver.id.nodeId,
+                nodeId: nodeId,
                 isGroupNodeKind: isGroupNodeKind,
                 isMultiField: isMultiField,
                 forPropertySidebar: forPropertySidebar,
@@ -265,8 +263,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
-    @Bindable var node: NodeViewModel
-//    @Bindable var canvasItem: CanvasItemViewModel
+//    @Bindable var node: CanvasItemViewModel
     @Bindable var rowData: NodeRowObserverType
 
     @Binding var showPopover: Bool
@@ -281,24 +278,26 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         NodeRowObserverType.nodeIOType
     }
     
-    var nodeDelegate: NodeDelegate? {
-        let isSplitterRowAndInvisible = node.kind.isGroup && rowData.nodeDelegate?.id != node.id
-        
-        // Use passed-in group node so we can obtain view-pertinent information for splitters.
-        // Fixes issue where output splitters use wrong node delegate.
-        if isSplitterRowAndInvisible {
-            return node
-        }
-        
-        return rowData.nodeDelegate
+    var isGroup: Bool {
+        self.rowData.nodeDelegate?.kind.isGroup ?? false
     }
+    
+//    var nodeDelegate: NodeDelegate? {
+//        let isSplitterRowAndInvisible = isGroup && rowData.nodeDelegate?.id != self.node.nodeDelegate?.id
+//        
+//        // Use passed-in group node so we can obtain view-pertinent information for splitters.
+//        // Fixes issue where output splitters use wrong node delegate.
+//        if isSplitterRowAndInvisible {
+//            return self.node.nodeDelegate
+//        }
+//        
+//        return rowData.nodeDelegate
+//    }
 
     var body: some View {
-        PortEntryView(rowObserver: rowData,
+        PortEntryView(rowViewModel: rowData.rowViewModel,
                       graph: graph,
-                      coordinate: coordinate,
-//                      color: self.rowData.portColor, 
-                      nodeDelegate: nodeDelegate)
+                      coordinate: coordinate)
         /*
          In practice, seems okay; e.g. Loop node changing from 3 to 1 disables the tap, and changing from 1 to 3 enables the tap.
          */

@@ -27,7 +27,10 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     // Specify the node delegate (rather than using default one in row observer)
     // in event of port for group
-    let canvasItem: CanvasItemViewModel?
+//    let canvasItem: CanvasItemViewModel?
+    
+    // TODO: was used for movement
+//    let nodeDelegate: NodeDelegate?
 
     @MainActor
     var portColor: Color {
@@ -36,7 +39,7 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     
     @MainActor
     var isNodeMoving: Bool {
-        self.canvasItem?.isMoving ?? false
+        rowViewModel.canvasItemDelegate?.isMoving ?? false
     }
     
     var body: some View {
