@@ -52,7 +52,7 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
         }
                 
         input.canvasUIData = .init(
-            id: .layerInputOnGraph(.init(
+            id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
             position: state.newNodeCenterLocation,
@@ -87,7 +87,7 @@ struct LayerOutputAddedToGraph: GraphEventWithResponse {
         }
         
         outputPort.canvasObsever = .init(
-            id: .layerOutputOnGraph(.init(node: nodeId, portId: portId)),
+            id: .layerOutput(.init(node: nodeId, portId: portId)),
             position: state.newNodeCenterLocation,
             zIndex: state.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level

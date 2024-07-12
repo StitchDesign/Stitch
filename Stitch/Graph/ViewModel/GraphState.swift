@@ -501,9 +501,9 @@ extension GraphState {
             return self.getNodeViewModel(x)?
                 .getAllCanvasObservers()
                 .first { $0.id == id }
-        case .layerInputOnGraph(let x):
+        case .layerInput(let x):
             return self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate
-        case .layerOutputOnGraph(let x):
+        case .layerOutput(let x):
             return self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate
         }
     }

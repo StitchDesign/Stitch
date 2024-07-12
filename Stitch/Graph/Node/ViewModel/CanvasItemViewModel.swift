@@ -9,12 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-enum CanvasItemId: Hashable, Equatable {
-    case node(NodeId)
-    case layerInputOnGraph(LayerInputCoordinate)
-    case layerOutputOnGraph(LayerOutputCoordinate)
-}
-
 extension CanvasItemId {    
     var nodeCase: NodeId? {
         switch self {
@@ -27,7 +21,7 @@ extension CanvasItemId {
     
     var layerInputCase: LayerInputCoordinate? {
         switch self {
-        case .layerInputOnGraph(let layerInputOnGraphId):
+        case .layerInput(let layerInputOnGraphId):
             return layerInputOnGraphId
         default:
             return nil
@@ -36,7 +30,7 @@ extension CanvasItemId {
     
     var layerOutputCase: LayerOutputCoordinate? {
         switch self {
-        case .layerOutputOnGraph(let layerOutputOnGraphId):
+        case .layerOutput(let layerOutputOnGraphId):
             return layerOutputOnGraphId
         default:
             return nil
@@ -45,26 +39,17 @@ extension CanvasItemId {
 }
 
 extension CanvasItemId: Identifiable {
-    var id: Int {
+    public var id: Int {
         self.hashValue
     }
 }
 
-// TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-struct LayerInputCoordinate: Equatable, Hashable {
-    var node: NodeId // id for the parent layer node
-    var keyPath: LayerInputType // the keypath, i.e. unique port
-    
+extension LayerInputCoordinate {
     var asInputCoordinate: InputCoordinate {
         .init(portType: .keyPath(keyPath),
               nodeId: node)
     }
-}
-
-struct LayerOutputCoordinate: Equatable, Hashable {
-    var node: NodeId // id for the parent layer node
-    var portId: Int
 }
 
 typealias CanvasItemViewModels = [CanvasItemViewModel]

@@ -86,11 +86,11 @@ extension GraphState {
         case .node(let x):
             self.deleteNode(id: x)
         
-        case .layerInputOnGraph(let x):
+        case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
             self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
             
-        case .layerOutputOnGraph(let x):
+        case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
             self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
         }

@@ -132,7 +132,7 @@ extension NodeRowDefinitions {
             if let canvasEntity = canvasEntity {
                 let canvasObserver = CanvasItemViewModel(
                     from: canvasEntity,
-                    id: .layerOutputOnGraph(.init(node: nodeId,
+                    id: .layerOutput(.init(node: nodeId,
                                                   portId: portId)),
                     node: nodeDelegate)
             }

@@ -55,13 +55,13 @@ struct NodesView: View {
                         
                         switch canvasItem.id {
                             
-                        case .layerInputOnGraph(let x):
+                        case .layerInput(let x):
                             guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
                                 return []
                             }
                             return [input.rowViewModel]
                         
-                        case .layerOutputOnGraph:
+                        case .layerOutput:
                             return []
 //                            guard let output = graph.getOutputObserver(coordinate: x) else {
 //                                return []

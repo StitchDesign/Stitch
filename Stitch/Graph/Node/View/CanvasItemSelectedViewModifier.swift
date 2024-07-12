@@ -143,7 +143,7 @@ extension GraphState {
 //             }
 //             node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
             
-//         case .layerInputOnGraph(let x):
+//         case .layerInput(let x):
 //             guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
 // //                fatalErrorIfDebug()
 //                 log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
@@ -154,7 +154,7 @@ extension GraphState {
 //                 activeIndex: activeIndex,
 //                 isVisible: newValue)
             
-//         case .layerOutputOnGraph(let x):
+//         case .layerOutput(let x):
 //             guard let output = self.nodeDelegate?.graphDelegate?.getLayerOutputOnGraph(x) else {
 // //                fatalErrorIfDebug()
 //                 log("updateVisibilityStatus: could not update visibility for layerOutputOnGraph \(x)")

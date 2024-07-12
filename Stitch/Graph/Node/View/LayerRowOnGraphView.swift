@@ -237,7 +237,7 @@ struct LayerNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowOb
 
 //#Preview {
 //    let canvas = CanvasItemViewModel(
-//        id: .layerInputOnGraph(.init(node: .init(),
+//        id: .layerInput(.init(node: .init(),
 //                                     keyPath: .size)),
 //        // So that we roughly get in the middle of the device screen;
 //        // (since we use

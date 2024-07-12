@@ -122,7 +122,7 @@ extension GraphState {
                         let portData = layerNode[keyPath: inputType.schemaPortKeyPath]
                         
                         if let canvas = portData.canvasItem,
-                           let canvasItem = self.getCanvasItem(.layerInputOnGraph(layerInputId)) {
+                           let canvasItem = self.getCanvasItem(.layerInput(layerInputId)) {
                             canvasItem.select()
                         }
                     }
