@@ -297,26 +297,59 @@ extension StitchComponent {
     }
 }
 
+extension NodeTypeEntity {
+    /// Resets canvases in focused group to nil. Used for node copy/pasting.
+    mutating func resetGroupId(_ focusedGroupId: NodeId?) {
+        switch self {
+        case .patch(var patchNode):
+            patchNode.canvasEntity.resetGroupId(focusedGroupId)
+            self = .patch(patchNode)
+        case .group(var canvas):
+            canvas.resetGroupId(focusedGroupId)
+            self = .group(canvas)
+        case .layer(var layerNode):
+            // Reset groups for inputs
+            layerNode.layer.layerGraphNode.inputDefinitions.forEach {
+                layerNode[keyPath: $0.schemaPortKeyPath].canvasItem?.resetGroupId(focusedGroupId)
+            }
+            
+            // Reset groups for outputs
+            layerNode.outputCanvasPorts = layerNode.outputCanvasPorts.map { data in
+                var data = data
+                data?.resetGroupId(focusedGroupId)
+                return data
+            }
+            
+            self = .layer(layerNode)
+        }
+    }
+}
+
+extension CanvasNodeEntity {
+    /// Resets canvases in focused group to nil. Used for node copy/pasting.
+    mutating func resetGroupId(_ focusedGroupId: NodeId?) {
+        let isTopLevel = self.parentGroupNodeId == focusedGroupId
+
+        // Set top-level copied nodes to parent nil
+        if isTopLevel {
+            self.parentGroupNodeId = nil
+        }
+    }
+}
+
 extension GraphState {
     @MainActor
     func createCopiedComponent(groupNodeFocused: NodeId?) -> StitchComponentCopiedResult {
         let selectedNodeIds = self.selectedNodeIds
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
-            .flatMap { $0.canvasEntities }
             .map { node in
                 var node = node
-                let isTopLevel = node.parentGroupNodeId == groupNodeFocused
-
-                // Set top-level copied nodes to parent nil
-                if isTopLevel {
-                    node.parentGroupNodeId = nil
-                }
-
+                node.nodeTypeEntity.resetGroupId(groupNodeFocused)
                 return node
             }
 
         let selectedSidebarLayers = self.orderedSidebarLayers
-            .getSubset(from: selectedNodeIds)
+            .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
         let copiedComponent = StitchComponent(nodes: selectedNodes,
                                               orderedSidebarLayers: selectedSidebarLayers)

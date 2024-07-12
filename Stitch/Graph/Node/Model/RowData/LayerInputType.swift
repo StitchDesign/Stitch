@@ -200,7 +200,7 @@ extension LayerInputType {
     }
     
     /// Keypath )mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, NodeConnectionType> {
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
         switch self {
             
         // Required
