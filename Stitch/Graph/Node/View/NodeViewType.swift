@@ -71,10 +71,10 @@ struct DefaultNodeInputView: View {
                            node: node,
                            nodeRowDataList: node.getAllInputsObservers(),
                            nodeIO: .input,
-                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver in
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeInputView(graph: graph,
                           rowObserver: rowObserver,
-                          rowData: rowObserver.rowViewModel,
+                          rowData: rowViewModel,
                           forPropertySidebar: false,
                           propertyIsSelected: false,
                           propertyIsAlreadyOnGraph: true,
@@ -94,10 +94,10 @@ struct DefaultNodeOutputView: View {
                            node: node,
                            nodeRowDataList: node.getAllOutputsObservers(),
                            nodeIO: .output,
-                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver in
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeOutputView(graph: graph,
                            rowObserver: rowObserver,
-                           rowData: rowObserver.rowViewModel,
+                           rowData: rowViewModel,
                            forPropertySidebar: false,
                            propertyIsSelected: false,
                            propertyIsAlreadyOnGraph: true,
@@ -107,14 +107,15 @@ struct DefaultNodeOutputView: View {
 }
 
 struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowObserver,
-                                                            RowView: View {
+                                                            RowView: View,
+                                                            RowObserver.RowViewModelType.RowObserver == RowObserver {
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let nodeRowDataList: [RowObserver]
     let nodeIO: NodeIO
     let adjustmentBarSessionId: AdjustmentBarSessionId
-    @ViewBuilder var rowView: (RowObserver) -> RowView
+    @ViewBuilder var rowView: (RowObserver, RowObserver.RowViewModelType) -> RowView
 
     var id: NodeId {
         self.node.id
@@ -151,6 +152,15 @@ struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRow
             return .trailing
         }
     }
+    
+    /// Filters row view models by node, rather than layer inspector.
+    @MainActor func getRowViewModels() -> [RowObserver.RowViewModelType] {
+        self.nodeRowDataList.compactMap { rowObserver in
+            rowObserver.allRowViewModels.first {
+                $0.id.isNode
+            }
+        }
+    }
 
     var body: some View {
         VStack(alignment: self.alignment,
@@ -161,8 +171,10 @@ struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRow
                     .frame(width: NODE_BODY_SPACING,
                            height: NODE_ROW_HEIGHT)
             } else {
-                ForEach(nodeRowDataList) { data in
-                    self.rowView(data)
+                ForEach(self.getRowViewModels()) { rowViewModel in
+                    if let rowObserver = rowViewModel.rowDelegate {
+                        self.rowView(rowObserver, rowViewModel)
+                    }
                 }
             }
         }

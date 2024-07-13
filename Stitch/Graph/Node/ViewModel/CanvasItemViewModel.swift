@@ -80,14 +80,12 @@ final class CanvasItemViewModel: Identifiable {
                 return
             }
             
-            updatePortColorDataUponNodeSelection(node: node,
-                                                 graphState: graph)
+            node.updatePortColorDataUponNodeSelection()
             
             if node.kind == .group {
-                updatePortColorDataUponNodeSelection(
+                node.updatePortColorDataUponNodeSelection(
                     inputs: graph.getSplitterRowObservers(for: node.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output),
-                    graphState: graph)
+                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output))
             }
         }
     }
@@ -214,11 +212,9 @@ extension InputLayerNodeRowData {
                                                nodeKind: .layer(.rectangle),
                                                userVisibleType: nil,
                                                id: .init(portId: -1, nodeId: .init()),
-                                               activeIndex: .init(.zero), 
-                                               nodeRowIndex: 0,
+                                               activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil,
-                                               nodeDelegate: nil,
-                                               canvasItemDelegate: nil)
+                                               nodeDelegate: nil)
         
         fatalError()
         
