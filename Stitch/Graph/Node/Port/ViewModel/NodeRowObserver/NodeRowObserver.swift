@@ -275,7 +275,7 @@ extension InputNodeRowObserver {
         }
         
         return inputs.filter {
-            $0.id == self.id.portType
+            $0.id.portType == self.id.portType
         }
     }
 }
@@ -291,7 +291,7 @@ extension OutputNodeRowObserver {
         }
         
         return outputs.filter {
-            $0.id == self.id.portType
+            $0.id.portType == self.id.portType
         }
     }
     
@@ -300,7 +300,6 @@ extension OutputNodeRowObserver {
         let portId = self.id.id
         
         guard let nodeDelegate = self.nodeDelegate,
-              let graphDelegate = nodeDelegate.graphDelegate,
               let connectedInputs = nodeDelegate.graphDelegate?.connections
             .get(NodeIOCoordinate(portId: portId,
                                   nodeId: nodeDelegate.id)) else {
@@ -319,11 +318,6 @@ extension NodeRowViewModel {
     @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
-        guard let rowDelegate = self.rowDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         let nodeIO = Self.RowObserver.nodeIOType
         let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO)
         self.activeValueChanged(oldRowType: oldRowType,
@@ -347,9 +341,7 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.fieldValueTypes = self
-                .createFieldValueTypes(initialValue: newValue,
-                                       coordinate: self.id,
+            self.createFieldValueTypes(initialValue: newValue,
                                        nodeIO: nodeIO,
                                        importedMediaObject: importedMediaObject)
             return
@@ -374,9 +366,7 @@ extension NodeRowViewModel {
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
             if willUpdateField {
-                self.fieldValueTypes = self
-                    .createFieldValueTypes(initialValue: newValue,
-                                           coordinate: self.id,
+                self.createFieldValueTypes(initialValue: newValue,
                                            nodeIO: nodeIO,
                                            importedMediaObject: importedMediaObject)
                 return

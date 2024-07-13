@@ -29,6 +29,9 @@ extension NodeRowViewModelId {
             return false
         }
     }
+    
+    static let empty: Self = .init(graphItemType: .node,
+                                   portType: .portIndex(-1))
 }
 
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {

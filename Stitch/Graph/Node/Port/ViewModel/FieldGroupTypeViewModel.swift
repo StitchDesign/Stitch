@@ -22,7 +22,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     let startingFieldIndex: Int
 
     init(type: FieldGroupType,
-         coordinate: NodeIOPortType,
          groupLabel: String? = nil,
          startingFieldIndex: Int = 0,
          rowViewModel: FieldType.NodeRowType? = nil) {
@@ -30,7 +29,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex
         self.fieldObservers = .init(type,
-                                    id: coordinate,
                                     startingFieldIndex: startingFieldIndex, 
                                     rowViewModel: rowViewModel)
     }
@@ -62,86 +60,82 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
 extension NodeRowViewModel {
     @MainActor
     func createFieldValueTypes(initialValue: PortValue,
-                               coordinate: NodeIOPortType,
                                nodeIO: NodeIO,
-                               importedMediaObject: StitchMediaObject?) -> FieldGroupTypeViewModelList<Self.FieldType> {
+                               importedMediaObject: StitchMediaObject?) {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {
         case .size:
-            self.fieldValueTypes = [.init(type: .hW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .hW)]
 
         case .position:
-            self.fieldValueTypes = [.init(type: .xY, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xY)]
 
         case .point3D:
-            self.fieldValueTypes = [.init(type: .xYZ, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZ)]
 
         case .point4D:
-            self.fieldValueTypes = [.init(type: .xYZW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZW)]
 
         case .shapeCommand(let shapeCommand):
             switch shapeCommand {
             case .closePath:
-                self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .dropdown)]
             case .lineTo: // i.e. .moveTo or .lineTo
-                self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate),
+                self.fieldValueTypes = [.init(type: .dropdown),
                         .init(type: .xY,
-                              coordinate: coordinate,
                               groupLabel: "Point", // optional
                               // REQUIRED, else we get two dropdowns
                               startingFieldIndex: 1)
                 ]
             case .curveTo:
                 self.fieldValueTypes = .init([
-                    .init(type: .dropdown, coordinate: coordinate),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Point", startingFieldIndex: 1),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Curve From", startingFieldIndex: 3),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Curve To", startingFieldIndex: 5)
+                    .init(type: .dropdown),
+                    .init(type: .xY, groupLabel: "Point", startingFieldIndex: 1),
+                    .init(type: .xY, groupLabel: "Curve From", startingFieldIndex: 3),
+                    .init(type: .xY, groupLabel: "Curve To", startingFieldIndex: 5)
                 ])
             case .output:
-                self.fieldValueTypes = [.init(type: .readOnly, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .readOnly)]
             }
 
         case .singleDropdown:
-            self.fieldValueTypes = [.init(type: .dropdown, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .dropdown)]
 
         case .textFontDropdown:
             // TODO: Can keep using .dropdown ?
-            self.fieldValueTypes = [.init(type: .dropdown,
-                          coordinate: coordinate)
-            ]
+            self.fieldValueTypes = [.init(type: .dropdown)]
 
         case .bool:
-            self.fieldValueTypes = [.init(type: .bool, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .bool)]
 
         case .asyncMedia:
-            self.fieldValueTypes = [.init(type: .asyncMedia, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .asyncMedia)]
 
         case .number:
-            self.fieldValueTypes = [.init(type: .number, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .number)]
 
         case .string:
-            self.fieldValueTypes = [.init(type: .string, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .string)]
 
         case .layerDimension:
-            self.fieldValueTypes = [.init(type: .layerDimension, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .layerDimension)]
 
         case .pulse:
-            self.fieldValueTypes = [.init(type: .pulse, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .pulse)]
 
         case .color:
-            self.fieldValueTypes = [.init(type: .color, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .color)]
 
         case .json:
-            self.fieldValueTypes = [.init(type: .json, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .json)]
 
         case .assignedLayer:
-            self.fieldValueTypes = [.init(type: .assignedLayer, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .assignedLayer)]
 
         case .anchoring:
-            self.fieldValueTypes = [.init(type: .anchoring, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .anchoring)]
 
         case .readOnly:
-            self.fieldValueTypes = [.init(type: .readOnly, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .readOnly)]
         }
         
         self.fieldValueTypes.forEach { fieldValueType in

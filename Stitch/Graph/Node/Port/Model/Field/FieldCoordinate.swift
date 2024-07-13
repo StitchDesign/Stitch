@@ -10,9 +10,7 @@ import StitchSchemaKit
 
 struct FieldCoordinate: Hashable {
     // the index where this field belongs
-    var rowId: NodeIOPortType
-    
-    var canvasId: CanvasItemId
+    var rowId: NodeRowViewModelId
 
     // the particular field in the
     // 0 for single-field inputs
@@ -20,8 +18,8 @@ struct FieldCoordinate: Hashable {
 
     static var fakeFieldCoordinate: Self {
         .init(
-            rowId: .portIndex(0),
-            canvasId: .node(.init()),
+            rowId: .init(graphItemType: .node,
+                         portType: .portIndex(0)),
             fieldIndex: 0)
     }
 }
