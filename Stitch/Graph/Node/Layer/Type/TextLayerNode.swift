@@ -19,6 +19,10 @@ extension LayerSize {
     static let LAYER_DEFAULT_SIZE: Self = .init(width: 100, height: 100)
 }
 
+extension LayerSize {
+    static let DEFAULT_TEXT_LABEL_SIZE: Self = .init(width: 100, height: 100)
+}
+
 extension Color {
     static let LAYER_DEFAULT_COLOR: Color = STITCH_PURPLE
 }
