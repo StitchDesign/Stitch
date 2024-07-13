@@ -44,9 +44,9 @@ extension EdgeAnchorUpstreamData {
     init?(from upstreamRowObserver: OutputNodeRowViewModel?,
           connectedDownstreamNode: NodeDelegate?) {
         guard let upstreamRowObserver = upstreamRowObserver,
-              let outputsCount = upstreamRowObserver.nodeDelegate?.outputsRowCount,
-              let firstUpstreamObserver = upstreamRowObserver.nodeDelegate?.getOutputRowObserver(0)?.rowViewModel,
-              let lastUpstreamObserver = upstreamRowObserver.nodeDelegate?.getOutputRowObserver(outputsCount - 1)?.rowViewModel else {
+              let outputsCount = upstreamRowObserver.canvasItemDelegate?.outputViewModels.count,
+              let firstUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels.first,
+              let lastUpstreamObserver = upstreamRowObserver.canvasItemDelegate?.outputViewModels[safe: outputsCount - 1] else {
             return nil
         }
         
@@ -67,7 +67,7 @@ extension EdgeAnchorUpstreamData {
         var lastConnectedUpstreamObserver: OutputNodeRowViewModel?
         downstreamInputs.forEach{ downstreamInput in
             // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.rowViewModel else {
+            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allOutputRowViewModels.first(where: { $0.id.isNode }) else {
                 return
             }
             
@@ -107,16 +107,14 @@ extension EdgeAnchorDownstreamData {
     init?(from inputRowObserver: InputNodeRowViewModel,
           upstreamNodeId: NodeId? = nil) {
         guard let inputsCount = inputRowObserver.nodeDelegate?.inputsRowCount,
-              let firstInputObserver = inputRowObserver.nodeDelegate?.getInputRowObserver(0)?.rowViewModel,
-              let lastInputObserver = inputRowObserver.nodeDelegate?.getInputRowObserver(inputsCount - 1)?.rowViewModel,
+              let firstInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels.first,
+              let lastInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels[safe: inputsCount - 1],
               let node = inputRowObserver.nodeDelegate,
               let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputCoordinate?.nodeId else {
             return nil
         }
 
-        let allInputs = node.getAllInputsObservers().map {
-            $0.rowViewModel
-        }
+        let allInputs = node.allInputViewModels
         
         // Iterate through inputs at this node to find other connected edges from same upstream node id
         var firstConnectedInputObserver: InputNodeRowViewModel?

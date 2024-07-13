@@ -19,6 +19,18 @@ struct NodeRowViewModelId: Hashable {
     var portType: NodeIOPortType
 }
 
+extension NodeRowViewModelId {
+    /// Determines if some row view model reports to a node, rather than to the layer inspector
+    var isNode: Bool {
+        switch self.graphItemType {
+        case .node:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     associatedtype FieldType: FieldViewModel
     associatedtype RowObserver: NodeRowObserver
