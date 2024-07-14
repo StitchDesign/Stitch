@@ -16,6 +16,7 @@ enum GraphItemType {
 
 struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
+    var nodeId: NodeId
     var portType: NodeIOPortType
 }
 
@@ -31,6 +32,7 @@ extension NodeRowViewModelId {
     }
     
     static let empty: Self = .init(graphItemType: .node,
+                                   nodeId: .init(),
                                    portType: .portIndex(-1))
 }
 
@@ -90,15 +92,12 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver,
-                          coordinate: NodeIOPortType) {
+    func initializeValues(rowDelegate: Self.RowObserver) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                     activeIndex: activeIndex)
-        self.fieldValueTypes = self
-            .createFieldValueTypes(initialValue: self.activeValue,
-                                   coordinate: coordinate,
+        self.createFieldValueTypes(initialValue: self.activeValue,
                                    nodeIO: Self.nodeIO,
                                    importedMediaObject: nil)
     }

@@ -102,6 +102,12 @@ extension NodeDelegate {
     }
     
     @MainActor
+    var allNodeInputRowViewModels: [InputNodeRowViewModel] {
+        self.allInputRowViewModels
+            .filter { $0.id.isNode }
+    }
+    
+    @MainActor
     var allOutputRowViewModels: [OutputNodeRowViewModel] {
         self.getAllOutputsObservers()
             .flatMap { $0.allRowViewModels }
