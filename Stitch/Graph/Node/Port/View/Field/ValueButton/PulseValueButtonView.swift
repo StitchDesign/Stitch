@@ -12,6 +12,7 @@ let PULSE_ICON_SF_SYMBOL_NAME = "record.circle.fill"
 
 struct PulseValueButtonView: View {
     @Bindable var graph: GraphState
+    @Bindable var inputPort: InputNodeRowViewModel
     
     private var graphStep: GraphStepManager {
         self.graph.graphStepManager
@@ -19,7 +20,7 @@ struct PulseValueButtonView: View {
 
     @State private var isPulsed = false
 
-    let coordinate: NodeIOCoordinate
+    let stitchId: UUID
     let nodeIO: NodeIO
     let pulseTime: TimeInterval
 
@@ -42,10 +43,11 @@ struct PulseValueButtonView: View {
         StitchButton {
             switch nodeIO {
             case .output:
-                log("PulseValueButtonView error: output unexpectedly encountered for \(coordinate)")
+                log("PulseValueButtonView error: output unexpectedly encountered for \(inputPort.id)")
                 return
             case .input:
-                graph.pulseValueButtonClicked(inputCoordinate: coordinate)
+                graph.pulseValueButtonClicked(stitchId: stitchId,
+                                              inputPort: inputPort)
             }
         } label: {
             Image(systemName: PULSE_ICON_SF_SYMBOL_NAME)

@@ -193,7 +193,8 @@ struct InputValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(
                 graph: graph,
-                coordinate: coordinate,
+                inputPort: rowViewModel,
+                stitchId: coordinate.nodeId,
                 nodeIO: .input,
                 pulseTime: pulseTime,
                 hasIncomingEdge: hasIncomingEdge)
