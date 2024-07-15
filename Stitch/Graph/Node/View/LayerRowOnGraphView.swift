@@ -12,7 +12,8 @@ struct LayerNodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel // for overall layer node
 
-    @Bindable var row: InputNodeRowObserver
+    @Bindable var rowObserver: InputNodeRowObserver
+    @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     
     @Bindable var layerNode: LayerNodeViewModel
@@ -23,15 +24,13 @@ struct LayerNodeInputView: View {
     var body: some View {
         LayerNodeRowView(graph: graph,
                          node: node,
-                         row: row,
-                         canvasItem: canvasItem,
                          layerNode: layerNode,
+                         canvasItem: canvasItem,
                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected) {
             HStack {
                 NodeInputView(graph: graph,
-                              node: node,
-                              rowObserver: row,
-                              rowData: row.rowViewModel,
+                              rowObserver: rowObserver,
+                              rowData: rowViewModel,
                               forPropertySidebar: false,
                               propertyIsSelected: false,
                               propertyIsAlreadyOnGraph: true,
@@ -46,7 +45,8 @@ struct LayerNodeOutputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel // for overall layer node
 
-    @Bindable var row: OutputNodeRowObserver
+    @Bindable var rowObserver: OutputNodeRowObserver
+    @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     
     @Bindable var layerNode: LayerNodeViewModel
@@ -57,16 +57,14 @@ struct LayerNodeOutputView: View {
     var body: some View {
         LayerNodeRowView(graph: graph,
                          node: node,
-                         row: row,
-                         canvasItem: canvasItem,
                          layerNode: layerNode,
+                         canvasItem: canvasItem,
                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected) {
             HStack {
                 Spacer()
                 NodeOutputView(graph: graph,
-                              node: node,
-                              rowObserver: row,
-                              rowData: row.rowViewModel,
+                              rowObserver: rowObserver,
+                              rowData: rowViewModel,
                               forPropertySidebar: false,
                               propertyIsSelected: false,
                               propertyIsAlreadyOnGraph: true,
@@ -77,19 +75,15 @@ struct LayerNodeOutputView: View {
 }
 
 
-struct LayerNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowObserver,
-                                                                       RowView: View {
+struct LayerNodeRowView<RowView>: View where RowView: View {
     
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel // for overall layer node
-
-    @Bindable var row: RowObserver
+    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var canvasItem: CanvasItemViewModel
     
-    @Bindable var layerNode: LayerNodeViewModel
-    
     // TODO: fix when comment boxes added back
-    let atleastOneCommentBoxSelected: Bool = false
+    var atleastOneCommentBoxSelected: Bool = false
     
     @ViewBuilder var rowView: () -> RowView
     
@@ -112,7 +106,7 @@ struct LayerNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowOb
 #endif
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
                     log("LayerInputOnGraphView: .simultaneousGesture(TapGesture(count: 1)")
-                    graph.canvasItemTapped(canvasItem.id)
+                    canvasItem.isTapped(graph: graph)
                 }))
             
                 .overlay(alignment: .topTrailing) {

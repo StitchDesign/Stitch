@@ -134,8 +134,7 @@ struct NodeInputView: View {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowData,
-                                    showPopover: $showPopover,
-                                    coordinate: inputViewModel.id)
+                                    showPopover: $showPopover)
                 }
                 
                 labelView
@@ -184,7 +183,7 @@ struct NodeOutputView: View {
     @MainActor func onPortTap(layerInputType: LayerInputType) {
         dispatch(LayerOutputAddedToGraph(
             nodeId: nodeId,
-            coordinate: rowData.id))
+            coordinate: rowData.id.portType))
     }
     
     @ViewBuilder @MainActor
@@ -230,8 +229,7 @@ struct NodeOutputView: View {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowData,
-                                    showPopover: $showPopover,
-                                    coordinate: rowData.id)
+                                    showPopover: $showPopover)
                 }
             }
         }
@@ -269,12 +267,14 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
 
 struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
-//    @Bindable var node: CanvasItemViewModel
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
 
     @Binding var showPopover: Bool
-    let coordinate: NodeIOPortType
+    
+    var coordinate: NodeIOPortType {
+        self.rowViewModel.id.portType
+    }
 
 //    @MainActor
 //    var hasIncomingEdge: Bool {
@@ -322,7 +322,8 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         .popover(isPresented: $showPopover) {
             // Conditional is a hack that cuts down on perf
             if showPopover {
-                PortValuesPreviewView(data: rowObserver,
+                PortValuesPreviewView(data: rowObserver, 
+                                      fieldValueTypes: rowViewModel.fieldValueTypes,
                                       coordinate: self.rowObserver.id,
                                       nodeIO: nodeIO)
             }
