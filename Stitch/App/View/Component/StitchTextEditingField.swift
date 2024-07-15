@@ -44,7 +44,7 @@ struct StitchTextEditingField: View {
     var isForNodeTitle = false
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
-    let fieldEditCallback: (String, Bool) -> ()
+    let fieldEditCallback: @MainActor (String, Bool) -> ()
 
     var body: some View {
         StitchTextEditingBindingField(currentEdit: $currentEdit,

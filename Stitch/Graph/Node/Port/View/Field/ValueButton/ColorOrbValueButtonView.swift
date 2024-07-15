@@ -47,7 +47,8 @@ struct ColorOrbValueButtonView: View {
             }
         }
 
-        StitchColorPickerView(viewModel: fieldViewModel,
+        StitchColorPickerView(rowId: id,
+                              fieldCoordinate: fieldViewModel.id,
                               chosenColor: binding,
                               graph: graph)
         .onAppear {

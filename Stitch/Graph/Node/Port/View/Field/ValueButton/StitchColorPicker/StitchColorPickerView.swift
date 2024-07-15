@@ -39,8 +39,8 @@ struct StitchColorPickerView: View {
     // TODO: opening or closing the color-gradient-picker view should disable nodes copy-paste shortcut
     @State private var show: Bool = false
 
-    @Bindable var viewModel: InputFieldViewModel
-
+    let rowId: NodeIOCoordinate?
+    let fieldCoordinate: FieldCoordinate
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false
 
@@ -140,7 +140,7 @@ struct StitchColorPickerView: View {
                   text: self.$hexEdit)
             //            .focused($hexFocus) // not needed?
         
-        .focusedValue(\.focusedField, .textInput(viewModel.id))
+        .focusedValue(\.focusedField, .textInput(fieldCoordinate))
         
             .onSubmit {
                 //                log("StitchColorPickerView: onSubmit: self.hexEdit: \(self.hexEdit)")
@@ -218,7 +218,7 @@ struct StitchColorPickerView: View {
 
                 // When user manually clicks a pre-selected color,
                 // we should persist that change.
-                if let inputId = self.viewModel.rowDelegate?.id,
+                if let inputId = rowId,
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
                     dispatch(PickerOptionSelected(
                         input: inputId,

@@ -118,12 +118,16 @@ extension GraphState {
 
     // `addEdgeWithoutGraphRecalc` + graph recalc
     @MainActor
-    func edgeUIAdded(edge: PortEdgeData) {
+    func edgeAdded(edge: PortEdgeData) {
 
         // Add edge
         self.addEdgeWithoutGraphRecalc(edge: edge)
         
         self.maybeCreateLLMAddEdge(edge)
+
+        // Then recalculate the graph again, with new edge,
+        // starting at the 'from' node downward:
+        self.calculate(edge.from.nodeId)
     }
     
     @MainActor
@@ -160,11 +164,11 @@ extension PortEdgeData {
     }
 }
 
-@MainActor
-func onPortDragEnded(_ coordinate: PortViewType) {
-    if coordinate.output.isDefined {
-        dispatch(OutputDragEnded())
-    } else if coordinate.input.isDefined {
-        dispatch(InputDragEnded())
-    }
-}
+//@MainActor
+//func onPortDragEnded(_ coordinate: PortViewType) {
+//    if coordinate.output.isDefined {
+//        dispatch(OutputDragEnded())
+//    } else if coordinate.input.isDefined {
+//        dispatch(InputDragEnded())
+//    }
+//}
