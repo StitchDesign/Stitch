@@ -20,6 +20,10 @@ struct PaddingFlyoutView: View {
     
     // TODO: finalize this logic once
     
+    @Bindable var graph: GraphState
+    
+    let rowObserver: NodeRowObserver
+    
     // the fields of multifield PortValue like Padding (Point4D), Dropshadow etc.
     let fields: [Field] = [
         .init(label: "Top", value: 0),
@@ -46,23 +50,25 @@ struct PaddingFlyoutView: View {
             }
             
             // ForEach causes animation problems?
-            ForEach(fields) { field in
-                //                    Spacer()
-                HStack {
-                    Text(field.label)
-                    Spacer()
-                    // Ignores Spacer() if no width set
-                    TextField("", text: .constant(field.value.description))
-                        .frame(width: 30)
-                        .padding(.leading, 8)
-                        .background {
-                            Color.gray
-                                .cornerRadius(4)
-                        }
-                }
-            } // ForEach
-            .padding(.leading)
+//            ForEach(fields) { field in
+//                //                    Spacer()
+//                HStack {
+//                    Text(field.label)
+//                    Spacer()
+//                    // Ignores Spacer() if no width set
+//                    TextField("", text: .constant(field.value.description))
+//                        .frame(width: 30)
+//                        .padding(.leading, 8)
+//                        .background {
+//                            Color.gray
+//                                .cornerRadius(4)
+//                        }
+//                }
+//            } // ForEach
+//            .padding(.leading)
             
+            inputOutputRow
+                .border(.green)
         }
         .padding()
         .background(.gray)
@@ -77,6 +83,25 @@ struct PaddingFlyoutView: View {
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    var inputOutputRow: some View {
+        ForEach(rowObserver.fieldValueTypes) { fieldGroupViewModel in
+            NodeFieldsView(
+                graph: graph,
+                rowObserver: rowObserver,
+                fieldGroupViewModel: fieldGroupViewModel,
+                coordinate: rowObserver.id,
+                nodeKind: rowObserver.nodeKind,
+                nodeIO: .input,
+                isCanvasItemSelected: true,
+                hasIncomingEdge: false, // NA?
+                adjustmentBarSessionId: graph.graphUI.adjustmentBarSessionId,
+                forPropertySidebar: true,
+                propertyIsAlreadyOnGraph: false // TODO: fix
+            )
         }
     }
 }
@@ -100,12 +125,15 @@ struct FlyoutClosed: GraphUIEvent {
 struct FlyoutOpened: GraphUIEvent {
     
     let flyoutInput: LayerInputType
+    let flyoutNodeId: NodeId
     
     func handle(state: GraphUIState) {
-        state.propertySidebar.flyoutState = .init(flyoutInput: flyoutInput)
+        state.propertySidebar.flyoutState = .init(
+            flyoutInput: flyoutInput,
+            flyoutNode: flyoutNodeId)
     }
 }
 
-#Preview {
-    PaddingFlyoutView()
-}
+//#Preview {
+//    PaddingFlyoutView()
+//}

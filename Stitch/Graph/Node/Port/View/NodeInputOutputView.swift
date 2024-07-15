@@ -88,10 +88,10 @@ struct NodeInputOutputView: View {
                 
                 if hidePaddingFieldsOnPropertySidebar {
                     labelView
-                        .padding()
                         .background(.red.opacity(0.5))
                         .onTapGesture {
-                            dispatch(FlyoutOpened(flyoutInput: .padding))
+                            dispatch(FlyoutOpened(flyoutInput: .padding,
+                                                  flyoutNodeId: inputCoordinate.nodeId))
                         }
                 } else {
                     labelView

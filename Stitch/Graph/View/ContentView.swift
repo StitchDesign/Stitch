@@ -125,10 +125,13 @@ struct ContentView: View {
                 .overlay {
                     
                     
-                    if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-                       let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
-                        
-                        let flyoutSize = flyoutState.flyoutSize
+//                    if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
+//                       let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
+//                       let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+//                        
+//                        let flyoutSize = flyoutState.flyoutSize
+                    
+                    if let entry = graph.graphUI.propertySidebar.propertyRowOrigins.first?.value {
                         
                         // If pseudo-modal-background placed here,
                         // then we disable scroll
@@ -138,16 +141,29 @@ struct ContentView: View {
                                 dispatch(FlyoutClosed())
                             }
                         
-                        PaddingFlyoutView()
+                        Rectangle().fill(.red.opacity(0.75))
+                            .frame(width: 200, height: 200)
                             .position(
-                                // 8 = padding from edge of inspector
-                                // TODO: use left edge of property sidebar
-//                                x: entry.x - flyoutSize.width/2 - 8 - 36,
-                                x: entry.x - flyoutSize.width/2 - 36,
-                                
-                                // TODO: use a coordinate space that ignores the property sidebar's negative top padding?
-                                y: entry.y + flyoutSize.height/2 + INSPECTOR_LIST_TOP_PADDING
+//                                x: entry.x - 100 - 8 - 36,
+//                                x: 909.0 - 100 - 8 - 36, // even hardcoded positions
+                                y: entry.y + 100 + INSPECTOR_LIST_TOP_PADDING
                             )
+                            
+                        
+//                        PaddingFlyoutView(graph: graph,
+//                                          rowObserver: rowObserver)
+//                            .position(
+//                                // 8 = padding from edge of inspector
+//                                // TODO: use left edge of property sidebar
+//                                x: entry.x - flyoutSize.width/2 - 8 - 36,
+//
+//                                // Not really what we want
+////                                x: entry.x - flyoutSize.width/2 - 36
+////                                - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
+//                                
+//                                // TODO: use a coordinate space that ignores the property sidebar's negative top padding?
+//                                y: entry.y + flyoutSize.height/2 + INSPECTOR_LIST_TOP_PADDING
+//                            )
                     }
                 }
                 

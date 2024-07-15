@@ -208,16 +208,20 @@ struct LayerInspectorInputsSectionView: View {
                             // .global does not take into account the top bar?
 //                            Color.clear.onChange(of: geometry.frame(in: .global),
                             
+                            
 //                            Color.clear.onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)),
                             
                             // TODO: better reading of x position; use `label` on a section instead? Only need specific row for the y; otherwise all rows' have same x (the left edge of the inspector)
-                            Color.clear.onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
+//                            Color.clear.onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
+                            
+                            Color.clear.onChange(of: geometry.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE)),
+//
                                                  initial: true) { oldValue, newValue in
 //                                if layerInput == .position {
 //                                if layerInput == .zIndex {
                                 if layerInput == .padding {
 //                                if layerInput == .orientation {
-                                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): size \(newValue.size)")
+                                    
                                     log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
                                     
                                     // Guide for where to place the flyout;

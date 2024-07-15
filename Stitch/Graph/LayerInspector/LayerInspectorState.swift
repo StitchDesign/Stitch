@@ -34,6 +34,12 @@ struct PropertySidebarFlyoutState: Equatable {
     
     // User tapped this row, so we opened its flyout
     var flyoutInput: LayerInputType
+    var flyoutNode: NodeId
+    
+    var input: InputCoordinate {
+        InputCoordinate(portType: .keyPath(self.flyoutInput),
+                        nodeId: self.flyoutNode)
+    }
 }
 
 //enum FlyoutKind: Equatable {
