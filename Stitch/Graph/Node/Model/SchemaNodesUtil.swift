@@ -27,7 +27,7 @@ extension [NodePortInputEntity] {
         // Note: look at input count from schema; important for e.g. removing inputs where e.g. LoopBuilder has had inputs removed and so has fewer inputs than the 5 declared in its node row definition
         let inputsCount = self.count
 
-        return (0..<inputsCount).compactMap { portId -> NodeRowObserver? in
+        return (0..<inputsCount).compactMap { portId -> InputNodeRowObserver? in
             
             // If we don't have a NodePortInputEntity, we can't create an observer.
             guard let schemaData: NodePortInputEntity = self[safe: portId] else {
@@ -36,7 +36,7 @@ extension [NodePortInputEntity] {
             }
 
             let values = schemaData.getInitialValuesForPatchNodeInput(
-                schemaValues: schemaData.values,
+                schemaValues: schemaData.portData.values,
                 defaultInputs: defaultInputs)
             
             guard let values: PortValues = values else {
@@ -45,14 +45,13 @@ extension [NodePortInputEntity] {
                 return nil
             }
 
-            return NodeRowObserver(values: values,
-                                   nodeKind: kind,
-                                   userVisibleType: userVisibleType,
-                                   id: .init(portId: portId, nodeId: nodeId),
-                                   activeIndex: .init(.zero),
-                                   upstreamOutputCoordinate: schemaData.upstreamOutputCoordinate,
-                                   nodeIOType: .input,
-                                   nodeDelegate: nodeDelegate)
+            return InputNodeRowObserver(values: values,
+                                        nodeKind: kind,
+                                        userVisibleType: userVisibleType,
+                                        id: .init(portId: portId, nodeId: nodeId),
+                                        activeIndex: .init(.zero),
+                                        upstreamOutputCoordinate: schemaData.portData.upstreamConnection,
+                                        nodeDelegate: nodeDelegate)
         }
     }
 }
@@ -148,7 +147,7 @@ extension NodeRowDefinitions {
             let portId = outputData.0
             
             if let canvasEntity = canvasEntity {
-                let canvasObserver = CanvasItemViewModel(
+                canvasObserver = CanvasItemViewModel(
                     from: canvasEntity,
                     id: .layerOutput(.init(node: nodeId,
                                                   portId: portId)),
@@ -160,7 +159,6 @@ extension NodeRowDefinitions {
                                                  id: .init(portId: portId, nodeId: nodeId),
                                                  activeIndex: .init(.zero),
                                                  nodeDelegate: nodeDelegate)
-            
             
             return OutputLayerNodeRowData(rowObserver: observer,
                                           canvasObsever: canvasObserver)

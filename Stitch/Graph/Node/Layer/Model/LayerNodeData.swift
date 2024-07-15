@@ -26,7 +26,9 @@ final class InputLayerNodeRowData {
         self.rowObserver = rowObserver
         self.canvasObsever = canvasObsever
         
-        self.inspectorRowViewModel = .init(id: rowObserver.id.portType,
+        self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
+                                                     nodeId: rowObserver.id.nodeId,
+                                                     portType: rowObserver.id.portType),
                                            activeValue: rowObserver.activeValue,
                                            nodeRowIndex: nil,
                                            rowDelegate: rowObserver,

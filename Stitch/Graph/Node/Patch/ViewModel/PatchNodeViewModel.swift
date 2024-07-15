@@ -224,7 +224,7 @@ extension PatchNodeViewModel {
         
         self._inputsObservers = variables.enumerated().map {
             let existingInput = oldInputs[safe: $0.offset]
-            return NodeRowObserver(
+            return InputNodeRowObserver(
                 values: existingInput?.0 ?? [.number(.zero)],
                 nodeKind: .patch(self.patch),
                 userVisibleType: self.userVisibleType,
@@ -232,12 +232,11 @@ extension PatchNodeViewModel {
                                     nodeId: self.id),
                 activeIndex: self.delegate?.activeIndex ?? .init(.zero),
                 upstreamOutputCoordinate: existingInput?.1,
-                nodeIOType: .input,
                 nodeDelegate: self.delegate)
         }
         
         // Update cached port view data
-        self.updateAllPortViewData()
+//        self.updateAllPortViewData()
     }
     
     @MainActor
@@ -269,14 +268,12 @@ extension NodeViewModel {
         let inputEntities = inputs.enumerated().map { portId, values in
             NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
                                                      nodeId: id),
-                                nodeKind: nodeType.kind,
-                                userVisibleType: userVisibleType,
-                                values: values,
-                                upstreamOutputCoordinate: nil)
+                                portData: .values(values),
+                                nodeKind: .patch(patch),
+                                userVisibleType: userVisibleType)
         }
             
-        let canvasEntity = CanvasNodeEntity(id: .init(),
-                                            position: position.toCGPoint,
+        let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,
                                             zIndex: zIndex,
                                             parentGroupNodeId: nil)
 

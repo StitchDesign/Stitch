@@ -12,9 +12,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
         self.init(from: entity,
                   activeIndex: .init(.zero),
-                  nodeRowIndex: entity.id.portId ?? 0,
-                  nodeDelegate: nil,
-                  canvasItemDelegate: nil)
+                  nodeDelegate: nil)
     }
 
     /// Updates values for inputs.
