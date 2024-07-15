@@ -214,16 +214,20 @@ struct LayerInspectorInputsSectionView: View {
                             Color.clear.onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                                                  initial: true) { oldValue, newValue in
 //                                if layerInput == .position {
-                                if layerInput == .zIndex {
+//                                if layerInput == .zIndex {
+                                if layerInput == .padding {
+//                                if layerInput == .orientation {
                                     log("LayerInspectorInputs: read LayerInputType: \(layerInput): size \(newValue.size)")
                                     log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
-                                    graph.graphUI.propertySidebar.readRowFrameDict
-                                        .updateValue(newValue, forKey: layerInput)
+                                    
+                                    // Guide for where to place the flyout;
+                                    // we read the origin even if this row doesn't support flyout.
+                                    graph.graphUI.propertySidebar.propertyRowOrigins
+                                        .updateValue(newValue.origin, forKey: layerInput)
                                 }
-                                
                             }
-                        }
-                    }
+                        } // GeometryReader
+                    } // .background
                     
                 }
             }

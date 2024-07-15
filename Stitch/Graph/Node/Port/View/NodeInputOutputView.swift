@@ -83,15 +83,21 @@ struct NodeInputOutputView: View {
                                     coordinate: .input(inputCoordinate))
                 }
                 
-                labelView
+                let isPaddingLayerInputRow = rowData.id.keyPath == .padding
+                let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
-                // TODO: fields in layer-inspector flush with right screen edge?
-                //                if forPropertySidebar {
-                //                    Spacer()
-                //                }
+                if hidePaddingFieldsOnPropertySidebar {
+                    labelView
+                        .padding()
+                        .background(.red.opacity(0.5))
+                        .onTapGesture {
+                            dispatch(FlyoutOpened(flyoutInput: .padding))
+                        }
+                } else {
+                    labelView
+                    inputOutputRow(coordinate: coordinate)
+                }
                 
-                inputOutputRow(coordinate: coordinate)
-
             case .output(let outputCoordinate):
                 
                 // Property sidebar always shows labels on left side, never right

@@ -125,30 +125,29 @@ struct ContentView: View {
                 .overlay {
                     
                     
-                    if let entry = graph.graphUI.propertySidebar.readRowFrameDict.first {
+                    if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
+                       let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+                        
+                        let flyoutSize = flyoutState.flyoutSize
                         
                         // If pseudo-modal-background placed here,
                         // then we disable scroll
                         Color.blue.opacity(0.5)
-                        
                             .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                             .onTapGesture {
-                                graph.graphUI.propertySidebar.readRowFrameDict = .init()
+                                dispatch(FlyoutClosed())
                             }
                         
-                        
-                        Rectangle().fill(.red)
-                            .border(.blue)
-                            .frame(width: 300, height: 300)
-                            .border(.yellow)
+                        PaddingFlyoutView()
                             .position(
                                 // 8 = padding from edge of inspector
+                                // TODO: use left edge of property sidebar
+//                                x: entry.x - flyoutSize.width/2 - 8 - 36,
+                                x: entry.x - flyoutSize.width/2 - 36,
                                 
-                                // 60 = additional padding width of inspector
-                                // 60 too much?
-                                x: entry.value.origin.x - 150 - 8 - 36,
-                                
-                                y: entry.value.origin.y + 150 + INSPECTOR_LIST_TOP_PADDING)
+                                // TODO: use a coordinate space that ignores the property sidebar's negative top padding?
+                                y: entry.y + flyoutSize.height/2 + INSPECTOR_LIST_TOP_PADDING
+                            )
                     }
                 }
                 

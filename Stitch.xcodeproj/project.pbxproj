@@ -801,6 +801,7 @@
 		ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */; };
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
+		ECEA12FC2C45B67D0058CD6A /* PaddingFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */; };
 		ECEA4C3B28A32830005C7B49 /* LogHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA4C3A28A32830005C7B49 /* LogHelpers.swift */; };
 		ECEA4C3D28A32836005C7B49 /* LogActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA4C3C28A32836005C7B49 /* LogActions.swift */; };
 		ECEA600A28E610C7002D7F4F /* NodeEphemeralObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */; };
@@ -1695,6 +1696,7 @@
 		ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveToPackNode.swift; sourceTree = "<group>"; };
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
+		ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingFlyoutView.swift; sourceTree = "<group>"; };
 		ECEA4C3A28A32830005C7B49 /* LogHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogHelpers.swift; sourceTree = "<group>"; };
 		ECEA4C3C28A32836005C7B49 /* LogActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogActions.swift; sourceTree = "<group>"; };
 		ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEphemeralObservable.swift; sourceTree = "<group>"; };
@@ -1898,6 +1900,7 @@
 			children = (
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
+				ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
 				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
 			);
@@ -4515,6 +4518,7 @@
 				E4F8AABB2BD6ED8500E9BA4D /* RadialGradientNode.swift in Sources */,
 				EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */,
 				EC3420D82AF9BA1200EBD896 /* CommentBoxView.swift in Sources */,
+				ECEA12FC2C45B67D0058CD6A /* PaddingFlyoutView.swift in Sources */,
 				EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */,
 				ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */,
 				EC2942312BA1364600D14CD1 /* UpdateStateAfterListChange.swift in Sources */,
