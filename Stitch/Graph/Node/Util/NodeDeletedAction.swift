@@ -88,11 +88,11 @@ extension GraphState {
         
         case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerInputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
+            self.getLayerInputOnGraph(x)?.canvasItemDelegate = nil
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerOutputOnGraph(x)?.rowViewModel.canvasItemDelegate = nil
+            self.getLayerOutputOnGraph(x)?.canvasItemDelegate = nil
         }
     }
 
@@ -175,7 +175,7 @@ extension GraphState {
 extension CommentBoxesDict {
     // Removes a node from any the node-set of any comment boxes that have it
     // Note: comment-boxes-bounds-dict does not contain node if
-    func removeNode(_ nodeId: NodeId) {
+    func removeNode(_ nodeId: CanvasItemId) {
         self.values.forEach { box in
             box.nodes.remove(nodeId)
         }

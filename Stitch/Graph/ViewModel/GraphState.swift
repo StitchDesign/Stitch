@@ -498,6 +498,15 @@ extension GraphState {
         
         return node.getInputRowViewModel(for: rowId)
     }
+    
+    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId,
+                                          nodeId: NodeId) -> OutputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            return nil
+        }
+        
+        return node.getOutputRowViewModel(for: rowId)
+    }
 
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
@@ -520,16 +529,18 @@ extension GraphState {
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
     func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
-        self.getNodeViewModel(id.node)?
-            .getInputRowViewModel(for: .init(graphItemType: .node,
-                                             portType: .keyPath(id.keyPath)))
+        self.getInputRowViewModel(for: .init(graphItemType: .node,
+                                             nodeId: id.node,
+                                             portType: .keyPath(id.keyPath)),
+                                  nodeId: id.node)
     }
     
     @MainActor
     func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
-        self.getNodeViewModel(id.node)?
-            .getOutputRowViewModel(for: .init(graphItemType: .node,
-                                              portType: .portIndex(id.portId)))
+        self.getOutputRowViewModel(for: .init(graphItemType: .node,
+                                              nodeId: id.node,
+                                              portType: .portIndex(id.portId)),
+                                   nodeId: id.node)
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
