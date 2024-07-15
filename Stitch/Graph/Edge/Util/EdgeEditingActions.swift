@@ -105,8 +105,8 @@ extension CanvasItemViewModel {
             return []
         }
         
-        return node.getAllInputsObservers().compactMap { inputObserver in
-            inputObserver.rowViewModel.portViewData
+        return node.getAllInputsObservers().flatMap { inputObserver in
+            inputObserver.allRowViewModels.compactMap { $0.portViewData }
         }
     }
 }
