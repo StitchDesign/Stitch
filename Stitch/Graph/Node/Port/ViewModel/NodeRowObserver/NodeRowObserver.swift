@@ -404,6 +404,14 @@ extension NodeRowObserver {
         }
     }
     
+    /// Finds row view model pertaining to a node, rather than in the layer inspector.
+    @MainActor
+    var nodeRowViewModel: RowViewModelType? {
+        self.allRowViewModels.first {
+            $0.id.isNode
+        }
+    }
+    
 //    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
 //        self.rowViewModel.fieldValueTypes
 //    }

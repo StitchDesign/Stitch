@@ -19,20 +19,22 @@ extension InputNodeRowViewModel {
         guard var existingDrawingGesture = graphState.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
             
-            guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver else {
+            guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel else {
 //                fatalErrorIfDebug()
                 return
             }
             
             graphState.edgeDrawingObserver.nearestEligibleInput = self
 
-            graphState.edgeDrawingObserver.drawingGesture = OutputDragGesture(output: upstreamObserver.rowViewModel,
+            graphState.edgeDrawingObserver.drawingGesture = OutputDragGesture(output: upstreamObserver,
                                                                               dragLocation: dragLocation,
                                                                               startingDiffFromCenter: .zero)
 
             self.rowDelegate?.removeUpstreamConnection()
             self.nodeDelegate?.calculate()
             graphState.encodeProjectInBackground()
+            
+            return
         }
 
         // Called when drag has already started
@@ -60,6 +62,8 @@ extension InputNodeRowViewModel {
             DispatchQueue.main.async { [weak graphState] in
                 graphState?.graphUI.edgeAnimationEnabled = false
             }
+            
+            return
         }
 
         let to = nearestEligibleInput.portViewData
@@ -209,13 +213,15 @@ extension OutputNodeRowViewModel {
         
         guard let from = graphState.edgeDrawingObserver.drawingGesture?.output,
               let to = graphState.edgeDrawingObserver.nearestEligibleInput,
-        let sourceNodeId = from.nodeDelegate?.id else {
+              let sourceNodeId = from.nodeDelegate?.id else {
             log("OutputDragEnded: No active output drag or eligible input ...")
             graphState.edgeDrawingObserver.reset()
             
             DispatchQueue.main.async { [weak graphState] in
                 graphState?.graphUI.edgeAnimationEnabled = false
             }
+            
+            return
         }
         
         graphState.edgeDrawingObserver.reset()
@@ -240,8 +246,8 @@ struct EligibleInputReset: ProjectEnvironmentEvent {
 
 extension GraphState {
     @MainActor
-    func createEdgeFromEligibleInput(from: PortViewData?,
-                                     to: PortViewData?,
+    func createEdgeFromEligibleInput(from: OutputPortViewData?,
+                                     to: InputPortViewData?,
                                      sourceNodeId: NodeId) {
         
         // Create visual edge if connecting two nodes
