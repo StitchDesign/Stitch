@@ -39,13 +39,11 @@ extension FieldViewModelType {
 
 extension FieldViewModelTypes {
     init(singleFieldValue: FieldValue,
-         coordinate: NodeIOPortType,
          fieldLabel: String = "",
          rowViewModelDelegate: InputNodeRowViewModel) {
         self = [
             .single(
                 InputFieldViewModel(fieldValue: singleFieldValue,
-                                    id: coordinate,
                                     fieldIndex: 0,
                                     fieldLabel: fieldLabel,
                                     rowViewModelDelegate: rowViewModelDelegate)

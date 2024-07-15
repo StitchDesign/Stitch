@@ -92,6 +92,11 @@ struct InputValueView: View {
     @MainActor var adjustmentBarSessionId: AdjustmentBarSessionId {
         self.graph.graphUI.adjustmentBarSessionId
     }
+    
+    var coordinate: NodeIOCoordinate {
+        .init(portType: self.rowViewModel.portType,
+              nodeId: self.rowViewModel.id.nodeId)
+    }
 
     // Which part of the port-value this value is for.
     // eg for a `.position3D` port-value:

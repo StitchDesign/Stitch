@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct MediaPickerValueEntry: View {
-    @Bindable var rowObserver: NodeRowObserver
+    @Bindable var rowObserver: InputNodeRowObserver
     let coordinate: InputCoordinate
     let mediaValue: FieldValueMedia
     let nodeKind: NodeKind

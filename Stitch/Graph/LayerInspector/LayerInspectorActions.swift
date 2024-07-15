@@ -45,13 +45,14 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
         
         guard let node = state.getNodeViewModel(nodeId),
-              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
+              let layerNode = node.layerNode else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return .noChange
         }
                 
-        input.canvasUIData = .init(
+        let layerInputObserver = layerNode[keyPath: coordinate.layerNodeKeyPath]
+        layerInputObserver.canvasObsever = .init(
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
