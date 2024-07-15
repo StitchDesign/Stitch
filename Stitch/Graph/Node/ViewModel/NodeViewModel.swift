@@ -344,10 +344,8 @@ extension NodeViewModel {
             return
         }
         
-        self.getAllInputsObservers().forEach { rowObserver in
-            rowObserver.onVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame)
+        zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in
+            rowObserver.updateValues(values)
         }
     }
 
@@ -372,10 +370,8 @@ extension NodeViewModel {
             return
         }
 
-        outputsObservers.forEach { rowObserver in
-            rowObserver.onVisibilityChange(
-                activeIndex: activeIndex,
-                isVisible: self.isVisibleInFrame)
+        zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in
+            rowObserver.updateValues(values)
         }
     }
     

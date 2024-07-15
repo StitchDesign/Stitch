@@ -168,14 +168,14 @@ extension GraphState {
 //     }
 // }
 
-extension NodeRowObserver {
-    // When the input or output becomes visible on the canvas,
-    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
-    @MainActor
-    func onVisibilityChange(activeIndex: ActiveIndex,
-                                               isVisible: Bool) {
-        self.updateValues(self.allLoopedValues,
-                          activeIndex: activeIndex,
-                          isVisibleInFrame: isVisible)
-    }
-}
+//extension NodeRowObserver {
+//    // When the input or output becomes visible on the canvas,
+//    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
+//    @MainActor
+//    func onVisibilityChange(activeIndex: ActiveIndex,
+//                            isVisible: Bool) {
+//        self.updateValues(self.allLoopedValues,
+//                          activeIndex: activeIndex,
+//                          isVisibleInFrame: isVisible)
+//    }
+//}
