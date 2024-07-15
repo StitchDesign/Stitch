@@ -526,6 +526,40 @@ extension GraphState {
         }
     }
     
+    @MainActor
+    func getCanvasItem(inputId: NodeIOCoordinate) -> CanvasItemViewModel? {
+        guard let node = self.getNodeViewModel(inputId.nodeId) else {
+            return nil
+        }
+        
+        return node.getAllCanvasObservers()
+            .first { canvasItem in
+                canvasItem.inputViewModels.contains { rowViewModel in
+                    guard let rowObserver = rowViewModel.rowDelegate else {
+                        return false
+                    }
+                    return rowObserver.id == inputId
+                }
+            }
+    }
+    
+    @MainActor
+    func getCanvasItem(outputId: NodeIOCoordinate) -> CanvasItemViewModel? {
+        guard let node = self.getNodeViewModel(outputId.nodeId) else {
+            return nil
+        }
+        
+        return node.getAllCanvasObservers()
+            .first { canvasItem in
+                canvasItem.outputViewModels.contains { rowViewModel in
+                    guard let rowObserver = rowViewModel.rowDelegate else {
+                        return false
+                    }
+                    return rowObserver.id == outputId
+                }
+            }
+    }
+    
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
     func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
