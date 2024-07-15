@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     let layerInput: LayerInputType
     
+    @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -18,14 +19,14 @@ struct LayerInspectorInputPortView: View {
     
     var body: some View {
         LayerInspectorPortView(layerProperty: .layerInput(layerInput),
+                               rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
                                node: node,
                                layerNode: layerNode,
                                graph: graph) { propertyRowIsSelected, isOnGraphAlready in
             NodeInputView(graph: graph,
-                          node: node,
                           rowObserver: rowObserver,
-                          rowData: rowObserver.rowViewModel,
+                          rowData: rowViewModel,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: isOnGraphAlready,
@@ -37,6 +38,7 @@ struct LayerInspectorInputPortView: View {
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
     
+    @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -44,14 +46,14 @@ struct LayerInspectorOutputPortView: View {
     
     var body: some View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
+                               rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
                                node: node,
                                layerNode: layerNode,
                                graph: graph) { propertyRowIsSelected, isOnGraphAlready in
             NodeOutputView(graph: graph,
-                          node: node,
                           rowObserver: rowObserver,
-                          rowData: rowObserver.rowViewModel,
+                          rowData: rowViewModel,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: isOnGraphAlready,
@@ -65,6 +67,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     // input or output
     let layerProperty: LayerInspectorRowId
     
+    @Bindable var rowViewModel: RowObserver.RowViewModelType
     @Bindable var rowObserver: RowObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -81,7 +84,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var isOnGraphAlready: Bool {
-        rowObserver.rowViewModel.canvasItemDelegate.isDefined
+        rowViewModel.canvasItemDelegate.isDefined
     }
 
     var body: some View {
@@ -100,7 +103,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
                 TapGesture().onEnded({ _ in
                     // log("LayerInspectorPortView tapped")
                     if isOnGraphAlready,
-                       let canvasItemId = rowObserver.rowViewModel.canvasItemDelegate?.id {
+                       let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                         dispatch(JumpToCanvasItem(id: canvasItemId))
                     } else {
                         withAnimation {
