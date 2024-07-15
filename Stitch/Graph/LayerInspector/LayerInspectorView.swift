@@ -160,10 +160,13 @@ struct LayerInspectorInputsSectionView: View {
         
         Section(isExpanded: $expanded) {
             ForEach(layerInputs) { layerInput in
+                let layerInputData = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                
                 if inputsList.contains(layerInput) {
-                    LayerInspectorPortView(
-                        layerProperty: .layerInput(layerInput),
-                        rowObserver: layerNode[keyPath: layerInput.layerNodeKeyPath],
+                    LayerInspectorInputPortView(
+                        layerInput: layerInput,
+                        rowViewModel: layerInputData.inspectorRowViewModel,
+                        rowObserver: layerInputData.rowObserver,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)
@@ -202,18 +205,18 @@ struct LayerInspectorOutputsSectionView: View {
         
     var body: some View {
         
-        let outputs = node.getAllOutputsObservers()
+        let outputs = layerNode.outputPorts
         
         if outputs.isEmpty {
             EmptyView()
         } else {
             Section(isExpanded: .constant(true)) {
                 ForEach(outputs) { output in
-                    if let portId = output.id.portId {
-                        LayerInspectorPortView(
-                            layerProperty: .layerOutput(.init(portId: portId,
-                                                              nodeId: output.id.nodeId)),
-                            rowObserver: output,
+                    if let portId = output.rowObserver.id.portId {
+                        LayerInspectorOutputPortView(
+                            outputPortId: portId,
+                            rowViewModel: output.inspectorRowViewModel,
+                            rowObserver: output.rowObserver,
                             node: node,
                             layerNode: layerNode,
                             graph: graph)

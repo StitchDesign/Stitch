@@ -39,12 +39,23 @@ final class InputLayerNodeRowData {
 
 final class OutputLayerNodeRowData {
     let rowObserver: OutputNodeRowObserver
+    let inspectorRowViewModel: OutputNodeRowViewModel
     var canvasObsever: CanvasItemViewModel?
     
+    @MainActor
     init(rowObserver: OutputNodeRowObserver,
          canvasObsever: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObsever = canvasObsever
+        
+        self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
+                                                     nodeId: rowObserver.id.nodeId,
+                                                     portType: rowObserver.id.portType),
+                                           activeValue: rowObserver.activeValue,
+                                           nodeRowIndex: nil,
+                                           rowDelegate: rowObserver,
+                                           // specifically not a row view model for canvas
+                                           canvasItemDelegate: nil)
     }
 }
 
@@ -75,5 +86,11 @@ extension InputLayerNodeRowData {
     func createSchema() -> LayerInputDataEntity {
         .init(inputPort: self.rowObserver.createSchema().portData,
               canvasItem: self.canvasObsever?.createSchema())
+    }
+}
+
+extension OutputLayerNodeRowData: Identifiable {
+    var id: NodeIOCoordinate {
+        self.rowObserver.id
     }
 }
