@@ -219,10 +219,8 @@ extension Array where Element: NodeRowObserver {
                     userVisibleType: userVisibleType,
                     id: .init(portId: portId, nodeId: nodeId),
                     activeIndex: .init(.zero),
-                    nodeRowIndex: portId,
                     upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate,
-                    canvasItemDelegate: nil)
+                    nodeDelegate: nodeDelegate)
 
             // Only update values if there's no upstream connection
 //            if !observer.upstreamOutputObserver.isDefined {
@@ -240,19 +238,15 @@ extension [InputNodeRowObserver] {
          id: NodeId,
          nodeIO: NodeIO,
          activeIndex: ActiveIndex,
-         nodeRowIndex: Int?,
-         nodeDelegate: NodeDelegate,
-         canvasItem: CanvasItemViewModel?) {
+         nodeDelegate: NodeDelegate) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
                     nodeKind: kind,
                     userVisibleType: userVisibleType,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
                     activeIndex: activeIndex,
-                    nodeRowIndex: nodeRowIndex,
                     upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate,
-                    canvasItemDelegate: canvasItem)
+                    nodeDelegate: nodeDelegate)
         }
     }
 }

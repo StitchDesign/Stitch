@@ -173,8 +173,7 @@ struct InputValueView: View {
                    alignment: .trailing)
 
         case .media(let media):
-            MediaFieldValueView(rowViewModel: rowViewModel,
-                                inputCoordinate: coordinate,
+            MediaFieldValueView(inputCoordinate: coordinate,
                                 isUpstreamValue: rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
                                 media: media,
                                 nodeKind: nodeKind,
@@ -200,7 +199,10 @@ struct InputValueView: View {
                 hasIncomingEdge: hasIncomingEdge)
 
         case .json(let json):
-            EditJSONEntry(coordinate: viewModel.coordinate,
+            EditJSONEntry(inputViewModel: rowViewModel,
+                          graph: graph,
+                          coordinate: FieldCoordinate(rowId: rowViewModel.id,
+                                                      fieldIndex: viewModel.fieldIndex),
                           json: isButtonPressed ? json : nil,
                           isPressed: $isButtonPressed)
 

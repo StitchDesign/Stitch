@@ -422,6 +422,22 @@ extension NodeViewModel {
     }
     
     @MainActor
+    func getInputRowViewModel(nodeId: NodeId,
+                              portType: NodeIOPortType) -> InputNodeRowViewModel? {
+        self.getAllInputsObservers()
+            .flatMap { $0.allRowViewModels }
+            .first { $0.id == .init(graphItemType: .node,
+                                    nodeId: nodeId,
+                                    portType: portType) }
+    }
+    
+    @MainActor
+    func getInputRowViewModel(for id: NodeIOCoordinate) -> InputNodeRowViewModel? {
+        self.getInputRowViewModel(nodeId: id.nodeId,
+                                  portType: id.portType)
+    }
+    
+    @MainActor
     func getOutputRowViewModel(for id: NodeRowViewModelId) -> OutputNodeRowViewModel? {
         self.getAllOutputsObservers()
             .flatMap { $0.allRowViewModels }
