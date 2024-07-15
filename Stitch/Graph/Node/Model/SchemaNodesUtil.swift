@@ -115,6 +115,24 @@ extension NodePortInputEntity {
 
 extension NodeRowDefinitions {
     @MainActor
+    func createOutputObservers(nodeId: NodeId,
+                               // Pass in values directly from eval
+                               values: PortValuesList,
+                               patch: Patch,
+                               userVisibleType: UserVisibleType?,
+                               nodeDelegate: NodeDelegate?) -> [OutputNodeRowObserver] {
+        self.outputs.enumerated().map { portId, _ in
+            OutputNodeRowObserver(values: values[safe: portId] ?? [],
+                                  nodeKind: .patch(patch),
+                                  userVisibleType: userVisibleType,
+                                  id: .init(portId: portId, nodeId: nodeId),
+                                  activeIndex: .init(.zero),
+                                  upstreamOutputCoordinate: nil,
+                                  nodeDelegate: nodeDelegate)
+        }
+    }
+
+    @MainActor
     func createOutputLayerPorts(schema: LayerNodeEntity,
                                // Pass in values directly from eval
                                values: PortValuesList,
@@ -141,9 +159,7 @@ extension NodeRowDefinitions {
                                                  userVisibleType: userVisibleType,
                                                  id: .init(portId: portId, nodeId: nodeId),
                                                  activeIndex: .init(.zero),
-                                                 nodeDelegate: nodeDelegate,
-                                                 // nil for now but corrected later
-                                                 canvasItemDelegate: canvasObserver)
+                                                 nodeDelegate: nodeDelegate)
             
             
             return OutputLayerNodeRowData(rowObserver: observer,

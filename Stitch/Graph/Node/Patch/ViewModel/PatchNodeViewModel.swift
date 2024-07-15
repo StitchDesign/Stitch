@@ -61,6 +61,7 @@ final class PatchNodeViewModel: Sendable {
         self.splitterNode = schema.splitterNode
 
         self.canvasObserver = .init(from: schema.canvasEntity,
+                                    id: .node(schema.id),
                                     node: node)
         
         // Create initial inputs and outputs using default data
@@ -78,7 +79,7 @@ final class PatchNodeViewModel: Sendable {
         self.outputsObservers = rowDefinitions
             .createOutputObservers(nodeId: schema.id,
                                    values: defaultOutputsList,
-                                   kind: kind,
+                                   patch: schema.patch,
                                    userVisibleType: schema.userVisibleType,
                                    nodeDelegate: node)
         
@@ -86,7 +87,7 @@ final class PatchNodeViewModel: Sendable {
 }
 
 extension PatchNodeViewModel: SchemaObserver {
-    static func createObject(from entity: PatchNodeEntity) -> Self {
+    @MainActor static func createObject(from entity: PatchNodeEntity) -> Self {
         self.init(from: entity,
                   node: nil)
     }

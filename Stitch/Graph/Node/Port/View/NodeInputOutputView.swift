@@ -190,8 +190,9 @@ struct NodeOutputView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> some View {
         OutputValueEntry(graph: graph,
-                         rowObserver: rowObserver,
+                         rowViewModel: rowData,
                          viewModel: portViewModel,
+                         coordinate: rowObserver.id,
                          isMultiField: isMultiField,
                          nodeKind: nodeKind,
                          isCanvasItemSelected: isCanvasItemSelected,
