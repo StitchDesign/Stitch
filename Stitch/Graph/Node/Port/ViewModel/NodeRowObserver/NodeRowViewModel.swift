@@ -195,8 +195,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.canvasItemDelegate = canvasItemDelegate
         
         if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  coordinate: id.portType)
+            self.initializeValues(rowDelegate: rowDelegate)
         }
     }
 
@@ -259,8 +258,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.canvasItemDelegate = canvasItemDelegate
         
         if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  coordinate: id.portType)
+            self.initializeValues(rowDelegate: rowDelegate)
         }
     }
     
