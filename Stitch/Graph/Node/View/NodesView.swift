@@ -59,7 +59,9 @@ struct NodesView: View {
                             guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
                                 return []
                             }
-                            return [input.rowViewModel]
+                            return input.allInputRowViewModels
+                            // filter out view models for inspector
+                                .filter { $0.id.graphItemType == .node }
                         
                         case .layerOutput:
                             return []
@@ -82,8 +84,10 @@ struct NodesView: View {
                                 return []
                             }
                             
-                            return node.getAllInputsObservers().map {
-                                $0.rowViewModel
+                            return node.getAllInputsObservers().flatMap {
+                                $0.allRowViewModels
+                                // filter out view models for inspector
+                                    .filter { $0.id.graphItemType == .node }
                             }
                         }
                     }

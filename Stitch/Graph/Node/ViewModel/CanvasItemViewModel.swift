@@ -82,10 +82,18 @@ final class CanvasItemViewModel: Identifiable {
             
             node.updatePortColorDataUponNodeSelection()
             
+            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
+                $0.allRowViewModels
+            }
+            
+            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
+                $0.allRowViewModels
+            }
+            
             if node.kind == .group {
                 node.updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterInputRowObservers(for: node.id, type: .input),
-                    outputs: graph.getSplitterOutputRowObservers(for: node.id, type: .output))
+                    inputs: inputs,
+                    outputs: outputs)
             }
         }
     }

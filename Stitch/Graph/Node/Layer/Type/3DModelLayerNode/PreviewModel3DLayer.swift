@@ -87,7 +87,7 @@ struct Preview3DModelLayer: View {
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,
                                          graph: graph,
-                                         mediaRowObserver: layerNode?.model3DPort))
+                                         mediaRowObserver: layerNode?.model3DPort.rowObserver))
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,

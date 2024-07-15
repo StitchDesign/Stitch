@@ -77,6 +77,8 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func updateInputsObservers(activeIndex: ActiveIndex)
     
+    @MainActor func updateOutputsObservers(activeIndex: ActiveIndex)
+    
     @MainActor func updateOutputsObservers(newOutputsValues: PortValuesList,
                                            activeIndex: ActiveIndex)
     

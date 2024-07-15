@@ -352,6 +352,12 @@ extension NodeViewModel {
     }
 
     @MainActor
+    func updateOutputsObservers(activeIndex: ActiveIndex) {
+        self.updateOutputsObservers(newValuesList: nil,
+                                    activeIndex: activeIndex)
+    }
+    
+    @MainActor
     func updateOutputsObservers(newValuesList: PortValuesList? = nil,
                                 activeIndex: ActiveIndex) {
         let outputsObservers = self.getAllOutputsObservers()
