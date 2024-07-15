@@ -306,7 +306,7 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Only encode keypaths used by this layer
         self.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].rowObserver.createLayerSchema()
+            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].createSchema()
         }
         
         return schema

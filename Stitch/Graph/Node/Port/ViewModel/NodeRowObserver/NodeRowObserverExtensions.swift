@@ -259,22 +259,12 @@ extension InputNodeRowObserver {
             // log("NodeRowObserver: currentBroadcastChoice: did not have wireless node: returning nil")
             return nil
         }
-
+        
         // the id of the connected wireless broadcast node
         // TODO: why was there an `upstreamOutputCoordinate` but not a `upstreamOutputObserver` ?
         //        let wirelessBroadcastId = self.upstreamOutputObserver?.id.nodeId
         let wirelessBroadcastId = self.upstreamOutputCoordinate?.nodeId
         // log("NodeRowObserver: currentBroadcastChoice: wirelessBroadcastId: \(wirelessBroadcastId)")
         return wirelessBroadcastId
-    }
-    
-    /// Same as `createSchema()` but used for layer schema data.
-    @MainActor
-    func createLayerSchema() -> NodeConnectionType {
-        guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            return .values(self.allLoopedValues)
-        }
-        
-        return .upstreamConnection(upstreamOutputObserver.id)
     }
 }

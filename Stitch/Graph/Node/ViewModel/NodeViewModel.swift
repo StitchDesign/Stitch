@@ -355,13 +355,21 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func updateOutputsObservers(activeIndex: ActiveIndex) {
-        // Do nothing if not in frame
+    func updateOutputsObservers(newValuesList: PortValuesList? = nil,
+                                activeIndex: ActiveIndex) {
+        let outputsObservers = self.getAllOutputsObservers()
+        
+        if let newValuesList = newValuesList {
+            self.updateRowObservers(rowObservers: outputsObservers,
+                                    newIOValues: newValuesList)
+        }
+        
+        // UI logic below, do nothing if not in frame
         guard self.isVisibleInFrame else {
             return
         }
 
-        self.getAllOutputsObservers().forEach { rowObserver in
+        outputsObservers.forEach { rowObserver in
             rowObserver.onVisibilityChange(
                 activeIndex: activeIndex,
                 isVisible: self.isVisibleInFrame)
