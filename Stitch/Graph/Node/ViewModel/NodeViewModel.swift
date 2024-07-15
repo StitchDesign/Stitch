@@ -75,7 +75,8 @@ final class NodeViewModel: Sendable {
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity, 
+                                          nodeId: schema.id,
                                           nodeDelegate: nil)
         self._cachedDisplayTitle = self.getDisplayTitle()
         
@@ -146,10 +147,6 @@ final class NodeViewModel: Sendable {
 //                                values: values,
 //                                upstreamOutputCoordinate: nil)
 //        }
-        
-        let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,
-                                            zIndex: zIndex,
-                                            parentGroupNodeId: parentGroupNodeId)
 
         let nodeEntity = NodeEntity(id: id,
                                     nodeTypeEntity: nodeType.createSchema(),
@@ -245,8 +242,8 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     @MainActor func outputsUpdated(evalResult: EvalResult) {
-        self.updateOutputs(evalResult.outputsValues,
-                           activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
+        self.updateOutputsObservers(newOutputsValues: evalResult.outputsValues,
+                                    activeIndex: graphDelegate?.activeIndex ?? .init(.zero))
         
         // `state.flashes` is for pulses' UI-effects
         var effects = evalResult.effects
@@ -729,8 +726,8 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func updateOutputs(_ newOutputsValues: PortValuesList,
-                       activeIndex: ActiveIndex) {
+    func updateOutputsObservers(newOutputsValues: PortValuesList,
+                                activeIndex: ActiveIndex) {
         self.getAllOutputsObservers()
             .updateAllValues(newOutputsValues,
                              nodeId: self.id,

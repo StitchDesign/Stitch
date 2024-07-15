@@ -84,8 +84,8 @@ final class CanvasItemViewModel: Identifiable {
             
             if node.kind == .group {
                 node.updatePortColorDataUponNodeSelection(
-                    inputs: graph.getSplitterRowObservers(for: node.id, type: .input),
-                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output))
+                    inputs: graph.getSplitterInputRowObservers(for: node.id, type: .input),
+                    outputs: graph.getSplitterOutputRowObservers(for: node.id, type: .output))
             }
         }
     }

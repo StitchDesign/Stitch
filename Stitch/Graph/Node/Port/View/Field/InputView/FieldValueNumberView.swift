@@ -9,9 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct  FieldValueNumberView: View {
+struct FieldValueNumberView: View {
 
     @Bindable var graph: GraphState
+    @Bindable var fieldViewModel: InputFieldViewModel
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
@@ -37,8 +38,8 @@ struct  FieldValueNumberView: View {
                 adjustmentBarSessionId: adjustmentBarSessionId,
                 isPressed: $isButtonPressed)
             
-            CommonEditingView(inputString: stringValue,
-                              id: fieldCoordinate,
+            CommonEditingView(inputField: fieldViewModel,
+                              inputString: stringValue,
                               graph: graph,
                               fieldIndex: fieldCoordinate.fieldIndex,
                               isCanvasItemSelected: isCanvasItemSelected,

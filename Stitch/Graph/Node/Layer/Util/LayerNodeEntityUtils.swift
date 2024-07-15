@@ -105,6 +105,7 @@ extension LayerNodeEntity {
         self.init(
             id: nodeId,
             layer: layer,
+            outputCanvasPorts: [],
         
         // Required
             positionPort: positionPort,

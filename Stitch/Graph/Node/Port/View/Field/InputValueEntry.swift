@@ -184,6 +184,7 @@ struct InputValueView: View {
 
         case .color(let color):
             ColorOrbValueButtonView(
+                fieldViewModel: viewModel,
                 nodeId: coordinate.nodeId,
                 id: coordinate,
                 currentColor: color,
