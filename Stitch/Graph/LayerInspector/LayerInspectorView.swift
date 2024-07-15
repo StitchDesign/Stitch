@@ -17,6 +17,12 @@ extension LayerInputType: Identifiable {
     }
 }
 
+#if targetEnvironment(macCatalyst)
+let INSPECTOR_LIST_TOP_PADDING = -40.0
+#else
+let INSPECTOR_LIST_TOP_PADDING = -60.0
+#endif
+
 // MARK: Right-hand sidebar i.e. "Property sidebar"
 
 struct LayerInspectorView: View {
@@ -58,9 +64,9 @@ struct LayerInspectorView: View {
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
             #if targetEnvironment(macCatalyst)
-                         .padding(.top, -40)
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
             #else
-                         .padding(.top, -60)
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
                          .padding(.bottom, -20)
             #endif
             
@@ -188,13 +194,37 @@ struct LayerInspectorInputsSectionView: View {
                 
                 let allFieldsBlockedOut = rowObserver.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
-                if inputsList.contains(layerInput) && !allFieldsBlockedOut {
+                if inputListContainsInput && !allFieldsBlockedOut {
                     LayerInspectorPortView(
                         layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
                         rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)
+                    
+                    .background {
+                        GeometryReader { geometry in
+                            // .global is okay?
+                            // .global does not take into account the top bar?
+//                            Color.clear.onChange(of: geometry.frame(in: .global),
+                            
+//                            Color.clear.onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)),
+                            
+                            // TODO: better reading of x position; use `label` on a section instead? Only need specific row for the y; otherwise all rows' have same x (the left edge of the inspector)
+                            Color.clear.onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
+                                                 initial: true) { oldValue, newValue in
+//                                if layerInput == .position {
+                                if layerInput == .zIndex {
+                                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): size \(newValue.size)")
+                                    log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                                    graph.graphUI.propertySidebar.readRowFrameDict
+                                        .updateValue(newValue, forKey: layerInput)
+                                }
+                                
+                            }
+                        }
+                    }
+                    
                 }
             }
             .transition(.slideInAndOut(edge: .top))

@@ -18,6 +18,10 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 struct PropertySidebarState: Equatable {
     var selectedProperty: LayerInspectorRowId?
+    
+    // Only layer inputs (not fields or outputs) can have flyouts
+    // Better?: have a single `CGRect`, since only one flyout can be open at a time, and don't read 
+    var readRowFrameDict: [LayerInputType: CGRect] = .init()
 }
 
 extension LayerInspectorView {

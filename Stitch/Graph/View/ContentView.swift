@@ -121,6 +121,38 @@ struct ContentView: View {
                             previewWindowSizing: previewWindowSizing)
                     }
                 }
+                // Layer Inspector Flyout must sit above preview window
+                .overlay {
+                    
+                    
+                    if let entry = graph.graphUI.propertySidebar.readRowFrameDict.first {
+                        
+                        // If pseudo-modal-background placed here,
+                        // then we disable scroll
+                        Color.blue.opacity(0.5)
+                        
+                            .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                            .onTapGesture {
+                                graph.graphUI.propertySidebar.readRowFrameDict = .init()
+                            }
+                        
+                        
+                        Rectangle().fill(.red)
+                            .border(.blue)
+                            .frame(width: 300, height: 300)
+                            .border(.yellow)
+                            .position(
+                                // 8 = padding from edge of inspector
+                                
+                                // 60 = additional padding width of inspector
+                                // 60 too much?
+                                x: entry.value.origin.x - 150 - 8 - 36,
+                                
+                                y: entry.value.origin.y + 150 + INSPECTOR_LIST_TOP_PADDING)
+                    }
+                }
+                
+                
                 // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or pposition):
                 // we must apply the `.ignoresSafeArea` modifier to the ProjectNavigationView, rather than .overlay's contents
 #if !targetEnvironment(macCatalyst)
