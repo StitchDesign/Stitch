@@ -71,7 +71,7 @@ struct StitchRootView: View {
         }
         .onChange(of: self.columnVisibility,
                   initial: true) { oldValue, newValue in
-            dispatch(LeftSidebarVisibilityChanged(newVisibility: newValue))
+            dispatch(LeftSidebarVisibilityStateChanged(status: newValue))
         }
         .environment(\.appTheme, theme)
         .environment(\.edgeStyle, edgeStyle)

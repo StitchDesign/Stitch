@@ -28,25 +28,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
-struct LeftSidebarVisibilityChanged: GraphUIEvent {
-    
-    let newVisibility: NavigationSplitViewVisibility
-    
-    func handle(state: GraphUIState) {
-        switch newVisibility {
-        case .detailOnly:
-            state.leftSidebarIsOpen = false
-        case .doubleColumn, .all:
-            state.leftSidebarIsOpen = true
-        case .automatic:
-            // inaccurate ?
-            state.leftSidebarIsOpen = true
-        default:
-            state.leftSidebarIsOpen = false
-        }
-    }
-}
-
 @Observable
 final class GraphUIState {
     

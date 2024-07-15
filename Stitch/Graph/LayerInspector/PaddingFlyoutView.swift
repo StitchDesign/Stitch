@@ -118,7 +118,15 @@ struct UpdateFlyoutSize: GraphUIEvent {
 
 struct FlyoutClosed: GraphUIEvent {
     func handle(state: GraphUIState) {
-        state.propertySidebar.flyoutState = nil
+        state.closeFlyout()
+    }
+}
+
+extension GraphUIState {
+    func closeFlyout() {
+        withAnimation {
+            self.propertySidebar.flyoutState = nil
+        }
     }
 }
 
@@ -128,9 +136,33 @@ struct FlyoutOpened: GraphUIEvent {
     let flyoutNodeId: NodeId
     
     func handle(state: GraphUIState) {
-        state.propertySidebar.flyoutState = .init(
-            flyoutInput: flyoutInput,
-            flyoutNode: flyoutNodeId)
+        withAnimation {
+            state.propertySidebar.flyoutState = .init(
+                flyoutInput: flyoutInput,
+                flyoutNode: flyoutNodeId)
+        }
+    }
+}
+
+struct LeftSidebarVisibilityStateChanged: GraphUIEvent {
+    let status: NavigationSplitViewVisibility
+    
+    func handle(state: GraphUIState) {
+        
+        // Reset flyout
+        state.closeFlyout()
+        
+        // Track in state whether left sidebar is open or not
+        switch status {
+        case .detailOnly:
+            state.leftSidebarIsOpen = false
+        case .all, .doubleColumn:
+            state.leftSidebarIsOpen = true
+        case .automatic: // Inaccurate?
+            state.leftSidebarIsOpen = false
+        default:
+            state.leftSidebarIsOpen = false
+        }
     }
 }
 
