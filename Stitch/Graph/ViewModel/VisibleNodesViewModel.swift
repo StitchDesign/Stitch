@@ -104,8 +104,7 @@ extension VisibleNodesViewModel {
         // Create node view models (if not yet created), establishing connection data later
         nodesDict.values.forEach { schema in
             if let node = self.nodes.get(schema.id) {
-                node.updateNodeViewModelFromSchema(schema,
-                                                   activeIndex: activeIndex)
+                node.update(from: schema)
 
                 // Toggle output downstream connections to false, will correct below
                 node.getAllOutputsObservers().forEach {

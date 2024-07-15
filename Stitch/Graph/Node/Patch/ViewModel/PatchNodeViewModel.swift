@@ -203,11 +203,6 @@ extension PatchNodeViewModel {
         }
     }
     
-    /// Used for encoding step to get non-computed input row observers. Not intended for graph computation.
-    func _getInputObserversForEncoding() -> NodeRowObservers {
-        self._inputsObservers
-    }
-    
     @MainActor
     func updateMathExpressionNodeInputs(newExpression: String) {
         // Always set math-expr on node for its eval and (default) title

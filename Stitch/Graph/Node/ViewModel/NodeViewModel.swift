@@ -599,31 +599,27 @@ extension NodeViewModel: SchemaObserver {
                      graphDelegate: nil)
     }
 
-    /// Wrapper function for easier discovery
-    @MainActor
-    func updateNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
-                                       activeIndex: ActiveIndex) {
-        self.update(from: nodeSchema, activeIndex: activeIndex)
-    }
+//    /// Wrapper function for easier discovery
+//    @MainActor
+//    func updateNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
+//                                       activeIndex: ActiveIndex) {
+//        self.update(from: nodeSchema, activeIndex: activeIndex)
+//    }
 
-    @MainActor
-    func update(from schema: NodeEntity, 
-                activeIndex: ActiveIndex) {
-        self.update(from: schema)
-
-        // Update view if no upstream connection
-        // Layers use keypaths
-        if let patchnode = self.patchNode {
-            patchnode._getInputObserversForEncoding().forEach { inputObserver in
-                if !inputObserver.upstreamOutputObserver.isDefined {
-                    inputObserver.updateValues(
-                        inputObserver.allLoopedValues,
-                        activeIndex: activeIndex,
-                        isVisibleInFrame: self.isVisibleInFrame)
-                }
-            }
-        }
-    }
+//    @MainActor
+//    func update(from schema: NodeEntity) {
+//        self.update(from: schema)
+//
+//        // Update view if no upstream connection
+//        // Layers use keypaths
+//        if let patchnode = self.patchNode {
+//            patchnode.inputsObservers.forEach { inputObserver in
+//                if !inputObserver.upstreamOutputObserver.isDefined {
+//                    inputObserver.updateValues(inputObserver.allLoopedValues)
+//                }
+//            }
+//        }
+//    }
 
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
@@ -777,7 +773,9 @@ extension NodeViewModel {
                                                     upstreamOutputCoordinate: nil,
                                                     nodeDelegate: lastRowObserver.nodeDelegate)
         
-        let newInputViewModel = InputNodeRowViewModel(id: newInputCoordinate.portType,
+        let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node,
+                                                                nodeId: newInputCoordinate.nodeId,
+                                                                portType: newInputCoordinate.portType),
                                                       activeValue: newInputObserver.activeValue,
                                                       nodeRowIndex: allInputsObservers.count,
                                                       rowDelegate: newInputObserver,
