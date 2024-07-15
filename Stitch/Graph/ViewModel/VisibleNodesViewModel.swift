@@ -143,7 +143,7 @@ extension VisibleNodesViewModel {
                 let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
                 let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].rowObserver
                 
-                guard let connectedOutputCoordinate = schemaInput.upstreamConnection else {
+                guard let connectedOutputCoordinate = schemaInput.inputPort.upstreamConnection else {
                     inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
@@ -193,7 +193,7 @@ extension VisibleNodesViewModel {
 
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
-        self.allViewModels.flatMap { node in
+        self.nodes.values.flatMap { node in
             switch node.nodeType {
             case .patch(let patchNode):
                 return [patchNode.canvasObserver]

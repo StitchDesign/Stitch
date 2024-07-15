@@ -33,8 +33,9 @@ struct GroupNodeView: View {
     }
     
     var body: some View {
-        NodeView(graph: graph,
-                 node: nodeViewModel,
+        NodeView(node: canvasViewModel,
+                 stitch: nodeViewModel,
+                 graph: graph,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,

@@ -58,8 +58,9 @@ struct PatchNodeView: View {
     }
 
     var body: some View {
-        NodeView(graph: graph,
-                 node: viewModel,
+        NodeView(node: patchNode.canvasObserver,
+                 stitch: viewModel,
+                 graph: graph,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
                  activeGroupId: activeGroupId,

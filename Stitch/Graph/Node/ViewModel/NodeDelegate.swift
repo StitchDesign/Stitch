@@ -40,6 +40,8 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var activeIndex: ActiveIndex { get }
     
+    @MainActor var displayTitle: String { get }
+    
 //    @MainActor var isNodeMoving: Bool { get }
     
 //    @MainActor var isSelected: Bool { get set }

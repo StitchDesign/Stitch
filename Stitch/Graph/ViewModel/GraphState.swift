@@ -369,10 +369,10 @@ extension GraphState {
         self.graphUI.activeIndex
     }
     
-    @MainActor
-    func isConnectedToASelectedNode<RowObserver>(at rowObserver: RowObserver) -> Bool where RowObserver: NodeRowObserver {
-        !self.selectedNodeIds.intersection(rowObserver.rowViewModel.connectedCanvasItems).isEmpty
-    }
+//    @MainActor
+//    func isConnectedToASelectedNode<RowObserver>(at rowObserver: RowObserver) -> Bool where RowObserver: NodeRowObserver {
+//        !self.selectedNodeIds.intersection(rowObserver.rowViewModel.connectedCanvasItems).isEmpty
+//    }
 
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {

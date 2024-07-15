@@ -122,6 +122,7 @@ struct InputValueView: View {
 
         case .number:
             FieldValueNumberView(graph: graph,
+                                 fieldViewModel: viewModel,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
@@ -133,6 +134,7 @@ struct InputValueView: View {
         
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
+                                 fieldViewModel: viewModel,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
@@ -196,7 +198,6 @@ struct InputValueView: View {
                 graph: graph,
                 inputPort: rowViewModel,
                 stitchId: coordinate.nodeId,
-                nodeIO: .input,
                 pulseTime: pulseTime,
                 hasIncomingEdge: hasIncomingEdge)
 

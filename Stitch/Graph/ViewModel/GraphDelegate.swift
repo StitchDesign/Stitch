@@ -56,9 +56,9 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     
-    @MainActor func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowObserver?
+    @MainActor func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel?
     
-    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowObserver?
+    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel?
     
     @MainActor func getMediaUrl(forKey: MediaKey) -> URL?
     
@@ -73,9 +73,9 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
         
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     
-    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
-    
-    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
+//    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
+//    
+//    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
     
     @MainActor var graphStepState: GraphStepState { get }
     

@@ -171,8 +171,8 @@ struct OutputValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(
                 graph: graph,
-                coordinate: coordinate,
-                nodeIO: .output,
+                inputPort: nil,
+                stitchId: coordinate.nodeId,
                 pulseTime: pulseTime,
                 hasIncomingEdge: false)
 
