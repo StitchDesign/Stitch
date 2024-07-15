@@ -110,8 +110,8 @@ struct InputValueView: View {
     var body: some View {
         switch fieldValue {
         case .string(let string):
-            CommonEditingView(inputString: string.string,
-                              id: fieldCoordinate,
+            CommonEditingView(inputField: viewModel,
+                              inputString: string.string,
                               graph: graph,
                               fieldIndex: fieldIndex,
                               isCanvasItemSelected: isCanvasItemSelected,
@@ -173,8 +173,9 @@ struct InputValueView: View {
                    alignment: .trailing)
 
         case .media(let media):
-            MediaFieldValueView(rowObserver: rowObserver,
+            MediaFieldValueView(rowViewModel: rowViewModel,
                                 inputCoordinate: coordinate,
+                                isUpstreamValue: rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
                                 media: media,
                                 nodeKind: nodeKind,
                                 isInput: true,

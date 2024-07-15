@@ -11,9 +11,10 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
+    @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var viewModel: OutputFieldViewModel
 
+    let coordinate: NodeIOCoordinate
     let isMultiField: Bool
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
@@ -23,11 +24,6 @@ struct OutputValueEntry: View {
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
-
-    var coordinate: OutputPortViewData {
-        // input is a bad name--could be either here
-        self.viewModel.coordinate
-    }
 
     var label: String {
         self.viewModel.fieldLabel
@@ -44,9 +40,8 @@ struct OutputValueEntry: View {
 
     var valueDisplay: some View {
         OutputValueView(graph: graph,
-                        rowObserver: rowObserver,
                         viewModel: viewModel,
-                        coordinate: rowObserver.id,
+                        coordinate: coordinate,
                         isMultiField: isMultiField,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
@@ -74,7 +69,6 @@ struct OutputValueEntry: View {
 
 struct OutputValueView: View {
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserver
     @Bindable var viewModel: OutputFieldViewModel
     
     let coordinate: NodeIOCoordinate
@@ -162,8 +156,8 @@ struct OutputValueView: View {
                    alignment: .leading)
 
         case .media(let media):
-            MediaFieldValueView(rowObserver: rowObserver,
-                                inputCoordinate: coordinate,
+            MediaFieldValueView(inputCoordinate: coordinate,
+                                isUpstreamValue: false,     // only valid for inputs
                                 media: media,
                                 nodeKind: nodeKind,
                                 isInput: false,
@@ -180,7 +174,7 @@ struct OutputValueView: View {
                 coordinate: coordinate,
                 nodeIO: .output,
                 pulseTime: pulseTime,
-                hasIncomingEdge: hasIncomingEdge)
+                hasIncomingEdge: false)
 
         case .json(let json):
             ValueJSONView(coordinate: coordinate,
