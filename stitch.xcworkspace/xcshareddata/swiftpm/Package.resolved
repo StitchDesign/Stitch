@@ -1,4 +1,5 @@
 {
+  "originHash" : "5cf72a3e539289234e20d4ead0c2848d1d05c21e425516fd1a98cde441c7cd3d",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -60,6 +61,14 @@
       "location" : "https://github.com/vpl-codesign/StitchEngine.git",
       "state" : {
         "revision" : "cf99144a2587e0078f80de5991e92918ae2228cb"
+      }
+    },
+    {
+      "identity" : "stitchschemakit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
+      "state" : {
+        "revision" : "33588fd800ac1a468c5a38267b5322e8dd07ab09"
       }
     },
     {
@@ -134,5 +143,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
