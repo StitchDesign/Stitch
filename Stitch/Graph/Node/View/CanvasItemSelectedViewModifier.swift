@@ -107,17 +107,12 @@ extension GraphState {
             self.graphUI.insertNodeMenuState.activeSelectionBounds = newBounds
         }
 
-        guard let nodeViewModel = self.getNodeViewModel(id) else {
-            log("updateGraphBaseViewBounds: could not retrieve node \(id)")
-            return
-        }
-
         canvasItem.bounds.graphBaseViewBounds = newBounds
 
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
         canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
-                                              activeIndex: activeIndex)
+                                          activeIndex: activeIndex)
     }
 }
 
