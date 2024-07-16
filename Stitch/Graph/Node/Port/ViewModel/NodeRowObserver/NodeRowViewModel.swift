@@ -34,6 +34,11 @@ extension NodeRowViewModelId {
     static let empty: Self = .init(graphItemType: .node,
                                    nodeId: .init(),
                                    portType: .portIndex(-1))
+    
+    var coordinate: NodeIOCoordinate {
+        .init(portType: self.portType,
+              nodeId: self.nodeId)
+    }
 }
 
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {

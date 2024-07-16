@@ -79,7 +79,7 @@ struct ToggleFullScreenEvent: GraphEvent {
                 
         if state.graphUI.isFullScreenMode {
             // Ports should not update while in fullscreen mode
-            state.visibleNodesViewModel.nodes.values.forEach { node in
+            state.visibleNodesViewModel.getCanvasItems().forEach { node in
                 if node.isVisibleInFrame {
                     state.graphUI.nodesThatWereOnScreenPriorToEnteringFullScreen.insert(node.id)
                     node.isVisibleInFrame = false
@@ -87,7 +87,7 @@ struct ToggleFullScreenEvent: GraphEvent {
             }
         }  else {
             state.graphUI.nodesThatWereOnScreenPriorToEnteringFullScreen.forEach { nodeId in
-                state.getNodeViewModel(nodeId)?.isVisibleInFrame = true
+                state.getCanvasItem(nodeId)?.isVisibleInFrame = true
             }
             state.graphUI.nodesThatWereOnScreenPriorToEnteringFullScreen = .init()
         }

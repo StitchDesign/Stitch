@@ -67,8 +67,8 @@ final class CanvasItemViewModel: Identifiable {
     var isVisibleInFrame = false
     
     // View specific port value data
-    var inputViewModels: [InputNodeRowViewModel]
-    var outputViewModels: [OutputNodeRowViewModel]
+    var inputViewModels: [InputNodeRowViewModel] = []
+    var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -91,7 +91,7 @@ final class CanvasItemViewModel: Identifiable {
             }
             
             if node.kind == .group {
-                node.updatePortColorDataUponNodeSelection(
+                updatePortColorDataUponNodeSelection(
                     inputs: inputs,
                     outputs: outputs)
             }
@@ -113,7 +113,6 @@ final class CanvasItemViewModel: Identifiable {
         self.id = id
         self.position = position
         self.previousPosition = position
-        self.bounds = bounds // where or how is this set?
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate // where or how is this set?
@@ -124,12 +123,11 @@ extension CanvasItemViewModel: SchemaObserver {
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      node: NodeDelegate?) {
-        self.id = id
-        self.position = canvasEntity.position
-        self.previousPosition = canvasEntity.position
-        self.zIndex = canvasEntity.zIndex
-        self.parentGroupNodeId = canvasEntity.parentGroupNodeId
-        self.nodeDelegate = node
+        self.init(id: id,
+                  position: canvasEntity.position,
+                  zIndex: canvasEntity.zIndex,
+                  parentGroupNodeId: canvasEntity.parentGroupNodeId,
+                  nodeDelegate: node)
     }
     
     func createSchema() -> CanvasNodeEntity {

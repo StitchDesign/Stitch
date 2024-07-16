@@ -18,7 +18,7 @@ extension GraphState {
      in which case we use the passed in `nodeId`
      */
     @MainActor
-    func commentBoxCreated(nodeId: UUID) {
+    func commentBoxCreated(nodeId: CanvasItemId) {
         var selectedNodes = self.selectedNodeIds
 
         // Alternatively?: always add this id to selectedNodes in GraphUIState, so that we start it selected.
@@ -27,7 +27,7 @@ extension GraphState {
         }
 
         let visibleNodes = self.visibleNodesViewModel
-            .getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
+            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
 
         let visibleSelectedNodes = visibleNodes
             .filter { selectedNodes.contains($0.id) }

@@ -95,11 +95,10 @@ extension GraphState {
             self.getLayerOutputOnGraph(x)?.canvasItemDelegate = nil
         }
     }
-
     
     @MainActor
     func deleteNode(id: NodeId,
-                    willDeleteLayerChildren: Bool = true) {
+                    willDeleteLayerGroupChildren: Bool = true) {
 
         //    log("deleteNode called, will delete node \(id)")
         
@@ -111,7 +110,7 @@ extension GraphState {
         // Find nodes to recursively delete
         switch node.kind {
         case .layer(let layer) where layer == .group:
-            if willDeleteLayerChildren {
+            if willDeleteLayerGroupChildren {
                 let layerChildren = self.getLayerChildren(for: id)
                 layerChildren.forEach {
                     self.deleteNode(id: $0)

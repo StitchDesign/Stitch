@@ -35,7 +35,7 @@ final class GraphUIState {
     
     var llmRecording = LLMRecordingState()
         
-    var nodesThatWereOnScreenPriorToEnteringFullScreen = NodeIdSet()
+    var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
     var lastMomentumRunTime: TimeInterval = .zero
     

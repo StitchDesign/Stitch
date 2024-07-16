@@ -44,9 +44,7 @@ extension GraphState: GraphStepManagerDelegate {
             for mouseNodeId in mouseNodeIds {
                 if let mouseNode = self.getPatchNode(id: mouseNodeId) {
                     mouseNode.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
-                        .updateValues([.position(.zero)],
-                                      activeIndex: self.activeIndex,
-                                      isVisibleInFrame: mouseNode.isVisibleInFrame)
+                        .updateValues([.position(.zero)])
                 }
             }
             

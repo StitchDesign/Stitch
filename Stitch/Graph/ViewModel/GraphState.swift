@@ -318,6 +318,11 @@ extension GraphState: SchemaObserver {
 
 extension GraphState {
     @MainActor
+    func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
+        self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
+    }
+    
+    @MainActor
     var localPositionToPersist: CGPoint {
         /*
          TODO: serialize graph-offset by traversal level; introduce centroid/find-node button

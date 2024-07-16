@@ -132,12 +132,14 @@ struct CommonEditingView: View {
 
     // fka `createInputEditAction`
     @MainActor func inputEdited(newEdit: String,
-                     isCommitting: Bool) {
-        self.graph.inputEdited(
-            fieldValue: .string(.init(newEdit)),
-            fieldIndex: fieldIndex,
-            inputField: inputField,
-            isCommitting: isCommitting)
+                                isCommitting: Bool) {
+        if let coordinate = self.inputField.rowViewModelDelegate?.rowDelegate?.id {
+            self.graph.inputEdited(
+                fieldValue: .string(.init(newEdit)),
+                fieldIndex: fieldIndex,
+                coordinate: coordinate,
+                isCommitting: isCommitting)
+        }
     }
 }
 

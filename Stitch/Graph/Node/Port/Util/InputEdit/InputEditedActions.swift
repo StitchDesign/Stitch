@@ -14,23 +14,35 @@ extension GraphState {
     func inputEdited(fieldValue: FieldValue,
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
-                     inputField: InputFieldViewModel,
+                     coordinate: NodeIOCoordinate,
                      isCommitting: Bool = true) {
-
+        
         //        #if DEV_DEBUG
         //        log("InputEdited: fieldValue: \(fieldValue)")
         //        log("InputEdited: fieldIndex: \(fieldIndex)")
         //        log("InputEdited: coordinate: \(coordinate)")
         //        #endif
-
-        guard let rowViewModel = inputField.rowViewModelDelegate,
-              let rowObserver = rowViewModel.rowDelegate,
-              let nodeId = rowViewModel.nodeDelegate?.id,
-              let nodeViewModel = self.getNodeViewModel(nodeId) else {
+        
+        guard let rowObserver = self.getInputRowObserver(coordinate) else {
             log("InputEdited error: no parent values list found.")
             return
         }
-//        
+        
+        rowObserver.inputEdited(graph: self,
+                                fieldValue: fieldValue,
+                                fieldIndex: fieldIndex,
+                                isCommitting: isCommitting)
+    }
+}
+
+extension InputNodeRowObserver {
+    @MainActor
+    func inputEdited(graph: GraphState,
+                     fieldValue: FieldValue,
+                     // Single-fields always 0, multi-fields are like size or position inputs
+                     fieldIndex: Int,
+                     isCommitting: Bool = true) {
+//
 //        let parentPortValuesList = rowObserver.allLoopedValues
 //
 //        let loopIndex = self.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
@@ -40,7 +52,12 @@ extension GraphState {
 //            return .noChange
 //        }
         
-        let parentPortValue = rowViewModel.activeValue
+        guard let node = graph.getNodeViewModel(self.id.nodeId) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let parentPortValue = self.activeValue
 
         //        log("InputEdited: state.graphUI.focusedField: \(state.graphUI.focusedField)")
 
@@ -54,21 +71,21 @@ extension GraphState {
         if newValue != parentPortValue {
 
             // MARK: very important to remove edges before input changes
-            nodeViewModel.removeIncomingEdge(at: rowObserver.id,
-                                             activeIndex: self.activeIndex)
+            node.removeIncomingEdge(at: self.id,
+                                                  activeIndex: graph.activeIndex)
 
-            rowObserver.setValuesInInput([newValue])
+            self.setValuesInInput([newValue])
         }
         
-        self.calculate(nodeViewModel.id)
+        node.calculate()
 
         if isCommitting {
-            self.maybeCreateLLMSetField(node: nodeViewModel,
-                                              input: rowObserver.id,
-                                              fieldIndex: fieldIndex,
-                                              value: newValue)
+            graph.maybeCreateLLMSetField(node: node,
+                                         input: self.id,
+                                         fieldIndex: fieldIndex,
+                                         value: newValue)
         }
         
-        self.encodeProjectInBackground()
+        graph.encodeProjectInBackground()
     }
 }

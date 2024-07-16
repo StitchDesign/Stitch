@@ -197,13 +197,24 @@ extension StitchStore {
     @MainActor
     func saveUndoHistory(undoEvents: [Action],
                          redoEvents: [Action]) {
+        let undoEvents: [() -> ()] = undoEvents.map { action in { self.environment.undoManager.safeDispatch(action) } }
+        let redoEvents: [() -> ()] = redoEvents.map { action in { self.environment.undoManager.safeDispatch(action) } }
+        
+        self.saveUndoHistory(undoEvents: undoEvents,
+                             redoEvents: redoEvents)
+    }
+    
+    /// Saves undo history using actions. Used for project deletion.
+    @MainActor
+    func saveUndoHistory(undoEvents: [@MainActor () -> ()],
+                         redoEvents: [@MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
 
         undoManager.registerUndo(withTarget: self) { _ in
             self.undoManagerInvoked()
 
             undoEvents.forEach { undoEvent in
-                self.environment.undoManager.safeDispatch(undoEvent)
+                undoEvent()
             }
 
             // Make redo effects the opposite of undo effects
