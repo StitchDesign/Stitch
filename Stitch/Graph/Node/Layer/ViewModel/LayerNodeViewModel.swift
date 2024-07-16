@@ -332,11 +332,11 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
+    @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        fatalError()
-        /// Steps here...
-        /// 1. Get layer definition
-        /// 2. Iterate over each input in the layer definition
+        self.layer.layerGraphNode.inputDefinitions.compactMap {
+            self[keyPath: $0.layerNodeKeyPath].canvasObsever
+        }
     }
     
     @MainActor

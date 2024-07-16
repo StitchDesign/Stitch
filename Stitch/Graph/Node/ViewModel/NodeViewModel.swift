@@ -304,6 +304,7 @@ extension NodeViewModel {
         return observer
     }
     
+    @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         switch nodeType {
         case .patch(let patchNode):
@@ -327,6 +328,7 @@ extension NodeViewModel {
     }
     
     /// Checks if any canvas entity for this node is visible.
+    @MainActor
     var isVisibleInFrame: Bool {
         for canvasObserver in self.getAllCanvasObservers() {
             if canvasObserver.isVisibleInFrame {

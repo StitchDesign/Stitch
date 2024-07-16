@@ -222,11 +222,7 @@ extension InputLayerNodeRowData {
                                                upstreamOutputCoordinate: nil,
                                                nodeDelegate: nil)
         
-        fatalError()
-        
-        // TODO: update arguments above to pass in the entity struct for canvas data
-//        let canvasObserver = CanvasItemViewModel(from canvasEntity: ....)
-//        return .init(rowObserver: rowObserver,
-//                     canvasObsever: canvasObserver)
+        return .init(rowObserver: rowObserver,
+                     canvasObsever: nil)
     }
 }

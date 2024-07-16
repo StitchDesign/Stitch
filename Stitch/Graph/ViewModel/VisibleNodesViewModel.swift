@@ -24,6 +24,7 @@ extension VisibleNodesViewModel {
         self.nodes.keys.toSet
     }
 
+    @MainActor
     var allViewModels: CanvasItemViewModels {
         Array(self.nodes.values.flatMap { node in
             node.getAllCanvasObservers()
