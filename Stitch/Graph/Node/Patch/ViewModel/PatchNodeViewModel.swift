@@ -82,7 +82,6 @@ final class PatchNodeViewModel: Sendable {
                                    patch: schema.patch,
                                    userVisibleType: schema.userVisibleType,
                                    nodeDelegate: node)
-        
     }
 }
 

@@ -115,7 +115,7 @@ final class CanvasItemViewModel: Identifiable {
         self.previousPosition = position
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
-        self.nodeDelegate = nodeDelegate // where or how is this set?
+        self.nodeDelegate = nodeDelegate
     }
 }
 

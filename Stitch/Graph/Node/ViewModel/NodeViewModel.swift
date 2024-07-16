@@ -97,6 +97,28 @@ final class NodeViewModel: Sendable {
         switch self.nodeType {
         case .patch(let patchNode):
             patchNode.delegate = self
+            
+            patchNode.canvasObserver.inputViewModels = patchNode
+                .inputsObservers.enumerated().map { index, rowObserer in
+                .init(id: .init(graphItemType: .node,
+                                nodeId: self.id,
+                                portType: .portIndex(index)),
+                      activeValue: rowObserer.activeValue,
+                      nodeRowIndex: index,
+                      rowDelegate: rowObserer,
+                      canvasItemDelegate: patchNode.canvasObserver)
+            }
+            
+            patchNode.canvasObserver.outputViewModels = patchNode
+                .outputsObservers.enumerated().map { index, rowObserer in
+                .init(id: .init(graphItemType: .node,
+                                nodeId: self.id,
+                                portType: .portIndex(index)),
+                      activeValue: rowObserer.activeValue,
+                      nodeRowIndex: index,
+                      rowDelegate: rowObserer,
+                      canvasItemDelegate: patchNode.canvasObserver)
+            }
 
         case .layer(let layerNode):
             layerNode.nodeDelegate = self
