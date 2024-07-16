@@ -88,11 +88,48 @@ struct NodeInputOutputView: View {
                 
                 if hidePaddingFieldsOnPropertySidebar {
                     labelView
-                        .background(.red.opacity(0.5))
+//                        .background(.red.opacity(0.5))
                         .onTapGesture {
-                            dispatch(FlyoutOpened(flyoutInput: .padding,
+                            dispatch(FlyoutToggled(flyoutInput: .padding,
                                                   flyoutNodeId: inputCoordinate.nodeId))
                         }
+                        
+                    Spacer()
+                    
+                    // Want to just display the values; so need a new kind of `display only` view
+                    ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
+                        
+                        ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: FieldViewModel) in
+                            
+                            StitchTextView(string: fieldViewModel.fieldValue.stringValue,
+                                           fontColor: STITCH_FONT_GRAY_COLOR)
+                                // Monospacing prevents jittery node widths if values change on graphstep
+                                .monospacedDigit()
+                                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+                                .background {
+                                    Color.white.cornerRadius(4)
+                                }
+//                                .border(.purple)
+                        }
+                        
+//                        NodeFieldsView(
+//                            graph: graph,
+//                            rowObserver: rowData,
+//                            fieldGroupViewModel: fieldGroupViewModel,
+//                            coordinate: coordinate,
+//                            nodeKind: nodeKind,
+////                            nodeIO: coordinateType.nodeIO,
+//                            nodeIO: .output, // to get read only behavior
+//                            isCanvasItemSelected: isCanvasItemSelected,
+//                            hasIncomingEdge: rowData.upstreamOutputCoordinate.isDefined,
+//                            adjustmentBarSessionId: adjustmentBarSessionId,
+//                            forPropertySidebar: forPropertySidebar,
+//                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph
+//                        )
+                        
+                    }
+                    
+                    
                 } else {
                     labelView
                     inputOutputRow(coordinate: coordinate)

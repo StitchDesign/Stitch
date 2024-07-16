@@ -68,10 +68,10 @@ struct PaddingFlyoutView: View {
 //            .padding(.leading)
             
             inputOutputRow
-                .border(.green)
         }
         .padding()
-        .background(.gray)
+//        .background(.gray)
+        .background(Color(uiColor: .secondarySystemBackground))
         .cornerRadius(8)
         .frame(width: Self.WIDTH)
         .background {
@@ -106,6 +106,17 @@ struct PaddingFlyoutView: View {
     }
 }
 
+extension LayerInputType {
+    var usesFlyout: Bool {
+        switch self {
+        case .padding:
+            return true
+        default:
+            return false
+        }
+    }
+}
+
 // Used by a given flyout view to update its read-height in state,
 // for proper positioning.
 struct UpdateFlyoutSize: GraphUIEvent {
@@ -130,16 +141,22 @@ extension GraphUIState {
     }
 }
 
-struct FlyoutOpened: GraphUIEvent {
+struct FlyoutToggled: GraphUIEvent {
     
     let flyoutInput: LayerInputType
     let flyoutNodeId: NodeId
     
     func handle(state: GraphUIState) {
-        withAnimation {
-            state.propertySidebar.flyoutState = .init(
-                flyoutInput: flyoutInput,
-                flyoutNode: flyoutNodeId)
+        if let flyoutState = state.propertySidebar.flyoutState,
+           flyoutState.flyoutInput == flyoutInput,
+           flyoutState.flyoutNode == flyoutNodeId {
+            state.closeFlyout()
+        } else {
+//            withAnimation {
+                state.propertySidebar.flyoutState = .init(
+                    flyoutInput: flyoutInput,
+                    flyoutNode: flyoutNodeId)
+//            }
         }
     }
 }

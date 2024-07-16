@@ -132,7 +132,8 @@ struct ContentView: View {
                                             
                         // If pseudo-modal-background placed here,
                         // then we disable scroll
-                        Color.blue.opacity(0.5)
+//                        Color.blue.opacity(0.5)
+                        Color.blue.opacity(0.001)
                             .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                             .onTapGesture {
                                 dispatch(FlyoutClosed())
