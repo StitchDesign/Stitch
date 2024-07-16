@@ -134,7 +134,9 @@ struct ContentView: View {
                         // then we disable scroll
 //                        Color.blue.opacity(0.5)
                         Color.blue.opacity(0.001)
-                            .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                        
+                        // SwiftUI native .popover disables scroll; probably best solution here.
+//                            .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                             .onTapGesture {
                                 dispatch(FlyoutClosed())
                             }
@@ -161,8 +163,10 @@ struct ContentView: View {
                             // TODO: use left edge of property sidebar
 //                            x: entry.x - flyoutSize.width/2 - 8 - 36,
                             
-                            x: entry.x - flyoutSize.width/2 - 8 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
-//                            
+//                            x: entry.x - flyoutSize.width/2 - 8 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
+                            
+                            x: entry.x - flyoutSize.width/2 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
+//
 //                            x: entry.x - flyoutSize.width/2 - 8 - 36 - SIDEBAR_WIDTH,
                             
                             

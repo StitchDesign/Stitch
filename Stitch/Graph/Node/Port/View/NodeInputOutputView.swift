@@ -107,7 +107,8 @@ struct NodeInputOutputView: View {
                                 .monospacedDigit()
                                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
                                 .background {
-                                    Color.white.cornerRadius(4)
+//                                    Color.white.cornerRadius(4)
+                                    Color(.insertNodeMenuBackground).cornerRadius(4)
                                 }
 //                                .border(.purple)
                         }
