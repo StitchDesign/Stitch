@@ -47,6 +47,8 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var hasEdge: Bool { get }
     
+    @MainActor var containsUpstreamConnection: Bool { get }
+    
     @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
@@ -164,6 +166,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
 @Observable
 final class OutputNodeRowObserver: NodeRowObserver {
     static let nodeIOType: NodeIO = .output
+    let containsUpstreamConnection = false  // always false
 
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
     
@@ -237,6 +240,10 @@ final class OutputNodeRowObserver: NodeRowObserver {
 }
 
 extension InputNodeRowObserver {
+    @MainActor var containsUpstreamConnection: Bool {
+        self.upstreamOutputObserver.isDefined
+    }
+    
     /// Values for import dropdowns don't hold media directly, so we need to find it.
     @MainActor var importedMediaObject: StitchMediaObject? {
         guard self.id.portId == 0,

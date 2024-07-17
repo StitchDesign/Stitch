@@ -223,9 +223,9 @@ extension Array where Element: NodeRowObserver {
                     nodeDelegate: nodeDelegate)
 
             // Only update values if there's no upstream connection
-//            if !observer.upstreamOutputObserver.isDefined {
-//                observer.updateValues(values)
-//            }
+            if !observer.containsUpstreamConnection {
+                observer.updateValues(values)
+            }
         }
     }
 }
