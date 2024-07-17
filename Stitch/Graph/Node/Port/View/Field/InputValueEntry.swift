@@ -58,7 +58,7 @@ struct InputValueEntry: View {
             //                .border(.blue)
             
             if forPropertySidebar,
-                (rowObserver.id.keyPath?.usesFlyout ?? false) {
+               (rowViewModel.portType.keyPath?.usesFlyout ?? false) {
                 Spacer()
             }
             

@@ -196,7 +196,7 @@ struct LayerInspectorInputsSectionView: View {
                 let allFieldsBlockedOut = layerInputData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if inputListContainsInput && !allFieldsBlockedOut {
-                    LayerInspectorPortView(
+                    LayerInspectorInputPortView(
                         layerInput: layerInput,
                         rowViewModel: layerInputData.inspectorRowViewModel,
                         rowObserver: rowObserver,

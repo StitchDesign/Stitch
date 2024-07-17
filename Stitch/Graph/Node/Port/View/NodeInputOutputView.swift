@@ -141,7 +141,7 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
 
-                let isPaddingLayerInputRow = rowData.id.keyPath == .padding
+                let isPaddingLayerInputRow = rowData.id.portType.keyPath == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
                 if hidePaddingFieldsOnPropertySidebar {
@@ -153,7 +153,7 @@ struct NodeInputView: View {
                         // Want to just display the values; so need a new kind of `display only` view
                         ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
                             
-                            ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: FieldViewModel) in
+                            ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: InputFieldViewModel) in
                                 
                                 StitchTextView(string: fieldViewModel.fieldValue.stringValue,
                                                fontColor: STITCH_FONT_GRAY_COLOR)
@@ -171,7 +171,7 @@ struct NodeInputView: View {
                         // Tap on the read-only fields to open padding flyout
                         .onTapGesture {
                             dispatch(FlyoutToggled(flyoutInput: .padding,
-                                                   flyoutNodeId: inputCoordinate.nodeId))
+                                                   flyoutNodeId: nodeId))
                         }
                     }                    
                 } else {
