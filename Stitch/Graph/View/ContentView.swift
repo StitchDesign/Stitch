@@ -124,22 +124,47 @@ struct ContentView: View {
                 // Layer Inspector Flyout must sit above preview window
                 .overlay {
         
-                    if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-                       let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
-                       let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
-                        
-                        let flyoutSize = flyoutState.flyoutSize
-                                            
+//                    if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
+//                       let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
+//                       let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+//                        
+//                        let flyoutSize = flyoutState.flyoutSize
+                         
+                    if let entry = graph.graphUI.propertySidebar.propertyRowOrigins.first {
+                    
                         // If pseudo-modal-background placed here,
                         // then we disable scroll
-//                        Color.blue.opacity(0.5)
-                        Color.blue.opacity(0.001)
+                        Color.blue.opacity(0.5)
+//                        Color.blue.opacity(0.001)
                         
                         // SwiftUI native .popover disables scroll; probably best solution here.
-//                            .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                            .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                             .onTapGesture {
                                 dispatch(FlyoutClosed())
                             }
+                        
+                        let deviceScreen = graph.graphUI.frame
+                        let flyoutLength = 200.0
+                        
+                        HStack {
+                            Spacer()
+                            Rectangle()
+                                .fill(.red.opacity(0.75))
+                                .frame(width: flyoutLength, height: flyoutLength)
+                                .border(.yellow, width: 10)
+                                .overlay {
+                                    Circle().fill(.green).frame(width: 60)
+                                }
+                                .offset(
+                                    x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
+                                    - 8, // padding
+                                    
+                                    y:  -(deviceScreen.midY - flyoutLength/2) // move up to top of graph
+                                    + entry.value.y // move down to row's y height
+                                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's lisst padding
+                                )
+                        }
+                        
                         
                         /*
                           TODO: better handling of left-sidebar; either avoid its displacement effect or properly read the actual width of the left sidebar
@@ -156,24 +181,26 @@ struct ContentView: View {
                          
                          For now, we just close the flyout when the sidebar is opened.
                          */
-                        PaddingFlyoutView(graph: graph,
-                                          rowObserver: rowObserver)
-                        .position(
-                            // 8 = padding from edge of inspector
-                            // TODO: use left edge of property sidebar
-//                            x: entry.x - flyoutSize.width/2 - 8 - 36,
-                            
-//                            x: entry.x - flyoutSize.width/2 - 8 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
-                            
-                            x: entry.x - flyoutSize.width/2 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
-//
-//                            x: entry.x - flyoutSize.width/2 - 8 - 36 - SIDEBAR_WIDTH,
-                            
-                            
-                            // TODO: use a coordinate space that ignores the property sidebar's negative top padding?
-                            y: entry.y + flyoutSize.height/2 + INSPECTOR_LIST_TOP_PADDING
-                        )
-                        .transition(.opacity)
+//                        PaddingFlyoutView(graph: graph,
+//                                          rowObserver: rowObserver)
+                        
+//                        .position(
+//                            // 8 = padding from edge of inspector
+//                            // TODO: use left edge of property sidebar
+////                            x: entry.x - flyoutSize.width/2 - 8 - 36,
+//                            
+////                            x: entry.x - flyoutSize.width/2 - 8 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
+//                            
+//                            x: entry.x - flyoutSize.width/2 - 36 - (graph.graphUI.leftSidebarIsOpen ? SIDEBAR_WIDTH : 0),
+////
+////                            x: entry.x - flyoutSize.width/2 - 8 - 36 - SIDEBAR_WIDTH,
+//                            
+//                            
+//                            // TODO: use a coordinate space that ignores the property sidebar's negative top padding?
+//                            y: entry.y + flyoutSize.height/2 + INSPECTOR_LIST_TOP_PADDING
+//                        )
+                        
+//                        .transition(.opacity)
                     }
                 }
                 

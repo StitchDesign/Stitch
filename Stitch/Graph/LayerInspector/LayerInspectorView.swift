@@ -219,7 +219,25 @@ struct LayerInspectorInputsSectionView: View {
 //
                                                  initial: true) { oldValue, newValue in
                                     
+                                guard layerInput == .anchoring else {
+                                    return
+                                }
+                                
                                 log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+
+                                log("LayerInspectorInputs: graph.graphUI.frame.origin: \(graph.graphUI.frame.origin)")
+                                
+                                log("LayerInspectorInputs: graph.graphUI.frame.size: \(graph.graphUI.frame.size)")
+                                
+                                log("LayerInspectorInputs: graph.graphUI.frame.minX: \(graph.graphUI.frame.minX)")
+                                log("LayerInspectorInputs: graph.graphUI.frame.minY: \(graph.graphUI.frame.minY)")
+                                
+                                log("LayerInspectorInputs: graph.graphUI.frame.midX: \(graph.graphUI.frame.midX)")
+                                log("LayerInspectorInputs: graph.graphUI.frame.midY: \(graph.graphUI.frame.midY)")
+                                
+                                log("LayerInspectorInputs: graph.graphUI.frame.maxX: \(graph.graphUI.frame.maxX)")
+                                log("LayerInspectorInputs: graph.graphUI.frame.maxY: \(graph.graphUI.frame.maxY)")
+                                
                                 
                                 // Guide for where to place the flyout;
                                 // we read the origin even if this row doesn't support flyout.
