@@ -83,15 +83,47 @@ struct NodeInputOutputView: View {
                                     coordinate: .input(inputCoordinate))
                 }
                 
-                labelView
+                let isPaddingLayerInputRow = rowData.id.keyPath == .padding
+                let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
-                // TODO: fields in layer-inspector flush with right screen edge?
-                //                if forPropertySidebar {
-                //                    Spacer()
-                //                }
+                if hidePaddingFieldsOnPropertySidebar {
+                    
+                    Group {
+                        labelView
+                        
+                        Spacer()
+                        
+                        // Want to just display the values; so need a new kind of `display only` view
+                        ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
+                            
+                            ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: FieldViewModel) in
+                                
+                                StitchTextView(string: fieldViewModel.fieldValue.stringValue,
+                                               fontColor: STITCH_FONT_GRAY_COLOR)
+                                // Monospacing prevents jittery node widths if values change on graphstep
+                                .monospacedDigit()
+                                // TODO: what is best width? Needs to be large enough for 3-digit values?
+                                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+                                .background {
+                                    INPUT_FIELD_BACKGROUND.cornerRadius(4)
+                                }
+                            }
+                            
+                        } // Group
+                        
+                        // Tap on the read-only fields to open padding flyout
+                        .onTapGesture {
+                            dispatch(FlyoutToggled(flyoutInput: .padding,
+                                                   flyoutNodeId: inputCoordinate.nodeId))
+                        }
+                    }
+                    
+                    
+                } else {
+                    labelView
+                    inputOutputRow(coordinate: coordinate)
+                }
                 
-                inputOutputRow(coordinate: coordinate)
-
             case .output(let outputCoordinate):
                 
                 // Property sidebar always shows labels on left side, never right

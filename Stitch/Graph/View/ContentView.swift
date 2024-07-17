@@ -121,6 +121,11 @@ struct ContentView: View {
                             previewWindowSizing: previewWindowSizing)
                     }
                 }
+                // Layer Inspector Flyout must sit above preview window
+                .overlay {
+                    flyout
+                }
+                
                 // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or pposition):
                 // we must apply the `.ignoresSafeArea` modifier to the ProjectNavigationView, rather than .overlay's contents
 #if !targetEnvironment(macCatalyst)
@@ -165,6 +170,47 @@ struct ContentView: View {
             routerNamespace: routerNamespace,
             animationCompleted: showFullScreenAnimateCompleted)
     }
+    
+    @ViewBuilder
+    var flyout: some View {
+        
+        if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
+           let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
+           let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+            
+            let flyoutSize = flyoutState.flyoutSize
+            
+            // If pseudo-modal-background placed here,
+            // then we disable scroll
+            #if DEV_DEBUG || DEBUG
+            let pseudoPopoverBackgroundOpacity = 0.1
+            #else
+            let pseudoPopoverBackgroundOpacity = 0.001
+            #endif
+            
+            Color.blue.opacity(pseudoPopoverBackgroundOpacity)
+            // SwiftUI native .popover disables scroll; probably best solution here.
+            // .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                .onTapGesture {
+                    dispatch(FlyoutClosed())
+                }
+            
+            HStack {
+                Spacer()
+                PaddingFlyoutView(graph: graph,
+                                  rowObserver: rowObserver)
+                .offset(
+                    x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
+                    - 8, // "padding"
+                    
+                    y:  -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
+                    + entry.y // move down to row's y height
+                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's lisst padding
+                )
+            }
+        }
+    } // var flyout: some View { ...
+    
 }
 
 // struct ContentView_Previews: PreviewProvider {

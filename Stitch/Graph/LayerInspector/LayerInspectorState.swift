@@ -18,7 +18,35 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 struct PropertySidebarState: Equatable {
     var selectedProperty: LayerInspectorRowId?
+    
+    // Used for positioning flyouts; read and populated by every row,
+    // even if row does not support a flyout or has no active flyout.
+    // TODO: use `x` of left edge of property sidebar
+    var propertyRowOrigins: [LayerInputType: CGPoint] = .init()
+    
+    // Only layer inputs (not fields or outputs) can have flyouts
+    var flyoutState: PropertySidebarFlyoutState? = nil
 }
+
+struct PropertySidebarFlyoutState: Equatable {
+    
+    // TODO: if each flyout has a known static size (static size required for UIKitWrapper i.e. keypress listening), then can use an enum static sizes here
+    // Populated by the flyout view itself
+    var flyoutSize: CGSize = .zero
+    
+    // User tapped this row, so we opened its flyout
+    var flyoutInput: LayerInputType
+    var flyoutNode: NodeId
+    
+    var input: InputCoordinate {
+        InputCoordinate(portType: .keyPath(self.flyoutInput),
+                        nodeId: self.flyoutNode)
+    }
+}
+
+//enum FlyoutKind: Equatable {
+//    case padding(width: 300.0, )
+//}
 
 extension LayerInspectorView {
     // TODO: fill these out

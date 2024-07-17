@@ -62,8 +62,6 @@ struct NodeFieldsView: View {
             
             fieldsStack
         }
-        
-       
     }
     
     @ViewBuilder

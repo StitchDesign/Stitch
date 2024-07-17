@@ -150,7 +150,7 @@ struct iPadGraphTopBarButtons: View {
             
             if FeatureFlags.USE_LAYER_INSPECTOR {
                 iPadNavBarButton(action: {
-                    self.graphUI.showsLayerInspector.toggle()
+                    dispatch(LayerInspectorToggled())
                 }, iconName: .sfSymbol("sidebar.right"))
             }
         }

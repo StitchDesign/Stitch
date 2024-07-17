@@ -46,7 +46,7 @@ struct StitchRootView: View {
     
     // "Is NavigationSplitView's sidebar open or not?"
     // Handled manually by user.
-    @State private var columnVisibility: NavigationSplitViewVisibility = .detailOnly
+    @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
     
     var body: some View {
         Group {
@@ -56,6 +56,7 @@ struct StitchRootView: View {
                 splitView
             }
         }
+//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
         .modifier(StitchRootModifier(alertState: alertState))
         .onAppear {
             // TODO: move this to the start of StitchStore instead?
@@ -67,6 +68,10 @@ struct StitchRootView: View {
             
             dispatch(AppEdgeStyleChangedEvent(newEdgeStyle: .init(rawValue: savedEdgeStyle) ?? .defaultEdgeStyle))
             
+        }
+        .onChange(of: self.columnVisibility,
+                  initial: true) { oldValue, newValue in
+            dispatch(LeftSidebarToggled())
         }
         .environment(\.appTheme, theme)
         .environment(\.edgeStyle, edgeStyle)
@@ -116,6 +121,7 @@ struct StitchRootView: View {
                 // Projects Home View <-> some Loaded Project;
                 // gives us proper back button etc.
                 StitchNavStack(store: store)
+                    .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
             })
         
         // NOT NEEDED ANYMORE ?
@@ -148,7 +154,12 @@ struct StitchRootView: View {
                 dispatch(HideDrawer())
             }
         }
+        
+        
+//        .coordinateSpace(name: Self.STITCH_ROOT_VIEW_COORDINATE_SPACE)
     }
+    
+    static let STITCH_ROOT_VIEW_COORDINATE_SPACE = "STITCH_ROOT_VIEW_COORDINATE_SPACE"
     
     // TODO: remove on Catalyst
     @Namespace var topButtonNamespace

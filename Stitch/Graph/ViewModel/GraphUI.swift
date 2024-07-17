@@ -30,7 +30,7 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 
 @Observable
 final class GraphUIState {
- 
+     
     var propertySidebar = PropertySidebarState()
     
     var llmRecording = LLMRecordingState()

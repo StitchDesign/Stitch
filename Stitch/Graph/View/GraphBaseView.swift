@@ -118,7 +118,7 @@ struct GraphBaseView: View {
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
-            
+                
             // IMPORTANT: applying .inspector outside of this ZStack causes displacement of graph contents when graph zoom != 1
             Circle().fill(Stitch.APP_BACKGROUND_COLOR.opacity(0.001))
                 .frame(width: 1, height: 1)

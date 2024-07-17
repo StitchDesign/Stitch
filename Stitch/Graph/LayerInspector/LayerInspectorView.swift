@@ -17,6 +17,12 @@ extension LayerInputType: Identifiable {
     }
 }
 
+#if targetEnvironment(macCatalyst)
+let INSPECTOR_LIST_TOP_PADDING = -40.0
+#else
+let INSPECTOR_LIST_TOP_PADDING = -60.0
+#endif
+
 // MARK: Right-hand sidebar i.e. "Property sidebar"
 
 struct LayerInspectorView: View {
@@ -58,9 +64,9 @@ struct LayerInspectorView: View {
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
             #if targetEnvironment(macCatalyst)
-                         .padding(.top, -40)
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
             #else
-                         .padding(.top, -60)
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
                          .padding(.bottom, -20)
             #endif
             
@@ -188,13 +194,30 @@ struct LayerInspectorInputsSectionView: View {
                 
                 let allFieldsBlockedOut = rowObserver.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
-                if inputsList.contains(layerInput) && !allFieldsBlockedOut {
+                if inputListContainsInput && !allFieldsBlockedOut {
                     LayerInspectorPortView(
                         layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
                         rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)
+                    
+                    .background {
+                        
+                        // Note: none of these various coordinate spaces makes a difference, even when coordinate space is at StitchRootView level?
+                        GeometryReader { geometry in
+                            Color.clear.onChange(of: geometry.frame(in: .global),
+                                                 initial: true) { oldValue, newValue in
+
+                                // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                                
+                                // Guide for where to place the flyout;
+                                // we read the origin even if this row doesn't support flyout.
+                                graph.graphUI.propertySidebar.propertyRowOrigins
+                                    .updateValue(newValue.origin, forKey: layerInput)
+                            }
+                        } // GeometryReader
+                    } // .background
                 }
             }
             .transition(.slideInAndOut(edge: .top))

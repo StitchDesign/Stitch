@@ -75,9 +75,15 @@ struct ValueEntry: View {
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             labelDisplay
-            //                .border(.blue)
+                // .border(.blue)
+            
+            if forPropertySidebar, 
+                (rowObserver.id.keyPath?.usesFlyout ?? false) {
+                Spacer()
+            }
+            
             valueDisplay
-            //                .border(.green)
+                // .border(.green)
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
