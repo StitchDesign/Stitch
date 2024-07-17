@@ -207,37 +207,9 @@ struct LayerInspectorInputsSectionView: View {
                         // Note: none of these various coordinate spaces makes a difference, even when coordinate space is at StitchRootView level?
                         GeometryReader { geometry in
                             Color.clear.onChange(of: geometry.frame(in: .global),
-                                                 
-
-                                                 
-//                            Color.clear.onChange(of: geometry.frame(in: .named(GraphBaseView.coordinateNamespace)),
-                            
-                            // TODO: better reading of x position; use `label` on a section instead? Only need specific row for the y; otherwise all rows' have same x (the left edge of the inspector)
-//                            Color.clear.onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
-                            
-//                            Color.clear.onChange(of: geometry.frame(in: .named(StitchRootView.STITCH_ROOT_VIEW_COORDINATE_SPACE)),
-//
                                                  initial: true) { oldValue, newValue in
-                                    
-//                                guard layerInput == .anchoring else {
-//                                    return
-//                                }
-                                
-                                log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
 
-                                log("LayerInspectorInputs: graph.graphUI.frame.origin: \(graph.graphUI.frame.origin)")
-                                
-                                log("LayerInspectorInputs: graph.graphUI.frame.size: \(graph.graphUI.frame.size)")
-                                
-                                log("LayerInspectorInputs: graph.graphUI.frame.minX: \(graph.graphUI.frame.minX)")
-                                log("LayerInspectorInputs: graph.graphUI.frame.minY: \(graph.graphUI.frame.minY)")
-                                
-                                log("LayerInspectorInputs: graph.graphUI.frame.midX: \(graph.graphUI.frame.midX)")
-                                log("LayerInspectorInputs: graph.graphUI.frame.midY: \(graph.graphUI.frame.midY)")
-                                
-                                log("LayerInspectorInputs: graph.graphUI.frame.maxX: \(graph.graphUI.frame.maxX)")
-                                log("LayerInspectorInputs: graph.graphUI.frame.maxY: \(graph.graphUI.frame.maxY)")
-                                
+                                // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
                                 
                                 // Guide for where to place the flyout;
                                 // we read the origin even if this row doesn't support flyout.
