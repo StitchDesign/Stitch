@@ -219,9 +219,9 @@ struct LayerInspectorInputsSectionView: View {
 //
                                                  initial: true) { oldValue, newValue in
                                     
-                                guard layerInput == .anchoring else {
-                                    return
-                                }
+//                                guard layerInput == .anchoring else {
+//                                    return
+//                                }
                                 
                                 log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
 

@@ -191,10 +191,17 @@ struct CatalystTopBarGraphButtons: View {
             
             if FeatureFlags.USE_LAYER_INSPECTOR {
                 CatalystNavBarButton(action: {
-                    self.graphUI.showsLayerInspector.toggle()
+                    dispatch(LayerInspectorToggled())
                 }, iconName: .sfSymbol("sidebar.right"))
             }
         }
+    }
+}
+
+struct LayerInspectorToggled: GraphUIEvent {
+    func handle(state: GraphUIState) {
+        state.showsLayerInspector.toggle()
+        state.closeFlyout()
     }
 }
 

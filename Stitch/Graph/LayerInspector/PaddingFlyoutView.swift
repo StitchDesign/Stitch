@@ -8,36 +8,20 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct Field: Equatable, Identifiable {
-    var id = UUID()
-    let label: String
-    let value: Double
+extension Color {
+    static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
 struct PaddingFlyoutView: View {
     
-    static let WIDTH = 256.0 // Per Figma
-    
-    // TODO: finalize this logic once
+    static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
     
     @Bindable var graph: GraphState
-    
     let rowObserver: NodeRowObserver
-    
-    // the fields of multifield PortValue like Padding (Point4D), Dropshadow etc.
-    let fields: [Field] = [
-        .init(label: "Top", value: 0),
-        .init(label: "Right", value: 0),
-        .init(label: "Bottom", value: 0),
-        .init(label: "Left", value: 0),
-//        .init(label: "Safe Area Top", value: 0),
-//        .init(label: "Safe Area Bottom", value: 0)
-    ]
-    
+ 
     var body: some View {
         
         VStack(alignment: .leading) {
-            
             HStack {
                 Text("Padding").font(.title3)
                 Spacer()
@@ -49,37 +33,19 @@ struct PaddingFlyoutView: View {
                     }
             }
             
-            // ForEach causes animation problems?
-//            ForEach(fields) { field in
-//                //                    Spacer()
-//                HStack {
-//                    Text(field.label)
-//                    Spacer()
-//                    // Ignores Spacer() if no width set
-//                    TextField("", text: .constant(field.value.description))
-//                        .frame(width: 30)
-//                        .padding(.leading, 8)
-//                        .background {
-//                            Color.gray
-//                                .cornerRadius(4)
-//                        }
-//                }
-//            } // ForEach
-//            .padding(.leading)
-            
+            // TODO: finalize this logic once 
             inputOutputRow
         }
         .padding()
-//        .background(.gray)
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.WIDTH)
+        .frame(width: Self.PADDING_FLYOUT_WIDTH)
         .background {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                               initial: true) { oldValue, newValue in
-                        print("Flyout size: \(newValue.size)")
+                        // log("Flyout size: \(newValue.size)")
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }
@@ -161,25 +127,11 @@ struct FlyoutToggled: GraphUIEvent {
     }
 }
 
-struct LeftSidebarVisibilityStateChanged: GraphUIEvent {
-    let status: NavigationSplitViewVisibility
+struct LeftSidebarToggled: GraphUIEvent {
     
     func handle(state: GraphUIState) {
-        
         // Reset flyout
         state.closeFlyout()
-        
-        // Track in state whether left sidebar is open or not
-        switch status {
-        case .detailOnly:
-            state.leftSidebarIsOpen = false
-        case .all, .doubleColumn:
-            state.leftSidebarIsOpen = true
-        case .automatic: // Inaccurate?
-            state.leftSidebarIsOpen = false
-        default:
-            state.leftSidebarIsOpen = false
-        }
     }
 }
 
