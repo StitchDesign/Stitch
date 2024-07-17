@@ -33,8 +33,14 @@ struct PaddingFlyoutView: View {
                     }
             }
             
-            // TODO: finalize this logic once 
+            // TODO: finalize this logic once fields are in?
             inputOutputRow
+        
+            // // TODO: keypress listener needed for TAB, but UIKitWrapper messes up view's height
+//            UIKitWrapper(ignoresKeyCommands: false,
+//                         name: "PaddingFlyout") {
+//                inputOutputRow
+//            }
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)

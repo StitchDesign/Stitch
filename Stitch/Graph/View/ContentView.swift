@@ -195,19 +195,15 @@ struct ContentView: View {
                     dispatch(FlyoutClosed())
                 }
             
-            let deviceScreen = graph.graphUI.frame
-            let flyoutLength = flyoutSize.height
-            
             HStack {
                 Spacer()
                 PaddingFlyoutView(graph: graph,
                                   rowObserver: rowObserver)
                 .offset(
                     x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
-                    - 8, // padding
+                    - 8, // "padding"
                     
-                    y:  -(deviceScreen.midY - flyoutLength/2) // move up to top of graph
-                    //                                    + entry.value.y // move down to row's y height
+                    y:  -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
                     + entry.y // move down to row's y height
                     + INSPECTOR_LIST_TOP_PADDING // move up per inspector's lisst padding
                 )
