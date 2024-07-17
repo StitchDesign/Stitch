@@ -208,8 +208,7 @@ struct InputValueView: View {
                 hasIncomingEdge: hasIncomingEdge)
 
         case .json(let json):
-            EditJSONEntry(inputViewModel: rowViewModel,
-                          graph: graph,
+            EditJSONEntry(graph: graph,
                           coordinate: FieldCoordinate(rowId: rowViewModel.id,
                                                       fieldIndex: viewModel.fieldIndex),
                           json: isButtonPressed ? json : nil,
