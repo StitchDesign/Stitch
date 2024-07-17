@@ -278,11 +278,18 @@ final class LayerNodeViewModel {
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let rowObserver = self[keyPath: inputType.layerNodeKeyPath].rowObserver
+            let layerData = self[keyPath: inputType.layerNodeKeyPath]
             
-            rowObserver.nodeKind = .layer(schema.layer)
-            rowObserver.nodeDelegate = nodeDelegate
-            rowObserver.id = id
+            // Update row observer
+            layerData.rowObserver.nodeKind = .layer(schema.layer)
+            layerData.rowObserver.nodeDelegate = nodeDelegate
+            layerData.rowObserver.id = id
+            
+            // Update row view model
+            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
+                                                       nodeId: id.nodeId,
+                                                       portType: .keyPath(inputType))
+            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
         }
     }
 }
