@@ -89,14 +89,7 @@ struct NodeInputOutputView: View {
                 if hidePaddingFieldsOnPropertySidebar {
                     
                     Group {
-                        
-                        
                         labelView
-                        //                        .background(.red.opacity(0.5))
-                        //                        .onTapGesture {
-                        //                            dispatch(FlyoutToggled(flyoutInput: .padding,
-                        //                                                  flyoutNodeId: inputCoordinate.nodeId))
-                        //                        }
                         
                         Spacer()
                         
@@ -118,7 +111,7 @@ struct NodeInputOutputView: View {
                             
                         } // Group
                         
-                        // Tap on the read-only fields to
+                        // Tap on the read-only fields to open padding flyout
                         .onTapGesture {
                             dispatch(FlyoutToggled(flyoutInput: .padding,
                                                    flyoutNodeId: inputCoordinate.nodeId))
