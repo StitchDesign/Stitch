@@ -87,47 +87,42 @@ struct NodeInputOutputView: View {
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
                 if hidePaddingFieldsOnPropertySidebar {
-                    labelView
-//                        .background(.red.opacity(0.5))
-                        .onTapGesture {
-                            dispatch(FlyoutToggled(flyoutInput: .padding,
-                                                  flyoutNodeId: inputCoordinate.nodeId))
-                        }
-                        
-                    Spacer()
                     
-                    // Want to just display the values; so need a new kind of `display only` view
-                    ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
+                    Group {
                         
-                        ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: FieldViewModel) in
+                        
+                        labelView
+                        //                        .background(.red.opacity(0.5))
+                        //                        .onTapGesture {
+                        //                            dispatch(FlyoutToggled(flyoutInput: .padding,
+                        //                                                  flyoutNodeId: inputCoordinate.nodeId))
+                        //                        }
+                        
+                        Spacer()
+                        
+                        // Want to just display the values; so need a new kind of `display only` view
+                        ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
                             
-                            StitchTextView(string: fieldViewModel.fieldValue.stringValue,
-                                           fontColor: STITCH_FONT_GRAY_COLOR)
+                            ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: FieldViewModel) in
+                                
+                                StitchTextView(string: fieldViewModel.fieldValue.stringValue,
+                                               fontColor: STITCH_FONT_GRAY_COLOR)
                                 // Monospacing prevents jittery node widths if values change on graphstep
                                 .monospacedDigit()
+                                // TODO: what is best width? Needs to be large enough for 3-digit values?
                                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
                                 .background {
-//                                    Color.white.cornerRadius(4)
-                                    Color(.insertNodeMenuBackground).cornerRadius(4)
+                                    INPUT_FIELD_BACKGROUND.cornerRadius(4)
                                 }
-//                                .border(.purple)
+                            }
+                            
+                        } // Group
+                        
+                        // Tap on the read-only fields to
+                        .onTapGesture {
+                            dispatch(FlyoutToggled(flyoutInput: .padding,
+                                                   flyoutNodeId: inputCoordinate.nodeId))
                         }
-                        
-//                        NodeFieldsView(
-//                            graph: graph,
-//                            rowObserver: rowData,
-//                            fieldGroupViewModel: fieldGroupViewModel,
-//                            coordinate: coordinate,
-//                            nodeKind: nodeKind,
-////                            nodeIO: coordinateType.nodeIO,
-//                            nodeIO: .output, // to get read only behavior
-//                            isCanvasItemSelected: isCanvasItemSelected,
-//                            hasIncomingEdge: rowData.upstreamOutputCoordinate.isDefined,
-//                            adjustmentBarSessionId: adjustmentBarSessionId,
-//                            forPropertySidebar: forPropertySidebar,
-//                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph
-//                        )
-                        
                     }
                     
                     

@@ -10,6 +10,8 @@ import StitchSchemaKit
 
 extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
+    
+//    static let insertNodeMenuBackground
 }
 
 struct PaddingFlyoutView: View {
