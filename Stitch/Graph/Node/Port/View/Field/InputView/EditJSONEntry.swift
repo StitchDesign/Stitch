@@ -17,7 +17,6 @@ struct EditJSONEntry: View {
     @State private var properJson = true
     @State private var isOpen = false
 
-    @Bindable var inputViewModel: InputNodeRowViewModel
     @Bindable var graph: GraphState
     let coordinate: FieldCoordinate
     let json: StitchJSON? // nil helps with perf?
@@ -61,7 +60,8 @@ struct EditJSONEntry: View {
                         if let json = json?.value,
                            let edit = getCleanedJSON(internalEditString),
                            !areEqualJsons(edit, json) {
-                            graph.jsonEditCommitted(input: inputViewModel,
+                            graph.jsonEditCommitted(input: .init(portType: coordinate.rowId.portType,
+                                                                 nodeId: coordinate.rowId.nodeId),
                                                     json: edit)
                         }
                     }

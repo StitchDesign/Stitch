@@ -12,7 +12,7 @@ import SwiftyJSON
 
 extension GraphState {
     @MainActor
-    func jsonEditCommitted(input: InputNodeRowViewModel,
+    func jsonEditCommitted(input: NodeIOCoordinate,
                            json: JSON) {
         self.inputEditCommitted(
             input: input,
@@ -27,7 +27,7 @@ extension StitchStore {
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
         guard let node = self.currentGraph?.getNodeViewModel(input.nodeId),
-              let input = node.getInputRowViewModel(for: input) else {
+              let input = node.getInputRowObserver(for: input.portType) else {
             return
         }
         
@@ -37,7 +37,7 @@ extension StitchStore {
     }
     
     @MainActor
-    func inputEditCommitted(input: InputNodeRowViewModel,
+    func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
         guard let graphState = self.currentGraph else {
@@ -76,7 +76,7 @@ extension GraphState {
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
         guard let node = self.getNodeViewModel(input.nodeId),
-              let input = node.getInputRowViewModel(for: input) else {
+              let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
             return
         }
@@ -87,12 +87,11 @@ extension GraphState {
     }
     
     @MainActor
-    func inputEditCommitted(input: InputNodeRowViewModel,
+    func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
         
         guard let nodeId = input.nodeDelegate?.id,
-              let rowObserver = input.rowDelegate,
               let nodeViewModel = self.getNodeViewModel(nodeId),
               var value = value else {
             log("GraphState.inputEditCommitted error: could not find node data.")
@@ -111,7 +110,7 @@ extension GraphState {
             return
         }
         
-        nodeViewModel.removeIncomingEdge(at: rowObserver.id,
+        nodeViewModel.removeIncomingEdge(at: input.id,
                                          activeIndex: self.activeIndex)
 
         if let sizingScenario = value.getSizingScenario {
@@ -135,10 +134,10 @@ extension GraphState {
         }
         
         // Only change the input if valued actually changed.
-        rowObserver.setValuesInInput([value])
+        input.setValuesInInput([value])
         
         self.maybeCreateLLMSetInput(node: nodeViewModel,
-                                    input: rowObserver.id,
+                                    input: input.id,
                                     value: value)
         
         self.calculate(nodeId)
