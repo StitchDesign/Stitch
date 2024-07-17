@@ -453,18 +453,28 @@ extension NodeViewModel {
     }
     
     @MainActor
+    func getInputRowViewModel(nodeRowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
+        self.getAllInputsObservers()
+            .flatMap { $0.allRowViewModels }
+            .first { $0.id == id }
+    }
+
+    @MainActor
     func getInputRowViewModel(nodeId: NodeId,
+                              graphItemType: GraphItemType,
                               portType: NodeIOPortType) -> InputNodeRowViewModel? {
         self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
-            .first { $0.id == .init(graphItemType: .node,
+            .first { $0.id == .init(graphItemType: graphItemType,
                                     nodeId: nodeId,
                                     portType: portType) }
     }
     
     @MainActor
-    func getInputRowViewModel(for id: NodeIOCoordinate) -> InputNodeRowViewModel? {
+    func getInputRowViewModel(for id: NodeIOCoordinate,
+                              graphItemType: GraphItemType) -> InputNodeRowViewModel? {
         self.getInputRowViewModel(nodeId: id.nodeId,
+                                  graphItemType: graphItemType,
                                   portType: id.portType)
     }
     
