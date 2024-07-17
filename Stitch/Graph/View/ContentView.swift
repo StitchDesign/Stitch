@@ -133,11 +133,12 @@ struct ContentView: View {
                         // If pseudo-modal-background placed here,
                         // then we disable scroll
                         #if DEV_DEBUG || DEBUG
-                        Color.blue.opacity(0.1)
-                        #elseif
-                        Color.blue.opacity(0.001)
+                        let pseudoPopoverBackgroundOpacity = 0.1
+                        #else
+                        let pseudoPopoverBackgroundOpacity = 0.001
                         #endif
                         
+                        Color.blue.opacity(pseudoPopoverBackgroundOpacity)
                         // SwiftUI native .popover disables scroll; probably best solution here.
                         // .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
                             .onTapGesture {
