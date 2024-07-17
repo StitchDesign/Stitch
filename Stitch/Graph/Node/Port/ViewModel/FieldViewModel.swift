@@ -35,6 +35,7 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
+@Observable
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
@@ -54,6 +55,7 @@ final class InputFieldViewModel: FieldViewModel {
     }
 }
 
+@Observable
 final class OutputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
