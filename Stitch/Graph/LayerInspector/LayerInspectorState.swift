@@ -29,6 +29,8 @@ struct PropertySidebarState: Equatable {
 }
 
 struct PropertySidebarFlyoutState: Equatable {
+    
+    // TODO: if each flyout has a known static size (static size required for UIKitWrapper i.e. keypress listening), then can use an enum static sizes here
     // Populated by the flyout view itself
     var flyoutSize: CGSize = .zero
     

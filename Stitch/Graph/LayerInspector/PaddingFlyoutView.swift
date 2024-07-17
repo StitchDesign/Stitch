@@ -16,9 +16,12 @@ struct PaddingFlyoutView: View {
     
     static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
     
+    // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace 
+    static let PADDING_FLYOUT_HEIGHT = 187.0 // Calculated by Figma
+        
     @Bindable var graph: GraphState
     let rowObserver: NodeRowObserver
- 
+     
     var body: some View {
         
         VStack(alignment: .leading) {
@@ -32,26 +35,28 @@ struct PaddingFlyoutView: View {
                         }
                     }
             }
-            
-            // TODO: finalize this logic once fields are in?
-            inputOutputRow
-        
-            // // TODO: keypress listener needed for TAB, but UIKitWrapper messes up view's height
-//            UIKitWrapper(ignoresKeyCommands: false,
-//                         name: "PaddingFlyout") {
-//                inputOutputRow
-//            }
+                        
+            // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
+            // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
+            UIKitWrapper(ignoresKeyCommands: false,
+                         name: "PaddingFlyout") {
+                // TODO: finalize this logic once fields are in?
+                inputOutputRow
+            }
+                        
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
         .frame(width: Self.PADDING_FLYOUT_WIDTH)
+        .frame(width: Self.PADDING_FLYOUT_WIDTH, height: Self.PADDING_FLYOUT_HEIGHT)
         .background {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                               initial: true) { oldValue, newValue in
-                        // log("Flyout size: \(newValue.size)")
+                        log("Flyout size: \(newValue.size)")
+//                        self.height = newValue.size.height
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }
