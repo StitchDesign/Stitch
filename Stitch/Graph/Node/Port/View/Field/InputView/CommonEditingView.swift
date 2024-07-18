@@ -11,6 +11,10 @@ import StitchSchemaKit
 // node field input/output width, per Figma Spec
 let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 
+struct DropdownData: Equatable, Codable {
+    var choices: [String]
+}
+
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
 // Only used directly by input fields, not NodeTitleView etc.
@@ -65,55 +69,24 @@ struct CommonEditingView: View {
             return false
         }
     }
-
+//    
+//    let choices: [String]? = [
+//        "auto", "fill", "hug"
+//    ]
+//    
+    let choices: [String]? = nil
+    
     var body: some View {
         Group {
-            // For perf: we don't want this view rendering at all if not currently focused
-            if showEditingView {
-                // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
-                
-                // Render NodeTextFieldView if its the focused field.
-                StitchTextEditingBindingField(
-                    currentEdit: $currentEdit,
-                    fieldType: .textInput(id),
-                    font: STITCH_FONT,
-                    fontColor: STITCH_FONT_GRAY_COLOR,
-                    fieldEditCallback: inputEdited,
-                    isBase64: isBase64)
-                    .onDisappear {
-                        // Fixes issue where default false values aren't shown after clearing inputs
-                        self.currentEdit = self.inputString
-
-                        // Fixes issue where edits sometimes don't save if focus is lost
-                        if self.currentEdit != self.inputString {
-                            self.inputEdited(
-                                newEdit: self.currentEdit,
-                                isCommitting: true)
-                        }
-                    }
-
-                #if targetEnvironment(macCatalyst)
-                    .offset(y: -0.5) // slight adjustment required
-                #endif
-                    .modifier(InputViewBackground(
-                        backgroundColor: Self.editableTextFieldBackgroundColor,
-                        show: true // always show background for a focused input
-                    ))
-            } else {
-                // If can tap to edit, and this is a number field,
-                // then bring up the number-adjustment-bar first;
-                // for multifields now, the editType value is gonna be a parentValue of eg size or position
-                StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
-                               font: STITCH_FONT,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
-                .modifier(InputViewBackground(
-                    backgroundColor: Self.readOnlyTextBackgroundColor,
-                    show: self.isHovering))
-                // Manually focus this field when user taps.
-                // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
-                .onTapGesture {
-                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+            if let choices = choices {
+                HStack(spacing: 0) {
+                    textFieldView
+                        .border(.indigo)
+                    picker
+                        .border(.yellow)
                 }
+            } else {
+                textFieldView
             }
         }
         .onChange(of: showEditingView) { _, newValue in
@@ -129,6 +102,111 @@ struct CommonEditingView: View {
         }
     }
     
+    @State var choice: String = ""
+    
+    @MainActor
+    var picker: some View {
+        Menu {
+            Picker("", selection: $choice) {
+                ForEach(self.choices ?? [], id: \.self) { c in
+                    Text(c)
+                }
+            }
+        } label: {
+            Image(systemName: "chevron.down") // needs to be scaled down
+                .resizable()
+//                .scaleEffect(0.75)
+                .frame(width: 14, height: 10)
+        }
+#if targetEnvironment(macCatalyst)
+        .menuIndicator(.hidden) // hide caret indicator
+        .menuStyle(.button)
+        
+        // fixes Catalyst accent-color issue
+        .buttonStyle(.plain)
+//        .foregroundColor(STITCH_TITLE_FONT_COLOR)
+        .foregroundColor(STITCH_FONT_GRAY_COLOR)
+        
+        .pickerStyle(.inline) // avoids unnecessary middle label
+#endif
+//
+        // When dropdown item selected, update text-field's string
+        .onChange(of: self.choice) { oldValue, newValue in
+            log("new choice \(newValue)")
+            self.currentEdit = newValue
+            self.inputEdited(newEdit: newValue,
+                             isCommitting: true)
+        }
+        
+        // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
+        .onChange(of: self.currentEdit) { oldValue, newValue in
+            if let x = self.choices?.first(where: { $0 == self.currentEdit }) {
+                log("found choice \(x)")
+                self.choice = x
+            }
+        }
+    } // var picker: ...
+    
+    @ViewBuilder @MainActor
+    var textFieldView: some View {
+        // For perf: we don't want this view rendering at all if not currently focused
+        if showEditingView {
+            editableTextFieldView
+        } else {
+           readOnlyTextView
+        }
+    }
+    
+    @MainActor
+    var editableTextFieldView: some View {
+        // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
+        
+        // Render NodeTextFieldView if its the focused field.
+        StitchTextEditingBindingField(
+            currentEdit: $currentEdit,
+            fieldType: .textInput(id),
+            font: STITCH_FONT,
+            fontColor: STITCH_FONT_GRAY_COLOR,
+            fieldEditCallback: inputEdited,
+            isBase64: isBase64)
+            .onDisappear {
+                // Fixes issue where default false values aren't shown after clearing inputs
+                self.currentEdit = self.inputString
+
+                // Fixes issue where edits sometimes don't save if focus is lost
+                if self.currentEdit != self.inputString {
+                    self.inputEdited(newEdit: self.currentEdit,
+                                     isCommitting: true)
+                }
+            }
+
+        #if targetEnvironment(macCatalyst)
+            .offset(y: -0.5) // slight adjustment required
+        #endif
+            .modifier(InputViewBackground(
+                backgroundColor: Self.editableTextFieldBackgroundColor,
+                show: true // always show background for a focused input
+            ))
+    }
+    
+    @MainActor
+    var readOnlyTextView: some View {
+        // If can tap to edit, and this is a number field,
+        // then bring up the number-adjustment-bar first;
+        // for multifields now, the editType value is gonna be a parentValue of eg size or position
+        StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
+                       font: STITCH_FONT,
+                       fontColor: STITCH_FONT_GRAY_COLOR)
+        .modifier(InputViewBackground(
+            backgroundColor: Self.readOnlyTextBackgroundColor,
+            show: self.isHovering))
+        // Manually focus this field when user taps.
+        // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
+        .onTapGesture {
+            dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+        }
+    }
+    
     #if DEV_DEBUG
     static let readOnlyTextBackgroundColor: Color = .blue.opacity(0.5)
     static let editableTextFieldBackgroundColor: Color = .green.opacity(0.5)
@@ -137,9 +215,14 @@ struct CommonEditingView: View {
     static let editableTextFieldBackgroundColor: Color = INPUT_FIELD_BACKGROUND
     #endif
     
+    // Currently only used when we focus or de-focus
     func updateCurrentEdit() {
         self.currentEdit = isLargeString ? "" : self.inputString
         self.isBase64 = isLargeString
+        
+        // update the picker choice as user types?
+        // so that e.g. if they type away from "auto", the picker will be blank / none / de-selected option
+        self.choice = isLargeString ? "" : self.inputString
     }
 
     // fka `createInputEditAction`

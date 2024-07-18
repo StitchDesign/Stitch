@@ -133,7 +133,11 @@ struct NodeInputView: View {
                             propertyIsSelected: propertyIsSelected,
                             propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                             portTapAction: onPortTap) { inputViewModel, labelView in
-            HStack(alignment: .top) {
+//            HStack(alignment: .top) {
+//            HStack {
+//            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
+                
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
@@ -222,7 +226,9 @@ struct NodeOutputView: View {
                             propertyIsSelected: propertyIsSelected,
                             propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                             portTapAction: onPortTap) { outputViewModel, labelView in
-            HStack(alignment: .top) {
+//            HStack(alignment: .top) {
+//            HStack(alignment: .firstTextBaseline) {
+            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
                     labelView
