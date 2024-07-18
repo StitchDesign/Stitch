@@ -155,7 +155,11 @@ struct NodeInputView: View {
 //            HStack(alignment: .top) {
 //            HStack {
 //            HStack(alignment: .firstTextBaseline) {
-            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
+            
+            // For multifields, want the overall label to sit at top of fields' VStack.
+            // For single fields, want to the overall label t
+//            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
+            HStack(alignment: hStackAlignment) {
                 
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
@@ -188,6 +192,14 @@ struct NodeInputView: View {
             
             }
         }
+    }
+    
+    var hStackAlignment: VerticalAlignment {
+        (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
+    }
+    
+    var isMultiField: Bool {
+        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
     }
 }
 
