@@ -354,6 +354,11 @@ extension Point4D {
                             
 extension StitchSpacing {
     
+    // StitchSpacing's dropdown excludes the .number case
+    static let choices: [String] = [
+        Self.evenly.display, Self.between.display
+    ]
+    
     static let defaultStitchSpacing: Self = .zero
 
     static let zero: Self = .number(.zero)

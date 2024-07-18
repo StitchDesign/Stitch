@@ -30,6 +30,7 @@ enum FieldValue: Equatable, Sendable {
     case json(StitchJSON)
     case readOnly(String)
     case textFontDropdown(StitchFont)
+    case spacing(StitchSpacing)
 }
 
 extension FieldValue {
@@ -53,7 +54,8 @@ extension FieldValue {
         case .anchorPopover(let x):
             return x.display
         // case .layerDropdown(let x): // TODO: retrieve layer name?
-        default:
+            // TODO: provide real values here
+        case .color, .layerDropdown, .textFontDropdown, .spacing:
             return ""
         }
     }

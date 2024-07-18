@@ -138,7 +138,7 @@ struct InputValueView: View {
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-        
+                    
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
@@ -148,6 +148,21 @@ struct InputValueView: View {
                                  isCanvasItemSelected: isCanvasItemSelected,
                                  hasIncomingEdge: hasIncomingEdge, 
                                  choices: LayerDimension.choices,
+                                 adjustmentBarSessionId: adjustmentBarSessionId,
+                                 forPropertySidebar: forPropertySidebar,
+                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+            
+        case .spacing(let spacing):
+            FieldValueNumberView(graph: graph,
+                                 fieldViewModel: viewModel,
+                                 fieldValue: fieldValue,
+                                 // TODO: is this really accurate / useful when the dropdown i
+//                                 fieldValueNumberType: spacing.asPointSpacing,
+                                 fieldValueNumberType: .number,
+                                 fieldCoordinate: fieldCoordinate,
+                                 isCanvasItemSelected: isCanvasItemSelected,
+                                 hasIncomingEdge: hasIncomingEdge,
+                                 choices: StitchSpacing.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
