@@ -89,48 +89,6 @@ final class NodeViewModel: Sendable {
 
         self.createEphemeralObservers()
     }
-    
-    @MainActor
-    convenience init(id: NodeId,
-                     position: CGSize = .zero,
-                     zIndex: Double = .zero,
-                     customName: String? = nil,
-                     inputs: PortValuesList,
-                     inputLabels: [String],
-                     outputs: PortValuesList,
-                     outputLabels: [String],
-                     activeIndex: ActiveIndex,
-                     nodeType: NodeViewModelType,
-                     parentGroupNodeId: NodeId?,
-                     graphDelegate: GraphDelegate?) {
-
-//        let inputEntities = inputs.enumerated().map { portId, values in
-//            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
-//                                                     nodeId: id),
-//                                nodeKind: nodeType.kind,
-//                                userVisibleType: nodeType.patchNode?.userVisibleType,
-//                                values: values,
-//                                upstreamOutputCoordinate: nil)
-//        }
-
-        let nodeEntity = NodeEntity(id: id,
-                                    nodeTypeEntity: nodeType.createSchema(),
-                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil))
-//                                    inputs: inputEntities)
-
-        self.init(from: nodeEntity,
-                  activeIndex: activeIndex,
-                  graphDelegate: graphDelegate)
-        
-        self.nodeType = nodeType
-//        self.patchNode?.outputsObservers = .init(values: outputs,
-//                                                            kind: self.kind,
-//                                                            userVisibleType: self.userVisibleType,
-//                                                            id: id,
-//                                                            nodeIO: .output,
-//                                                            activeIndex: activeIndex,
-//                                                            nodeDelegate: self)
-    }
 }
 
 extension NodeViewModel: NodeCalculatable {
