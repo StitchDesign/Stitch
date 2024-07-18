@@ -75,12 +75,23 @@ extension LayerNodeRowData {
 extension InputLayerNodeRowData {
     @MainActor
     func update(from schema: LayerInputDataEntity,
-                layerInputType: LayerInputType) {
+                layerInputType: LayerInputType,
+                nodeId: NodeId,
+                node: NodeDelegate?) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         
         if let canvas = schema.canvasItem {
-            self.canvasObsever?.update(from: canvas)
+            if let canvasObsever = self.canvasObsever {
+                self.canvasObsever?.update(from: canvas)
+            } else {
+                self.canvasObsever = .init(from: canvas,
+                                           id: .layerInput(.init(node: nodeId,
+                                                                 keyPath: layerInputType)),
+                                           node: node)
+            }
+        } else {
+            self.canvasObsever = nil
         }
     }
     

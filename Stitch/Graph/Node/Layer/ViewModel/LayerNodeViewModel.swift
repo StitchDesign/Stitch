@@ -280,16 +280,24 @@ final class LayerNodeViewModel {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
             let layerData = self[keyPath: inputType.layerNodeKeyPath]
             
+            // Update inspector view model delegate before calling update fn
+            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
+
+            // Update row view model ID
+            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
+                                                       nodeId: id.nodeId,
+                                                       portType: .keyPath(inputType))
+
             // Update row observer
             layerData.rowObserver.nodeKind = .layer(schema.layer)
             layerData.rowObserver.nodeDelegate = nodeDelegate
             layerData.rowObserver.id = id
             
-            // Update row view model
-            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
-                                                       nodeId: id.nodeId,
-                                                       portType: .keyPath(inputType))
-            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
+            // Call update once everything above is in place
+            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
+                             layerInputType: inputType,
+                             nodeId: id.nodeId,
+                             node: nodeDelegate)
         }
     }
 }
@@ -316,7 +324,9 @@ extension LayerNodeViewModel: SchemaObserver {
         self.layer.layerGraphNode.inputDefinitions.forEach {
             self[keyPath: $0.layerNodeKeyPath]
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
-                        layerInputType: $0)
+                        layerInputType: $0,
+                        nodeId: schema.id,
+                        node: self.nodeDelegate)
         }
     }
 
