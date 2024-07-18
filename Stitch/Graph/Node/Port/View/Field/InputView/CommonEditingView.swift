@@ -8,12 +8,11 @@
 import SwiftUI
 import StitchSchemaKit
 
+let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
+let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH - 4.0
+
 // node field input/output width, per Figma Spec
 let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
-
-struct DropdownData: Equatable, Codable {
-    var choices: [String]
-}
 
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
@@ -30,9 +29,14 @@ struct CommonEditingView: View {
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
+
+    // Only for field-types that use a "TextField + Dropdown" view,
+    // e.g. `LayerDimension`
+    var choices: [String]? = nil // ["fill", "auto"]
+
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
-
+    
     let forPropertySidebar: Bool // = false
     let propertyIsAlreadyOnGraph: Bool
     
@@ -70,18 +74,29 @@ struct CommonEditingView: View {
         }
     }
 
-    let choices: [String]? = ["auto", "fill", "hug"]
+//    let choices: [String]? = ["auto", "fill", "hug"]
 //    let choices: [String]? = nil
     
     var body: some View {
         Group {
             if let choices = choices {
-                textFieldView
-                    .border(.blue)
-                // Use .overlay, instead of HStack, to avoid weird padding from Menu/Picker
-                    .overlay(alignment: .trailing) {
-                        picker
-                    }
+                
+                HStack(spacing: 0) {
+                    textFieldView
+                    /*
+                     Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
+                     
+                     `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
+                     
+                     `textFieldView.overlay { picker }` causes `picker` to flash when the underlying text-field / read-only-text view is changed via if/else.
+                     */
+                    Rectangle().fill(.clear).frame(width: 2, height: 2)
+                        .overlay {
+                            picker(choices)
+                                .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
+                        }
+                }
+                
             } else {
                 textFieldView
             }
@@ -101,26 +116,26 @@ struct CommonEditingView: View {
     }
     
     @State var choice: String = ""
-    
-    var DROPDOWN_CHEVRON_WIDTH: CGFloat {
-        choices.isDefined ? 12.0 : 0.0
-    }
-    
+        
     @MainActor
-    var picker: some View {
+    func picker(_ choices: [String]) -> some View {
         Menu {
             Picker("", selection: $choice) {
-                ForEach(self.choices ?? [], id: \.self) { c in
-                    Text(c)
+                ForEach(self.choices ?? [], id: \.self) {
+                    Text($0)
                 }
             }
         } label: {
             Image(systemName: "chevron.down")
                 .resizable()
-                .frame(width: DROPDOWN_CHEVRON_WIDTH, height: 8)
+                .frame(width: COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH,
+                       height: COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT)
         }
+        
+        // TODO: why must we hide the native menuIndicator?
+        .menuIndicator(.hidden) // hides caret indicator
+        
 #if targetEnvironment(macCatalyst)
-        .menuIndicator(.hidden) // hide caret indicator
         .menuStyle(.button)
         .buttonStyle(.plain) // fixes Catalyst accent-color issue
         .foregroundColor(STITCH_FONT_GRAY_COLOR)
@@ -165,8 +180,6 @@ struct CommonEditingView: View {
                                       fontColor: STITCH_FONT_GRAY_COLOR,
                                       fieldEditCallback: inputEdited,
                                       isBase64: isBase64)
-        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - DROPDOWN_CHEVRON_WIDTH,
-               alignment: .leading)
         .onDisappear {
             // Fixes issue where default false values aren't shown after clearing inputs
             self.currentEdit = self.inputString
@@ -183,8 +196,8 @@ struct CommonEditingView: View {
 #endif
         .modifier(InputViewBackground(
             backgroundColor: Self.editableTextFieldBackgroundColor,
-            show: true // always show background for a focused input
-        ))
+            show: true, // always show background for a focused input
+            hasDropdown: choices.isDefined))
     }
     
     @MainActor
@@ -195,11 +208,10 @@ struct CommonEditingView: View {
         StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)
-        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - DROPDOWN_CHEVRON_WIDTH,
-               alignment: .leading)
         .modifier(InputViewBackground(
             backgroundColor: Self.readOnlyTextBackgroundColor,
-            show: self.isHovering))
+            show: self.isHovering,
+            hasDropdown: choices.isDefined))
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
         .onTapGesture {
@@ -243,16 +255,25 @@ struct InputViewBackground: ViewModifier {
     
     var backgroundColor: Color
     let show: Bool // if hovering or selected
+    let hasDropdown: Bool
     
     func body(content: Content) -> some View {
         content
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
-                   alignment: .leading)
-            .padding([.leading, .top, .bottom], 2)
-            .background {
-                let color = show ? backgroundColor : .clear
-                RoundedRectangle(cornerRadius: 4).fill(color)
-            }
-            .contentShape(Rectangle())
+        
+        // When this field uses a dropdown,
+        // we shrink the "typable" area of the input,
+        // so that typing never touches the dropdown's menu indicator.
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - (hasDropdown ? COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH : 0.0),
+               alignment: .leading)
+        
+        // ... But we always use a full-width background for the focus/hover effect.
+        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+               alignment: .leading)
+        .padding([.leading, .top, .bottom], 2)
+        .background {
+            let color = show ? backgroundColor : .clear
+            RoundedRectangle(cornerRadius: 4).fill(color)
+        }
+        .contentShape(Rectangle())
     }
 }
