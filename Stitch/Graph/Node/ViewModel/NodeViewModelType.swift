@@ -18,7 +18,7 @@ extension NodeViewModelType {
     @MainActor
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
-         nodeDelegate: NodeDelegate?) {
+         nodeDelegate: NodeDelegate) {
         switch nodeType {
         case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode, 
@@ -31,6 +31,9 @@ extension NodeViewModelType {
         case .group(let canvasNode):
             self = .group(.init(from: canvasNode, 
                                 id: .node(nodeId),
+                                // Initialize as empty since splitter row observers might not have yet been created
+                                inputRowObservers: [],
+                                outputRowObservers: [],
                                 node: nodeDelegate))
         }
     }

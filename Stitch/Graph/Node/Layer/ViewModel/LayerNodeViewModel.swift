@@ -353,7 +353,7 @@ extension LayerNodeViewModel {
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         self.layer.layerGraphNode.inputDefinitions.compactMap {
-            self[keyPath: $0.layerNodeKeyPath].canvasObsever
+            self[keyPath: $0.layerNodeKeyPath].canvasObserver
         }
     }
     

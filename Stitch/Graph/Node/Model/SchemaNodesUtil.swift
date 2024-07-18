@@ -146,22 +146,25 @@ extension NodeRowDefinitions {
             var canvasObserver: CanvasItemViewModel?
             let portId = outputData.0
             
-            if let canvasEntity = canvasEntity {
-                canvasObserver = CanvasItemViewModel(
-                    from: canvasEntity,
-                    id: .layerOutput(.init(node: nodeId,
-                                                  portId: portId)),
-                    node: nodeDelegate)
-            }
             let observer = OutputNodeRowObserver(values: values[safe: portId] ?? [],
                                                  nodeKind: kind,
                                                  userVisibleType: userVisibleType,
                                                  id: .init(portId: portId, nodeId: nodeId),
                                                  activeIndex: .init(.zero),
                                                  nodeDelegate: nodeDelegate)
+
+            if let canvasEntity = canvasEntity {
+                canvasObserver = CanvasItemViewModel(
+                    from: canvasEntity,
+                    id: .layerOutput(.init(node: nodeId,
+                                                  portId: portId)),
+                    inputRowObservers: [],
+                    outputRowObservers: [observer],
+                    node: nodeDelegate)
+            }
             
             return OutputLayerNodeRowData(rowObserver: observer,
-                                          canvasObsever: canvasObserver)
+                                          canvasObserver: canvasObserver)
         }
     }
 }

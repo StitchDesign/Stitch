@@ -75,118 +75,19 @@ final class NodeViewModel: Sendable {
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity, 
-                                          nodeId: schema.id,
-                                          nodeDelegate: nil)
+        
+        // Make empty for now so we can pass non-nil self to child types
+        self.nodeType = .group(.createEmpty())
         self._cachedDisplayTitle = self.getDisplayTitle()
+
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
+                                          nodeId: schema.id,
+                                          nodeDelegate: self)
         
         // Set delegates
         self.graphDelegate = graphDelegate
-        self.getAllCanvasObservers().forEach {
-            $0.nodeDelegate = self
-        }
-        self.getAllInputsObservers().forEach {
-            $0.nodeDelegate = self
-        }
-        self.getAllOutputsObservers().forEach {
-            $0.nodeDelegate = self
-        }
 
         self.createEphemeralObservers()
-        
-        switch self.nodeType {
-        case .patch(let patchNode):
-            patchNode.delegate = self
-            
-            patchNode.canvasObserver.inputViewModels = patchNode
-                .inputsObservers.enumerated().map { index, rowObserer in
-                .init(id: .init(graphItemType: .node,
-                                nodeId: self.id,
-                                portType: .portIndex(index)),
-                      activeValue: rowObserer.activeValue,
-                      nodeRowIndex: index,
-                      rowDelegate: rowObserer,
-                      canvasItemDelegate: patchNode.canvasObserver)
-            }
-            
-            patchNode.canvasObserver.outputViewModels = patchNode
-                .outputsObservers.enumerated().map { index, rowObserer in
-                .init(id: .init(graphItemType: .node,
-                                nodeId: self.id,
-                                portType: .portIndex(index)),
-                      activeValue: rowObserer.activeValue,
-                      nodeRowIndex: index,
-                      rowDelegate: rowObserer,
-                      canvasItemDelegate: patchNode.canvasObserver)
-            }
-
-        case .layer(let layerNode):
-            layerNode.nodeDelegate = self
-            
-//            // Layer nodes use key paths instead of array for input observers
-//            for inputType in layerNode.layer.layerGraphNode.inputDefinitions {
-//                guard let layerNodeEntity = schema.nodeTypeEntity.layerNodeEntity else {
-//                    fatalErrorIfDebug()
-//                    return
-//                }
-//                
-//                // Set delegate and call update values helper
-//                let rowObserver = layerNode[keyPath: inputType.layerNodeKeyPath].rowObserver
-//                let rowSchema = layerNodeEntity[keyPath: inputType.schemaPortKeyPath]
-//                rowObserver.nodeDelegate = self
-//                
-//                assertInDebug(!rowObserver.allLoopedValues.isEmpty)
-//            }
-
-            // Initialize layers
-            self.layerNode?.didValuesUpdate(newValuesList: self.inputs,
-                                            id: self.id)
-        default:
-            return
-            
-        }
-    }
-    
-    @MainActor
-    convenience init(id: NodeId,
-                     position: CGSize = .zero,
-                     zIndex: Double = .zero,
-                     customName: String? = nil,
-                     inputs: PortValuesList,
-                     inputLabels: [String],
-                     outputs: PortValuesList,
-                     outputLabels: [String],
-                     activeIndex: ActiveIndex,
-                     nodeType: NodeViewModelType,
-                     parentGroupNodeId: NodeId?,
-                     graphDelegate: GraphDelegate?) {
-
-//        let inputEntities = inputs.enumerated().map { portId, values in
-//            NodePortInputEntity(id: NodeIOCoordinate(portId: portId,
-//                                                     nodeId: id),
-//                                nodeKind: nodeType.kind,
-//                                userVisibleType: nodeType.patchNode?.userVisibleType,
-//                                values: values,
-//                                upstreamOutputCoordinate: nil)
-//        }
-
-        let nodeEntity = NodeEntity(id: id,
-                                    nodeTypeEntity: nodeType.createSchema(),
-                                    title: customName ?? nodeType.kind.getDisplayTitle(customName: nil))
-//                                    inputs: inputEntities)
-
-        self.init(from: nodeEntity,
-                  activeIndex: activeIndex,
-                  graphDelegate: graphDelegate)
-        
-        self.nodeType = nodeType
-//        self.patchNode?.outputsObservers = .init(values: outputs,
-//                                                            kind: self.kind,
-//                                                            userVisibleType: self.userVisibleType,
-//                                                            id: id,
-//                                                            nodeIO: .output,
-//                                                            activeIndex: activeIndex,
-//                                                            nodeDelegate: self)
     }
 }
 
@@ -598,7 +499,7 @@ extension NodeViewModel: NodeDelegate {
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
                 let inputData = layer[keyPath: $0.layerNodeKeyPath]
                 
-                if let canvas = inputData.canvasObsever {
+                if let canvas = inputData.canvasObserver {
                     return canvas.inputViewModels + [inputData.inspectorRowViewModel]
                 }
                 
@@ -617,7 +518,7 @@ extension NodeViewModel: NodeDelegate {
             
         case .layer(let layer):
             return layer.outputPorts.flatMap {
-                return $0.canvasObsever?.outputViewModels ?? []
+                return $0.canvasObserver?.outputViewModels ?? []
             }
         }
     }
