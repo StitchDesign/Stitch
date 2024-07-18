@@ -27,16 +27,7 @@ struct PaddingFlyoutView: View {
     var body: some View {
         
         VStack(alignment: .leading) {
-            HStack {
-                Text("Padding").font(.title3)
-                Spacer()
-                Image(systemName: "xmark.circle.fill")
-                    .onTapGesture {
-                        withAnimation {
-                            dispatch(FlyoutClosed())
-                        }
-                    }
-            }
+            FlyoutHeader(flyoutTitle: "Padding")
                         
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
@@ -47,7 +38,6 @@ struct PaddingFlyoutView: View {
                 // TODO: finalize this logic once fields are in?
                 inputOutputRow
             }
-
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
@@ -58,8 +48,7 @@ struct PaddingFlyoutView: View {
                 Color.clear
                     .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                               initial: true) { oldValue, newValue in
-                        log("Flyout size: \(newValue.size)")
-//                        self.height = newValue.size.height
+                        log("Padding flyout size: \(newValue.size)")
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }
@@ -88,69 +77,65 @@ struct PaddingFlyoutView: View {
     }
 }
 
-extension LayerInputType {
-    var usesFlyout: Bool {
-        switch self {
-        case .padding:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
-// Used by a given flyout view to update its read-height in state,
-// for proper positioning.
-struct UpdateFlyoutSize: GraphUIEvent {
-    let size: CGSize
-    
-    func handle(state: GraphUIState) {
-        state.propertySidebar.flyoutState?.flyoutSize = size
-    }
-}
-
-struct FlyoutClosed: GraphUIEvent {
-    func handle(state: GraphUIState) {
-        state.closeFlyout()
-    }
-}
-
-extension GraphUIState {
-    func closeFlyout() {
-        withAnimation {
-            self.propertySidebar.flyoutState = nil
-        }
-    }
-}
-
-struct FlyoutToggled: GraphUIEvent {
-    
-    let flyoutInput: LayerInputType
-    let flyoutNodeId: NodeId
-    
-    func handle(state: GraphUIState) {
-        if let flyoutState = state.propertySidebar.flyoutState,
-           flyoutState.flyoutInput == flyoutInput,
-           flyoutState.flyoutNode == flyoutNodeId {
-            state.closeFlyout()
-        } else {
-//            withAnimation {
-                state.propertySidebar.flyoutState = .init(
-                    flyoutInput: flyoutInput,
-                    flyoutNode: flyoutNodeId)
-//            }
-        }
-    }
-}
-
-struct LeftSidebarToggled: GraphUIEvent {
-    
-    func handle(state: GraphUIState) {
-        // Reset flyout
-        state.closeFlyout()
-    }
-}
-
 //#Preview {
 //    PaddingFlyoutView()
 //}
+
+struct PaddingReadOnlyView: View {
+    
+    @Bindable var rowObserver: InputNodeRowObserver
+    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    let labelView: LabelDisplayView
+    
+    @State var hoveredFieldIndex: Int? = nil
+    
+    var nodeId: NodeId {
+        self.rowObserver.id.nodeId
+    }
+    
+    var body: some View {
+        Group {
+            labelView
+            
+            Spacer()
+            
+            // Want to just display the values; so need a new kind of `display only` view
+            ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
+                
+                ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: InputFieldViewModel) in
+                    
+                    let fieldIndex = fieldViewModel.fieldIndex
+                    
+                    StitchTextView(string: fieldViewModel.fieldValue.stringValue,
+                                   fontColor: STITCH_FONT_GRAY_COLOR)
+                    
+                    // Monospacing prevents jittery node widths if values change on graphstep
+                    .monospacedDigit()
+                    // TODO: what is best width? Needs to be large enough for 3-digit values?
+                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+                    .background {
+                        if self.hoveredFieldIndex == fieldViewModel.fieldIndex {
+                            INPUT_FIELD_BACKGROUND.cornerRadius(4)
+                        }
+                    }
+                    .onHover { hovering in
+                        withAnimation {
+                            if hovering {
+                                self.hoveredFieldIndex = fieldIndex
+                            } else if self.hoveredFieldIndex == fieldIndex {
+                                self.hoveredFieldIndex = nil
+                            }
+                        }
+                    }
+                } // ForEach
+                
+            } // Group
+            
+            // Tap on the read-only fields to open padding flyout
+            .onTapGesture {
+                dispatch(FlyoutToggled(flyoutInput: .padding,
+                                       flyoutNodeId: nodeId))
+            }
+        }
+    }
+}
