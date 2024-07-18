@@ -124,7 +124,7 @@ extension NodeRowViewModel {
         .map({ canvasItem in
             canvasItem.id
         }).toSet else {
-           fatalErrorIfDebug()
+           // Valid nil case for insert node menu
            return .init()
        }
        

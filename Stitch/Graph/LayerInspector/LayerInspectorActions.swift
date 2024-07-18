@@ -69,7 +69,7 @@ extension GraphState {
         
         let nodeId = node.id
         
-        input.canvasObsever = .init(
+        input.canvasObserver = .init(
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
@@ -77,6 +77,8 @@ extension GraphState {
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
+            inputRowObservers: [input.rowObserver],
+            outputRowObservers: [],
             nodeDelegate: node)
         
         self.graphUI.propertySidebar.selectedProperty = nil
@@ -118,13 +120,15 @@ extension GraphState {
                                  output: OutputLayerNodeRowData,
                                  portId: Int) {
         
-        output.canvasObsever = .init(
+        output.canvasObserver = .init(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
             position: self.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
+            inputRowObservers: [],
+            outputRowObservers: [output.rowObserver],
             nodeDelegate: node)
         
         self.graphUI.propertySidebar.selectedProperty = nil

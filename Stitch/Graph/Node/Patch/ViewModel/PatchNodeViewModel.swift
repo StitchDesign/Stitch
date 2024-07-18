@@ -36,7 +36,7 @@ final class PatchNodeViewModel: Sendable {
         }
     }
     
-    let canvasObserver: CanvasItemViewModel
+    var canvasObserver: CanvasItemViewModel
     
     // Used for data-intensive purposes (eval)
     var inputsObservers: [InputNodeRowObserver] = []
@@ -59,15 +59,14 @@ final class PatchNodeViewModel: Sendable {
         self.userVisibleType = schema.userVisibleType
         self.mathExpression = schema.mathExpression
         self.splitterNode = schema.splitterNode
-
-        self.canvasObserver = .init(from: schema.canvasEntity,
-                                    id: .node(schema.id),
-                                    node: node)
         
         // Create initial inputs and outputs using default data
         let rowDefinitions = NodeKind.patch(schema.patch)
             .rowDefinitions(for: schema.userVisibleType)
         let defaultOutputsList = rowDefinitions.outputs.defaultList
+        
+        // Empty for now
+        self.canvasObserver = CanvasItemViewModel.createEmpty()
         
         // Must set inputs before calling eval below
         self.inputsObservers = schema.inputs
@@ -82,6 +81,12 @@ final class PatchNodeViewModel: Sendable {
                                    patch: schema.patch,
                                    userVisibleType: schema.userVisibleType,
                                    nodeDelegate: node)
+        
+        self.canvasObserver = .init(from: schema.canvasEntity,
+                                    id: .node(schema.id),
+                                    inputRowObservers: self.inputsObservers,
+                                    outputRowObservers: self.outputsObservers,
+                                    node: node)
     }
 }
 
@@ -275,33 +280,22 @@ extension NodeViewModel {
         let canvasEntity = CanvasNodeEntity(position: position.toCGPoint,
                                             zIndex: zIndex,
                                             parentGroupNodeId: nil)
-
-        let patchNode = PatchNodeViewModel(
-            id: id,
-            patch: patch,
-            inputs: inputEntities,
-            canvasEntity: canvasEntity,
-            userVisibleType: userVisibleType,
-            delegate: nil)
-
-        self.init(id: id,
-                  position: position,
-                  zIndex: zIndex,
-                  customName: customName ?? patch.defaultDisplayTitle(),
-                  inputs: inputs,
-                  inputLabels: inputLabels,
-                  outputs: outputs,
-                  outputLabels: outputLabels,
+        
+        let patchNodeEntity = PatchNodeEntity(id: id,
+                                              patch: patch,
+                                              inputs: inputEntities,
+                                              canvasEntity: canvasEntity,
+                                              userVisibleType: userVisibleType,
+                                              splitterNode: splitterNode,
+                                              mathExpression: nil)
+        
+        let nodeEntity = NodeEntity(id: id,
+                                    nodeTypeEntity: .patch(patchNodeEntity),
+                                    title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
+        
+        self.init(from: nodeEntity,
                   activeIndex: activeIndex,
-                  nodeType: .patch(patchNode),
-                  parentGroupNodeId: nil,
                   graphDelegate: nil)
-
-        patchNode.delegate = self
-        patchNode.canvasObserver.nodeDelegate = self
-
-        // Set splitter info
-        patchNode.splitterNode = splitterNode
     }
     
     @MainActor

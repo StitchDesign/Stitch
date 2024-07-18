@@ -200,7 +200,7 @@ extension VisibleNodesViewModel {
                 return [patchNode.canvasObserver]
             case .layer(let layerNode):
                 return layerNode.layer.layerGraphNode.inputDefinitions.compactMap {
-                    layerNode[keyPath: $0.layerNodeKeyPath].canvasObsever
+                    layerNode[keyPath: $0.layerNodeKeyPath].canvasObserver
                 }
             case .group(let canvas):
                 return [canvas]
