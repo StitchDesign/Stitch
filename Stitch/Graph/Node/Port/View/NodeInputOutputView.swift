@@ -8,6 +8,23 @@
 import SwiftUI
 import StitchSchemaKit
 
+struct AddLayerPropertyToGraphButton: View {
+    
+    let layerInput: LayerInputType
+    let propertyIsSelected: Bool
+    let portTapAction: (LayerInputType) -> ()
+    
+    var body: some View {
+        Image(systemName: "plus.circle")
+            .resizable()
+            .frame(width: 15, height: 15)
+            .onTapGesture {
+                portTapAction(layerInput)
+            }
+            .opacity(propertyIsSelected ? 1 : 0)
+    }
+}
+
 struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                            FieldsView: View>: View {
     typealias NodeRowType = NodeRowObserverType.RowViewModelType
@@ -35,27 +52,29 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     
     var body: some View {
         let coordinate = rowData.id
-        HStack(alignment: .firstTextBaseline, spacing: NODE_COMMON_SPACING) {
-            if forPropertySidebar,
-               let layerInput = rowObserver.id.keyPath {
-                Image(systemName: "plus.circle")
-                    .resizable()
-                    .frame(width: 15, height: 15)
-                    .onTapGesture {
-                        portTapAction(layerInput)
-                    }
-                    .opacity(propertyIsSelected ? 1 : 0)
+//        HStack(alignment: forPropertySidebar ? .firstTextBaseline : .center,
+        HStack(alignment: forPropertySidebar ? .center : .center,
+               spacing: NODE_COMMON_SPACING) {
+//        HStack(spacing: NODE_COMMON_SPACING) {
+            if forPropertySidebar, 
+                let layerInput = rowObserver.id.keyPath {
+                AddLayerPropertyToGraphButton(layerInput: layerInput,
+                                              propertyIsSelected: propertyIsSelected,
+                                              portTapAction: portTapAction)
+                .border(.orange)
             }
             
             // Fields and port ordering depending on input/output
             self.fieldsView(rowData, labelView)
         }
+        .border(.gray)
 //        .frame(height: NODE_ROW_HEIGHT)
         
         // Don't specify height for layer inspector property row, so that multifields can be shown vertically
         .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
         
         .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
+        .border(.white)
         
         .onChange(of: self.graphUI.activeIndex) {
             let oldViewValue = self.rowData.activeValue
@@ -155,6 +174,8 @@ struct NodeInputView: View {
                                         
                 } else {
                     labelView
+                        .border(.green)
+                    
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
                                    nodeId: nodeId,
@@ -162,6 +183,7 @@ struct NodeInputView: View {
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
+                    .border(.cyan)
                 }
             
             }

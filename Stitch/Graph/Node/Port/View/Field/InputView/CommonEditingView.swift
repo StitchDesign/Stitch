@@ -69,26 +69,24 @@ struct CommonEditingView: View {
             return false
         }
     }
-//    
-//    let choices: [String]? = [
-//        "auto", "fill", "hug"
-//    ]
-//    
-    let choices: [String]? = nil
+
+    let choices: [String]? = ["auto", "fill", "hug"]
+//    let choices: [String]? = nil
     
     var body: some View {
         Group {
             if let choices = choices {
-                HStack(spacing: 0) {
-                    textFieldView
-                        .border(.indigo)
-                    picker
-                        .border(.yellow)
-                }
+                textFieldView
+                    .border(.blue)
+                // Use .overlay, instead of HStack, to avoid weird padding from Menu/Picker
+                    .overlay(alignment: .trailing) {
+                        picker
+                    }
             } else {
                 textFieldView
             }
         }
+        .border(.red)
         .onChange(of: showEditingView) { _, newValue in
             // Fixes beach balls for base 64 strings
             if showEditingView {
@@ -104,6 +102,10 @@ struct CommonEditingView: View {
     
     @State var choice: String = ""
     
+    var DROPDOWN_CHEVRON_WIDTH: CGFloat {
+        choices.isDefined ? 12.0 : 0.0
+    }
+    
     @MainActor
     var picker: some View {
         Menu {
@@ -113,23 +115,18 @@ struct CommonEditingView: View {
                 }
             }
         } label: {
-            Image(systemName: "chevron.down") // needs to be scaled down
+            Image(systemName: "chevron.down")
                 .resizable()
-//                .scaleEffect(0.75)
-                .frame(width: 14, height: 10)
+                .frame(width: DROPDOWN_CHEVRON_WIDTH, height: 8)
         }
 #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator
         .menuStyle(.button)
-        
-        // fixes Catalyst accent-color issue
-        .buttonStyle(.plain)
-//        .foregroundColor(STITCH_TITLE_FONT_COLOR)
+        .buttonStyle(.plain) // fixes Catalyst accent-color issue
         .foregroundColor(STITCH_FONT_GRAY_COLOR)
-        
         .pickerStyle(.inline) // avoids unnecessary middle label
 #endif
-//
+
         // When dropdown item selected, update text-field's string
         .onChange(of: self.choice) { oldValue, newValue in
             log("new choice \(newValue)")
@@ -162,31 +159,32 @@ struct CommonEditingView: View {
         // logInView("CommonEditView: if: fieldCoordinate: \(fieldCoordinate)")
         
         // Render NodeTextFieldView if its the focused field.
-        StitchTextEditingBindingField(
-            currentEdit: $currentEdit,
-            fieldType: .textInput(id),
-            font: STITCH_FONT,
-            fontColor: STITCH_FONT_GRAY_COLOR,
-            fieldEditCallback: inputEdited,
-            isBase64: isBase64)
-            .onDisappear {
-                // Fixes issue where default false values aren't shown after clearing inputs
-                self.currentEdit = self.inputString
-
-                // Fixes issue where edits sometimes don't save if focus is lost
-                if self.currentEdit != self.inputString {
-                    self.inputEdited(newEdit: self.currentEdit,
-                                     isCommitting: true)
-                }
+        StitchTextEditingBindingField(currentEdit: $currentEdit,
+                                      fieldType: .textInput(id),
+                                      font: STITCH_FONT,
+                                      fontColor: STITCH_FONT_GRAY_COLOR,
+                                      fieldEditCallback: inputEdited,
+                                      isBase64: isBase64)
+        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - DROPDOWN_CHEVRON_WIDTH,
+               alignment: .leading)
+        .onDisappear {
+            // Fixes issue where default false values aren't shown after clearing inputs
+            self.currentEdit = self.inputString
+            
+            // Fixes issue where edits sometimes don't save if focus is lost
+            if self.currentEdit != self.inputString {
+                self.inputEdited(newEdit: self.currentEdit,
+                                 isCommitting: true)
             }
-
-        #if targetEnvironment(macCatalyst)
-            .offset(y: -0.5) // slight adjustment required
-        #endif
-            .modifier(InputViewBackground(
-                backgroundColor: Self.editableTextFieldBackgroundColor,
-                show: true // always show background for a focused input
-            ))
+        }
+        
+#if targetEnvironment(macCatalyst)
+        .offset(y: -0.5) // slight adjustment required
+#endif
+        .modifier(InputViewBackground(
+            backgroundColor: Self.editableTextFieldBackgroundColor,
+            show: true // always show background for a focused input
+        ))
     }
     
     @MainActor
@@ -197,6 +195,8 @@ struct CommonEditingView: View {
         StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)
+        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - DROPDOWN_CHEVRON_WIDTH,
+               alignment: .leading)
         .modifier(InputViewBackground(
             backgroundColor: Self.readOnlyTextBackgroundColor,
             show: self.isHovering))
