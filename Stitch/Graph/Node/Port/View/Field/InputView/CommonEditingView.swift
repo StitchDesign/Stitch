@@ -82,7 +82,9 @@ struct CommonEditingView: View {
             if let choices = choices {
                 
                 HStack(spacing: 0) {
+                    
                     textFieldView
+                    
                     /*
                      Important: must .overlay `picker` on a view that does not change when field is focused/defocused.
                      
@@ -90,10 +92,11 @@ struct CommonEditingView: View {
                      
                      `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
                      */
-                    Rectangle().fill(.clear).frame(width: 2, height: 2)
+                    Rectangle().fill(.clear).frame(width: 1, height: 1)
                         .overlay {
                             picker(choices)
                                 .offset(x: -COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH/2)
+                                .offset(x: -2) // "padding"
                         }
                 }
                 
@@ -260,19 +263,19 @@ struct InputViewBackground: ViewModifier {
         content
         
         // When this field uses a dropdown,
-        // we shrink the "typable" area of the input,
+        // we shrink the "typeable" area of the input,
         // so that typing never touches the dropdown's menu indicator.
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - (hasDropdown ? COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH : 0.0),
-               alignment: .leading)
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0),
+                   alignment: .leading)
         
         // ... But we always use a full-width background for the focus/hover effect.
-        .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
-               alignment: .leading)
-        .padding([.leading, .top, .bottom], 2)
-        .background {
-            let color = show ? backgroundColor : .clear
-            RoundedRectangle(cornerRadius: 4).fill(color)
-        }
-        .contentShape(Rectangle())
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+                   alignment: .leading)
+            .padding([.leading, .top, .bottom], 2)
+            .background {
+                let color = show ? backgroundColor : .clear
+                RoundedRectangle(cornerRadius: 4).fill(color)
+            }
+            .contentShape(Rectangle())
     }
 }
