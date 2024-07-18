@@ -88,7 +88,7 @@ extension GraphState {
 struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
     let nodeId: NodeId
-    let coordinate: NodeIOPortType
+    let portId: Int
     
     func handle(state: GraphState) -> GraphResponse {
         
@@ -96,7 +96,6 @@ struct LayerOutputAddedToGraph: GraphEventWithResponse {
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         
         guard let node = state.getNodeViewModel(nodeId),
-              let portId = coordinate.portId,
               let layerNode = node.layerNode,
               let outputPort = layerNode.outputPorts[safe: portId] else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")

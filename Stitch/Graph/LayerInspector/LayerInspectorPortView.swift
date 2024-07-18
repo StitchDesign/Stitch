@@ -100,6 +100,21 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             Color.white.opacity(0.001)
                 .padding(-12)
                 .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+            
+            // TODO: this avoids accidentally selecting the row when using a dropdown, but then the row's overall-label and field-labels are no longer covered; so just add this .gesture to the overall-label and field-label views?
+//                .gesture(
+//                    TapGesture().onEnded({ _ in
+//                        log("LayerInspectorPortView tapped")
+//                        if isOnGraphAlready,
+//                           let canvasItemId = rowViewModel.canvasItemDelegate?.id {
+//                            dispatch(JumpToCanvasItem(id: canvasItemId))
+//                        } else {
+//                            withAnimation {
+//                                graph.graphUI.layerPropertyTapped(layerProperty)
+//                            }
+//                        }
+//                    })
+//                ) // .gesture
         }
         .listRowBackground(listBackgroundColor)
         //            .listRowSpacing(12)
@@ -115,6 +130,6 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
                     }
                 }
             })
-        )
+        ) // .gesture
     }
 }

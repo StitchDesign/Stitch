@@ -133,7 +133,8 @@ struct InputValueView: View {
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 hasIncomingEdge: hasIncomingEdge,
+                                 hasIncomingEdge: hasIncomingEdge, 
+                                 choices: nil,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
@@ -145,7 +146,8 @@ struct InputValueView: View {
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 hasIncomingEdge: hasIncomingEdge,
+                                 hasIncomingEdge: hasIncomingEdge, 
+                                 choices: LayerDimension.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
@@ -191,21 +193,19 @@ struct InputValueView: View {
                                 hasIncomingEdge: hasIncomingEdge)
 
         case .color(let color):
-            ColorOrbValueButtonView(
-                fieldViewModel: viewModel,
-                nodeId: coordinate.nodeId,
-                id: coordinate,
-                currentColor: color,
-                hasIncomingEdge: hasIncomingEdge,
-                graph: graph)
+            ColorOrbValueButtonView(fieldViewModel: viewModel,
+                                    nodeId: coordinate.nodeId,
+                                    id: coordinate,
+                                    currentColor: color,
+                                    hasIncomingEdge: hasIncomingEdge,
+                                    graph: graph)
 
         case .pulse(let pulseTime):
-            PulseValueButtonView(
-                graph: graph,
-                inputPort: rowViewModel,
-                stitchId: coordinate.nodeId,
-                pulseTime: pulseTime,
-                hasIncomingEdge: hasIncomingEdge)
+            PulseValueButtonView(graph: graph,
+                                 inputPort: rowViewModel,
+                                 stitchId: coordinate.nodeId,
+                                 pulseTime: pulseTime,
+                                 hasIncomingEdge: hasIncomingEdge)
 
         case .json(let json):
             EditJSONEntry(graph: graph,

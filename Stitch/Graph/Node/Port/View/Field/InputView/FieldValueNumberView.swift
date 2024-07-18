@@ -18,6 +18,7 @@ struct FieldValueNumberView: View {
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
+    let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -44,6 +45,7 @@ struct FieldValueNumberView: View {
                               fieldIndex: fieldCoordinate.fieldIndex,
                               isCanvasItemSelected: isCanvasItemSelected,
                               hasIncomingEdge: hasIncomingEdge,
+                              choices: choices,
                               isAdjustmentBarInUse: isButtonPressed,
                               forPropertySidebar: forPropertySidebar,
                               propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
