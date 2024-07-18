@@ -133,7 +133,8 @@ struct InputValueView: View {
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 hasIncomingEdge: hasIncomingEdge,
+                                 hasIncomingEdge: hasIncomingEdge, 
+                                 choices: nil,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
@@ -145,7 +146,8 @@ struct InputValueView: View {
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 hasIncomingEdge: hasIncomingEdge,
+                                 hasIncomingEdge: hasIncomingEdge, 
+                                 choices: LayerDimension.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
