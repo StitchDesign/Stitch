@@ -8,6 +8,33 @@
 import SwiftUI
 import StitchSchemaKit
 
+// TODO: revisit this when we're able to add LayerNodes with outputs to the graph again
+struct AddLayerPropertyToGraphButton: View {
+    let propertyIsSelected: Bool
+    let coordinate: NodeIOCoordinate
+    
+    var nodeId: NodeId {
+        coordinate.nodeId
+    }
+    
+    var body: some View {
+        Image(systemName: "plus.circle")
+            .resizable()
+            .frame(width: 15, height: 15)
+            .onTapGesture {
+                if let layerInput = coordinate.keyPath {
+                    dispatch(LayerInputAddedToGraph(
+                        nodeId: nodeId,
+                        coordinate: layerInput))
+                } else if let portId = coordinate.portId {
+                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                                                     portId: portId))
+                }
+            }
+            .opacity(propertyIsSelected ? 1 : 0)
+    }
+}
+
 struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                            FieldsView: View>: View {
     typealias NodeRowType = NodeRowObserverType.RowViewModelType
@@ -18,6 +45,7 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowData: NodeRowType
     let forPropertySidebar: Bool
+    let propertyIsSelected: Bool
     @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
     
     @MainActor
@@ -31,26 +59,33 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     }
     
     var body: some View {
-        // Fields and port ordering depending on input/output
-        self.fieldsView(rowData, labelView)
+        HStack(spacing: NODE_COMMON_SPACING) {
+            if forPropertySidebar {
+                AddLayerPropertyToGraphButton(propertyIsSelected: propertyIsSelected,
+                                              coordinate: self.rowObserver.id)
+            }
+            
+            // Fields and port ordering depending on input/output
+            self.fieldsView(rowData, labelView)
+        }
         //        .frame(height: NODE_ROW_HEIGHT)
         
         // Don't specify height for layer inspector property row, so that multifields can be shown vertically
-            .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
+        .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
+
+        .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
         
-            .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
-        
-            .onChange(of: self.graphUI.activeIndex) {
-                let oldViewValue = self.rowData.activeValue
-                let newViewValue = self.rowObserver.activeValue
-                self.rowData.activeValueChanged(oldValue: oldViewValue,
-                                                newValue: newViewValue)
-            }
-            .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                               portId: rowData.id.coordinate.portId,
-                                               nodeId: self.rowData.canvasItemDelegate?.id,
-                                               nodeIOType: NodeRowType.nodeIO,
-                                               forPropertySidebar: forPropertySidebar))
+        .onChange(of: self.graphUI.activeIndex) {
+            let oldViewValue = self.rowData.activeValue
+            let newViewValue = self.rowObserver.activeValue
+            self.rowData.activeValueChanged(oldValue: oldViewValue,
+                                            newValue: newViewValue)
+        }
+        .modifier(EdgeEditModeViewModifier(graphState: graph,
+                                           portId: rowData.id.coordinate.portId,
+                                           nodeId: self.rowData.canvasItemDelegate?.id,
+                                           nodeIOType: NodeRowType.nodeIO,
+                                           forPropertySidebar: forPropertySidebar))
     }
     
     @ViewBuilder @MainActor
@@ -88,13 +123,7 @@ struct NodeInputView: View {
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
-    
-    @MainActor func onPortTap(layerInputType: LayerInputType) {
-        dispatch(LayerInputAddedToGraph(
-            nodeId: nodeId,
-            coordinate: layerInputType))
-    }
-    
+        
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> some View {
@@ -109,52 +138,52 @@ struct NodeInputView: View {
     }
     
     var body: some View {
-        let coordinate = rowData.id
-        HStack(alignment: .firstTextBaseline, spacing: NODE_COMMON_SPACING) {
-            if forPropertySidebar,
-               let layerInput = rowObserver.id.keyPath {
-                Image(systemName: "plus.circle")
-                    .resizable()
-                    .frame(width: 15, height: 15)
-                    .onTapGesture {
-                        onPortTap(layerInputType: layerInput)
-                    }
-                    .opacity(propertyIsSelected ? 1 : 0)
-            }
-            
-            NodeInputOutputView(graph: graph,
-                                rowObserver: rowObserver,
-                                rowData: rowData,
-                                forPropertySidebar: forPropertySidebar) { inputViewModel, labelView in
-                HStack(alignment: .top) {
-                    if !forPropertySidebar {
-                        NodeRowPortView(graph: graph,
-                                        rowObserver: rowObserver,
-                                        rowViewModel: rowData,
-                                        showPopover: $showPopover)
-                    }
-
-                    let isPaddingLayerInputRow = rowData.id.portType.keyPath == .padding
-                    let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
-                    
-                    if hidePaddingFieldsOnPropertySidebar {
-                        PaddingReadOnlyView(rowObserver: rowObserver,
-                                            rowData: rowData,
-                                            labelView: labelView)
-                                            
-                    } else {
-                        labelView
-                        FieldsListView(graph: graph,
+        NodeInputOutputView(graph: graph,
+                            rowObserver: rowObserver,
+                            rowData: rowData,
+                            forPropertySidebar: forPropertySidebar,
+                            propertyIsSelected: propertyIsSelected) { inputViewModel, labelView in
+           
+            // For multifields, want the overall label to sit at top of fields' VStack.
+            // For single fields, want to the overall label t
+            HStack(alignment: hStackAlignment) {
+                
+                if !forPropertySidebar {
+                    NodeRowPortView(graph: graph,
+                                    rowObserver: rowObserver,
                                     rowViewModel: rowData,
-                                    nodeId: nodeId,
-                                    isGroupNodeKind: rowObserver.nodeDelegate?.kind.isGroup ?? false,
-                                    forPropertySidebar: forPropertySidebar,
-                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                    valueEntryView: valueEntryView)
-                    }
+                                    showPopover: $showPopover)
+                }
+                
+                let isPaddingLayerInputRow = rowData.id.portType.keyPath == .padding
+                let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
+                
+                if hidePaddingFieldsOnPropertySidebar {
+                    PaddingReadOnlyView(rowObserver: rowObserver,
+                                        rowData: rowData,
+                                        labelView: labelView)
+                    
+                } else {
+                    labelView
+                    
+                    FieldsListView(graph: graph,
+                                   rowViewModel: rowData,
+                                   nodeId: nodeId,
+                                   isGroupNodeKind: rowObserver.nodeDelegate?.kind.isGroup ?? false,
+                                   forPropertySidebar: forPropertySidebar,
+                                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                   valueEntryView: valueEntryView)
                 }
             }
         }
+    }
+    
+    var hStackAlignment: VerticalAlignment {
+        (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
+    }
+    
+    var isMultiField: Bool {
+        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
     }
 }
 
@@ -186,13 +215,7 @@ struct NodeOutputView: View {
     var isSplitter: Bool {
         self.nodeKind == .patch(.splitter)
     }
-    
-    @MainActor func onPortTap(layerInputType: LayerInputType) {
-        dispatch(LayerOutputAddedToGraph(
-            nodeId: nodeId,
-            coordinate: rowData.id.portType))
-    }
-    
+        
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> some View {
@@ -211,8 +234,9 @@ struct NodeOutputView: View {
         NodeInputOutputView(graph: graph,
                             rowObserver: rowObserver,
                             rowData: rowData,
-                            forPropertySidebar: forPropertySidebar) { outputViewModel, labelView in
-            HStack(alignment: .top) {
+                            forPropertySidebar: forPropertySidebar,
+                            propertyIsSelected: propertyIsSelected) { outputViewModel, labelView in
+            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
                     labelView
