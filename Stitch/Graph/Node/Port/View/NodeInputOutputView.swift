@@ -12,14 +12,25 @@ struct AddLayerPropertyToGraphButton: View {
     
     let layerInput: LayerInputType
     let propertyIsSelected: Bool
-    let portTapAction: (LayerInputType) -> ()
+    let coordinate: NodeIOCoordinate
+    
+    var nodeId: NodeId {
+        coordinate.nodeId
+    }
     
     var body: some View {
         Image(systemName: "plus.circle")
             .resizable()
             .frame(width: 15, height: 15)
             .onTapGesture {
-                portTapAction(layerInput)
+                if let layerInput = coordinate.keyPath {
+                    dispatch(LayerInputAddedToGraph(
+                        nodeId: nodeId,
+                        coordinate: layerInput))
+                } else if let portId = coordinate.portId {
+                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                                                     portId: portId))
+                }
             }
             .opacity(propertyIsSelected ? 1 : 0)
     }
@@ -36,8 +47,6 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     @Bindable var rowData: NodeRowType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
-    let propertyIsAlreadyOnGraph: Bool
-    let portTapAction: (LayerInputType) -> ()
     @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
     
     @MainActor
@@ -51,30 +60,24 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     }
     
     var body: some View {
-        let coordinate = rowData.id
-//        HStack(alignment: forPropertySidebar ? .firstTextBaseline : .center,
-        HStack(alignment: forPropertySidebar ? .center : .center,
-               spacing: NODE_COMMON_SPACING) {
-//        HStack(spacing: NODE_COMMON_SPACING) {
-            if forPropertySidebar, 
-                let layerInput = rowObserver.id.keyPath {
+        HStack(spacing: NODE_COMMON_SPACING) {
+            if forPropertySidebar,
+               // What about adding a LayerOutput to the graph?
+               let layerInput = rowObserver.id.keyPath {
                 AddLayerPropertyToGraphButton(layerInput: layerInput,
                                               propertyIsSelected: propertyIsSelected,
-                                              portTapAction: portTapAction)
-                .border(.orange)
+                                              coordinate: self.rowObserver.id)
             }
             
             // Fields and port ordering depending on input/output
             self.fieldsView(rowData, labelView)
         }
-        .border(.gray)
-//        .frame(height: NODE_ROW_HEIGHT)
+        //        .frame(height: NODE_ROW_HEIGHT)
         
         // Don't specify height for layer inspector property row, so that multifields can be shown vertically
         .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
-        
+
         .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
-        .border(.white)
         
         .onChange(of: self.graphUI.activeIndex) {
             let oldViewValue = self.rowData.activeValue
@@ -83,7 +86,7 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                                             newValue: newViewValue)
         }
         .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                           portId: coordinate.coordinate.portId,
+                                           portId: rowData.id.coordinate.portId,
                                            nodeId: self.rowData.canvasItemDelegate?.id,
                                            nodeIOType: NodeRowType.nodeIO,
                                            forPropertySidebar: forPropertySidebar))
@@ -125,11 +128,11 @@ struct NodeInputView: View {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
     
-    @MainActor func onPortTap(layerInputType: LayerInputType) {
-        dispatch(LayerInputAddedToGraph(
-            nodeId: nodeId,
-            coordinate: layerInputType))
-    }
+//    @MainActor func onPortTap(layerInputType: LayerInputType) {
+//        dispatch(LayerInputAddedToGraph(
+//            nodeId: nodeId,
+//            coordinate: layerInputType))
+//    }
     
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
@@ -143,22 +146,16 @@ struct NodeInputView: View {
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
     }
-
+    
     var body: some View {
         NodeInputOutputView(graph: graph,
                             rowObserver: rowObserver,
                             rowData: rowData,
                             forPropertySidebar: forPropertySidebar,
-                            propertyIsSelected: propertyIsSelected,
-                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                            portTapAction: onPortTap) { inputViewModel, labelView in
-//            HStack(alignment: .top) {
-//            HStack {
-//            HStack(alignment: .firstTextBaseline) {
-            
+                            propertyIsSelected: propertyIsSelected) { inputViewModel, labelView in
+           
             // For multifields, want the overall label to sit at top of fields' VStack.
             // For single fields, want to the overall label t
-//            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
             HStack(alignment: hStackAlignment) {
                 
                 if !forPropertySidebar {
@@ -167,7 +164,7 @@ struct NodeInputView: View {
                                     rowViewModel: rowData,
                                     showPopover: $showPopover)
                 }
-
+                
                 let isPaddingLayerInputRow = rowData.id.portType.keyPath == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
@@ -175,10 +172,9 @@ struct NodeInputView: View {
                     PaddingReadOnlyView(rowObserver: rowObserver,
                                         rowData: rowData,
                                         labelView: labelView)
-                                        
+                    
                 } else {
                     labelView
-                        .border(.green)
                     
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
@@ -187,9 +183,7 @@ struct NodeInputView: View {
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
-                    .border(.cyan)
                 }
-            
             }
         }
     }
@@ -207,7 +201,7 @@ struct NodeOutputView: View {
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-
+    
     @Bindable var rowObserver: OutputNodeRowObserver
     @Bindable var rowData: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
@@ -232,11 +226,11 @@ struct NodeOutputView: View {
         self.nodeKind == .patch(.splitter)
     }
     
-    @MainActor func onPortTap(layerInputType: LayerInputType) {
-        dispatch(LayerOutputAddedToGraph(
-            nodeId: nodeId,
-            coordinate: rowData.id.portType))
-    }
+//    @MainActor func onPortTap(layerInputType: LayerInputType) {
+//        dispatch(LayerOutputAddedToGraph(
+//            nodeId: nodeId,
+//            coordinate: rowData.id.portType))
+//    }
     
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
@@ -251,17 +245,13 @@ struct NodeOutputView: View {
                          forPropertySidebar: forPropertySidebar,
                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
     }
-
+    
     var body: some View {
         NodeInputOutputView(graph: graph,
                             rowObserver: rowObserver,
                             rowData: rowData,
                             forPropertySidebar: forPropertySidebar,
-                            propertyIsSelected: propertyIsSelected,
-                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                            portTapAction: onPortTap) { outputViewModel, labelView in
-//            HStack(alignment: .top) {
-//            HStack(alignment: .firstTextBaseline) {
+                            propertyIsSelected: propertyIsSelected) { outputViewModel, labelView in
             HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
@@ -327,18 +317,18 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: NodeRowObserverType
     @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
-
+    
     @Binding var showPopover: Bool
     
     var coordinate: NodeIOPortType {
         self.rowViewModel.id.portType
     }
-
-//    @MainActor
-//    var hasIncomingEdge: Bool {
-//        self.rowData.upstreamOutputObserver.isDefined
-//    }
-
+    
+    //    @MainActor
+    //    var hasIncomingEdge: Bool {
+    //        self.rowData.upstreamOutputObserver.isDefined
+    //    }
+    
     var nodeIO: NodeIO {
         NodeRowObserverType.nodeIOType
     }
@@ -347,18 +337,18 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false
     }
     
-//    var nodeDelegate: NodeDelegate? {
-//        let isSplitterRowAndInvisible = isGroup && rowObserver.nodeDelegate?.id != self.node.nodeDelegate?.id
-//
-//        // Use passed-in group node so we can obtain view-pertinent information for splitters.
-//        // Fixes issue where output splitters use wrong node delegate.
-//        if isSplitterRowAndInvisible {
-//            return self.node.nodeDelegate
-//        }
-//        
-//        return rowObserver.nodeDelegate
-//    }
-
+    //    var nodeDelegate: NodeDelegate? {
+    //        let isSplitterRowAndInvisible = isGroup && rowObserver.nodeDelegate?.id != self.node.nodeDelegate?.id
+    //
+    //        // Use passed-in group node so we can obtain view-pertinent information for splitters.
+    //        // Fixes issue where output splitters use wrong node delegate.
+    //        if isSplitterRowAndInvisible {
+    //            return self.node.nodeDelegate
+    //        }
+    //
+    //        return rowObserver.nodeDelegate
+    //    }
+    
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,
                       graph: graph,
@@ -380,7 +370,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         .popover(isPresented: $showPopover) {
             // Conditional is a hack that cuts down on perf
             if showPopover {
-                PortValuesPreviewView(data: rowObserver, 
+                PortValuesPreviewView(data: rowObserver,
                                       fieldValueTypes: rowViewModel.fieldValueTypes,
                                       coordinate: self.rowObserver.id,
                                       nodeIO: nodeIO)
@@ -391,11 +381,11 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
 
 //#Preview {
 //    NodeInputOutputView(graph: <#T##GraphState#>,
-//                        node: <#T##NodeViewModel#>, 
+//                        node: <#T##NodeViewModel#>,
 //                        rowData: <#T##NodeRowObserver#>,
 //                        coordinateType: <#T##PortViewType#>,
 //                        nodeKind: <#T##NodeKind#>,
-//                        isNodeSelected: <#T##Bool#>, 
+//                        isNodeSelected: <#T##Bool#>,
 //                        adjustmentBarSessionId: <#T##AdjustmentBarSessionId#>)
 //}
 

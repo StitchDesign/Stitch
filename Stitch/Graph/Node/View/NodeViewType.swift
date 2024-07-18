@@ -10,6 +10,9 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodeTypeView: View {
+    // Use state rather than computed variable due to perf cost
+    @State private var sortedUserTypeChoices = [UserVisibleType]()
+    
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvasNode: CanvasItemViewModel
@@ -26,36 +29,79 @@ struct NodeTypeView: View {
 
     // Only true for the "real node" while the insert-node animation is in progress
     var isHiddenDuringAnimation: Bool = false
+    
+    @MainActor
+    var isSelected: Bool {
+        canvasNode.isSelected
+    }
+    
+    var userVisibleType: UserVisibleType? {
+        self.node.userVisibleType
+    }
+
+    var userTypeChoices: Set<UserVisibleType> {
+        self.node.patch?.availableNodeTypes ?? .init()
+    }
+
+    @MainActor
+    var displayTitle: String {
+        self.node.displayTitle
+    }
 
     var body: some View {
-        switch node.nodeType {
-        case .layer:
-            // LayerNodes use `LayerInputOnGraphView`
-            EmptyView()
-                .onAppear {
-                    fatalErrorIfDebug()
-                }
-            
-        case .patch(let patchViewModel):
-            PatchNodeView(graph: graph,
-                          viewModel: node,
-                          patchNode: patchViewModel,
-                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                          activeGroupId: groupNodeFocused,
-                          activeIndex: activeIndex,
-                          boundsReaderDisabled: boundsReaderDisabled,
-                          usePositionHandler: usePositionHandler,
-                          updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
-                          isHiddenDuringAnimation: isHiddenDuringAnimation,
-                          adjustmentBarSessionId: adjustmentBarSessionId)
-        case .group(let canvasViewModel):
-            GroupNodeView(graph: graph,
-                          nodeViewModel: node,
-                          canvasViewModel: canvasViewModel,
-                          atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                          activeGroupId: groupNodeFocused,
-                          activeIndex: activeIndex,
-                          adjustmentBarSessionId: adjustmentBarSessionId)
+        NodeView(node: canvasNode,
+                 stitch: node,
+                 graph: graph,
+                 isSelected: isSelected,
+                 atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
+                 activeGroupId: groupNodeFocused,
+                 canAddInput: node.canAddInputs,
+                 canRemoveInput: node.canRemoveInputs,
+                 sortedUserTypeChoices: sortedUserTypeChoices,
+                 boundsReaderDisabled: boundsReaderDisabled,
+                 usePositionHandler: usePositionHandler,
+                 updateMenuActiveSelectionBounds: updateMenuActiveSelectionBounds,
+                 isHiddenDuringAnimation: isHiddenDuringAnimation,
+                 inputsViews: inputsViews,
+                 outputsViews: outputsViews)
+        .onChange(of: self.node.patch, initial: true) {
+            // Sorting is expensive so we control when this is calculated
+            if let patchNode = self.node.patchNode {
+                self.sortedUserTypeChoices = patchNode.getSortedUserTypeChoices()
+            }
+        }
+    }
+    
+    @ViewBuilder @MainActor
+    func inputsViews() -> some View {
+        VStack(alignment: .leading,
+               spacing: SPACING_BETWEEN_NODE_ROWS) {
+            if self.node.patch == .wirelessReceiver {
+                WirelessPortView(isOutput: false, id: node.id)
+                    .padding(.trailing, NODE_BODY_SPACING)
+            } else {
+                DefaultNodeInputView(graph: graph,
+                                     node: node,
+                                     isNodeSelected: isSelected,
+                                     adjustmentBarSessionId: adjustmentBarSessionId)
+            }
+        }
+    }
+
+    @ViewBuilder @MainActor
+    func outputsViews() -> some View {
+        VStack(alignment: .trailing,
+               spacing: SPACING_BETWEEN_NODE_ROWS) {
+
+            if self.node.patch == .wirelessBroadcaster {
+                WirelessPortView(isOutput: true, id: node.id)
+                    .padding(.leading, NODE_BODY_SPACING)
+            } else {
+                DefaultNodeOutputView(graph: graph,
+                                      node: node,
+                                      isNodeSelected: isSelected,
+                                      adjustmentBarSessionId: adjustmentBarSessionId)
+            }
         }
     }
 }
