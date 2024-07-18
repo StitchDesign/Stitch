@@ -133,7 +133,6 @@ struct NodeInputView: View {
                             propertyIsSelected: propertyIsSelected,
                             propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                             portTapAction: onPortTap) { inputViewModel, labelView in
-//            HStack {
             HStack(alignment: .top) {
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
@@ -146,36 +145,10 @@ struct NodeInputView: View {
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
                 if hidePaddingFieldsOnPropertySidebar {
-                    Group {
-                        labelView
-                        
-                        Spacer()
-                        
-                        // Want to just display the values; so need a new kind of `display only` view
-                        ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
-                            
-                            ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: InputFieldViewModel) in
-                                
-                                StitchTextView(string: fieldViewModel.fieldValue.stringValue,
-                                               fontColor: STITCH_FONT_GRAY_COLOR)
-                                // Monospacing prevents jittery node widths if values change on graphstep
-                                .monospacedDigit()
-                                // TODO: what is best width? Needs to be large enough for 3-digit values?
-                                .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
-                                // TODO: only show background when read-only field is hovered
-                                .background {
-                                    INPUT_FIELD_BACKGROUND.cornerRadius(4)
-                                }
-                            }
-                            
-                        } // Group
-                        
-                        // Tap on the read-only fields to open padding flyout
-                        .onTapGesture {
-                            dispatch(FlyoutToggled(flyoutInput: .padding,
-                                                   flyoutNodeId: nodeId))
-                        }
-                    }                    
+                    PaddingReadOnlyView(rowObserver: rowObserver,
+                                        rowData: rowData,
+                                        labelView: labelView)
+                                        
                 } else {
                     labelView
                     FieldsListView(graph: graph,
