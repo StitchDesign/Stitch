@@ -14,7 +14,8 @@ let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputType.shadowColor
 struct ShadowFlyoutView: View {
     
     static let SHADOW_FLYOUT_WIDTH = 256.0
-    static let SHADOW_FLYOUT_HEIGHT = 200.0
+//    static let SHADOW_FLYOUT_HEIGHT = 200.0
+    @State var height: CGFloat? = nil // 248.87 per GeometryReader measurements?
     
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -35,7 +36,6 @@ struct ShadowFlyoutView: View {
             }
             
             // TODO: why does UIKitWrapper mess up padding so badly?
-            
 //            UIKitWrapper(ignoresKeyCommands: false,
 //                         name: "ShadowFlyout") {
                 rows
@@ -47,13 +47,16 @@ struct ShadowFlyoutView: View {
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.SHADOW_FLYOUT_WIDTH, height: Self.SHADOW_FLYOUT_HEIGHT)
+        .frame(width: Self.SHADOW_FLYOUT_WIDTH, 
+//               height: Self.SHADOW_FLYOUT_HEIGHT)
+               height: self.height)
         .background {
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                               initial: true) { oldValue, newValue in
                         log("Shadow flyout size: \(newValue.size)")
+                        self.height = newValue.size.height
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }

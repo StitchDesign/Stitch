@@ -199,8 +199,6 @@ struct ContentView: View {
             
             HStack {
                 Spacer()
-//                Rectangle().fill(.red).frame
-                
                 Group {
                     if flyoutState.flyoutInput == .padding {
                         PaddingFlyoutView(graph: graph,
@@ -217,7 +215,7 @@ struct ContentView: View {
                     
                     y:  -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
                     + entry.y // move down to row's y height
-                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's lisst padding
+                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's list padding
                 )
             }
         }
