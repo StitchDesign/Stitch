@@ -123,13 +123,7 @@ struct NodeInputView: View {
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
-    
-//    @MainActor func onPortTap(layerInputType: LayerInputType) {
-//        dispatch(LayerInputAddedToGraph(
-//            nodeId: nodeId,
-//            coordinate: layerInputType))
-//    }
-    
+        
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> some View {
@@ -221,13 +215,7 @@ struct NodeOutputView: View {
     var isSplitter: Bool {
         self.nodeKind == .patch(.splitter)
     }
-    
-//    @MainActor func onPortTap(layerInputType: LayerInputType) {
-//        dispatch(LayerOutputAddedToGraph(
-//            nodeId: nodeId,
-//            coordinate: rowData.id.portType))
-//    }
-    
+        
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> some View {
