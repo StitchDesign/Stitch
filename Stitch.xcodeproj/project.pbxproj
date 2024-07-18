@@ -219,8 +219,6 @@
 		B5E5FFBB274C978800C5FE92 /* nodeUIGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */; };
 		B5EB3F072C165FE900879947 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		B5EC48BC2A0ECC0000C6AE72 /* LayerNodesSorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC48BB2A0ECC0000C6AE72 /* LayerNodesSorting.swift */; };
-		B5EC61F32A5DF7AA002A639F /* PatchNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */; };
-		B5EC61F72A5DF7CD002A639F /* GroupNodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */; };
 		B5EC61F92A5E2174002A639F /* NodeViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61F82A5E2174002A639F /* NodeViewType.swift */; };
 		B5EC61FB2A5F5713002A639F /* NodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */; };
 		B5EC874F28256DD0004C2AB3 /* AlertsViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5EC874E28256DD0004C2AB3 /* AlertsViewModifier.swift */; };
@@ -1109,8 +1107,6 @@
 		B5E5FFAD2749804500C5FE92 /* GroupNodeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeUtils.swift; sourceTree = "<group>"; };
 		B5E5FFBA274C978800C5FE92 /* nodeUIGroupingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = nodeUIGroupingTests.swift; sourceTree = "<group>"; };
 		B5EC48BB2A0ECC0000C6AE72 /* LayerNodesSorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerNodesSorting.swift; sourceTree = "<group>"; };
-		B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PatchNodeView.swift; sourceTree = "<group>"; };
-		B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeView.swift; sourceTree = "<group>"; };
 		B5EC61F82A5E2174002A639F /* NodeViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewType.swift; sourceTree = "<group>"; };
 		B5EC61FA2A5F5713002A639F /* NodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModel.swift; sourceTree = "<group>"; };
 		B5EC874E28256DD0004C2AB3 /* AlertsViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsViewModifier.swift; sourceTree = "<group>"; };
@@ -2462,8 +2458,6 @@
 				B5EC61F82A5E2174002A639F /* NodeViewType.swift */,
 				ECDE943128089DF500005401 /* NodeView.swift */,
 				ECC30E0F2C234DAF00F0F54C /* LayerRowOnGraphView.swift */,
-				B5EC61F22A5DF7AA002A639F /* PatchNodeView.swift */,
-				B5EC61F62A5DF7CD002A639F /* GroupNodeView.swift */,
 				ECF387DC280B61680075F0E5 /* CanvasItemSelectedViewModifier.swift */,
 				B5CF644C294BEABD00EF83DB /* CanvasItemPositionHandler.swift */,
 			);
@@ -4642,7 +4636,6 @@
 				B548533929371E7B00C43828 /* ARUtils.swift in Sources */,
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
-				B5EC61F32A5DF7AA002A639F /* PatchNodeView.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
 				B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */,
 				EC9DB346280F1F710061EC3C /* EdgeDrawingObserver.swift in Sources */,
@@ -4844,7 +4837,6 @@
 				EC5263032B59D83600EE1E52 /* HandleStitchAction.swift in Sources */,
 				B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */,
 				ECC175872A43D6A30017815D /* StitchNodeNames.swift in Sources */,
-				B5EC61F72A5DF7CD002A639F /* GroupNodeView.swift in Sources */,
 				EC49149E293596E100D74344 /* SplitTextNode.swift in Sources */,
 				EC27A0CE2AF47CDF00FFD018 /* FromHSLToColor.swift in Sources */,
 				EC4A720D274C09360026B233 /* WirelessBroadcasterNode.swift in Sources */,
