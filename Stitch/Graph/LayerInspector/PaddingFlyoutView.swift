@@ -17,7 +17,7 @@ struct PaddingFlyoutView: View {
     static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
     
     // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace 
-    static let PADDING_FLYOUT_HEIGHT = 187.0 // Calculated by Figma
+    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
         
     @Bindable var graph: GraphState
     let rowViewModel: InputNodeRowViewModel
@@ -40,17 +40,18 @@ struct PaddingFlyoutView: View {
                         
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
+            
+            // TODO: UIKitWrapper adds a bit of padding at the bottom?
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "PaddingFlyout") {
                 // TODO: finalize this logic once fields are in?
                 inputOutputRow
             }
-                        
+
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.PADDING_FLYOUT_WIDTH)
         .frame(width: Self.PADDING_FLYOUT_WIDTH, height: Self.PADDING_FLYOUT_HEIGHT)
         .background {
             GeometryReader { geometry in
@@ -70,7 +71,7 @@ struct PaddingFlyoutView: View {
         FieldsListView(graph: graph,
                        rowViewModel: rowViewModel,
                        nodeId: rowViewModel.id.nodeId,
-                       isGroupNodeKind: !rowViewModel.nodeKind.isGroup,
+                       isGroupNodeKind: rowViewModel.nodeKind.isGroup,
                        forPropertySidebar: true,
                        // TODO: fix
                        propertyIsAlreadyOnGraph: false) { portViewModel, isMultiField in
