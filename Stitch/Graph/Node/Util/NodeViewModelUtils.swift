@@ -59,11 +59,16 @@ extension NodeViewModel {
             nodeType = .patch(patchNode)
 
         case .layer(let layerNode):
-            let layerNode = LayerNodeEntity(nodeId: id,
+            var layerNode = LayerNodeEntity(nodeId: id,
                                             layer: layerNode.layer,
                                             hasSidebarVisibility: true,
                                             layerGroupId: nil,
                                             isExpandedInSidebar: nil)
+            
+            // MARK: arbitrarily use position port for saving canvas position data until inspector is supported
+            if !FeatureFlags.USE_LAYER_INSPECTOR {
+                layerNode.positionPort.canvasItem = canvasEntity
+            }
             
             nodeType = .layer(layerNode)
         }

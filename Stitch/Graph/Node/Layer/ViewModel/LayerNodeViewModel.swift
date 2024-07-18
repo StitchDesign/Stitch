@@ -274,7 +274,6 @@ final class LayerNodeViewModel {
         // Note: this should never actually be empty; only empty here as part of initialization; populated by a later call to `LayerNodeViewModel.didValuesUpdate`
         self.previewLayerViewModels = .init()
         
-        // TODO: use the serialized data rather than default inputs which we override anyway
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
