@@ -133,7 +133,8 @@ struct NodeInputView: View {
                             propertyIsSelected: propertyIsSelected,
                             propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                             portTapAction: onPortTap) { inputViewModel, labelView in
-            HStack {
+//            HStack {
+            HStack(alignment: .top) {
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
@@ -161,6 +162,7 @@ struct NodeInputView: View {
                                 .monospacedDigit()
                                 // TODO: what is best width? Needs to be large enough for 3-digit values?
                                 .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+                                // TODO: only show background when read-only field is hovered
                                 .background {
                                     INPUT_FIELD_BACKGROUND.cornerRadius(4)
                                 }
@@ -177,12 +179,12 @@ struct NodeInputView: View {
                 } else {
                     labelView
                     FieldsListView(graph: graph,
-                                rowViewModel: rowData,
-                                nodeId: nodeId,
-                                isGroupNodeKind: !(rowObserver.nodeDelegate?.kind.isGroup ?? true),
-                                forPropertySidebar: forPropertySidebar,
-                                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                valueEntryView: valueEntryView)
+                                   rowViewModel: rowData,
+                                   nodeId: nodeId,
+                                   isGroupNodeKind: rowObserver.nodeDelegate?.kind.isGroup ?? false,
+                                   forPropertySidebar: forPropertySidebar,
+                                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                   valueEntryView: valueEntryView)
                 }
             
             }
@@ -247,7 +249,7 @@ struct NodeOutputView: View {
                             propertyIsSelected: propertyIsSelected,
                             propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                             portTapAction: onPortTap) { outputViewModel, labelView in
-            HStack {
+            HStack(alignment: .top) {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
                     labelView
@@ -261,7 +263,7 @@ struct NodeOutputView: View {
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
                                    nodeId: nodeId,
-                                   isGroupNodeKind: !nodeKind.isGroup,
+                                   isGroupNodeKind: nodeKind.isGroup,
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
