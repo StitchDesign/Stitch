@@ -15,6 +15,7 @@ protocol LayerNodeRowData: AnyObject {
     var canvasObsever: CanvasItemViewModel? { get set }
 }
 
+@Observable
 final class InputLayerNodeRowData {
     let rowObserver: InputNodeRowObserver
     let inspectorRowViewModel: InputNodeRowViewModel
@@ -37,6 +38,7 @@ final class InputLayerNodeRowData {
     }
 }
 
+@Observable
 final class OutputLayerNodeRowData {
     let rowObserver: OutputNodeRowObserver
     let inspectorRowViewModel: OutputNodeRowViewModel
