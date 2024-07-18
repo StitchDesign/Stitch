@@ -27,16 +27,7 @@ struct PaddingFlyoutView: View {
     var body: some View {
         
         VStack(alignment: .leading) {
-            HStack {
-                StitchTextView(string: "Padding").font(.title3)
-                Spacer()
-                Image(systemName: "xmark.circle.fill")
-                    .onTapGesture {
-                        withAnimation {
-                            dispatch(FlyoutClosed())
-                        }
-                    }
-            }
+            FlyoutHeader(flyoutTitle: "Padding")
                         
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
