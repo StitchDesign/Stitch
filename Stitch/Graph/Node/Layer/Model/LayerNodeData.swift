@@ -12,20 +12,20 @@ protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     
     var rowObserver: RowObserverable { get set }
-    var canvasObsever: CanvasItemViewModel? { get set }
+    var canvasObserver: CanvasItemViewModel? { get set }
 }
 
 @Observable
 final class InputLayerNodeRowData {
     let rowObserver: InputNodeRowObserver
     let inspectorRowViewModel: InputNodeRowViewModel
-    var canvasObsever: CanvasItemViewModel?
+    var canvasObserver: CanvasItemViewModel?
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
-         canvasObsever: CanvasItemViewModel? = nil) {
+         canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
-        self.canvasObsever = canvasObsever
+        self.canvasObserver = canvasObserver
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
                                                      nodeId: rowObserver.id.nodeId,
@@ -42,13 +42,13 @@ final class InputLayerNodeRowData {
 final class OutputLayerNodeRowData {
     let rowObserver: OutputNodeRowObserver
     let inspectorRowViewModel: OutputNodeRowViewModel
-    var canvasObsever: CanvasItemViewModel?
+    var canvasObserver: CanvasItemViewModel?
     
     @MainActor
     init(rowObserver: OutputNodeRowObserver,
-         canvasObsever: CanvasItemViewModel? = nil) {
+         canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
-        self.canvasObsever = canvasObsever
+        self.canvasObserver = canvasObserver
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
                                                      nodeId: rowObserver.id.nodeId,
@@ -83,54 +83,45 @@ extension InputLayerNodeRowData {
                                 inputType: layerInputType)
         
         if let canvas = schema.canvasItem {
-            if let canvasObsever = self.canvasObsever {
-                canvasObsever.update(from: canvas)
+            if let canvasObserver = self.canvasObserver {
+                canvasObserver.update(from: canvas)
             } else {
-                self.canvasObsever = .init(from: canvas,
-                                           id: .layerInput(.init(node: nodeId,
-                                                                 keyPath: layerInputType)),
-                                           node: node)
+                // Make new canvas observer since none yet created
+                let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
+                                                             keyPath: layerInputType))
                 
                 if FeatureFlags.USE_LAYER_INSPECTOR {
-                    // Create input port view model if none yet made
-                    let canvasInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node,
-                                                                               nodeId: nodeId,
-                                                                               portType: .keyPath(layerInputType)),
-                                                                     activeValue: rowObserver.activeValue,
-                                                                     nodeRowIndex: 0,
-                                                                     rowDelegate: self.rowObserver,
-                                                                     canvasItemDelegate: self.canvasObsever)
-                    
-                    self.canvasObsever?.inputViewModels = [canvasInputViewModel]
+                    let inputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].rowObserver
+                    self.canvasObserver = .init(from: canvas,
+                                               id: canvasId,
+                                               inputRowObservers: [inputObserver],
+                                               outputRowObservers: [],
+                                               node: node)
                 } else {
                     // MARK: this is a hacky solution to support old-style layer nodes.
                     // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
                     // So we load all ports here.
-                    let inputViewModels = layerNode.layer.layerGraphNode.inputDefinitions
-                        .enumerated().map { portIndex, keyPath in
-                            let inputRowObserver = layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
-                            
-                            return InputNodeRowViewModel(id: .init(graphItemType: .node,
-                                                                   nodeId: nodeId,
-                                                                   portType: .keyPath(keyPath)),
-                                                         activeValue: inputRowObserver.activeValue,
-                                                         nodeRowIndex: portIndex,
-                                                         rowDelegate: inputRowObserver,
-                                                         canvasItemDelegate: self.canvasObsever)
+                    let inputRowObservers = layerNode.layer.layerGraphNode.inputDefinitions
+                        .map { keyPath in
+                            layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
                     }
                     
-                    self.canvasObsever?.inputViewModels = inputViewModels
+                    self.canvasObserver = .init(from: canvas,
+                                               id: canvasId,
+                                               inputRowObservers: inputRowObservers,
+                                               outputRowObservers: [],
+                                               node: node)
                 }
             }
         } else {
-            self.canvasObsever = nil
+            self.canvasObserver = nil
         }
     }
     
     @MainActor
     func createSchema() -> LayerInputDataEntity {
         .init(inputPort: self.rowObserver.createSchema().portData,
-              canvasItem: self.canvasObsever?.createSchema())
+              canvasItem: self.canvasObserver?.createSchema())
     }
 }
 

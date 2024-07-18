@@ -36,6 +36,23 @@ extension CanvasItemId {
             return nil
         }
     }
+    
+    var nodeId: NodeId {
+        switch self {
+        case .node(let id):
+            return id
+        case .layerInput(let input):
+            return input.node
+        case .layerOutput(let output):
+            return output.node
+        }
+    }
+    
+    func getRowViewModelId(portType: NodeIOPortType) -> NodeRowViewModelId {
+        .init(graphItemType: .node,
+              nodeId: self.nodeId,
+              portType: portType)
+    }
 }
 
 extension CanvasItemId: Identifiable {
@@ -105,10 +122,13 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate?.graphDelegate
     }
     
+    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
          parentGroupNodeId: NodeId?,
+         inputRowObservers: [InputNodeRowObserver],
+         outputRowObservers: [OutputNodeRowObserver],
          nodeDelegate: NodeDelegate?) {
         self.id = id
         self.position = position
@@ -116,17 +136,38 @@ final class CanvasItemViewModel: Identifiable {
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
+        
+        self.inputViewModels = inputRowObservers.enumerated().map { portIndex, rowObserver in
+            InputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
+                                  activeValue: rowObserver.activeValue,
+                                  nodeRowIndex: portIndex,
+                                  rowDelegate: rowObserver,
+                                  canvasItemDelegate: self)
+        }
+        
+        self.outputViewModels = outputRowObservers.enumerated().map { portIndex, rowObserver in
+            OutputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
+                                   activeValue: rowObserver.activeValue,
+                                   nodeRowIndex: portIndex,
+                                   rowDelegate: rowObserver,
+                                   canvasItemDelegate: self)
+        }
     }
 }
 
 extension CanvasItemViewModel: SchemaObserver {
+    @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
+                     inputRowObservers: [InputNodeRowObserver],
+                     outputRowObservers: [OutputNodeRowObserver],
                      node: NodeDelegate?) {
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
                   parentGroupNodeId: canvasEntity.parentGroupNodeId,
+                  inputRowObservers: inputRowObservers,
+                  outputRowObservers: outputRowObservers,
                   nodeDelegate: node)
     }
     
@@ -161,6 +202,17 @@ extension CanvasItemViewModel: SchemaObserver {
 }
 
 extension CanvasItemViewModel {
+    @MainActor
+    static func createEmpty() -> Self {
+        .init(from: .init(position: .zero,
+                          zIndex: .zero,
+                          parentGroupNodeId: nil),
+              id: .node(.init()),
+              inputRowObservers: [],
+              outputRowObservers: [],
+              node: nil)
+    }
+    
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
@@ -223,6 +275,6 @@ extension InputLayerNodeRowData {
                                                nodeDelegate: nil)
         
         return .init(rowObserver: rowObserver,
-                     canvasObsever: nil)
+                     canvasObserver: nil)
     }
 }
