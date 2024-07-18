@@ -296,6 +296,7 @@ final class LayerNodeViewModel {
             // Call update once everything above is in place
             layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
                              layerInputType: inputType,
+                             layer: self.layer,
                              nodeId: id.nodeId,
                              node: nodeDelegate)
         }
@@ -325,6 +326,7 @@ extension LayerNodeViewModel: SchemaObserver {
             self[keyPath: $0.layerNodeKeyPath]
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
                         layerInputType: $0,
+                        layer: self.layer,
                         nodeId: schema.id,
                         node: self.nodeDelegate)
         }
