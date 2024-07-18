@@ -158,7 +158,6 @@ struct LayerInspectorView: View {
 //                    section("Shadow", Self.shadow)
                     
                     // will this row be selectable ?
-                    // is so?
                     StitchTextView(string: "Shadow")
                         .padding(4)
                         .background {
