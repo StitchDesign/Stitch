@@ -799,6 +799,8 @@
 		ECE35EEE27CEE93700CB8F5C /* PickerActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EED27CEE93700CB8F5C /* PickerActions.swift */; };
 		ECE35EF027CEE99300CB8F5C /* InputEditedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EEF27CEE99300CB8F5C /* InputEditedActions.swift */; };
 		ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE35EF127CEE9AE00CB8F5C /* InputCommittedActions.swift */; };
+		ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */; };
+		ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */; };
 		ECE708642B8D492A009F4525 /* CurveToUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708632B8D492A009F4525 /* CurveToUnpackNode.swift */; };
 		ECE708662B8D49D5009F4525 /* ClosePathNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708652B8D49D5009F4525 /* ClosePathNode.swift */; };
 		ECE708682B8D4ADA009F4525 /* LineToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708672B8D4ADA009F4525 /* LineToPackNode.swift */; };
@@ -1697,6 +1699,8 @@
 		ECE35EED27CEE93700CB8F5C /* PickerActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerActions.swift; sourceTree = "<group>"; };
 		ECE35EEF27CEE99300CB8F5C /* InputEditedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputEditedActions.swift; sourceTree = "<group>"; };
 		ECE35EF127CEE9AE00CB8F5C /* InputCommittedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputCommittedActions.swift; sourceTree = "<group>"; };
+		ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowFlyoutView.swift; sourceTree = "<group>"; };
+		ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlyoutUtils.swift; sourceTree = "<group>"; };
 		ECE708632B8D492A009F4525 /* CurveToUnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveToUnpackNode.swift; sourceTree = "<group>"; };
 		ECE708652B8D49D5009F4525 /* ClosePathNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosePathNode.swift; sourceTree = "<group>"; };
 		ECE708672B8D4ADA009F4525 /* LineToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineToPackNode.swift; sourceTree = "<group>"; };
@@ -1909,6 +1913,8 @@
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */,
+				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
+				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
 				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
 			);
@@ -4482,6 +4488,7 @@
 				ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */,
 				EC004DD52B44EE6000C5DB33 /* LayerEvalExtensions.swift in Sources */,
 				EC4914A02935979800D74344 /* TextReplaceNode.swift in Sources */,
+				ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */,
 				EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */,
 				B56FFB482C18FF9700623CC7 /* LoopedEval.swift in Sources */,
 				B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */,
@@ -4607,6 +4614,7 @@
 				ECFD9FAF297B748F00D86359 /* CopyAndPasteNodesActions.swift in Sources */,
 				EC27A0CC2AF47CCD00FFD018 /* FromColorToHSL.swift in Sources */,
 				EC68A700288B31A000689F92 /* GroupNodeDestructionActions.swift in Sources */,
+				ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */,
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
 				B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */,
