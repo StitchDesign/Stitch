@@ -88,7 +88,6 @@ extension GraphState {
 struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
     let nodeId: NodeId
-//    let coordinate: NodeIOPortType
     let portId: Int
     
     func handle(state: GraphState) -> GraphResponse {

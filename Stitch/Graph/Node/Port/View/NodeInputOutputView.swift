@@ -8,9 +8,8 @@
 import SwiftUI
 import StitchSchemaKit
 
+// TODO: revisit this when we're able to add LayerNodes with outputs to the graph again
 struct AddLayerPropertyToGraphButton: View {
-    
-    let layerInput: LayerInputType
     let propertyIsSelected: Bool
     let coordinate: NodeIOCoordinate
     
@@ -61,11 +60,8 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
-            if forPropertySidebar,
-               // What about adding a LayerOutput to the graph?
-               let layerInput = rowObserver.id.keyPath {
-                AddLayerPropertyToGraphButton(layerInput: layerInput,
-                                              propertyIsSelected: propertyIsSelected,
+            if forPropertySidebar {
+                AddLayerPropertyToGraphButton(propertyIsSelected: propertyIsSelected,
                                               coordinate: self.rowObserver.id)
             }
             

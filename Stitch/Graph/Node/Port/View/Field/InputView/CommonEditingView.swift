@@ -37,7 +37,7 @@ struct CommonEditingView: View {
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
     
-    let forPropertySidebar: Bool // = false
+    let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
     var id: FieldCoordinate {
@@ -88,7 +88,7 @@ struct CommonEditingView: View {
                      
                      `HStack { textFieldView, picker }` introduces alignment issues from picker's SwiftUI Menu/Picker
                      
-                     `textFieldView.overlay { picker }` causes `picker` to flash when the underlying text-field / read-only-text view is changed via if/else.
+                     `textFieldView.overlay { picker }` causes picker to flash when the underlying text-field / read-only-text view is changed via if/else.
                      */
                     Rectangle().fill(.clear).frame(width: 2, height: 2)
                         .overlay {
@@ -101,7 +101,6 @@ struct CommonEditingView: View {
                 textFieldView
             }
         }
-        .border(.red)
         .onChange(of: showEditingView) { _, newValue in
             // Fixes beach balls for base 64 strings
             if showEditingView {
