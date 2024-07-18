@@ -75,7 +75,7 @@ struct NodeTypeView: View {
     @ViewBuilder @MainActor
     func inputsViews() -> some View {
         VStack(alignment: .leading,
-                      spacing: SPACING_BETWEEN_NODE_ROWS) {
+               spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
                 WirelessPortView(isOutput: false, id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)

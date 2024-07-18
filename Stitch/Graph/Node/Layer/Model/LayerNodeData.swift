@@ -76,7 +76,7 @@ extension InputLayerNodeRowData {
     @MainActor
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
-                layer: Layer,
+                layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
                 node: NodeDelegate?) {
         self.rowObserver.update(from: schema.inputPort,
@@ -84,7 +84,7 @@ extension InputLayerNodeRowData {
         
         if let canvas = schema.canvasItem {
             if let canvasObsever = self.canvasObsever {
-                self.canvasObsever?.update(from: canvas)
+                canvasObsever.update(from: canvas)
             } else {
                 self.canvasObsever = .init(from: canvas,
                                            id: .layerInput(.init(node: nodeId,
@@ -106,15 +106,17 @@ extension InputLayerNodeRowData {
                     // MARK: this is a hacky solution to support old-style layer nodes.
                     // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
                     // So we load all ports here.
-                    let inputViewModels = layer.layerGraphNode.inputDefinitions
+                    let inputViewModels = layerNode.layer.layerGraphNode.inputDefinitions
                         .enumerated().map { portIndex, keyPath in
-                        InputNodeRowViewModel(id: .init(graphItemType: .node,
-                                                        nodeId: nodeId,
-                                                        portType: .keyPath(keyPath)),
-                                              activeValue: rowObserver.activeValue,
-                                              nodeRowIndex: portIndex,
-                                              rowDelegate: self.rowObserver,
-                                              canvasItemDelegate: self.canvasObsever)
+                            let inputRowObserver = layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
+                            
+                            return InputNodeRowViewModel(id: .init(graphItemType: .node,
+                                                                   nodeId: nodeId,
+                                                                   portType: .keyPath(keyPath)),
+                                                         activeValue: inputRowObserver.activeValue,
+                                                         nodeRowIndex: portIndex,
+                                                         rowDelegate: inputRowObserver,
+                                                         canvasItemDelegate: self.canvasObsever)
                     }
                     
                     self.canvasObsever?.inputViewModels = inputViewModels
