@@ -91,7 +91,7 @@ extension LayerInputType {
         case .orientation:
             return .orientation(.none)
         case .padding:
-            return .point4D(.zero)
+            return .padding(.defaultPadding)
         case .setupMode:
             return .bool(true)
         case .allAnchors:
