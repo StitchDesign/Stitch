@@ -15,6 +15,7 @@ protocol LayerNodeRowData: AnyObject {
     var canvasObsever: CanvasItemViewModel? { get set }
 }
 
+@Observable
 final class InputLayerNodeRowData {
     let rowObserver: InputNodeRowObserver
     let inspectorRowViewModel: InputNodeRowViewModel
@@ -37,6 +38,7 @@ final class InputLayerNodeRowData {
     }
 }
 
+@Observable
 final class OutputLayerNodeRowData {
     let rowObserver: OutputNodeRowObserver
     let inspectorRowViewModel: OutputNodeRowViewModel
@@ -73,12 +75,55 @@ extension LayerNodeRowData {
 extension InputLayerNodeRowData {
     @MainActor
     func update(from schema: LayerInputDataEntity,
-                layerInputType: LayerInputType) {
+                layerInputType: LayerInputType,
+                layerNode: LayerNodeViewModel,
+                nodeId: NodeId,
+                node: NodeDelegate?) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         
         if let canvas = schema.canvasItem {
-            self.canvasObsever?.update(from: canvas)
+            if let canvasObsever = self.canvasObsever {
+                canvasObsever.update(from: canvas)
+            } else {
+                self.canvasObsever = .init(from: canvas,
+                                           id: .layerInput(.init(node: nodeId,
+                                                                 keyPath: layerInputType)),
+                                           node: node)
+                
+                if FeatureFlags.USE_LAYER_INSPECTOR {
+                    // Create input port view model if none yet made
+                    let canvasInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node,
+                                                                               nodeId: nodeId,
+                                                                               portType: .keyPath(layerInputType)),
+                                                                     activeValue: rowObserver.activeValue,
+                                                                     nodeRowIndex: 0,
+                                                                     rowDelegate: self.rowObserver,
+                                                                     canvasItemDelegate: self.canvasObsever)
+                    
+                    self.canvasObsever?.inputViewModels = [canvasInputViewModel]
+                } else {
+                    // MARK: this is a hacky solution to support old-style layer nodes.
+                    // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
+                    // So we load all ports here.
+                    let inputViewModels = layerNode.layer.layerGraphNode.inputDefinitions
+                        .enumerated().map { portIndex, keyPath in
+                            let inputRowObserver = layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
+                            
+                            return InputNodeRowViewModel(id: .init(graphItemType: .node,
+                                                                   nodeId: nodeId,
+                                                                   portType: .keyPath(keyPath)),
+                                                         activeValue: inputRowObserver.activeValue,
+                                                         nodeRowIndex: portIndex,
+                                                         rowDelegate: inputRowObserver,
+                                                         canvasItemDelegate: self.canvasObsever)
+                    }
+                    
+                    self.canvasObsever?.inputViewModels = inputViewModels
+                }
+            }
+        } else {
+            self.canvasObsever = nil
         }
     }
     
