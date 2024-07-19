@@ -88,11 +88,22 @@ extension GraphState {
         
         case .layerInput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerInputOnGraph(x)?.canvasItemDelegate = nil
+            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            self.getLayerOutputOnGraph(x)?.canvasItemDelegate = nil
+            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode,
+                  let outputData = layerNode.outputPorts[safe: x.portId] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            outputData.canvasObserver = nil
         }
     }
     
