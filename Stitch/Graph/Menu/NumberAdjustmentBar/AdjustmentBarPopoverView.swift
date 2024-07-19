@@ -25,7 +25,6 @@ let ADJUSTMENT_BAR_POPOVER_BACKGROUND_COLOR: Color = Color(.adjustmentBarPopover
 let ADJUSTMENT_BAR_POPOVER_BUTTON_BACKGROUND_COLOR: Color = Color(.adjustmentBarPopoverButtonBackground)
 
 struct AdjustmentBarPopoverView: View {
-    @Environment(StitchStore.self) private var store
     @Bindable var graph: GraphState
 
     // Value heled in Redux, which won't trigger re-renders
@@ -86,11 +85,11 @@ struct AdjustmentBarPopoverView: View {
                                         isCommitting: true)
 
             // Only persist when we close
-            Task.detached(priority: .background) { [weak store, weak graph] in
+            Task(priority: .background) { [weak graph] in
                 // TODO: test undo on adjustment bar close
-                let _ = await graph?.encodeProject()
-                await store?.saveUndoHistory(undoEvents: [undoEvent],
-                                             redoEvents: [])
+                let _ = graph?.encodeProject()
+                graph?.storeDelegate?.saveUndoHistory(undoActions: [undoEvent],
+                                                      redoActions: [])
             }
         } // .onDisappear
     }
