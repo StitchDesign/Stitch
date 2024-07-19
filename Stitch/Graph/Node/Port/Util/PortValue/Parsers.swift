@@ -67,6 +67,17 @@ func layerDimensionParser(_ userEdit: String) -> PortValue {
     .layerDimension(LayerDimension.fromUserEdit(edit: userEdit) ?? LayerDimension.number(userEdit.isEmpty ? 0 : 1))
 }
 
+// Takes a string and attempts to parse it to
+func spacingParser(_ userEdit: String) -> PortValue {
+    if let nonNumericSpacing = StitchSpacing.fromUserEdit(edit: userEdit) {
+        return .spacing(nonNumericSpacing)
+    }
+    
+    return .spacing(
+        toNumber(userEdit).map(StitchSpacing.number) ?? StitchSpacing.defaultStitchSpacing
+    )
+}
+
 /* ----------------------------------------------------------------
  Parser Helpers: String -> T?
  where T is a type expected by a PortValue constructor
@@ -140,8 +151,11 @@ func parseUpdate(_ oldValue: PortValue, _ userEdit: String) -> PortValue {
         return jsonParser(userEdit)
     case .comparable:
         return comparableParser(userEdit)
+    case .spacing:
+        return spacingParser(userEdit)
     default:
-        fatalError("parseUpdate: bad case ")
+        fatalErrorIfDebug("parseUpdate: bad case: oldValue: \(oldValue), userEdit: \(userEdit)")
+        return oldValue
     }
 }
 

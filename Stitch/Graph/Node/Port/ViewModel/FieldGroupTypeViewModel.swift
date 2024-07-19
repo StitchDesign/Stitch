@@ -140,6 +140,9 @@ extension NodeRowViewModel {
 
         case .readOnly:
             self.fieldValueTypes = [.init(type: .readOnly)]
+            
+        case .spacing:
+            self.fieldValueTypes = [.init(type: .spacing)]
         }
         
         self.fieldValueTypes.forEach { fieldValueType in
