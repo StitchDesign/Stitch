@@ -171,6 +171,7 @@ extension PortValue {
 }
 
 // UI data
+@Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = InputPortViewData
     
@@ -237,6 +238,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     }
 }
 
+@Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = OutputPortViewData
     
