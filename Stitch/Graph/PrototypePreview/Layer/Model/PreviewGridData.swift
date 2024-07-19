@@ -12,6 +12,35 @@ let WIDTH_FIELD_INDEX = 0
 let HEIGHT_FIELD_INDEX = 1
 
 extension NodeViewModel {
+
+    // When a PortValue changes, we may need to block or unblock certain
+    @MainActor
+    func blockOrUnlockFields(newValue: PortValue,
+                             layerInput: LayerInputType) {
+        
+        if !self.kind.isLayer {
+            log("blockOrUnlockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
+            return
+        }
+        
+        switch newValue {
+        
+        case .orientation(let x):
+            self.layerGroupOrientationUpdated(newValue: x)
+        
+        case .size(let x):
+            // Update when .size changed,
+            // but not .minSize, .maxSize inputs
+            if layerInput == .size {
+                self.layerSizeUpdated(newValue: x)
+            }
+        case .sizingScenario(let x):
+            self.sizingScenarioUpdated(scenario: x)
+            
+        default:
+            return
+        }
+    }
     
     @MainActor
     func layerGroupOrientationUpdated(newValue: StitchOrientation) {
@@ -22,7 +51,12 @@ extension NodeViewModel {
         
         case .none:
             // Block `spacing` input on the LayerGroup
-            // TODO: block `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
+
+            /*
+              TODO: block `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
+             
+             (Or maybe not, since those children themselves could be LayerGroups with out spacing etc.?)
+             */
             stitch.blockSpacingInput()
             stitch.blockGridLayoutInputs()
             
@@ -38,11 +72,21 @@ extension NodeViewModel {
         }
     }
     
+    // Only for changes to .size (not .minSize, .maxSize) inputs ?
+    @MainActor
+    func layerSizeUpdated(newValue: LayerSize) {
+        self.layerDimensionUpdated(newValue: newValue.width,
+                                   dimension: .width)
+        
+        self.layerDimensionUpdated(newValue: newValue.height,
+                                   dimension: .height)
+    }
+    
     // When LayerDimension is `pt` or `parent percent`, disable the min/max along that same dimension.
     @MainActor
-    func layerDimensionUpdated(newValue: LayerDimension,
-                               dimension: LengthDimension) {
-        
+    private func layerDimensionUpdated(newValue: LayerDimension,
+                                       dimension: LengthDimension) {
+                
         let stitch = self
                 
         switch newValue {
@@ -69,8 +113,7 @@ extension NodeViewModel {
     
     // Assumes input was already updated via e.g. PickerOptionSelected
     @MainActor
-    func sizingScenarioUpdated(scenario: SizingScenario,
-                               activeIndex: ActiveIndex) {
+    func sizingScenarioUpdated(scenario: SizingScenario) {
         
         log("sizingScenarioUpdated: scenario: \(scenario)")
         
@@ -89,8 +132,8 @@ extension NodeViewModel {
             // ... and block the min and max width and height (until width and height are set to grow or hug)
             // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
 //            stitch.blockMinAndMaxSizeInputs()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
                                     
             // ... and block the aspect ratio inputs:
             stitch.blockAspectRatio()
@@ -102,7 +145,7 @@ extension NodeViewModel {
             // ... and unblock the width field:
             // TODO: also unblock min/max width fields if width field != point
             stitch.unblockWidthField()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: activeIndex)
+            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -114,7 +157,7 @@ extension NodeViewModel {
             // ... and unblock the height fields:
             // TODO: also unblock min/max height fields if height field != point
             stitch.unblockHeightField()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: activeIndex)
+            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
             
             // ... and unblock the aspect ratio inputs:
             stitch.unblockAspectRatio()
@@ -128,7 +171,7 @@ extension NodeViewModel {
     @MainActor
     func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
         guard let layerNode = self.layerNode else {
-            fatalErrorIfDebug()
+            fatalErrorIfDebug() // when can this actually happen?
             return nil
         }
         
@@ -218,7 +261,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateMinMaxWidthFieldsBlockingPerWidth(activeIndex: ActiveIndex) {
+    func updateMinMaxWidthFieldsBlockingPerWidth() {
         
         // Check the input itself (the value at the active-index), not the field view model.
         guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?
@@ -235,7 +278,7 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateMinMaxHeightFieldsBlockingPerHeight(activeIndex: ActiveIndex) {
+    func updateMinMaxHeightFieldsBlockingPerHeight() {
 
         // Check the input itself (the value at the active-index), not the field view model.
         guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?

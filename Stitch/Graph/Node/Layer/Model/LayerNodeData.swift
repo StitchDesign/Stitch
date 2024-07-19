@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
+// Better name?: `LayerRowData`
 protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     
@@ -15,10 +16,14 @@ protocol LayerNodeRowData: AnyObject {
     var canvasObserver: CanvasItemViewModel? { get set }
 }
 
+// Note: a layer input can be on the graph but off-screen, in which case we don't want to update its fields; but if we have that same layer input visible as a row in the (opened) layer inspector, we DO want to update its fields etc.;
+// Hence the separate view models for "the layer input as a property" and "layer input on the canvas"
+
+// Better name?: `LayerInputData`
 @Observable
 final class InputLayerNodeRowData {
-    let rowObserver: InputNodeRowObserver
-    let inspectorRowViewModel: InputNodeRowViewModel
+    let rowObserver: InputNodeRowObserver // "backend", "fundamental data"; used by StitchEngine
+    let inspectorRowViewModel: InputNodeRowViewModel // "frontend of the port"
     var canvasObserver: CanvasItemViewModel?
     
     @MainActor
@@ -38,6 +43,7 @@ final class InputLayerNodeRowData {
     }
 }
 
+// Better name?: `LayerOutputData`
 @Observable
 final class OutputLayerNodeRowData {
     let rowObserver: OutputNodeRowObserver

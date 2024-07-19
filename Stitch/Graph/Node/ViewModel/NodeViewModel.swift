@@ -76,17 +76,21 @@ final class NodeViewModel: Sendable {
         self.id = schema.id
         self.title = schema.title
         
-        // Make empty for now so we can pass non-nil self to child types
-        self.nodeType = .group(.createEmpty())
+        // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
+        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
+                                          nodeId: schema.id,
+                                          nodeDelegate: nil)
+        
         self._cachedDisplayTitle = self.getDisplayTitle()
 
+        // HACK: Set `self.nodeType` a second time, so that we can pass down the proper reference.
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
                                           nodeDelegate: self)
         
-        // Set delegates
+        // Set graph delegate
         self.graphDelegate = graphDelegate
-
+        
         self.createEphemeralObservers()
     }
 }

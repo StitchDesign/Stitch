@@ -114,7 +114,7 @@ extension GraphState {
                                          activeIndex: self.activeIndex)
 
         if let sizingScenario = value.getSizingScenario {
-            nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario, activeIndex: self.activeIndex)
+            nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario)
         }
         
         if let orientation = value.getOrientation {

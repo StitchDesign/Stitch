@@ -170,6 +170,7 @@ extension PortValue {
     }
 }
 
+// UI data
 final class InputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = InputPortViewData
     

@@ -78,14 +78,10 @@ extension InputNodeRowObserver {
         }
         
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.
-        // Note: this logic is very similar to `sizeParent`
-        if newValue.getSize.isDefined,
-           self.id.keyPath == .size, // Only look at size (not min/max size) changes
-           let dimension = LayerLengthDimension.fromUserEdit(edit: fieldValue.stringValue, fieldIndex: fieldIndex) {
-            
-            node.layerDimensionUpdated(
-                newValue: dimension.layerDimension,
-                dimension: dimension.lengthDimension)
+        if let newSize = newValue.getSize,
+           // Only look at size (not min/max size) changes
+           self.id.keyPath == .size {
+            node.layerSizeUpdated(newValue: newSize)
         }
 
         node.calculate()
