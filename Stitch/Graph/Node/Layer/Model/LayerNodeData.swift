@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
+
 protocol LayerNodeRowData: AnyObject {
     associatedtype RowObserverable: NodeRowObserver
     

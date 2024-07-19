@@ -335,6 +335,7 @@ extension NodeRowViewModel {
     @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
+        
         guard let rowDelegate = self.rowDelegate else {
             fatalErrorIfDebug()
             return
@@ -367,6 +368,7 @@ extension NodeRowViewModel {
             
             // If existing field observer group's count does not match the new fields count,
             // reset the fields on this input/output.
+            // TODO: is this specifically for ShapeCommands, where a dropdown choice (e.g. .lineTo vs .curveTo) can change the number of fields without a node-type change?
             let fieldObserversCount = fieldObserverGroup.fieldObservers.count
             
             // Force update if any media--inefficient but works
@@ -380,6 +382,12 @@ extension NodeRowViewModel {
             }
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
+        } // zip
+        
+        if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
+           let layerInputForThisRow = self.portType.keyPath {
+            node.blockOrUnlockFields(newValue: newValue,
+                                     layerInput: layerInputForThisRow)
         }
     }
 }

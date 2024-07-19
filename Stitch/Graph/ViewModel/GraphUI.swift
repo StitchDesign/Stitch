@@ -418,6 +418,7 @@ extension GraphState {
         node.select()
     }
 }
+
 extension CanvasItemViewModel {
     @MainActor
     func select() {

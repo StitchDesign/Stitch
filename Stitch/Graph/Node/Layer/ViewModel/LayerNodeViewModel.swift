@@ -277,7 +277,7 @@ final class LayerNodeViewModel {
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let layerData = self[keyPath: inputType.layerNodeKeyPath]
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
             // Update inspector view model delegate before calling update fn
             layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver

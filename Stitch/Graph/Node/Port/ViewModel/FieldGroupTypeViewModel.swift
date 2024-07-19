@@ -160,7 +160,8 @@ extension NodeRowViewModel {
                              nodeIO: nodeIO,
                              importedMediaObject: importedMediaObject)
     }
-
+    
+    // NOTE: ONLY ACTUALLY USED FOR INITIALIZATION OF FIELD VALUES ?
     /// Updates new field values to existing view models.
     @MainActor
     func updateAllFields(with portValue: PortValue,
@@ -178,5 +179,13 @@ extension NodeRowViewModel {
         zip(self.fieldValueTypes, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
             fieldObserverGroup.updateFieldValues(fieldValues: fieldValues)
         }
+        
+        if let node = self.nodeDelegate,
+           let layerInput = self.id.portType.keyPath {
+            node.blockOrUnlockFields(newValue: portValue,
+                                     layerInput: layerInput)
+        }
+        
     }
 }
+

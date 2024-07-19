@@ -18,7 +18,7 @@ extension NodeViewModelType {
     @MainActor
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
-         nodeDelegate: NodeDelegate) {
+         nodeDelegate: NodeDelegate?) {
         switch nodeType {
         case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode, 
