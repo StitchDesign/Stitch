@@ -72,7 +72,11 @@ extension FieldValue {
             return numberValue.stringValue
         case .json(let json):
             return json.display
-        default:
+        case .bool(let bool):
+            return bool.description
+        case .spacing(let spacing):
+            return spacing.display
+        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown:
             return ""
         }
     }

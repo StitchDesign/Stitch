@@ -156,8 +156,6 @@ struct InputValueView: View {
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
                                  fieldValue: fieldValue,
-                                 // TODO: is this really accurate / useful when the dropdown i
-//                                 fieldValueNumberType: spacing.asPointSpacing,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
                                  isCanvasItemSelected: isCanvasItemSelected,

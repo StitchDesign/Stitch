@@ -277,7 +277,7 @@ extension PortValue {
             let display = self.display
             return [[.readOnly(display)]]
         case .spacing:
-            <#code#>
+            return [[FieldValue.spacing(self.getStitchSpacing ?? .defaultStitchSpacing)]]
         }
     }
 }
