@@ -335,6 +335,7 @@ extension NodeRowViewModel {
     @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
+        
         guard let rowDelegate = self.rowDelegate else {
             fatalErrorIfDebug()
             return
@@ -347,7 +348,6 @@ extension NodeRowViewModel {
         
         // Create new field value observers if the row type changed
         // This can happen on various input changes
-        // TODO: can this check by made down in the `willUpdateField` section?
         guard !nodeRowTypeChanged else {
             self.createFieldValueTypes(initialValue: newValue,
                                        nodeIO: nodeIO,

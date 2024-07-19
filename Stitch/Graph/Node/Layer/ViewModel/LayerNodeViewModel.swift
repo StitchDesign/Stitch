@@ -168,11 +168,10 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
-                                    values: rowDefinitions.outputs.defaultList,
+                                    valuesList: rowDefinitions.outputs.defaultList,
                                     userVisibleType: nil,
                                     nodeDelegate: nodeDelegate)
         
-        // TODO: skip the initialization of each property as `.empty` and just populate them below?
         self.positionPort = .empty(.position, layer: schema.layer)
         self.sizePort = .empty(.size, layer: schema.layer)
         self.scalePort = .empty(.scale, layer: schema.layer)

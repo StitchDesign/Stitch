@@ -75,7 +75,7 @@ final class NodeViewModel: Sendable {
          graphDelegate: GraphDelegate?) {
         self.id = schema.id
         self.title = schema.title
-        
+
         // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
@@ -90,7 +90,7 @@ final class NodeViewModel: Sendable {
         
         // Set graph delegate
         self.graphDelegate = graphDelegate
-        
+
         self.createEphemeralObservers()
     }
 }
