@@ -168,7 +168,7 @@ final class LayerNodeViewModel {
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
-                                    values: rowDefinitions.outputs.defaultList,
+                                    valuesList: rowDefinitions.outputs.defaultList,
                                     userVisibleType: nil,
                                     nodeDelegate: nodeDelegate)
         

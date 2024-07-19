@@ -110,10 +110,13 @@ extension LayerNodeEntity {
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?,
          isExpandedInSidebar: Bool?) {
+        
+        let outputsCount = layer.layerGraphNode.rowDefinitions(for: nil).outputs.count
+        
         self.init(
             id: nodeId,
             layer: layer,
-            outputCanvasPorts: [],
+            outputCanvasPorts: (0..<outputsCount).map { _ in nil }, // just needs to match outputs count
         
         // Required
             positionPort: positionPort,
