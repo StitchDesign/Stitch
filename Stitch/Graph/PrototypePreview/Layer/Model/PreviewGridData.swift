@@ -352,43 +352,6 @@ extension Point4D {
     }
 }
                             
-extension StitchSpacing {
-    
-    static let defaultStitchSpacing: Self = .zero
-
-    static let zero: Self = .number(.zero)
-    
-    var isEvenly: Bool {
-        self == .evenly
-    }
-    
-    var isBetween: Bool {
-        self == .between
-    }
-    
-    // TODO: how to handle `evenly` and `between` spacing in adaptive grid?
-    var asPointSpacing: CGFloat {
-        switch self {
-        case .evenly, .between:
-            return .zero
-        case .number(let x):
-            return x
-        }
-    }
-    
-    var display: String {
-        switch self {
-        case .number(let x):
-            return x.description
-        case .between:
-            return "Between"
-        case .evenly:
-            return "Evenly"
-        }
-    }
-}
-
-
 struct PreviewGridData: Equatable {
     var horizontalSpacingBetweenColumns: StitchSpacing = .defaultStitchSpacing
     var verticalSpacingBetweenRows: StitchSpacing = .defaultStitchSpacing

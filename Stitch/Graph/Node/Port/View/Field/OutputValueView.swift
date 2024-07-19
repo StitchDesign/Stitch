@@ -113,12 +113,9 @@ struct OutputValueView: View {
                                alignment: outputAlignment,
                                fontColor: STITCH_FONT_GRAY_COLOR)
 
-        case .number:
-            ReadOnlyValueEntry(value: fieldValue.stringValue,
-                               alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
-            
-        case .layerDimension:
+        case .number, .layerDimension,
+            //
+                .spacing:
             ReadOnlyValueEntry(value: fieldValue.stringValue,
                                alignment: outputAlignment,
                                fontColor: STITCH_FONT_GRAY_COLOR)
@@ -127,7 +124,7 @@ struct OutputValueView: View {
             BoolCheckboxView(id: nil,
                              value: bool)
 
-        case .dropdown(let choiceDisplay, let choices):
+        case .dropdown(let choiceDisplay, let _):
             // Values that use dropdowns for their inputs use instead a display-only view for their outputs
             ReadOnlyValueEntry(value: choiceDisplay,
                                alignment: outputAlignment,
