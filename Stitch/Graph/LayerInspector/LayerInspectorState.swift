@@ -240,6 +240,24 @@ extension LayerInspectorView {
     ]
 }
 
+
+struct CommonLayerNodeViewModel: Equatable {
+    
+    // Is this really a good idea to make CommonLayerNodeViewModel `Equatable` ?
+    // Does `PropertySidebarState` need to be `Equatable`?
+    static func == (lhs: CommonLayerNodeViewModel, rhs: CommonLayerNodeViewModel) -> Bool {
+        lhs.selectedLayers == rhs.selectedLayers
+        && lhs.node.id == rhs.node.id
+    }
+    
+    // Layers selected in the left sidebar
+    let selectedLayers: LayerIdSet
+    
+    // NodeViewModel created with fields etc. that represent homo/heterogenous values across the selected layers
+    let node: NodeViewModel //
+}
+
+
 // TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
 extension Layer {
     
