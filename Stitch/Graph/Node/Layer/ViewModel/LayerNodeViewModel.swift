@@ -281,22 +281,28 @@ final class LayerNodeViewModel {
             
             // Update inspector view model delegate before calling update fn
             layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
-
+            
             // Update row view model ID
-            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
-                                                       nodeId: id.nodeId,
-                                                       portType: .keyPath(inputType))
-
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
+                                                           nodeId: id.nodeId,
+                                                           portType: .keyPath(inputType))
+            }
+            
             // Update row observer
             layerData.rowObserver.nodeKind = .layer(schema.layer)
             layerData.rowObserver.nodeDelegate = nodeDelegate
             layerData.rowObserver.id = id
+        }
+        
+        // Call update once everything above is in place
+        for inputType in graphNode.inputDefinitions {
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
-            // Call update once everything above is in place
             layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
                              layerInputType: inputType,
                              layerNode: self,
-                             nodeId: id.nodeId,
+                             nodeId: schema.id,
                              node: nodeDelegate)
         }
     }

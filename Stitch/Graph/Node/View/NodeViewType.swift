@@ -82,6 +82,7 @@ struct NodeTypeView: View {
             } else {
                 DefaultNodeInputView(graph: graph,
                                      node: node,
+                                     canvas: canvasNode,
                                      isNodeSelected: isSelected,
                                      adjustmentBarSessionId: adjustmentBarSessionId)
             }
@@ -99,6 +100,7 @@ struct NodeTypeView: View {
             } else {
                 DefaultNodeOutputView(graph: graph,
                                       node: node,
+                                      canvas: canvasNode,
                                       isNodeSelected: isSelected,
                                       adjustmentBarSessionId: adjustmentBarSessionId)
             }
@@ -109,13 +111,14 @@ struct NodeTypeView: View {
 struct DefaultNodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
-                           nodeRowDataList: node.getAllInputsObservers(),
+                           rowViewModels: canvas.inputViewModels,
                            nodeIO: .input,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeInputView(graph: graph,
@@ -132,13 +135,14 @@ struct DefaultNodeInputView: View {
 struct DefaultNodeOutputView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
+    @Bindable var canvas: CanvasItemViewModel
     let isNodeSelected: Bool
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
         DefaultNodeRowView(graph: graph,
                            node: node,
-                           nodeRowDataList: node.getAllOutputsObservers(),
+                           rowViewModels: canvas.outputViewModels,
                            nodeIO: .output,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeOutputView(graph: graph,
@@ -152,16 +156,15 @@ struct DefaultNodeOutputView: View {
     }
 }
 
-struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRowObserver,
-                                                            RowView: View,
-                                                            RowObserver.RowViewModelType.RowObserver == RowObserver {
+struct DefaultNodeRowView<RowViewModel, RowView>: View where RowViewModel: NodeRowViewModel,
+                                                             RowView: View {
 
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
-    let nodeRowDataList: [RowObserver]
+    let rowViewModels: [RowViewModel]
     let nodeIO: NodeIO
     let adjustmentBarSessionId: AdjustmentBarSessionId
-    @ViewBuilder var rowView: (RowObserver, RowObserver.RowViewModelType) -> RowView
+    @ViewBuilder var rowView: (RowViewModel.RowObserver, RowViewModel) -> RowView
 
     var id: NodeId {
         self.node.id
@@ -187,7 +190,7 @@ struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRow
 
     @MainActor
     var hasEmptyRows: Bool {
-        nodeRowDataList.isEmpty || isPatchWithNoRows
+        rowViewModels.isEmpty || isPatchWithNoRows
     }
 
     var alignment: HorizontalAlignment {
@@ -196,15 +199,6 @@ struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRow
             return .leading
         case .output:
             return .trailing
-        }
-    }
-    
-    /// Filters row view models by node, rather than layer inspector.
-    @MainActor func getRowViewModels() -> [RowObserver.RowViewModelType] {
-        self.nodeRowDataList.compactMap { rowObserver in
-            rowObserver.allRowViewModels.first {
-                $0.id.isNode
-            }
         }
     }
 
@@ -217,7 +211,7 @@ struct DefaultNodeRowView<RowObserver, RowView>: View where RowObserver: NodeRow
                     .frame(width: NODE_BODY_SPACING,
                            height: NODE_ROW_HEIGHT)
             } else {
-                ForEach(self.getRowViewModels()) { rowViewModel in
+                ForEach(self.rowViewModels) { rowViewModel in
                     if let rowObserver = rowViewModel.rowDelegate {
                         self.rowView(rowObserver, rowViewModel)
                     }

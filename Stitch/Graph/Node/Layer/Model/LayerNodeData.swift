@@ -28,7 +28,8 @@ final class InputLayerNodeRowData {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         
-        self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
+        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portType: rowObserver.id.portType),
                                            activeValue: rowObserver.activeValue,
@@ -51,7 +52,8 @@ final class OutputLayerNodeRowData {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         
-        self.inspectorRowViewModel = .init(id: .init(graphItemType: .layerInspector,
+        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portType: rowObserver.id.portType),
                                            activeValue: rowObserver.activeValue,
