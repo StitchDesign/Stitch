@@ -283,9 +283,11 @@ final class LayerNodeViewModel {
             layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
 
             // Update row view model ID
-            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
-                                                       nodeId: id.nodeId,
-                                                       portType: .keyPath(inputType))
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
+                                                           nodeId: id.nodeId,
+                                                           portType: .keyPath(inputType))
+            }
 
             // Update row observer
             layerData.rowObserver.nodeKind = .layer(schema.layer)

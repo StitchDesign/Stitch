@@ -12,6 +12,14 @@ import StitchSchemaKit
 enum GraphItemType {
     case node
     case layerInspector
+    
+    init(_ itemType: GraphItemType) {
+        if !FeatureFlags.USE_LAYER_INSPECTOR && itemType == .layerInspector {
+            fatalErrorIfDebug()
+        }
+        
+        self = itemType
+    }
 }
 
 struct NodeRowViewModelId: Hashable {
@@ -196,6 +204,10 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          nodeRowIndex: Int?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
+        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType == .layerInspector {
+            fatalErrorIfDebug()
+        }
+        
         self.id = id
         self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
