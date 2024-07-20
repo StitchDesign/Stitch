@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension CanvasItemId {    
+extension CanvasItemId {
     var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
