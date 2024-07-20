@@ -199,7 +199,7 @@ Given an array, this returns the value at a specific index in the array.
 • The index of the array that has the value you'd like to retrieve
 
 *Outputs*
-• The value in the array at the specififed index
+• The value in the array at the specified index
 """
 
 let arrayAppendDescription = """
@@ -310,7 +310,7 @@ Creates an AR anchor from a 3D model and an ARTransform. Represents the position
 
 *Inputs*
 • A 3D model that will be displayed in the AR scene
-• The ARTransform that's receieved from a Raycasting node.
+• The ARTransform that's received from a Raycasting node.
 
 *Outputs*
 • The AR anchor value; which is used as an input for the RealityView node.
@@ -577,7 +577,7 @@ Given a JSON object and a key, extract the value from the JSON object
 • The key of the JSON object associated with the value you'd like to retrieve
 
 *Outputs*
-• The value at the specififed key
+• The value at the specified key
 """
 
 let setValueForKeyDescription = """
