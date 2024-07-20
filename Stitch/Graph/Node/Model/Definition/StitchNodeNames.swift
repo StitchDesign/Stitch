@@ -120,7 +120,7 @@ Creates an animation based off of the physical model of a spring.
 
 *Inputs*
 • The number to animate to
-• The mass ob the object that's being animated
+• The mass of the object that's being animated
 • The ammount of tension in the spring
 • How much friction is applied to the spring
 
