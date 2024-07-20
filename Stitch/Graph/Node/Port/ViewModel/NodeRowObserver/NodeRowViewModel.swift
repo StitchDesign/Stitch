@@ -12,14 +12,6 @@ import StitchSchemaKit
 enum GraphItemType {
     case node
     case layerInspector
-    
-    init(_ itemType: GraphItemType) {
-        if !FeatureFlags.USE_LAYER_INSPECTOR && itemType == .layerInspector {
-            fatalErrorIfDebug()
-        }
-        
-        self = itemType
-    }
 }
 
 struct NodeRowViewModelId: Hashable {
