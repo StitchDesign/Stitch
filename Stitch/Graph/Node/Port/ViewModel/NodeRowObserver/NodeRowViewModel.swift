@@ -79,6 +79,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor func portDragEnded(graphState: GraphState)
     
     @MainActor func hasSelectedEdge() -> Bool
+    
+    @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
 }
 
 extension NodeRowViewModel {
@@ -209,18 +211,21 @@ final class InputNodeRowViewModel: NodeRowViewModel {
             self.initializeValues(rowDelegate: rowDelegate)
         }
     }
+}
 
-//    @MainActor
-//    var connectedUpstreamCanvasItem: CanvasItemViewModel? {
-//        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver else {
-//            return nil
-//        }
-//        
-//        return upstreamOutputObserver.rowViewModel.canvasItemDelegate
-//    }
+extension InputNodeRowViewModel {
+    @MainActor
+    func findConnectedCanvasItems() -> CanvasItemIdSet {
+        guard let upstreamOutputObserver = self.rowDelegate?.upstreamOutputObserver,
+              let upstreamNodeRowViewModel = upstreamOutputObserver.nodeRowViewModel,
+              let upstreamId = upstreamNodeRowViewModel.canvasItemDelegate?.id else {
+            return .init()
+        }
+        
+        return Set([upstreamId])
+    }
     
-//    var portViewType: PortViewType { .input(self.id) }
-    
+    @MainActor
     func calculatePortColor() -> PortColor {
         let isEdgeSelected = self.hasSelectedEdge()
         
@@ -232,7 +237,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
                      hasLoop: hasLoop)
     }
     
-    @MainActor func hasSelectedEdge() -> Bool {
+    @MainActor 
+    func hasSelectedEdge() -> Bool {
         guard let portViewData = portViewData,
               let graphDelegate = graphDelegate else {
             return false
@@ -273,13 +279,32 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
             self.initializeValues(rowDelegate: rowDelegate)
         }
     }
-    
-//    var portViewType: PortViewType { .output(self.id) }
+}
+
+extension OutputNodeRowViewModel {
+    @MainActor
+    func findConnectedCanvasItems() -> CanvasItemIdSet {
+        guard let downstreamNodeIds = self.rowDelegate?.getConnectedDownstreamNodes() else {
+            return .init()
+        }
+        
+        let downstreamCanvasIds: [CanvasItemId] = downstreamNodeIds.compactMap { nodeId in
+            guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
+                  let canvas = node.getAllCanvasObservers().first(where: { $0.id.isNode }) else {
+                      return nil
+                  }
+            
+            return canvas.id
+        }
+        
+        return Set(downstreamCanvasIds)
+    }
     
     /// Note: an actively-drawn edge SITS ON TOP OF existing edges. So there is no distinction between port color vs edge color.
     /// An actively-drawn edge's color is determined only by:
     /// 1. "Do we have a loop?" (blue vs theme-color) and
     /// 2. "Do we have an eligible input?" (highlight vs non-highlighted)
+    @MainActor
     func calculatePortColor() -> PortColor {
         if let drawingObserver = self.graphDelegate?.edgeDrawingObserver,
            let drawnEdge = drawingObserver.drawingGesture,
