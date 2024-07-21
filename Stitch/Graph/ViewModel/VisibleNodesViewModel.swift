@@ -126,6 +126,18 @@ extension VisibleNodesViewModel {
         nodesDict.values.forEach { nodeEntity in
             self.buildUpstreamReferences(nodeEntity: nodeEntity)
         }
+        
+        // Create port view models for group nodes once row observers have been established
+        self.nodes.values.forEach { node in
+            guard let canvasGroup = node.nodeType.groupNode else {
+                return
+            }
+            
+            let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
+            let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+            canvasGroup.createRowViewModels(inputRowObservers: inputRowObservers,
+                                            outputRowObservers: outputRowObservers)
+        }
     }
 
     @MainActor

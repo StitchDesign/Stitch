@@ -137,6 +137,16 @@ final class CanvasItemViewModel: Identifiable {
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
         
+        // Instantiate input and output row view models
+        self.createRowViewModels(inputRowObservers: inputRowObservers,
+                                 outputRowObservers: outputRowObservers)
+    }
+}
+
+extension CanvasItemViewModel: SchemaObserver {
+    @MainActor
+    func createRowViewModels(inputRowObservers: [InputNodeRowObserver],
+                             outputRowObservers: [OutputNodeRowObserver]) {
         self.inputViewModels = inputRowObservers.enumerated().map { portIndex, rowObserver in
             InputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
                                   activeValue: rowObserver.activeValue,
@@ -153,9 +163,7 @@ final class CanvasItemViewModel: Identifiable {
                                    canvasItemDelegate: self)
         }
     }
-}
-
-extension CanvasItemViewModel: SchemaObserver {
+    
     @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,

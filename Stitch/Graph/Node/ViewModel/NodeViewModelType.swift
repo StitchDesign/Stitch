@@ -83,6 +83,15 @@ extension NodeViewModelType {
             return nil
         }
     }
+    
+    var groupNode: CanvasItemViewModel? {
+        switch self {
+        case .group(let canvas):
+            return canvas
+        default:
+            return nil
+        }
+    }
 
     var kind: NodeKind {
         switch self {

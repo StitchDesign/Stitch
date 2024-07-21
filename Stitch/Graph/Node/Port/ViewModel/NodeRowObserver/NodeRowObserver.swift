@@ -421,11 +421,16 @@ extension NodeRowObserver {
         }
     }
     
-    /// Finds row view model pertaining to a node, rather than in the layer inspector.
+    /// Finds row view models pertaining to a node, rather than in the layer inspector.
+    /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
+    /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
     @MainActor
     var nodeRowViewModel: RowViewModelType? {
         self.allRowViewModels.first {
-            $0.id.isNode
+            // is for node (rather than layer inspector)
+            $0.id.isNode &&
+            // is currently visible in selected group
+            $0.graphDelegate?.groupNodeFocused == $0.canvasItemDelegate?.parentGroupNodeId
         }
     }
     
