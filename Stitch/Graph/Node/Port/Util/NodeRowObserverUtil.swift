@@ -50,7 +50,17 @@ extension NodeRowViewModel {
     
     @MainActor
     var isConnectedToASelectedCanvasItem: Bool {
-        self.canvasItemDelegate?.isSelected ?? false
+        for connectedCanvasItemId in self.findConnectedCanvasItems() {
+            guard let canvasItem = self.graphDelegate?.getCanvasItem(connectedCanvasItemId),
+                  canvasItem.isSelected else {
+                continue
+            }
+            
+            // Found connected canvas item that is selected
+            return true
+        }
+        
+        return false
     }
     
     @MainActor

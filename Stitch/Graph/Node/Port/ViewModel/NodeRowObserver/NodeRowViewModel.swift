@@ -230,9 +230,10 @@ extension InputNodeRowViewModel {
         let isEdgeSelected = self.hasSelectedEdge()
         
         // Note: inputs always ignore actively-drawn or animated (edge-edit-mode) edges etc.
-        return .init(isSelected: self.isCanvasItemSelected ||
-                     self.isConnectedToASelectedCanvasItem ||
-                     isEdgeSelected,
+        let isSelected = self.isCanvasItemSelected ||
+            self.isConnectedToASelectedCanvasItem ||
+            isEdgeSelected
+        return .init(isSelected: isSelected,
                      hasEdge: hasEdge,
                      hasLoop: hasLoop)
     }
@@ -318,9 +319,10 @@ extension OutputNodeRowViewModel {
         
         // Otherwise, common port color logic applies:
         else {
-            return PortColor(isSelected: self.isCanvasItemSelected ||
-                             self.isConnectedToASelectedCanvasItem ||
-                             self.hasSelectedEdge(),
+            let isSelected = self.isCanvasItemSelected ||
+                self.isConnectedToASelectedCanvasItem ||
+                self.hasSelectedEdge()
+            return PortColor(isSelected: isSelected,
                          hasEdge: hasEdge,
                          hasLoop: hasLoop)
         }
