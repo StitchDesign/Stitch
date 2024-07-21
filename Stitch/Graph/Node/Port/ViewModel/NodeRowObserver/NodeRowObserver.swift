@@ -304,19 +304,21 @@ extension OutputNodeRowObserver {
     
     @MainActor
     func getConnectedDownstreamNodes() -> NodeIdSet {
-        let portId = self.id.id
-        
-        guard let nodeDelegate = self.nodeDelegate,
-              let connectedInputs = nodeDelegate.graphDelegate?.connections
-            .get(NodeIOCoordinate(portId: portId,
-                                  nodeId: nodeDelegate.id)) else {
+        guard
+            let rowViewModel = self.nodeRowViewModel,
+            let graph = self.nodeDelegate?.graphDelegate else {
             return .init()
         }
         
-        // Find downstream canvas items whose inputs match connections here
-        return connectedInputs
+        guard let downstreamConnections = graph.connections
+            .get(rowViewModel.id.coordinate) else {
+            return .init()
+        }
+        
+        let connectedDownstreamNodeIds = downstreamConnections
             .map { $0.nodeId }
-            .toSet
+        
+        return Set(connectedDownstreamNodeIds)
     }
 }
 

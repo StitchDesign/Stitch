@@ -27,6 +27,14 @@ struct NodeTitleEdited: GraphEventWithResponse {
 
 
 extension CanvasItemId {
+    var isNode: Bool {
+        switch self {
+        case .node:
+            return true
+        default:
+            return false
+        }
+    }
     
     // Every canvas item belongs to same node.
     var associatedNodeId: NodeId {
