@@ -339,10 +339,20 @@ extension OutputNodeRowObserver {
             return .init()
         }
         
-        let connectedDownstreamNodeIds = downstreamConnections
+        var connectedDownstreamNodeIds = downstreamConnections
             .map { $0.nodeId }
         
-        return Set(connectedDownstreamNodeIds)
+        // Include group nodes if any splitters are found
+        let downstreamGroupNodeIds: NodeIdList = connectedDownstreamNodeIds.compactMap { id in
+            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(id),
+                  node.splitterType?.isGroupSplitter ?? false else {
+                      return nil
+                  }
+            
+            return node.patchCanvasItem?.parentGroupNodeId
+        }
+        
+        return Set(connectedDownstreamNodeIds + downstreamGroupNodeIds)
     }
 }
 
