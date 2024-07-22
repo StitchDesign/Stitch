@@ -83,7 +83,6 @@ extension NodeRowObserver {
             return
         }
         
-        let activeIndex = graph.activeIndex
         let graphTime = graph.graphStepState.graphTime
         let canCopyInputValues = node.kind.canCopyInputValues(portId: self.id.portId)
         

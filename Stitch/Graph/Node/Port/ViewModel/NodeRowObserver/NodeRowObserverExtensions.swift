@@ -45,7 +45,9 @@ extension NodeRowObserver {
         self.allRowViewModels.compactMap { rowViewModel in
             // No canvas means inspector, which for here practically speaking is visible
             if let canvas = rowViewModel.canvasItemDelegate,
-               !canvas.isVisibleInFrame {
+               !canvas.isVisibleInFrame,
+               // view model isn't rendering at this group context
+               canvas.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused {
                 return nil
             }
             
@@ -77,23 +79,9 @@ extension NodeRowObserver {
                                        newValues: newValues)
         
         // Update visual color data
-        self.allInputRowViewModels.forEach {
+        self.allRowViewModels.forEach {
             $0.updatePortColor()
         }
-        
-        self.allOutputRowViewModels.forEach {
-            $0.updatePortColor()
-        }
-    }
-    
-    @MainActor
-    var allInputRowViewModels: [InputNodeRowViewModel] {
-        self.nodeDelegate?.allInputRowViewModels ?? []
-    }
-    
-    @MainActor
-    var allOutputRowViewModels: [OutputNodeRowViewModel] {
-        self.nodeDelegate?.allOutputRowViewModels ?? []
     }
     
     /// Updates layer selections for interaction patch nodes for perf.

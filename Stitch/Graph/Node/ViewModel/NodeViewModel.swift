@@ -96,33 +96,29 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
-    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-        guard self.kind != .group else {
-            return self.graphDelegate?.getSplitterInputRowObservers(for: self.id) ?? []
-        }
-        
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers
         case .layer(let layer):
             return layer.getSortedInputObservers()
-        case .group:
-            return []
+        case .group(let canvas):
+            return canvas.inputViewModels.compactMap {
+                $0.rowDelegate
+            }
         }
     }
     
-    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-        guard self.kind != .group else {
-            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id) ?? []
-        }
-        
+    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
             return patch.outputsObservers
         case .layer(let layer):
             return layer.outputPorts.map { $0.rowObserver }
-        case .group:
-            return []
+        case .group(let canvas):
+            return canvas.outputViewModels.compactMap {
+                $0.rowDelegate
+            }
         }
     }
     
@@ -328,13 +324,7 @@ extension NodeViewModel {
             return layerNode.getSortedInputObservers()[safe: portId]
         }
         
-        if kind == .group {
-            return self.graphDelegate?
-                .getSplitterInputRowObservers(for: self.id)[safe: portId]
-        }
-        
-        // Sometimes observers aren't yet created for nodes with adjustable inputs
-        return self.patchNode?.inputsObservers[safe: portId]
+        return self.getAllInputsObservers()[safe: portId]
     }
     
     @MainActor
@@ -391,12 +381,7 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
-        if kind == .group {
-            return self.graphDelegate?
-                .getSplitterOutputRowObservers(for: self.id)[safe: portId]
-        }
-        
+    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {        
         return self.patchNode?.outputsObservers[safe: portId]
     }
     
@@ -628,21 +613,10 @@ extension NodeViewModel {
         case .layer(let layerNode):
             return layerNode.layer
                 .layerGraphNode.inputDefinitions.count
-        case .group:
-            return self.graphDelegate?.getSplitterInputRowObservers(for: self.id).count ?? 0
+        case .group(let canvas):
+            return canvas.inputViewModels.count
         case .patch(let patchNode):
             return patchNode.inputsObservers.count
-        }
-    }
-    
-    @MainActor
-    var outputPortCount: Int {
-        switch kind {
-        case .group:
-            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id).count ?? 0
-        default:
-            // Layers also use this
-            return self.getAllOutputsObservers().count
         }
     }
     

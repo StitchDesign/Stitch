@@ -277,8 +277,20 @@ extension InputNodeRowObserver {
     }
     
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
-        guard let inputs = self.nodeDelegate?.allInputViewModels else {
+        guard var inputs = self.nodeDelegate?.allInputViewModels else {
             return []
+        }
+        
+        // Find row view models for group
+        if let patchNode = self.nodeDelegate?.patchNodeViewModel,
+           patchNode.splitterNode?.type == .input {
+            // Group id is the only other row view model's canvas's parent ID
+            if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
+               let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                inputs += groupNode.inputViewModels.filter {
+                    $0.rowDelegate?.id == self.id
+                }
+            }
         }
         
         return inputs.filter {
@@ -293,8 +305,20 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
-        guard let outputs = self.nodeDelegate?.allOutputViewModels else {
+        guard var outputs = self.nodeDelegate?.allOutputViewModels else {
             return []
+        }
+        
+        // Find row view models for group
+        if let patchNode = self.nodeDelegate?.patchNodeViewModel,
+           patchNode.splitterNode?.type == .output {
+            // Group id is the only other row view model's canvas's parent ID
+            if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
+               let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                outputs += groupNode.outputViewModels.filter {
+                    $0.rowDelegate?.id == self.id
+                }
+            }
         }
         
         return outputs.filter {
@@ -421,11 +445,16 @@ extension NodeRowObserver {
         }
     }
     
-    /// Finds row view model pertaining to a node, rather than in the layer inspector.
+    /// Finds row view models pertaining to a node, rather than in the layer inspector.
+    /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
+    /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
     @MainActor
     var nodeRowViewModel: RowViewModelType? {
         self.allRowViewModels.first {
-            $0.id.isNode
+            // is for node (rather than layer inspector)
+            $0.id.isNode &&
+            // is currently visible in selected group
+            $0.graphDelegate?.groupNodeFocused == $0.canvasItemDelegate?.parentGroupNodeId
         }
     }
     

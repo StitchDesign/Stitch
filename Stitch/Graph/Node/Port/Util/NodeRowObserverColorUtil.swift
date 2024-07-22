@@ -79,7 +79,7 @@ extension InputNodeRowViewModel {
         
         // Update upstream-output
         if let output = self.rowDelegate?.upstreamOutputObserver {
-            output.allOutputRowViewModels.forEach {
+            output.allRowViewModels.forEach {
                 $0.updatePortColor()
             }
         }
@@ -97,7 +97,7 @@ extension OutputNodeRowViewModel {
             graphDelegate.connections
                 .get(rowDelegate.id)?
                 .compactMap { graphDelegate.getInputObserver(coordinate: $0) }
-                .flatMap { $0.allInputRowViewModels }
+                .flatMap { $0.allRowViewModels }
                 .forEach { downstreamInput in
                     downstreamInput.updatePortColor()
                 }

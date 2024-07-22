@@ -67,7 +67,7 @@ extension EdgeAnchorUpstreamData {
         var lastConnectedUpstreamObserver: OutputNodeRowViewModel?
         downstreamInputs.forEach{ downstreamInput in
             // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allOutputRowViewModels.first(where: { $0.id.isNode }) else {
+            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allRowViewModels.first(where: { $0.id.isNode }) else {
                 return
             }
             
@@ -105,12 +105,12 @@ extension EdgeAnchorUpstreamData {
 extension EdgeAnchorDownstreamData {
     @MainActor
     init?(from inputRowObserver: InputNodeRowViewModel,
-          upstreamNodeId: NodeId? = nil) {
+          upstreamNodeId: CanvasItemId? = nil) {
         guard let inputsCount = inputRowObserver.nodeDelegate?.inputsRowCount,
               let firstInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels.first,
               let lastInputObserver = inputRowObserver.canvasItemDelegate?.inputViewModels[safe: inputsCount - 1],
               let node = inputRowObserver.nodeDelegate,
-              let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputCoordinate?.nodeId else {
+              let upstreamConnectedNodeId = upstreamNodeId ?? inputRowObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id else {
             return nil
         }
 
@@ -120,7 +120,8 @@ extension EdgeAnchorDownstreamData {
         var firstConnectedInputObserver: InputNodeRowViewModel?
         var lastConnectedInputObserver: InputNodeRowViewModel?
         allInputs.forEach { input in
-            if input.rowDelegate?.upstreamOutputCoordinate?.nodeId == upstreamConnectedNodeId {
+            let upstreamCanvasId = input.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel?.canvasItemDelegate?.id
+            if upstreamCanvasId == upstreamConnectedNodeId {
                 guard firstConnectedInputObserver != nil else {
                     firstConnectedInputObserver = input
                     return

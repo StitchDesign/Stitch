@@ -47,12 +47,6 @@ extension CanvasItemId {
             return output.node
         }
     }
-    
-    func getRowViewModelId(portType: NodeIOPortType) -> NodeRowViewModelId {
-        .init(graphItemType: .node,
-              nodeId: self.nodeId,
-              portType: portType)
-    }
 }
 
 extension CanvasItemId: Identifiable {
@@ -98,20 +92,6 @@ final class CanvasItemViewModel: Identifiable {
             }
             
             node.updatePortColorDataUponNodeSelection()
-            
-            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
-                $0.allRowViewModels
-            }
-            
-            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
-                $0.allRowViewModels
-            }
-            
-            if node.kind == .group {
-                updatePortColorDataUponNodeSelection(
-                    inputs: inputs,
-                    outputs: outputs)
-            }
         }
     }
     
@@ -137,25 +117,20 @@ final class CanvasItemViewModel: Identifiable {
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
         
-        self.inputViewModels = inputRowObservers.enumerated().map { portIndex, rowObserver in
-            InputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
-                                  activeValue: rowObserver.activeValue,
-                                  nodeRowIndex: portIndex,
-                                  rowDelegate: rowObserver,
-                                  canvasItemDelegate: self)
-        }
-        
-        self.outputViewModels = outputRowObservers.enumerated().map { portIndex, rowObserver in
-            OutputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
-                                   activeValue: rowObserver.activeValue,
-                                   nodeRowIndex: portIndex,
-                                   rowDelegate: rowObserver,
-                                   canvasItemDelegate: self)
-        }
+        // Instantiate input and output row view models
+        self.syncRowViewModels(inputRowObservers: inputRowObservers,
+                               outputRowObservers: outputRowObservers)
     }
 }
 
 extension CanvasItemViewModel: SchemaObserver {
+    @MainActor
+    func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
+                           outputRowObservers: [OutputNodeRowObserver]) {
+        self.inputViewModels.sync(with: inputRowObservers, canvas: self)
+        self.outputViewModels.sync(with: outputRowObservers, canvas: self)
+    }
+    
     @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
@@ -227,21 +202,6 @@ extension CanvasItemViewModel {
         let oldValue = self.isVisibleInFrame
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
-
-            if self.nodeDelegate?.kind == .group {
-                // Group node needs to mark all input and output splitters as visible
-                // Fixes issue for setting visibility on groups
-                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
-                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
-
-                inputsObservers
-                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-                    .forEach { $0.isVisibleInFrame = newValue }
-                
-                outputsObservers
-                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-                    .forEach { $0.isVisibleInFrame = newValue }
-            }
 
             // Refresh values if node back in frame
             if newValue {
