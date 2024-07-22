@@ -114,6 +114,7 @@ extension Layer {
 //            node.adjustPosition(center: position.toCGPoint)
 //        }
         
+        node.layerNode?.nodeDelegate = node
         node.graphDelegate = graphDelegate
         
         return node
