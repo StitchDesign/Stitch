@@ -13,7 +13,8 @@ import StitchSchemaKit
 // TODO: we can't have a NodeRowObserver without also having a GraphDelegate (i.e. GraphState); can we pass down GraphDelegate to avoid the Optional unwrapping?
 extension NodeRowViewModel {
     var nodeDelegate: NodeDelegate? {
-        self.rowDelegate?.nodeDelegate
+        // Important to use delegate of canvas rather than row observer for groups
+        self.canvasItemDelegate?.nodeDelegate
     }
     
     var graphDelegate: GraphDelegate? {

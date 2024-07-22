@@ -55,7 +55,15 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     
     @MainActor
     var label: String {
-        self.rowObserver.label(forPropertySidebar)
+        if isGroupNode {
+            return rowObserver.nodeDelegate?.displayTitle ?? ""
+        }
+        
+        return self.rowObserver.label(forPropertySidebar)
+    }
+    
+    var isGroupNode: Bool {
+        self.rowData.nodeDelegate?.kind.isGroup ?? false
     }
     
     var body: some View {
