@@ -144,7 +144,7 @@ struct EdgeInputLabelsView: View {
                 let isVisible = isInputForNearbyNode && showLabels
                 
                 EdgeEditModeLabelsView(graph: graph,
-                                       portId: inputRowViewModel.portViewData?.portId ?? .zero)
+                                       portId: inputRowViewModel.nodeRowIndex ?? .zero)
                 .position(inputRowViewModel.anchorPoint ?? .zero)
                 .opacity(isVisible ? 1 : 0)
                 .animation(.linear(duration: .EDGE_EDIT_MODE_NODE_UI_ELEMENT_ANIMATION_LENGTH),

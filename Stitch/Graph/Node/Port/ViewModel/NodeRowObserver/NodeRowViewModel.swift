@@ -369,8 +369,8 @@ extension Array where Element: NodeRowViewModel {
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node,
-                                               // Important this is the node ID from row observer for group nodes
-                                               nodeId: newEntity.id.nodeId,
+                                               // Important this is the node ID from canvas for group nodes
+                                               nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portType: newEntity.id.portType)
                 
                 return Element(id: rowId,
