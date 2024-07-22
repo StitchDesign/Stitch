@@ -119,7 +119,7 @@ extension PatchNodeViewModel {
     /// **Note: this has potential perf cost if called too frequently in the view.**
     func getSortedUserTypeChoices() -> [UserVisibleType] {
         Array(self.patch.availableNodeTypes).sorted { n1, n2 in
-            n1.rawValue < n2.rawValue
+            n1.display < n2.display
         }
     }
 
