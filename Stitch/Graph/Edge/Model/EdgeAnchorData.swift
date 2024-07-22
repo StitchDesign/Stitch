@@ -67,7 +67,7 @@ extension EdgeAnchorUpstreamData {
         var lastConnectedUpstreamObserver: OutputNodeRowViewModel?
         downstreamInputs.forEach{ downstreamInput in
             // Do nothing if no connection from this input
-            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allOutputRowViewModels.first(where: { $0.id.isNode }) else {
+            guard let upstreamToThisInput = downstreamInput.upstreamOutputObserver?.allRowViewModels.first(where: { $0.id.isNode }) else {
                 return
             }
             

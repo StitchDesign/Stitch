@@ -47,12 +47,6 @@ extension CanvasItemId {
             return output.node
         }
     }
-    
-    func getRowViewModelId(portType: NodeIOPortType) -> NodeRowViewModelId {
-        .init(graphItemType: .node,
-              nodeId: self.nodeId,
-              portType: portType)
-    }
 }
 
 extension CanvasItemId: Identifiable {

@@ -368,7 +368,12 @@ extension Array where Element: NodeRowViewModel {
             if let entity = currentEntitiesMap.get(newEntity.id) {
                 return entity
             } else {
-                return Element(id: canvas.id.getRowViewModelId(portType: newEntity.id.portType),
+                let rowId = NodeRowViewModelId(graphItemType: .node,
+                                               // Important this is the node ID from row observer for group nodes
+                                               nodeId: newEntity.id.nodeId,
+                                               portType: newEntity.id.portType)
+                
+                return Element(id: rowId,
                                activeValue: newEntity.activeValue,
                                nodeRowIndex: portIndex,
                                rowDelegate: newEntity,
