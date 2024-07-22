@@ -81,6 +81,13 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor func hasSelectedEdge() -> Bool
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+    
+    @MainActor
+    init(id: NodeRowViewModelId,
+         activeValue: PortValue,
+         nodeRowIndex: Int?,
+         rowDelegate: RowObserver?,
+         canvasItemDelegate: CanvasItemViewModel?)
 }
 
 extension NodeRowViewModel {
@@ -338,3 +345,35 @@ extension OutputNodeRowViewModel {
     }
 }
 
+extension Array where Element: NodeRowViewModel {
+    @MainActor
+    /// Syncing logic as influced from `SchemaObserverIdentifiable`.
+    mutating func sync(with newEntities: [Element.RowObserver],
+                       canvas: CanvasItemViewModel) {
+        let incomingIds = newEntities.map { $0.id }.toSet
+        let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
+        let entitiesToRemove = currentIds.subtracting(incomingIds)
+
+        let currentEntitiesMap = self.reduce(into: [:]) { result, currentEntity in
+            result.updateValue(currentEntity, forKey: currentEntity.rowDelegate?.id)
+        }
+
+        // Remove element if no longer tracked by incoming list
+        entitiesToRemove.forEach { idToRemove in
+            self.removeAll { $0.rowDelegate?.id == idToRemove }
+        }
+
+        // Create or update entities from new list
+        self = newEntities.enumerated().map { portIndex, newEntity in
+            if let entity = currentEntitiesMap.get(newEntity.id) {
+                return entity
+            } else {
+                return Element(id: canvas.id.getRowViewModelId(portType: newEntity.id.portType),
+                               activeValue: newEntity.activeValue,
+                               nodeRowIndex: portIndex,
+                               rowDelegate: newEntity,
+                               canvasItemDelegate: canvas)
+            }
+        }
+    }
+}

@@ -158,13 +158,13 @@ extension GraphState: GraphCalculatable {
 }
 
 extension GraphState: GraphDelegate {
-    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
-        self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupNodeId)
-    }
-    
-    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
-        self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupNodeId)
-    }
+//    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
+//        self.visibleNodesViewModel.getSplitterInputRowObservers(for: groupNodeId)
+//    }
+//    
+//    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+//        self.visibleNodesViewModel.getSplitterOutputRowObservers(for: groupNodeId)
+//    }
     
     var groupNodeFocused: NodeId? {
         self.graphUI.groupNodeFocused?.asNodeId

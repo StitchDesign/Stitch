@@ -64,9 +64,9 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult
     
-    @MainActor func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver]
-    
-    @MainActor func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver]
+//    @MainActor func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver]
+//    
+//    @MainActor func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver]
     
     @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
                                          nodeId: NodeId) -> InputNodeRowViewModel?

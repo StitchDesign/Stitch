@@ -99,19 +99,19 @@ final class CanvasItemViewModel: Identifiable {
             
             node.updatePortColorDataUponNodeSelection()
             
-            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
-                $0.allRowViewModels
-            }
-            
-            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
-                $0.allRowViewModels
-            }
-            
-            if node.kind == .group {
-                updatePortColorDataUponNodeSelection(
-                    inputs: inputs,
-                    outputs: outputs)
-            }
+//            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
+//                $0.allRowViewModels
+//            }
+//            
+//            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
+//                $0.allRowViewModels
+//            }
+//            
+//            if node.kind == .group {
+//                updatePortColorDataUponNodeSelection(
+//                    inputs: inputs,
+//                    outputs: outputs)
+//            }
         }
     }
     
@@ -138,30 +138,17 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate = nodeDelegate
         
         // Instantiate input and output row view models
-        self.createRowViewModels(inputRowObservers: inputRowObservers,
-                                 outputRowObservers: outputRowObservers)
+        self.syncRowViewModels(inputRowObservers: inputRowObservers,
+                               outputRowObservers: outputRowObservers)
     }
 }
 
 extension CanvasItemViewModel: SchemaObserver {
     @MainActor
-    func createRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                             outputRowObservers: [OutputNodeRowObserver]) {
-        self.inputViewModels = inputRowObservers.enumerated().map { portIndex, rowObserver in
-            InputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
-                                  activeValue: rowObserver.activeValue,
-                                  nodeRowIndex: portIndex,
-                                  rowDelegate: rowObserver,
-                                  canvasItemDelegate: self)
-        }
-        
-        self.outputViewModels = outputRowObservers.enumerated().map { portIndex, rowObserver in
-            OutputNodeRowViewModel(id: id.getRowViewModelId(portType: rowObserver.id.portType),
-                                   activeValue: rowObserver.activeValue,
-                                   nodeRowIndex: portIndex,
-                                   rowDelegate: rowObserver,
-                                   canvasItemDelegate: self)
-        }
+    func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
+                           outputRowObservers: [OutputNodeRowObserver]) {
+        self.inputViewModels.sync(with: inputRowObservers, canvas: self)
+        self.outputViewModels.sync(with: outputRowObservers, canvas: self)
     }
     
     @MainActor
@@ -236,20 +223,20 @@ extension CanvasItemViewModel {
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
 
-            if self.nodeDelegate?.kind == .group {
-                // Group node needs to mark all input and output splitters as visible
-                // Fixes issue for setting visibility on groups
-                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
-                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
-
-                inputsObservers
-                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-                    .forEach { $0.isVisibleInFrame = newValue }
-                
-                outputsObservers
-                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-                    .forEach { $0.isVisibleInFrame = newValue }
-            }
+//            if self.nodeDelegate?.kind == .group {
+//                // Group node needs to mark all input and output splitters as visible
+//                // Fixes issue for setting visibility on groups
+//                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
+//                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
+//
+//                inputsObservers
+//                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+//                    .forEach { $0.isVisibleInFrame = newValue }
+//                
+//                outputsObservers
+//                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
+//                    .forEach { $0.isVisibleInFrame = newValue }
+//            }
 
             // Refresh values if node back in frame
             if newValue {

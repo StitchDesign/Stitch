@@ -75,7 +75,7 @@ extension ConnectedEdgeView {
         // Needs to have at least a connected output or a "possible" output
         let outputObserverForData = outputObserver ?? possibleEdgeOutputObserver
         self.inputData = .init(from: inputObserver,
-                               upstreamNodeId: outputObserverForData?.nodeDelegate?.id)
+                               upstreamNodeId: outputObserverForData?.canvasItemDelegate?.id)
         self.outputData = .init(from: outputObserverForData,
                                 connectedDownstreamNode: downstreamNode)
         
@@ -124,30 +124,15 @@ struct ConnectedEdgeView: View {
         if let inputPortViewData = inputObserver.portViewData,
            let upstreamObserver = upstreamObserver,
            let outputPortViewData = upstreamObserver.portViewData {
-            
             let edge = PortEdgeUI(from: outputPortViewData,
                                   to: inputPortViewData)
-            
             let portColor: PortColor = inputObserver.portColor
-            
             let isSelectedEdge = (portColor == .highlightedEdge || portColor == .highlightedLoopEdge)
-            
-            // Shouldn't we ALWAYS have a node delegate on the upstream observer?
             let upstreamObserverZIndex = upstreamObserver.canvasItemDelegate?.zIndex ?? 0
-            
             let defaultInputNodeIndex = inputObserver.canvasItemDelegate?.zIndex ?? 0
-            
-            // If this input is a group input splitter, then we want to use the z-index of the group node on the same level as the edge, not the z-index of the group input splitter one level below.
-            let zIndexOfInputNode = inputObserver.canvasItemDelegate?.parentGroupNodeId
-                .flatMap({
-                    parentId in graph.getNodeViewModel(parentId)?.patchCanvasItem?.zIndex
-                }) ?? defaultInputNodeIndex
-            
-            
+            let zIndexOfInputNode = inputObserver.canvasItemDelegate?.zIndex ?? defaultInputNodeIndex
             let base = max(upstreamObserverZIndex, zIndexOfInputNode)
-            
             let boost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0
-            
             let zIndex: ZIndex = base + boost
             
             EdgeView(edge: edge,
