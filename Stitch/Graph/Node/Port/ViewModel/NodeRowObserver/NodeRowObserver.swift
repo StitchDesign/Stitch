@@ -339,7 +339,7 @@ extension OutputNodeRowObserver {
             return .init()
         }
         
-        var connectedDownstreamNodeIds = downstreamConnections
+        let connectedDownstreamNodeIds = downstreamConnections
             .map { $0.nodeId }
         
         // Include group nodes if any splitters are found
