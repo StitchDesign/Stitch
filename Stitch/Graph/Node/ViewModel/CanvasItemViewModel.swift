@@ -92,20 +92,6 @@ final class CanvasItemViewModel: Identifiable {
             }
             
             node.updatePortColorDataUponNodeSelection()
-            
-//            let inputs = graph.getSplitterInputRowObservers(for: node.id).flatMap {
-//                $0.allRowViewModels
-//            }
-//            
-//            let outputs = graph.getSplitterOutputRowObservers(for: node.id).flatMap {
-//                $0.allRowViewModels
-//            }
-//            
-//            if node.kind == .group {
-//                updatePortColorDataUponNodeSelection(
-//                    inputs: inputs,
-//                    outputs: outputs)
-//            }
         }
     }
     
@@ -216,21 +202,6 @@ extension CanvasItemViewModel {
         let oldValue = self.isVisibleInFrame
         if oldValue != newValue {
             self.isVisibleInFrame = newValue
-
-//            if self.nodeDelegate?.kind == .group {
-//                // Group node needs to mark all input and output splitters as visible
-//                // Fixes issue for setting visibility on groups
-//                let inputsObservers = self.nodeDelegate?.getAllInputsObservers() ?? []
-//                let outputsObservers = self.nodeDelegate?.getAllOutputsObservers() ?? []
-//
-//                inputsObservers
-//                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-//                    .forEach { $0.isVisibleInFrame = newValue }
-//                
-//                outputsObservers
-//                    .flatMap { $0.nodeDelegate?.getAllCanvasObservers() ?? [] }
-//                    .forEach { $0.isVisibleInFrame = newValue }
-//            }
 
             // Refresh values if node back in frame
             if newValue {

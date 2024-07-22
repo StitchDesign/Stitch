@@ -96,11 +96,7 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
-    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-//        guard self.kind != .group else {
-//            return self.graphDelegate?.getSplitterInputRowObservers(for: self.id) ?? []
-//        }
-        
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers
@@ -113,11 +109,7 @@ extension NodeViewModel: NodeCalculatable {
         }
     }
     
-    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-//        guard self.kind != .group else {
-//            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id) ?? []
-//        }
-        
+    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
             return patch.outputsObservers
@@ -333,13 +325,6 @@ extension NodeViewModel {
         }
         
         return self.getAllInputsObservers()[safe: portId]
-//        if kind == .group {
-//            return self.graphDelegate?
-//                .getSplitterInputRowObservers(for: self.id)[safe: portId]
-//        }
-//        
-//        // Sometimes observers aren't yet created for nodes with adjustable inputs
-//        return self.patchNode?.inputsObservers[safe: portId]
     }
     
     @MainActor
@@ -396,12 +381,7 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
-//        if kind == .group {
-//            return self.graphDelegate?
-//                .getSplitterOutputRowObservers(for: self.id)[safe: portId]
-//        }
-        
+    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {        
         return self.patchNode?.outputsObservers[safe: portId]
     }
     
@@ -639,17 +619,6 @@ extension NodeViewModel {
             return patchNode.inputsObservers.count
         }
     }
-    
-//    @MainActor
-//    var outputPortCount: Int {
-//        switch kind {
-//        case .group:
-//            return self.graphDelegate?.getSplitterOutputRowObservers(for: self.id).count ?? 0
-//        default:
-//            // Layers also use this
-//            return self.getAllOutputsObservers().count
-//        }
-//    }
     
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor

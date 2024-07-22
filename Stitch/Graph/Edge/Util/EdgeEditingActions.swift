@@ -105,18 +105,6 @@ extension CanvasItemViewModel {
                     InputPortViewData(portId: $0, canvasId: canvasItem.id)
                 }
             }
-//        if let inputSplitters = nodes.getInputSplitterPorts(for: self) {
-//            return inputSplitters
-//        }
-//        
-//        guard let node = self.nodeDelegate else {
-//            fatalErrorIfDebug()
-//            return []
-//        }
-//        
-//        return node.getAllInputsObservers().flatMap { inputObserver in
-//            inputObserver.allRowViewModels.compactMap { $0.portViewData }
-//        }
     }
 }
 
@@ -252,13 +240,6 @@ extension GraphState {
         let labelAsPortId = labelPresssed.toPortId // i.e. port index
         // log("keyCharPressedDuringEdgeEditingMode: labelAsPortId: \(labelAsPortId)")
         
-        /*
-         For a non-group node, the destination input is simply "label as port id + nearby node's id"
-         For a group node, the destination input must be some input-splitter, not the group node itself.
-         */
-        //    let destinationInput = NodeIOCoordinate(portId: labelAsPortId, nodeId: nearbyNode.id)
-//        let destinationInput: InputPortViewData = self.visibleNodesViewModel
-//            .getInputSplitterPorts(for: nearbyNode)?[safe: labelAsPortId] ?? .init(portId: labelAsPortId, canvasId: nearbyNode.id)
         let destinationInput = InputPortViewData(portId: labelAsPortId, canvasId: nearbyNode.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)

@@ -116,10 +116,6 @@ struct NodeInputView: View {
         self.rowObserver.id.nodeId
     }
     
-//    var isSplitter: Bool {
-//        self.nodeKind == .patch(.splitter)
-//    }
-    
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }

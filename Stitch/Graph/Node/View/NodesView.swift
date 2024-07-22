@@ -53,43 +53,6 @@ struct NodesView: View {
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
-                        
-//                        switch canvasItem.id {
-//                            
-//                        case .layerInput(let x):
-//                            guard let input = graph.getInputObserver(coordinate: x.asInputCoordinate) else {
-//                                return []
-//                            }
-//                            return input.allInputRowViewModels
-//                            // filter out view models for inspector
-//                                .filter { $0.id.graphItemType == .node }
-//                        
-//                        case .layerOutput:
-//                            return []
-////                            guard let output = graph.getOutputObserver(coordinate: x) else {
-////                                return []
-////                            }
-////                            return [output]
-//                            
-//                        case .node(let x):
-//                            // Hides edges from group input splitters
-//                            // and from wireless receiver nodes
-//                            guard let node = graph.getNode(x) else {
-//                                log("could not find node")
-//                                return []
-//                            }
-//                            
-//                            if node.patch == .wirelessReceiver {
-//                                log("had an input splitter or wireless receiver")
-//                                return []
-//                            }
-//                            
-//                            return node.getAllInputsObservers().flatMap {
-//                                $0.allRowViewModels
-//                                // filter out view models for inspector
-//                                    .filter { $0.id.graphItemType == .node }
-//                            }
-//                        }
                     }
                 
                 

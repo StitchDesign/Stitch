@@ -305,42 +305,6 @@ extension VisibleNodesViewModel {
         return splitterRowObservers
     }
 
-//    @MainActor
-//    func getInputSplitters(for canvasItem: CanvasItemViewModel) -> [InputNodeRowObserver]? {
-//        guard let node = canvasItem.nodeDelegate else {
-//            return nil
-//        }
-//        
-//        let isGroup = self.isGroupNode(node.id)
-//        let splitters = self.getSplitterInputRowObservers(for: node.id)
-//
-//        guard isGroup else {
-//            #if DEBUG
-//            log("_getSplitters: id \(node.id) was not for group")
-//            #endif
-//            return nil
-//        }
-//
-//        guard !splitters.isEmpty else {
-//            #if DEBUG
-//            log("_getSplitters: no splitters")
-//            #endif
-//            return nil
-//        }
-//
-//        return splitters
-//    }
-
-//    @MainActor
-//    func getInputSplitterPorts(for canvasItem: CanvasItemViewModel) -> [InputPortViewData]? {
-//        if let observers = self.getInputSplitters(for: canvasItem) {
-//            return (0..<observers.count).map { portId in
-//                return InputPortViewData(portId: portId, canvasId: canvasItem.id)
-//            }
-//        }
-//        return nil
-//    }
-
     func isGroupNode(_ id: NodeId) -> Bool {
         self.getViewModel(id)?.kind.isGroup ?? false
     }
