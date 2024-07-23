@@ -100,9 +100,9 @@ extension GraphState {
         // Update box's nodes:
         for nodeId in box.nodes {
             // During drag itself, we just update the node view model
-            if let node = self.visibleNodesViewModel.getViewModel(nodeId) {
-                self.updateCanvasItemOnDragged(node.canvasUIData,
-                                         translation: translation)
+            if let node = self.getCanvasItem(nodeId) {
+                self.updateCanvasItemOnDragged(node,
+                                               translation: translation)
 
                 self.nodeIsMoving = true
             }
@@ -143,7 +143,7 @@ extension GraphState {
         // Update box's nodes:
         for nodeId in box.nodes {
             // When drag ends, we update both the node view model and the node schema
-            if let node = self.visibleNodesViewModel.getViewModel(nodeId) {
+            if let node = self.getCanvasItem(nodeId) {
                 // update node view model
                 node.previousPosition = node.position
 

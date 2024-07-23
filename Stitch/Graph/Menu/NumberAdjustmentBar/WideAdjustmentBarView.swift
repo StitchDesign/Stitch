@@ -26,7 +26,7 @@ let WIDE_ADJUSTMENT_BAR_GRADIENT_COLOR_ONE: Color = Color(.wideAdjustmentBarGrad
 let WIDE_ADJUSTMENT_BAR_GRADIENT_COLOR_TWO: Color = Color(.wideAdjustmentBarGradientColorTwo)
 
 struct WideAdjustmentBarView: View {
-
+    let graph: GraphState
     // TODO: when field is "auto", pass in the resource's width/height
     let middleNumber: Double
     //    let editType: EditType
@@ -41,6 +41,7 @@ struct WideAdjustmentBarView: View {
     // true just when tearing down view
     let centerSelectionDisabled: Bool
     let fieldCoordinate: FieldCoordinate
+    let rowObserverCoordinate: NodeIOCoordinate
 
     @State var scrollCenter: CGPoint?
     @State var isScrollingFromTap = false // replace with just `manuallyClickedNumber`?
@@ -144,12 +145,10 @@ struct WideAdjustmentBarView: View {
                                 self.currentlySelectedNumber = n.number
 
                                 // updates input via redux
-                                dispatch(
-                                    InputEdited(fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
-                                                fieldIndex: self.fieldCoordinate.fieldIndex,
-                                                coordinate: self.fieldCoordinate.input,
-                                                isCommitting: false)
-                                )
+                                graph.inputEdited(fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
+                                                  fieldIndex: self.fieldCoordinate.fieldIndex,
+                                                  coordinate: rowObserverCoordinate,
+                                                  isCommitting: false)
                             }
                     } // ForEach
                 } // LazyVStack
@@ -365,11 +364,11 @@ struct WideAdjustmentBarView: View {
                     self.currentlySelectedNumber = pref.number
 
                     // log("Auto select center: pref.number: \(pref.number)")
-                    dispatch(InputEdited(fieldValue: fieldValue,
-                                         fieldIndex: pref.field.fieldIndex,
-                                         coordinate: pref.field.input,
-                                         // We don't persist changes from auto-selectiong the center value during scroll
-                                         isCommitting: false))
+                    graph.inputEdited(fieldValue: fieldValue,
+                                      fieldIndex: pref.field.fieldIndex,
+                                      coordinate: rowObserverCoordinate,
+                                      // We don't persist changes from auto-selectiong the center value during scroll
+                                      isCommitting: false)
                 }
 
             }
@@ -384,7 +383,7 @@ struct WideAdjustmentBarView: View {
 
 struct ViewOffsetKey: PreferenceKey {
     typealias Value = CGFloat
-    static var defaultValue = CGFloat.zero
+    static let defaultValue = CGFloat.zero
     static func reduce(value: inout Value, nextValue: () -> Value) {
         value += nextValue()
     }

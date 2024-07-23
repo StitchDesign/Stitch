@@ -598,7 +598,7 @@ class EvalTests: XCTestCase {
         let node: NodeViewModel = SplitterPatchNode.createViewModel()
 
         // Set the splitter node's input value to be 30.0, as the test expects.
-        node.getRowObservers(.input).first?.allLoopedValues = [.number(30.0)]
+        node.getAllInputsObservers().first?.allLoopedValues = [.number(30.0)]
 
         // convert: Number -> Bool
         // node =

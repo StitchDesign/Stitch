@@ -28,11 +28,11 @@ struct BoolCheckboxView: View {
     }
 }
 
-struct BoolCheckboxView_Previews: PreviewProvider {
-    static var previews: some View {
-        BoolCheckboxView(
-            id: InputCoordinate.fakeInputCoordinate,
-            value: true)
-            .scaleEffect(5)
-    }
-}
+//struct BoolCheckboxView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        BoolCheckboxView(
+//            id: InputCoordinate.fakeInputCoordinate,
+//            value: true)
+//            .scaleEffect(5)
+//    }
+//}

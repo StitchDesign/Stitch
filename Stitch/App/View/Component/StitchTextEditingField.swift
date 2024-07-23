@@ -44,7 +44,7 @@ struct StitchTextEditingField: View {
     var isForNodeTitle = false
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
-    let fieldEditActionCreation: (String, Bool) -> Action
+    let fieldEditCallback: @MainActor (String, Bool) -> ()
 
     var body: some View {
         StitchTextEditingBindingField(currentEdit: $currentEdit,
@@ -53,7 +53,7 @@ struct StitchTextEditingField: View {
                                       isForNodeTitle: isForNodeTitle,
                                       font: font,
                                       fontColor: fontColor,
-                                      fieldEditActionCreation: fieldEditActionCreation)
+                                      fieldEditCallback: fieldEditCallback)
             .onChange(of: self.shouldFocus, initial: true) { oldValue, newValue in
                 self.isFocused = newValue
             }
@@ -89,7 +89,7 @@ struct StitchTextEditingBindingField: View {
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
 
-    let fieldEditActionCreation: (String, Bool) -> Action
+    let fieldEditCallback: (String, Bool) -> ()
     
     var isBase64 = false
 
@@ -102,7 +102,7 @@ struct StitchTextEditingBindingField: View {
 
         // MARK: important to keep isFocused check here else edges may be lost from InputEdit action getting called
         if isFocused {
-            dispatch(self.fieldEditActionCreation(self.currentEdit, isCommitting))
+            self.fieldEditCallback(self.currentEdit, isCommitting)
         }
     }
 

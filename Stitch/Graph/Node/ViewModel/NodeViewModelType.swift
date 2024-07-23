@@ -11,34 +11,56 @@ import StitchSchemaKit
 enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
-    case group
+    case group(CanvasItemViewModel)
 }
 
 extension NodeViewModelType {
     @MainActor
-    init(from schema: NodeEntity,
+    init(from nodeType: NodeTypeEntity,
+         nodeId: NodeId,
          nodeDelegate: NodeDelegate?) {
-        if let patchNode = schema.patchNodeEntity {
-            let viewModel = PatchNodeViewModel(from: patchNode)
+        switch nodeType {
+        case .patch(let patchNode):
+            let viewModel = PatchNodeViewModel(from: patchNode, 
+                                               node: nodeDelegate)
             self = .patch(viewModel)
-        } else if let layerNode = schema.layerNodeEntity {
-            let viewModel = LayerNodeViewModel(from: layerNode, 
+        case .layer(let layerNode):
+            let viewModel = LayerNodeViewModel(from: layerNode,
                                                nodeDelegate: nodeDelegate)
             self = .layer(viewModel)
-        } else {
-            self = .group
+        case .group(let canvasNode):
+            self = .group(.init(from: canvasNode, 
+                                id: .node(nodeId),
+                                // Initialize as empty since splitter row observers might not have yet been created
+                                inputRowObservers: [],
+                                outputRowObservers: [],
+                                node: nodeDelegate))
         }
     }
 
     @MainActor
-    func update(from schema: NodeEntity) {
-        if let patchNode = schema.patchNodeEntity {
-            let viewModel = PatchNodeViewModel(from: patchNode)
-            viewModel.update(from: patchNode)
-        } else {
-            #if DEBUG
-            fatalError()
-            #endif
+    func update(from schema: NodeTypeEntity) {
+        switch (self, schema) {
+        case (.patch(let patchViewModel), .patch(let patchEntity)):
+            patchViewModel.update(from: patchEntity)
+        case (.layer(let layerViewModel), .layer(let layerEntity)):
+            layerViewModel.update(from: layerEntity)
+        case (.group(let canvasViewModel), .group(let canvasEntity)):
+            canvasViewModel.update(from: canvasEntity)
+        default:
+            log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
+            fatalErrorIfDebug()
+        }
+    }
+    
+    @MainActor func createSchema() -> NodeTypeEntity {
+        switch self {
+        case .patch(let patchNodeViewModel):
+            return .patch(patchNodeViewModel.createSchema())
+        case .layer(let layerNodeViewModel):
+            return .layer(layerNodeViewModel.createSchema())
+        case .group(let canvasNodeViewModel):
+            return .group(canvasNodeViewModel.createSchema())
         }
     }
 }
@@ -57,6 +79,15 @@ extension NodeViewModelType {
         switch self {
         case .layer(let layerNode):
             return layerNode
+        default:
+            return nil
+        }
+    }
+    
+    var groupNode: CanvasItemViewModel? {
+        switch self {
+        case .group(let canvas):
+            return canvas
         default:
             return nil
         }

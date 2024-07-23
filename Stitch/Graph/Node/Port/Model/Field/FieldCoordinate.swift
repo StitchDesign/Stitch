@@ -8,17 +8,19 @@
 import Foundation
 import StitchSchemaKit
 
-struct FieldCoordinate: Equatable, Hashable, Codable {
-    // the input where this field belongs
-    let input: InputCoordinate
+struct FieldCoordinate: Hashable {
+    // the index where this field belongs
+    var rowId: NodeRowViewModelId
 
     // the particular field in the
     // 0 for single-field inputs
     var fieldIndex: Int
 
-    static var fakeFieldCoordinate: FieldCoordinate {
-        FieldCoordinate(
-            input: .fakeInputCoordinate,
+    static var fakeFieldCoordinate: Self {
+        .init(
+            rowId: .init(graphItemType: .node, 
+                         nodeId: .init(),
+                         portId: 0),
             fieldIndex: 0)
     }
 }

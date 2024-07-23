@@ -9,11 +9,12 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias FieldGroupTypeViewModelList = [FieldGroupTypeViewModel]
+typealias FieldGroupTypeViewModelList<FieldType: FieldViewModel> = [FieldGroupTypeViewModel<FieldType>]
 
-final class FieldGroupTypeViewModel: ObservableObject {
+@Observable
+final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     let type: FieldGroupType
-    @Published var fieldObservers: FieldViewModels
+    var fieldObservers: [FieldType]
 
     // Only used for ShapeCommand cases? e.g. `.curveTo` has "PointTo", "CurveFrom" etc. 'groups of fields'
     let groupLabel: String?
@@ -22,15 +23,15 @@ final class FieldGroupTypeViewModel: ObservableObject {
     let startingFieldIndex: Int
 
     init(type: FieldGroupType,
-         coordinate: NodeIOCoordinate,
          groupLabel: String? = nil,
-         startingFieldIndex: Int = 0) {
+         startingFieldIndex: Int = 0,
+         rowViewModel: FieldType.NodeRowType? = nil) {
         self.type = type
         self.groupLabel = groupLabel
         self.startingFieldIndex = startingFieldIndex
         self.fieldObservers = .init(type,
-                                    coordinate: coordinate,
-                                    startingFieldIndex: startingFieldIndex)
+                                    startingFieldIndex: startingFieldIndex, 
+                                    rowViewModel: rowViewModel)
     }
 
     /// Updates observer objects with latest data.
@@ -50,108 +51,117 @@ final class FieldGroupTypeViewModel: ObservableObject {
             }
         }
     }
-}
 
-extension FieldGroupTypeViewModel: Identifiable {
     var id: FieldCoordinate {
-        self.fieldObservers.first?.id ?? .init(input: .init(portId: -1, nodeId: UUID()),
-                                               fieldIndex: -1)
+        self.fieldObservers.first?.id ?? .fakeFieldCoordinate
     }
 }
 
-extension FieldGroupTypeViewModelList {
+//extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
+extension NodeRowViewModel {
     @MainActor
-    init(initialValue: PortValue,
-         coordinate: NodeIOCoordinate,
-         nodeIO: NodeIO,
-         importedMediaObject: StitchMediaObject?) {
+    func createFieldValueTypes(initialValue: PortValue,
+                               nodeIO: NodeIO,
+                               importedMediaObject: StitchMediaObject?) {
         switch initialValue.getNodeRowType(nodeIO: nodeIO) {
         case .size:
-            self = [.init(type: .hW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .hW)]
 
         case .position:
-            self = [.init(type: .xY, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xY)]
 
         case .point3D:
-            self = [.init(type: .xYZ, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZ)]
 
         case .point4D:
-            self = [.init(type: .xYZW, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .xYZW)]
             
         case .padding:
-            self = [.init(type: .padding, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .padding)]
 
         case .shapeCommand(let shapeCommand):
             switch shapeCommand {
             case .closePath:
-                self = [.init(type: .dropdown, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .dropdown)]
             case .lineTo: // i.e. .moveTo or .lineTo
-                self = [.init(type: .dropdown, coordinate: coordinate),
+                self.fieldValueTypes = [.init(type: .dropdown),
                         .init(type: .xY,
-                              coordinate: coordinate,
                               groupLabel: "Point", // optional
                               // REQUIRED, else we get two dropdowns
                               startingFieldIndex: 1)
                 ]
             case .curveTo:
-                self = .init([
-                    .init(type: .dropdown, coordinate: coordinate),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Point", startingFieldIndex: 1),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Curve From", startingFieldIndex: 3),
-                    .init(type: .xY, coordinate: coordinate, groupLabel: "Curve To", startingFieldIndex: 5)
+                self.fieldValueTypes = .init([
+                    .init(type: .dropdown),
+                    .init(type: .xY, groupLabel: "Point", startingFieldIndex: 1),
+                    .init(type: .xY, groupLabel: "Curve From", startingFieldIndex: 3),
+                    .init(type: .xY, groupLabel: "Curve To", startingFieldIndex: 5)
                 ])
             case .output:
-                self = [.init(type: .readOnly, coordinate: coordinate)]
+                self.fieldValueTypes = [.init(type: .readOnly)]
             }
 
         case .singleDropdown:
-            self = [.init(type: .dropdown, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .dropdown)]
 
         case .textFontDropdown:
             // TODO: Can keep using .dropdown ?
-            self = [.init(type: .dropdown,
-                          coordinate: coordinate)
-            ]
+            self.fieldValueTypes = [.init(type: .dropdown)]
 
         case .bool:
-            self = [.init(type: .bool, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .bool)]
 
         case .asyncMedia:
-            self = [.init(type: .asyncMedia, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .asyncMedia)]
 
         case .number:
-            self = [.init(type: .number, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .number)]
 
         case .string:
-            self = [.init(type: .string, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .string)]
 
         case .layerDimension:
-            self = [.init(type: .layerDimension, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .layerDimension)]
 
         case .pulse:
-            self = [.init(type: .pulse, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .pulse)]
 
         case .color:
-            self = [.init(type: .color, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .color)]
 
         case .json:
-            self = [.init(type: .json, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .json)]
 
         case .assignedLayer:
-            self = [.init(type: .assignedLayer, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .assignedLayer)]
 
         case .anchoring:
-            self = [.init(type: .anchoring, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .anchoring)]
 
         case .readOnly:
-            self = [.init(type: .readOnly, coordinate: coordinate)]
+            self.fieldValueTypes = [.init(type: .readOnly)]
+            
+        case .spacing:
+            self.fieldValueTypes = [.init(type: .spacing)]
+        }
+        
+        self.fieldValueTypes.forEach { fieldValueType in
+            fieldValueType.fieldObservers.forEach {
+                guard let rowViewModel = self as? Self.FieldType.NodeRowType else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                $0.rowViewModelDelegate = rowViewModel
+            }
         }
 
         self.updateAllFields(with: initialValue,
                              nodeIO: nodeIO,
                              importedMediaObject: importedMediaObject)
     }
-
+    
+    // NOTE: ONLY ACTUALLY USED FOR INITIALIZATION OF FIELD VALUES ?
     /// Updates new field values to existing view models.
     @MainActor
     func updateAllFields(with portValue: PortValue,
@@ -159,14 +169,23 @@ extension FieldGroupTypeViewModelList {
                          importedMediaObject: StitchMediaObject?) {
         let fieldValuesList = portValue.createFieldValues(nodeIO: nodeIO,
                                                           importedMediaObject: importedMediaObject)
+        let fieldsCount = self.fieldValueTypes.count
 
-        guard fieldValuesList.count == self.count else {
+        guard fieldValuesList.count == fieldsCount else {
             log("FieldGroupTypeViewModelList error: counts incorrect.")
             return
         }
 
-        zip(self, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
+        zip(self.fieldValueTypes, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
             fieldObserverGroup.updateFieldValues(fieldValues: fieldValues)
         }
+        
+        if let node = self.nodeDelegate,
+           let layerInput = self.rowDelegate?.id.portType.keyPath {
+            node.blockOrUnlockFields(newValue: portValue,
+                                     layerInput: layerInput)
+        }
+        
     }
 }
+

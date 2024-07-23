@@ -155,7 +155,27 @@ struct LayerInspectorView: View {
                 }
                 
                 if layerNode.layer.supportsShadowInputs {
-                    section("Shadow", Self.shadow)
+//                    section("Shadow", Self.shadow)
+                    
+                    // will this row be selectable ?
+                    StitchTextView(string: "Shadow")
+                        .padding(4)
+                        .background {
+                            // Extending the hit area of the NodeInputOutputView view
+                            Color.white.opacity(0.001)
+                                .padding(-12)
+                                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                        }
+                    
+                        .listRowBackground(Color.clear)
+                    
+                        .modifier(LayerPropertyRowOriginReader(
+                            graph: graph,
+                            layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
+                        .onTapGesture {
+                            dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                                                   flyoutNodeId: node.id))
+                        }
                 }
                 
                 if layerNode.layer.supportsLayerEffectInputs {
@@ -168,6 +188,29 @@ struct LayerInspectorView: View {
             }
             
         } // VStack
+    }
+}
+
+struct LayerPropertyRowOriginReader: ViewModifier {
+    
+    @Bindable var graph: GraphState
+    let layerInput: LayerInputType
+    
+    func body(content: Content) -> some View {
+        content.background {
+            GeometryReader { geometry in
+                Color.clear.onChange(of: geometry.frame(in: .global),
+                                     initial: true) { oldValue, newValue in
+
+                    // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
+                    
+                    // Guide for where to place the flyout;
+                    // we read the origin even if this row doesn't support flyout.
+                    graph.graphUI.propertySidebar.propertyRowOrigins
+                        .updateValue(newValue.origin, forKey: layerInput)
+                }
+            } // GeometryReader
+        } // .background
     }
 }
 
@@ -190,34 +233,21 @@ struct LayerInspectorInputsSectionView: View {
                 
                 let inputListContainsInput = inputsList.contains(layerInput)
                 
-                let rowObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                let layerInputData = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                let rowObserver = layerInputData.rowObserver
                 
-                let allFieldsBlockedOut = rowObserver.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                let allFieldsBlockedOut = layerInputData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if inputListContainsInput && !allFieldsBlockedOut {
-                    LayerInspectorPortView(
-                        layerProperty: .layerInput(LayerInputOnGraphId(node: node.id, keyPath: layerInput)),
+                    LayerInspectorInputPortView(
+                        layerInput: layerInput,
+                        rowViewModel: layerInputData.inspectorRowViewModel,
                         rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)
-                    
-                    .background {
-                        
-                        // Note: none of these various coordinate spaces makes a difference, even when coordinate space is at StitchRootView level?
-                        GeometryReader { geometry in
-                            Color.clear.onChange(of: geometry.frame(in: .global),
-                                                 initial: true) { oldValue, newValue in
-
-                                // log("LayerInspectorInputs: read LayerInputType: \(layerInput): origin \(newValue.origin)")
-                                
-                                // Guide for where to place the flyout;
-                                // we read the origin even if this row doesn't support flyout.
-                                graph.graphUI.propertySidebar.propertyRowOrigins
-                                    .updateValue(newValue.origin, forKey: layerInput)
-                            }
-                        } // GeometryReader
-                    } // .background
+                    .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                           layerInput: layerInput))
                 }
             }
             .transition(.slideInAndOut(edge: .top))
@@ -238,7 +268,7 @@ struct LayerInspectorInputsSectionView: View {
                     self.expanded.toggle()
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
-                           x.keyPath == layerInput {
+                           x == layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
@@ -256,18 +286,18 @@ struct LayerInspectorOutputsSectionView: View {
     
     var body: some View {
         
-        let outputs = node.outputRowObservers()
+        let outputs = layerNode.outputPorts
         
         if outputs.isEmpty {
             EmptyView()
         } else {
             Section(isExpanded: .constant(true)) {
                 ForEach(outputs) { output in
-                    if let portId = output.id.portId {
-                        LayerInspectorPortView(
-                            layerProperty: .layerOutput(.init(portId: portId,
-                                                              nodeId: output.id.nodeId)),
-                            rowObserver: output,
+                    if let portId = output.rowObserver.id.portId {
+                        LayerInspectorOutputPortView(
+                            outputPortId: portId,
+                            rowViewModel: output.inspectorRowViewModel,
+                            rowObserver: output.rowObserver,
                             node: node,
                             layerNode: layerNode,
                             graph: graph)
@@ -286,16 +316,16 @@ struct LayerInspectorOutputsSectionView: View {
 }
 
 
-#Preview {
-    let graph = GraphState(from: .init(), store: nil)
-    let nodeTest = TextLayerNode.createViewModel(position: .zero,
-                                                 zIndex: .zero,
-                                                 activeIndex: .init(.zero),
-                                                 graphDelegate: graph)
-    nodeTest.isSelected = true
-    
-    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
-    
-    return LayerInspectorView(graph: graph)
-}
+//#Preview {
+//    let graph = GraphState(from: .init(), store: nil)
+//    let nodeTest = TextLayerNode.createViewModel(position: .zero,
+//                                                 zIndex: .zero,
+//                                                 activeIndex: .init(.zero),
+//                                                 graphDelegate: graph)
+//    nodeTest.isSelected = true
+//    
+//    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
+//    
+//    return LayerInspectorView(graph: graph)
+//}
 

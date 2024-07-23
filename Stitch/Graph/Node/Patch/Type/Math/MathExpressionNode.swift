@@ -28,7 +28,7 @@ struct MathExpressionPatchNode: PatchNodeDefinition {
 @MainActor
 func mathExpressionEval(node: PatchNode) -> EvalResult {
  
-    let labels = node.getRowObservers(.input).map { $0.label() }
+    let labels = node.getAllInputsObservers().map { $0.label() }
     
     guard let patchNode = node.patchNode,
           let formula = patchNode.mathExpression else {

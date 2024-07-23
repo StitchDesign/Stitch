@@ -10,16 +10,16 @@ import SwiftUI
 import StitchSchemaKit
 
 extension PortValue {
-    static func createSingleFieldDropdown(_ selection: String,
-                                          _ choices: PortValues,
-                                          _ coordinate: NodeIOCoordinate) -> FieldViewModelType {
-        .single(
-            FieldViewModel(fieldValue: .dropdown(selection, choices),
-                           coordinate: coordinate,
-                           fieldIndex: 0,
-                           fieldLabel: "")
-        )
-    }
+//    static func createSingleFieldDropdown(_ selection: String,
+//                                          _ choices: PortValues,
+//                                          _ coordinate: NodeIOCoordinate) -> FieldViewModelType {
+//        .single(
+//            FieldViewModel(fieldValue: .dropdown(selection, choices),
+//                           fieldIndex: 0,
+//                           fieldLabel: "",
+//                           rowViewModel: )
+//        )
+//    }
 
     func getNodeRowType(nodeIO: NodeIO) -> NodeRowType {
         switch self {
@@ -154,7 +154,7 @@ extension PortValue {
             
             // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
         case .spacing:
-            return .singleDropdown(.spacing)
+            return .spacing
         case .sizingScenario:
             return .singleDropdown(.sizingScenario)
         }

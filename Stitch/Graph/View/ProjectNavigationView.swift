@@ -30,7 +30,7 @@ struct ProjectNavigationView: View {
     // Tracks edge changes to reset cached data
     var upstreamConnections: [NodeIOCoordinate?] {
         self.graph.nodes.values
-            .flatMap { $0.getRowObservers(.input) }
+            .flatMap { $0.getAllInputsObservers() }
             .map { $0.upstreamOutputCoordinate }
     }
 

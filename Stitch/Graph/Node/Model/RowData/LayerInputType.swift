@@ -91,7 +91,7 @@ extension LayerInputType {
         case .orientation:
             return .orientation(.none)
         case .padding:
-            return .point4D(.zero)
+            return .padding(.defaultPadding)
         case .setupMode:
             return .bool(true)
         case .allAnchors:
@@ -207,9 +207,9 @@ extension LayerInputType {
         case .contentMode:
             return .contentMode(.defaultContentMode)
         case .minSize:
-            return .size(.LAYER_DEFAULT_SIZE)
+            return .size(.init(width: .auto, height: .auto))
         case .maxSize:
-            return .size(.LAYER_DEFAULT_SIZE)
+            return .size(.init(width: .auto, height: .auto))
         case .spacing:
             return .spacing(.defaultStitchSpacing)
         case .sizingScenario:
@@ -218,7 +218,7 @@ extension LayerInputType {
     }
     
     /// Keypath )mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, NodeConnectionType> {
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
         switch self {
             
         // Required
@@ -843,7 +843,7 @@ extension LayerViewModel {
 extension LayerInputType {
     /// Key paths for parent layer view model
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, NodeRowObserver> {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         switch self {
         case .position:
             return \.positionPort

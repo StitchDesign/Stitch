@@ -47,27 +47,31 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
-    @MainActor func getInputObserver(coordinate: InputCoordinate) -> NodeRowObserver?
+    @MainActor var selectedEdges: Set<PortEdgeUI> { get }
+    
+    @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output
-    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver?
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver?
     
     @MainActor func getNodeViewModel(_ id: NodeId) -> NodeViewModel?
     
-    @MainActor func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver?
+    @MainActor func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel?
     
-    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver?
+    @MainActor func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel?
     
     @MainActor func getMediaUrl(forKey: MediaKey) -> URL?
     
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult
+
+    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
+                                         nodeId: NodeId) -> InputNodeRowViewModel?
+        
+    @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     
-    @MainActor func getSplitterRowObservers(for groupNodeId: NodeId,
-                                            type: SplitterType) -> NodeRowObservers
-    
-    @MainActor func hasSelectedEdge(at rowObserver: NodeRowObserver) -> Bool
-    
-    @MainActor func isConnectedToASelectedNode(at rowObserver: NodeRowObserver) -> Bool
+//    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
+//    
+//    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
     
     @MainActor var graphStepState: GraphStepState { get }
     
