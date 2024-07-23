@@ -161,7 +161,7 @@ final class LayerNodeViewModel {
         
         self.id = schema.id
         self.layer = schema.layer
-        
+        self.nodeDelegate = nodeDelegate
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar

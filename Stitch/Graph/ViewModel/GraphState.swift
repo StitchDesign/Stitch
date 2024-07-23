@@ -241,8 +241,6 @@ extension GraphState: SchemaObserver {
         
         // No longer needed, since sidebar-expanded-items handled by node schema
 //        self.sidebarExpandedItems = self.allGroupLayerNodes()
-
-        // TODO: do we really ALWAYS want to recalculate the graph here?
         self.calculateFullGraph()
     }
 
