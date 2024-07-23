@@ -685,13 +685,6 @@ extension GraphState {
         let graphTime = self.graphStepManager.graphTime
         
         for (portId, newOutputValue) in portValues.enumerated() {
-            // Keep track of downstream nodes for later recalculation
-            guard let downstreamNodeIds = self.shallowDownstreamNodes.get(nodeId) else {
-                // MARK: nodes like camera call this a lot--if they're deleted then this guard statement is likely to hit
-                log("async recalculateGraph error: no downstream nodes found for node id: \(nodeId)")
-                continue
-            }
-            
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
             var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
             

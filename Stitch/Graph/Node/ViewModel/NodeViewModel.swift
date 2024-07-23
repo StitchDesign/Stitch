@@ -381,7 +381,7 @@ extension NodeViewModel {
 
     @MainActor
     func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {        
-        return self.patchNode?.outputsObservers[safe: portId]
+        self.getAllOutputsObservers()[safe: portId]
     }
     
     @MainActor
@@ -444,11 +444,7 @@ extension NodeViewModel {
     }
 }
 
-extension NodeViewModel: NodeDelegate {
-    var patchNodeViewModel: PatchNodeViewModel? {
-        self.patchNode
-    }
-    
+extension NodeViewModel: NodeDelegate {    
     func portCountShortened(to length: Int, nodeIO: NodeIO) {
         self.patchNodeViewModel?.portCountShortened(to: length,
                                                     nodeIO: nodeIO)
@@ -505,8 +501,13 @@ extension NodeViewModel: NodeDelegate {
             return canvas.outputViewModels
             
         case .layer(let layer):
-            return layer.outputPorts.flatMap {
-                return $0.canvasObserver?.outputViewModels ?? []
+            // For old layer node we temporarily stuff the canvas item in its position port
+            if !FeatureFlags.USE_LAYER_INSPECTOR {
+                return layer.positionPort.canvasObserver?.outputViewModels ?? []
+            } else {
+                return layer.outputPorts.flatMap {
+                    return $0.canvasObserver?.outputViewModels ?? []
+                }
             }
         }
     }
