@@ -194,17 +194,12 @@ extension NodeRowObserver {
                       to thisType: PortValue,
 
                       // Additional data used for input coercion:
-                      currentGraphTime: TimeInterval,
-                      // used for accessing media, e.g. in Base64 -> String coercion
-                      activeIndex: ActiveIndex,
-                      isVisible: Bool) {
+                      currentGraphTime: TimeInterval) {
 
         let newValues = values.coerce(to: thisType,
                                       currentGraphTime: currentGraphTime)
 
         // Update new values to input observer
-        self.updateValues(newValues,
-                          activeIndex: activeIndex,
-                          isVisibleInFrame: isVisible)
+        self.updateValues(newValues)
     }
 }

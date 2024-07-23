@@ -31,6 +31,7 @@ struct AdjustmentBarPopoverView: View {
     let stateNumber: Double
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
+    let rowObserverCoordinate: NodeIOCoordinate
     @Binding var isPopoverOpen: Bool
 
     @State private var currentStepScale: AdjustmentBarStepScale = .normal
@@ -79,17 +80,19 @@ struct AdjustmentBarPopoverView: View {
 
             let fieldValue: FieldValue = fieldValueNumberType.createFieldValueForAdjustmentBar(from: startingNumber)
 
-            let undoEvent = InputEdited(fieldValue: fieldValue,
-                                        fieldIndex: fieldCoordinate.fieldIndex,
-                                        coordinate: fieldCoordinate.input,
-                                        isCommitting: true)
+            let undoEvent = {
+                graph.inputEdited(fieldValue: fieldValue,
+                                  fieldIndex: fieldCoordinate.fieldIndex,
+                                  coordinate: rowObserverCoordinate,
+                                  isCommitting: true)
+            }
 
             // Only persist when we close
             Task(priority: .background) { [weak graph] in
                 // TODO: test undo on adjustment bar close
                 let _ = graph?.encodeProject()
-                graph?.storeDelegate?.saveUndoHistory(undoActions: [undoEvent],
-                                                      redoActions: [])
+                graph?.storeDelegate?.saveUndoHistory(undoEvents: [undoEvent],
+                                                      redoEvents: [])
             }
         } // .onDisappear
     }
@@ -108,12 +111,10 @@ struct AdjustmentBarPopoverView: View {
                 // Hide popover
                 self.isPopoverOpen = false
 
-                dispatch(
-                    InputEdited(fieldValue: .layerDimension(.auto),
-                                fieldIndex: fieldCoordinate.fieldIndex,
-                                coordinate: fieldCoordinate.input,
-                                isCommitting: false)
-                )
+                graph.inputEdited(fieldValue: .layerDimension(.auto),
+                                  fieldIndex: fieldCoordinate.fieldIndex,
+                                  coordinate: rowObserverCoordinate,
+                                  isCommitting: false)
             } label: {
                 Image(systemName: "bolt.badge.a.fill")
                     .resizable()
@@ -205,11 +206,13 @@ struct AdjustmentBarPopoverView: View {
 
     var adjustmentBar: some View {
         WideAdjustmentBarView(
+            graph: graph,
             middleNumber: barNumber,
             stepSize: currentStepScale,
             fieldValueNumberType: fieldValueNumberType,
             centerSelectionDisabled: centerSelectionDisabled,
             fieldCoordinate: fieldCoordinate,
+            rowObserverCoordinate: rowObserverCoordinate,
             currentlySelectedNumber: barNumber,
             numberLineMiddle: barNumber)
     }

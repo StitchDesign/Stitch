@@ -70,10 +70,9 @@ extension GraphState {
             
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
-               let nodeId = self.nodeCreated(choice: nodeKind) {
-                
-                self.graphUI.llmNodeIdMapping.updateValue(nodeId,
-                                                                       forKey: llmNodeId)
+               let node = self.nodeCreated(choice: nodeKind) {
+                self.graphUI.llmNodeIdMapping.updateValue(node.id,
+                                                          forKey: llmNodeId)
             }
             
         // A patch node or layer-input-on-graph was moved
@@ -217,11 +216,12 @@ extension GraphState {
             }
             
             guard let layerInput = portType.keyPath,
-                  let input = node.getInputRowObserver(for: portType) else {
+                  let layerNode = node.layerNode else {
                 log("handleLLMLayerInputOrOutputAdded: No input for \(portType)")
                 return
             }
             
+            let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
             self.layerInputAddedToGraph(node: node,
                                         input: input,
                                         coordinate: layerInput)
@@ -233,7 +233,8 @@ extension GraphState {
             }
             
             guard let portId = portType.portId,
-                    let output = node.getOutputRowObserver(for: portType) else {
+                  let layerNode = node.layerNode,
+                  let output = layerNode.outputPorts[safe: portId] else {
                 log("handleLLMLayerInputOrOutputAdded: No output for \(portType)")
                 return
             }
@@ -260,9 +261,9 @@ func getCanvasIdFromLLMMoveNodeAction(llmNode: String,
         else if let layerLabel = llmPort.parseLLMPortAsLabelForLayer(nodeKind) {
             switch layerLabel {
             case .keyPath(let x):
-                return .layerInputOnGraph(.init(node: nodeId, keyPath: x))
+                return .layerInput(.init(node: nodeId, keyPath: x))
             case .portIndex(let x):
-                return .layerOutputOnGraph(.init(portId: x, nodeId: nodeId))
+                return .layerOutput(.init(node: nodeId, portId: x))
             }
         }
     }

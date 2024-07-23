@@ -17,12 +17,6 @@ typealias InputCoordinate = NodeIOCoordinate
 typealias OutputCoordinate = NodeIOCoordinate
 
 extension InputCoordinate {
-    // used e.g. when a JSON input popover has been opened
-    var toSingleFieldCoordinate: FieldCoordinate {
-        .init(input: self,
-              fieldIndex: 0)
-    }
-
     // Could this input be a media picker?
     // Note that this also depends on which patch/layer
     // this input is on.
@@ -33,10 +27,6 @@ extension InputCoordinate {
         case .portIndex(let portId):
             return portId == InputCoordinate.mediaSelectorPortId
         }
-    }
-
-    static var fakeInputCoordinate: InputCoordinate {
-        InputCoordinate(portId: 0, nodeId: .randomNodeId)
     }
 
     // Assumes that all import media patch nodes have its media selector at this location.

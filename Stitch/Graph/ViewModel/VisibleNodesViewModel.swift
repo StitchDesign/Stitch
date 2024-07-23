@@ -24,8 +24,11 @@ extension VisibleNodesViewModel {
         self.nodes.keys.toSet
     }
 
-    var allViewModels: [NodeViewModel] {
-        Array(self.nodes.values)
+    @MainActor
+    var allViewModels: CanvasItemViewModels {
+        Array(self.nodes.values.flatMap { node in
+            node.getAllCanvasObservers()
+        })
     }
 
     /// Returns list of view models to display given the actively selected group (or lack thereof).
@@ -89,7 +92,8 @@ extension VisibleNodesViewModel {
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
         let incomingGroupIds = nodesDict
-            .compactMap { $0.value.parentGroupNodeId?.asGroupNodeId }
+            .flatMap { $0.value.canvasEntities }
+            .compactMap { $0.parentGroupNodeId?.asGroupNodeId }
             .toSet
 
         // Check for groups (traversal levels) to add for position/zoom data
@@ -101,11 +105,10 @@ extension VisibleNodesViewModel {
         // Create node view models (if not yet created), establishing connection data later
         nodesDict.values.forEach { schema in
             if let node = self.nodes.get(schema.id) {
-                node.updateNodeViewModelFromSchema(schema,
-                                                   activeIndex: activeIndex)
+                node.update(from: schema)
 
                 // Toggle output downstream connections to false, will correct below
-                node.getRowObservers(.output).forEach {
+                node.getAllOutputsObservers().forEach {
                     $0.containsDownstreamConnection = false
                 }
             } else {
@@ -123,6 +126,18 @@ extension VisibleNodesViewModel {
         nodesDict.values.forEach { nodeEntity in
             self.buildUpstreamReferences(nodeEntity: nodeEntity)
         }
+        
+        // Create port view models for group nodes once row observers have been established
+        self.nodes.values.forEach { node in
+            guard let canvasGroup = node.nodeType.groupNode else {
+                return
+            }
+            
+            let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
+            let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+            canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
+                                          outputRowObservers: outputRowObservers)
+        }
     }
 
     @MainActor
@@ -139,9 +154,9 @@ extension VisibleNodesViewModel {
            let layerNodeViewModel = nodeViewModel.layerNode {
             layerEntity.layer.layerGraphNode.inputDefinitions.forEach { inputType in
                 let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
-                let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath]
+                let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].rowObserver
                 
-                guard let connectedOutputCoordinate = schemaInput.upstreamConnection else {
+                guard let connectedOutputCoordinate = schemaInput.inputPort.upstreamConnection else {
                     inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
@@ -165,7 +180,7 @@ extension VisibleNodesViewModel {
                     return
                 }
                 
-                guard let connectedOutputCoordinate = inputEntity.upstreamOutputCoordinate else {
+                guard let connectedOutputCoordinate = inputEntity.upstreamConnection else {
                     inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
@@ -182,20 +197,25 @@ extension VisibleNodesViewModel {
         }   
     }
 
-    func getVisibleNodes(at focusedGroup: NodeId?) -> NodeViewModels {
-        self.allViewModels
+    @MainActor
+    func getVisibleNodes(at focusedGroup: NodeId?) -> [NodeDelegate] {
+        self.getVisibleCanvasItems(at: focusedGroup)
             .filter { $0.parentGroupNodeId ==  focusedGroup }
+            .compactMap { $0.nodeDelegate }
     }
 
-    // TODO: combine with getVisibleCanvasItems and just provide an additional param?
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
-        self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                    partialResult.append(node.canvasUIData)
-            case .layer:
-                partialResult.append(contentsOf: node.allRowObservers().compactMap(\.canvasUIData))
+        self.nodes.values.flatMap { node in
+            switch node.nodeType {
+            case .patch(let patchNode):
+                return [patchNode.canvasObserver]
+            case .layer(let layerNode):
+                return layerNode.layer.layerGraphNode.inputDefinitions.compactMap {
+                    layerNode[keyPath: $0.layerNodeKeyPath].canvasObserver
+                }
+            case .group(let canvas):
+                return [canvas]
             }
         }
     }
@@ -203,103 +223,86 @@ extension VisibleNodesViewModel {
     // TODO: "visible" is ambiguous between "canvas item is on-screen" vs "canvas item is at this traversal level"
     @MainActor
     func getVisibleCanvasItems(at focusedGroup: NodeId?) -> CanvasItemViewModels {
-        self.allViewModels.reduce(into: .init()) { partialResult, node in
-            switch node.kind {
-            case .patch, .group:
-                if node.canvasUIData.parentGroupNodeId == focusedGroup {
-                    partialResult.append(node.canvasUIData)
-                }
-            case .layer:
-                let visibleLayerRowsOnGraph = node.allRowObservers()
-                    .compactMap { row in
-                        if let canvasData = row.canvasUIData, canvasData.parentGroupNodeId == focusedGroup {
-                            return canvasData
-                        }
-                        return nil
-                    }
-                partialResult.append(contentsOf: visibleLayerRowsOnGraph)
-            }
-        }
+        self.getCanvasItems()
+            .filter { $0.parentGroupNodeId == focusedGroup }
     }
 
-    /// Obtains row observers directly from splitter patch nodes given its parent group node.
+    /// Obtains input row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getSplitterRowObservers(for groupNodeId: NodeId,
-                                 type: SplitterType) -> NodeRowObservers {
+    func getSplitterInputRowObservers(for groupNodeId: NodeId) -> [InputNodeRowObserver] {
         // find splitters inside this group node
-        let allSplitterNodes = self.nodes.values
+        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
+            .compactMap { $0.patchNode }
             .filter {
-                $0.splitterType == type
+                $0.splitterType == .input
             }
 
         // filter splitters relevant to this group node
         let splittersInThisGroup = allSplitterNodes
             .filter { splitterNode in
-                splitterNode.parentGroupNodeId == groupNodeId
+                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
             }
-            // sort new inputs/outputs by the date the splitter was created
+            // sort new inputs/inputs by the date the splitter was created
             .sorted {
-                ($0.patchNode?.splitterNode?.lastModifiedDate ?? Date.now) <
-                    ($1.patchNode?.splitterNode?.lastModifiedDate ?? Date.now)
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
             }
 
         // get the first (and only) row observer for this splitter node
-        let splitterRowObservers: NodeRowObservers = splittersInThisGroup
+        let splitterRowObservers: [InputNodeRowObserver] = splittersInThisGroup
             // get the NodeViewModel for this splitter
             .compactMap { self.nodes.get($0.id) }
             .compactMap { node in
                 switch node.splitterType {
-                case .inline, .none:
+                case .input:
+                    return node.getInputRowObserver(0)
+                default:
                     // Shouldn't be called
                     fatalErrorIfDebug()
                     return nil
-                case .input:
-                    return node.getInputRowObserver(0)
-                case .output:
-                    return node.getOutputRowObserver(0)
                 }
             }
 
         return splitterRowObservers
     }
-
+    
+    /// Obtains output row observers directly from splitter patch nodes given its parent group node.
     @MainActor
-    func getInputSplitters(for id: NodeId) -> NodeRowObservers? {
-        self._getSplitters(for: id, splitterType: .input)
-    }
-
-    @MainActor
-    func getInputSplitterInputPorts(for id: NodeId) -> [InputPortViewData]? {
-        if let observers = self.getInputSplitters(for: id) {
-            return (0..<observers.count).map { portId in
-                return InputPortViewData(portId: portId, nodeId: id)
+    func getSplitterOutputRowObservers(for groupNodeId: NodeId) -> [OutputNodeRowObserver] {
+        // find splitters inside this group node
+        let allSplitterNodes: [PatchNodeViewModel] = self.nodes.values
+            .compactMap { $0.patchNode }
+            .filter {
+                $0.splitterType == .output
             }
-        }
-        return nil
-    }
 
-    // Nil if not a group node or if group had no splitters for that splitter-type
-    @MainActor
-    private func _getSplitters(for id: NodeId, splitterType: SplitterType) -> NodeRowObservers? {
+        // filter splitters relevant to this group node
+        let splittersInThisGroup = allSplitterNodes
+            .filter { splitterNode in
+                splitterNode.canvasObserver.parentGroupNodeId == groupNodeId
+            }
+            // sort new inputs/outputs by the date the splitter was created
+            .sorted {
+                ($0.splitterNode?.lastModifiedDate ?? Date.now) <
+                    ($1.splitterNode?.lastModifiedDate ?? Date.now)
+            }
 
-        let isGroup = self.isGroupNode(id)
-        let splitters = self.getSplitterRowObservers(for: id, type: splitterType)
+        // get the first (and only) row observer for this splitter node
+        let splitterRowObservers: [OutputNodeRowObserver] = splittersInThisGroup
+            // get the NodeViewModel for this splitter
+            .compactMap { self.nodes.get($0.id) }
+            .compactMap { node in
+                switch node.splitterType {
+                case .output:
+                    return node.getOutputRowObserver(0)
+                default:
+                    // Shouldn't be called
+                    fatalErrorIfDebug()
+                    return nil
+                }
+            }
 
-        guard isGroup else {
-            #if DEBUG
-            log("_getSplitters: id \(id) was not for group")
-            #endif
-            return nil
-        }
-
-        guard !splitters.isEmpty else {
-            #if DEBUG
-            log("_getSplitters: no splitters")
-            #endif
-            return nil
-        }
-
-        return splitters
+        return splitterRowObservers
     }
 
     func isGroupNode(_ id: NodeId) -> Bool {
@@ -326,12 +329,7 @@ extension VisibleNodesViewModel {
 
     /// Updates cached data inside row observers.
     @MainActor
-    func updateAllNodeViewData() {
-        // Port view data first
-        self.nodes.values.forEach { node in
-            node.updateAllPortViewData()
-        }
-        
+    func updateAllNodeViewData() {        
         // Connected nodes data relies on port view data so we call this later
         self.nodes.values.forEach { node in
             node.updateAllConnectedNodes()
@@ -339,7 +337,7 @@ extension VisibleNodesViewModel {
     }
     
     @MainActor
-    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> NodeRowObserver? {
+    func getOutputRowObserver(for coordinate: NodeIOCoordinate) -> OutputNodeRowObserver? {
         self.nodes.get(coordinate.nodeId)?
             .getOutputRowObserver(for: coordinate.portType)
     }

@@ -27,16 +27,24 @@ struct NodeTitleEdited: GraphEventWithResponse {
 
 
 extension CanvasItemId {
+    var isNode: Bool {
+        switch self {
+        case .node:
+            return true
+        default:
+            return false
+        }
+    }
     
     // Every canvas item belongs to same node.
     var associatedNodeId: NodeId {
         switch self {
         case .node(let x):
             return x
-        case .layerInputOnGraph(let x):
+        case .layerInput(let x):
             return x.node
-        case .layerOutputOnGraph(let x):
-            return x.nodeId
+        case .layerOutput(let x):
+            return x.node
         }
     }
 }

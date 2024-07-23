@@ -18,13 +18,15 @@ import StitchSchemaKit
 protocol NodeDelegate: AnyObject {
     var id: NodeId { get }
     
-    var isVisibleInFrame: Bool { get set }
-    
     var kind: NodeKind { get }
     
     var userVisibleType: UserVisibleType? { get }
     
-    var parentGroupNodeId: NodeId? { get }
+    var nodeType: NodeViewModelType { get }
+    
+    @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
+    
+    @MainActor var allOutputViewModels: [OutputNodeRowViewModel] { get }
     
     @MainActor var longestLoopLength: Int { get }
 
@@ -34,12 +36,8 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var activeIndex: ActiveIndex { get }
     
-    @MainActor var isNodeMoving: Bool { get }
-    
-    @MainActor var zIndex: Double { get }
-    
-    @MainActor var isSelected: Bool { get set }
-    
+    @MainActor var displayTitle: String { get }
+
     @MainActor var inputs: PortValuesList { get }
     
     @MainActor var outputs: PortValuesList { get }
@@ -57,13 +55,27 @@ protocol NodeDelegate: AnyObject {
         
     var getMathExpression: String? { get }
     
-    @MainActor func getInputRowObserver(_ portId: Int) -> NodeRowObserver?
+    @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel]
     
-    @MainActor func getOutputRowObserver(_ portId: Int) -> NodeRowObserver?
+    @MainActor func getInputRowObserver(for portType: NodeIOPortType) -> InputNodeRowObserver?
     
-    @MainActor func inputRowObservers() -> NodeRowObservers
+    @MainActor func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver?
     
-    @MainActor func outputRowObservers() -> NodeRowObservers
+    @MainActor func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver?
+    
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver]
+    
+    @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver]
+    
+    @MainActor func updateInputsObservers(activeIndex: ActiveIndex)
+    
+    @MainActor func updateOutputsObservers(activeIndex: ActiveIndex)
+    
+    @MainActor func updateOutputsObservers(newOutputsValues: PortValuesList,
+                                           activeIndex: ActiveIndex)
+    
+    @MainActor func blockOrUnlockFields(newValue: PortValue,
+                                        layerInput: LayerInputType)
     
     @MainActor func calculate()
 }
@@ -81,5 +93,41 @@ extension NodeDelegate {
     
     var defaultOutputsList: PortValuesList {
         self.defaultOutputs.map { [$0] }
+    }
+    
+    @MainActor
+    var allInputRowViewModels: [InputNodeRowViewModel] {
+        self.getAllInputsObservers()
+            .flatMap { $0.allRowViewModels }
+    }
+    
+    @MainActor
+    var allNodeInputRowViewModels: [InputNodeRowViewModel] {
+        self.allInputRowViewModels
+            .filter { $0.id.isNode }
+    }
+    
+    @MainActor
+    var allOutputRowViewModels: [OutputNodeRowViewModel] {
+        self.getAllOutputsObservers()
+            .flatMap { $0.allRowViewModels }
+    }
+    
+    var patchNodeViewModel: PatchNodeViewModel? {
+        switch self.nodeType {
+        case .patch(let patchNode):
+            return patchNode
+        default:
+            return nil
+        }
+    }
+    
+    var layerNodeViewModel: LayerNodeViewModel? {
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode
+        default:
+            return nil
+        }
     }
 }

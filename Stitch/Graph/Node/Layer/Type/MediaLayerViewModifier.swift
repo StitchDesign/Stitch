@@ -13,7 +13,7 @@ struct MediaLayerViewModifier: ViewModifier {
     let mediaValue: AsyncMediaValue?
     @Binding var mediaObject: StitchMediaObject?
     let graph: GraphState
-    let mediaRowObserver: NodeRowObserver?
+    let mediaRowObserver: InputNodeRowObserver?
     
     func body(content: Content) -> some View {
         content
@@ -46,8 +46,12 @@ struct MediaLayerViewModifier: ViewModifier {
                                                                 dataType: mediaValue.dataType,
                                                                 mediaObject: newMediaObject)
                             let newPortValue = newMediaValue.portValue
-                            mediaRowObserver?.activeValueChanged(oldRowType: .asyncMedia,
-                                                                 newValue: newPortValue)
+                            
+                            // Update all row view models
+                            mediaRowObserver?.allRowViewModels.forEach {
+                                $0.activeValueChanged(oldRowType: .asyncMedia,
+                                                      newValue: newPortValue)
+                            }
                         }
                     }
                 }

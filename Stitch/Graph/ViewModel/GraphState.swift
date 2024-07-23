@@ -177,12 +177,6 @@ extension GraphState: GraphDelegate {
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
     }
-    
-    func getSplitterRowObservers(for groupNodeId: NodeId,
-                                 type: SplitterType) -> NodeRowObservers {
-        self.visibleNodesViewModel.getSplitterRowObservers(for: groupNodeId,
-                                                           type: type)
-    }
 }
 
 extension GraphState: SchemaObserver {
@@ -214,6 +208,7 @@ extension GraphState: SchemaObserver {
         self.init(from: document, store: store)
     }
 
+    @MainActor
     static func createObject(from entity: CurrentStitchDocument.StitchDocument) -> Self {
         // Unused
         fatalErrorIfDebug()
@@ -240,8 +235,6 @@ extension GraphState: SchemaObserver {
         
         // No longer needed, since sidebar-expanded-items handled by node schema
 //        self.sidebarExpandedItems = self.allGroupLayerNodes()
-
-        // TODO: do we really ALWAYS want to recalculate the graph here?
         self.calculateFullGraph()
     }
 
@@ -309,6 +302,11 @@ extension GraphState: SchemaObserver {
 
 extension GraphState {
     @MainActor
+    func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
+        self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
+    }
+    
+    @MainActor
     var localPositionToPersist: CGPoint {
         /*
          TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
@@ -331,7 +329,7 @@ extension GraphState {
         }
         let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
 
-        var graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
+        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
 
         // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
         // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
@@ -360,34 +358,8 @@ extension GraphState {
         self.graphUI.activeIndex
     }
 
-    /*
-     An input is highlighted if there is a selected edge whose destination == input
-
-     An output is highlighted if there is a selected edge whose destination == output
-     */
     @MainActor
-    func hasSelectedEdge(at rowObserver: NodeRowObserver) -> Bool {
-        // TODO: update this for splitters
-        guard let portUI = rowObserver.portViewType else {
-//            fatalErrorIfDebug()
-            return false
-        }
-        
-        switch portUI {
-        case .input(let port):
-            return self.selectedEdges.contains { $0.to == port }
-        case .output(let port):
-            return self.selectedEdges.contains { $0.from == port }
-        }
-    }
-    
-    @MainActor
-    func isConnectedToASelectedNode(at rowObserver: NodeRowObserver) -> Bool {
-        !self.selectedNodeIds.intersection(rowObserver.connectedNodes).isEmpty
-    }
-
-    @MainActor
-    func getBroadcasterNodesAtThisTraversalLevel() -> NodeViewModels {
+    func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
@@ -399,9 +371,11 @@ extension GraphState {
     }
 
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
+    @MainActor
     var highestZIndex: Double {
         let zIndices = self.visibleNodesViewModel
             .nodes.values
+            .flatMap { $0.getAllCanvasObservers() }
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }
@@ -490,13 +464,33 @@ extension GraphState {
     }
 
     @MainActor
-    func getInputObserver(coordinate: InputCoordinate) -> NodeRowObserver? {
+    func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)
     }
     
-    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> NodeRowObserver? {
-        self.getNode(coordinate.nodeId)?.getOutputRowObserver(coordinate.portId)
+    @MainActor func getOutputObserver(coordinate: OutputPortViewData) -> OutputNodeRowObserver? {
+        self.getCanvasItem(coordinate.canvasId)?
+            .nodeDelegate?
+            .getOutputRowObserver(coordinate.portId)
+    }
+    
+    @MainActor func getInputRowViewModel(for rowId: NodeRowViewModelId,
+                                         nodeId: NodeId) -> InputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            return nil
+        }
+        
+        return node.getInputRowViewModel(for: rowId)
+    }
+    
+    @MainActor func getOutputRowViewModel(for rowId: NodeRowViewModelId,
+                                          nodeId: NodeId) -> OutputNodeRowViewModel? {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            return nil
+        }
+        
+        return node.getOutputRowViewModel(for: rowId)
     }
 
     func getNode(_ id: NodeId) -> NodeViewModel? {
@@ -507,28 +501,87 @@ extension GraphState {
     func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel? {
         switch id {
         case .node(let x):
-            return self.getNodeViewModel(x)?.canvasUIData
-        case .layerInputOnGraph(let x):
-            return self.getLayerInputOnGraph(x)?.canvasUIData
-        case .layerOutputOnGraph(let x):
-            return self.getLayerOutputOnGraph(x)?.canvasUIData
+            return self.getNodeViewModel(x)?
+                .getAllCanvasObservers()
+                .first { $0.id == id }
+        case .layerInput(let x):
+            return self.getLayerInputOnGraph(x)?.canvasItemDelegate
+        case .layerOutput(let x):
+            return self.getLayerOutputOnGraph(x)?.canvasItemDelegate
         }
+    }
+    
+    @MainActor
+    func getCanvasItem(inputId: NodeIOCoordinate) -> CanvasItemViewModel? {
+        guard let node = self.getNodeViewModel(inputId.nodeId) else {
+            return nil
+        }
+        
+        return node.getAllCanvasObservers()
+            .first { canvasItem in
+                canvasItem.inputViewModels.contains { rowViewModel in
+                    guard let rowObserver = rowViewModel.rowDelegate else {
+                        return false
+                    }
+                    return rowObserver.id == inputId
+                }
+            }
+    }
+    
+    @MainActor
+    func getCanvasItem(outputId: NodeIOCoordinate) -> CanvasItemViewModel? {
+        guard let node = self.getNodeViewModel(outputId.nodeId) else {
+            return nil
+        }
+        
+        return node.getAllCanvasObservers()
+            .first { canvasItem in
+                canvasItem.outputViewModels.contains { rowViewModel in
+                    guard let rowObserver = rowViewModel.rowDelegate else {
+                        return false
+                    }
+                    return rowObserver.id == outputId
+                }
+            }
     }
     
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
-    func getLayerInputOnGraph(_ id: LayerInputOnGraphId) -> NodeRowObserver? {
-        self.getNodeViewModel(id.node)?
-            .getInputRowObserver(for: .keyPath(id.keyPath))
+    func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
+        self.getInputRowViewModel(for: .init(graphItemType: .node,
+                                             nodeId: id.node,
+                                             portId: 0),
+                                  nodeId: id.node)
     }
     
     @MainActor
-    func getLayerOutputOnGraph(_ id: LayerOutputOnGraphId) -> NodeRowObserver? {
-        self.getNodeViewModel(id.nodeId)?.getOutputRowObserver(id.portId)
+    func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
+        self.getOutputRowViewModel(for: .init(graphItemType: .node,
+                                              nodeId: id.node,
+                                              portId: 0),
+                                   nodeId: id.node)
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
         self.visibleNodesViewModel.getViewModel(id)
+    }
+    
+    /// Gets all possible canvas observers for some node.
+    /// For patches there is always one canvas observer. For layers there are 0 to many observers.
+    @MainActor
+    func getCanvasNodeViewModels(from nodeId: NodeId) -> [CanvasItemViewModel] {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            return []
+        }
+        
+        switch node.nodeType {
+        case .patch(let patchNode):
+            return [patchNode.canvasObserver]
+        case .layer(let layerNode):
+            return layerNode.getAllCanvasObservers()
+        case .group(let canvas):
+            return [canvas]
+        }
     }
 
     func getLayerNode(id: NodeId) -> NodeViewModel? {
@@ -545,7 +598,7 @@ extension GraphState {
     }
 
     @MainActor
-    func getVisibleNodes() -> NodeViewModels {
+    func getVisibleNodes() -> [NodeDelegate] {
         self.visibleNodesViewModel
             .getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
     }
@@ -592,16 +645,18 @@ extension GraphState {
             .toSet
     }
 
+    @MainActor
     func getGroupChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
+            .flatMap { $0.getAllCanvasObservers() }
             .filter { $0.parentGroupNodeId == groupId }
-            .map { $0.id }
+            .compactMap { $0.nodeDelegate?.id }
             .toSet
     }
     
     @MainActor
     func getInputCoordinate(from viewData: InputPortViewData) -> NodeIOCoordinate? {
-        guard let node = self.getNodeViewModel(viewData.nodeId),
+        guard let node = self.getCanvasItem(viewData.canvasId)?.nodeDelegate,
               let inputRow = node.getInputRowObserver(viewData.portId) else {
             return nil
         }
@@ -611,7 +666,7 @@ extension GraphState {
     
     @MainActor
     func getOutputCoordinate(from viewData: OutputPortViewData) -> NodeIOCoordinate? {
-        guard let node = self.getNodeViewModel(viewData.nodeId),
+        guard let node = self.getCanvasItem(viewData.canvasId)?.nodeDelegate,
               let outputRow = node.getOutputRowObserver(viewData.portId) else {
             return nil
         }
@@ -630,13 +685,6 @@ extension GraphState {
         let graphTime = self.graphStepManager.graphTime
         
         for (portId, newOutputValue) in portValues.enumerated() {
-            // Keep track of downstream nodes for later recalculation
-            guard let downstreamNodeIds = self.shallowDownstreamNodes.get(nodeId) else {
-                // MARK: nodes like camera call this a lot--if they're deleted then this guard statement is likely to hit
-                log("async recalculateGraph error: no downstream nodes found for node id: \(nodeId)")
-                continue
-            }
-            
             let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
             var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
             
@@ -662,7 +710,8 @@ extension GraphState {
             nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
         } // (portId, newOutputValue) in portValues.enumerated()
      
-        node.updateOutputs(outputsToUpdate, activeIndex: self.activeIndex)
+        node.updateOutputsObservers(newOutputsValues: outputsToUpdate,
+                                    activeIndex: self.activeIndex)
         
         // Must also run pulse reversion effects
         node.outputs

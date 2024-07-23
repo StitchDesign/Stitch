@@ -26,101 +26,106 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     var previewLayerViewModels: [LayerViewModel]
     
-    @MainActor var positionPort: NodeRowObserver
-    @MainActor var sizePort: NodeRowObserver
-    @MainActor var scalePort: NodeRowObserver
-    @MainActor var anchoringPort: NodeRowObserver
-    @MainActor var opacityPort: NodeRowObserver
-    @MainActor var zIndexPort: NodeRowObserver
-    @MainActor var masksPort: NodeRowObserver
-    @MainActor var colorPort: NodeRowObserver
-    @MainActor var startColorPort: NodeRowObserver
-    @MainActor var endColorPort: NodeRowObserver
-    @MainActor var startAnchorPort: NodeRowObserver
-    @MainActor var endAnchorPort: NodeRowObserver
-    @MainActor var centerAnchorPort: NodeRowObserver
-    @MainActor var startAnglePort: NodeRowObserver
-    @MainActor var endAnglePort: NodeRowObserver
-    @MainActor var startRadiusPort: NodeRowObserver
-    @MainActor var endRadiusPort: NodeRowObserver
-    @MainActor var rotationXPort: NodeRowObserver
-    @MainActor var rotationYPort: NodeRowObserver
-    @MainActor var rotationZPort: NodeRowObserver
-    @MainActor var lineColorPort: NodeRowObserver
-    @MainActor var lineWidthPort: NodeRowObserver
-    @MainActor var blurPort: NodeRowObserver
-    @MainActor var blendModePort: NodeRowObserver
-    @MainActor var brightnessPort: NodeRowObserver
-    @MainActor var colorInvertPort: NodeRowObserver
-    @MainActor var contrastPort: NodeRowObserver
-    @MainActor var hueRotationPort: NodeRowObserver
-    @MainActor var saturationPort: NodeRowObserver
-    @MainActor var pivotPort: NodeRowObserver
-    @MainActor var enabledPort: NodeRowObserver
-    @MainActor var blurRadiusPort: NodeRowObserver
-    @MainActor var backgroundColorPort: NodeRowObserver
-    @MainActor var isClippedPort: NodeRowObserver
-    @MainActor var orientationPort: NodeRowObserver
-    @MainActor var paddingPort: NodeRowObserver
-    @MainActor var setupModePort: NodeRowObserver
-    @MainActor var allAnchorsPort: NodeRowObserver
-    @MainActor var cameraDirectionPort: NodeRowObserver
-    @MainActor var isCameraEnabledPort: NodeRowObserver
-    @MainActor var isShadowsEnabledPort: NodeRowObserver
+    // Some layer nodes contain outputs
+    @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
-    @MainActor var shapePort: NodeRowObserver
-    @MainActor var strokePositionPort: NodeRowObserver
-    @MainActor var strokeWidthPort: NodeRowObserver
-    @MainActor var strokeColorPort: NodeRowObserver
-    @MainActor var strokeStartPort: NodeRowObserver
-    @MainActor var strokeEndPort: NodeRowObserver
-    @MainActor var strokeLineCapPort: NodeRowObserver
-    @MainActor var strokeLineJoinPort: NodeRowObserver
-    @MainActor var coordinateSystemPort: NodeRowObserver
+    // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
-    @MainActor var cornerRadiusPort: NodeRowObserver
-    @MainActor var canvasLineColorPort: NodeRowObserver
-    @MainActor var canvasLineWidthPort: NodeRowObserver
-    @MainActor var textPort: NodeRowObserver
-    @MainActor var fontSizePort: NodeRowObserver
-    @MainActor var textAlignmentPort: NodeRowObserver
-    @MainActor var verticalAlignmentPort: NodeRowObserver
-    @MainActor var textDecorationPort: NodeRowObserver
-    @MainActor var textFontPort: NodeRowObserver
-    @MainActor var imagePort: NodeRowObserver
-    @MainActor var videoPort: NodeRowObserver
-    @MainActor var fitStylePort: NodeRowObserver
-    @MainActor var clippedPort: NodeRowObserver
-    @MainActor var isAnimatingPort: NodeRowObserver
-    @MainActor var progressIndicatorStylePort: NodeRowObserver
-    @MainActor var progressPort: NodeRowObserver
-    @MainActor var model3DPort: NodeRowObserver
-    @MainActor var mapTypePort: NodeRowObserver
-    @MainActor var mapLatLongPort: NodeRowObserver
-    @MainActor var mapSpanPort: NodeRowObserver
-    @MainActor var isSwitchToggledPort: NodeRowObserver
-    @MainActor var placeholderTextPort: NodeRowObserver
+    @MainActor var positionPort: InputLayerNodeRowData
+    @MainActor var sizePort: InputLayerNodeRowData
+    @MainActor var scalePort: InputLayerNodeRowData
+    @MainActor var anchoringPort: InputLayerNodeRowData
+    @MainActor var opacityPort: InputLayerNodeRowData
+    @MainActor var zIndexPort: InputLayerNodeRowData
+    @MainActor var masksPort: InputLayerNodeRowData
+    @MainActor var colorPort: InputLayerNodeRowData
+    @MainActor var startColorPort: InputLayerNodeRowData
+    @MainActor var endColorPort: InputLayerNodeRowData
+    @MainActor var startAnchorPort: InputLayerNodeRowData
+    @MainActor var endAnchorPort: InputLayerNodeRowData
+    @MainActor var centerAnchorPort: InputLayerNodeRowData
+    @MainActor var startAnglePort: InputLayerNodeRowData
+    @MainActor var endAnglePort: InputLayerNodeRowData
+    @MainActor var startRadiusPort: InputLayerNodeRowData
+    @MainActor var endRadiusPort: InputLayerNodeRowData
+    @MainActor var rotationXPort: InputLayerNodeRowData
+    @MainActor var rotationYPort: InputLayerNodeRowData
+    @MainActor var rotationZPort: InputLayerNodeRowData
+    @MainActor var lineColorPort: InputLayerNodeRowData
+    @MainActor var lineWidthPort: InputLayerNodeRowData
+    @MainActor var blurPort: InputLayerNodeRowData
+    @MainActor var blendModePort: InputLayerNodeRowData
+    @MainActor var brightnessPort: InputLayerNodeRowData
+    @MainActor var colorInvertPort: InputLayerNodeRowData
+    @MainActor var contrastPort: InputLayerNodeRowData
+    @MainActor var hueRotationPort: InputLayerNodeRowData
+    @MainActor var saturationPort: InputLayerNodeRowData
+    @MainActor var pivotPort: InputLayerNodeRowData
+    @MainActor var enabledPort: InputLayerNodeRowData
+    @MainActor var blurRadiusPort: InputLayerNodeRowData
+    @MainActor var backgroundColorPort: InputLayerNodeRowData
+    @MainActor var isClippedPort: InputLayerNodeRowData
+    @MainActor var orientationPort: InputLayerNodeRowData
+    @MainActor var paddingPort: InputLayerNodeRowData
+    @MainActor var setupModePort: InputLayerNodeRowData
+    @MainActor var allAnchorsPort: InputLayerNodeRowData
+    @MainActor var cameraDirectionPort: InputLayerNodeRowData
+    @MainActor var isCameraEnabledPort: InputLayerNodeRowData
+    @MainActor var isShadowsEnabledPort: InputLayerNodeRowData
     
-    @MainActor var shadowColorPort: NodeRowObserver
-    @MainActor var shadowOpacityPort: NodeRowObserver
-    @MainActor var shadowRadiusPort: NodeRowObserver
-    @MainActor var shadowOffsetPort: NodeRowObserver
-    @MainActor var sfSymbolPort: NodeRowObserver
+    @MainActor var shapePort: InputLayerNodeRowData
+    @MainActor var strokePositionPort: InputLayerNodeRowData
+    @MainActor var strokeWidthPort: InputLayerNodeRowData
+    @MainActor var strokeColorPort: InputLayerNodeRowData
+    @MainActor var strokeStartPort: InputLayerNodeRowData
+    @MainActor var strokeEndPort: InputLayerNodeRowData
+    @MainActor var strokeLineCapPort: InputLayerNodeRowData
+    @MainActor var strokeLineJoinPort: InputLayerNodeRowData
+    @MainActor var coordinateSystemPort: InputLayerNodeRowData
     
-    @MainActor var videoURLPort: NodeRowObserver
-    @MainActor var volumePort: NodeRowObserver
+    @MainActor var cornerRadiusPort: InputLayerNodeRowData
+    @MainActor var canvasLineColorPort: InputLayerNodeRowData
+    @MainActor var canvasLineWidthPort: InputLayerNodeRowData
+    @MainActor var textPort: InputLayerNodeRowData
+    @MainActor var fontSizePort: InputLayerNodeRowData
+    @MainActor var textAlignmentPort: InputLayerNodeRowData
+    @MainActor var verticalAlignmentPort: InputLayerNodeRowData
+    @MainActor var textDecorationPort: InputLayerNodeRowData
+    @MainActor var textFontPort: InputLayerNodeRowData
+    @MainActor var imagePort: InputLayerNodeRowData
+    @MainActor var videoPort: InputLayerNodeRowData
+    @MainActor var fitStylePort: InputLayerNodeRowData
+    @MainActor var clippedPort: InputLayerNodeRowData
+    @MainActor var isAnimatingPort: InputLayerNodeRowData
+    @MainActor var progressIndicatorStylePort: InputLayerNodeRowData
+    @MainActor var progressPort: InputLayerNodeRowData
+    @MainActor var model3DPort: InputLayerNodeRowData
+    @MainActor var mapTypePort: InputLayerNodeRowData
+    @MainActor var mapLatLongPort: InputLayerNodeRowData
+    @MainActor var mapSpanPort: InputLayerNodeRowData
+    @MainActor var isSwitchToggledPort: InputLayerNodeRowData
+    @MainActor var placeholderTextPort: InputLayerNodeRowData
     
-    @MainActor var spacingBetweenGridColumnsPort: NodeRowObserver
-    @MainActor var spacingBetweenGridRowsPort: NodeRowObserver
-    @MainActor var itemAlignmentWithinGridCellPort: NodeRowObserver
+    @MainActor var shadowColorPort: InputLayerNodeRowData
+    @MainActor var shadowOpacityPort: InputLayerNodeRowData
+    @MainActor var shadowRadiusPort: InputLayerNodeRowData
+    @MainActor var shadowOffsetPort: InputLayerNodeRowData
+    @MainActor var sfSymbolPort: InputLayerNodeRowData
     
-    @MainActor var widthAxisPort: NodeRowObserver
-    @MainActor var heightAxisPort: NodeRowObserver
-    @MainActor var contentModePort: NodeRowObserver
-    @MainActor var minSizePort: NodeRowObserver
-    @MainActor var maxSizePort: NodeRowObserver
-    @MainActor var spacingPort: NodeRowObserver
-    @MainActor var sizingScenarioPort: NodeRowObserver
+    @MainActor var videoURLPort: InputLayerNodeRowData
+    @MainActor var volumePort: InputLayerNodeRowData
+    
+    @MainActor var spacingBetweenGridColumnsPort: InputLayerNodeRowData
+    @MainActor var spacingBetweenGridRowsPort: InputLayerNodeRowData
+    @MainActor var itemAlignmentWithinGridCellPort: InputLayerNodeRowData
+    
+    @MainActor var widthAxisPort: InputLayerNodeRowData
+    @MainActor var heightAxisPort: InputLayerNodeRowData
+    @MainActor var contentModePort: InputLayerNodeRowData
+    @MainActor var minSizePort: InputLayerNodeRowData
+    @MainActor var maxSizePort: InputLayerNodeRowData
+    @MainActor var spacingPort: InputLayerNodeRowData
+    @MainActor var sizingScenarioPort: InputLayerNodeRowData
 
     weak var nodeDelegate: NodeDelegate?
 
@@ -150,12 +155,22 @@ final class LayerNodeViewModel {
     @MainActor
     init(from schema: LayerNodeEntity,
          nodeDelegate: NodeDelegate?) {
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.layer(schema.layer)
+            .rowDefinitions(for: nil)
+        
         self.id = schema.id
         self.layer = schema.layer
-        
+        self.nodeDelegate = nodeDelegate
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar
+        
+        self.outputPorts = rowDefinitions
+            .createOutputLayerPorts(schema: schema,
+                                    valuesList: rowDefinitions.outputs.defaultList,
+                                    userVisibleType: nil,
+                                    nodeDelegate: nodeDelegate)
         
         self.positionPort = .empty(.position, layer: schema.layer)
         self.sizePort = .empty(.size, layer: schema.layer)
@@ -259,20 +274,42 @@ final class LayerNodeViewModel {
         // Note: this should never actually be empty; only empty here as part of initialization; populated by a later call to `LayerNodeViewModel.didValuesUpdate`
         self.previewLayerViewModels = .init()
         
-        // TODO: use the serialized data rather than default inputs which we override anyway
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let rowObserver = self[keyPath: inputType.layerNodeKeyPath]
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
-            rowObserver.nodeKind = .layer(schema.layer)
-            rowObserver.nodeDelegate = nodeDelegate
-            rowObserver.id = id
+            // Update inspector view model delegate before calling update fn
+            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
+            
+            // Update row view model ID
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
+                                                           nodeId: id.nodeId,
+                                                           portId: 0)
+            }
+            
+            // Update row observer
+            layerData.rowObserver.nodeKind = .layer(schema.layer)
+            layerData.rowObserver.nodeDelegate = nodeDelegate
+            layerData.rowObserver.id = id
+        }
+        
+        // Call update once everything above is in place
+        for inputType in graphNode.inputDefinitions {
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
+                             layerInputType: inputType,
+                             layerNode: self,
+                             nodeId: schema.id,
+                             node: nodeDelegate)
         }
     }
 }
 
 extension LayerNodeViewModel: SchemaObserver {
+    @MainActor
     static func createObject(from entity: LayerNodeEntity) -> Self {
         .init(from: entity,
               nodeDelegate: nil)
@@ -293,7 +330,10 @@ extension LayerNodeViewModel: SchemaObserver {
         self.layer.layerGraphNode.inputDefinitions.forEach {
             self[keyPath: $0.layerNodeKeyPath]
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
-                        inputType: $0)
+                        layerInputType: $0,
+                        layerNode: self,
+                        nodeId: schema.id,
+                        node: self.nodeDelegate)
         }
     }
 
@@ -306,7 +346,7 @@ extension LayerNodeViewModel: SchemaObserver {
         
         // Only encode keypaths used by this layer
         self.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].createLayerSchema()
+            schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].createSchema()
         }
         
         return schema
@@ -317,15 +357,22 @@ extension LayerNodeViewModel: SchemaObserver {
 
 extension LayerNodeViewModel {
     @MainActor
-    func getSortedInputObservers() -> NodeRowObservers {
+    func getAllCanvasObservers() -> [CanvasItemViewModel] {
+        self.layer.layerGraphNode.inputDefinitions.compactMap {
+            self[keyPath: $0.layerNodeKeyPath].canvasObserver
+        }
+    }
+    
+    @MainActor
+    func getSortedInputObservers() -> [InputNodeRowObserver] {
         self.layer.layerGraphNode.inputDefinitions.map {
-            self[keyPath: $0.layerNodeKeyPath]
+            self[keyPath: $0.layerNodeKeyPath].rowObserver
         }
     }
     
     @MainActor
     func layerSize(_ activeIndex: ActiveIndex) -> LayerSize? {
-        self.sizePort.getActiveValue(activeIndex: activeIndex).getSize
+        self.sizePort.rowObserver.activeValue.getSize
     }
     
     /// Updates one or more preview layers given some layer node.
@@ -439,16 +486,16 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort.getActiveValue(activeIndex: activeIndex).getPoint
+        self.positionPort.rowObserver.activeValue.getPoint
     }
     
     @MainActor
     func scaledLayerSize(for nodeId: NodeId,
                          parentSize: CGSize,
                          activeIndex: ActiveIndex) -> ScaledSize? {
-        let scale = self.scalePort.getActiveValue(activeIndex: activeIndex).getNumber ?? .zero
+        let scale = self.scalePort.rowObserver.activeValue.getNumber ?? .zero
         
-        return self.sizePort.getActiveValue(activeIndex: activeIndex)
+        return self.sizePort.rowObserver.activeValue
             .getSize?.asCGSize(parentSize)
             .asScaledSize(scale)
     }

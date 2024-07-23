@@ -9,23 +9,51 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-typealias NodeRowObservers = [NodeRowObserver]
-
-// Keep this at top of file; very important information:
-extension NodeRowObserver: Equatable {
-    static func == (lhs: NodeRowObserver, rhs: NodeRowObserver) -> Bool {
-        lhs.id == rhs.id
-    }
+protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
+    associatedtype RowViewModelType: NodeRowViewModel
+    
+    var id: NodeIOCoordinate { get set }
+    
+    // Data-side for values
+    var allLoopedValues: PortValues { get set }
+    
+    static var nodeIOType: NodeIO { get }
+    
+    var nodeKind: NodeKind { get set }
+    
+    @MainActor var allRowViewModels: [RowViewModelType] { get }
+    
+    var nodeDelegate: NodeDelegate? { get set }
+    
+    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
+    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
+    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
+    var userVisibleType: UserVisibleType? { get set }
+    
+    var connectedNodes: NodeIdSet { get set }
+    
+    var hasLoopedValues: Bool { get set }
+    
+    @MainActor var importedMediaObject: StitchMediaObject? { get }
+    
+    var hasEdge: Bool { get }
+    
+    @MainActor var containsUpstreamConnection: Bool { get }
+    
+    @MainActor
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         upstreamOutputCoordinate: NodeIOCoordinate?,
+         nodeDelegate: NodeDelegate?)
 }
 
 @Observable
-final class NodeRowObserver: Identifiable, Sendable {
-    
-    var canvasUIData: CanvasItemViewModel? = nil
-    
-    // MARK: fundamental, non-derived data
-    
-    // TODO: this initializer seems strange? Presumably we update and change this logic elsewhere?
+final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
+    static let nodeIOType: NodeIO = .input
+
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
     
     // Data-side for values
@@ -34,113 +62,70 @@ final class NodeRowObserver: Identifiable, Sendable {
     // statically defined inputs
     var nodeKind: NodeKind
     
-    // NodeIO type cannot be changed over the life of a row, and is important enough that we should not let it default to some value
-    let nodeIOType: NodeIO
-    
-    // Holds view models for fields;
-    // Note: this is [FieldGroupTypeViewModel] where a single `FieldGroupTypeViewModel` containers a list: `fieldObservers: [FieldViewModel]`
-    // Vast majority of inputs have single `FieldGroupTypeViewModel`;
-    // only ShapeCommands have more than one `FieldGroupTypeViewModel`.
-    var fieldValueTypes = FieldGroupTypeViewModelList()
-    
     // Connected upstream node, if input
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         @MainActor
         didSet(oldValue) {
             let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
-            let activeIndex = self.nodeDelegate?.activeIndex ?? .init(.zero)
-
+            
             guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
                 if let oldUpstreamObserver = self.upstreamOutputObserver {
                     log("upstreamOutputCoordinate: removing edge")
-
+                    
                     // Remove edge data
                     oldUpstreamObserver.containsDownstreamConnection = false
                 }
-
+                
                 if coordinateValueChanged {
                     // Flatten values
                     let newFlattenedValues = self.allLoopedValues.flattenValues()
-                    self.updateValues(newFlattenedValues,
-                                      activeIndex: activeIndex,
-                                      isVisibleInFrame: self.nodeDelegate?.isVisibleInFrame ?? false)
-
+                    self.updateValues(newFlattenedValues)
+                    
                     // Recalculate node once values update
                     self.nodeDelegate?.calculate()
                 }
-
+                
                 return
             }
-
+            
             // Update that upstream observer of new edge
             self.upstreamOutputObserver?.containsDownstreamConnection = true
         }
     }
-
+    
     // TODO: an output row can NEVER have an `upstream output` (i.e. incoming edge)
     /// Tracks upstream output row observer for some input. Cached for perf.
     @MainActor
-    var upstreamOutputObserver: NodeRowObserver? {
+    var upstreamOutputObserver: OutputNodeRowObserver? {
         self.getUpstreamOutputObserver()
     }
     
-    
-    // MARK: NodeRowObserver holds a reference to its parent, the Node
-    
-    // TODO: better?: in contexts where we have the NodeRowObserver (Input or Output) and need the Node, just retrieve the Node directly from GraphState; don't need an additional property on the NodeRowObserver
-    // Informs parent class of row-specific changes
+    // NodeRowObserver holds a reference to its parent, the Node
     weak var nodeDelegate: NodeDelegate?
     
-    
-    // MARK: legacy data to ignore
-    
-    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
-    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
-    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
     var userVisibleType: UserVisibleType?
     
-    
-
     // MARK: "derived data", cached for UI perf
-    
-    // TODO: can this really ever be nil? -- or does `nil` mean that the cache is not yet initialized?
-    // Coordinate ID used for view--cached for perf
-    var portViewType: PortViewType?
     
     // Tracks upstream/downstream nodes--cached for perf
     var connectedNodes: NodeIdSet = .init()
-
-    // View-specific value that only updates when visible
-    // separate propety for perf reasons:
-    var activeValue: PortValue = .number(.zero)
-
-    // Only for outputs, designed for port edge color usage
-    var containsDownstreamConnection = false
-
+    
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
-    // TODO: what is this for?
-    var anchorPoint: CGPoint?
-    
-    // Cached for perf
-    var portColor: PortColor = .noEdge
-    
-
     @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex,
                      nodeDelegate: NodeDelegate?) {
-        self.init(values: schema.values ?? [],
+        self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
-                  upstreamOutputCoordinate: schema.upstreamOutputCoordinate,
-                  nodeIOType: .input,
+                  upstreamOutputCoordinate: schema.portData.upstreamConnection,
                   nodeDelegate: nodeDelegate)
     }
-
+    
     @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
@@ -148,46 +133,80 @@ final class NodeRowObserver: Identifiable, Sendable {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeIOType: NodeIO,
          nodeDelegate: NodeDelegate?) {
-        #if DEBUG || DEV_DEBUG
-        if nodeIOType == .input {
-            assert(!values.isEmpty || upstreamOutputCoordinate != nil)
-        }
-        #endif
         
         self.id = id
-
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
-        self.nodeIOType = nodeIOType
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
-        self.activeValue = Self.getActiveValue(allLoopedValues: values,
-                                               activeIndex: activeIndex)
         self.hasLoopedValues = values.hasLoop
-
-        self.fieldValueTypes = .init(initialValue: self.getActiveValue(activeIndex: activeIndex),
-                                     coordinate: id,
-                                     nodeIO: nodeIOType, 
-                                     importedMediaObject: nil)
+        
         self.nodeDelegate = nodeDelegate
         
-//        self.updatePortViewData() // Initialize NodeRowObserver with appropriate cached data
         postProcessing(oldValues: [], newValues: values)
     }
+}
+
+@Observable
+final class OutputNodeRowObserver: NodeRowObserver {
+    static let nodeIOType: NodeIO = .output
+    let containsUpstreamConnection = false  // always false
+
+    var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
+    
+    // Data-side for values
+    var allLoopedValues: PortValues = .init()
+    
+    // statically defined inputs
+    var nodeKind: NodeKind
+    
+    // NodeRowObserver holds a reference to its parent, the Node
+    weak var nodeDelegate: NodeDelegate?
+    
+    var userVisibleType: UserVisibleType?
+    
+    // MARK: "derived data", cached for UI perf
+    
+    // Tracks upstream/downstream nodes--cached for perf
+    var connectedNodes: NodeIdSet = .init()
+    
+    // Only for outputs, designed for port edge color usage
+    var containsDownstreamConnection = false
+    
+    // Can't be computed for rendering purposes
+    var hasLoopedValues: Bool = false
+    
+    // Always nil for outputs
+    let importedMediaObject: StitchMediaObject? = nil
     
     @MainActor
-    static func empty(_ layerInputType: LayerInputType,
-                      layer: Layer) -> Self {
-        Self.init(values: [layerInputType.getDefaultValue(for: layer)],
-                  nodeKind: .layer(.rectangle),
-                  userVisibleType: nil,
-                  id: .init(portId: -1, nodeId: .init()),
-                  activeIndex: .init(.zero),
-                  upstreamOutputCoordinate: nil,
-                  nodeIOType: .input,
-                  nodeDelegate: nil)
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         // always nil but needed for protocol
+         upstreamOutputCoordinate: NodeIOCoordinate? = nil,
+         nodeDelegate: NodeDelegate?) {
+        
+        assertInDebug(upstreamOutputCoordinate == nil)
+        
+        self.id = id
+        self.nodeKind = nodeKind
+        self.allLoopedValues = values
+        self.userVisibleType = userVisibleType
+        self.hasLoopedValues = values.hasLoop
+        
+        self.nodeDelegate = nodeDelegate
+        
+        postProcessing(oldValues: [], newValues: values)
+    }
+}
+
+extension InputNodeRowObserver {
+    @MainActor var containsUpstreamConnection: Bool {
+        self.upstreamOutputObserver.isDefined
     }
     
     /// Values for import dropdowns don't hold media directly, so we need to find it.
@@ -207,7 +226,7 @@ final class NodeRowObserver: Identifiable, Sendable {
     
     // Because `private`, needs to be declared in same file(?) as method that uses it
     @MainActor
-    private func getUpstreamOutputObserver() -> NodeRowObserver? {
+    private func getUpstreamOutputObserver() -> OutputNodeRowObserver? {
         guard let upstreamCoordinate = self.upstreamOutputCoordinate,
               let upstreamPortId = upstreamCoordinate.portId else {
             return nil
@@ -217,14 +236,98 @@ final class NodeRowObserver: Identifiable, Sendable {
         return self.nodeDelegate?.getNode(upstreamCoordinate.nodeId)?
             .getOutputRowObserver(upstreamPortId)
     }
+    
+    var hasEdge: Bool {
+        self.upstreamOutputCoordinate.isDefined
+    }
+    
+    @MainActor var allRowViewModels: [InputNodeRowViewModel] {
+        guard var inputs = self.nodeDelegate?.allInputViewModels else {
+            return []
+        }
+        
+        // Find row view models for group
+        if let patchNode = self.nodeDelegate?.patchNodeViewModel,
+           patchNode.splitterNode?.type == .input {
+            // Group id is the only other row view model's canvas's parent ID
+            if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
+               let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                inputs += groupNode.inputViewModels.filter {
+                    $0.rowDelegate?.id == self.id
+                }
+            }
+        }
+        
+        return inputs.filter {
+            $0.rowDelegate?.id == self.id
+        }
+    }
 }
 
-extension NodeRowObserver {
+extension OutputNodeRowObserver {
+    var hasEdge: Bool {
+        self.containsDownstreamConnection
+    }
+    
+    @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
+        guard var outputs = self.nodeDelegate?.allOutputViewModels else {
+            return []
+        }
+        
+        // Find row view models for group
+        if let patchNode = self.nodeDelegate?.patchNodeViewModel,
+           patchNode.splitterNode?.type == .output {
+            // Group id is the only other row view model's canvas's parent ID
+            if let groupNodeId = outputs.first?.canvasItemDelegate?.parentGroupNodeId,
+               let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                outputs += groupNode.outputViewModels.filter {
+                    $0.rowDelegate?.id == self.id
+                }
+            }
+        }
+        
+        return outputs.filter {
+            $0.rowDelegate?.id == self.id
+        }
+    }
+    
+    @MainActor
+    func getConnectedDownstreamNodes() -> NodeIdSet {
+        guard
+            let rowViewModel = self.nodeRowViewModel,
+            let graph = self.nodeDelegate?.graphDelegate else {
+            return .init()
+        }
+        
+        guard let coordinate = rowViewModel.rowDelegate?.id,
+                let downstreamConnections = graph.connections
+            .get(coordinate) else {
+            return .init()
+        }
+        
+        let connectedDownstreamNodeIds = downstreamConnections
+            .map { $0.nodeId }
+        
+        // Include group nodes if any splitters are found
+        let downstreamGroupNodeIds: NodeIdList = connectedDownstreamNodeIds.compactMap { id in
+            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(id),
+                  node.splitterType?.isGroupSplitter ?? false else {
+                      return nil
+                  }
+            
+            return node.patchCanvasItem?.parentGroupNodeId
+        }
+        
+        return Set(connectedDownstreamNodeIds + downstreamGroupNodeIds)
+    }
+}
+
+extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
     @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
-        let nodeIO = self.nodeIOType
+        let nodeIO = Self.RowObserver.nodeIOType
         let oldRowType = oldValue.getNodeRowType(nodeIO: nodeIO)
         self.activeValueChanged(oldRowType: oldRowType,
                                 newValue: newValue)
@@ -234,48 +337,59 @@ extension NodeRowObserver {
     @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
-        let nodeIO = self.nodeIOType
+        
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let nodeIO = Self.RowObserver.nodeIOType
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
         let nodeRowTypeChanged = oldRowType != newRowType
-        let importedMediaObject = self.importedMediaObject
-
+        let importedMediaObject = rowDelegate.importedMediaObject
+        
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.fieldValueTypes = .init(initialValue: newValue,
-                                         coordinate: self.id,
-                                         nodeIO: nodeIO,
-                                         importedMediaObject: importedMediaObject)
+            self.createFieldValueTypes(initialValue: newValue,
+                                       nodeIO: nodeIO,
+                                       importedMediaObject: importedMediaObject)
             return
         }
-
+        
         let newFieldsByGroup = newValue.createFieldValues(nodeIO: nodeIO,
                                                           importedMediaObject: importedMediaObject)
-
+        
         // Assert equal array counts
         guard newFieldsByGroup.count == self.fieldValueTypes.count else {
             log("NodeRowObserver error: incorrect counts of groups.")
             return
         }
-
+        
         zip(self.fieldValueTypes, newFieldsByGroup).forEach { fieldObserverGroup, newFields in
             
             // If existing field observer group's count does not match the new fields count,
             // reset the fields on this input/output.
+            // TODO: is this specifically for ShapeCommands, where a dropdown choice (e.g. .lineTo vs .curveTo) can change the number of fields without a node-type change?
             let fieldObserversCount = fieldObserverGroup.fieldObservers.count
             
             // Force update if any media--inefficient but works
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
             if willUpdateField {
-                self.fieldValueTypes = .init(initialValue: newValue,
-                                             coordinate: self.id,
-                                             nodeIO: nodeIO,
-                                             importedMediaObject: importedMediaObject)
+                self.createFieldValueTypes(initialValue: newValue,
+                                           nodeIO: nodeIO,
+                                           importedMediaObject: importedMediaObject)
                 return
             }
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
+        } // zip
+        
+        if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
+           let layerInputForThisRow = self.rowDelegate?.id.keyPath {
+            node.blockOrUnlockFields(newValue: newValue,
+                                     layerInput: layerInputForThisRow)
         }
     }
 }
@@ -297,7 +411,7 @@ extension NodeIOCoordinate: NodeRowId {
     }
 }
 
-extension NodeRowObserver: NodeRowCalculatable {
+extension NodeRowObserver {
     var values: PortValues {
         get {
             self.allLoopedValues
@@ -306,4 +420,23 @@ extension NodeRowObserver: NodeRowCalculatable {
             self.allLoopedValues = newValue
         }
     }
+    
+    /// Finds row view models pertaining to a node, rather than in the layer inspector.
+    /// Multiple row view models could exist in the event of a group splitter, where a view model exists for both the splitter
+    /// and the parent canvas group. We pick the view model that is currently visible (aka inside the currently focused group).
+    @MainActor
+    var nodeRowViewModel: RowViewModelType? {
+        self.allRowViewModels.first {
+            // is for node (rather than layer inspector)
+            $0.id.isNode &&
+            // is currently visible in selected group
+            $0.graphDelegate?.groupNodeFocused == $0.canvasItemDelegate?.parentGroupNodeId
+        }
+    }
+    
+//    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
+//        self.rowViewModel.fieldValueTypes
+//    }
 }
+
+extension InputNodeRowObserver: NodeRowCalculatable { }

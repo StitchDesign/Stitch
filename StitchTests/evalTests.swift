@@ -35,7 +35,8 @@ class EvalTests: XCTestCase {
                 return
             }
 
-            if node.outputs.isEmpty {
+            let expectsOutputs = !node.getAllOutputsObservers().isEmpty
+            if expectsOutputs && node.outputs.isEmpty {
                 XCTFail("testRunAllEvals error: had empty outputs for patch \(patch)")
             }
 
@@ -598,7 +599,7 @@ class EvalTests: XCTestCase {
         let node: NodeViewModel = SplitterPatchNode.createViewModel()
 
         // Set the splitter node's input value to be 30.0, as the test expects.
-        node.getRowObservers(.input).first?.allLoopedValues = [.number(30.0)]
+        node.getAllInputsObservers().first?.allLoopedValues = [.number(30.0)]
 
         // convert: Number -> Bool
         // node =

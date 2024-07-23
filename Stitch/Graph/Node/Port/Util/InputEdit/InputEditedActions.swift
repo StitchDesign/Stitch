@@ -9,47 +9,45 @@ import Foundation
 import StitchSchemaKit
 
 // Note: used by number inputs etc. but not by JSON etc.
-struct InputEdited: GraphEventWithResponse {
-
-    let fieldValue: FieldValue
-
-    // Single-fields always 0, multi-fields are like size or position inputs
-    let fieldIndex: Int
-
-    let coordinate: InputCoordinate
-
-    var isCommitting: Bool = true
-
-    func handle(state: GraphState) -> GraphResponse {
-
+extension GraphState {
+    @MainActor
+    func inputEdited(fieldValue: FieldValue,
+                     // Single-fields always 0, multi-fields are like size or position inputs
+                     fieldIndex: Int,
+                     coordinate: NodeIOCoordinate,
+                     isCommitting: Bool = true) {
+        
         //        #if DEV_DEBUG
         //        log("InputEdited: fieldValue: \(fieldValue)")
         //        log("InputEdited: fieldIndex: \(fieldIndex)")
         //        log("InputEdited: coordinate: \(coordinate)")
         //        #endif
-
-        let coordinate = coordinate
-
-        guard let nodeViewModel = state.getNodeViewModel(coordinate.nodeId),
-              let parentPortValuesList = nodeViewModel
-            .getInputRowObserver(for: coordinate.portType)?.allLoopedValues else {
+        
+        guard let rowObserver = self.getInputRowObserver(coordinate) else {
             log("InputEdited error: no parent values list found.")
-            return .noChange
+            return
         }
+        
+        rowObserver.inputEdited(graph: self,
+                                fieldValue: fieldValue,
+                                fieldIndex: fieldIndex,
+                                isCommitting: isCommitting)
+    }
+}
 
-        guard let nodeViewModel = state.getNodeViewModel(coordinate.nodeId),
-              let inputObserver = nodeViewModel
-            .getInputRowObserver(for: coordinate.portType) else {
-            log("InputEdited error: could not retrieve node schema for node \(coordinate.nodeId).")
-            return .noChange
+extension InputNodeRowObserver {
+    @MainActor
+    func inputEdited(graph: GraphState,
+                     fieldValue: FieldValue,
+                     // Single-fields always 0, multi-fields are like size or position inputs
+                     fieldIndex: Int,
+                     isCommitting: Bool = true) {        
+        guard let node = graph.getNodeViewModel(self.id.nodeId) else {
+            fatalErrorIfDebug()
+            return
         }
-
-        let loopIndex = state.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
-
-        guard let parentPortValue = parentPortValuesList[safe: loopIndex] else {
-            log("InputEdited error: no parent value found.")
-            return .noChange
-        }
+        
+        let parentPortValue = self.activeValue
 
         //        log("InputEdited: state.graphUI.focusedField: \(state.graphUI.focusedField)")
 
@@ -63,31 +61,27 @@ struct InputEdited: GraphEventWithResponse {
         if newValue != parentPortValue {
 
             // MARK: very important to remove edges before input changes
-            nodeViewModel.removeIncomingEdge(at: coordinate,
-                                             activeIndex: state.activeIndex)
+            node.removeIncomingEdge(at: self.id,
+                                                  activeIndex: graph.activeIndex)
 
-            inputObserver.setValuesInInput([newValue])
+            self.setValuesInInput([newValue])
         }
         
         // If we edited a field on a layer-size input, we may need to block or unblock certain other fields.
-        // Note: this logic is very similar to `sizeParent`
-        if newValue.getSize.isDefined,
-           coordinate.keyPath == .size, // Only look at size (not min/max size) changes
-           let dimension = LayerLengthDimension.fromUserEdit(edit: fieldValue.stringValue, fieldIndex: fieldIndex) {
-            
-            nodeViewModel.layerDimensionUpdated(
-                newValue: dimension.layerDimension,
-                dimension: dimension.lengthDimension)
+        if let newSize = newValue.getSize,
+           // Only look at size (not min/max size) changes
+           self.id.keyPath == .size {
+            node.layerSizeUpdated(newValue: newSize)
         }
-                        
-        state.calculate(nodeViewModel.id)
+
+        node.calculate()
 
         if isCommitting {
-            state.maybeCreateLLMSetInput(node: nodeViewModel,
-                                              input: coordinate,
-                                              value: newValue)
+            graph.maybeCreateLLMSetInput(node: node,
+                                         input: self.id,
+                                         value: newValue)
         }
         
-        return .init(willPersist: isCommitting)
+        graph.encodeProjectInBackground()
     }
 }
