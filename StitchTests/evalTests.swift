@@ -35,7 +35,8 @@ class EvalTests: XCTestCase {
                 return
             }
 
-            if node.outputs.isEmpty {
+            let expectsOutputs = !node.getAllOutputsObservers().isEmpty
+            if expectsOutputs && node.outputs.isEmpty {
                 XCTFail("testRunAllEvals error: had empty outputs for patch \(patch)")
             }
 

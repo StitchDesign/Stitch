@@ -89,11 +89,11 @@ struct AddNodeButtonPressed: GraphEventWithResponse {
         // Immediately create a LayerNode; do not animate.
         if let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind,
            nodeKind.isLayer {
-            let newId = state.nodeCreated(choice: nodeKind)
-            if !newId.isDefined {
+            guard let newNode = state.nodeCreated(choice: nodeKind) else {
                 fatalErrorIfDebug() // should not fail to return
+                return .noChange
             }
-            state.nodeCreationCompleted(newId)
+            state.nodeCreationCompleted(newNode.id)
             return .shouldPersist
         } else {
             // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
@@ -123,7 +123,7 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
         
         // Create the real node, but hide it until animation has completed.
         // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-        guard let nodeId = state.nodeCreated(choice: nodeKind) else {
+        guard let node = state.nodeCreated(choice: nodeKind) else {
             fatalErrorIfDebug()
             return
         }
@@ -131,7 +131,7 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
         // Effectively: insertion-animation has started;
         // We hide the "real node" (the node that lives in GraphState)
         // until the animation has completed.
-        state.graphUI.insertNodeMenuState.hiddenNodeId = nodeId
+        state.graphUI.insertNodeMenuState.hiddenNodeId = node.id
         
         // TODO: use the
         withAnimation {
