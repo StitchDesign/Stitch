@@ -381,7 +381,7 @@ extension NodeViewModel {
 
     @MainActor
     func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {        
-        return self.patchNode?.outputsObservers[safe: portId]
+        self.getAllOutputsObservers()[safe: portId]
     }
     
     @MainActor
