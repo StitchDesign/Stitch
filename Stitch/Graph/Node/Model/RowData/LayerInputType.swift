@@ -207,9 +207,9 @@ extension LayerInputType {
         case .contentMode:
             return .contentMode(.defaultContentMode)
         case .minSize:
-            return .size(.LAYER_DEFAULT_SIZE)
+            return .size(.init(width: .auto, height: .auto))
         case .maxSize:
-            return .size(.LAYER_DEFAULT_SIZE)
+            return .size(.init(width: .auto, height: .auto))
         case .spacing:
             return .spacing(.defaultStitchSpacing)
         case .sizingScenario:
