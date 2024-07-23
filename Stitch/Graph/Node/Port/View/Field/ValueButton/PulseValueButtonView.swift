@@ -51,7 +51,7 @@ struct PulseValueButtonView: View {
             // This animation causes the bug described here: https://github.com/vpl-codesign/stitch/issues/2387
             // .animation(.linear(duration: 0.25), value: color.color)
         }
-        .disabled(hasIncomingEdge || inputPort.isDefined)
+        .disabled(hasIncomingEdge || !inputPort.isDefined)
         // Check if we should visibily pulse node as new pulse data comes in
         .onChange(of: pulseTime) {
             // Note: `isPulsed` in this UI is different from our `shouldPulse` check in nodes' evals
