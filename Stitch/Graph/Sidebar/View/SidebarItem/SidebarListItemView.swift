@@ -70,7 +70,11 @@ struct SidebarListItemView: View {
         // we need to place the SwiftUI TapGesture below the swipe menu.
         .gesture(TapGesture().onEnded({ _ in
             if !isBeingEdited {
-                dispatch(SidebarItemTapped(id: layerNodeId))
+                if FeatureFlags.USE_LAYER_INSPECTOR {
+                    dispatch(SidebarItemTapped(id: layerNodeId))
+                } else {
+                    dispatch(JumpToCanvasItem(id: .node(layerNodeId.id)))
+                }
             }
         }))
         
