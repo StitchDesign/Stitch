@@ -1,5 +1,5 @@
 {
-  "originHash" : "fa62414f3ffde63efcf96a3e2f8f06cdb8551ff9a33d61d5f1fa2ad8c3db93d0",
+  "originHash" : "9af5e97c17eff18b893115fd9072799d02b1bfb54f13474cb13eb1cf8a41bf59",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -29,6 +29,14 @@
       }
     },
     {
+      "identity" : "directorywatcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GianniCarlo/DirectoryWatcher.git",
+      "state" : {
+        "revision" : "0fab4991b68d3850ffe67fded9d248111015a054"
+      }
+    },
+    {
       "identity" : "displaylink",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/timdonnelly/DisplayLink.git",
@@ -51,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "087eb20926ffac4ecbbe03f4db362c3f13f05afe"
+        "revision" : "cf99144a2587e0078f80de5991e92918ae2228cb",
+        "version" : "1.0.0"
       }
     },
     {
@@ -60,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
       "state" : {
-        "revision" : "afedf3823d743689bad2d4c2c0f82d596cb8ef8d",
-        "version" : "18.0.1"
+        "revision" : "b3e7b2379c6996fed07ee335ae0e8ecd39e7dc4d",
+        "version" : "21.1.0"
       }
     },
     {
