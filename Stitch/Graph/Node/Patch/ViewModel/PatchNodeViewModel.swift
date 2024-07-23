@@ -344,11 +344,4 @@ extension NodeViewModel {
     var isWireless: Bool {
         patch == .wirelessBroadcaster || patch == .wirelessReceiver
     }
-    
-//    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
-//    @MainActor
-//    func updateAllPortViewData() {
-//        self.getAllInputsObservers().forEach { $0.updatePortViewData() }
-//        self.getAllOutputsObservers().forEach { $0.updatePortViewData() }
-//    }
 }

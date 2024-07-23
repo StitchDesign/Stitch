@@ -213,14 +213,6 @@ extension GraphUIState {
 }
 
 extension GraphState {
-    
-//    @MainActor
-//    func getSelectedNodeViewModels() -> CanvasItemViewModels {
-//        self.nodes.values.filter {
-//            $0.isSelected
-//        }
-//    }
-
     /// Returns  `NodeEntities` given some selection state. Recursively gets group children if group selected.
     @MainActor
     func getSelectedNodeEntities(for ids: CanvasItemIdSet) -> [NodeEntity] {

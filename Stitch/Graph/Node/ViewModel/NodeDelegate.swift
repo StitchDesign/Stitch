@@ -18,13 +18,9 @@ import StitchSchemaKit
 protocol NodeDelegate: AnyObject {
     var id: NodeId { get }
     
-//    var isVisibleInFrame: Bool { get set }
-    
     var kind: NodeKind { get }
     
     var userVisibleType: UserVisibleType? { get }
-    
-//    var parentGroupNodeId: NodeId? { get }
     
     var patchNodeViewModel: PatchNodeViewModel? { get }
     

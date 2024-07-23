@@ -137,21 +137,7 @@ extension NodeViewModel {
     func allRowObservers() -> [any NodeRowObserver] {
         self.getAllInputsObservers() + self.getAllOutputsObservers()
     }
-    
-//    @MainActor
-//    func getAllViewInputPorts() -> [InputPortViewData] {
-//        (0..<self.inputPortCount).map {
-//            .init(portId: $0, nodeId: self.id)
-//        }
-//    }
-    
-//    @MainActor
-//    func getAllViewOutputPorts() -> [OutputPortViewData] {
-//        (0..<self.outputPortCount).map {
-//            .init(portId: $0, nodeId: self.id)
-//        }
-//    }
-    
+
     /*
      Used only for node type changes, i.e. changing the type of existing inputs.
 
@@ -181,53 +167,11 @@ extension NodeViewModel {
         }
     }
     
-//    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
-//    @MainActor
-//    func updateAllPortViewData() {
-//        let inputsObservers = self.getAllInputsObservers()
-//        let outputsObservers = self.getAllOutputsObservers()
-//        
-//        inputsObservers.forEach { $0.updatePortViewData() }
-//        outputsObservers.forEach { $0.updatePortViewData() }
-//    }
-    
     @MainActor
     func updateAllConnectedNodes() {
         self.allInputViewModels.forEach { $0.updateConnectedCanvasItems() }
         self.allOutputViewModels.forEach { $0.updateConnectedCanvasItems() }
     }
-    
-//    /// Helper to update value at some specific port and loop.
-//    @MainActor
-//    func updateValue(_ value: PortValue,
-//                     nodeIO: NodeIO,
-//                     port: Int,
-//                     loop: Int,
-//                     activeIndex: ActiveIndex,
-//                     isVisibleInFrame: Bool) {
-//        guard let observer = self.getRowObservers(nodeIO)[safe: port],
-//              let oldValue = observer.allLoopedValues[safe: loop] else {
-//            #if DEBUG
-//            fatalError()
-//            #endif
-//            return
-//        }
-//
-//        if oldValue != value {
-//            var newValues = observer.allLoopedValues
-//            guard loop < newValues.count else {
-//                #if DEBUG
-//                fatalError()
-//                #endif
-//                return
-//            }
-//
-//            newValues[port] = value
-//            observer.updateValues(newValues,
-//                                  activeIndex: activeIndex,
-//                                  isVisibleInFrame: isVisibleInFrame)
-//        }
-//    }
     
     // MARK: heavy perf cost due to human readable strings.**
     func getDisplayTitle() -> String {

@@ -313,11 +313,6 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         self.rowObserver.id.portType
     }
     
-    //    @MainActor
-    //    var hasIncomingEdge: Bool {
-    //        self.rowData.upstreamOutputObserver.isDefined
-    //    }
-    
     var nodeIO: NodeIO {
         NodeRowObserverType.nodeIOType
     }
@@ -325,18 +320,6 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     var isGroup: Bool {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false
     }
-    
-    //    var nodeDelegate: NodeDelegate? {
-    //        let isSplitterRowAndInvisible = isGroup && rowObserver.nodeDelegate?.id != self.node.nodeDelegate?.id
-    //
-    //        // Use passed-in group node so we can obtain view-pertinent information for splitters.
-    //        // Fixes issue where output splitters use wrong node delegate.
-    //        if isSplitterRowAndInvisible {
-    //            return self.node.nodeDelegate
-    //        }
-    //
-    //        return rowObserver.nodeDelegate
-    //    }
     
     var body: some View {
         PortEntryView(rowViewModel: rowViewModel,

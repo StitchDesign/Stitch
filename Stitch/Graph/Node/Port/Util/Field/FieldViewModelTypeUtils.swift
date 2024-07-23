@@ -10,17 +10,6 @@ import SwiftUI
 import StitchSchemaKit
 
 extension PortValue {
-//    static func createSingleFieldDropdown(_ selection: String,
-//                                          _ choices: PortValues,
-//                                          _ coordinate: NodeIOCoordinate) -> FieldViewModelType {
-//        .single(
-//            FieldViewModel(fieldValue: .dropdown(selection, choices),
-//                           fieldIndex: 0,
-//                           fieldLabel: "",
-//                           rowViewModel: )
-//        )
-//    }
-
     func getNodeRowType(nodeIO: NodeIO) -> NodeRowType {
         switch self {
         case .size:

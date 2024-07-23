@@ -329,14 +329,7 @@ extension VisibleNodesViewModel {
 
     /// Updates cached data inside row observers.
     @MainActor
-    func updateAllNodeViewData() {
-        // Port view data first
-//        self.nodes.values.forEach { node in
-//            node.getAllCanvasObservers().forEach {
-//                $0.updateAllPortViewData()
-//            }
-//        }
-        
+    func updateAllNodeViewData() {        
         // Connected nodes data relies on port view data so we call this later
         self.nodes.values.forEach { node in
             node.updateAllConnectedNodes()

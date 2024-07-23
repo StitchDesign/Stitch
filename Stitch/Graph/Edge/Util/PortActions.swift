@@ -163,12 +163,3 @@ extension PortEdgeData {
         self = .init(from: outputCoordinate, to: inputCoordinate)
     }
 }
-
-//@MainActor
-//func onPortDragEnded(_ coordinate: PortViewType) {
-//    if coordinate.output.isDefined {
-//        dispatch(OutputDragEnded())
-//    } else if coordinate.input.isDefined {
-//        dispatch(InputDragEnded())
-//    }
-//}

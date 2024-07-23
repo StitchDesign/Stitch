@@ -9,15 +9,6 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-//typealias NodeRowObservers = [NodeRowObserver]
-
-// Keep this at top of file; very important information:
-//extension NodeRowObserver: Equatable {
-//    static func == (lhs: NodeRowObserver, rhs: NodeRowObserver) -> Bool {
-//        lhs.id == rhs.id
-//    }
-//}
-
 protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRowCalculatable {
     associatedtype RowViewModelType: NodeRowViewModel
     
@@ -145,12 +136,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          nodeDelegate: NodeDelegate?) {
         
         self.id = id
-//        
-//        self.rowViewModel = .init(id: id.portType,
-//                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
-//                                  nodeRowIndex: nodeRowIndex,
-//                                  rowDelegate: nil,
-//                                  canvasItemDelegate: canvasItemDelegate)
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
         self.nodeKind = nodeKind
@@ -195,20 +180,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
     
-//    @MainActor
-//    convenience init(from schema: NodePortInputEntity,
-//                     activeIndex: ActiveIndex,
-//                     nodeDelegate: NodeDelegate?,
-//                     canvasItemDelegate: CanvasItemViewModel?) {
-//        self.init(values: schema.values ?? [],
-//                  nodeKind: schema.nodeKind,
-//                  userVisibleType: schema.userVisibleType,
-//                  id: schema.id,
-//                  activeIndex: activeIndex,
-//                  nodeDelegate: nodeDelegate,
-//                  canvasItemDelegate: canvasItemDelegate)
-//    }
-    
     @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
@@ -226,12 +197,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.allLoopedValues = values
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-        
-//        self.rowViewModel = .init(id: id.portType,
-//                                  activeValue: PortValue.getActiveValue(allLoopedValues: values, activeIndex: activeIndex),
-//                                  nodeRowIndex: nodeRowIndex,
-//                                  rowDelegate: nil,
-//                                  canvasItemDelegate: canvasItemDelegate)
         
         self.nodeDelegate = nodeDelegate
         
