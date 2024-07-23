@@ -181,7 +181,7 @@ extension NodeRowViewModel {
         }
         
         if let node = self.nodeDelegate,
-           let layerInput = self.id.portType.keyPath {
+           let layerInput = self.rowDelegate?.id.portType.keyPath {
             node.blockOrUnlockFields(newValue: portValue,
                                      layerInput: layerInput)
         }

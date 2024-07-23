@@ -15,7 +15,7 @@ extension NodeRowViewModel {
     /// which save a differnt node ID.
     @MainActor
     var visibleNodeIds: Set<CanvasItemId> {
-        guard let nodeDelegate = self.rowDelegate?.nodeDelegate else {
+        guard let nodeDelegate = self.nodeDelegate else {
             return []
         }
         

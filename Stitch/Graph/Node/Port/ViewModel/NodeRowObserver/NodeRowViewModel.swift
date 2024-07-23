@@ -17,7 +17,7 @@ enum GraphItemType {
 struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
     var nodeId: NodeId
-    var portType: NodeIOPortType
+    var portId: Int
 }
 
 extension NodeRowViewModelId {
@@ -33,12 +33,7 @@ extension NodeRowViewModelId {
     
     static let empty: Self = .init(graphItemType: .node,
                                    nodeId: .init(),
-                                   portType: .portIndex(-1))
-    
-    var coordinate: NodeIOCoordinate {
-        .init(portType: self.portType,
-              nodeId: self.nodeId)
-    }
+                                   portId: -1)
 }
 
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
@@ -65,11 +60,6 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var canvasItemDelegate: CanvasItemViewModel? { get set }
     
-//    var portViewType: PortViewType { get }
-    
-    // Saves the port index if there's a node
-    var nodeRowIndex: Int? { get set }
-    
     static var nodeIO: NodeIO { get }
     
     @MainActor func calculatePortColor() -> PortColor
@@ -85,23 +75,17 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeRowIndex: Int?,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
 
 extension NodeRowViewModel {
-    var portType: NodeIOPortType {
-        self.id.portType
-    }
-    
     var portViewData: PortViewType? {
-        guard let nodeRowIndex = self.nodeRowIndex,
-              let canvasId = self.canvasItemDelegate?.id else {
+        guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
         }
         
-        return .init(portId: nodeRowIndex,
+        return .init(portId: self.id.portId,
                      canvasId: canvasId)
     }
     
@@ -189,7 +173,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
-    var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
@@ -202,7 +185,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeRowIndex: Int?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType == .layerInspector {
@@ -210,7 +192,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         }
         
         self.id = id
-        self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
@@ -265,7 +246,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
     var fieldValueTypes = FieldGroupTypeViewModelList<OutputFieldViewModel>()
-    var nodeRowIndex: Int?
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
@@ -275,11 +255,9 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeRowIndex: Int?,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
-        self.nodeRowIndex = nodeRowIndex
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
@@ -369,13 +347,12 @@ extension Array where Element: NodeRowViewModel {
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node,
-                                               // Important this is the node ID from row observer for group nodes
-                                               nodeId: newEntity.id.nodeId,
-                                               portType: newEntity.id.portType)
+                                               // Important this is the node ID from canvas for group nodes
+                                               nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
+                                               portId: portIndex)
                 
                 return Element(id: rowId,
                                activeValue: newEntity.activeValue,
-                               nodeRowIndex: portIndex,
                                rowDelegate: newEntity,
                                canvasItemDelegate: canvas)
             }

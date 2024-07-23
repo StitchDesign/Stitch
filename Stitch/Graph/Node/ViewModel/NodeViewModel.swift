@@ -360,9 +360,8 @@ extension NodeViewModel {
                               portType: NodeIOPortType) -> InputNodeRowViewModel? {
         self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
-            .first { $0.id == .init(graphItemType: graphItemType,
-                                    nodeId: nodeId,
-                                    portType: portType) }
+            .first { $0.rowDelegate?.id == .init(portType: portType,
+                                                 nodeId: nodeId) }
     }
     
     @MainActor
@@ -687,9 +686,8 @@ extension NodeViewModel {
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node,
                                                                 nodeId: newInputCoordinate.nodeId,
-                                                                portType: newInputCoordinate.portType),
+                                                                portId: allInputsObservers.count),
                                                       activeValue: newInputObserver.activeValue,
-                                                      nodeRowIndex: allInputsObservers.count,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
         

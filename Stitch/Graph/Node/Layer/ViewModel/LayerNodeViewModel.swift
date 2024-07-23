@@ -286,7 +286,7 @@ final class LayerNodeViewModel {
             if FeatureFlags.USE_LAYER_INSPECTOR {
                 layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector,
                                                            nodeId: id.nodeId,
-                                                           portType: .keyPath(inputType))
+                                                           portId: 0)
             }
             
             // Update row observer

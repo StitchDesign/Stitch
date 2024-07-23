@@ -90,7 +90,7 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
                                             newValue: newViewValue)
         }
         .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                           portId: rowData.id.coordinate.portId,
+                                           portId: rowData.id.portId,
                                            nodeId: self.rowData.canvasItemDelegate?.id,
                                            nodeIOType: NodeRowType.nodeIO,
                                            forPropertySidebar: forPropertySidebar))
@@ -134,6 +134,7 @@ struct NodeInputView: View {
         InputValueEntry(graph: graph,
                         rowViewModel: rowData,
                         viewModel: portViewModel,
+                        rowObserverId: rowObserver.id,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
@@ -159,7 +160,7 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                let isPaddingLayerInputRow = rowData.id.portType.keyPath == .padding
+                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
                 if hidePaddingFieldsOnPropertySidebar {
@@ -309,7 +310,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
     @Binding var showPopover: Bool
     
     var coordinate: NodeIOPortType {
-        self.rowViewModel.id.portType
+        self.rowObserver.id.portType
     }
     
     //    @MainActor

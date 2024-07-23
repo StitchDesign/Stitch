@@ -41,6 +41,7 @@ struct WideAdjustmentBarView: View {
     // true just when tearing down view
     let centerSelectionDisabled: Bool
     let fieldCoordinate: FieldCoordinate
+    let rowObserverCoordinate: NodeIOCoordinate
 
     @State var scrollCenter: CGPoint?
     @State var isScrollingFromTap = false // replace with just `manuallyClickedNumber`?
@@ -146,7 +147,7 @@ struct WideAdjustmentBarView: View {
                                 // updates input via redux
                                 graph.inputEdited(fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
                                                   fieldIndex: self.fieldCoordinate.fieldIndex,
-                                                  coordinate: self.fieldCoordinate.rowId.coordinate,
+                                                  coordinate: rowObserverCoordinate,
                                                   isCommitting: false)
                             }
                     } // ForEach
@@ -365,7 +366,7 @@ struct WideAdjustmentBarView: View {
                     // log("Auto select center: pref.number: \(pref.number)")
                     graph.inputEdited(fieldValue: fieldValue,
                                       fieldIndex: pref.field.fieldIndex,
-                                      coordinate: pref.field.rowId.coordinate,
+                                      coordinate: rowObserverCoordinate,
                                       // We don't persist changes from auto-selectiong the center value during scroll
                                       isCommitting: false)
                 }
