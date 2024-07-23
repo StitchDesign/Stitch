@@ -35,16 +35,16 @@ struct VisualMediaLayerView: View {
         }
     }
     
-    @MainActor var mediaRowObserver: InputNodeRowObserver? {
+    @MainActor var mediaRowObserver: NodeRowObserver? {
         guard let layerNode = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
         
         switch layerNode.layer {
         case .image:
-            return layerNode.imagePort.rowObserver
+            return layerNode.imagePort
         case .video:
-            return layerNode.videoPort.rowObserver
+            return layerNode.videoPort
         default:
             fatalErrorIfDebug()
             return nil

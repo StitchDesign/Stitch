@@ -48,11 +48,12 @@ struct ProjectSettingsView: View {
             currentEdit: label,
             fieldType: .any,
             canvasDimensionInput: label,
-            shouldFocus: false) { (newS: String, isCommitting: Bool) in
-                dispatch(UpdatePreviewCanvasDimension(edit: newS,
-                                                      isWidth: isWidth,
-                                                      isCommitting: isCommitting))
-            }
+            shouldFocus: false,
+            fieldEditActionCreation: { (newS: String, isCommitting: Bool) in
+                UpdatePreviewCanvasDimension(edit: newS,
+                                             isWidth: isWidth,
+                                             isCommitting: isCommitting)
+            })
             .keyboardType(.decimalPad)
             .frame(maxWidth: 140)
             .modifier(StitchSheetInput())
@@ -117,8 +118,7 @@ struct ProjectSettingsView: View {
         }
 
         return StitchColorPickerView(
-            rowId: nil,
-            fieldCoordinate: .fakeFieldCoordinate,
+            coordinate: .fakeInputCoordinate, // doesn't matter?
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
             chosenColor: binding, 

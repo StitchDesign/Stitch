@@ -68,7 +68,9 @@ extension NodeRowObserver {
 
         self.coerceUpdate(these: valuesToUse,
                           to: newType.defaultPortValue,
-                          currentGraphTime: currentGraphTime)
+                          currentGraphTime: currentGraphTime,
+                          activeIndex: activeIndex,
+                          isVisible: isVisible)
     }
 }
 

@@ -8,94 +8,55 @@
 import SwiftUI
 import StitchSchemaKit
 
-extension InputNodeRowViewModel {
-    @MainActor
-    func portDragged(gesture: DragGesture.Value,
-                     graphState: GraphState) {
+struct InputDragged: ProjectEnvironmentEvent {
+    let inputObserver: NodeRowObserver
+    let dragLocation: CGPoint
+
+    func handle(graphState: GraphState,
+                computedGraphState: ComputedGraphState,
+                environment: StitchEnvironment) -> GraphResponse {
         
-        let dragLocation = gesture.location
         graphState.graphUI.edgeAnimationEnabled = true
 
         guard var existingDrawingGesture = graphState.edgeDrawingObserver.drawingGesture else {
             log("InputDragged: started")
             
-            guard let upstreamObserver = self.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel else {
+            guard let upstreamObserver = inputObserver.upstreamOutputObserver else {
 //                fatalErrorIfDebug()
-                return
+                return .noChange
             }
             
-            graphState.edgeDrawingObserver.nearestEligibleInput = self
+            graphState.edgeDrawingObserver.nearestEligibleInput = inputObserver
 
             graphState.edgeDrawingObserver.drawingGesture = OutputDragGesture(output: upstreamObserver,
                                                                               dragLocation: dragLocation,
                                                                               startingDiffFromCenter: .zero)
 
-            self.rowDelegate?.removeUpstreamConnection()
-            self.nodeDelegate?.calculate()
-            graphState.encodeProjectInBackground()
-            
-            return
+            inputObserver.removeUpstreamConnection()
+
+            graphState.calculate(inputObserver.id.nodeId)
+            return .persistenceResponse
         }
 
         // Called when drag has already started
         existingDrawingGesture.dragLocation = dragLocation
         graphState.edgeDrawingObserver.drawingGesture = existingDrawingGesture
-    }
-    
-    @MainActor
-    func portDragEnded(graphState: GraphState) {
-//        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
-//            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
-//            action: DisableEdgeAnimation())
 
-        
-        guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
-              let sourceNodeId = drawingGesture.output.nodeDelegate?.id,
-              let nearestEligibleInput = graphState.edgeDrawingObserver.nearestEligibleInput else {
-            log("InputDragEnded: drag ended, but could not create new edge")
-            
-            // TODO: why wasn't this necessary in the original Edge Perf PR?
-            graphState.edgeDrawingObserver.drawingGesture?.output.updatePortColor()
-            
-            graphState.edgeDrawingObserver.reset()
-            
-            DispatchQueue.main.async { [weak graphState] in
-                graphState?.graphUI.edgeAnimationEnabled = false
-            }
-            
-            return
-        }
-
-        let to = nearestEligibleInput.portViewData
-        let from = drawingGesture.output.portViewData
-        
-        graphState.edgeDrawingObserver.reset()
-
-        graphState.createEdgeFromEligibleInput(
-            from: from,
-            to: to,
-            sourceNodeId: sourceNodeId)
-                
-        graphState.encodeProjectInBackground()
-    }
-    
-    // While dragging cursor from an output/input,
-    // we've detected that we're over an eligible input
-    // to which we could create a connection.
-    func eligibleInputDetected(graphState: GraphState) {
-        graphState.edgeDrawingObserver.nearestEligibleInput = self
+        return .noChange
     }
 }
 
-extension OutputNodeRowViewModel {
-    @MainActor
-    func portDragged(gesture: DragGesture.Value,
-                     graphState: GraphState) {
+struct OutputDragged: GraphEvent {
+
+    let outputRowObserver: NodeRowObserver
+    let gesture: DragGesture.Value
+
+    func handle(state: GraphState) {
 
         // exit edge editing state
-        graphState.graphUI.edgeEditingState = nil
+        state.graphUI.edgeEditingState = nil
 
-        graphState.graphUI.edgeAnimationEnabled = true
+        state.graphUI.edgeAnimationEnabled = true
 
         //        log("OutputDragStarted: output: \(output)")
         //        log("OutputDragStarted: diffFromCenter: \(diffFromCenter)")
@@ -108,33 +69,33 @@ extension OutputNodeRowViewModel {
         //        }
 
         // Starting port drag
-        if !graphState
+        if !state
             .edgeDrawingObserver
             .drawingGesture
             .isDefined {
-            graphState.outputDragStartedCount += 1
+            state.outputDragStartedCount += 1
 
             let diffFromCenter = Self.calculateDiffFromCenter(from: gesture)
 
             // 3 still allows flashing;
             // 10 creates a noticeable lag;
             // 5 is perfect?
-            guard graphState.outputDragStartedCount > 5 else {
+            guard state.outputDragStartedCount > 5 else {
                 // log("OutputDragged: exiting early: state.outputDragStartedCount was: \(state.outputDragStartedCount)")
                 return
             }
 
-            let drag = OutputDragGesture(output: self,
+            let drag = OutputDragGesture(output: outputRowObserver,
                                          dragLocation: gesture.location,
                                          startingDiffFromCenter: diffFromCenter)
 
-            graphState.edgeDrawingObserver.drawingGesture = drag
+            state.edgeDrawingObserver.drawingGesture = drag
 
             //        log("OutputDragStarted: state.edgeDrawingObserver.drawingGesture: \(state.edgeDrawingObserver.drawingGesture)")
         } else {
-            graphState.outputDragStartedCount = 0
+            state.outputDragStartedCount = 0
 
-            guard let existingDrag = graphState.edgeDrawingObserver.drawingGesture else {
+            guard let existingDrag = state.edgeDrawingObserver.drawingGesture else {
                 // log("OutputDragged: output drag not yet initialized by SwiftUI handler; exiting early")
                 return
             }
@@ -143,7 +104,7 @@ extension OutputNodeRowViewModel {
             drag = existingDrag
             drag.dragLocation = gesture.location
 
-            graphState.edgeDrawingObserver.drawingGesture = drag
+            state.edgeDrawingObserver.drawingGesture = drag
         }
     }
 
@@ -202,36 +163,85 @@ extension OutputNodeRowViewModel {
 
         return diffFromCenter
     }
-    
-    @MainActor func portDragEnded(graphState: GraphState) {
-        //        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
-        //            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
-        //            action: DisableEdgeAnimation())
+}
+
+struct InputDragEnded: ProjectEnvironmentEvent {
+
+    func handle(graphState: GraphState,
+                computedGraphState: ComputedGraphState,
+                environment: StitchEnvironment) -> GraphResponse {
+
+        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
+            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
+            action: DisableEdgeAnimation())
+
         
+        guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
+              let to = graphState.edgeDrawingObserver.nearestEligibleInput?.inputPortViewData,
+              let from = drawingGesture.output.outputPortViewData else {
+            log("InputDragEnded: drag ended, but could not create new edge")
+            
+            // TODO: why wasn't this necessary in the original Edge Perf PR?
+            graphState.edgeDrawingObserver.drawingGesture?.output.updatePortColor()
+            
+            graphState.edgeDrawingObserver.reset()
+            return .effectOnly(disableEdgeAnimationEffect)
+        }
+
+        graphState.edgeDrawingObserver.reset()
+
+        graphState.createEdgeFromEligibleInput(
+            from: from,
+            to: to)
+                
+        return .init(effects: [disableEdgeAnimationEffect], willPersist: true)
+    }
+}
+
+struct OutputDragEnded: ProjectEnvironmentEvent {
+
+    func handle(graphState: GraphState,
+                computedGraphState: ComputedGraphState,
+                environment: StitchEnvironment) -> GraphResponse {
+        //        log("OutputDragEnded called")
+
+        let disableEdgeAnimationEffect: Effect = createDelayedEffect(
+            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
+            action: DisableEdgeAnimation())
+
         // reset the count
         graphState.outputDragStartedCount = 0
-        
-        guard let from = graphState.edgeDrawingObserver.drawingGesture?.output,
-              let to = graphState.edgeDrawingObserver.nearestEligibleInput,
-              let sourceNodeId = from.nodeDelegate?.id else {
+
+        guard let from = graphState.edgeDrawingObserver.drawingGesture?.output.outputPortViewData,
+              let to = graphState.edgeDrawingObserver.nearestEligibleInput?.inputPortViewData else {
             log("OutputDragEnded: No active output drag or eligible input ...")
             graphState.edgeDrawingObserver.reset()
-            
-            DispatchQueue.main.async { [weak graphState] in
-                graphState?.graphUI.edgeAnimationEnabled = false
-            }
-            
-            return
+            //            return .noChange
+            return .effectOnly(disableEdgeAnimationEffect)
         }
-        
+
         graphState.edgeDrawingObserver.reset()
-        
+
         graphState.createEdgeFromEligibleInput(
-            from: from.portViewData,
-            to: to.portViewData,
-            sourceNodeId: sourceNodeId)
-        
-        graphState.encodeProjectInBackground()
+            from: from,
+            to: to)
+
+        return .init(effects: [disableEdgeAnimationEffect], willPersist: true)
+    }
+}
+
+// While dragging cursor from an output/input,
+// we've detected that we're over an eligible input
+// to which we could create a connection.
+struct EligibleInputDetected: ProjectEnvironmentEvent {
+    // candidate input
+    let input: NodeRowObserver
+
+    func handle(graphState: GraphState,
+                computedGraphState: ComputedGraphState,
+                environment: StitchEnvironment) -> GraphResponse {
+        graphState.edgeDrawingObserver.nearestEligibleInput = input
+        return .noChange
     }
 }
 
@@ -246,29 +256,19 @@ struct EligibleInputReset: ProjectEnvironmentEvent {
 
 extension GraphState {
     @MainActor
-    func createEdgeFromEligibleInput(from: OutputPortViewData?,
-                                     to: InputPortViewData?,
-                                     sourceNodeId: NodeId) {
+    func createEdgeFromEligibleInput(from: OutputPortViewData,
+                                     to: InputPortViewData) {
         
-        // Create visual edge if connecting two nodes
-        if let from = from,
-           let to = to {
-            let newEdge = PortEdgeUI(from: from, to: to)
-            self.edgeDrawingObserver.recentlyDrawnEdge = newEdge
-            
-            DispatchQueue.main.async { [weak self] in
-                self?.edgeDrawingObserver.reset()
-            }
-//            let resetRecentlyDrawnEdgeEffect: Effect = createDelayedEffect(
-//                delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
-//                action: ResetRecentlyDrawnEdge())
-            
-            self.edgeAdded(edge: newEdge)
-        }
+        let newEdge = PortEdgeUI(from: from, to: to)
+        self.edgeDrawingObserver.recentlyDrawnEdge = newEdge
 
-        // Then recalculate the graph again, with new edge,
-        // starting at the 'from' node downward:
-        self.calculate(sourceNodeId)
+        let resetRecentlyDrawnEdgeEffect: Effect = createDelayedEffect(
+            delayInNanoseconds: TimeHelpers.ThreeTenthsOfASecondInNanoseconds,
+            action: ResetRecentlyDrawnEdge())
+
+        self.edgeAdded(edge: newEdge)
+
+        [resetRecentlyDrawnEdgeEffect].processEffects()
     }
 }
 
@@ -278,11 +278,11 @@ struct ResetRecentlyDrawnEdge: GraphEvent {
     }
 }
 
-//struct DisableEdgeAnimation: GraphEvent {
-//    func handle(state: GraphState) {
-//        state.graphUI.edgeAnimationEnabled = false
-//    }
-//}
+struct DisableEdgeAnimation: GraphEvent {
+    func handle(state: GraphState) {
+        state.graphUI.edgeAnimationEnabled = false
+    }
+}
 
 struct TimeHelpers {
     static let ThreeTenthsOfASecondInSeconds: Double = 0.3

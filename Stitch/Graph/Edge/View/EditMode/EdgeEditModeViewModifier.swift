@@ -11,8 +11,8 @@ import SwiftUI
 struct EdgeEditModeViewModifier: ViewModifier {
 
     @Bindable var graphState: GraphState
-    let portId: Int
-    let nodeId: CanvasItemId?
+    let portId: Int?
+    let nodeId: NodeId
     let nodeIOType: NodeIO
     let forPropertySidebar: Bool
 
@@ -23,14 +23,14 @@ struct EdgeEditModeViewModifier: ViewModifier {
 
     func body(content: Content) -> some View {
                 
-        if let nodeId = nodeId,
+        if let portId = portId,
             nodeIOType == .output,
            !forPropertySidebar {
             content
                 .modifier(EdgeEditModeOutputHoverViewModifier(
                     graph: graphState,
                     outputCoordinate: .init(portId: portId, 
-                                            canvasId: nodeId),
+                                            nodeId: nodeId),
                     isDraggingOutput: isDraggingOutput))
         } else {
             content

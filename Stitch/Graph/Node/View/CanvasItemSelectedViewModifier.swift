@@ -39,8 +39,8 @@ struct CanvasItemSelectedViewModifier: ViewModifier {
 struct CanvasItemBoundsReader: ViewModifier {
     @Environment(\.viewframe) private var viewframe
     @Bindable var graph: GraphState
-    @Bindable var canvasItem: CanvasItemViewModel
-    
+
+    let canvasItem: CanvasItemViewModel
     let splitterType: SplitterType?
     let disabled: Bool
     let updateMenuActiveSelectionBounds: Bool
@@ -74,7 +74,8 @@ struct CanvasItemBoundsReader: ViewModifier {
                                 // log("will update local bounds for \(id)")
 
                                 // Used only for comment box creation
-                                canvasItem.bounds.localBounds = newBounds
+                                graph.updateLocalBounds(for: canvasItem,
+                                                        newBounds: newBounds)
                             }
                         }
                 }
@@ -90,6 +91,13 @@ struct CanvasItemBoundsReader: ViewModifier {
  Simply switching to either a GraphEvent action or a method on `@Environment graph` resolved the issue; no other changes required.
  */
 extension GraphState {
+
+    @MainActor
+    func updateLocalBounds(for canvasItem: CanvasItemViewModel,
+                           newBounds: CGRect) {
+        canvasItem.bounds.localBounds = newBounds
+    }
+
     /*
      We should keep a group node's input and output splitter nodes' subscriptions running, even when the splitter node is not on screen -- otherwise the group node's input and output ports stop updating.
      */
@@ -99,8 +107,6 @@ extension GraphState {
                                    viewFrame: CGRect,
                                    splitterType: SplitterType?,
                                    updateMenuActiveSelectionBounds: Bool) {
-        
-        
 
         // Note: do this *first*, since during node menu update we might not have a node view model for the node id yet
         if updateMenuActiveSelectionBounds {
@@ -112,68 +118,69 @@ extension GraphState {
         // See if it's in the visible frame
         let isVisibleInFrame = viewFrame.intersects(newBounds)
         canvasItem.updateVisibilityStatus(with: isVisibleInFrame,
-                                          activeIndex: activeIndex)
+                                          activeIndex: self.activeIndex)
     }
 }
 
-// extension CanvasItemViewModel {
+extension CanvasItemViewModel {
     
-//     // different meanings whether node vs just LIG
-//     // - node = update all inputs and outputs
-//     // - LIG = update just one input
+    // different meanings whether node vs just LIG
+    // - node = update all inputs and outputs
+    // - LIG = update just one input
     
-//     @MainActor
-//     func updateVisibilityStatus(with newValue: Bool,
-//                                 activeIndex: ActiveIndex) {
+    @MainActor
+    func updateVisibilityStatus(with newValue: Bool,
+                                activeIndex: ActiveIndex) {
         
-//         let oldValue = self.isVisibleInFrame
-//         guard oldValue != newValue else {
-//             return // Do nothing if visibility status didn't change
-//         }
+        let oldValue = self.isVisibleInFrame
+        guard oldValue != newValue else {
+            return // Do nothing if visibility status didn't change
+        }
         
-//         switch self.id {
+        switch self.id {
             
-//         case .node(let x):
-//             guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(x) else {
-// //                fatalErrorIfDebug()
-//                 log("updateVisibilityStatus: could not update visibility for node \(x)")
-//                 return
-//             }
-//             node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
+        case .node(let x):
+            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for node \(x)")
+                return
+            }
+            node.updateVisibilityStatus(with: newValue, activeIndex: activeIndex)
             
-//         case .layerInput(let x):
-//             guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
-// //                fatalErrorIfDebug()
-//                 log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
-//                 return
-//             }
-//             input.canvasUIData?.isVisibleInFrame = newValue
-//             input.updateRowObserverUponVisibilityChange(
-//                 activeIndex: activeIndex,
-//                 isVisible: newValue)
+        case .layerInputOnGraph(let x):
+            guard let input = self.nodeDelegate?.graphDelegate?.getLayerInputOnGraph(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for layerInputOnGraph \(x)")
+                return
+            }
+            input.canvasUIData?.isVisibleInFrame = newValue
+            input.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: newValue)
             
-//         case .layerOutput(let x):
-//             guard let output = self.nodeDelegate?.graphDelegate?.getLayerOutputOnGraph(x) else {
-// //                fatalErrorIfDebug()
-//                 log("updateVisibilityStatus: could not update visibility for layerOutputOnGraph \(x)")
-//                 return
-//             }
-//             output.canvasUIData?.isVisibleInFrame = newValue
-//             output.updateRowObserverUponVisibilityChange(
-//                 activeIndex: activeIndex,
-//                 isVisible: newValue)
-//         }
-//     }
-// }
+        case .layerOutputOnGraph(let x):
+            guard let output = self.nodeDelegate?.graphDelegate?.getLayerOutputOnGraph(x) else {
+//                fatalErrorIfDebug()
+                log("updateVisibilityStatus: could not update visibility for layerOutputOnGraph \(x)")
+                return
+            }
+            output.canvasUIData?.isVisibleInFrame = newValue
+            output.updateRowObserverUponVisibilityChange(
+                activeIndex: activeIndex,
+                isVisible: newValue)
+        }
+    }
+}
 
-//extension NodeRowObserver {
-//    // When the input or output becomes visible on the canvas,
-//    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
-//    @MainActor
-//    func onVisibilityChange(activeIndex: ActiveIndex,
-//                            isVisible: Bool) {
-//        self.updateValues(self.allLoopedValues,
-//                          activeIndex: activeIndex,
-//                          isVisibleInFrame: isVisible)
-//    }
-//}
+
+extension NodeRowObserver {
+    // When the input or output becomes visible on the canvas,
+    // the cached activeValue may update; but the fundamental underlying loop of values in the input or output does not change.
+    @MainActor
+    func updateRowObserverUponVisibilityChange(activeIndex: ActiveIndex,
+                                               isVisible: Bool) {
+        self.updateValues(self.allLoopedValues,
+                          activeIndex: activeIndex,
+                          isVisibleInFrame: isVisible)
+    }
+}

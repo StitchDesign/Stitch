@@ -69,9 +69,7 @@ extension GraphState {
         // Reset selection for insert node menu
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
-        node.getAllCanvasObservers().forEach {
-            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId            
-        }
+        node.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
         self.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
         if node.kind.isLayer {

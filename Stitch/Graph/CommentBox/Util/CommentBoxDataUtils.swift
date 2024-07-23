@@ -88,7 +88,7 @@ extension CommentBoxViewModel {
     // MARK: initializing comment box from a set of existing nodes
     convenience init(zIndex: ZIndex,
                      scale: CGFloat, // graph zoom
-                     nodes: [CanvasItemViewModel]) {
+                     nodes: [NodeViewModel]) {
 
         let color = Self.colorOptions.randomElement() ?? .blue
 
@@ -104,7 +104,7 @@ extension CommentBoxViewModel {
             return
         }
 
-        let nodeIds = CanvasItemIdSet(nodes.map(\.id))
+        let nodeIds = NodeIdSet(nodes.map(\.id))
 
         let northNode = nodes.max { n1, n2 in
             n1.position.y > n2.position.y

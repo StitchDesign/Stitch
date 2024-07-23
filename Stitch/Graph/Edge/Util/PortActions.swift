@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension InputNodeRowObserver {
+extension NodeRowObserver {
     /// Removes edges to some observer and conducts the following steps;
     /// 1. Removes connection by deleting reference to upstream output observer.
     /// 2. Flattens values.
@@ -18,7 +18,8 @@ extension InputNodeRowObserver {
     func removeUpstreamConnection(activeIndex: ActiveIndex? = nil,
                                   isVisible: Bool? = nil) {
         let activeIndex = activeIndex ?? self.nodeDelegate?.activeIndex ?? .init(.zero)
-        let willUpstreamBeDisconnected = self.upstreamOutputObserver?.getConnectedDownstreamNodes() == Set([self.id.nodeId])
+        let isVisible = isVisible ?? self.nodeDelegate?.isVisibleInFrame ?? false
+        let willUpstreamBeDisconnected = self.upstreamOutputObserver?.getConnectedDownstreamNodes() == NodeIdSet([self.id.nodeId])
 
         // Videos and audios need to be cleared from a now-disconnected node
         // TODO: this logic only works if the destination node of a removed edge is a speaker/video, and not if an edge was disconnected upstream from those nodes.
@@ -39,7 +40,9 @@ extension InputNodeRowObserver {
             }
 
             // Mutate video metadata to clear video state--this will update the view
-            self.updateValues([.asyncMedia(nil)])
+            self.updateValues([.asyncMedia(nil)],
+                              activeIndex: activeIndex,
+                              isVisibleInFrame: isVisible)
         }
 
         // Remove audio from disconnected speaker nodes.
@@ -52,11 +55,15 @@ extension InputNodeRowObserver {
                     media.updateVolume(to: .zero)
                 }
             }
-            self.updateValues([.asyncMedia(nil)])
+            self.updateValues([.asyncMedia(nil)],
+                              activeIndex: activeIndex,
+                              isVisibleInFrame: isVisible)
         } else {
             // Flatten values by default
             let flattenedValues = self.allLoopedValues.flattenValues()
-            self.updateValues(flattenedValues)
+            self.updateValues(flattenedValues,
+                              activeIndex: activeIndex,
+                              isVisibleInFrame: isVisible)
         }
         
         // Removes connection--important to do this after media handling above
@@ -164,11 +171,11 @@ extension PortEdgeData {
     }
 }
 
-//@MainActor
-//func onPortDragEnded(_ coordinate: PortViewType) {
-//    if coordinate.output.isDefined {
-//        dispatch(OutputDragEnded())
-//    } else if coordinate.input.isDefined {
-//        dispatch(InputDragEnded())
-//    }
-//}
+@MainActor
+func onPortDragEnded(_ coordinate: PortViewType) {
+    if coordinate.output.isDefined {
+        dispatch(OutputDragEnded())
+    } else if coordinate.input.isDefined {
+        dispatch(InputDragEnded())
+    }
+}

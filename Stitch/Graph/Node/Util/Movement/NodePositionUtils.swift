@@ -20,38 +20,46 @@ extension CGPoint {
     }
 }
 
-// Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
-extension CanvasItemViewModel {
+extension NodeViewModel {
     func adjustPosition(center: CGPoint) {
         let nodeSize = self.bounds.graphBaseViewBounds.size
-        
+
         self.position = gridAlignedPosition(center: center,
                                             nodeSize: nodeSize)
         self.previousPosition = self.position
     }
+}
+
+// Note: previously we had a side-effect delay to work around some issues with `.buttonStyle(.plain)`'s auto animation and a GraphSchema-update interrupting double tap. These issues now seem to be resolved.
+extension GraphState {
     
     @MainActor
-    func isTapped(graph: GraphState) {
-        log("canvasItemTapped: id: \(self.id)")
+    func canvasItemTapped(_ id: CanvasItemId) {
+        log("canvasItemTapped: id: \(id)")
+        
+        guard let canvasItem = self.getCanvasItem(id) else {
+            fatalErrorIfDebug()
+            return
+        }
         
         // when holding CMD ...
-        if graph.graphUI.keypressState.isCommandPressed {
+        if self.graphUI.keypressState.isCommandPressed {
             // toggle selection
-            if self.isSelected {
-                self.deselect()
+            if canvasItem.isSelected {
+                canvasItem.deselect()
             } else {
-                self.select()
+                canvasItem.select()
             }
         }
         
         // when not holding CMD ...
         else {
-            graph.selectSingleCanvasItem(self)
+            self.selectSingleCanvasItem(canvasItem)
         }
         
         // if we tapped a node, we're no longer moving it
-        graph.graphMovement.draggedCanvasItem = nil
+        self.graphMovement.draggedCanvasItem = nil
         
-        self.zIndex = graph.highestZIndex + 1
+        canvasItem.zIndex = self.highestZIndex + 1
     }
 }

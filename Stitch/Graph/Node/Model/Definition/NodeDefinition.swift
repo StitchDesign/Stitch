@@ -118,13 +118,4 @@ extension NodeDefinitionKind {
             return .layer(layerGraphNode.layer)
         }
     }
-    
-    var patch: PatchNodeDefinition.Type? {
-        switch self {
-        case .patch(let patchNodeDefinition):
-            return patchNodeDefinition
-        default:
-            return nil
-        }
-    }
 }

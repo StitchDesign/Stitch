@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    let allInputs: [InputNodeRowViewModel]
+    let allInputs: NodeRowObservers
     
     var animatingEdges: PossibleEdgeSet {
         graphUI.edgeEditingState?.possibleEdges ?? .init()
@@ -26,29 +26,29 @@ struct GraphConnectedEdgesView: View {
     }
     
     @MainActor
-    func getPossibleEdgeUpstreamObserver(from input: InputNodeRowViewModel,
-                                         possibleEdge: PossibleEdge?) -> OutputNodeRowViewModel? {
+    func getPossibleEdgeUpstreamObserver(from input: NodeRowObserver,
+                                         possibleEdge: PossibleEdge?) -> NodeRowObserver? {
         guard let possibleEdge = possibleEdge else {
             return nil
         }
 
         // Works, even after initial LayerInputOnGraph changes, becauses an edge's origin is still always a patch node output.
         // TODO: search for LayerOutputsOnGraph when we allow a LayerNode's outputs to be manually added to the canvas
-        let node = graph.getCanvasItem(possibleEdge.edge.from.canvasId)?.nodeDelegate
-        let upstreamRowObserver = node?.getOutputRowObserver(possibleEdge.edge.from.portId)?.nodeRowViewModel
+        let node = graph.getNodeViewModel(possibleEdge.edge.from.nodeId)
+        let upstreamRowObserver = node?.getOutputRowObserver(possibleEdge.edge.from.portId)
         return upstreamRowObserver
     }
     
     var body: some View {
         ForEach(allInputs) { inputObserver in
             
-            let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
+            let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewType?.input })
             
             let possibleEdgeOutputObserver = self.getPossibleEdgeUpstreamObserver(
                 from: inputObserver,
                 possibleEdge: possibleEdge)
             
-            let upstreamObserver = inputObserver.rowDelegate?.upstreamOutputObserver?.nodeRowViewModel
+            let upstreamObserver = inputObserver.upstreamOutputObserver
             
             ConnectedEdgeView(
                 graph: graph,
@@ -65,9 +65,9 @@ struct GraphConnectedEdgesView: View {
 extension ConnectedEdgeView {
     @MainActor
     init(graph: GraphState,
-          inputObserver: InputNodeRowViewModel,
-          outputObserver: OutputNodeRowViewModel?,
-          possibleEdgeOutputObserver: OutputNodeRowViewModel?,
+          inputObserver: NodeRowObserver,
+          outputObserver: NodeRowObserver?,
+          possibleEdgeOutputObserver: NodeRowObserver?,
           possibleEdge: PossibleEdge?,
           edgeAnimationEnabled: Bool,
          shownPossibleEdgeIds: Set<PossibleEdgeId>) {
@@ -75,7 +75,7 @@ extension ConnectedEdgeView {
         // Needs to have at least a connected output or a "possible" output
         let outputObserverForData = outputObserver ?? possibleEdgeOutputObserver
         self.inputData = .init(from: inputObserver,
-                               upstreamNodeId: outputObserverForData?.canvasItemDelegate?.id)
+                               upstreamNodeId: outputObserverForData?.id.nodeId)
         self.outputData = .init(from: outputObserverForData,
                                 connectedDownstreamNode: downstreamNode)
         
@@ -97,13 +97,13 @@ struct ConnectedEdgeView: View {
     let graph: GraphState
     
     // Optional in event we only have possible edge
-    let upstreamObserver: OutputNodeRowViewModel?
-    @Bindable var inputObserver: InputNodeRowViewModel
+    let upstreamObserver: NodeRowObserver?
+    @Bindable var inputObserver: NodeRowObserver
     let inputData: EdgeAnchorDownstreamData?
     let outputData: EdgeAnchorUpstreamData?
     let edgeAnimationEnabled: Bool
     let possibleEdge: PossibleEdge?
-    let possibleEdgeOutputObserver: OutputNodeRowViewModel?
+    let possibleEdgeOutputObserver: NodeRowObserver?
     let shownPossibleEdgeIds: Set<PossibleEdgeId>
         
     var body: some View {
@@ -121,18 +121,33 @@ struct ConnectedEdgeView: View {
         let possibleEdgeOutputObserver = possibleEdgeOutputObserver
         let shownPossibleEdgeIds = shownPossibleEdgeIds
         
-        if let inputPortViewData = inputObserver.portViewData,
+        if let inputPortViewData = inputObserver.inputPortViewData,
            let upstreamObserver = upstreamObserver,
-           let outputPortViewData = upstreamObserver.portViewData {
+           let outputPortViewData = upstreamObserver.outputPortViewData {
+            
             let edge = PortEdgeUI(from: outputPortViewData,
                                   to: inputPortViewData)
+            
             let portColor: PortColor = inputObserver.portColor
+            
             let isSelectedEdge = (portColor == .highlightedEdge || portColor == .highlightedLoopEdge)
-            let upstreamObserverZIndex = upstreamObserver.canvasItemDelegate?.zIndex ?? 0
-            let defaultInputNodeIndex = inputObserver.canvasItemDelegate?.zIndex ?? 0
-            let zIndexOfInputNode = inputObserver.canvasItemDelegate?.zIndex ?? defaultInputNodeIndex
+            
+            // Shouldn't we ALWAYS have a node delegate on the upstream observer?
+            let upstreamObserverZIndex = upstreamObserver.nodeDelegate?.zIndex ?? 0
+            
+            let defaultInputNodeIndex = inputObserver.nodeDelegate?.zIndex ?? 0
+            
+            // If this input is a group input splitter, then we want to use the z-index of the group node on the same level as the edge, not the z-index of the group input splitter one level below.
+            let zIndexOfInputNode = inputObserver.nodeDelegate?.parentGroupNodeId
+                .flatMap({
+                    parentId in graph.getNodeViewModel(parentId)?.zIndex
+                }) ?? defaultInputNodeIndex
+            
+            
             let base = max(upstreamObserverZIndex, zIndexOfInputNode)
+            
             let boost = isSelectedEdge ? SELECTED_EDGE_Z_INDEX_BOOST : 0
+            
             let zIndex: ZIndex = base + boost
             
             EdgeView(edge: edge,

@@ -9,14 +9,12 @@ import SwiftUI
 import StitchSchemaKit
 
 struct EdgeDrawingView: View {
-    let graph: GraphState
     @Bindable var edgeDrawingObserver: EdgeDrawingObserver
-    let inputsAtThisTraversalLevel: [InputNodeRowViewModel]
+    let inputsAtThisTraversalLevel: NodeRowObservers
     
     var body: some View {
         if let outputDrag = edgeDrawingObserver.drawingGesture {
             EdgeFromDraggedOutputView(
-                graph: graph,
                 outputDrag: outputDrag,
                 nearestEligibleInput: edgeDrawingObserver.nearestEligibleInput,
                 eligibleInputCandidates: inputsAtThisTraversalLevel)
@@ -29,14 +27,13 @@ struct EdgeDrawingView: View {
 struct EdgeFromDraggedOutputView: View {
     
     @Environment(\.appTheme) var theme
-    let graph: GraphState
     
     // ie cursor position
     let outputDrag: OutputDragGesture
-    let nearestEligibleInput: InputNodeRowViewModel?
-    let eligibleInputCandidates: [InputNodeRowViewModel]
+    let nearestEligibleInput: NodeRowObserver? //InputPortViewData?
+    let eligibleInputCandidates: NodeRowObservers
 
-    var outputRowViewModel: OutputNodeRowViewModel {
+    var outputRowObserver: NodeRowObserver {
         outputDrag.output
     }
     
@@ -48,7 +45,7 @@ struct EdgeFromDraggedOutputView: View {
             return .noEdge
         }
         
-        if outputRowViewModel.rowDelegate?.hasLoopedValues ?? false {
+        if outputRowObserver.hasLoopedValues {
             return .highlightedLoopEdge
         } else {
             return .highlightedEdge
@@ -69,14 +66,12 @@ struct EdgeFromDraggedOutputView: View {
     
     var body: some View {
         Group {
-            if let outputAnchorData = EdgeAnchorUpstreamData(from: outputRowViewModel,
+            if let outputAnchorData = EdgeAnchorUpstreamData(from: outputRowObserver,
                                                              connectedDownstreamNode: nearestEligibleInput?.nodeDelegate),
-               let outputPortViewData = outputRowViewModel.portViewData,
-               let pointFrom = outputRowViewModel.anchorPoint,
-               let outputNodeId = outputRowViewModel.canvasItemDelegate?.id {
+               let outputPortViewData = outputRowObserver.outputPortViewData,
+                let pointFrom = outputRowObserver.anchorPoint {               
                 let edge = PortEdgeUI(from: outputPortViewData,
-                                      to: .init(portId: -1,
-                                                canvasId: outputNodeId))
+                                      to: .init(portId: -1, nodeId: .init()))
                 
                 EdgeView(edge: edge,
                          pointFrom: pointFrom,
@@ -95,13 +90,13 @@ struct EdgeFromDraggedOutputView: View {
                          // we never animate the actively dragged edge
                          edgeAnimationEnabled: false)
                 .animation(.default, value: color)
-                .onChange(of: pointTo) {
-                    graph.findEligibleInput(
-                        cursorLocation: pointTo,
-                        cursorNodeId: outputNodeId,
-                        eligibleInputCandidates: eligibleInputCandidates)
-                }
             }
+        }
+        .onChange(of: pointTo) {
+            findEligibleInput(
+                cursorLocation: pointTo,
+                cursorNodeId: outputDrag.output.id.nodeId,
+                eligibleInputCandidates: eligibleInputCandidates)
         }
     }
 }

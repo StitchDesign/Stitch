@@ -9,8 +9,8 @@ import SwiftUI
 import StitchSchemaKit
 
 struct MediaPickerValueEntry: View {
+    @Bindable var rowObserver: NodeRowObserver
     let coordinate: InputCoordinate
-    let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
     let nodeKind: NodeKind
 
@@ -74,5 +74,11 @@ struct MediaPickerValueEntry: View {
 
                     TruncatedTextView(label, truncateAt: 30)
                    })
+    }
+
+    /// Checks for an upstream connection to this port.
+    @MainActor
+    var isUpstreamValue: Bool {
+        rowObserver.upstreamOutputObserver.isDefined
     }
 }

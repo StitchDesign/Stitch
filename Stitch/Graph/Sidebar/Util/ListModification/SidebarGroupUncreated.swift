@@ -39,7 +39,7 @@ struct SidebarGroupUncreated: GraphEventWithResponse {
         }
 
         // finally, delete layer group node itself (but not its children)
-        state.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
+        state.deleteNode(id: group.id, willDeleteLayerChildren: false)
 
         // update legacy sidebar data
         state.updateSidebarListStateAfterStateChange()

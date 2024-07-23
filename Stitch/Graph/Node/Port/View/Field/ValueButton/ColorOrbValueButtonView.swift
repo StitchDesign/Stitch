@@ -17,7 +17,6 @@ struct ColorOrbValueButtonView: View {
     @State private var colorState: Color = .white
     @State private var show = false
 
-    let fieldViewModel: InputFieldViewModel
     let nodeId: NodeId
     let id: InputCoordinate
     let currentColor: Color // the current color, from input
@@ -47,8 +46,7 @@ struct ColorOrbValueButtonView: View {
             }
         }
 
-        StitchColorPickerView(rowId: id,
-                              fieldCoordinate: fieldViewModel.id,
+        StitchColorPickerView(coordinate: id, 
                               chosenColor: binding,
                               graph: graph)
         .onAppear {
@@ -82,15 +80,15 @@ struct ColorOrbValueButtonView: View {
     }
 }
 
-//struct ColorOrbValueButton_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ColorOrbValueButtonView(
-//            nodeId: InputCoordinate.fakeInputCoordinate.nodeId,
-//            id: InputCoordinate.fakeInputCoordinate,
-//            currentColor: .green,
-//            hasIncomingEdge: false,
-//            graph: .init(id: .init(), store: nil))
-//        //        ,
-//        //            colorState: .green)
-//    }
-//}
+struct ColorOrbValueButton_Previews: PreviewProvider {
+    static var previews: some View {
+        ColorOrbValueButtonView(
+            nodeId: InputCoordinate.fakeInputCoordinate.nodeId,
+            id: InputCoordinate.fakeInputCoordinate,
+            currentColor: .green,
+            hasIncomingEdge: false,
+            graph: .init(id: .init(), store: nil))
+        //        ,
+        //            colorState: .green)
+    }
+}

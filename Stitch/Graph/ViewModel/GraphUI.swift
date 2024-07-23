@@ -35,7 +35,7 @@ final class GraphUIState {
     
     var llmRecording = LLMRecordingState()
         
-    var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
+    var nodesThatWereOnScreenPriorToEnteringFullScreen = NodeIdSet()
     
     var lastMomentumRunTime: TimeInterval = .zero
     
@@ -213,44 +213,42 @@ extension GraphUIState {
 }
 
 extension GraphState {
-   
+    
+    @MainActor
+    func getSelectedNodeViewModels() -> NodeViewModels {
+        self.nodes.values.filter {
+            $0.isSelected
+        }
+    }
+
     /// Returns  `NodeEntities` given some selection state. Recursively gets group children if group selected.
     @MainActor
-    func getSelectedNodeEntities(for ids: CanvasItemIdSet) -> [NodeEntity] {
-        ids.flatMap { nodeId -> [NodeEntity] in
-            guard let nodeViewModel = self.getCanvasItem(nodeId),
-                  let stitchId = nodeViewModel.nodeDelegate?.id,
-                  let stitchViewModel = self.getNodeViewModel(stitchId) else {
+    func getSelectedNodeEntities(for ids: NodeIdSet) -> NodeEntities {
+        ids.flatMap { nodeId -> NodeEntities in
+            guard let nodeViewModel = self.getNodeViewModel(nodeId) else {
                 return []
             }
             
-            let nodeSchema = stitchViewModel.createSchema()
+            let nodeSchema = nodeViewModel.createSchema()
             
-            switch stitchViewModel.kind {
+            switch nodeViewModel.kind {
             case .group:
                 // Recursively add nodes in group
-                let idsInGroup = self.visibleNodesViewModel.getCanvasItems()
-                    .filter { $0.parentGroupNodeId == stitchViewModel.id }
+                let idsInGroup = self.nodes.values
+                    .filter { $0.parentGroupNodeId == nodeViewModel.id }
                     .map { $0.id }
                     .toSet
                 
-                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInGroup)
+                return [nodeSchema] + getSelectedNodeEntities(for: idsInGroup)
                 
             case .layer(let layer) where layer == .group:
                 // Recursively add layer nodes in layer group
                 let idsInLayerGroup = self.nodes.values
-                    .flatMap { node -> [CanvasItemId] in
-                        guard let layerNode = node.layerNode,
-                              layerNode.layerGroupId == stitchViewModel.id else {
-                            return []
-                        }
-                        
-                        return layerNode.getAllCanvasObservers()
-                            .map { $0.id }
-                    }
+                    .filter { $0.layerNode?.layerGroupId == nodeViewModel.id }
+                    .map { $0.id }
                     .toSet
                 
-                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInLayerGroup)
+                return [nodeSchema] + getSelectedNodeEntities(for: idsInLayerGroup)
                 
             default:
                 return [nodeSchema]
@@ -356,6 +354,17 @@ extension GraphState {
         self.getCanvasItems().forEach {
             $0.deselect()
         }
+
+        // // bad: needs to be
+//        self.nodes.values.forEach { node in
+//            switch node.kind {
+//            case .layer:
+//                node.inputRowObservers().forEach { $0.canvasUIData?.deselect() }
+//                node.outputRowObservers().forEach { $0.canvasUIData?.deselect() }
+//            case .patch, .group:
+//                node.deselect()
+//            }
+//        }
     }
 }
 
@@ -373,7 +382,7 @@ extension GraphState {
     
     // Keep this helper around
     @MainActor
-    func selectSingleNode(_ node: CanvasItemViewModel) {
+    func selectSingleNode(_ node: NodeViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single node.
         self.graphUI.selection = GraphUISelectionState()
@@ -392,12 +401,24 @@ extension GraphState {
     
     // TEST HELPER
     @MainActor
-    func addNodeToSelections(_ nodeId: CanvasItemId) {
-        guard let node = self.getCanvasItem(nodeId) else {
+    func addNodeToSelections(_ nodeId: NodeId) {
+        guard let node = self.getNode(nodeId) else {
             fatalErrorIfDebug()
             return
         }
         node.select()
+    }
+}
+
+extension NodeViewModel {
+    @MainActor
+    func select() {
+        self.isSelected = true
+    }
+    
+    @MainActor
+    func deselect() {
+        self.isSelected = false
     }
 }
 
@@ -425,16 +446,13 @@ struct GraphZoom: Equatable, Codable, Hashable {
 
 extension GraphState {
     @MainActor
-    var selectedNodeIds: Set<CanvasItemId> {
+    var selectedNodeIds: NodeIdSet {
         self.nodes.values
-            .flatMap { node in
-                node.getAllCanvasObservers()
-                    .compactMap { canvas in
-                        guard canvas.isSelected else {
-                            return nil
-                        }
-                        return canvas.id
-                    }
+            .compactMap {
+                if $0.isSelected {
+                    return $0.id
+                }
+                return nil
             }
             .toSet
     }

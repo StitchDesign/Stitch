@@ -49,7 +49,7 @@ struct SelectedGraphNodesDeleted: GraphEventWithResponse {
 extension GraphState {
     // Preferred way to delete node(s); deletes each individual node and intelligently handles batch operations
     @MainActor
-    func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
+    func selectedGraphNodesDeleted(selectedNodes: IdSet) {
 
         self.selectedCanvasItems.forEach {
             self.deleteCanvasItem($0.id)
@@ -86,30 +86,20 @@ extension GraphState {
         case .node(let x):
             self.deleteNode(id: x)
         
-        case .layerInput(let x):
+        case .layerInputOnGraph(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode else {
-                fatalErrorIfDebug()
-                return
-            }
+            self.getLayerInputOnGraph(x)?.canvasUIData = nil
             
-            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
-            
-        case .layerOutput(let x):
+        case .layerOutputOnGraph(let x):
             // Set the canvas-ui-data on the layer node's input = nil
-            guard let layerNode = self.getNodeViewModel(x.node)?.layerNode,
-                  let outputData = layerNode.outputPorts[safe: x.portId] else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            outputData.canvasObserver = nil
+            self.getLayerOutputOnGraph(x)?.canvasUIData = nil
         }
     }
+
     
     @MainActor
     func deleteNode(id: NodeId,
-                    willDeleteLayerGroupChildren: Bool = true) {
+                    willDeleteLayerChildren: Bool = true) {
 
         //    log("deleteNode called, will delete node \(id)")
         
@@ -121,7 +111,7 @@ extension GraphState {
         // Find nodes to recursively delete
         switch node.kind {
         case .layer(let layer) where layer == .group:
-            if willDeleteLayerGroupChildren {
+            if willDeleteLayerChildren {
                 let layerChildren = self.getLayerChildren(for: id)
                 layerChildren.forEach {
                     self.deleteNode(id: $0)
@@ -185,7 +175,7 @@ extension GraphState {
 extension CommentBoxesDict {
     // Removes a node from any the node-set of any comment boxes that have it
     // Note: comment-boxes-bounds-dict does not contain node if
-    func removeNode(_ nodeId: CanvasItemId) {
+    func removeNode(_ nodeId: NodeId) {
         self.values.forEach { box in
             box.nodes.remove(nodeId)
         }

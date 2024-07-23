@@ -15,36 +15,49 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
-struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
+struct PortEntryView: View {
     @Environment(\.appTheme) var theme
 
-    let height: CGFloat = 8
-    
-    @Bindable var rowViewModel: NodeRowViewModelType
+    static let height: CGFloat = 8
+
+    @Bindable var rowObserver: NodeRowObserver
     @Bindable var graph: GraphState
-    let coordinate: NodeIOPortType
-//    let color: PortColor
+    let coordinate: PortViewType
+    let color: PortColor
     
     // Specify the node delegate (rather than using default one in row observer)
     // in event of port for group
-//    let canvasItem: CanvasItemViewModel?
-    
-    // TODO: was used for movement
-//    let nodeDelegate: NodeDelegate?
+    let nodeDelegate: NodeDelegate?
 
     @MainActor
     var portColor: Color {
-        rowViewModel.portColor.color(theme)
+        rowObserver.portColor.color(theme)
     }
     
     @MainActor
     var isNodeMoving: Bool {
-        rowViewModel.canvasItemDelegate?.isMoving ?? false
+        self.nodeDelegate?.isNodeMoving ?? false
+    }
+    
+    @MainActor
+    var isDraggingFromThisOutput: Bool {
+        // Only applies if output drag exists and on this port
+        guard let outputOnDrag = graph.edgeDrawingObserver.drawingGesture?.output else {
+            return false
+        }
+        
+        return outputOnDrag.outputPortViewData == coordinate.output
+    }
+    
+    // Only animate port colors if we're dragging from this output
+    @MainActor
+    var animationTime: Double {
+        isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
     }
     
     var body: some View {
         
-//        let hasEdge = rowObserver.hasEdge
+        let hasEdge = rowObserver.hasEdge
         
         // TODO: revisit empty port color after node body color has changed
 //        let portBodyColor = hasEdge ? portColor : NodeUIColor.patchNode.body.opacity(0.05)
@@ -66,8 +79,9 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                 .background {
                     Rectangle()
                         .fill(portColor)
-                        .frame(width: self.height)
-                        .offset(x: NodeRowViewModelType.nodeIO == .input ? -4 : 4)
+//                        .fill(portBodyColor)
+                        .frame(width: Self.height)
+                        .offset(x: coordinate.isInput ? -4 : 4)
                 }
                 .background {
                     GeometryReader { geometry in
@@ -84,20 +98,19 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
                     }
                 }
         }
-        .overlay(PortEntryExtendedHitBox(rowViewModel: rowViewModel,
-                                         graphState: graph))
+        .overlay(PortEntryExtendedHitBox(rowObserver: rowObserver,
+                                         coordinate: coordinate))
         .animation(.linear(duration: self.animationTime),
                    value: portColor)
         // Update port color on selected edges change
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
         .onChange(of: graph.selectedEdges) {
-            self.rowViewModel.updatePortColor()
-//            switch coordinate {
-//            case .output:
-//                updateOutputColor(output: self.rowObserver, graphState: graph)
-//            case .input:
-//                updateInputColor(input: self.rowObserver, graphState: graph)
-//            }
+            switch coordinate {
+            case .output:
+                updateOutputColor(output: self.rowObserver, graphState: graph)
+            case .input:
+                updateInputColor(input: self.rowObserver, graphState: graph)
+            }
         }
     }
 
@@ -105,19 +118,19 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     func updatePortViewData(newOrigin: CGPoint) {
         // log("PortEntryView: updatePortViewData for port \(self.coordinate)")
         let adjustedOriginPoint = self.createPreferencePoint(from: newOrigin)
-        self.rowViewModel.anchorPoint = adjustedOriginPoint
+        self.rowObserver.anchorPoint = adjustedOriginPoint
     }
 
     /// Creates the anchor point for preferences data--modifies from some origin point.
     func createPreferencePoint(from origin: CGPoint) -> CGPoint {
 
-        if NodeRowViewModelType.nodeIO == .input {
-            let offset = (self.height + 4) / 2
+        if case .input = self.coordinate {
+            let offset = (Self.height + 4) / 2
             // + 4 required to fully cover input's port
             return .init(x: origin.x + offset + 4, // + 6 seems too much
                          y: origin.y + offset)
         } else {
-            let offset = (self.height + 4) / 2
+            let offset = (Self.height + 4) / 2
             return .init(x: origin.x + offset,
                          y: origin.y + offset)
         }
@@ -127,32 +140,15 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         //        return .init(x: origin.x + offset,
         //                     y: origin.y + offset)
     }
-    
-    @MainActor
-    var isDraggingFromThisOutput: Bool {
-        // Only applies if output drag exists and on this port
-        guard let outputOnDrag = graph.edgeDrawingObserver.drawingGesture?.output,
-              NodeRowViewModelType.nodeIO == .output else {
-            return false
-        }
-        
-        return outputOnDrag.id == self.rowViewModel.id
-    }
-    
-    // Only animate port colors if we're dragging from this output
-    @MainActor
-    var animationTime: Double {
-        isDraggingFromThisOutput ? DrawnEdge.animationDuration : .zero
-    }
 }
 
 extension Color {
     static let HITBOX_COLOR = Color.white.opacity(0.001)
 }
 
-struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
-    @Bindable var rowViewModel: RowViewModel
-    @Bindable var graphState: GraphState
+struct PortEntryExtendedHitBox: View {
+    @Bindable var rowObserver: NodeRowObserver
+    let coordinate: PortViewType
 
     // NOTE: We want to place the gesture detectors on the .overlay'd view.
     var body: some View {
@@ -171,12 +167,20 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
                         .onChanged { gesture in
-                            rowViewModel.portDragged(gesture: gesture,
-                                                     graphState: graphState)
+                            switch coordinate {
+                            case .output:                                
+                                dispatch(OutputDragged(
+                                    outputRowObserver: rowObserver,
+                                    gesture: gesture))
+                            case .input:
+                                // TODO: implement drag start logic for Input as well
+                                dispatch(InputDragged(inputObserver: rowObserver,
+                                                      dragLocation: gesture.location))
+                            }
                         } // .onChanged
                         .onEnded { _ in
                             //                    log("PortEntry: onEnded")
-                            rowViewModel.portDragEnded(graphState: graphState)
+                            onPortDragEnded(coordinate)
                         }
             )
     }

@@ -20,7 +20,7 @@ extension Layer {
     }
 }
 
-extension InputNodeRowObserver {
+extension NodeRowObserver {
     @MainActor
     func hasUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> Bool {
         if let upstreamNodeId = self.upstreamOutputObserver?.id.nodeId,

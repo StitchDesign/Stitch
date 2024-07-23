@@ -20,7 +20,7 @@ extension GraphState {
     @MainActor
     func outputHovered(outputCoordinate: OutputPortViewData) {
         
-        if self.edgeDrawingObserver.drawingGesture != nil {
+        if self.edgeDrawingObserver.drawingGesture != .none {
             log("OutputHovered called during edge drawing gesture; exiting")
             self.graphUI.edgeAnimationEnabled = false
             self.graphUI.edgeEditingState = nil
@@ -34,12 +34,12 @@ extension GraphState {
             return
         }
 
-        guard let nearbyNodeId = self.getEligibleNearbyNode(eastOf: outputCoordinate.canvasId) else {
+        guard let nearbyNodeId = self.getEligibleNearbyNode(eastOf: outputCoordinate.nodeId) else {
             log("OutputHovered: no nearby node")
             return
         }
 
-        guard let nearbyNode = self.getCanvasItem(nearbyNodeId) else {
+        guard let nearbyNode = self.getNodeViewModel(nearbyNodeId) else {
             log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
             return
         }
@@ -49,8 +49,7 @@ extension GraphState {
         var alreadyShownEdges = Set<PossibleEdgeId>()
 
         let possibleEdges: PossibleEdgeSet = nearbyNode
-            .edgeFriendlyInputCoordinates(from: self.visibleNodesViewModel,
-                                          focusedGroupId: self.groupNodeFocused)
+            .edgeFriendlyInputCoordinates(from: self.visibleNodesViewModel)
             .reduce(into: PossibleEdgeSet()) { partialResult, inputCoordinate in
 
                 let edgeUI = PortEdgeUI(from: outputCoordinate,
@@ -90,21 +89,20 @@ extension GraphState {
     }
 }
 
-extension CanvasItemViewModel {
+extension NodeViewModel {
 
     // Get the "edge-friendly" coordinates,
     // i.e. the real input coords for a non-group node,
     // or the input-splitter coords for a group node.
     @MainActor
-    func edgeFriendlyInputCoordinates(from nodes: VisibleNodesViewModel,
-                                      focusedGroupId: NodeId?) -> [InputPortViewData] {
-        nodes.getVisibleCanvasItems(at: focusedGroupId)
-            .flatMap { canvasItem in
-                let inputsCount = canvasItem.inputViewModels.count
-                return (0..<inputsCount).map {
-                    InputPortViewData(portId: $0, canvasId: canvasItem.id)
-                }
-            }
+    func edgeFriendlyInputCoordinates(from nodes: VisibleNodesViewModel) -> [InputPortViewData] {
+        if let inputSplitters = nodes.getInputSplitterInputPorts(for: self.id) {
+            return inputSplitters
+        }
+        
+        return self.getRowObservers(.input).enumerated().map { portId, inputObserver in
+            InputPortViewData(portId: portId, nodeId: inputObserver.id.nodeId)
+        }
     }
 }
 
@@ -166,22 +164,22 @@ struct PossibleEdgeDecommitmentCompleted: GraphEvent {
 extension GraphState {
 
     @MainActor
-    func getEligibleNearbyNode(eastOf originOutputNodeId: CanvasItemId) -> CanvasItemId? {
+    func getEligibleNearbyNode(eastOf originOutputNodeId: NodeId) -> NodeId? {
 
-        guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
+        guard let originOutputNode = self.getNodeViewModel(originOutputNodeId) else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
 
         let groupNodeFouced = self.graphUI.groupNodeFocused?.asNodeId
         let nodes = self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: groupNodeFouced)
+            .getVisibleNodes(at: groupNodeFouced)
             // "Nearby node" for edge-edit mode can never be a wireless receiver node
-            .filter { $0.nodeDelegate?.kind.getPatch != .wirelessReceiver }
+            .filter { $0.patch != .wirelessReceiver }
 
         // Note: we compare the origin node's output against the other nodes' inputs.
         // The *input* must be east of the output.
-        let nodesEast = nodes.filter { node in
+        let nodesEast = nodes.filter { (node: NodeViewModel) in
             /*
              Note: although SwiftUI's .position modifier is from top-left corner, we actually adjust the node's `position: CGPoint`, such that position = center of node.
 
@@ -232,7 +230,7 @@ extension GraphState {
             return
         }
         
-        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyNode) else {
+        guard let nearbyNode = self.getNodeViewModel(edgeEditingState.nearbyNode) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyNode)")
             return
         }
@@ -240,7 +238,13 @@ extension GraphState {
         let labelAsPortId = labelPresssed.toPortId // i.e. port index
         // log("keyCharPressedDuringEdgeEditingMode: labelAsPortId: \(labelAsPortId)")
         
-        let destinationInput = InputPortViewData(portId: labelAsPortId, canvasId: nearbyNode.id)
+        /*
+         For a non-group node, the destination input is simply "label as port id + nearby node's id"
+         For a group node, the destination input must be some input-splitter, not the group node itself.
+         */
+        //    let destinationInput = NodeIOCoordinate(portId: labelAsPortId, nodeId: nearbyNode.id)
+        let destinationInput: InputPortViewData = self.visibleNodesViewModel
+            .getInputSplitterInputPorts(for: nearbyNode.id)?[safe: labelAsPortId] ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         
         //    let destinationInput = nearbyNode.groupNode?.splitterInputs[safe: labelAsPortId]?.rowObserver?.id ?? .init(portId: labelAsPortId, nodeId: nearbyNode.id)
         

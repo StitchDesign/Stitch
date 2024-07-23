@@ -22,8 +22,7 @@ typealias FlashSet = Set<Coordinate>
 
 extension GraphState {
     @MainActor
-    func pulseValueButtonClicked(stitchId: UUID,
-                                 inputPort: InputNodeRowViewModel) {
+    func pulseValueButtonClicked(inputCoordinate: InputCoordinate) {
         //        log("PulseValueButtonClicked called: nodeId: \(nodeId)")
         //        log("PulseValueButtonClicked inputCoordinate: \(inputCoordinate)")
 
@@ -45,21 +44,20 @@ extension GraphState {
         //            return .stateOnly(state)
         //        }
 
-        guard let node = self.getNodeViewModel(stitchId),
-              let inputObserver = inputPort.rowDelegate,
+        guard let node = self.getNodeViewModel(inputCoordinate.nodeId),
+              let inputObserver = node.getInputRowObserver(for: inputCoordinate.portType),
               // Can't manually pulses with upstream observer
               !inputObserver.upstreamOutputObserver.isDefined else {
             return
         }
         
-        // Select canvas if associated here
-        if let canvasItem = inputPort.canvasItemDelegate {
-            self.selectSingleNode(canvasItem)
-        }
+        self.selectSingleNode(node)
         
-        inputObserver.updateValues([.pulse(self.graphStepState.graphTime)])
+        inputObserver.updateValues([.pulse(self.graphStepState.graphTime)],
+                                   activeIndex: self.activeIndex,
+                                   isVisibleInFrame: node.isVisibleInFrame)
         
-        self.calculate(stitchId)
+        self.calculate(inputCoordinate.nodeId)
     }
 }
 

@@ -50,12 +50,8 @@ extension GraphState {
         // 2. Increment z-index
         newComponent.nodes = newComponent.nodes.map { node in
             var node = node
-            node.canvasEntityMap { node in
-                var node = node
-                node.position.shiftNodePosition()
-                node.zIndex += 1
-                return node
-            }
+            node.position.shiftNodePosition()
+            node.zIndex += 1
             return node
         }
 
@@ -85,22 +81,16 @@ extension GraphState {
         var document = self.createSchema()
 
         // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = component.nodes
-            .map { stitch in
-                var stitch = stitch
-                stitch.canvasEntityMap { node in
-                    var node = node
-                    
-                    let isTopLevel = node.parentGroupNodeId == nil
-                    guard isTopLevel else {
-                        return node
-                    }
-                    
-                    node.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
+        let newNodes = component.nodes
+            .map { node in
+                let isTopLevel = node.parentGroupNodeId == nil
+                guard isTopLevel else {
                     return node
                 }
-                
-                return stitch
+
+                var node = node
+                node.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId
+                return node
             }
 
         // Add new nodes
@@ -112,27 +102,15 @@ extension GraphState {
         self.resetSelectedCanvasItems()
 
         // Update selected nodes
-        newNodes
-            .forEach { nodeEntity in
-                switch nodeEntity.nodeTypeEntity {
-                case .layer(let layerNode):
-                    layerNode.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-                        let layerInputId = LayerInputCoordinate(node: nodeEntity.id,
-                                                                keyPath: inputType)
-                        let portData = layerNode[keyPath: inputType.schemaPortKeyPath]
-                        
-                        if let canvas = portData.canvasItem,
-                           let canvasItem = self.getCanvasItem(.layerInput(layerInputId)) {
-                            canvasItem.select()
-                        }
-                    }
-                    
-                case .patch, .group:
-                    let stitch = self.getNodeViewModel(nodeEntity.id)
-                    if let canvasItem = stitch?.patchCanvasItem {
-                        canvasItem.select()
-                    }
-                }
+        let newNodeViewModels = newNodes.compactMap {
+            let node = self.getNodeViewModel($0.id)
+            
+            // Select node in UI
+            if let node = node {
+                node.select()
+            }
+            
+            return node
         }
         
         // update sidebar UI data

@@ -8,22 +8,28 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
-                                                             ValueEntryView: View {
+struct NodeFieldsView: View {
     @Bindable var graph: GraphState
-    @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
-    let nodeId: NodeId
-    let isGroupNodeKind: Bool
-    let isMultiField: Bool
+    @Bindable var rowObserver: NodeRowObserver
+    @ObservedObject var fieldGroupViewModel: FieldGroupTypeViewModel
+    let coordinate: NodeIOCoordinate
+    let nodeKind: NodeKind
+    let nodeIO: NodeIO
+    let isCanvasItemSelected: Bool
+    let hasIncomingEdge: Bool
+    let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
-    @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
+
+    var isMultiField: Bool {
+        self.fieldGroupViewModel.fieldObservers.count > 1
+    }
 
     var label: String? {
         // if this is an input or output on a splitter node for a group node,
         // then use the splitter node's title directly:
-           if isGroupNodeKind {
-               if let nodeVM = graph.getNodeViewModel(nodeId) {
+           if nodeKind == .group {
+               if let nodeVM = graph.getNodeViewModel(coordinate.nodeId) {
                    @Bindable var nodeViewModel = nodeVM
                    let title = nodeViewModel.title
                    // Don't use label if group splitter does not have custom title
@@ -44,6 +50,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var body: some View {
+        
         if allFieldsBlockedOut {
             EmptyView()
         } else {
@@ -73,7 +80,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
         
     var fields: some View {
-        ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
+        ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldViewModel) in
 //            self.valueEntryView(fieldViewModel)
 //                .overlay {
 //                    if fieldViewModel.isBlockedOut {
@@ -86,25 +93,25 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                }
             
             if !fieldViewModel.isBlockedOut {
-                self.valueEntryView(fieldViewModel, isMultiField)
+                self.valueEntryView(fieldViewModel)
             }
         }
         .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
 
-//    @ViewBuilder
-//    func valueEntryView(_ viewModel: FieldType) -> ValueEntry {
-//        ValueEntry(graph: graph,
-//                   rowObserver: rowObserver,
-//                   viewModel: viewModel,
-//                   fieldCoordinate: .init(input: coordinate, fieldIndex: viewModel.fieldIndex),
-//                   nodeIO: nodeIO,
-//                   isMultiField: isMultiField,
-//                   nodeKind: nodeKind,
-//                   isCanvasItemSelected: isCanvasItemSelected,
-//                   hasIncomingEdge: hasIncomingEdge,
-//                   adjustmentBarSessionId: adjustmentBarSessionId,
-//                   forPropertySidebar: forPropertySidebar,
-//                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-//    }
+    @ViewBuilder
+    func valueEntryView(_ viewModel: FieldViewModel) -> ValueEntry {
+        ValueEntry(graph: graph,
+                   rowObserver: rowObserver,
+                   viewModel: viewModel,
+                   fieldCoordinate: .init(input: coordinate, fieldIndex: viewModel.fieldIndex),
+                   nodeIO: nodeIO,
+                   isMultiField: isMultiField,
+                   nodeKind: nodeKind,
+                   isCanvasItemSelected: isCanvasItemSelected,
+                   hasIncomingEdge: hasIncomingEdge,
+                   adjustmentBarSessionId: adjustmentBarSessionId,
+                   forPropertySidebar: forPropertySidebar,
+                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+    }
 }

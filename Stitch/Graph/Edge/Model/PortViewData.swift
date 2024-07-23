@@ -9,32 +9,32 @@ import Foundation
 import StitchSchemaKit
 
 // TODO: rename to `PortIdAddress`, since this is really a port-id-based way of representing an input's or output's address
-protocol PortViewData: Hashable {
+protocol PortViewData: Equatable, Hashable, Codable {
     var portId: Int { get set }
-    var canvasId: CanvasItemId { get set }
+    var nodeId: UUID { get set }
     
-    init(portId: Int, canvasId: CanvasItemId)
+    init(portId: Int, nodeId: UUID)
 }
 
 // TODO: rename to `InputPortIdAddress`
 struct InputPortViewData: PortViewData {
     var portId: Int
-    var canvasId: CanvasItemId
+    var nodeId: UUID
 }
 
 // TODO: rename to `OutputPortIdAddress`
 struct OutputPortViewData: PortViewData {
     var portId: Int
-    var canvasId: CanvasItemId
+    var nodeId: UUID
 }
 
-//extension PortViewData {
-//    init?(from coordinate: NodeIOCoordinate) {
-//        guard let portId = coordinate.portId else {
-//            return nil
-//        }
-//    
-//        self.init(portId: portId,
-//                  nodeId: coordinate.nodeId)
-//    }
-//}
+extension PortViewData {
+    init?(from coordinate: NodeIOCoordinate) {
+        guard let portId = coordinate.portId else {
+            return nil
+        }
+    
+        self.init(portId: portId,
+                  nodeId: coordinate.nodeId)
+    }
+}

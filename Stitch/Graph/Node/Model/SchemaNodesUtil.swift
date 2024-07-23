@@ -13,7 +13,7 @@ extension [NodePortInputEntity] {
     func createInputObservers(nodeId: NodeId,
                               kind: NodeKind,
                               userVisibleType: UserVisibleType?,
-                              nodeDelegate: NodeDelegate?) -> [InputNodeRowObserver] {
+                              nodeDelegate: NodeDelegate) -> NodeRowObservers {
         
         // Note: can be called for GroupNode as well?
         guard !kind.isLayer else {
@@ -27,7 +27,7 @@ extension [NodePortInputEntity] {
         // Note: look at input count from schema; important for e.g. removing inputs where e.g. LoopBuilder has had inputs removed and so has fewer inputs than the 5 declared in its node row definition
         let inputsCount = self.count
 
-        return (0..<inputsCount).compactMap { portId -> InputNodeRowObserver? in
+        return (0..<inputsCount).compactMap { portId -> NodeRowObserver? in
             
             // If we don't have a NodePortInputEntity, we can't create an observer.
             guard let schemaData: NodePortInputEntity = self[safe: portId] else {
@@ -36,22 +36,25 @@ extension [NodePortInputEntity] {
             }
 
             let values = schemaData.getInitialValuesForPatchNodeInput(
-                schemaValues: schemaData.portData.values,
+                schemaValues: schemaData.values,
                 defaultInputs: defaultInputs)
             
             guard let values: PortValues = values else {
                 log("createInputObservers: could not create observer for \(portId) for node \(nodeId)")
                 // MARK: from Elliot--seems to work ok if this gets hit
+                // Note: from Chris -- is this still okay?
+//                fatalErrorIfDebug()
                 return nil
             }
 
-            return InputNodeRowObserver(values: values,
-                                        nodeKind: kind,
-                                        userVisibleType: userVisibleType,
-                                        id: .init(portId: portId, nodeId: nodeId),
-                                        activeIndex: .init(.zero),
-                                        upstreamOutputCoordinate: schemaData.portData.upstreamConnection,
-                                        nodeDelegate: nodeDelegate)
+            return NodeRowObserver(values: values,
+                                   nodeKind: nodeDelegate.kind,
+                                   userVisibleType: nodeDelegate.userVisibleType,
+                                   id: .init(portId: portId, nodeId: nodeId),
+                                   activeIndex: .init(.zero),
+                                   upstreamOutputCoordinate: schemaData.upstreamOutputCoordinate,
+                                   nodeIOType: .input,
+                                   nodeDelegate: nodeDelegate)
         }
     }
 }
@@ -117,55 +120,16 @@ extension NodeRowDefinitions {
     func createOutputObservers(nodeId: NodeId,
                                // Pass in values directly from eval
                                values: PortValuesList,
-                               patch: Patch,
-                               userVisibleType: UserVisibleType?,
-                               nodeDelegate: NodeDelegate?) -> [OutputNodeRowObserver] {
+                               nodeDelegate: NodeDelegate) -> NodeRowObservers {
         self.outputs.enumerated().map { portId, _ in
-            OutputNodeRowObserver(values: values[safe: portId] ?? [],
-                                  nodeKind: .patch(patch),
-                                  userVisibleType: userVisibleType,
-                                  id: .init(portId: portId, nodeId: nodeId),
-                                  activeIndex: .init(.zero),
-                                  upstreamOutputCoordinate: nil,
-                                  nodeDelegate: nodeDelegate)
-        }
-    }
-
-    @MainActor
-    func createOutputLayerPorts(schema: LayerNodeEntity,
-                               // Pass in values directly from eval
-                               valuesList: PortValuesList,
-                               userVisibleType: UserVisibleType?,
-                               nodeDelegate: NodeDelegate?) -> [OutputLayerNodeRowData] {
-        let nodeId = schema.id
-        let kind = NodeKind.layer(schema.layer)
-        
-        assertInDebug(self.outputs.count == schema.outputCanvasPorts.count)
-        
-        return zip(valuesList.enumerated(), schema.outputCanvasPorts).map { outputData, canvasEntity in
-            var canvasObserver: CanvasItemViewModel?
-            let portId = outputData.0
-            let values = outputData.1
-            
-            let observer = OutputNodeRowObserver(values: values,
-                                                 nodeKind: kind,
-                                                 userVisibleType: userVisibleType,
-                                                 id: .init(portId: portId, nodeId: nodeId),
-                                                 activeIndex: .init(.zero),
-                                                 nodeDelegate: nodeDelegate)
-
-            if let canvasEntity = canvasEntity {
-                canvasObserver = CanvasItemViewModel(
-                    from: canvasEntity,
-                    id: .layerOutput(.init(node: nodeId,
-                                                  portId: portId)),
-                    inputRowObservers: [],
-                    outputRowObservers: [observer],
-                    node: nodeDelegate)
-            }
-            
-            return OutputLayerNodeRowData(rowObserver: observer,
-                                          canvasObserver: canvasObserver)
+            NodeRowObserver(values: values[safe: portId] ?? [],
+                            nodeKind: nodeDelegate.kind,
+                            userVisibleType: nodeDelegate.userVisibleType,
+                            id: .init(portId: portId, nodeId: nodeId),
+                            activeIndex: .init(.zero),
+                            upstreamOutputCoordinate: nil,
+                            nodeIOType: .output,
+                            nodeDelegate: nodeDelegate)
         }
     }
 }
