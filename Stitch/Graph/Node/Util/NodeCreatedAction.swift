@@ -39,7 +39,7 @@ extension GraphState {
 
     // Used by InsertNodeMenu
     @MainActor
-    func nodeCreated(choice: NodeKind) -> NodeId? {
+    func nodeCreated(choice: NodeKind) -> NodeViewModel? {
         let center = self.newNodeCenterLocation
 
         guard let node = self.createNode(
@@ -49,17 +49,16 @@ extension GraphState {
                 choice: choice,
                 center: center) else {
             log("nodeCreated: could not create node for \(choice)")
-            #if DEBUG || DEV_DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return nil
         }
 
-        return self.nodeCreated(node: node)
+        self.nodeCreated(node: node)
+        return node
     }
 
     @MainActor
-    func nodeCreated(node: NodeViewModel) -> NodeId? {
+    func nodeCreated(node: NodeViewModel) {
 
         let choice = node.kind
         var undoEvents = Actions()
@@ -112,9 +111,6 @@ extension GraphState {
         //    self.graphUI.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
-
-        
-        return nodeId
     }
 
     // GOOD EXAMPLE FOR ARKIT NODES

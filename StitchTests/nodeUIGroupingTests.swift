@@ -27,45 +27,47 @@ class GroupNodeTests: XCTestCase {
     
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
     @MainActor
-    func createSimpleGroupNode() -> (GraphState, GroupNodeId) {
+    func createSimpleGroupNode() -> (GraphState, NodeViewModel) {
         
         let graphState = GraphState()
         
         // Create two Add nodes
-        guard let nodeId1 = graphState.nodeCreated(choice: .patch(.add)),
-              let nodeId2 = graphState.nodeCreated(choice: .patch(.add)) else {
+        guard let node1 = graphState.nodeCreated(choice: .patch(.add)),
+              let node2 = graphState.nodeCreated(choice: .patch(.add)),
+              let canvasNode1 = node1.patchCanvasItem,
+              let canvasNode2 = node2.patchCanvasItem else {
 //            XCTAbortTest()
             fatalError("failed to create Add nodes")
         }
                 
         // Freshly created nodes should have no parent
-        XCTAssert(graphState.getNode(nodeId1)!.parentGroupNodeId == nil)
-        XCTAssert(graphState.getNode(nodeId2)!.parentGroupNodeId == nil)
+        XCTAssert(canvasNode1.parentGroupNodeId == nil)
+        XCTAssert(canvasNode2.parentGroupNodeId == nil)
                 
         // Select the nodes
-        graphState.addNodeToSelections(nodeId1)
-        graphState.addNodeToSelections(nodeId2)
+        graphState.addNodeToSelections(canvasNode1.id)
+        graphState.addNodeToSelections(canvasNode2.id)
             
         // Create the group
         let _ = GroupNodeCreatedEvent().handle(state: graphState)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 1)
         
-        guard let groupNodeId: NodeId = graphState.groupNodes.values.first?.id else {
+        guard let groupNode = graphState.groupNodes.values.first else {
 //            XCTAbortTest()
             fatalError("did not have Group Node")
         }
                 
         // Nodes should now have the recently created group node as a parent
-        XCTAssert(graphState.getNode(nodeId1)!.parentGroupNodeId == groupNodeId)
-        XCTAssert(graphState.getNode(nodeId2)!.parentGroupNodeId == groupNodeId)
+        XCTAssert(canvasNode1.parentGroupNodeId == groupNode.id)
+        XCTAssert(canvasNode2.parentGroupNodeId == groupNode.id)
         
-        let nodesInGroup = graphState.nodes.values.filter { $0.parentGroupNodeId == groupNodeId }
+        let nodesInGroup = graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNode.id }
         
         // There should only be two nodes in the group; no splitters etc.
         XCTAssertEqual(nodesInGroup.count, 2)
         
-        return (graphState, .init(groupNodeId))
+        return (graphState, groupNode)
     }
     
     @MainActor
@@ -76,25 +78,31 @@ class GroupNodeTests: XCTestCase {
     
     @MainActor
     func testSimpleGroupNodeDuplication() throws {
-        let (graphState, groupNodeId) = createSimpleGroupNode()
+        let (graphState, groupNode) = createSimpleGroupNode()
+        let groupNodeId = groupNode.id
         
-        graphState.addNodeToSelections(groupNodeId.id)
+        guard let canvasItem = groupNode.patchCanvasItem else {
+            XCTFail()
+            fatalError()
+        }
+        
+        graphState.addNodeToSelections(canvasItem.id)
         
         // Make sure only one node is selected
         // TODO: fix after changing "selecting group node = selecting its splitters as well"
         XCTAssertEqual(graphState.selectedNodeIds.count, 1)
-        XCTAssertEqual(graphState.selectedNodeIds.first!, groupNodeId.asNodeId)
+        XCTAssertEqual(graphState.selectedNodeIds.first!, canvasItem.id)
         
         let _ = SelectedGraphItemsDuplicated().handle(state: graphState)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 2)
         
-        guard let otherGroupNodeId = graphState.groupNodes.keys.first(where: { $0 != groupNodeId.id }) else {
+        guard let otherGroupNodeId = graphState.groupNodes.keys.first(where: { $0 != groupNodeId }) else {
             XCTAbortTest()
         }
         
-        XCTAssertEqual(graphState.nodes.values.filter { $0.parentGroupNodeId == groupNodeId.id }.count, 2)
-        XCTAssertEqual(graphState.nodes.values.filter { $0.parentGroupNodeId == otherGroupNodeId }.count, 2)
+        XCTAssertEqual(graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
+        XCTAssertEqual(graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == otherGroupNodeId }.count, 2)
     }
 }
 

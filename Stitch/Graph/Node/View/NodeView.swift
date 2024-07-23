@@ -223,8 +223,7 @@ func getFakeNode(choice: NodeKind,
 
     let graphState = GraphState(id: .fakeId, store: nil)
     
-    if let id = graphState.nodeCreated(choice: choice),
-       let node = graphState.getNodeViewModel(id) {
+    if let node = graphState.nodeCreated(choice: choice) {
                 
         if let customName = customName {
             node.title = customName

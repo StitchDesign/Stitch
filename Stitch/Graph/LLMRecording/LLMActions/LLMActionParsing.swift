@@ -70,10 +70,9 @@ extension GraphState {
             
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
-               let nodeId = self.nodeCreated(choice: nodeKind) {
-                
-                self.graphUI.llmNodeIdMapping.updateValue(nodeId,
-                                                                       forKey: llmNodeId)
+               let node = self.nodeCreated(choice: nodeKind) {
+                self.graphUI.llmNodeIdMapping.updateValue(node.id,
+                                                          forKey: llmNodeId)
             }
             
         // A patch node or layer-input-on-graph was moved
