@@ -5976,8 +5976,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GianniCarlo/DirectoryWatcher.git";
 			requirement = {
-				kind = exactVersion;
-				version = 2.7.3;
+				kind = revision;
+				revision = 0fab4991b68d3850ffe67fded9d248111015a054;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
