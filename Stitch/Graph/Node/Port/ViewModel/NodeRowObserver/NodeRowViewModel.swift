@@ -34,11 +34,6 @@ extension NodeRowViewModelId {
     static let empty: Self = .init(graphItemType: .node,
                                    nodeId: .init(),
                                    portId: -1)
-    
-//    var coordinate: NodeIOCoordinate {
-//        .init(portType: self.portType,
-//              nodeId: self.nodeId)
-//    }
 }
 
 protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
@@ -64,11 +59,6 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     var rowDelegate: RowObserver? { get set }
     
     var canvasItemDelegate: CanvasItemViewModel? { get set }
-    
-//    var portViewType: PortViewType { get }
-    
-    // Saves the port index if there's a node
-//    var nodeRowIndex: Int? { get set }
     
     static var nodeIO: NodeIO { get }
     
