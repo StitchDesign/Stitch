@@ -355,17 +355,6 @@ extension GraphState {
         self.getCanvasItems().forEach {
             $0.deselect()
         }
-
-        // // bad: needs to be
-//        self.nodes.values.forEach { node in
-//            switch node.kind {
-//            case .layer:
-//                node.getAllInputsObservers().forEach { $0.canvasUIData?.deselect() }
-//                node.getAllOutputsObservers().forEach { $0.canvasUIData?.deselect() }
-//            case .patch, .group:
-//                node.deselect()
-//            }
-//        }
     }
 }
 
