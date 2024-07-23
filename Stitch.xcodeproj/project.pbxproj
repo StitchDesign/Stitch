@@ -94,7 +94,6 @@
 		B55500A42C1A76050081C3F1 /* PulseReversionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */; };
 		B55500A82C1A7A5E0081C3F1 /* NodeViewModelUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */; };
 		B55500AF2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */; };
-		B55500B12C1B77E00081C3F1 /* PortViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B02C1B77E00081C3F1 /* PortViewType.swift */; };
 		B55500B42C1B986C0081C3F1 /* FieldGroupType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */; };
 		B55500B62C1B98B00081C3F1 /* SingleDropdownKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500B52C1B98B00081C3F1 /* SingleDropdownKind.swift */; };
 		B55500BB2C1B99810081C3F1 /* FieldViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500BA2C1B99810081C3F1 /* FieldViewModelType.swift */; };
@@ -987,7 +986,6 @@
 		B55500A32C1A76050081C3F1 /* PulseReversionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseReversionUtils.swift; sourceTree = "<group>"; };
 		B55500A72C1A7A5E0081C3F1 /* NodeViewModelUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeViewModelUtils.swift; sourceTree = "<group>"; };
 		B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordinateUtils.swift; sourceTree = "<group>"; };
-		B55500B02C1B77E00081C3F1 /* PortViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortViewType.swift; sourceTree = "<group>"; };
 		B55500B32C1B986C0081C3F1 /* FieldGroupType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldGroupType.swift; sourceTree = "<group>"; };
 		B55500B52C1B98B00081C3F1 /* SingleDropdownKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleDropdownKind.swift; sourceTree = "<group>"; };
 		B55500BA2C1B99810081C3F1 /* FieldViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldViewModelType.swift; sourceTree = "<group>"; };
@@ -3102,7 +3100,6 @@
 				ECA92A5F260A6CDA00281B52 /* EdgeAnchorData.swift */,
 				EC16587C2B6AF03F00FE4AE6 /* EdgeEditingState.swift */,
 				EC1658812B6AFDDA00FE4AE6 /* EdgeEditingModeInputLabel.swift */,
-				B55500B02C1B77E00081C3F1 /* PortViewType.swift */,
 				ECFA5D47287DEE510037CD59 /* PortColor.swift */,
 				B55500C92C1BA37D0081C3F1 /* PortViewData.swift */,
 				203D56B925B0DA7C00EF7AC2 /* PortEdgeData.swift */,
@@ -4950,7 +4947,6 @@
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
-				B55500B12C1B77E00081C3F1 /* PortViewType.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,
 				B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */,

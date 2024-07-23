@@ -177,12 +177,6 @@ extension GraphState: GraphDelegate {
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
     }
-    
-//    func getSplitterRowObservers(for groupNodeId: NodeId,
-//                                 type: SplitterType) -> NodeRowObservers {
-//        self.visibleNodesViewModel.getSplitterRowObservers(for: groupNodeId,
-//                                                           type: type)
-//    }
 }
 
 extension GraphState: SchemaObserver {
@@ -363,11 +357,6 @@ extension GraphState {
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
     }
-    
-//    @MainActor
-//    func isConnectedToASelectedNode<RowObserver>(at rowObserver: RowObserver) -> Bool where RowObserver: NodeRowObserver {
-//        !self.selectedNodeIds.intersection(rowObserver.rowViewModel.connectedCanvasItems).isEmpty
-//    }
 
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {

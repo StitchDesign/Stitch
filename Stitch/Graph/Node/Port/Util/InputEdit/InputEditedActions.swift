@@ -41,17 +41,7 @@ extension InputNodeRowObserver {
                      fieldValue: FieldValue,
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
-                     isCommitting: Bool = true) {
-//
-//        let parentPortValuesList = rowObserver.allLoopedValues
-//
-//        let loopIndex = self.graphUI.activeIndex.adjustedIndex(parentPortValuesList.count)
-//
-//        guard let parentPortValue = parentPortValuesList[safe: loopIndex] else {
-//            log("InputEdited error: no parent value found.")
-//            return .noChange
-//        }
-        
+                     isCommitting: Bool = true) {        
         guard let node = graph.getNodeViewModel(self.id.nodeId) else {
             fatalErrorIfDebug()
             return

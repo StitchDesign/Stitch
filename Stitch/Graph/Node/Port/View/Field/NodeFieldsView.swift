@@ -91,20 +91,4 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         }
         .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
-
-//    @ViewBuilder
-//    func valueEntryView(_ viewModel: FieldType) -> ValueEntry {
-//        ValueEntry(graph: graph,
-//                   rowObserver: rowObserver,
-//                   viewModel: viewModel,
-//                   fieldCoordinate: .init(input: coordinate, fieldIndex: viewModel.fieldIndex),
-//                   nodeIO: nodeIO,
-//                   isMultiField: isMultiField,
-//                   nodeKind: nodeKind,
-//                   isCanvasItemSelected: isCanvasItemSelected,
-//                   hasIncomingEdge: hasIncomingEdge,
-//                   adjustmentBarSessionId: adjustmentBarSessionId,
-//                   forPropertySidebar: forPropertySidebar,
-//                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-//    }
 }

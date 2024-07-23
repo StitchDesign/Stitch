@@ -33,10 +33,6 @@ struct NodesOnlyView: View {
         if canvasNodes.isEmpty {
             Rectangle().fill(.clear)
         }
-        // // Does ZStack e.g. put LIG views on top of patch node views?
-        // ZStack {
-        //     patchOrGroupNodesView
-        //     layerInputsOnGraphView
 
         ForEach(canvasNodes) { canvasNode in
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
@@ -69,57 +65,6 @@ struct NodesOnlyView: View {
     var currentlyFocusedGroup: NodeId? {
         graphUI.groupNodeFocused?.asNodeId
     }
-        
-    // @MainActor @ViewBuilder
-    // var layerInputsOnGraphView: some View {
-    //     let layerNodes = self.nodes.filter(\.layerNode.isDefined)
-    //     ForEach(layerNodes) { node in
-    //         let layerRowsOnGraph = (node.getAllInputsObservers() + node.getAllOutputsObservers()).filter(\.canvasUIData.isDefined)
-            
-    //         ForEach(layerRowsOnGraph) { layerRowOnGraph in
-    //             let isAtThisTraversalLevel = layerRowOnGraph.canvasUIData?.parentGroupNodeId == currentlyFocusedGroup
-                                
-    //             if isAtThisTraversalLevel,
-    //                let layerNode = node.layerNode {
-    //                 LayerRowOnGraphView(
-    //                     graph: graph,
-    //                     node: node,
-    //                     row: layerRowOnGraph,
-    //                     canvasItem: layerRowOnGraph.canvasUIData!,
-    //                     layerNode: layerNode)
-    //             } else {
-    //                 Color.clear.onAppear {
-    //                     if !node.layerNode.isDefined {
-    //                         fatalErrorIfDebug()
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
-    
-    // @MainActor @ViewBuilder
-    // var patchOrGroupNodesView: some View {
-    //     let patchOrGroupNodes = self.nodes.filter { !$0.kind.isLayer }
-    //     ForEach(patchOrGroupNodes) { node in
-    //         // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
-    //         // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
-    //         let isAtThisTraversalLevel = node.parentGroupNodeId == currentlyFocusedGroup
-    //         if isAtThisTraversalLevel {
-    //             NodeTypeView(
-    //                 graph: graph,
-    //                 node: node,
-    //                 atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
-    //                 activeIndex: activeIndex,
-    //                 groupNodeFocused: graphUI.groupNodeFocused,
-    //                 adjustmentBarSessionId: adjustmentBarSessionId,
-    //                 isHiddenDuringAnimation: insertNodeMenuHiddenNode.map { $0 == node.id } ?? false
-    //             )
-    //         } else {
-    //             EmptyView()
-    //         }
-    //     }
-    // }
 }
 
 // struct NodesOnlyView_Previews: PreviewProvider {

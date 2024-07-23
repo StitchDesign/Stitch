@@ -152,10 +152,7 @@ extension CanvasItemViewModel: SchemaObserver {
               parentGroupNodeId: self.parentGroupNodeId)
     }
 
-    @MainActor func update(from schema: CanvasNodeEntity) {
-        // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
-//        self.id.setOnChange(schema.id)
-        
+    @MainActor func update(from schema: CanvasNodeEntity) {        
         if self.position != schema.position {
             self.position = schema.position
         }

@@ -27,14 +27,3 @@ struct OutputPortViewData: PortViewData {
     var portId: Int
     var canvasId: CanvasItemId
 }
-
-//extension PortViewData {
-//    init?(from coordinate: NodeIOCoordinate) {
-//        guard let portId = coordinate.portId else {
-//            return nil
-//        }
-//    
-//        self.init(portId: portId,
-//                  nodeId: coordinate.nodeId)
-//    }
-//}

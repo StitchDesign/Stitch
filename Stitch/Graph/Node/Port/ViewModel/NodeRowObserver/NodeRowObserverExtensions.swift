@@ -10,13 +10,6 @@ import StitchSchemaKit
 
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
-//extension NodeViewModel {
-//    func updateValues(_ newValues: PortValues,
-//                      activeIndex: ActiveIndex) {
-//        
-//    }
-//}
-
 extension NodeRowObserver {
     @MainActor
     func updateValues(_ newValues: PortValues) {
@@ -53,14 +46,6 @@ extension NodeRowObserver {
             
             return rowViewModel
         }
-        
-//        return nodeDelegate
-//            .getAllCanvasObservers()
-//            .filter { $0.isVisibleInFrame }
-//            .flatMap { canvasItem in
-//                canvasItem.inputViewModels
-//                    .filter { $0.rowDelegate?.id == self.id }
-//            }
     }
     
     @MainActor var activeValue: PortValue {
@@ -201,7 +186,7 @@ extension Array where Element: NodeRowObserver {
 
         newValuesList.enumerated().forEach { portId, values in
             let observer = self[safe: portId] ??
-                // Sometimes observers aren't yet created for nodes with adjustable inputs
+            // Sometimes observers aren't yet created for nodes with adjustable inputs
             Element(values: values,
                     nodeKind: nodeDelegate.kind,
                     userVisibleType: userVisibleType,

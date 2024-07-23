@@ -23,14 +23,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @Bindable var rowViewModel: NodeRowViewModelType
     @Bindable var graph: GraphState
     let coordinate: NodeIOPortType
-//    let color: PortColor
-    
-    // Specify the node delegate (rather than using default one in row observer)
-    // in event of port for group
-//    let canvasItem: CanvasItemViewModel?
-    
-    // TODO: was used for movement
-//    let nodeDelegate: NodeDelegate?
 
     @MainActor
     var portColor: Color {
@@ -43,11 +35,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     }
     
     var body: some View {
-        
-//        let hasEdge = rowObserver.hasEdge
-        
-        // TODO: revisit empty port color after node body color has changed
-//        let portBodyColor = hasEdge ? portColor : NodeUIColor.patchNode.body.opacity(0.05)
         
         ZStack {
             Rectangle().fill(portColor)
@@ -92,12 +79,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         // Note: Should this ALSO update upstream and downstream ports? If not, why not?
         .onChange(of: graph.selectedEdges) {
             self.rowViewModel.updatePortColor()
-//            switch coordinate {
-//            case .output:
-//                updateOutputColor(output: self.rowObserver, graphState: graph)
-//            case .input:
-//                updateInputColor(input: self.rowObserver, graphState: graph)
-//            }
         }
     }
 
