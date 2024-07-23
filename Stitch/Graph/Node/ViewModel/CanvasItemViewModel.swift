@@ -9,7 +9,12 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension CanvasItemId {
+// TODO: does this need to be `Identifiable`?
+enum CanvasItemId: Equatable, Codable, Hashable {
+    case node(NodeId)
+    case layerInputOnGraph(LayerInputOnGraphId)
+    case layerOutputOnGraph(LayerOutputOnGraphId)
+    
     var nodeCase: NodeId? {
         switch self {
         case .node(let nodeId):
@@ -19,55 +24,46 @@ extension CanvasItemId {
         }
     }
     
-    var layerInputCase: LayerInputCoordinate? {
+    var layerInputCase: LayerInputOnGraphId? {
         switch self {
-        case .layerInput(let layerInputOnGraphId):
+        case .layerInputOnGraph(let layerInputOnGraphId):
             return layerInputOnGraphId
         default:
             return nil
         }
     }
     
-    var layerOutputCase: LayerOutputCoordinate? {
+    var layerOutputCase: LayerOutputOnGraphId? {
         switch self {
-        case .layerOutput(let layerOutputOnGraphId):
+        case .layerOutputOnGraph(let layerOutputOnGraphId):
             return layerOutputOnGraphId
         default:
             return nil
         }
     }
-    
-    var nodeId: NodeId {
-        switch self {
-        case .node(let id):
-            return id
-        case .layerInput(let input):
-            return input.node
-        case .layerOutput(let output):
-            return output.node
-        }
-    }
 }
 
-extension CanvasItemId: Identifiable {
-    public var id: Int {
-        self.hashValue
-    }
-}
-
+// TODO: careful for perf here?
 /// Canvas can only contain at most 1 LayerInputOnGraph per a given layer node's unique port.
-extension LayerInputCoordinate {
+struct LayerInputOnGraphId: Equatable, Codable, Hashable {
+    let node: NodeId // id for the parent layer node
+    let keyPath: LayerInputType // the keypath, i.e. unique port
+    
     var asInputCoordinate: InputCoordinate {
         .init(portType: .keyPath(keyPath),
               nodeId: node)
     }
 }
 
+typealias LayerOutputOnGraphId = OutputPortViewData
+
 typealias CanvasItemViewModels = [CanvasItemViewModel]
 
 @Observable
-final class CanvasItemViewModel: Identifiable {
-    var id: CanvasItemId
+final class CanvasItemViewModel {
+    // Needs its own identifier b/c 0 to many relationship with node
+    let id: CanvasItemId
+    
     var position: CGPoint = .zero
     var previousPosition: CGPoint = .zero
     var bounds = NodeBounds()
@@ -76,10 +72,6 @@ final class CanvasItemViewModel: Identifiable {
     
     // Default to false so initialized graphs don't take on extra perf loss
     var isVisibleInFrame = false
-    
-    // View specific port value data
-    var inputViewModels: [InputNodeRowViewModel] = []
-    var outputViewModels: [OutputNodeRowViewModel] = []
     
     // Moved state here for render cycle perf on port view for colors
     @MainActor
@@ -91,7 +83,15 @@ final class CanvasItemViewModel: Identifiable {
                 return
             }
             
-            node.updatePortColorDataUponNodeSelection()
+            updatePortColorDataUponNodeSelection(node: node,
+                                                 graphState: graph)
+            
+            if node.kind == .group {
+                updatePortColorDataUponNodeSelection(
+                    inputs: graph.getSplitterRowObservers(for: node.id, type: .input),
+                    outputs: graph.getSplitterRowObservers(for: node.id, type: .output),
+                    graphState: graph)
+            }
         }
     }
     
@@ -102,92 +102,22 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate?.graphDelegate
     }
     
-    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
          parentGroupNodeId: NodeId?,
-         inputRowObservers: [InputNodeRowObserver],
-         outputRowObservers: [OutputNodeRowObserver],
          nodeDelegate: NodeDelegate?) {
         self.id = id
         self.position = position
         self.previousPosition = position
+        self.bounds = bounds // where or how is this set?
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
-        self.nodeDelegate = nodeDelegate
-        
-        // Instantiate input and output row view models
-        self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers)
+        self.nodeDelegate = nodeDelegate // where or how is this set?
     }
-}
-
-extension CanvasItemViewModel: SchemaObserver {
-    @MainActor
-    func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                           outputRowObservers: [OutputNodeRowObserver]) {
-        self.inputViewModels.sync(with: inputRowObservers, canvas: self)
-        self.outputViewModels.sync(with: outputRowObservers, canvas: self)
-    }
-    
-    @MainActor
-    convenience init(from canvasEntity: CanvasNodeEntity,
-                     id: CanvasItemId,
-                     inputRowObservers: [InputNodeRowObserver],
-                     outputRowObservers: [OutputNodeRowObserver],
-                     node: NodeDelegate?) {
-        self.init(id: id,
-                  position: canvasEntity.position,
-                  zIndex: canvasEntity.zIndex,
-                  parentGroupNodeId: canvasEntity.parentGroupNodeId,
-                  inputRowObservers: inputRowObservers,
-                  outputRowObservers: outputRowObservers,
-                  nodeDelegate: node)
-    }
-    
-    func createSchema() -> CanvasNodeEntity {
-        .init(position: self.position,
-              zIndex: self.zIndex,
-              parentGroupNodeId: self.parentGroupNodeId)
-    }
-
-    @MainActor func update(from schema: CanvasNodeEntity) {
-        // Note: `mutating func setOnChange` cases Observable re-render even when no-op; see Playgrounds demo
-//        self.id.setOnChange(schema.id)
-        
-        if self.position != schema.position {
-            self.position = schema.position
-        }
-        
-        if self.previousPosition != schema.position {
-            self.previousPosition = schema.position
-        }
-        
-        if self.zIndex != schema.zIndex {
-            self.zIndex = schema.zIndex
-        }
-        
-        if self.parentGroupNodeId != schema.parentGroupNodeId {
-            self.parentGroupNodeId = schema.parentGroupNodeId
-        }
-    }
-    
-    func onPrototypeRestart() { }
 }
 
 extension CanvasItemViewModel {
-    @MainActor
-    static func createEmpty() -> Self {
-        .init(from: .init(position: .zero,
-                          zIndex: .zero,
-                          parentGroupNodeId: nil),
-              id: .node(.init()),
-              inputRowObservers: [],
-              outputRowObservers: [],
-              node: nil)
-    }
-    
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
@@ -195,46 +125,46 @@ extension CanvasItemViewModel {
     var isMoving: Bool {
         self.position != self.previousPosition
     }
-
-    @MainActor
-    func updateVisibilityStatus(with newValue: Bool,
-                                activeIndex: ActiveIndex) {
-        let oldValue = self.isVisibleInFrame
-        if oldValue != newValue {
-            self.isVisibleInFrame = newValue
-
-            // Refresh values if node back in frame
-            if newValue {
-                self.nodeDelegate?.updateInputsObservers(activeIndex: activeIndex)
-                self.nodeDelegate?.updateOutputsObservers(activeIndex: activeIndex)
-            }
-        }
-    }
     
-    func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
-        let gridLineLength = CGFloat(gridLineLength)
-        
-        self.position = .init(
-            x: self.position.x + gridLineLength,
-            y: self.position.y + gridLineLength)
-        
-        self.previousPosition = self.position
-    }
+    @MainActor
+    static let fakeCanvasItemForLayerInputOnGraph: CanvasItemViewModel = .init(
+        id: fakeCanvasItemIdForLayerInputOnGraph,
+        // So that we roughly get in the middle of the device screen;
+        // (since we use
+        position: .init(x: 350, y: 350),
+        zIndex: 0,
+        parentGroupNodeId: nil,
+        nodeDelegate: nil)
 }
 
-extension InputLayerNodeRowData {
-    @MainActor
-    static func empty(_ layerInputType: LayerInputType,
-                      layer: Layer) -> Self {
-        let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
-                                               nodeKind: .layer(.rectangle),
-                                               userVisibleType: nil,
-                                               id: .init(portId: -1, nodeId: .init()),
-                                               activeIndex: .init(.zero),
-                                               upstreamOutputCoordinate: nil,
-                                               nodeDelegate: nil)
-        
-        return .init(rowObserver: rowObserver,
-                     canvasObserver: nil)
-    }
-}
+let fakeCanvasItemIdForLayerInputOnGraph: CanvasItemId = .layerInputOnGraph(.init(
+    node: .fakeNodeId,
+    keyPath: .size))
+
+
+//extension CanvasItemViewModel: SchemaObserver {
+//    func createSchema() -> CanvasNodeEntity {
+//        .init(id: self.id,
+//              position: self.position,
+//              zIndex: self.zIndex,
+//              parentGroupNodeId: self.parentGroupNodeId)
+//    }
+//    
+//    @MainActor static func createObject(from entity: CanvasNodeEntity) -> Self {
+//        .init(id: entity.id,
+//              position: entity.position,
+//              zIndex: entity.zIndex)
+//    }
+//    
+//    @MainActor func update(from schema: CanvasNodeEntity) {
+//        self.id = schema.id
+//        self.position = schema.position
+//        self.previousPosition = schema.position
+//        self.zIndex = schema.zIndex
+//        self.parentGroupNodeId = schema.parentGroupNodeId
+//    }
+//    
+//    // TODO: remove -- CanvasItem represents data that is never changed by graph reset
+//    func onPrototypeRestart() { }
+//}
+

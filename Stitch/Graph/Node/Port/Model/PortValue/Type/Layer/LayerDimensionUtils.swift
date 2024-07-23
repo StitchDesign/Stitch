@@ -9,9 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
-
-
 extension String {
     static let AUTO_SIZE_STRING = "auto"
     static let FILL_SIZE_STRING = "fill"
@@ -77,14 +74,6 @@ extension String {
 }
 
 extension LayerDimension {
-    
-    // LayerDimension's dropdown choices excludes the numerical case
-    static let choices: [String] = [
-        LayerDimension.auto.description,
-        LayerDimension.fill.description,
-        LayerDimension.hug.description
-    ].map(\.description)
-    
     init(_ num: CGFloat) {
         self = .number(num)
     }

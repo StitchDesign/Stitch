@@ -8,24 +8,33 @@
 import Foundation
 import StitchSchemaKit
 
-extension InputNodeRowObserver: SchemaObserverIdentifiable {
+extension NodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
         self.init(from: entity,
                   activeIndex: .init(.zero),
                   nodeDelegate: nil)
     }
 
-    /// Updates values for inputs.
+    /// Only updates values for inputs without connections.
     @MainActor
-    func update(from schema: NodePortInputEntity) {
-        self.upstreamOutputCoordinate = schema.portData.upstreamConnection
+    func update(from schema: NodePortInputEntity,
+                activeIndex: ActiveIndex) {
+        self.upstreamOutputCoordinate = schema.upstreamOutputCoordinate
 
         // Update values if no upstream connection
-        if let values = schema.portData.values {
-            self.updateValues(values)
+        if let values = schema.values {
+            self.updateValues(values,
+                              activeIndex: activeIndex,
+                              isVisibleInFrame: true)
         }
     }
 
+    /// Only updates values for inputs without connections.
+    @MainActor
+    func update(from schema: NodePortInputEntity) {
+        self.update(from: schema, activeIndex: .init(.zero))
+    }
+    
     /// Schema updates from layer.
     @MainActor
     func update(from nodeConnection: NodeConnectionType,
@@ -41,53 +50,62 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
             }
             
             let values = values.isEmpty ? [inputType.getDefaultValue(for: layer)] : values
-            self.updateValues(values)
+            self.updateValues(values,
+                              activeIndex: .init(.zero),
+                              isVisibleInFrame: true)
         }
     }
 
     func createSchema() -> NodePortInputEntity {
         guard let upstreamOutputObserver = self.upstreamOutputObserver else {
-            return NodePortInputEntity(id: id, 
-                                       portData: .values(self.allLoopedValues),
+            return NodePortInputEntity(id: id,
                                        nodeKind: self.nodeKind,
-                                       userVisibleType: self.userVisibleType)
+                                       userVisibleType: self.userVisibleType,
+                                       values: self.allLoopedValues,
+                                       upstreamOutputCoordinate: self.upstreamOutputCoordinate)
         }
 
         return NodePortInputEntity(id: id,
-                                   portData: .upstreamConnection(upstreamOutputObserver.id),
                                    nodeKind: self.nodeKind,
-                                   userVisibleType: self.userVisibleType)
+                                   userVisibleType: self.userVisibleType,
+                                   values: nil,
+                                   upstreamOutputCoordinate: upstreamOutputObserver.id)
     }
     
-    // Set inputs to defaultValue
     func onPrototypeRestart() {
-        // test out first on just non-layer-node inputs
-        if self.upstreamOutputCoordinate.isDefined,
-           let patch = self.nodeKind.getPatch,
-           let portId = self.id.portId {
+        
+        // Set inputs to defaultValue
+        if self.nodeIOType == .input {
             
-            let defaultInputs: NodeInputDefinitions = self.nodeKind
-                .rowDefinitions(for: self.userVisibleType)
-                .inputs
-            
-            if let defaultValues = getDefaultValueForPatchNodeInput(portId,
-                                                                    defaultInputs,
-                                                                    patch: patch) {
+            // test out first on just non-layer-node inputs
+            if self.upstreamOutputCoordinate.isDefined,
+               let patch = self.nodeKind.getPatch,
+               let portId = self.id.portId {
                 
-                // log("will reset patch node input \(self.id) to default value \(defaultValues)")
-                self.updateValues(defaultValues)
+                let defaultInputs: NodeInputDefinitions = self.nodeKind
+                    .rowDefinitions(for: self.userVisibleType)
+                    .inputs
+                
+                if let defaultValues = getDefaultValueForPatchNodeInput(portId,
+                                                                        defaultInputs,
+                                                                        patch: patch) {
+                    
+                    // log("will reset patch node input \(self.id) to default value \(defaultValues)")
+                    self.updateValues(
+                        defaultValues,
+                        activeIndex: self.nodeDelegate?.graphDelegate?.activeIndex ?? .init(0),
+                        isVisibleInFrame: true)
+                }
+                //                else {
+                //                    log("was not able to reset patch node input to default value")
+                //                }
+                                
             }
-            //                else {
-            //                    log("was not able to reset patch node input to default value")
-            //                }
-            
         }
-    }
-}
-
-extension OutputNodeRowObserver {
-    func onPrototypeRestart() {
+        
         // Set outputs to be empty
-        self.allLoopedValues = []
+        if self.nodeIOType == .output {
+            self.allLoopedValues = []
+        }
     }
 }

@@ -8,21 +8,21 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct PortValuesPreviewData<FieldType: FieldViewModel>: Identifiable {
+struct PortValuesPreviewData: Identifiable {
     let id = UUID()
     let loopIndex: Int
-    let fields: [FieldType]
+    let fields: FieldViewModels
 }
 
-struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserver {
+struct PortValuesPreviewView: View {
 
     // Pin `NodeRowData` via `@ValuesObserver` so that this view re-renders as `NodeRowData.values` changes
-    @Bindable var data: RowObserver
-    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
+    @Bindable var data: NodeRowObserver
+
     let coordinate: NodeIOCoordinate
     let nodeIO: NodeIO
 
-    @State private var tableData: [PortValuesPreviewData<RowObserver.RowViewModelType.FieldType>] = []
+    @State private var tableData: [PortValuesPreviewData] = []
 
     var values: PortValues {
         self.data.allLoopedValues
@@ -88,15 +88,16 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
     func updateTableData(with values: PortValues) {
         let enumerated = Array(zip(values.indices, values))
         self.tableData = enumerated.map { index, _ in
-            let rowObserver = RowObserver(values: values,
-                                          nodeKind: data.nodeKind,
-                                          userVisibleType: data.userVisibleType,
-                                          id: self.data.id,
-                                          activeIndex: .init(index),
-                                          upstreamOutputCoordinate: nil,
-                                          nodeDelegate: self.data.nodeDelegate)
+            let rowObserver = NodeRowObserver(values: values,
+                                              nodeKind: data.nodeKind,
+                                              userVisibleType: data.userVisibleType,
+                                              id: self.data.id,
+                                              activeIndex: .init(index),
+                                              upstreamOutputCoordinate: nil,
+                                              nodeIOType: self.data.nodeIOType,
+                                              nodeDelegate: self.data.nodeDelegate)
 
-            let fields = fieldValueTypes.flatMap { $0.fieldObservers }
+            let fields = rowObserver.fieldValueTypes.flatMap { $0.fieldObservers }
 
             return .init(loopIndex: index,
                          fields: fields)
@@ -104,9 +105,9 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
     }
 }
 
-struct PortValuesPreviewValueView<FieldType>: View where FieldType: FieldViewModel {
+struct PortValuesPreviewValueView: View {
 
-    let field: FieldType
+    let field: FieldViewModel
 
     var body: some View {
 

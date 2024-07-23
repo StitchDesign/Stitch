@@ -8,87 +8,46 @@
 import Foundation
 import StitchSchemaKit
 
-typealias InputFieldViewModels = [InputFieldViewModel]
-typealias OutputFieldViewModels = [OutputFieldViewModel]
+typealias FieldViewModels = [FieldViewModel]
 
-protocol FieldViewModel: AnyObject, Observable, Identifiable {
-    associatedtype NodeRowType: NodeRowViewModel
-    
-    var fieldValue: FieldValue { get set }
+@Observable
+class FieldViewModel {
+    var fieldValue: FieldValue
+
+    let coordinate: NodeIOCoordinate
 
     // A port has 1 to many relationship with fields
-    var fieldIndex: Int { get set }
+    let fieldIndex: Int
 
     // eg "X" vs "Y" vs "Z" for .point3D parent-value
     // eg "X" vs "Y" for .position parent-value
-    var fieldLabel: String { get set }
+    var fieldLabel: String
 
     // e.g. Layer's size-scenario is "Constrain Height",
     // so we "block out" the Height fields on the Layer: size.height, minSize.height, maxSize.height
-    var isBlockedOut: Bool { get set }
-    
-    var rowViewModelDelegate: NodeRowType? { get set }
-    
-    init(fieldValue: FieldValue,
-         fieldIndex: Int,
-         fieldLabel: String,
-         rowViewModelDelegate: NodeRowType?)
-}
-
-@Observable
-final class InputFieldViewModel: FieldViewModel {
-    var fieldValue: FieldValue
-    var fieldIndex: Int
-    var fieldLabel: String
     var isBlockedOut: Bool = false
-
-    weak var rowViewModelDelegate: InputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
+         coordinate: NodeIOCoordinate,
          fieldIndex: Int,
-         fieldLabel: String,
-         rowViewModelDelegate: InputNodeRowViewModel?) {
+         fieldLabel: String) {
+
         self.fieldValue = fieldValue
+        self.coordinate = coordinate
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
-        self.rowViewModelDelegate = rowViewModelDelegate
     }
 }
 
-@Observable
-final class OutputFieldViewModel: FieldViewModel {
-    var fieldValue: FieldValue
-    var fieldIndex: Int
-    var fieldLabel: String
-    var isBlockedOut: Bool = false
-    weak var rowViewModelDelegate: OutputNodeRowViewModel?
-    
-    init(fieldValue: FieldValue,
-         fieldIndex: Int,
-         fieldLabel: String,
-         rowViewModelDelegate: OutputNodeRowViewModel?) {
-        self.fieldValue = fieldValue
-        self.fieldIndex = fieldIndex
-        self.fieldLabel = fieldLabel
-        self.rowViewModelDelegate = rowViewModelDelegate
-    }
+extension FieldViewModel: Identifiable {
+    var id: FieldCoordinate { .init(input: self.coordinate,
+                                    fieldIndex: self.fieldIndex) }
 }
 
-extension FieldViewModel {
-    var id: FieldCoordinate {
-        return .init(rowId: self.rowViewModelDelegate?.id ?? .empty,
-                     fieldIndex: self.fieldIndex)
-    }
-    
-    var rowDelegate: Self.NodeRowType.RowObserver? {
-        self.rowViewModelDelegate?.rowDelegate
-    }
-}
-
-extension Array where Element: FieldViewModel {
+extension FieldViewModels {
     init(_ fieldGroupType: FieldGroupType,
-         startingFieldIndex: Int,
-         rowViewModel: Element.NodeRowType?) {
+         coordinate: NodeIOCoordinate,
+         startingFieldIndex: Int) {
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues
 
@@ -96,9 +55,9 @@ extension Array where Element: FieldViewModel {
             let fieldLabel = labels[safe: index] ?? ""
 
             return .init(fieldValue: fieldValue,
+                         coordinate: coordinate,
                          fieldIndex: startingFieldIndex + index,
-                         fieldLabel: fieldLabel,
-                         rowViewModelDelegate: rowViewModel)
+                         fieldLabel: fieldLabel)
         }
     }
 }

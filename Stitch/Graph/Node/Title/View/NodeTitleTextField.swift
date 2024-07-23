@@ -31,9 +31,9 @@ struct NodeTitleTextField: View {
                     shouldFocus: false,
                     isForNodeTitle: true,
                     fontColor: Color(.nodeTitleFont)) { newEdit, isCommitting in
-                        dispatch(NodeTitleEdited(id: id,
-                                                 edit: newEdit,
-                                                 isCommitting: isCommitting))
+                        NodeTitleEdited(id: id,
+                                        edit: newEdit,
+                                        isCommitting: isCommitting)
                     }
                     .frame(height: NODE_TITLE_HEIGHT,
                            alignment: .center)

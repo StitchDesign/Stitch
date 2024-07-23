@@ -17,11 +17,33 @@ extension NodeViewModel {
                                         parentGroupNodeId: GroupNodeId? = nil,
                                         activeIndex: ActiveIndex,
                                         graphDelegate: GraphDelegate?) {
-        var nodeType: NodeTypeEntity
+        var patchNodeEntity: PatchNodeEntity?
+        var layerNodeEntity: LayerNodeEntity?
+
+        switch T.graphKind {
+        case .patch(let patchNode):
+            let splitter: SplitterNodeEntity? = patchNode.patch == .splitter ? .init(id: id,
+                                                                                     lastModifiedDate: Date.now,
+                                                                                     type: .inline) : nil
+
+            patchNodeEntity = PatchNodeEntity(
+                id: id,
+                patch: patchNode.patch,
+                userVisibleType: patchNode.defaultUserVisibleType,
+                splitterNode: splitter,
+                mathExpression: patchNode.patch == .mathExpression ? "" : nil)
+
+        case .layer(let layerNode):
+            layerNodeEntity = LayerNodeEntity(nodeId: id,
+                                              layer: layerNode.layer,
+                                              hasSidebarVisibility: true,
+                                              layerGroupId: nil,
+                                              // TODO: is this really okay?
+                                              isExpandedInSidebar: nil)
+        }
+
         let kind = T.graphKind.kind
-        let userVisibleType = kind.graphNode?.graphKind.patch?.defaultUserVisibleType
-        
-        let defaultInputs = kind.rowDefinitions(for: userVisibleType).inputs
+        let defaultInputs = kind.rowDefinitions(for: patchNodeEntity?.userVisibleType).inputs
             .enumerated()
             .map { portId, inputData in
                 var coordinate: NodeIOCoordinate
@@ -33,49 +55,21 @@ extension NodeViewModel {
                 }
                 
                 return NodePortInputEntity(id: coordinate,
-                                           portData: .values(inputData.defaultValues),
                                            nodeKind: kind,
-                                           userVisibleType: userVisibleType)
+                                           userVisibleType: patchNodeEntity?.userVisibleType,
+                                           values: inputData.defaultValues,
+                                           upstreamOutputCoordinate: nil)
             }
-        
-        let canvasEntity = CanvasNodeEntity(position: position,
-                                            zIndex: zIndex,
-                                            parentGroupNodeId: parentGroupNodeId?.asNodeId)
-
-        switch T.graphKind {
-        case .patch(let patchNode):
-            let splitter: SplitterNodeEntity? = patchNode.patch == .splitter ? .init(id: id,
-                                                                                     lastModifiedDate: Date.now,
-                                                                                     type: .inline) : nil
-
-            let patchNode = PatchNodeEntity(
-                id: id,
-                patch: patchNode.patch,
-                inputs: defaultInputs,
-                canvasEntity: canvasEntity,
-                userVisibleType: patchNode.defaultUserVisibleType,
-                splitterNode: splitter,
-                mathExpression: patchNode.patch == .mathExpression ? "" : nil)
-            nodeType = .patch(patchNode)
-
-        case .layer(let layerNode):
-            var layerNode = LayerNodeEntity(nodeId: id,
-                                            layer: layerNode.layer,
-                                            hasSidebarVisibility: true,
-                                            layerGroupId: nil,
-                                            isExpandedInSidebar: nil)
-            
-            // MARK: arbitrarily use position port for saving canvas position data until inspector is supported
-            if !FeatureFlags.USE_LAYER_INSPECTOR {
-                layerNode.positionPort.canvasItem = canvasEntity
-            }
-            
-            nodeType = .layer(layerNode)
-        }
-
         let nodeEntity = NodeEntity(id: id,
-                                    nodeTypeEntity: nodeType,
-                                    title: graphNode.defaultTitle)
+                                    position: position,
+                                    zIndex: zIndex,
+                                    parentGroupNodeId: parentGroupNodeId?.id,
+                                    patchNodeEntity: patchNodeEntity,
+                                    layerNodeEntity: layerNodeEntity,
+                                    isGroupNode: false,
+                                    title: graphNode.defaultTitle,
+                                    // We can leave this empty since the init will create default values
+                                    inputs: defaultInputs)
         self.init(from: nodeEntity,
                   activeIndex: activeIndex,
                   graphDelegate: graphDelegate)
@@ -118,39 +112,58 @@ extension NodeViewModel {
 
     @MainActor
     static var mock: NodeViewModel {
-        NodeViewModel(from: SplitterPatchNode.self,
-                      activeIndex: .init(.zero),
-                      graphDelegate: nil)
+        let id = NodeId()
+        return NodeViewModel(id: id,
+                             inputs: [],
+                             inputLabels: [],
+                             outputs: [],
+                             outputLabels: [],
+                             activeIndex: .init(.zero),
+                             nodeType: .patch(.init(id: id,
+                                                    patch: .add,
+                                                    delegate: nil)),
+                             parentGroupNodeId: nil,
+                             graphDelegate: nil)
     }
 
     @MainActor
     var inputs: PortValuesList {
-        self.getAllInputsObservers().map { $0.allLoopedValues }
+        self.inputRowObservers().map { $0.allLoopedValues }
     }
 
     @MainActor
     var outputs: PortValuesList {
-        self.getAllOutputsObservers().map { $0.allLoopedValues }
+        self.outputRowObservers().map { $0.allLoopedValues }
     }
     
     @MainActor
-    func allRowObservers() -> [any NodeRowObserver] {
-        self.getAllInputsObservers() + self.getAllOutputsObservers()
+    func allRowObservers() -> NodeRowObservers {
+        self.inputRowObservers() + self.outputRowObservers()
     }
     
-//    @MainActor
-//    func getAllViewInputPorts() -> [InputPortViewData] {
-//        (0..<self.inputPortCount).map {
-//            .init(portId: $0, nodeId: self.id)
-//        }
-//    }
+    @MainActor
+    func inputRowObservers() -> NodeRowObservers {
+        self.getRowObservers(.input)
+    }
     
-//    @MainActor
-//    func getAllViewOutputPorts() -> [OutputPortViewData] {
-//        (0..<self.outputPortCount).map {
-//            .init(portId: $0, nodeId: self.id)
-//        }
-//    }
+    @MainActor
+    func outputRowObservers() -> NodeRowObservers {
+        self.getRowObservers(.output)
+    }
+    
+    @MainActor
+    func getAllViewInputPorts() -> [InputPortViewData] {
+        (0..<self.inputPortCount).map {
+            .init(portId: $0, nodeId: self.id)
+        }
+    }
+    
+    @MainActor
+    func getAllViewOutputPorts() -> [OutputPortViewData] {
+        (0..<self.outputPortCount).map {
+            .init(portId: $0, nodeId: self.id)
+        }
+    }
     
     /*
      Used only for node type changes, i.e. changing the type of existing inputs.
@@ -170,7 +183,7 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
-        self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
+        self.inputRowObservers().enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
                 nodeKind: self.kind,
@@ -181,53 +194,56 @@ extension NodeViewModel {
         }
     }
     
-//    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
-//    @MainActor
-//    func updateAllPortViewData() {
-//        let inputsObservers = self.getAllInputsObservers()
-//        let outputsObservers = self.getAllOutputsObservers()
-//        
-//        inputsObservers.forEach { $0.updatePortViewData() }
-//        outputsObservers.forEach { $0.updatePortViewData() }
-//    }
+    /// Updates UI IDs for each row observer. This is data that's only used for views and has costly perf.
+    @MainActor
+    func updateAllPortViewData() {
+        let inputsObservers = self.getRowObservers(.input)
+        let outputsObservers = self.getRowObservers(.output)
+        
+        inputsObservers.forEach { $0.updatePortViewData() }
+        outputsObservers.forEach { $0.updatePortViewData() }
+    }
     
     @MainActor
     func updateAllConnectedNodes() {
-        self.allInputViewModels.forEach { $0.updateConnectedCanvasItems() }
-        self.allOutputViewModels.forEach { $0.updateConnectedCanvasItems() }
+        let inputsObservers = self.getRowObservers(.input)
+        let outputsObservers = self.getRowObservers(.output)
+        
+        inputsObservers.forEach { $0.updateConnectedNodes() }
+        outputsObservers.forEach { $0.updateConnectedNodes() }
     }
     
-//    /// Helper to update value at some specific port and loop.
-//    @MainActor
-//    func updateValue(_ value: PortValue,
-//                     nodeIO: NodeIO,
-//                     port: Int,
-//                     loop: Int,
-//                     activeIndex: ActiveIndex,
-//                     isVisibleInFrame: Bool) {
-//        guard let observer = self.getRowObservers(nodeIO)[safe: port],
-//              let oldValue = observer.allLoopedValues[safe: loop] else {
-//            #if DEBUG
-//            fatalError()
-//            #endif
-//            return
-//        }
-//
-//        if oldValue != value {
-//            var newValues = observer.allLoopedValues
-//            guard loop < newValues.count else {
-//                #if DEBUG
-//                fatalError()
-//                #endif
-//                return
-//            }
-//
-//            newValues[port] = value
-//            observer.updateValues(newValues,
-//                                  activeIndex: activeIndex,
-//                                  isVisibleInFrame: isVisibleInFrame)
-//        }
-//    }
+    /// Helper to update value at some specific port and loop.
+    @MainActor
+    func updateValue(_ value: PortValue,
+                     nodeIO: NodeIO,
+                     port: Int,
+                     loop: Int,
+                     activeIndex: ActiveIndex,
+                     isVisibleInFrame: Bool) {
+        guard let observer = self.getRowObservers(nodeIO)[safe: port],
+              let oldValue = observer.allLoopedValues[safe: loop] else {
+            #if DEBUG
+            fatalError()
+            #endif
+            return
+        }
+
+        if oldValue != value {
+            var newValues = observer.allLoopedValues
+            guard loop < newValues.count else {
+                #if DEBUG
+                fatalError()
+                #endif
+                return
+            }
+
+            newValues[port] = value
+            observer.updateValues(newValues,
+                                  activeIndex: activeIndex,
+                                  isVisibleInFrame: isVisibleInFrame)
+        }
+    }
     
     // MARK: heavy perf cost due to human readable strings.**
     func getDisplayTitle() -> String {
@@ -293,6 +309,16 @@ extension NodeViewModel {
     var outputsLengthenedByLongestInputLoop: PortValuesList {
         getLengthenedArrays(self.outputs,
                             longestLoopLength: getLongestLoopLength(self.inputs))
+    }
+    
+    func shiftPosition(by gridLineLength: Int = SQUARE_SIDE_LENGTH) {
+        let gridLineLength = CGFloat(gridLineLength)
+        
+        self.position = .init(
+            x: self.position.x + gridLineLength,
+            y: self.position.y + gridLineLength)
+        
+        self.previousPosition = self.position
     }
     
     @MainActor

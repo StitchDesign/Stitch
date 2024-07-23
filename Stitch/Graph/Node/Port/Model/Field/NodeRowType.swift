@@ -20,8 +20,7 @@ enum NodeRowType: Equatable {
          shapeCommand(ShapeCommandFieldType),
          singleDropdown(SingleDropdownKind),
          textFontDropdown, // TODO: special case because nested?
-         spacing, // uses TextField + Dropdown
-         bool,
+         bool, 
          asyncMedia,
          number,
          string,
@@ -39,7 +38,7 @@ extension NodeRowType {
     // TODO: smarter / easier to way to do this?
     var inputUsesTextField: Bool {
         switch self {
-        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing:
+        case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string:
             return true
         case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring:
             return false
@@ -86,8 +85,6 @@ extension NodeRowType {
             return .anchoring(.topLeft)
         case .textFontDropdown:
             return .textFont(.defaultStitchFont)
-        case .spacing:
-            return .spacing(.defaultStitchSpacing)
         }
     }
 }

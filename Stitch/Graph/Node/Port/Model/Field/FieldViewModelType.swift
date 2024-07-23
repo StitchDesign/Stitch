@@ -11,8 +11,8 @@ import StitchSchemaKit
 typealias FieldViewModelTypes = [FieldViewModelType]
 
 enum FieldViewModelType {
-    case single(InputFieldViewModel)
-    case multiple([InputFieldViewModel], String? = nil)
+    case single(FieldViewModel)
+    case multiple(FieldViewModels, String? = nil)
 }
 
 extension FieldViewModelType: Identifiable {
@@ -27,7 +27,7 @@ extension FieldViewModelType: Identifiable {
 }
 
 extension FieldViewModelType {
-    var viewModels: [InputFieldViewModel] {
+    var viewModels: FieldViewModels {
         switch self {
         case .single(let fieldViewModel):
             return [fieldViewModel]
@@ -39,14 +39,14 @@ extension FieldViewModelType {
 
 extension FieldViewModelTypes {
     init(singleFieldValue: FieldValue,
-         fieldLabel: String = "",
-         rowViewModelDelegate: InputNodeRowViewModel) {
+         coordinate: NodeIOCoordinate,
+         fieldLabel: String = "") {
         self = [
             .single(
-                InputFieldViewModel(fieldValue: singleFieldValue,
-                                    fieldIndex: 0,
-                                    fieldLabel: fieldLabel,
-                                    rowViewModelDelegate: rowViewModelDelegate)
+                FieldViewModel(fieldValue: singleFieldValue,
+                               coordinate: coordinate,
+                               fieldIndex: 0,
+                               fieldLabel: fieldLabel)
             )
         ]
     }

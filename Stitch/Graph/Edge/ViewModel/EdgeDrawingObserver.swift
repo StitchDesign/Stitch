@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 @Observable
 final class EdgeDrawingObserver {
-    var nearestEligibleInput: InputNodeRowViewModel?
+    var nearestEligibleInput: NodeRowObserver?
     var drawingGesture: OutputDragGesture?
     var recentlyDrawnEdge: PortEdgeUI?
 }
@@ -23,9 +23,9 @@ extension EdgeDrawingObserver {
     }
 }
 
-struct OutputDragGesture {
+struct OutputDragGesture: Equatable {
     // the output we started dragging from
-    let output: OutputNodeRowViewModel
+    let output: NodeRowObserver
     var dragLocation: CGPoint
 
     // the diff of gesture.start;

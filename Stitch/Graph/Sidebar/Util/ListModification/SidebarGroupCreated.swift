@@ -38,7 +38,7 @@ struct SidebarGroupCreated: GraphEventWithResponse {
             return .noChange
         }
         
-//        newNode.adjustPosition(center: state.newNodeCenterLocation)
+        newNode.adjustPosition(center: state.newNodeCenterLocation)
         newNode.graphDelegate = state // redundant?
                 
         // Add to state
@@ -78,7 +78,10 @@ struct SidebarGroupCreated: GraphEventWithResponse {
         let assumedLayerGroupSize: LayerSize = groupFit.size
         
         // Update layer group's size input
-        newNode.getInputRowObserver(1)?.updateValues([.size(assumedLayerGroupSize)])
+        newNode.getInputRowObserver(1)?.updateValues(
+            [.size(assumedLayerGroupSize)],
+            activeIndex: .defaultActiveIndex,
+            isVisibleInFrame: true)
         
         
         

@@ -108,7 +108,7 @@ func selectAllNodesAtTraversalLevel(_ state: GraphState) {
     // Only select the visible nodes,
     // i.e. those at this traversal level.
     let visibleNodes = state.visibleNodesViewModel
-        .getVisibleCanvasItems(at: state.graphUI.groupNodeFocused?.asNodeId)
+        .getVisibleNodes(at: state.graphUI.groupNodeFocused?.asNodeId)
 
     state.resetSelectedCanvasItems()
     

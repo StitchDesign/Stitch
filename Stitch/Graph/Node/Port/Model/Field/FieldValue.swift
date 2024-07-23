@@ -16,7 +16,7 @@ import SwiftyJSON
 typealias FieldValues = [FieldValue]
 
 // TODO: rather than "number or string", the real cases are "number or parentPercent (eg 50%) or auto"
-enum FieldValue: Equatable, Sendable {
+enum FieldValue: Equatable {
     case string(StitchStringValue)
     case number(Double)
     case layerDimension(LayerDimensionField)
@@ -30,7 +30,6 @@ enum FieldValue: Equatable, Sendable {
     case json(StitchJSON)
     case readOnly(String)
     case textFontDropdown(StitchFont)
-    case spacing(StitchSpacing)
 }
 
 extension FieldValue {
@@ -54,8 +53,7 @@ extension FieldValue {
         case .anchorPopover(let x):
             return x.display
         // case .layerDropdown(let x): // TODO: retrieve layer name?
-            // TODO: provide real values here
-        case .color, .layerDropdown, .textFontDropdown, .spacing:
+        default:
             return ""
         }
     }
@@ -72,11 +70,7 @@ extension FieldValue {
             return numberValue.stringValue
         case .json(let json):
             return json.display
-        case .bool(let bool):
-            return bool.description
-        case .spacing(let spacing):
-            return spacing.display
-        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown:
+        default:
             return ""
         }
     }

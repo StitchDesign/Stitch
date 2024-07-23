@@ -83,7 +83,7 @@ struct StitchFontSelectionMenu: View {
     }
 }
 
-//#Preview {
-//    StitchFontDropdown(input: .fakeInputCoordinate,
-//                       stitchFont: .init(.newYorkSerif, .NewYorkSerif_bold))
-//}
+#Preview {
+    StitchFontDropdown(input: .fakeInputCoordinate,
+                       stitchFont: .init(.newYorkSerif, .NewYorkSerif_bold))
+}

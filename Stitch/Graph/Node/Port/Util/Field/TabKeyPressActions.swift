@@ -36,13 +36,14 @@ extension GraphState {
 func nextFieldOrInput(state: GraphDelegate,
                       focusedField: FieldCoordinate) -> FieldCoordinate? {
 
-    let currentInputCoordinate = focusedField.rowId
-
+    let currentInputCoordinate = focusedField.input
+    let nodeId = currentInputCoordinate.nodeId
+    
     // Retrieve the node view model,
-    guard let node = state.getNodeViewModel(focusedField.rowId.nodeId),
+    guard let node = state.getNodeViewModel(nodeId),
           // actually, want to look at the activeValue?
           // but that won't matter
-            let input = node.getInputRowViewModel(for: currentInputCoordinate) else {
+            let input = node.getInputRowObserver(for: currentInputCoordinate.portType) else {
         log("nextFieldOrInput: Could not find node or input for field \(focusedField)")
         return nil
     }
@@ -52,13 +53,13 @@ func nextFieldOrInput(state: GraphDelegate,
     
     // If we're not yet past max field index, return the incremented field index.
     if nextFieldIndex <= maxFieldIndex {
-        return FieldCoordinate(rowId: currentInputCoordinate,
+        return FieldCoordinate(input: currentInputCoordinate,
                                fieldIndex: nextFieldIndex)
     }
     
     // Else, move to next input (or first input, if already on last input).
     else {
-        return node.nextInput(focusedField.rowId)
+        return node.nextInput(focusedField.input)
     }
 }
 
@@ -67,11 +68,11 @@ struct TabEligibleInput: Equatable, Hashable {
     let originalIndex: Int
 }
 
-extension Array where Element: InputNodeRowViewModel {
+extension NodeRowObservers {
     func tabEligibleInputs() -> OrderedSet<TabEligibleInput> {
         self.enumerated()
             .reduce(into: OrderedSet<TabEligibleInput>()) { acc, item in
-                if item.element.activeValue.getNodeRowType(nodeIO: .input).inputUsesTextField {
+                if item.element.allLoopedValues.first?.getNodeRowType(nodeIO: .input).inputUsesTextField ?? false {
                     acc.append(.init(originalIndex: item.offset))
                 }
             }
@@ -79,51 +80,88 @@ extension Array where Element: InputNodeRowViewModel {
 }
 
 extension NodeViewModel {
+    
     @MainActor
-    func nextInput(_ currentInputCoordinate: NodeRowViewModelId) -> FieldCoordinate {
-        let allInputs = self.allInputRowViewModels
-        let graphItemType = currentInputCoordinate.graphItemType
-        let portId = currentInputCoordinate.portId
-                     
-        // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
-        // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
-        // would have tab-eligible-input indices like `[1, 3]`
-        let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
+    func nextInput(_ currentInputCoordinate: InputCoordinate) -> FieldCoordinate {
         
-        guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
-              let firstEligibleInput = eligibleInputs.first,
-              let lastEligibleInput = eligibleInputs.last else {
-            fatalErrorIfDebug()
-            return .fakeFieldCoordinate // should never happen
-        }
+        let nodeId = self.id
         
-        // If we're already on last input, then move to first input.
-        if currentEligibleInput == lastEligibleInput {
-            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                nodeId: self.id,
-                                                portId: firstEligibleInput.originalIndex),
-                                   fieldIndex: 0)
-        }
+        switch currentInputCoordinate.portType {
         
-        // Else, move to next input. In the list of eligible inputs, go to the next eligible input right after our current eligible input.
-        //            else if let nextEligibleInput = eligibleInputs.drop(while: { $0 != currentEligibleInput }).dropFirst().first {
-        
-        else if let nextEligibleInput = eligibleInputs.after(currentEligibleInput) {
-            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                nodeId: self.id,
-                                                portId: nextEligibleInput.originalIndex),
-                                   fieldIndex: 0)
-        }
-        
-        else {
-            fatalErrorIfDebug()
-            return .fakeFieldCoordinate // should never happen
-        }
+        case .portIndex(let portId): // current port id
+                                    
+            // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
+            // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
+            // would have tab-eligible-input indices like `[1, 3]`
+            let allInputs = self.inputRowObservers()
+            let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
+            
+            guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
+                  let firstEligibleInput = eligibleInputs.first,
+                  let lastEligibleInput = eligibleInputs.last else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+            // If we're already on last input, then move to first input.
+            if currentEligibleInput == lastEligibleInput {
+                return FieldCoordinate(input: .init(portType: .portIndex(firstEligibleInput.originalIndex),
+                                                    nodeId: nodeId),
+                                       fieldIndex: 0)
+            }
+            
+            // Else, move to next input. In the list of eligible inputs, go to the next eligible input right after our current eligible input.
+//            else if let nextEligibleInput = eligibleInputs.drop(while: { $0 != currentEligibleInput }).dropFirst().first {
+            
+            else if let nextEligibleInput = eligibleInputs.after(currentEligibleInput) {
+                return FieldCoordinate(input: .init(portType: .portIndex(nextEligibleInput.originalIndex),
+                                                    nodeId: nodeId),
+                                       fieldIndex: 0)
+            }
+            
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+        case .keyPath(let currentInputKey):
+            
+            guard let layer = self.kind.getLayer else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+            let layerInputs = layer.textInputsForThisLayer
+                        
+            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
+                  let firstInput = layerInputs.first,
+                  let lastInput = layerInputs.last else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+            // If we're already on last input, then move to first input.
+            if currentInputKey == lastInput {
+                return FieldCoordinate(input: .init(portType: .keyPath(firstInput),
+                                                    nodeId: nodeId),
+                                       fieldIndex: 0)
+            }
+            // Else, move to next input:
+            else if let nextInputKey = layerInputs[safe: currentInputKeyIndex + 1] {
+                return FieldCoordinate(input: .init(portType: .keyPath(nextInputKey),
+                                                    nodeId: nodeId),
+                                       fieldIndex: 0)
+            } else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+        } // switch
     }
 }
 
 extension Layer {
-    @MainActor var textInputsForThisLayer: [LayerInputType] {
+    var textInputsForThisLayer: [LayerInputType] {
         
         let layer = self
         
@@ -146,12 +184,13 @@ func previousFieldOrInput(state: GraphDelegate,
                           focusedField: FieldCoordinate) -> FieldCoordinate? {
     
     let currentFieldIndex = focusedField.fieldIndex
-    let currentInputCoordinate = focusedField.rowId
+    let currentInputCoordinate = focusedField.input
     let nodeId = currentInputCoordinate.nodeId
     
-    guard let input = state.getInputRowViewModel(for: focusedField.rowId,
-                                                 nodeId: nodeId),
-          let node = state.getNodeViewModel(nodeId) else {
+    guard let node = state.getNodeViewModel(nodeId),
+          // actually, want to look at the activeValue?
+          // but that won't matter
+            let input = node.getInputRowObserver(for: currentInputCoordinate.portType) else {
         log("nextFieldOrInput: Could not find node or input for field \(focusedField)")
         return nil
     }
@@ -167,7 +206,7 @@ func previousFieldOrInput(state: GraphDelegate,
     
     // If we're not yet at the very first field, return the decremented field index.
     if previousFieldIndex >= 0 {
-        return FieldCoordinate(rowId: currentInputCoordinate,
+        return FieldCoordinate(input: currentInputCoordinate,
                                fieldIndex: previousFieldIndex)
     }
     
@@ -179,22 +218,18 @@ func previousFieldOrInput(state: GraphDelegate,
 
 extension NodeViewModel {
     @MainActor
-    func previousInput(_ currentInput: InputNodeRowViewModel) -> FieldCoordinate {
+    func previousInput(_ currentInput: NodeRowObserver) -> FieldCoordinate {
         let nodeId = self.id
-        let currentInputCoordinate = currentInput.id
+        let currentInputCoordinate: InputCoordinate = currentInput.id
         
-        switch currentInput.id.graphItemType {
-        case .layerInspector:
-            // TODO: not yet supported. Need to move ordering logic from inspector view so that it can be leveraged here.
-            fatalErrorIfDebug()
-            return currentInput.fieldValueTypes.first!.id
-        case .node:
-            let portId = currentInputCoordinate.portId
+        switch currentInputCoordinate.portType {
+        
+        case .portIndex(let portId):
             
             // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
             // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
             // would have tab-eligible-input indices like `[1, 3]`
-            let allInputs = self.allNodeInputRowViewModels
+            let allInputs = self.inputRowObservers()
             let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
             
             guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
@@ -208,9 +243,8 @@ extension NodeViewModel {
             if currentEligibleInput == firstEligibleInput,
                let maxFieldIndex = allInputs[safe: lastEligibleInput.originalIndex]?.maxFieldIndex {
                 return FieldCoordinate(
-                    rowId: .init(graphItemType: .node,
-                                 nodeId: nodeId,
-                                 portId: lastEligibleInput.originalIndex),
+                    input: .init(portType: .portIndex(lastEligibleInput.originalIndex),
+                                 nodeId: nodeId),
                     fieldIndex: maxFieldIndex)
             }
             
@@ -218,9 +252,8 @@ extension NodeViewModel {
             else if let previousEligibleInput = eligibleInputs.before(currentEligibleInput),
                     let maxFieldIndex = allInputs[safe: previousEligibleInput.originalIndex]?.maxFieldIndex{
                 
-                return FieldCoordinate(rowId: .init(graphItemType: .node,
-                                                    nodeId: nodeId,
-                                                    portId: previousEligibleInput.originalIndex),
+                return FieldCoordinate(input: .init(portType: .portIndex(previousEligibleInput.originalIndex),
+                                                    nodeId: nodeId),
                                        fieldIndex: maxFieldIndex)
             }
             
@@ -228,12 +261,48 @@ extension NodeViewModel {
                 fatalErrorIfDebug()
                 return .fakeFieldCoordinate // should never happen
             }
-        }
+            
+            
+            
+        case .keyPath(let currentInputKey):
+            
+            guard let layer = self.kind.getLayer else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+
+            let layerInputs = layer.textInputsForThisLayer
+            
+            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
+                  let firstInput = layerInputs.first,
+                  let lastInput = layerInputs.last else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+                        
+            // If we're already on first input, then "loop back" to the last field of the last input.
+            if currentInputKey == firstInput {
+                return FieldCoordinate(input: .init(portType: .keyPath(lastInput),
+                                                    nodeId: nodeId),
+                                       fieldIndex: lastInput.maxFieldIndex(layer))
+            }
+            
+            // Else, move to last field of the previous input:
+            else if let previousInputKey = layerInputs[safe: currentInputKeyIndex - 1] {
+                return FieldCoordinate(input: .init(portType: .keyPath(previousInputKey),
+                                                    nodeId: nodeId),
+                                       fieldIndex: previousInputKey.maxFieldIndex(layer))
+            } else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+        } // switch
     }
     
     @MainActor
     var maxInputIndex: Int {
-        self.getAllInputsObservers().count - 1
+        self.inputRowObservers().count - 1
     }
 }
 
@@ -248,7 +317,7 @@ extension LayerInputType {
     }
 }
 
-extension NodeRowViewModel {
+extension NodeRowObserver {
     var maxFieldIndex: Int {
         // I would expect an input to have [field];
         // but this is [[field]] ?

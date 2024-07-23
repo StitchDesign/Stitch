@@ -36,12 +36,6 @@ extension [NodeInputDefinition] {
     }
 }
 
-extension [NodeOutputDefinition] {
-    var defaultList: PortValuesList {
-        self.map { [$0.value] }
-    }
-}
-
 extension NodeRowDefinitions {
     init(layerInputs: LayerInputTypeSet,
          outputs: [NodeOutputDefinition] = [],

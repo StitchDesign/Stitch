@@ -135,7 +135,9 @@ extension GraphState {
                               // z-height of layer node on graph
                               zIndex: ZIndex) -> NodeViewModel? {
         guard let children = groupLayerData.children else {
-            fatalErrorIfDebug()
+            #if DEBUG
+            fatalError()
+            #endif
             return nil
         }
 
@@ -160,8 +162,8 @@ extension GraphState {
                                                             zIndex: zIndex,
                                                             activeIndex: self.activeIndex,
                                                             graphDelegate: self)
-        newNode.layerNode?.sizePort.rowObserver.allLoopedValues = [.size(layerGroupFit.size)]
-        newNode.layerNode?.positionPort.rowObserver.allLoopedValues = [.position(layerGroupFit.position)]
+        newNode.layerNode?.sizePort.allLoopedValues = [.size(layerGroupFit.size)]
+        newNode.layerNode?.positionPort.allLoopedValues = [.position(layerGroupFit.position)]
 
         newNode.graphDelegate = self
 

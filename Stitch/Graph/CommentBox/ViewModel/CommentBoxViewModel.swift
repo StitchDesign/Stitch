@@ -16,7 +16,7 @@ final class CommentBoxViewModel {
     var groupId: NodeId?
     var title: String = "Comment"
     var color: Color
-    var nodes: CanvasItemIdSet = .init()
+    var nodes: NodeIdSet = .init()
     var previousPosition: CGPoint = .zero
     var position: CGPoint = .zero
     var size: CGSize = .zero
@@ -26,7 +26,7 @@ final class CommentBoxViewModel {
     init(groupId: NodeId? = nil,
          title: String = "Comment",
          color: Color = CommentBoxViewModel.colorOptions.randomElement() ?? .blue,
-         nodes: CanvasItemIdSet = .init(),
+         nodes: NodeIdSet = .init(),
          position: CGPoint = .zero,
          size: CGSize = .zero,
          expansionBox: CommentExpansionBox = .init(),

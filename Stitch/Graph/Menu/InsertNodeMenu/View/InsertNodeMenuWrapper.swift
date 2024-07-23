@@ -245,11 +245,9 @@ struct InsertNodeMenuWrapper: View {
     func fakeNodeView(boundsDisabled: Bool,
                       updateMenuActiveSelectionBounds: Bool) -> some View {
 
-        if let node = self.animatedNode,
-           let canvas = node.patchCanvasItem {
+        if let node = self.animatedNode {
             NodeTypeView(graph: graph,
                          node: node,
-                         canvasNode: canvas,
                          atleastOneCommentBoxSelected: false,
                          activeIndex: .init(1),
                          groupNodeFocused: nil,

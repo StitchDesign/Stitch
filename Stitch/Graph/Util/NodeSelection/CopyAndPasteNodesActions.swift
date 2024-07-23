@@ -30,7 +30,7 @@ struct SelectedGraphItemsCut: GraphEvent {
 
         // Delete selected nodes
         state.selectedNodeIds.forEach {
-            state.deleteCanvasItem($0)
+            state.deleteNode(id: $0)
         }
 
 //        state.updateSidebarListStateAfterStateChange(state.sidebarExpandedItems)

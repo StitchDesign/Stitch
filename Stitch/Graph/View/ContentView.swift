@@ -175,12 +175,10 @@ struct ContentView: View {
     var flyout: some View {
         
         if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-           let node = graph.getNodeViewModel(flyoutState.input.nodeId),
-           let layerNode = node.layerNode,
+           let rowObserver = graph.getInputObserver(coordinate: flyoutState.input),
            let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
-            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
             
             // If pseudo-modal-background placed here,
             // then we disable scroll
@@ -199,23 +197,15 @@ struct ContentView: View {
             
             HStack {
                 Spacer()
-                Group {
-                    if flyoutState.flyoutInput == .padding {
-                        PaddingFlyoutView(graph: graph,
-                                          rowViewModel: inputData.inspectorRowViewModel,
-                                          layer: layerNode.layer,
-                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
-                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-                        ShadowFlyoutView(node: node, layerNode: layerNode, graph: graph)
-                    }
-                }
+                PaddingFlyoutView(graph: graph,
+                                  rowObserver: rowObserver)
                 .offset(
                     x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
                     - 8, // "padding"
                     
                     y:  -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
                     + entry.y // move down to row's y height
-                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's list padding
+                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's lisst padding
                 )
             }
         }

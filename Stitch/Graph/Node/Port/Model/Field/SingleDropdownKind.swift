@@ -10,7 +10,7 @@ import StitchSchemaKit
 import Vision
 
 enum SingleDropdownKind {
-    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, orientation, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, sizingScenario
+    case textAlignment, textVerticalAlignment, textDecoration, blendMode, fitStyle, animationCurve, cameraDirection, cameraOrientation, deviceOrientation, plane, scrollMode, lightType, networkRequestType, layerStroke, textTransform, dateAndTimeFormat, scrollJumpStyle, scrollDecelerationRate, delayStyle, shapeCoordinates, shapeCommandType, orientation, vnImageCropAndScale, mapType, progressIndicatorStyle, mobileHapticStyle, strokeLineCap, strokeLineJoin, contentMode, spacing, sizingScenario
 }
 
 extension SingleDropdownKind {
@@ -74,6 +74,10 @@ extension SingleDropdownKind {
             return StrokeLineJoin.choices
         case .contentMode:
             return StitchContentMode.choices
+            
+        // TODO: replace? StitchSpacing is "number filed or dropdown"
+        case .spacing:
+            return [.spacing(.between), .spacing(.evenly)]
         case .sizingScenario:
             return SizingScenario.choices
         }

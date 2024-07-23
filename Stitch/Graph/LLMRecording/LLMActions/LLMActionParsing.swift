@@ -217,12 +217,11 @@ extension GraphState {
             }
             
             guard let layerInput = portType.keyPath,
-                  let layerNode = node.layerNode else {
+                  let input = node.getInputRowObserver(for: portType) else {
                 log("handleLLMLayerInputOrOutputAdded: No input for \(portType)")
                 return
             }
             
-            let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
             self.layerInputAddedToGraph(node: node,
                                         input: input,
                                         coordinate: layerInput)
@@ -234,8 +233,7 @@ extension GraphState {
             }
             
             guard let portId = portType.portId,
-                  let layerNode = node.layerNode,
-                  let output = layerNode.outputPorts[safe: portId] else {
+                    let output = node.getOutputRowObserver(for: portType) else {
                 log("handleLLMLayerInputOrOutputAdded: No output for \(portType)")
                 return
             }
@@ -262,9 +260,9 @@ func getCanvasIdFromLLMMoveNodeAction(llmNode: String,
         else if let layerLabel = llmPort.parseLLMPortAsLabelForLayer(nodeKind) {
             switch layerLabel {
             case .keyPath(let x):
-                return .layerInput(.init(node: nodeId, keyPath: x))
+                return .layerInputOnGraph(.init(node: nodeId, keyPath: x))
             case .portIndex(let x):
-                return .layerOutput(.init(node: nodeId, portId: x))
+                return .layerOutputOnGraph(.init(portId: x, nodeId: nodeId))
             }
         }
     }

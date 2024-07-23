@@ -13,25 +13,21 @@ let JSON_BRACKET_SF_SYMBOL = "curlybraces.square"
 
 struct EditJSONEntry: View {
     @FocusedValue(\.focusedField) private var focusedField
-    @State private var internalEditString: String = ""
-    @State private var properJson = true
-    @State private var isOpen = false
+    @State var internalEditString: String = ""
 
-    @Bindable var graph: GraphState
-    let coordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
+    let coordinate: InputCoordinate
     let json: StitchJSON? // nil helps with perf?
-    @Binding var isPressed: Bool
 
-//    var coordinate: NodeRowViewModelId {
-//        inputViewModel.id
-//    }
+    @State var properJson = true
+    @State var isOpen = false
+
+    @Binding var isPressed: Bool
 
     var body: some View {
         FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL)
             .popover(isPresented: $isOpen) {
                 TextEditor(text: $internalEditString)
-                    .focusedValue(\.focusedField, .textInput(coordinate))
+                    .focusedValue(\.focusedField, .textInput(coordinate.toSingleFieldCoordinate))
                     .font(STITCH_FONT)
                     .scrollContentBackground(.hidden)
                     .background {
@@ -61,8 +57,9 @@ struct EditJSONEntry: View {
                         if let json = json?.value,
                            let edit = getCleanedJSON(internalEditString),
                            !areEqualJsons(edit, json) {
-                            graph.jsonEditCommitted(input: rowObserverCoordinate,
-                                                    json: edit)
+
+                            dispatch(JsonEditCommitted(coordinate: coordinate,
+                                                       json: edit))
                         }
                     }
                     .onChange(of: internalEditString) { newValue in

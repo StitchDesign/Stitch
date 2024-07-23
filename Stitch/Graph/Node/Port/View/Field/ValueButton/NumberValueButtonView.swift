@@ -29,7 +29,6 @@ struct NumberValueButtonView: View {
     @Bindable var graph: GraphState
     let value: Double
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     let fieldValueNumberType: FieldValueNumberType
     let adjustmentBarSessionId: AdjustmentBarSessionId
     @Binding var isPressed: Bool
@@ -50,7 +49,6 @@ struct NumberValueButtonView: View {
                 graph: graph,
                 numberValue: value,
                 fieldCoordinate: fieldCoordinate,
-                rowObserverCoordinate: rowObserverCoordinate,
                 isPressed: $isPressed,
                 fieldValueNumberType: fieldValueNumberType))
     }
@@ -60,7 +58,6 @@ struct AdjustmentBarViewModifier: ViewModifier {
     @Bindable var graph: GraphState
     let numberValue: Double
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     @Binding var isPressed: Bool
     let fieldValueNumberType: FieldValueNumberType
 
@@ -75,7 +72,6 @@ struct AdjustmentBarViewModifier: ViewModifier {
                     stateNumber: numberValue,
                     fieldValueNumberType: fieldValueNumberType,
                     fieldCoordinate: fieldCoordinate,
-                    rowObserverCoordinate: rowObserverCoordinate,
                     isPopoverOpen: self.$isPressed
                 )
                 #if !targetEnvironment(macCatalyst)

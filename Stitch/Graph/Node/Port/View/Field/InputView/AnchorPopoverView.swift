@@ -83,11 +83,11 @@ struct AnchorPopoverView: View {
     }
 }
 
-//struct AnchorPopoverView_Previews: PreviewProvider {
-//    static var previews: some View {
-//
-//        AnchorPopoverView(input: .fakeInputCoordinate,
-//                          selection: .centerRight)
-//            .scaleEffect(2)
-//    }
-//}
+struct AnchorPopoverView_Previews: PreviewProvider {
+    static var previews: some View {
+
+        AnchorPopoverView(input: .fakeInputCoordinate,
+                          selection: .centerRight)
+            .scaleEffect(2)
+    }
+}

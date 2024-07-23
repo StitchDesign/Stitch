@@ -84,7 +84,7 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
 
         // Drag all selected nodes if dragging already started
         state.selectedNodeIds
-            .compactMap { state.getCanvasItem($0) }
+            .compactMap { state.getNodeViewModel($0)?.canvasUIData }
             .forEach { draggedNode in
                 // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag")
                 state.canvasItemMoved(for: draggedNode,
@@ -106,6 +106,7 @@ extension GraphState {
                          wasDrag: Bool) {
         
         let graphState = self
+        var canvasItemToDrag = canvasItem
 
         #if DEV_DEBUG
         log("canvasItemMoved: original id: \(id)")
@@ -140,7 +141,7 @@ extension GraphState {
         // TODO: duplicate-node-drag should also update the `draggedNode` in GraphState ?
         // Overall, node duplication logic needs to be thought through with multigestures in mind.
         if let draggedCanvasItem = graphState.graphMovement.draggedCanvasItem,
-           draggedCanvasItem != canvasItem.id {
+           draggedCanvasItem != canvasItemToDrag.id {
             #if DEV_DEBUG
             log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
             #endif
@@ -149,7 +150,7 @@ extension GraphState {
 
         // Updating for dual-drag; must set before
 
-        graphState.graphMovement.draggedCanvasItem = canvasItem.id
+        graphState.graphMovement.draggedCanvasItem = canvasItemToDrag.id
         graphState.graphMovement.lastCanvasItemTranslation = translation
 
         // If we don't have an active first gesture,
@@ -178,14 +179,14 @@ extension GraphState {
 
         // Dragging an unselected node selects that node
         // and de-selects all other nodes.
-        let alreadySelected = canvasItem.isSelected
+        let alreadySelected = canvasItemToDrag.isSelected
 
         if !alreadySelected {
             // update node's position
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the canvas item and de-select all the others
-            graphState.selectSingleCanvasItem(canvasItem)
+            graphState.selectSingleCanvasItem(canvasItemToDrag)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
             graphState.selectedEdges = .init()
@@ -270,13 +271,13 @@ extension GraphState {
 }
 
 extension GraphState {
-    func buildCommentBoxes(visibleNodes: CanvasItemViewModels,
+    func buildCommentBoxes(visibleNodes: NodeViewModels,
                            visibleCommentBoxes: [CommentBoxViewModel],
                            commentBoxBoundsDict: CommentBoxBoundsDict) {
 
         for box in visibleCommentBoxes {
             if let boxBounds = commentBoxBoundsDict.get(box.id) {
-                let nodesInsideCommentBox = visibleNodes
+                let nodesInsideCommentBox: IdSet = visibleNodes
                     .filter {
                         // Building a comment box's node-set looks at box's border, not its title
                         //                    let intersects = boxBounds.intersects($0.bounds)
@@ -315,7 +316,7 @@ extension GraphState {
         let currentTraversalLevel = self.graphUI.groupNodeFocused?.asNodeId
 
         // Only check nodes on this current traversal level
-        let visibleNodes = self.getVisibleCanvasItems()
+        let visibleNodes = self.getVisibleNodes()
         let visibleCommentBoxes = self
             .commentBoxesDict.boxesForTraversalLevel(currentTraversalLevel)
 

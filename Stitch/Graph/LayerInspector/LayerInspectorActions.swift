@@ -45,15 +45,14 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
         
         guard let node = state.getNodeViewModel(nodeId),
-              let layerNode = node.layerNode else {
+              let input = node.getInputRowObserver(for: .keyPath(coordinate)) else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
             return .noChange
         }
-
-        let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-        state.layerInputAddedToGraph(node: node,
-                                     input: layerInputData,
+                
+        state.layerInputAddedToGraph(node: node, 
+                                     input: input,
                                      coordinate: coordinate)
         
         return .shouldPersist
@@ -64,21 +63,19 @@ extension GraphState {
     
     @MainActor
     func layerInputAddedToGraph(node: NodeViewModel,
-                                input: InputLayerNodeRowData,
+                                input: NodeRowObserver,
                                 coordinate: LayerInputType) {
         
         let nodeId = node.id
         
-        input.canvasObserver = .init(
-            id: .layerInput(.init(
+        input.canvasUIData = .init(
+            id: .layerInputOnGraph(.init(
                 node: nodeId,
                 keyPath: coordinate)),
             position: self.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
-            inputRowObservers: [input.rowObserver],
-            outputRowObservers: [],
             nodeDelegate: node)
         
         self.graphUI.propertySidebar.selectedProperty = nil
@@ -90,24 +87,23 @@ extension GraphState {
 struct LayerOutputAddedToGraph: GraphEventWithResponse {
     
     let nodeId: NodeId
-    let portId: Int
+    let coordinate: LayerOutputOnGraphId
     
     func handle(state: GraphState) -> GraphResponse {
         
         // log("LayerOutputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerOutputAddedToGraph: coordinate: \(coordinate)")
         
-        guard let node = state.getNodeViewModel(nodeId),
-              let layerNode = node.layerNode,
-              let outputPort = layerNode.outputPorts[safe: portId] else {
+        guard let node = state.getNodeViewModel(coordinate.nodeId),
+              let output = node.getOutputRowObserver(coordinate.portId) else {
             log("LayerOutputAddedToGraph: could not add Layer Output to graph")
             fatalErrorIfDebug()
             return .noChange
         }
         
         state.layerOutputAddedToGraph(node: node,
-                                      output: outputPort,
-                                      portId: portId)
+                                      output: output,
+                                      portId: coordinate.portId)
                 
         return .shouldPersist
     }
@@ -117,18 +113,16 @@ extension GraphState {
     
     @MainActor
     func layerOutputAddedToGraph(node: NodeViewModel,
-                                 output: OutputLayerNodeRowData,
+                                 output: NodeRowObserver,
                                  portId: Int) {
         
-        output.canvasObserver = .init(
-            id: .layerOutput(.init(node: node.id,
-                                   portId: portId)),
+        output.canvasUIData = .init(
+            id: .layerOutputOnGraph(.init(portId: portId,
+                                          nodeId: node.id)),
             position: self.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
-            inputRowObservers: [],
-            outputRowObservers: [output.rowObserver],
             nodeDelegate: node)
         
         self.graphUI.propertySidebar.selectedProperty = nil
