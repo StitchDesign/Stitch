@@ -22,7 +22,7 @@ protocol NodeDelegate: AnyObject {
     
     var userVisibleType: UserVisibleType? { get }
     
-    var patchNodeViewModel: PatchNodeViewModel? { get }
+    var nodeType: NodeViewModelType { get }
     
     @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
     
@@ -37,11 +37,7 @@ protocol NodeDelegate: AnyObject {
     @MainActor var activeIndex: ActiveIndex { get }
     
     @MainActor var displayTitle: String { get }
-    
-//    @MainActor var isNodeMoving: Bool { get }
-    
-//    @MainActor var isSelected: Bool { get set }
-    
+
     @MainActor var inputs: PortValuesList { get }
     
     @MainActor var outputs: PortValuesList { get }
@@ -115,5 +111,23 @@ extension NodeDelegate {
     var allOutputRowViewModels: [OutputNodeRowViewModel] {
         self.getAllOutputsObservers()
             .flatMap { $0.allRowViewModels }
+    }
+    
+    var patchNodeViewModel: PatchNodeViewModel? {
+        switch self.nodeType {
+        case .patch(let patchNode):
+            return patchNode
+        default:
+            return nil
+        }
+    }
+    
+    var layerNodeViewModel: LayerNodeViewModel? {
+        switch self.nodeType {
+        case .layer(let layerNode):
+            return layerNode
+        default:
+            return nil
+        }
     }
 }
