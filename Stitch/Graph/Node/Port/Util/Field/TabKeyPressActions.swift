@@ -83,81 +83,42 @@ extension NodeViewModel {
     func nextInput(_ currentInputCoordinate: NodeRowViewModelId) -> FieldCoordinate {
         let allInputs = self.allInputRowViewModels
         let graphItemType = currentInputCoordinate.graphItemType
+        let portId = currentInputCoordinate.portId
+                     
+        // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
+        // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
+        // would have tab-eligible-input indices like `[1, 3]`
+        let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
         
-        switch currentInputCoordinate.portType {
+        guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
+              let firstEligibleInput = eligibleInputs.first,
+              let lastEligibleInput = eligibleInputs.last else {
+            fatalErrorIfDebug()
+            return .fakeFieldCoordinate // should never happen
+        }
         
-        case .portIndex(let portId): // current port id
-                                    
-            // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
-            // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
-            // would have tab-eligible-input indices like `[1, 3]`
-            let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
-            
-            guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
-                  let firstEligibleInput = eligibleInputs.first,
-                  let lastEligibleInput = eligibleInputs.last else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-            // If we're already on last input, then move to first input.
-            if currentEligibleInput == lastEligibleInput {
-                return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                    nodeId: self.id,
-                                                    portType: .portIndex(firstEligibleInput.originalIndex)),
-                                       fieldIndex: 0)
-            }
-            
-            // Else, move to next input. In the list of eligible inputs, go to the next eligible input right after our current eligible input.
-//            else if let nextEligibleInput = eligibleInputs.drop(while: { $0 != currentEligibleInput }).dropFirst().first {
-            
-            else if let nextEligibleInput = eligibleInputs.after(currentEligibleInput) {
-                return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                    nodeId: self.id,
-                                                    portType: .portIndex(nextEligibleInput.originalIndex)),
-                                       fieldIndex: 0)
-            }
-            
-            else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-        case .keyPath(let currentInputKey):
-            
-            guard let layer = self.kind.getLayer else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-            let layerInputs = layer.textInputsForThisLayer
-                        
-            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
-                  let firstInput = layerInputs.first,
-                  let lastInput = layerInputs.last else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-            // If we're already on last input, then move to first input.
-            if currentInputKey == lastInput {
-                return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                    nodeId: self.id,
-                                                    portType: .keyPath(firstInput)),
-                                       fieldIndex: 0)
-            }
-            // Else, move to next input:
-            else if let nextInputKey = layerInputs[safe: currentInputKeyIndex + 1] {
-                return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                    nodeId: self.id,
-                                                    portType: .keyPath(nextInputKey)),
-                                       fieldIndex: 0)
-            } else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-        } // switch
+        // If we're already on last input, then move to first input.
+        if currentEligibleInput == lastEligibleInput {
+            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
+                                                nodeId: self.id,
+                                                portId: firstEligibleInput.originalIndex),
+                                   fieldIndex: 0)
+        }
+        
+        // Else, move to next input. In the list of eligible inputs, go to the next eligible input right after our current eligible input.
+        //            else if let nextEligibleInput = eligibleInputs.drop(while: { $0 != currentEligibleInput }).dropFirst().first {
+        
+        else if let nextEligibleInput = eligibleInputs.after(currentEligibleInput) {
+            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
+                                                nodeId: self.id,
+                                                portId: nextEligibleInput.originalIndex),
+                                   fieldIndex: 0)
+        }
+        
+        else {
+            fatalErrorIfDebug()
+            return .fakeFieldCoordinate // should never happen
+        }
     }
 }
 
@@ -228,88 +189,46 @@ extension NodeViewModel {
             fatalErrorIfDebug()
             return currentInput.fieldValueTypes.first!.id
         case .node:
-            switch currentInput.id.portType {
+            let portId = currentInputCoordinate.portId
+            
+            // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
+            // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
+            // would have tab-eligible-input indices like `[1, 3]`
+            let allInputs = self.allNodeInputRowViewModels
+            let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
+            
+            guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
+                  let firstEligibleInput = eligibleInputs.first,
+                  let lastEligibleInput = eligibleInputs.last else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+            // If we're already on the first eligible input, then "loop back" to the last field of the last eligible input.
+            if currentEligibleInput == firstEligibleInput,
+               let maxFieldIndex = allInputs[safe: lastEligibleInput.originalIndex]?.maxFieldIndex {
+                return FieldCoordinate(
+                    rowId: .init(graphItemType: .node,
+                                 nodeId: nodeId,
+                                 portId: lastEligibleInput.originalIndex),
+                    fieldIndex: maxFieldIndex)
+            }
+            
+            // Else, move to previous eligible input. In the list of eligible inputs, go to the previous eligible input right after our current eligible input.
+            else if let previousEligibleInput = eligibleInputs.before(currentEligibleInput),
+                    let maxFieldIndex = allInputs[safe: previousEligibleInput.originalIndex]?.maxFieldIndex{
                 
-                // TODO: pick up from here
-                
-            case .portIndex(let portId):
-                
-                // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
-                // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
-                // would have tab-eligible-input indices like `[1, 3]`
-                let allInputs = self.allNodeInputRowViewModels
-                let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
-                
-                guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
-                      let firstEligibleInput = eligibleInputs.first,
-                      let lastEligibleInput = eligibleInputs.last else {
-                    fatalErrorIfDebug()
-                    return .fakeFieldCoordinate // should never happen
-                }
-                
-                // If we're already on the first eligible input, then "loop back" to the last field of the last eligible input.
-                if currentEligibleInput == firstEligibleInput,
-                   let maxFieldIndex = allInputs[safe: lastEligibleInput.originalIndex]?.maxFieldIndex {
-                    return FieldCoordinate(
-                        rowId: .init(graphItemType: .node,
-                                     nodeId: nodeId,
-                                     portType: .portIndex(lastEligibleInput.originalIndex)),
-                        fieldIndex: maxFieldIndex)
-                }
-                
-                // Else, move to previous eligible input. In the list of eligible inputs, go to the previous eligible input right after our current eligible input.
-                else if let previousEligibleInput = eligibleInputs.before(currentEligibleInput),
-                        let maxFieldIndex = allInputs[safe: previousEligibleInput.originalIndex]?.maxFieldIndex{
-                    
-                    return FieldCoordinate(rowId: .init(graphItemType: .node,
-                                                        nodeId: nodeId,
-                                                        portType: .portIndex(previousEligibleInput.originalIndex)),
-                                           fieldIndex: maxFieldIndex)
-                }
-                
-                else {
-                    fatalErrorIfDebug()
-                    return .fakeFieldCoordinate // should never happen
-                }
-                
-            case .keyPath(let currentInputKey):
-                
-                guard let layer = self.kind.getLayer else {
-                    fatalErrorIfDebug()
-                    return .fakeFieldCoordinate // should never happen
-                }
-                
-                let layerInputs = layer.textInputsForThisLayer
-                
-                guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
-                      let firstInput = layerInputs.first,
-                      let lastInput = layerInputs.last else {
-                    fatalErrorIfDebug()
-                    return .fakeFieldCoordinate // should never happen
-                }
-                
-                // If we're already on first input, then "loop back" to the last field of the last input.
-                if currentInputKey == firstInput {
-                    return FieldCoordinate(rowId: .init(graphItemType: .node,
-                                                        nodeId: nodeId,
-                                                        portType: .keyPath(lastInput)),
-                                           fieldIndex: lastInput.maxFieldIndex(layer))
-                }
-                
-                // Else, move to last field of the previous input:
-                else if let previousInputKey = layerInputs[safe: currentInputKeyIndex - 1] {
-                        return FieldCoordinate(rowId: .init(graphItemType: .node,
-                                                            nodeId: nodeId,
-                                                            portType: .keyPath(previousInputKey)),
-                                           fieldIndex: previousInputKey.maxFieldIndex(layer))
-                } else {
-                    fatalErrorIfDebug()
-                    return .fakeFieldCoordinate // should never happen
-                }
-                
-            } // switch
+                return FieldCoordinate(rowId: .init(graphItemType: .node,
+                                                    nodeId: nodeId,
+                                                    portId: previousEligibleInput.originalIndex),
+                                       fieldIndex: maxFieldIndex)
+            }
+            
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
         }
-        
     }
     
     @MainActor

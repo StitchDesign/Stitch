@@ -31,9 +31,8 @@ final class InputLayerNodeRowData {
         let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
-                                                     portType: rowObserver.id.portType),
+                                                     portId: 0),
                                            activeValue: rowObserver.activeValue,
-                                           nodeRowIndex: nil,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -55,9 +54,8 @@ final class OutputLayerNodeRowData {
         let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
-                                                     portType: rowObserver.id.portType),
+                                                     portId: 0),
                                            activeValue: rowObserver.activeValue,
-                                           nodeRowIndex: nil,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)

@@ -64,15 +64,24 @@ struct PaddingFlyoutView: View {
                        forPropertySidebar: true,
                        // TODO: fix
                        propertyIsAlreadyOnGraph: false) { portViewModel, isMultiField in
-            InputValueEntry(graph: graph,
-                            rowViewModel: rowViewModel,
-                            viewModel: portViewModel,
-                            nodeKind: .layer(layer),
-                            isCanvasItemSelected: false,
-                            hasIncomingEdge: hasIncomingEdge,
-                            forPropertySidebar: true,
-                            // TODO: fix
-                            propertyIsAlreadyOnGraph: false)
+            
+            if let coordinate = rowViewModel.rowDelegate?.id {
+                InputValueEntry(graph: graph,
+                                rowViewModel: rowViewModel,
+                                viewModel: portViewModel,
+                                rowObserverId: coordinate,
+                                nodeKind: .layer(layer),
+                                isCanvasItemSelected: false,
+                                hasIncomingEdge: hasIncomingEdge,
+                                forPropertySidebar: true,
+                                // TODO: fix
+                                propertyIsAlreadyOnGraph: false)
+            } else {
+                Color.clear
+                    .onAppear {
+                        fatalErrorIfDebug()
+                    }
+            }
         }
     }
 }

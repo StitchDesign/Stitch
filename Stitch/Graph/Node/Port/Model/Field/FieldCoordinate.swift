@@ -20,7 +20,7 @@ struct FieldCoordinate: Hashable {
         .init(
             rowId: .init(graphItemType: .node, 
                          nodeId: .init(),
-                         portType: .portIndex(0)),
+                         portId: 0),
             fieldIndex: 0)
     }
 }

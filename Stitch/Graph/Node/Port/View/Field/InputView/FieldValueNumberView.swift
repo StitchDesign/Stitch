@@ -16,6 +16,7 @@ struct FieldValueNumberView: View {
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
+    let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
     let choices: [String]?
@@ -35,6 +36,7 @@ struct FieldValueNumberView: View {
                 graph: graph,
                 value: isButtonPressed ? fieldValue.numberValue : .zero,
                 fieldCoordinate: fieldCoordinate,
+                rowObserverCoordinate: rowObserverCoordinate,
                 fieldValueNumberType: fieldValueNumberType,
                 adjustmentBarSessionId: adjustmentBarSessionId,
                 isPressed: $isButtonPressed)

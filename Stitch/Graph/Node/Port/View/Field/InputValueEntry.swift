@@ -14,6 +14,7 @@ struct InputValueEntry: View {
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
 
+    let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
@@ -41,6 +42,7 @@ struct InputValueEntry: View {
         InputValueView(graph: graph,
                        rowViewModel: rowViewModel,
                        viewModel: viewModel,
+                       rowObserverId: rowObserverId,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
                        forPropertySidebar: forPropertySidebar,
@@ -58,7 +60,7 @@ struct InputValueEntry: View {
             //                .border(.blue)
             
             if forPropertySidebar,
-               (rowViewModel.portType.keyPath?.usesFlyout ?? false) {
+               (rowViewModel.rowDelegate?.id.portType.keyPath?.usesFlyout ?? false) {
                 Spacer()
             }
             
@@ -76,6 +78,7 @@ struct InputValueView: View {
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
     
+    let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
@@ -97,11 +100,6 @@ struct InputValueView: View {
 
     @MainActor var adjustmentBarSessionId: AdjustmentBarSessionId {
         self.graph.graphUI.adjustmentBarSessionId
-    }
-    
-    var coordinate: NodeIOCoordinate {
-        .init(portType: self.rowViewModel.portType,
-              nodeId: self.rowViewModel.id.nodeId)
     }
 
     // Which part of the port-value this value is for.
@@ -132,6 +130,7 @@ struct InputValueView: View {
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
+                                 rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
                                  hasIncomingEdge: hasIncomingEdge, 
                                  choices: nil,
@@ -145,6 +144,7 @@ struct InputValueView: View {
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
+                                 rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
                                  hasIncomingEdge: hasIncomingEdge, 
                                  choices: LayerDimension.choices,
@@ -158,6 +158,7 @@ struct InputValueView: View {
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
+                                 rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
                                  hasIncomingEdge: hasIncomingEdge,
                                  choices: StitchSpacing.choices,
@@ -166,16 +167,16 @@ struct InputValueView: View {
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
 
         case .bool(let bool):
-            BoolCheckboxView(id: self.coordinate,
+            BoolCheckboxView(id: rowObserverId,
                              value: bool)
 
         case .dropdown(let choiceDisplay, let choices):
-            DropDownChoiceView(id: coordinate,
+            DropDownChoiceView(id: rowObserverId,
                                choiceDisplay: choiceDisplay,
                                choices: choices)
 
         case .textFontDropdown(let stitchFont):
-            StitchFontDropdown(input: coordinate,
+            StitchFontDropdown(input: rowObserverId,
                                stitchFont: stitchFont)
                 // need enough width for font design + font weight name
                 .frame(minWidth: 200,
@@ -184,11 +185,11 @@ struct InputValueView: View {
         case .layerDropdown(let layerId):
             // TODO: disable or use read-only view if this is an output ?
             LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
+                                         id: rowObserverId,
                                          value: .assignedLayer(layerId))
 
         case .anchorPopover(let anchor):
-            AnchorPopoverView(input: coordinate,
+            AnchorPopoverView(input: rowObserverId,
                               selection: anchor)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
@@ -196,7 +197,7 @@ struct InputValueView: View {
                    alignment: .trailing)
 
         case .media(let media):
-            MediaFieldValueView(inputCoordinate: coordinate,
+            MediaFieldValueView(inputCoordinate: rowObserverId,
                                 isUpstreamValue: rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
                                 media: media,
                                 nodeKind: nodeKind,
@@ -207,8 +208,8 @@ struct InputValueView: View {
 
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel,
-                                    nodeId: coordinate.nodeId,
-                                    id: coordinate,
+                                    nodeId: rowObserverId.nodeId,
+                                    id: rowObserverId,
                                     currentColor: color,
                                     hasIncomingEdge: hasIncomingEdge,
                                     graph: graph)
@@ -216,14 +217,15 @@ struct InputValueView: View {
         case .pulse(let pulseTime):
             PulseValueButtonView(graph: graph,
                                  inputPort: rowViewModel,
-                                 stitchId: coordinate.nodeId,
+                                 stitchId: rowObserverId.nodeId,
                                  pulseTime: pulseTime,
                                  hasIncomingEdge: hasIncomingEdge)
 
         case .json(let json):
             EditJSONEntry(graph: graph,
                           coordinate: FieldCoordinate(rowId: rowViewModel.id,
-                                                      fieldIndex: viewModel.fieldIndex),
+                                                      fieldIndex: viewModel.fieldIndex), 
+                          rowObserverCoordinate: rowObserverId,
                           json: isButtonPressed ? json : nil,
                           isPressed: $isButtonPressed)
 

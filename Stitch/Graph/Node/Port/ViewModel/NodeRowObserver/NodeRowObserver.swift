@@ -294,7 +294,7 @@ extension InputNodeRowObserver {
         }
         
         return inputs.filter {
-            $0.id.portType == self.id.portType
+            $0.rowDelegate?.id == self.id
         }
     }
 }
@@ -322,7 +322,7 @@ extension OutputNodeRowObserver {
         }
         
         return outputs.filter {
-            $0.id.portType == self.id.portType
+            $0.rowDelegate?.id == self.id
         }
     }
     
@@ -334,8 +334,9 @@ extension OutputNodeRowObserver {
             return .init()
         }
         
-        guard let downstreamConnections = graph.connections
-            .get(rowViewModel.id.coordinate) else {
+        guard let coordinate = rowViewModel.rowDelegate?.id,
+                let downstreamConnections = graph.connections
+            .get(coordinate) else {
             return .init()
         }
         
@@ -421,7 +422,7 @@ extension NodeRowViewModel {
         } // zip
         
         if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
-           let layerInputForThisRow = self.portType.keyPath {
+           let layerInputForThisRow = self.rowDelegate?.id.keyPath {
             node.blockOrUnlockFields(newValue: newValue,
                                      layerInput: layerInputForThisRow)
         }

@@ -563,7 +563,7 @@ extension GraphState {
     func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
         self.getInputRowViewModel(for: .init(graphItemType: .node,
                                              nodeId: id.node,
-                                             portType: .keyPath(id.keyPath)),
+                                             portId: 0),
                                   nodeId: id.node)
     }
     
@@ -571,7 +571,7 @@ extension GraphState {
     func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
         self.getOutputRowViewModel(for: .init(graphItemType: .node,
                                               nodeId: id.node,
-                                              portType: .portIndex(id.portId)),
+                                              portId: 0),
                                    nodeId: id.node)
     }
     
