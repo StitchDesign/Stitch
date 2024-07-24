@@ -24,7 +24,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .setupMode
     ])
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

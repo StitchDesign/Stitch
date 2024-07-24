@@ -13,12 +13,15 @@ import StitchSchemaKit
 func getPinReceiverLayerViewModel(for pinnedLayerViewModel: LayerViewModel,
                                   from graph: GraphState) -> LayerViewModel? {
 
-    let pinnedTo: LayerNodeId? = pinnedLayerViewModel.pinTo.getInteractionId
+    guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
+        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel)")
+        return nil
+    }
     
     // TODO: retrieve actual NodeViewModel for the `pinnedTo` id; do not assume .rectangle etc.
-    let pinReceiver: NodeViewModel? = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle })
-    
-    guard let pinReceiver = pinReceiver else {
+//    let pinReceiver: NodeViewModel? = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle })
+        
+    guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
         log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel)")
         return nil
     }

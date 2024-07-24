@@ -64,7 +64,7 @@ struct TextLayerNode: LayerNodeDefinition {
     .union(.strokeInputs)
     .union(.typography)
     .union(.aspectRatio)
-    .union(.sizing)
+    .union(.sizing).union(.pinning)
     
     
     

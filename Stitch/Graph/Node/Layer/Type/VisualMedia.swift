@@ -34,7 +34,7 @@ struct ImageLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
