@@ -33,8 +33,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GianniCarlo/DirectoryWatcher.git",
       "state" : {
-        "revision" : "76af69f1d19146b0c5d3e38747bb5eabe547143b",
-        "version" : "2.7.3"
+        "revision" : "0fab4991b68d3850ffe67fded9d248111015a054"
       }
     },
     {

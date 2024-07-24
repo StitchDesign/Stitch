@@ -46,7 +46,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
                     let pinPos = adjustPosition(
                         size: viewModel.pinnedSize ?? .zero,
                         position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
-                        anchor: .topLeft, // default for now
+//                        anchor: .topLeft, // default for now
+//                        anchor: .topRight, // default for now
+                        anchor: .bottomLeft, // default for now
                         parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
                     
                     content
