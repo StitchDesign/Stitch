@@ -28,18 +28,42 @@ struct PreviewCommonPositionModifier: ViewModifier {
     let parentDisablesPosition: Bool
 
     // Position already adjusted by anchoring
-    var pos: StitchPosition
     
-//    var isGhostView: Bool = false
-        
+    // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
+    
+    var pos: StitchPosition
+            
 
     func body(content: Content) -> some View {
         
         if viewModel.isPinned {
-            
-            
-            
+            logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned")
+            // if this view is pinned, ASSUME IT IS PINNED TO THE FIRST RECTANGLE LAYER NODE in graph state
+            if let pinReceiver: NodeViewModel = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle }) {
+                
+                if let pinReceiverLayerViewModel: LayerViewModel = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: viewModel.id.loopIndex] {
+                    
+                    let pinPos = adjustPosition(
+                        size: viewModel.pinnedSize ?? .zero,
+                        position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
+                        anchor: .topLeft, // default for now
+                        parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
+                    
+                    content
+                        .position(x: pinPos.width, y: pinPos.height)
+                    
+                } // if let pinReceiverLayerViewModel
+                else {
+                    logInView("PreviewCommonPositionModifier: no pinReceiverLayerViewModel")
+                }
+                
+            } // if let pinReceiver 
+            else {
+                logInView("PreviewCommonPositionModifier: no pinReceiver")
+            }
+                        
         } else {
+            logInView("PreviewCommonPositionModifier: regular")
             // Ghost views do not use .position modifier, but it doesn't matter;
             // we only read a Ghost View's size
     //        if parentDisablesPosition || isGhostView {

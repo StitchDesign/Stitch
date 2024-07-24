@@ -18,24 +18,51 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
 
+    // Needs to be two separate `LayerDataList`: one list for top level "PinnedViewA" and another for normally placed "GhostViewA"
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
         self.graph.cachedOrderedPreviewLayers
     }
     
+    var pinnedViews: LayerDataList {
+        self.sortedLayerDataList.filter { (layerData: LayerData) in
+            layerData.layer.isPinned
+        }
+    }
+    
     var body: some View {
-        PreviewLayersView(graph: graph,
-                          layers: sortedLayerDataList,
-                          parentSize: graph.previewWindowSize, 
-                          parentId: nil,
-                          parentOrientation: .none,
-                          parentPadding: .zero,
-                          parentSpacing: .zero,
-                          // Always false at top-level
-                          parentCornerRadius: 0,
-                          parentUsesHug: false,
-                          parentGridData: nil)
         
+        ZStack {
+                        
+            // `PinnedView`s only
+            PreviewLayersView(graph: graph,
+                              layers: pinnedViews,
+                              parentSize: graph.previewWindowSize,
+                              // i.e. read this PinnedView's center (for rotation)
+                              isGeneratedAtTopLevel: true,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+            
+            // Regular rendering of views in their proper place in the hierarchy
+            PreviewLayersView(graph: graph,
+                              layers: sortedLayerDataList,
+                              parentSize: graph.previewWindowSize,
+                              isGeneratedAtTopLevel: false,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+        }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
@@ -57,6 +84,8 @@ struct PreviewLayersView: View {
      -- `parentSize` is group layer's size (unscaled)
      */
     let parentSize: CGSize
+    
+    let isGeneratedAtTopLevel: Bool
     
     // Non-nil and non-zero when this view called by GroupLayer
     let parentId: LayerNodeId?
@@ -107,6 +136,7 @@ struct PreviewLayersView: View {
         ForEach(layersInProperOrder) { layerData in
             LayerDataView(graph: graph,
                           layerData: layerData,
+                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
             
@@ -241,6 +271,7 @@ struct LayerDataView: View {
                     let masked: some View = LayerDataView(
                         graph: graph,
                         layerData: maskedLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -248,6 +279,7 @@ struct LayerDataView: View {
                     let masker: some View = LayerDataView(
                         graph: graph,
                         layerData: maskerLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     

@@ -23,6 +23,12 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
         viewModel.isPinned
     }
     
+    // ALSO: if this is View A and it is not being generated at the top level,
+    // then we should hide the view
+    var isGhostView: Bool {
+        isPinned && !isGeneratedAtTopLevel
+    }
+    
     var key: PreviewCoordinate {
         viewModel.id
     }

@@ -59,7 +59,8 @@ struct VideoDisplayView: View {
         }
         .opacity(opacity)
         .modifier(PreviewCommonSizeModifier(
-            viewModel: layerViewModel,
+            viewModel: layerViewModel, 
+            isGeneratedAtTopLevel: false, // REVISIT FOR PINNING
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,
