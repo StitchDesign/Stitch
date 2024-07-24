@@ -57,6 +57,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool = false,
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(graph: graph,
                          layerViewModel: viewModel,

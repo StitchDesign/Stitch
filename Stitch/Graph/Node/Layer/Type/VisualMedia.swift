@@ -40,6 +40,7 @@ struct ImageLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool = false,
                         parentDisablesPosition: Bool) -> some View {
         VisualMediaLayerView(graph: graph,
                              viewModel: viewModel,

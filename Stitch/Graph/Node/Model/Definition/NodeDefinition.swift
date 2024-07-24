@@ -51,6 +51,7 @@ protocol LayerNodeDefinition: NodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> Content
 }
 

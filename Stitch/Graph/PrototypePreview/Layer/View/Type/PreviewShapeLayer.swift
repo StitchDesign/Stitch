@@ -18,6 +18,8 @@ struct PreviewShapeLayer: View {
     @Bindable var layerViewModel: LayerViewModel
     let interactiveLayer: InteractiveLayer
     
+    let isGeneratedAtTopLevel: Bool
+    
     let color: Color
     let position: StitchPosition
     let rotationX: CGFloat
@@ -104,6 +106,7 @@ struct PreviewShapeLayer: View {
                 .modifier(PreviewCommonModifier(
                     graph: graph,
                     layerViewModel: layerViewModel,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     interactiveLayer: interactiveLayer,
                     position: position,
                     rotationX: rotationX,

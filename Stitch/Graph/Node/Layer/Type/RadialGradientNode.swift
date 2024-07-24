@@ -35,6 +35,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool = false,
                         parentDisablesPosition: Bool) -> some View {
         PreviewRadialGradientLayer(
             graph: graph,

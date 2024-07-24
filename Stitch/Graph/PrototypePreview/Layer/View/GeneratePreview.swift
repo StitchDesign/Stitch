@@ -35,6 +35,10 @@ struct GeneratePreview: View {
                           parentCornerRadius: 0,
                           parentUsesHug: false,
                           parentGridData: nil)
+        
+        // Top-level coordinate space of preview window; for pinning
+        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+        
         .modifier(HoverGestureModifier(graph: graph,
                                        previewWindowSize: graph.previewWindowSize))
     }
@@ -213,6 +217,7 @@ struct PreviewLayersView: View {
 struct LayerDataView: View {
     @Bindable var graph: GraphState
     let layerData: LayerData
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -259,6 +264,7 @@ struct LayerDataView: View {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
+                                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -274,6 +280,7 @@ struct LayerDataView: View {
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
+                                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -288,6 +295,7 @@ struct NonGroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var layerViewModel: LayerViewModel
     
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -297,6 +305,7 @@ struct NonGroupPreviewLayersView: View {
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              parentSize: parentSize,
+                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()
@@ -309,6 +318,7 @@ struct GroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     let layerViewModel: LayerViewModel
     let childrenData: LayerDataList
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -318,6 +328,7 @@ struct GroupPreviewLayersView: View {
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,
+                                   isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                    parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()

@@ -44,6 +44,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool = false,
                         parentDisablesPosition: Bool) -> some View {
         PreviewVideoStreamLayer(
             graph: graph,

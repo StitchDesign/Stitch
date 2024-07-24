@@ -36,6 +36,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool = false,
                         parentDisablesPosition: Bool) -> some View {
         PreviewProgressIndicatorLayer(
             graph: graph,
