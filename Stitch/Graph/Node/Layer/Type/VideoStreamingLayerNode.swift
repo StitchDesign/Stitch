@@ -49,6 +49,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
         PreviewVideoStreamLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             currentVideoURLString: Binding<String>(
@@ -78,6 +79,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
 struct PreviewVideoStreamLayer: View {
     var graph: GraphState
     let layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let enabled: Bool
     @Binding var currentVideoURLString: String 
@@ -105,6 +107,7 @@ struct PreviewVideoStreamLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

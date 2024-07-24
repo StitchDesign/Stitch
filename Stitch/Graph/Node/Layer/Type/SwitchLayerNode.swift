@@ -50,8 +50,9 @@ struct SwitchLayerNode: LayerNodeDefinition {
         PreviewSwitchLayer(
             graph: graph,
             viewModel: viewModel,
-            interactiveLayer: viewModel.interactiveLayer,
-            id: viewModel.id, 
+            interactiveLayer: viewModel.interactiveLayer, 
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            id: viewModel.id,
             isEnabled: viewModel.enabled.getBool ?? false,
             togglePulse: viewModel.isSwitchToggled.getPulse ?? .zero,
             position: viewModel.position.getPosition ?? .zero,
@@ -88,6 +89,7 @@ struct PreviewSwitchLayer: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     let interactiveLayer: InteractiveLayer
+    let isGeneratedAtTopLevel: Bool
     let id: PreviewCoordinate
     let isEnabled: Bool
     let togglePulse: TimeInterval
@@ -116,7 +118,8 @@ struct PreviewSwitchLayer: View {
         return view.modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: viewModel,
-            interactiveLayer: interactiveLayer,
+            interactiveLayer: interactiveLayer, 
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             position: position,
             rotationX: rotationX,
             rotationY: rotationY,

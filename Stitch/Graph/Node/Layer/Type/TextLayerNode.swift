@@ -77,6 +77,7 @@ struct TextLayerNode: LayerNodeDefinition {
         PreviewTextLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,
             color: viewModel.color.getColor ?? falseColor,

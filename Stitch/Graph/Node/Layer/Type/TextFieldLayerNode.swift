@@ -64,6 +64,7 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         PreviewTextFieldLayer(
             graph: graph,
             viewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             placeholder: viewModel.placeholderText.display,
             color: viewModel.color.getColor ?? falseColor,

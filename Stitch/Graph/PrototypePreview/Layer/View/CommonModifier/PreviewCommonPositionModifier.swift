@@ -9,6 +9,28 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+
+func getPinReceiverLayerViewModel(for pinnedLayerViewModel: LayerViewModel,
+                                  from graph: GraphState) -> LayerViewModel? {
+
+    let pinnedTo: LayerNodeId? = pinnedLayerViewModel.pinnedTo
+    
+    // TODO: retrieve actual NodeViewModel for the `pinnedTo` id; do not assume .rectangle etc.
+    let pinReceiver: NodeViewModel? = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle })
+    
+    guard let pinReceiver = pinReceiver else {
+        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel)")
+        return nil
+    }
+    
+    // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
+    let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.id.loopIndex]
+    
+    let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
+    
+    return pinReceiverAtSameLoopIndex ?? firstPinReceiver
+}
+
 struct PreviewCommonPositionModifier: ViewModifier {
     
     // Needed so that Pinned View A can retrieve View B's position, size, center and Ghost View A's
@@ -36,39 +58,26 @@ struct PreviewCommonPositionModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         
-        if viewModel.isPinned {
-            logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned")
-            // if this view is pinned, ASSUME IT IS PINNED TO THE FIRST RECTANGLE LAYER NODE in graph state
-            if let pinReceiver: NodeViewModel = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle }) {
-                
-                if let pinReceiverLayerViewModel: LayerViewModel = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: viewModel.id.loopIndex] {
-                    
-                    let pinPos = adjustPosition(
-                        size: viewModel.pinnedSize ?? .zero,
-                        position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
-//                        anchor: .topLeft, // default for now
-//                        anchor: .topRight, // default for now
-                        anchor: .bottomLeft, // default for now
-                        parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
-                    
-                    content
-                        .position(x: pinPos.width, y: pinPos.height)
-                    
-                } // if let pinReceiverLayerViewModel
-                else {
-                    logInView("PreviewCommonPositionModifier: no pinReceiverLayerViewModel")
-                }
-                
-            } // if let pinReceiver 
-            else {
-                logInView("PreviewCommonPositionModifier: no pinReceiver")
-            }
-                        
+        if viewModel.isPinned,
+           let pinReceiverLayerViewModel = getPinReceiverLayerViewModel(for: viewModel,
+                                                                        from: graph) {
+            
+            logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
+            
+            let pinPos = adjustPosition(
+                size: viewModel.pinnedSize ?? .zero,
+                position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
+                anchor: viewModel.pinnedAnchor,
+                parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
+            
+            content
+                .position(x: pinPos.width, y: pinPos.height)
+            
         } else {
             logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
             // Ghost views do not use .position modifier, but it doesn't matter;
             // we only read a Ghost View's size
-    //        if parentDisablesPosition || isGhostView {
+            //        if parentDisablesPosition || isGhostView {
             if parentDisablesPosition {
                 content
             } else {

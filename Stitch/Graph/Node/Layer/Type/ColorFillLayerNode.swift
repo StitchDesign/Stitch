@@ -36,6 +36,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
         PreviewColorFillLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             color: viewModel.color.getColor ?? .falseColor,

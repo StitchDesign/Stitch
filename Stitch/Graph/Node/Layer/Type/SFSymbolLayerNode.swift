@@ -53,6 +53,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         return PreviewSFSymbolLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             sfSymbol: viewModel.sfSymbol.getString?.string ?? "",
             color: viewModel.color.getColor ?? falseColor,
@@ -86,6 +87,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
 struct PreviewSFSymbolLayer: View {
     var graph: GraphState // doesn't need to be @Bindable ?
     let layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     
     let sfSymbol: String
@@ -125,6 +127,7 @@ struct PreviewSFSymbolLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

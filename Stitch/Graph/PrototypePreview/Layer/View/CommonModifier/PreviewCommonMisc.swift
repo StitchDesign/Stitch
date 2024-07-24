@@ -14,9 +14,57 @@ import StitchSchemaKit
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
 struct PreviewLayerRotationModifier: ViewModifier {
     
+    @Bindable var graph: GraphState
+    @Bindable var viewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
+    
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat
+        
+    var pinReceiver: LayerViewModel? {
+        getPinReceiverLayerViewModel(for: viewModel, from: graph)
+    }
+    
+    static let defaultRotationAnchor = 0.5
+    
+    var rotationAnchorX: CGFloat {
+        
+        // If this is the PinnedViewA, then potentially return a non-default rotation anchor
+        if viewModel.isPinned,
+           isGeneratedAtTopLevel,
+           let pinReceiver = pinReceiver {
+            
+            return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
+                                     lengthB: pinReceiver.pinReceiverSize?.width ?? .zero,
+                                     pointA: viewModel.pinnedCenter?.x ?? .zero,
+                                     pointB: pinReceiver.pinReceiverCenter?.x ?? .zero)
+        }
+        
+        // Else, just return default rotation anchor of center
+        else {
+            return Self.defaultRotationAnchor
+        }
+    }
+    
+    var rotationAnchorY: CGFloat {
+        
+        // If this is the PinnedViewA, then potentially return a non-default rotation anchor
+        if viewModel.isPinned,
+           isGeneratedAtTopLevel,
+           let pinReceiver = pinReceiver {
+            
+            return getRotationAnchor(lengthA: viewModel.pinnedSize?.height ?? .zero,
+                                     lengthB: pinReceiver.pinReceiverSize?.height ?? .zero,
+                                     pointA: viewModel.pinnedCenter?.y ?? .zero,
+                                     pointB: pinReceiver.pinReceiverCenter?.y ?? .zero)
+        }
+        
+        // Else, just return default rotation anchor of center
+        else {
+            return Self.defaultRotationAnchor
+        }
+    }
     
     func body(content: Content) -> some View {
         
@@ -25,19 +73,22 @@ struct PreviewLayerRotationModifier: ViewModifier {
         // x rotation
             .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationX),
                                         axis: (x: rotationX, y: rotationY, z: rotationZ),
-                                        anchor: .center)
+                                        anchor: .init(x: self.rotationAnchorX,
+                                                      y: self.rotationAnchorY))
                 .ignoredByLayout())
         
         // y rotation
             .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationY),
                                         axis: (x: rotationX, y: rotationY, z: rotationZ),
-                                        anchor: .center)
+                                        anchor: .init(x: self.rotationAnchorX,
+                                                      y: self.rotationAnchorY))
                 .ignoredByLayout())
         
         // z rotation
             .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationZ),
                                         axis: (x: rotationX, y: rotationY, z: rotationZ),
-                                        anchor: .center)
+                                        anchor: .init(x: self.rotationAnchorX,
+                                                      y: self.rotationAnchorY))
                 .ignoredByLayout())
     }
 }

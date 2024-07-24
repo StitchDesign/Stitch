@@ -94,6 +94,7 @@ struct RealityLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
 
     let cameraFeedManager: CameraFeedManager
     let interactiveLayer: InteractiveLayer
@@ -149,6 +150,7 @@ struct RealityLayerView: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

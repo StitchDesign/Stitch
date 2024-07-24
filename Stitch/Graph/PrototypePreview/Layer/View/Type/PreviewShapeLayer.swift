@@ -85,6 +85,8 @@ struct PreviewShapeLayer: View {
             // TODO: revisit this
                 .modifier(PreviewAbsoluteShapeLayerModifier(
                     graph: graph,
+                    viewModel: layerViewModel,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     interactiveLayer: interactiveLayer,
                     position: position.toCGPoint,
                     rotationX: rotationX,

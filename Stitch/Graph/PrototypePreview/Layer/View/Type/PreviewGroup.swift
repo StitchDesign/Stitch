@@ -136,6 +136,9 @@ struct PreviewGroupLayer: View {
                 scale: scale))
                 
             .modifier(PreviewLayerRotationModifier(
+                graph: graph,
+                viewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))

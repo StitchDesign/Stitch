@@ -45,9 +45,7 @@ final class LayerViewModel {
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     weak var nodeDelegate: NodeDelegate?
-        
-//    var previewWindowRect: CGRect = .zero
-    
+            
     // PINNING
     
     // data for pin-receiving view, i.e. View B
@@ -65,7 +63,8 @@ final class LayerViewModel {
     }
     
     var pinnedAnchor: Anchoring {
-        .topLeft
+//        .topLeft
+        .bottomLeft
     }
     
     // Always pinned to a specific `PreviewCoordinate`,
