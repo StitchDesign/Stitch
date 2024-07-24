@@ -26,11 +26,18 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.getVisibleRowViewModels().forEach { rowViewModel in
-            rowViewModel.didPortValuesUpdate(values: newValues)
-        }
+        self.updatePortViewModels(values: newValues)
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
+    }
+    
+    @MainActor
+    /// Updates port view models when the backend port observer has been updated.
+    /// Also invoked when nodes enter the viewframe incase they need to be udpated.
+    func updatePortViewModels(values: PortValues) {
+        self.getVisibleRowViewModels().forEach { rowViewModel in
+            rowViewModel.didPortValuesUpdate(values: values)
+        }
     }
     
     @MainActor

@@ -202,8 +202,8 @@ extension CanvasItemViewModel {
 
             // Refresh values if node back in frame
             if newValue {
-                self.nodeDelegate?.updateInputsObservers(activeIndex: activeIndex)
-                self.nodeDelegate?.updateOutputsObservers(activeIndex: activeIndex)
+                self.nodeDelegate?.updateInputPortViewModels(activeIndex: activeIndex)
+                self.nodeDelegate?.updateOutputPortViewModels(activeIndex: activeIndex)
             }
         }
     }
