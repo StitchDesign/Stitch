@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct StitchProjectView: View {
     @Namespace var routerNamespace
     
+    @Bindable var store: StitchStore
     @Bindable var graphState: GraphState
     @Bindable var graphUI: GraphUIState
 
@@ -45,9 +46,11 @@ struct StitchProjectView: View {
                                                  projectId: graphState.projectId,
                                                  isFullScreen: $isFullScreen))
             .onDisappear {
+                // Create new thumbnail image
+                store.createThumbnail(from: graphState)
+                
                 // TODO: listen to presses of the NavigationStack's back button instead?
                 dispatch(CloseGraph())
-                dispatch(GenerateProjectThumbnailEvent(graph: graphState))
             }
     }
 
@@ -112,12 +115,12 @@ struct MaybeIgnoreSafeAreasModifier: ViewModifier {
     }
 }
 
-#Preview("Project View") {
-    let graphState = GraphState(id: .mockProjectId,
-                                store: nil)
-    graphState.libraryLoadingStatus = .loading
-
-    return StitchProjectView(graphState: graphState,
-                             graphUI: graphState.graphUI,
-                             alertState: .init())
-}
+//#Preview("Project View") {
+//    let graphState = GraphState(id: .mockProjectId,
+//                                store: nil)
+//    graphState.libraryLoadingStatus = .loading
+//
+//    return StitchProjectView(graphState: graphState,
+//                             graphUI: graphState.graphUI,
+//                             alertState: .init())
+//}
