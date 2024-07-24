@@ -49,6 +49,8 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var selectedEdges: Set<PortEdgeUI> { get }
     
+    @MainActor var isFullScreenMode: Bool { get }
+    
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output

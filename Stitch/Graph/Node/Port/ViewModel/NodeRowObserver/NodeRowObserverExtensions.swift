@@ -35,16 +35,25 @@ extension NodeRowObserver {
     
     @MainActor
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
-        self.allRowViewModels.compactMap { rowViewModel in
+        // Make sure we're not in full screen mode
+        guard let graph = self.nodeDelegate?.graphDelegate,
+              !graph.isFullScreenMode else {
+            return []
+        }
+        
+        return self.allRowViewModels.compactMap { rowViewModel in
             // No canvas means inspector, which for here practically speaking is visible
-            if let canvas = rowViewModel.canvasItemDelegate,
-               !canvas.isVisibleInFrame,
-               // view model isn't rendering at this group context
-               canvas.parentGroupNodeId != self.nodeDelegate?.graphDelegate?.groupNodeFocused {
-                return nil
+            guard let canvas = rowViewModel.canvasItemDelegate else {
+                return rowViewModel
+            }
+               
+            if canvas.isVisibleInFrame &&
+               // view model is rendering at this group context
+               canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused {
+                return rowViewModel
             }
             
-            return rowViewModel
+            return nil
         }
     }
     

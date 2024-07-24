@@ -174,6 +174,10 @@ extension GraphState: GraphDelegate {
         self.graphUI.safeAreaInsets
     }
     
+    var isFullScreenMode: Bool {
+        self.graphUI.isFullScreenMode
+    }
+    
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
     }
