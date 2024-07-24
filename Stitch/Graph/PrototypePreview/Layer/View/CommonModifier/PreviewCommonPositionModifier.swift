@@ -65,7 +65,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
             }
                         
         } else {
-            logInView("PreviewCommonPositionModifier: regular")
+            logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
             // Ghost views do not use .position modifier, but it doesn't matter;
             // we only read a Ghost View's size
     //        if parentDisablesPosition || isGhostView {

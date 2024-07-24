@@ -34,6 +34,20 @@ struct GeneratePreview: View {
         
         ZStack {
                         
+            // Regular rendering of views in their proper place in the hierarchy
+            PreviewLayersView(graph: graph,
+                              layers: sortedLayerDataList,
+                              parentSize: graph.previewWindowSize,
+                              isGeneratedAtTopLevel: false,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+            
             // `PinnedView`s only
             PreviewLayersView(graph: graph,
                               layers: pinnedViews,
@@ -48,20 +62,7 @@ struct GeneratePreview: View {
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)
-            
-            // Regular rendering of views in their proper place in the hierarchy
-            PreviewLayersView(graph: graph,
-                              layers: sortedLayerDataList,
-                              parentSize: graph.previewWindowSize,
-                              isGeneratedAtTopLevel: false,
-                              parentId: nil,
-                              parentOrientation: .none,
-                              parentPadding: .zero,
-                              parentSpacing: .zero,
-                              // Always false at top-level
-                              parentCornerRadius: 0,
-                              parentUsesHug: false,
-                              parentGridData: nil)
+            .border(.black)
         }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)

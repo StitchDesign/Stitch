@@ -34,7 +34,9 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     }
     
     func body(content: Content) -> some View {
-        content.background {
+        content
+            .opacity(isGhostView ? 0.1 : 1) // added
+            .background {
             GeometryReader { geometry in
                 Color.clear.onChange(of: geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)),
                                      initial: true) { oldValue, newValue in
