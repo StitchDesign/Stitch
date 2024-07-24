@@ -29,6 +29,7 @@ struct FullScreenPreviewViewWrapper: View {
         graphState.previewWindowSize
     }
 
+    @MainActor
     var previewView: some View {
         PreviewContent(graph: graphState,
                        isFullScreen: true)

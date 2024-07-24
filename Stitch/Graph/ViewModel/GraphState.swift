@@ -64,9 +64,7 @@ final class GraphState: Sendable {
 
     // View models
     @MainActor let graphUI: GraphUIState
-    
     let previewWindowSizingObserver = PreviewWindowSizing()
-
     let visibleNodesViewModel = VisibleNodesViewModel()
     let graphMovement = GraphMovementObserver()
     let edgeDrawingObserver = EdgeDrawingObserver()
@@ -132,6 +130,8 @@ final class GraphState: Sendable {
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store
+
+        self.storeDelegate?.previewRenderer = .init(content: ThumbnailPreview(graph: self))
 
         // MARK: important we don't initialize nodes until after media is estbalished
         DispatchQueue.main.async { [weak self] in

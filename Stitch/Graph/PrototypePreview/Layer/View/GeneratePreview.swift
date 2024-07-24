@@ -10,6 +10,15 @@ import StitchSchemaKit
 
 // typealias PreviewZIndexMap = [PreviewCoordinate: CGFloat]
 
+struct ThumbnailPreview: View {
+    @Bindable var graph: GraphState
+    
+    var body: some View {
+        GeneratePreview(graph: graph)
+            .compositingGroup()
+    }
+}
+
 /// The top-level preview window view encompassing all views.
 struct GeneratePreview: View {
     @Bindable var graph: GraphState

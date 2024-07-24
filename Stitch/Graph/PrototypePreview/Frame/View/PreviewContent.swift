@@ -13,8 +13,19 @@ extension Color {
 }
 
 struct PreviewContent: View {
+//    @StateObject private var previewRenderer: ImageRenderer<GeneratePreview>
+    
     @Bindable var graph: GraphState
     let isFullScreen: Bool
+    
+//    init(graph: GraphState,
+//         isFullScreen: Bool) {
+//        let imageRenderer = ImageRenderer(content: GeneratePreview(graph: graph))
+//        
+//        self._previewRenderer = StateObject(wrappedValue: imageRenderer)
+//        self.graph = graph
+//        self.isFullScreen = isFullScreen
+//    }
     
     var previewWindowSizing: PreviewWindowSizing {
         graph.previewWindowSizingObserver
@@ -51,20 +62,35 @@ struct PreviewContent: View {
     }
     
     var body: some View {
-        
-        let generatedPreview = GeneratePreview(graph: graph)
-        
-        UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
-            generatedPreview
-                .frame(finalSize)
-                .background(graph.previewWindowBackgroundColor)
-                .contentShape(Rectangle())
-                // Keeps layers rendered within preview window
-                .clipped()
-            // Important: render preview window border BEFORE applying scale
-                .previewWindowBorder(showsBorder: !isFullScreen)
-                .scaleEffect(finalScale)
+        Group {
+            if let previewRenderer = graph.storeDelegate?.previewRenderer {
+                UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
+                    previewRenderer.content
+                        .frame(finalSize)
+                        .background(graph.previewWindowBackgroundColor)
+                        .contentShape(Rectangle())
+                    // Keeps layers rendered within preview window
+                        .clipped()
+                    // Important: render preview window border BEFORE applying scale
+                        .previewWindowBorder(showsBorder: !isFullScreen)
+                        .scaleEffect(finalScale)
+                }
+            } else {
+                EmptyView()
+            }
         }
+//        .onChange(of: graph.isGeneratingProjectThumbnail) { _, isGeneratingThumbnail in
+//            if isGeneratingThumbnail {
+//                Task { [weak previewRenderer] in
+//                    guard let previewRenderer else {
+//                        fatalErrorIfDebug()
+//                        return
+//                    }
+//                    
+//                    log("YOYOYOYO")
+//                }
+//            }
+//        }
     }
 }
 

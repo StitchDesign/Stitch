@@ -17,14 +17,11 @@ extension StitchStore {
         
         // Recalculate the entire graph immediately, so that e.g. camera evals run with their image taking setting "off":
         graph.calculate(from: graph.allNodesToCalculate)
-        
-        // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
-        let generatedPreview = GeneratePreview(graph: graph)
-        
-        let view = generatedPreview
-            .frame(graph.previewWindowSize)
-            .background(graph.previewWindowBackgroundColor)
-            .clipped()
+
+//        let view = generatedPreview
+//            .frame(graph.previewWindowSize)
+//            .background(graph.previewWindowBackgroundColor)
+//            .clipped()
         
         // TODO: Why does .effectOnly { ... } with these lines give us a concurrency warning?
         //            let renderer = await ImageRenderer(content: view)
@@ -33,18 +30,22 @@ extension StitchStore {
         let document = graph.createSchema()
         
         Task { [weak self] in
-            guard let store = self else {
+            guard let store = self,
+                  let renderer = store.previewRenderer else {
                 log("GenerateProjectThumbnailEvent: no image")
                 return
             }
             
-            let renderer = ImageRenderer(content: view)
             let rootUrl = graph.rootUrl
             
             guard let image = renderer.uiImage,
                   let data = image.pngData() else {
                 log("GenerateProjectThumbnailEvent: no pngData from image")
                 return
+            }
+            
+            await MainActor.run { [weak store] in
+                store?.previewRenderer = nil
             }
             
             let filename = rootUrl.appendProjectThumbnailPath()

@@ -23,6 +23,8 @@ final class StitchStore: Sendable, StoreDelegate {
 
     // Navigation path for viewing documents
     var navPath: [GraphState] = []
+    
+    var previewRenderer: ImageRenderer<ThumbnailPreview>?
 
     var isShowingDrawer = false
 

@@ -88,6 +88,7 @@ struct FloatingWindowView: View {
 
      Interestingly, placing the handle (which has the drag gesture) outside of the Spacers() etc. works; we just have to manually position the handle then.
      */
+    @MainActor
     var floatingWindowWithHandle: some View {
         floatingWindow
             // Start the handle-circle at top-right corner ...
@@ -218,7 +219,7 @@ struct FloatingWindowView: View {
         graph.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
     }
     
-    @ViewBuilder
+    @ViewBuilder @MainActor
     var floatingWindow: some View {
         VStack {
             HStack(spacing: .zero) {
