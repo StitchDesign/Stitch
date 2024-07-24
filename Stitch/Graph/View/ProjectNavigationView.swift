@@ -11,31 +11,22 @@ import StitchSchemaKit
 /// UI for interacting with a single project; iPad-only.
 struct ProjectNavigationView: View {
     @Bindable var graph: GraphState
-
     let insertNodeMenuHiddenNodeId: NodeId?
-
     let routerNamespace: Namespace.ID
-    @ObservedObject var previewWindowSizing: PreviewWindowSizing
-
     @Namespace private var topButtonsNamespace
 
-    var body: some View {
-        graphView
+    var previewWindowSizing: PreviewWindowSizing {
+        self.graph.previewWindowSizingObserver
     }
 
-    var debugView: Text {
-        Text("Graph UI Here")
-    }
-    
     // Tracks edge changes to reset cached data
-    var upstreamConnections: [NodeIOCoordinate?] {
+    @MainActor var upstreamConnections: [NodeIOCoordinate?] {
         self.graph.nodes.values
             .flatMap { $0.getAllInputsObservers() }
             .map { $0.upstreamOutputCoordinate }
     }
 
-    @ViewBuilder
-    var graphView: some View {
+    var body: some View {
         GraphBaseView(graph: graph,
                       graphUI: graph.graphUI,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)

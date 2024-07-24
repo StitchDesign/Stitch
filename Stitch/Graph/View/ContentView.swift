@@ -22,7 +22,6 @@ struct ContentView: View {
     
     @Namespace private var graphNamespace
     @StateObject private var showFullScreen = AnimatableBool(false)
-    @StateObject private var previewWindowSizing = PreviewWindowSizing()
     @State private var showFullScreenAnimateCompleted = true
     
     // Controls the animation of newly created node from the insert node menu
@@ -36,6 +35,10 @@ struct ContentView: View {
 
     var showPreviewWindow: Bool {
         graphUI.showPreviewWindow
+    }
+    
+    var previewWindowSizing: PreviewWindowSizing {
+        self.graph.previewWindowSizingObserver
     }
 
     /// Shows menu wrapper view while node animation takes place
@@ -107,8 +110,7 @@ struct ContentView: View {
                 // phone before showFullScreen is set
                 ProjectNavigationView(graph: graph,
                                       insertNodeMenuHiddenNodeId: graphUI.insertNodeMenuState.hiddenNodeId,
-                                      routerNamespace: routerNamespace,
-                                      previewWindowSizing: previewWindowSizing)
+                                      routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
                 .overlay {
                     // Floating preview kept outside NavigationSplitView for animation purposes
@@ -117,8 +119,7 @@ struct ContentView: View {
                             graph: graph,
                             deviceScreenSize: graphUI.frame.size,
                             showPreviewWindow: showPreviewWindow,
-                            namespace: graphNamespace,
-                            previewWindowSizing: previewWindowSizing)
+                            namespace: graphNamespace)
                     }
                 }
                 // Layer Inspector Flyout must sit above preview window
