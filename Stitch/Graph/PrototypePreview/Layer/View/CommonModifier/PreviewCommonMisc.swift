@@ -9,6 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+// To avoid a bug where GeometryReader treats a rotated view as increased in size,
+// we use _Rotation3DEffect.ignoredByLayout instead of .rotation3DEffect:
+// Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
 struct PreviewLayerRotationModifier: ViewModifier {
     
     let rotationX: CGFloat
@@ -18,15 +21,24 @@ struct PreviewLayerRotationModifier: ViewModifier {
     func body(content: Content) -> some View {
         
         content
+        
         // x rotation
-        .rotation3DEffect(Angle(degrees: rotationX),
-                          axis: (x: rotationX, y: rotationY, z: rotationZ))
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationX),
+                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+                                        anchor: .center)
+                .ignoredByLayout())
+        
         // y rotation
-        .rotation3DEffect(Angle(degrees: rotationY),
-                          axis: (x: rotationX, y: rotationY, z: rotationZ))
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationY),
+                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+                                        anchor: .center)
+                .ignoredByLayout())
+        
         // z rotation
-        .rotation3DEffect(Angle(degrees: rotationZ),
-                          axis: (x: rotationX, y: rotationY, z: rotationZ))
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationZ),
+                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+                                        anchor: .center)
+                .ignoredByLayout())
     }
 }
 

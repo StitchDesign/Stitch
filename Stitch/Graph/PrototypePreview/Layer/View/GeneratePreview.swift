@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 // typealias PreviewZIndexMap = [PreviewCoordinate: CGFloat]
 
-
 // Returns a flat list of all pinned layer view models;
 // each pinned layer view model has both:
 // (1) a "ghost view" at its proper hierarchy spot (used for reading how pinned view is affected by e.g. layer group scale) and,
@@ -70,10 +69,6 @@ struct GeneratePreview: View {
     
     // TODO: make this properly recursive
     var pinnedViews: LayerDataList {
-//        self.sortedLayerDataList.filter { (layerData: LayerData) in
-//            layerData.layer.isPinned
-//        }
-        
         let pinned = getPinnedViews(self.sortedLayerDataList,
                                     acc: .init())
         
