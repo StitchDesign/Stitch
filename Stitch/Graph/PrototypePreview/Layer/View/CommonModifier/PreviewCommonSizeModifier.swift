@@ -76,6 +76,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 logInView("case .auto")
                 content
                     .modifier(LayerSizeModifier(
+                        viewModel: viewModel,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
@@ -100,6 +102,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                     .modifier(LayerSizeModifier(
+                        viewModel: viewModel,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
@@ -118,6 +122,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                     .modifier(LayerSizeModifier(
+                        viewModel: viewModel,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
