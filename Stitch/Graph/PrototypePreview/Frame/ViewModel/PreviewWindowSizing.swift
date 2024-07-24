@@ -8,28 +8,22 @@
 import Foundation
 import SwiftUI
 
-final class PreviewWindowSizing: ObservableObject {
-
+@Observable
+final class PreviewWindowSizing {
     // Size of the device the preview window is emulating
     // i.e. the size of the device our prototype is for: e.g. iPhone 11 etc.
-    @Published var previewWindowDeviceSize: CGSize // = iPhone11Size
-
+    var previewWindowDeviceSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
+    
     // Size of the device on which Stitch is running, e.g. iPad Pro 11".
     // Changes when e.g. keyboard comes up or user's device rotates.
-    @Published var userDeviceSize: CGSize // = iPadPro11InchSize
-    
-    // TODO: should not allow defaults?
-    init(pwDeviceSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-         userDeviceSize: CGSize = DEFAULT_LANDSCAPE_SIZE) {
-        
-        self.previewWindowDeviceSize = pwDeviceSize
-        self.userDeviceSize = userDeviceSize
-    }
+    var userDeviceSize: CGSize = DEFAULT_LANDSCAPE_SIZE
     
     /// From user's manual drag of preview window handle. Reset when project clsoed.
-    @Published var activeAdjustedTranslation: CGSize = .zero
-    @Published var accumulatedAdjustedTranslation: CGSize = .zero
-    
+    var activeAdjustedTranslation: CGSize = .zero
+    var accumulatedAdjustedTranslation: CGSize = .zero
+}
+
+extension PreviewWindowSizing {
     /*
      Every property of the view window is derived from previewWindowDeviceSize and userDeviceSize,
      with adjusted-translations from user's manual dragging of the preview window handle.

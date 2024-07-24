@@ -31,8 +31,7 @@ struct FullScreenPreviewViewWrapper: View {
 
     var previewView: some View {
         PreviewContent(graph: graphState,
-                       isFullScreen: true,
-                       previewWindowSizing: previewWindowSizing)
+                       isFullScreen: true)
         #if !targetEnvironment(macCatalyst)
         .ignoresSafeArea()
         #endif

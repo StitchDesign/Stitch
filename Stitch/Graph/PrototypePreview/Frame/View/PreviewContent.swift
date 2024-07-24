@@ -15,7 +15,10 @@ extension Color {
 struct PreviewContent: View {
     @Bindable var graph: GraphState
     let isFullScreen: Bool
-    @ObservedObject var previewWindowSizing: PreviewWindowSizing
+    
+    var previewWindowSizing: PreviewWindowSizing {
+        graph.previewWindowSizingObserver
+    }
     
     var previewDeviceWidth: CGFloat {
         previewWindowSizing.previewDeviceWidth
