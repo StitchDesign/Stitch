@@ -16,10 +16,8 @@ import StitchSchemaKit
 struct PreviewShapeLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let interactiveLayer: InteractiveLayer
-    
     let isGeneratedAtTopLevel: Bool
-    
+    let interactiveLayer: InteractiveLayer
     let color: Color
     let position: StitchPosition
     let rotationX: CGFloat

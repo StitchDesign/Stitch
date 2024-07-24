@@ -15,6 +15,7 @@ struct Preview3DModelLayer: View {
     
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     
     let interactiveLayer: InteractiveLayer
     let position: CGSize
@@ -91,6 +92,7 @@ struct Preview3DModelLayer: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

@@ -50,6 +50,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
         PreviewRealityLayer(graph: graph,
                             viewModel: viewModel,
                             parentSize: parentSize,
+                            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                             parentDisablesPosition: parentDisablesPosition)
     }
 }

@@ -61,6 +61,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(graph: graph,
                          layerViewModel: viewModel,
+                         isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                          interactiveLayer: viewModel.interactiveLayer,
                          lineColor: viewModel.lineColor.getColor ?? CanvasSketchLayerNodeHelpers.defaultLineColor,
                          lineWidth: viewModel.lineWidth.getNumber ?? CanvasSketchLayerNodeHelpers.defaultLineWidth,

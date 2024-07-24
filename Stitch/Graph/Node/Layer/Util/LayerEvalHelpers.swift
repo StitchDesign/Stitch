@@ -74,8 +74,8 @@ struct ShapeLayerView: View {
         PreviewShapeLayer(
             graph: graph,
             layerViewModel: viewModel,
-            interactiveLayer: viewModel.interactiveLayer,
             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            interactiveLayer: viewModel.interactiveLayer,
             color: viewModel.color.getColor ?? falseColor,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.getNumber ?? .zero,
