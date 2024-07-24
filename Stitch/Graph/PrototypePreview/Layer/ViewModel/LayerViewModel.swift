@@ -57,25 +57,25 @@ final class LayerViewModel {
     var pinnedSize: CGSize? = nil // parent-affected size etc.; read by a "Ghost View" that sits in normal, expected place in hierarchy
     var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of GeneratePreview
     
-    
-    var isPinned: Bool {
-        layer == .oval
-    }
-    
-    var pinnedAnchor: Anchoring {
-//        .topLeft
-        .bottomLeft
-    }
-    
-    // Always pinned to a specific `PreviewCoordinate`,
-    // but
-//    var pinnedTo: PreviewCoordinate? {
-    var pinnedTo: LayerNodeId? {
-//        layer == .oval ?
-        
-        // Hardcode this?
-        nil
-    }
+//    
+//    var isPinned: Bool {
+//        layer == .oval
+//    }
+//    
+//    var pinnedAnchor: Anchoring {
+////        .topLeft
+//        .bottomLeft
+//    }
+//    
+//    // Always pinned to a specific `PreviewCoordinate`,
+//    // but
+////    var pinnedTo: PreviewCoordinate? {
+//    var pinnedTo: LayerNodeId? {
+////        layer == .oval ?
+//        
+//        // Hardcode this?
+//        nil
+//    }
     
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
@@ -185,6 +185,12 @@ final class LayerViewModel {
     // Spacing
     var spacing: PortValue
 
+    // Pinning
+    var isPinned: PortValue
+    var pinTo: PortValue
+    var pinAnchor: PortValue
+    var pinOffset: PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
@@ -305,6 +311,11 @@ final class LayerViewModel {
         self.spacing = LayerInputType.spacing.getDefaultValue(for: layer)
         
         self.sizingScenario = LayerInputType.sizingScenario.getDefaultValue(for: layer)
+        
+        self.isPinned = LayerInputType.isPinned.getDefaultValue(for: layer)
+        self.pinTo = LayerInputType.pinTo.getDefaultValue(for: layer)
+        self.pinAnchor = LayerInputType.pinAnchor.getDefaultValue(for: layer)
+        self.pinOffset = LayerInputType.pinOffset.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

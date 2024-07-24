@@ -24,12 +24,12 @@ func getPinnedViews(_ layerDataList: LayerDataList,
         switch layerData {
         
         case .nongroup(let layerViewModel):
-            if layerViewModel.isPinned {
+            if layerViewModel.isPinned.getBool ?? false {
                 acc.append(layerData)
             }
         
         case .group(let layerViewModel, let childrenLayerDataList):
-            if layerViewModel.isPinned {
+            if layerViewModel.isPinned.getBool ?? false {
                 acc.append(layerData)
             }
             // Will this over-add the children?

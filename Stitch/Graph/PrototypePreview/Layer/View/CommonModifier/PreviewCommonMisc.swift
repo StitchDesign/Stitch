@@ -31,7 +31,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     var rotationAnchorX: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
-        if viewModel.isPinned,
+        if viewModel.isPinned.getBool ?? false,
            isGeneratedAtTopLevel,
            let pinReceiver = pinReceiver {
             
@@ -48,7 +48,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     var isPinnedView: Bool {
-        viewModel.isPinned && isGeneratedAtTopLevel
+        (viewModel.isPinned.getBool ?? false) && isGeneratedAtTopLevel
     }
     
     // PinnedViewA uses rotation value of its pin-receiver View B

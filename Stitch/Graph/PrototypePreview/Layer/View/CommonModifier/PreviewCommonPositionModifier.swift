@@ -13,7 +13,7 @@ import StitchSchemaKit
 func getPinReceiverLayerViewModel(for pinnedLayerViewModel: LayerViewModel,
                                   from graph: GraphState) -> LayerViewModel? {
 
-    let pinnedTo: LayerNodeId? = pinnedLayerViewModel.pinnedTo
+    let pinnedTo: LayerNodeId? = pinnedLayerViewModel.pinTo.getInteractionId
     
     // TODO: retrieve actual NodeViewModel for the `pinnedTo` id; do not assume .rectangle etc.
     let pinReceiver: NodeViewModel? = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle })
@@ -58,7 +58,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         
-        if viewModel.isPinned,
+        if viewModel.isPinned.getBool ?? false,
            let pinReceiverLayerViewModel = getPinReceiverLayerViewModel(for: viewModel,
                                                                         from: graph) {
             
@@ -67,7 +67,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
             let pinPos = adjustPosition(
                 size: viewModel.pinnedSize ?? .zero,
                 position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
-                anchor: viewModel.pinnedAnchor,
+                anchor: viewModel.pinAnchor.getAnchoring ?? .topLeft,
                 parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
             
             content

@@ -127,6 +127,11 @@ final class LayerNodeViewModel {
     @MainActor var spacingPort: InputLayerNodeRowData
     @MainActor var sizingScenarioPort: InputLayerNodeRowData
 
+    @MainActor var isPinnedPort: InputLayerNodeRowData
+    @MainActor var pinToPort: InputLayerNodeRowData
+    @MainActor var pinAnchorPort: InputLayerNodeRowData
+    @MainActor var pinOffsetPort: InputLayerNodeRowData
+    
     weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -268,6 +273,11 @@ final class LayerNodeViewModel {
         self.maxSizePort = .empty(.maxSize, layer: schema.layer)
         self.spacingPort = .empty(.spacing, layer: schema.layer)
         self.sizingScenarioPort = .empty(.sizingScenario, layer: schema.layer)
+        
+        self.isPinnedPort = .empty(.isPinned, layer: schema.layer)
+        self.pinToPort = .empty(.pinTo, layer: schema.layer)
+        self.pinAnchorPort = .empty(.pinAnchor, layer: schema.layer)
+        self.pinOffsetPort = .empty(.pinOffset, layer: schema.layer)
         
         let graphNode = schema.layer.layerGraphNode
         

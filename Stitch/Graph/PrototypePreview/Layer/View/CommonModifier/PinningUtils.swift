@@ -16,11 +16,10 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
 
-//    var isGeneratedAtTopLevel: Bool
     let isGeneratedAtTopLevel: Bool
     
     var isPinned: Bool {
-        viewModel.isPinned
+        viewModel.isPinned.getBool ?? false
     }
     
     // ALSO: if this is View A and it is not being generated at the top level,

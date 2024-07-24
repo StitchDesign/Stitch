@@ -53,7 +53,7 @@ struct LayerSizeModifier: ViewModifier {
         // logInView("LayerSizeModifier: minHeight: \(minHeight)")
         // logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
                
-        if isGeneratedAtTopLevel && viewModel.isPinned {
+        if isGeneratedAtTopLevel && (viewModel.isPinned.getBool ?? false) {
             logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
             // If this is the "PinnedView" for View A,
             // then View A's "GhostView" will already have read the appropriate size etc. for View A.
