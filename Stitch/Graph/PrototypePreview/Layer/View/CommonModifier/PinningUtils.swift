@@ -16,7 +16,7 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
 
-//    var isGeneratedAtTopLevel: Bool = false
+//    var isGeneratedAtTopLevel: Bool
     let isGeneratedAtTopLevel: Bool
     
     var isPinned: Bool {

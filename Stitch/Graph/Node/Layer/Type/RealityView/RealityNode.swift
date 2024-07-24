@@ -45,7 +45,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool = false,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewRealityLayer(graph: graph,
                             viewModel: viewModel,

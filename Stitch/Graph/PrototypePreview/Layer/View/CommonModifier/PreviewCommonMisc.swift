@@ -47,11 +47,42 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    var isPinnedView: Bool {
+        viewModel.isPinned && isGeneratedAtTopLevel
+    }
+    
+    // PinnedViewA uses rotation value of its pin-receiver View B
+    var finalRotationX: CGFloat {
+        if isPinnedView,
+           let pinReceiver = pinReceiver {
+            return pinReceiver.rotationX.getNumber ?? .zero
+        } else {
+            return rotationX
+        }
+    }
+    
+    var finalRotationY: CGFloat {
+        if isPinnedView,
+           let pinReceiver = pinReceiver {
+            return pinReceiver.rotationY.getNumber ?? .zero
+        } else {
+            return rotationY
+        }
+    }
+    
+    var finalRotationZ: CGFloat {
+        if isPinnedView,
+           let pinReceiver = pinReceiver {
+            return pinReceiver.rotationZ.getNumber ?? .zero
+        } else {
+            return rotationZ
+        }
+    }
+    
     var rotationAnchorY: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
-        if viewModel.isPinned,
-           isGeneratedAtTopLevel,
+        if isPinnedView,
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.height ?? .zero,
@@ -71,22 +102,28 @@ struct PreviewLayerRotationModifier: ViewModifier {
         content
         
         // x rotation
-            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationX),
-                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: finalRotationX),
+                                        axis: (x: finalRotationX, 
+                                               y: finalRotationY,
+                                               z: finalRotationZ),
                                         anchor: .init(x: self.rotationAnchorX,
                                                       y: self.rotationAnchorY))
                 .ignoredByLayout())
         
         // y rotation
-            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationY),
-                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: finalRotationY),
+                                        axis: (x: finalRotationX, 
+                                               y: finalRotationY, 
+                                               z: finalRotationZ),
                                         anchor: .init(x: self.rotationAnchorX,
                                                       y: self.rotationAnchorY))
                 .ignoredByLayout())
         
         // z rotation
-            .modifier(_Rotation3DEffect(angle: Angle(degrees: rotationZ),
-                                        axis: (x: rotationX, y: rotationY, z: rotationZ),
+            .modifier(_Rotation3DEffect(angle: Angle(degrees: finalRotationZ),
+                                        axis: (x: finalRotationX, 
+                                               y: finalRotationY, 
+                                               z: finalRotationZ),
                                         anchor: .init(x: self.rotationAnchorX,
                                                       y: self.rotationAnchorY))
                 .ignoredByLayout())

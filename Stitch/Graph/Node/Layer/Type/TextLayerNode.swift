@@ -72,7 +72,7 @@ struct TextLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool = false,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
             graph: graph,
