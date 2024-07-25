@@ -491,7 +491,7 @@
 		EC5F642D2C29E68500A9E52F /* LayerInspectorPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */; };
 		EC5F642F2C29E6A900A9E52F /* LayerInspectorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */; };
 		EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F64302C2B451C00A9E52F /* LLMActions.swift */; };
-		EC5F85552C51B17F00C6A8DC /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC5F85542C51B17F00C6A8DC /* StitchSchemaKit */; };
+		EC5F85572C51C18700C6A8DC /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC5F85562C51C18600C6A8DC /* StitchSchemaKit */; };
 		EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */; };
 		EC609DB629352FE200BF60A5 /* URLExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */; };
 		EC609DBA2935303600BF60A5 /* URLSessionExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */; };
@@ -1394,7 +1394,7 @@
 		EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorPortView.swift; sourceTree = "<group>"; };
 		EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInspectorState.swift; sourceTree = "<group>"; };
 		EC5F64302C2B451C00A9E52F /* LLMActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LLMActions.swift; sourceTree = "<group>"; };
-		EC5F85542C51B17F00C6A8DC /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
+		EC5F85562C51C18600C6A8DC /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		EC609DB329352FB800BF60A5 /* NumberExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB529352FE200BF60A5 /* URLExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLExtensionUtils.swift; sourceTree = "<group>"; };
 		EC609DB92935303600BF60A5 /* URLSessionExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionExtensionUtils.swift; sourceTree = "<group>"; };
@@ -1841,7 +1841,7 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
-				EC5F85542C51B17F00C6A8DC /* StitchSchemaKit */,
+				EC5F85562C51C18600C6A8DC /* StitchSchemaKit */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4395,7 +4395,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
-				EC5F85552C51B17F00C6A8DC /* StitchSchemaKit in Resources */,
+				EC5F85572C51C18700C6A8DC /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,

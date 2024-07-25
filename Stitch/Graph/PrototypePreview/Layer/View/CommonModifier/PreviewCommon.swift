@@ -58,7 +58,7 @@ struct PreviewCommonModifier: ViewModifier {
     func body(content: Content) -> some View {
 
         content
-            .border(isGeneratedAtTopLevel ? .black : .green, width: 8)
+//            .border(isGeneratedAtTopLevel ? .black : .green, width: 8)
             .modifier(PreviewCommonSizeModifier(
                     viewModel: layerViewModel,
                     isGeneratedAtTopLevel: isGeneratedAtTopLevel,

@@ -109,7 +109,7 @@ struct GeneratePreview: View {
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)
-            .border(.black)
+//            .border(.black)
         }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
