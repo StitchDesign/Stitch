@@ -25,8 +25,23 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
         rotationX: .zero,
         rotationY: .zero,
         rotationZ: .zero)
+        
+//    guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
+//        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
+////        return nil
+//        
+//        // Testing .parent and .root cases: if no pinnedTo, then choose
+//        
+//        // ROOT case
+//        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
+//        return rootPinReceiverData
+//        
+//    }
     
-    guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
+    // THE LAYER GROUP PARENT
+    guard let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+          let pinnedTo = layerNode.layerGroupId else {
+              
         log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
 //        return nil
         
@@ -37,10 +52,9 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
         return rootPinReceiverData
         
     }
-    
-    
-    
-    guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
+        
+//    guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
+    guard let pinReceiver = graph.layerNodes.get(pinnedTo) else {
         log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
 //        return nil
         
