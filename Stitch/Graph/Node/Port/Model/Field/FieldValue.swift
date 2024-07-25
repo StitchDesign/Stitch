@@ -24,6 +24,7 @@ enum FieldValue: Equatable, Sendable {
     case color(Color)
     case dropdown(String, PortValues)
     case layerDropdown(LayerNodeId?)
+    case pinTo(PinToId)
     case anchorPopover(Anchoring)
     case media(FieldValueMedia)
     case pulse(TimeInterval)
@@ -55,7 +56,7 @@ extension FieldValue {
             return x.display
         // case .layerDropdown(let x): // TODO: retrieve layer name?
             // TODO: provide real values here
-        case .color, .layerDropdown, .textFontDropdown, .spacing:
+        case .color, .layerDropdown, .textFontDropdown, .spacing, .pinTo:
             return ""
         }
     }
@@ -76,7 +77,7 @@ extension FieldValue {
             return bool.description
         case .spacing(let spacing):
             return spacing.display
-        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown:
+        case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown, .pinTo:
             return ""
         }
     }

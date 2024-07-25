@@ -21,7 +21,7 @@ struct PickerOptionSelected: GraphEventWithResponse {
         //        log("PickerOptionSelected: input: \(input)")`
         //        log("PickerOptionSelected: choice: \(choice)")
         state.inputEditCommitted(input: input,
-                                      value: choice)
+                                 value: choice)
         return .init(willPersist: isPersistence)
     }
 }

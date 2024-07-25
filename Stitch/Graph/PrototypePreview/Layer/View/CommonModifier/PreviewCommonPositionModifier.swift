@@ -9,57 +9,65 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
     log("getPinReceiverLayerViewModel: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
-    
-    let rootPinReceiverData = PinReceiverData(
-        // anchoring
-        size: graph.previewWindowSize,
-        origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
-        
-        // rotation this will be ignored
-        center: .zero,
-        rotationX: .zero,
-        rotationY: .zero,
-        rotationZ: .zero)
-        
-//    guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
-//        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
-////        return nil
-//        
-//        // Testing .parent and .root cases: if no pinnedTo, then choose
-//        
-//        // ROOT case
-//        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
-//        return rootPinReceiverData
-//        
-//    }
-    
-    // THE LAYER GROUP PARENT
-    guard let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
-          let pinnedTo = layerNode.layerGroupId else {
-              
+                
+    guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
         log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
-//        return nil
-        
-        // Testing .parent and .root cases: if no pinnedTo, then choose
-        
-        // ROOT case
-        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
-        return rootPinReceiverData
-        
+        return graph.rootPinReceiverData
     }
         
-//    guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
-    guard let pinReceiver = graph.layerNodes.get(pinnedTo) else {
-        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
-//        return nil
-        
+    switch pinnedTo {
+    
+    case .root:
         log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
-        return rootPinReceiverData
+        return graph.rootPinReceiverData
+    
+        // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
+        // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
+    case .parent:
+        if let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+              let parent = layerNode.layerGroupId {
+            return getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
+                                      for: pinnedLayerViewModel,
+                                      from: graph)
+        } else {
+            return graph.rootPinReceiverData
+        }
+        
+    case .layer(let x):
+        return getPinReceiverData(pinReceiverId: x,
+                                  for: pinnedLayerViewModel,
+                                  from: graph)
+    }
+}
+
+extension GraphState {
+    var rootPinReceiverData: PinReceiverData {
+        PinReceiverData(
+            // anchoring
+            size: self.previewWindowSize,
+
+            origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
+            
+            // rotation this will be ignored
+            center: .zero,
+            rotationX: .zero,
+            rotationY: .zero,
+            rotationZ: .zero)
+    }
+}
+
+//
+func getPinReceiverData(pinReceiverId: LayerNodeId,
+                        for pinnedLayerViewModel: LayerViewModel,
+                        from graph: GraphState) -> PinReceiverData? {
+    
+    guard let pinReceiver = graph.layerNodes.get(pinReceiverId.id) else {
+        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
+        return graph.rootPinReceiverData
     }
     
     // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
@@ -81,7 +89,8 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
         log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
         return nil
     }
-
+    
+    
     return PinReceiverData(
         // anchoring
         size: pinReceiverSize,
@@ -93,6 +102,8 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
         rotationY: pinReceiverRotationY,
         rotationZ: pinReceiverRotationZ)
 }
+
+
 
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> StitchPosition {

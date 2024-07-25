@@ -190,6 +190,12 @@ struct InputValueView: View {
                 choices: graph.layerDropdownChoices(isForPinTo: false)
             )
 
+        case .pinTo(let pinToId):
+            LayerNamesDropDownChoiceView(graph: graph,
+                                         id: rowObserverId,
+                                         value: .pinTo(pinToId),
+                                         choices: graph.layerDropdownChoices(isForPinTo: true))
+            
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
                               selection: anchor)

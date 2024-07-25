@@ -217,7 +217,7 @@ extension LayerInputType {
         case .isPinned:
             return .bool(false)
         case .pinTo:
-            return .assignedLayer(nil)
+            return .pinTo(.defaultPinToId)
         case .pinAnchor:
             return .anchoring(.defaultAnchoring)
         case .pinOffset:

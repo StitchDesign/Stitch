@@ -81,9 +81,8 @@ struct LayerNamesDropDownChoiceView: View {
         
         if isForPinTo {
             // TODO: add PortValue.pinTo case
-//            dispatch(PickerOptionSelected(input: self.id,
-//                                          choice: PortValue.pinTo(choice.asPinToId)))
-            
+            dispatch(PickerOptionSelected(input: self.id,
+                                          choice: .pinTo(choice.asPinToId)))
         } else {
             dispatch(InteractionPickerOptionSelected(
                         interactionPatchNodeInput: self.id,
@@ -145,26 +144,26 @@ struct LayerNamesDropDownChoiceView: View {
         
         // What is this really doing? Why are we passing in the PortValue ?
         // Ah, the idea is, wge
-        .onChange(of: self.value, initial: true) {
+        .onChange(of: self.value, initial: true) { oldValue, newValue in
             
-            if isForPinTo {
-                // TODO: Turn the PortValue.pinTo into a LayerDropdownChoice
-//                self.selection =
-                self.selection = .RootLayerDropDownChoice
-                
-                
-            } else if let interactionId = value.getInteractionId {
-                if let node = self.graph.getNodeViewModel(interactionId.id) {
-                    @Bindable var node = node
-                    self.selection = node.asLayerDropdownChoice
+            if let pinToId = newValue.getPinToId {
+                switch pinToId {
+                case .root:
+                    self.selection = .RootLayerDropDownChoice
+                case .parent:
+                    self.selection = .ParentLayerDropDownChoice
+                case .layer(let x):
+                    self.selection = self.graph.getNode(x.id)?.asLayerDropdownChoice ?? .NilLayerDropDownChoice
+                }
+            } else if let interactionId = newValue.getInteractionId {
+                if let node = self.graph.getNodeViewModel(interactionId.id)?.asLayerDropdownChoice {
+                    self.selection = node
                 } else {
                     // i.e. what happens if the passed-in PortValue is for a node that no longer exists?
                     // Really, we should fix that at the PortValue-level; just changing it at the UI-level here could be confusing...
-                    fatalErrorIfDebug()
                     self.selection = .NilLayerDropDownChoice
                 }
             } else {
-//                fatalErrorIfDebug()
                 self.selection = .NilLayerDropDownChoice
             }
         }

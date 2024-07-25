@@ -268,6 +268,10 @@ extension PortValue {
         case .assignedLayer:
             let layerId = self.getInteractionId
             return [[.layerDropdown(layerId)]]
+            
+        case .pinTo:
+            let pinTo = self.getPinToId ?? .defaultPinToId
+            return [[.pinTo(pinTo)]]
 
         case .anchoring:
             let anchor = self.getAnchoring ?? .defaultAnchoring

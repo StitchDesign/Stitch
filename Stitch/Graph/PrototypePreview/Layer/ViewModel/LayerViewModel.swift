@@ -10,10 +10,25 @@ import SwiftUI
 import StitchSchemaKit
 
 /// "What is View A pinned to?"
-enum PinToId: Equatable, Hashable, Codable {
-    case root, // always preview window
-         parent, // immediate parent; defaults to preview window if pinned layer has no parent
-         layer(LayerNodeId)
+//enum PinToId: Equatable, Hashable, Codable {
+//    case root, // always preview window
+//         parent, // immediate parent; defaults to preview window if pinned layer has no parent
+//         layer(LayerNodeId)
+//}
+
+extension PinToId {
+    static let defaultPinToId = Self.root
+    
+    var display: String {
+        switch self {
+        case .root:
+            return LayerDropdownChoice.RootLayerDropDownChoice.name
+        case .parent:
+            return LayerDropdownChoice.ParentLayerDropDownChoice.name
+        case .layer(let x):
+            return x.id.description
+        }
+    }
 }
 
 enum PinReceiverDataCase: Equatable, Hashable, Codable {

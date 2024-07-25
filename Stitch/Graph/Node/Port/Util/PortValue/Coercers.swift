@@ -496,6 +496,21 @@ func interactionIdCoercer(_ values: PortValues) -> PortValues {
     }
 }
 
+func pinToCoercer(_ values: PortValues) -> PortValues {
+    log("pinToCoercer: values: \(values)")
+    return values.map {
+        switch $0 {
+        case .pinTo:
+            log("pinToCoercer: interactionId")
+            return $0
+        default:
+            log("pinToCoercer: default")
+            return .pinTo(.defaultPinToId)
+        }
+    }
+}
+
+
 func scrollModeCoercer(_ values: PortValues) -> PortValues {
     return values.map {
         switch $0 {
