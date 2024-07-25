@@ -10,52 +10,116 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
+
+struct LayerDropdownChoice: Equatable, Identifiable, Codable, Hashable {
+    let id: String // uuid for layers; but non-uuid string for Root or Parent PinTo's
+    let name: String
+}
+
+typealias LayerDropdownChoices = [LayerDropdownChoice]
+
+extension LayerDropdownChoice {
+    
+    var asPinToId: PinToId {
+        if self.id == LayerDropdownChoice.RootLayerDropDownChoice.id {
+            return .root
+        } else if self.id == LayerDropdownChoice.ParentLayerDropDownChoice.id {
+            return .parent
+        } else {
+            guard let selectedLayerId: LayerNodeId = UUID(uuidString: self.id)?.asLayerNodeId else {
+                fatalErrorIfDebug()
+                return .root
+            }
+            return .layer(selectedLayerId)
+        }
+    }
+
+    // Only for non-PinTo
+    static let NilLayerDropDownChoice: Self = .init(id: "NIL_LAYER_DROPDOWN_CHOICE_ID",
+                                                    name: "None")
+    
+    // Only for PinTo
+    static let RootLayerDropDownChoice: Self = .init(id: "ROOT_LAYER_DROPDOWN_CHOICE_ID",
+                                                     name: "Root")
+    static let ParentLayerDropDownChoice: Self = .init(id: "PARENT_LAYER_DROPDOWN_CHOICE_ID",
+                                                       name: "Parent")
+}
+
+extension NodeViewModel {
+    var asLayerDropdownChoice: LayerDropdownChoice {
+        .init(id: self.id.uuidString,
+              name: self.getDisplayTitle())
+    }
+}
+
 // Note:
 struct LayerNamesDropDownChoiceView: View {
-    @State private var selection: NodeViewModel = NodeViewModel.nilChoice
+//    @State private var selection: NodeViewModel = NodeViewModel.nilChoice
+    @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
 
     @Bindable var graph: GraphState
 
     let id: InputCoordinate
     let value: PortValue
+    
+    var isForPinTo: Bool = false
 
     @MainActor
-    func onSet(_ node: NodeViewModel) {
-        dispatch(InteractionPickerOptionSelected(
-                    interactionPatchNodeInput: self.id,
-                    layerNodeIdSelection: node.id.asLayerNodeId))
+    func onSet(_ choice: LayerDropdownChoice) {
+        
+        let selectedLayerId: LayerNodeId? = UUID(uuidString: choice.id)?.asLayerNodeId
+        
+        if isForPinTo {
+            // TODO: add PortValue.pinTo case
+//            dispatch(PickerOptionSelected(input: self.id,
+//                                          choice: PortValue.pinTo(choice.asPinToId)))
+            
+        } else {
+            dispatch(InteractionPickerOptionSelected(
+                        interactionPatchNodeInput: self.id,
+                        layerNodeIdSelection: selectedLayerId))
+        }
+        
     }
 
-    @MainActor
-    var layerOptions: NodeViewModels {
-        var options: NodeViewModels = [NodeViewModel.nilChoice]
-        options += self.graph.orderedSidebarLayers.getIds()
-            .compactMap { self.graph.getNodeViewModel($0) }
-        return options
-    }
+    var choices: LayerDropdownChoices
+    
+//    @MainActor
+//    var choices: LayerDropdownChoices {
+//        var initialOptions: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
+//        
+//        initialOptions += self.graph.orderedSidebarLayers.getIds()
+//            .compactMap {
+//                if let nodeViewModel = self.graph.getNodeViewModel($0) {
+//                    return nodeViewModel.asLayerDropdownChoice
+//                }
+//                return nil
+//            }
+//        
+//        return initialOptions
+//    }
 
     @MainActor
     var selectionTitle: String {
         #if DEV_DEBUG
-        self.selection.displayTitle + " " + self.selection.id.description.dropLast(24)
+        self.selection.name + " " + self.selection.id.description.dropLast(24)
         #else
-        self.selection.displayTitle
+        self.selection.name
         #endif
     }
 
     var body: some View {
         
         Menu {
-            ForEach(self.layerOptions) { node in
-                @Bindable var node = node
+            ForEach(self.choices) { choice in
                 StitchButton {
-                    self.onSet(node)
+                    self.onSet(choice)
                 } label: {
-#if DEV_DEBUG
-                    StitchTextView(string: "\(node.displayTitle) \(node.id.description.dropLast(24))")
-#else
-                    StitchTextView(string: node.displayTitle)
-#endif
+//#if DEV_DEBUG
+                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
+//#else
+//                    StitchTextView(string: choice.name)
+//#endif
                 }
             }
         } label: {
@@ -64,20 +128,51 @@ struct LayerNamesDropDownChoiceView: View {
 #if targetEnvironment(macCatalyst)
         .buttonStyle(.plain)
 #endif
+        // Adjust for whether this dropdown is used for regular layers or pinTo layers
+        .onAppear {
+            if isForPinTo {
+                self.selection = .RootLayerDropDownChoice
+            } else {
+                self.selection = .NilLayerDropDownChoice
+            }
+        }
         
-        
-        
+        // Not needed?
         .onChange(of: self.selection.id) {
             self.onSet(self.selection)
         }
-        .onChange(of: self.value, initial: true) {
-            guard let persistedInteractionId = value.getInteractionId,
-                  let node = self.graph.getNodeViewModel(persistedInteractionId.id) else {
-                self.selection = NodeViewModel.nilChoice
-                return
+        .onChange(of: self.choices) { oldValue, newValue in
+            if let currentSelection = self.choices.first(where: { choice in
+                choice.id == self.selection.id
+            }) {
+                self.selection = currentSelection
             }
+        }
+        
+        // What is this really doing? Why are we passing in the PortValue ?
+        // Ah, the idea is, wge
+        .onChange(of: self.value, initial: true) {
             
-            self.selection = node
+            if isForPinTo {
+                // TODO: Turn the PortValue.pinTo into a LayerDropdownChoice
+//                self.selection =
+                self.selection = .RootLayerDropDownChoice
+                
+                
+            } else if let interactionId = value.getInteractionId {
+                if let node = self.graph.getNodeViewModel(interactionId.id) {
+                    @Bindable var node = node
+                    self.selection = node.asLayerDropdownChoice
+                } else {
+                    // i.e. what happens if the passed-in PortValue is for a node that no longer exists?
+                    // Really, we should fix that at the PortValue-level; just changing it at the UI-level here could be confusing...
+                    fatalErrorIfDebug()
+                    self.selection = .NilLayerDropDownChoice
+                }
+            } else {
+//                fatalErrorIfDebug()
+                self.selection = .NilLayerDropDownChoice
+            }
         }
     }
 }

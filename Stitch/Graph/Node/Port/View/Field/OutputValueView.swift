@@ -138,11 +138,12 @@ struct OutputValueView: View {
                        alignment: .leading)
 
         case .layerDropdown(let layerId):
-            // TODO: disable or use read-only view if this is an output ?
-            LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
-                                         value: .assignedLayer(layerId))
-            .disabled(true)
+//            // TODO: disable or use read-only view if this is an output ?
+//            LayerNamesDropDownChoiceView(graph: graph,
+//                                         id: coordinate,
+//                                         value: .assignedLayer(layerId))
+//            .disabled(true)
+            Text("FIX ME")
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
