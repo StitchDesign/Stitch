@@ -183,16 +183,11 @@ struct InputValueView: View {
                        alignment: .leading)
 
         case .layerDropdown(let layerId):
-//            LayerNamesDropDownChoiceView(graph: graph,
-//                                         id: rowObserverId,
-//                                         value: .assignedLayer(layerId))
             LayerNamesDropDownChoiceView(
                 graph: graph,
                 id: rowObserverId,
                 value: .assignedLayer(layerId),
-                choices: [.NilLayerDropDownChoice] + self.graph.orderedSidebarLayers.getIds().compactMap {
-                    self.graph.getNodeViewModel($0)?.asLayerDropdownChoice
-                }
+                choices: graph.layerDropdownChoices(isForPinTo: false)
             )
 
         case .anchorPopover(let anchor):

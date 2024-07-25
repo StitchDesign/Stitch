@@ -52,9 +52,19 @@ extension NodeViewModel {
     }
 }
 
+extension GraphState {
+    func layerDropdownChoices(isForPinTo: Bool) -> LayerDropdownChoices {
+        
+        let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
+        
+        return initialChoices + self.orderedSidebarLayers.getIds().compactMap {
+            self.getNodeViewModel($0)?.asLayerDropdownChoice
+        }
+    }
+}
+
 // Note:
 struct LayerNamesDropDownChoiceView: View {
-//    @State private var selection: NodeViewModel = NodeViewModel.nilChoice
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
 
     @Bindable var graph: GraphState
@@ -79,26 +89,10 @@ struct LayerNamesDropDownChoiceView: View {
                         interactionPatchNodeInput: self.id,
                         layerNodeIdSelection: selectedLayerId))
         }
-        
     }
 
     var choices: LayerDropdownChoices
     
-//    @MainActor
-//    var choices: LayerDropdownChoices {
-//        var initialOptions: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
-//        
-//        initialOptions += self.graph.orderedSidebarLayers.getIds()
-//            .compactMap {
-//                if let nodeViewModel = self.graph.getNodeViewModel($0) {
-//                    return nodeViewModel.asLayerDropdownChoice
-//                }
-//                return nil
-//            }
-//        
-//        return initialOptions
-//    }
-
     @MainActor
     var selectionTitle: String {
         #if DEV_DEBUG
