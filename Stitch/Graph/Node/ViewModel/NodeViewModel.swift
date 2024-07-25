@@ -83,14 +83,14 @@ final class NodeViewModel: Sendable {
         
         self._cachedDisplayTitle = self.getDisplayTitle()
 
+        // Set graph delegate BEFORE re-instantiating node type
+        self.graphDelegate = graphDelegate
+
         // HACK: Set `self.nodeType` a second time, so that we can pass down the proper reference.
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
                                           nodeDelegate: self)
         
-        // Set graph delegate
-        self.graphDelegate = graphDelegate
-
         self.createEphemeralObservers()
     }
 }
@@ -263,21 +263,17 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func updateInputsObservers(activeIndex: ActiveIndex) {
-        // Do nothing if not in frame
-        guard self.isVisibleInFrame else {
-            return
-        }
-        
+    func updateInputPortViewModels(activeIndex: ActiveIndex) {
         zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in
-            rowObserver.updateValues(values)
+            rowObserver.updatePortViewModels(values: values)
         }
     }
 
     @MainActor
-    func updateOutputsObservers(activeIndex: ActiveIndex) {
-        self.updateOutputsObservers(newValuesList: nil,
-                                    activeIndex: activeIndex)
+    func updateOutputPortViewModels(activeIndex: ActiveIndex) {
+        zip(self.getAllOutputsObservers(), self.outputs).forEach { rowObserver, values in
+            rowObserver.updatePortViewModels(values: values)
+        }
     }
     
     @MainActor
@@ -288,11 +284,6 @@ extension NodeViewModel {
         if let newValuesList = newValuesList {
             self.updateRowObservers(rowObservers: outputsObservers,
                                     newIOValues: newValuesList)
-        }
-        
-        // UI logic below, do nothing if not in frame
-        guard self.isVisibleInFrame else {
-            return
         }
 
         zip(outputsObservers, newValuesList ?? self.outputs).forEach { rowObserver, values in

@@ -145,7 +145,9 @@ struct ContentView: View {
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
-            showFullScreenAnimateCompleted = true
+            DispatchQueue.main.async {
+                self.showFullScreenAnimateCompleted = true
+            }
         })
         .stitchSheet(isPresented: graph.graphUI.llmRecording.promptState.showModal,
                      titleLabel: "LLM Recording",

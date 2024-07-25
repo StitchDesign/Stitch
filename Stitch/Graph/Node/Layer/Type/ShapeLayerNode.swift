@@ -43,18 +43,18 @@ extension LayerInputTypeSet {
     ]
     
     @MainActor
-    static let aspectRatio: LayerInputTypeSet = [
+    static let aspectRatio: LayerInputTypeSet = FeatureFlags.USE_LAYER_INSPECTOR ? [
         .widthAxis,
         .heightAxis,
         .contentMode
-    ]
+    ] : []
     
     @MainActor
-    static let sizing: LayerInputTypeSet = [
+    static let sizing: LayerInputTypeSet = FeatureFlags.USE_LAYER_INSPECTOR ? [
         .minSize,
         .maxSize,
         .sizingScenario
-    ]
+    ] : []
     
     // LayerGroup only?
     @MainActor
