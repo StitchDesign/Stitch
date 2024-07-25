@@ -22,8 +22,8 @@ struct PreviewLayerRotationModifier: ViewModifier {
     let rotationY: CGFloat
     let rotationZ: CGFloat
         
-    var pinReceiver: LayerViewModel? {
-        getPinReceiverLayerViewModel(for: viewModel, from: graph)
+    var pinReceiver: PinReceiverData? {
+        getPinReceiverData(for: viewModel, from: graph)
     }
     
     static let defaultRotationAnchor = 0.5
@@ -36,9 +36,9 @@ struct PreviewLayerRotationModifier: ViewModifier {
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
-                                     lengthB: pinReceiver.pinReceiverSize?.width ?? .zero,
+                                     lengthB: pinReceiver.size.width,
                                      pointA: viewModel.pinnedCenter?.x ?? .zero,
-                                     pointB: pinReceiver.pinReceiverCenter?.x ?? .zero)
+                                     pointB: pinReceiver.center.x)
         }
         
         // Else, just return default rotation anchor of center
@@ -55,7 +55,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     var finalRotationX: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
-            return pinReceiver.rotationX.getNumber ?? .zero
+            return pinReceiver.rotationX
         } else {
             return rotationX
         }
@@ -64,7 +64,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     var finalRotationY: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
-            return pinReceiver.rotationY.getNumber ?? .zero
+            return pinReceiver.rotationY
         } else {
             return rotationY
         }
@@ -73,7 +73,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     var finalRotationZ: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
-            return pinReceiver.rotationZ.getNumber ?? .zero
+            return pinReceiver.rotationZ
         } else {
             return rotationZ
         }
@@ -86,9 +86,9 @@ struct PreviewLayerRotationModifier: ViewModifier {
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.height ?? .zero,
-                                     lengthB: pinReceiver.pinReceiverSize?.height ?? .zero,
+                                     lengthB: pinReceiver.size.height,
                                      pointA: viewModel.pinnedCenter?.y ?? .zero,
-                                     pointB: pinReceiver.pinReceiverCenter?.y ?? .zero)
+                                     pointB: pinReceiver.center.y)
         }
         
         // Else, just return default rotation anchor of center

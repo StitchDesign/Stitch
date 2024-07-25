@@ -10,17 +10,16 @@ import SwiftUI
 import StitchSchemaKit
 
 
-func getPinReceiverLayerViewModel(for pinnedLayerViewModel: LayerViewModel,
-                                  from graph: GraphState) -> LayerViewModel? {
+func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
+                        from graph: GraphState) -> PinReceiverData? {
 
     guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
         log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel)")
         return nil
+        
+        // Testing .parent and .root cases: if no pinnedTo, then choose
     }
     
-    // TODO: retrieve actual NodeViewModel for the `pinnedTo` id; do not assume .rectangle etc.
-//    let pinReceiver: NodeViewModel? = graph.layerNodes.values.first(where: { $0.layerNodeViewModel?.layer == .rectangle })
-        
     guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
         log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel)")
         return nil
@@ -31,7 +30,31 @@ func getPinReceiverLayerViewModel(for pinnedLayerViewModel: LayerViewModel,
     
     let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
     
-    return pinReceiverAtSameLoopIndex ?? firstPinReceiver
+    guard let pinReceiverLayerViewModel = (pinReceiverAtSameLoopIndex ?? firstPinReceiver) else {
+        log("getPinReceiverLayerViewModel: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
+        return nil
+    }
+    
+    guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
+          let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
+          let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter else {
+        log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel)")
+        return nil
+    }
+
+    return PinReceiverData(size: pinReceiverSize,
+                           origin: pinReceiverOrigin,
+                           center: pinReceiverCenter)
+    
+}
+
+func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
+                           pinReceiverData: PinReceiverData) -> StitchPosition {
+    
+    adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
+                   position: pinReceiverData.origin.toCGSize,
+                   anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
+                   parentSize: pinReceiverData.size)
 }
 
 struct PreviewCommonPositionModifier: ViewModifier {
@@ -62,16 +85,19 @@ struct PreviewCommonPositionModifier: ViewModifier {
     func body(content: Content) -> some View {
         
         if viewModel.isPinned.getBool ?? false,
-           let pinReceiverLayerViewModel = getPinReceiverLayerViewModel(for: viewModel,
-                                                                        from: graph) {
+//           let pinReceiverLayerViewModel = getPinReceiverData(for: viewModel, from: graph) {
+           let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
             
             logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
             
-            let pinPos = adjustPosition(
-                size: viewModel.pinnedSize ?? .zero,
-                position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
-                anchor: viewModel.pinAnchor.getAnchoring ?? .topLeft,
-                parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
+//            let pinPos = adjustPosition(
+//                size: viewModel.pinnedSize ?? .zero,
+//                position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
+//                anchor: viewModel.pinAnchor.getAnchoring ?? .topLeft,
+//                parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
+            
+            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
+                                               pinReceiverData: pinReceiverData)
             
             content
                 .position(x: pinPos.width, y: pinPos.height)

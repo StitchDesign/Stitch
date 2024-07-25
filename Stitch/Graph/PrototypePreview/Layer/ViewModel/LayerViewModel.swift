@@ -9,15 +9,53 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+/// "What is View A pinned to?"
+enum PinToId: Equatable, Hashable, Codable {
+    case root, // always preview window
+         parent, // immediate parent; defaults to preview window if pinned layer has no parent
+         layer(LayerNodeId)
+}
+
+enum PinReceiverDataCase: Equatable, Hashable, Codable {
+    case root(size: PinReceiverSizeData), // never has rotation data
+         // either a parent or a different layer
+         layer(size: PinReceiverSizeData,
+               rotation: PinReceiverRotationData)
+}
+
+struct PinReceiverRotationData: Equatable, Hashable, Codable {
+    // For determining PinnedView's rotation-anchor
+    var center: CGPoint
+    
+    // PinReceiver's rotation is applied to the PinnedView
+    var rotationX: CGFloat
+    var rotationY: CGFloat
+    var rotationZ: CGFloat
+}
+
+struct PinReceiverSizeData: Equatable, Hashable, Codable {
+    // for anchoring
+    var size: CGSize
+    var origin: CGPoint // always 0,0 for
+}
+
 /// the data for "View B", which receives the pinned View A
 struct PinReceiverData: Equatable {
     
+//    let pinTo: PinToId
+    
     // for anchoring
     var size: CGSize
-    var origin: CGPoint
+    var origin: CGPoint // always 0,0 for
     
     // for rotation
+    // Note: not applicable for PinTo.root, since PreviewWindow cannot be rotated
     var center: CGPoint
+    
+    // Note: for PinTo.root, will always be 0
+    var rotationX: CGFloat
+    var rotationY: CGFloat
+    var rotationZ: CGFloat
 }
 
 /// data for "View A", which is pinned to View B
