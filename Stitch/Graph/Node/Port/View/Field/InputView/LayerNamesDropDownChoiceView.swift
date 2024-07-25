@@ -109,11 +109,11 @@ struct LayerNamesDropDownChoiceView: View {
                 StitchButton {
                     self.onSet(choice)
                 } label: {
-//#if DEV_DEBUG
+#if DEV_DEBUG
                     StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
-//#else
-//                    StitchTextView(string: choice.name)
-//#endif
+#else
+                    StitchTextView(string: choice.name)
+#endif
                 }
             }
         } label: {
