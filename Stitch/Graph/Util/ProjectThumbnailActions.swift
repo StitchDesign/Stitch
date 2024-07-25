@@ -26,11 +26,9 @@ extension StitchStore {
             .background(graph.previewWindowBackgroundColor)
             .clipped()
         
-        // TODO: Why does .effectOnly { ... } with these lines give us a concurrency warning?
-        //            let renderer = await ImageRenderer(content: view)
-        //            let image = await renderer.uiImage
-        
         let document = graph.createSchema()
+        let rootUrl = graph.rootUrl
+        let filename = rootUrl.appendProjectThumbnailPath()
         
         Task { [weak self] in
             guard let store = self else {
@@ -38,16 +36,15 @@ extension StitchStore {
                 return
             }
             
+            // MARK: TECHNICALLY the renderer and .uImage should be made on the main thread, but this works and dispatching a background thread loses uiImage access
             let renderer = ImageRenderer(content: view)
-            let rootUrl = graph.rootUrl
+            let image = renderer.uiImage
             
-            guard let image = renderer.uiImage,
+            guard let image = image,
                   let data = image.pngData() else {
                 log("GenerateProjectThumbnailEvent: no pngData from image")
                 return
             }
-            
-            let filename = rootUrl.appendProjectThumbnailPath()
             
             // log("GenerateProjectThumbnailEvent: filename: \(filename)")
             do {
@@ -59,8 +56,6 @@ extension StitchStore {
                 
                 // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
                 //                 graph.encodeProjectInBackground()
-                
-                // TODO: Does this reference to a reference-type like `GraphState` or `StitchStore` introduce memory leaks? Note that, overall, we use more memory in the homescreen now that project thumbnail images are loaded.
                 try await store.documentLoader.encodeVersionedContents(
                     document: document)
             } catch {
