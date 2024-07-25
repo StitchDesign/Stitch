@@ -37,15 +37,24 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
     
     guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
           let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
-          let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter else {
+          let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter,
+          let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
+          let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
+          let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
         log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel)")
         return nil
     }
 
-    return PinReceiverData(size: pinReceiverSize,
-                           origin: pinReceiverOrigin,
-                           center: pinReceiverCenter)
-    
+    return PinReceiverData(
+        // anchoring
+        size: pinReceiverSize,
+        origin: pinReceiverOrigin,
+        
+        // rotation
+        center: pinReceiverCenter,
+        rotationX: pinReceiverRotationX,
+        rotationY: pinReceiverRotationY,
+        rotationZ: pinReceiverRotationZ)
 }
 
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
