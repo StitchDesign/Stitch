@@ -13,16 +13,39 @@ import StitchSchemaKit
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
+    log("getPinReceiverLayerViewModel: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+    
+    let rootPinReceiverData = PinReceiverData(
+        // anchoring
+        size: graph.previewWindowSize,
+        origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
+        
+        // rotation this will be ignored
+        center: .zero,
+        rotationX: .zero,
+        rotationY: .zero,
+        rotationZ: .zero)
+    
     guard let pinnedTo: LayerNodeId = pinnedLayerViewModel.pinTo.getInteractionId else {
-        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel)")
-        return nil
+        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
+//        return nil
         
         // Testing .parent and .root cases: if no pinnedTo, then choose
+        
+        // ROOT case
+        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
+        return rootPinReceiverData
+        
     }
     
+    
+    
     guard let pinReceiver = graph.layerNodes.get(pinnedTo.id) else {
-        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel)")
-        return nil
+        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
+//        return nil
+        
+        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
+        return rootPinReceiverData
     }
     
     // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
@@ -41,7 +64,7 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
           let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
           let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
           let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
-        log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel)")
+        log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
         return nil
     }
 
@@ -108,8 +131,12 @@ struct PreviewCommonPositionModifier: ViewModifier {
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
+            let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
+            
             content
                 .position(x: pinPos.width, y: pinPos.height)
+                .offset(x: pinOffset.width, y: pinOffset.height)
+            
             
         } else {
             logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
