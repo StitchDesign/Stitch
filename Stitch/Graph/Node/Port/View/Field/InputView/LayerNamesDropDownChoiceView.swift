@@ -72,7 +72,7 @@ struct LayerNamesDropDownChoiceView: View {
     let id: InputCoordinate
     let value: PortValue
     
-    var isForPinTo: Bool = false
+    let isForPinTo: Bool
 
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {

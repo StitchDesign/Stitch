@@ -142,6 +142,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .assignedLayer(layerId),
+                                         isForPinTo: false,
                                          choices: graph.layerDropdownChoices(isForPinTo: false))
             .disabled(true)
             
@@ -149,6 +150,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .pinTo(pinToId),
+                                         isForPinTo: true,
                                          choices: graph.layerDropdownChoices(isForPinTo: true))
             .disabled(true)
             
