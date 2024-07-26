@@ -310,12 +310,12 @@ extension NodeViewModel {
 
     @MainActor
     func getInputRowObserver(_ portId: Int) -> InputNodeRowObserver? {
-        // Layers use key paths instead of array
-        if let layerNode = self.layerNode {
-            return layerNode.getSortedInputObservers()[safe: portId]
+        guard let canvas = self.patchCanvasItem else {
+            fatalErrorIfDebug("Only intended for patch nodes")
+            return nil
         }
         
-        return self.getAllInputsObservers()[safe: portId]
+        return canvas.inputViewModels[safe: portId]?.rowDelegate
     }
     
     @MainActor
@@ -327,7 +327,7 @@ extension NodeViewModel {
             return nil
             
         case .portIndex(let portId):
-            return self.getOutputRowObserver(portId)
+            return self.patchCanvasItem?.outputViewModels[safe: portId]?.rowDelegate
         }
     }
     
@@ -371,8 +371,13 @@ extension NodeViewModel {
     }
 
     @MainActor
-    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {        
-        self.getAllOutputsObservers()[safe: portId]
+    func getOutputRowObserver(_ portId: Int) -> OutputNodeRowObserver? {
+        guard let canvas = self.patchCanvasItem else {
+            fatalErrorIfDebug("Only intended for patch nodes")
+            return nil
+        }
+        
+        return canvas.outputViewModels[safe: portId]?.rowDelegate
     }
     
     @MainActor
