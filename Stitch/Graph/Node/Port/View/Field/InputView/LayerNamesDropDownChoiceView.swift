@@ -53,13 +53,23 @@ extension NodeViewModel {
 }
 
 extension GraphState {
-    func layerDropdownChoices(isForPinTo: Bool) -> LayerDropdownChoices {
+    func layerDropdownChoices(isForNode: NodeId,
+                              isForPinTo: Bool) -> LayerDropdownChoices {
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
+                
+        let layers: LayerDropdownChoices = self.orderedSidebarLayers
+            .getIds()
+            .compactMap {
+                //
+                if isForPinTo, $0 == isForNode {
+                    return nil
+                }
+                return self.getNodeViewModel($0)?.asLayerDropdownChoice
+                
+            }
         
-        return initialChoices + self.orderedSidebarLayers.getIds().compactMap {
-            self.getNodeViewModel($0)?.asLayerDropdownChoice
-        }
+        return initialChoices + layers
     }
 }
 
@@ -94,11 +104,11 @@ struct LayerNamesDropDownChoiceView: View {
     
     @MainActor
     var selectionTitle: String {
-        #if DEV_DEBUG
-        self.selection.name + " " + self.selection.id.description.dropLast(24)
-        #else
+//        #if DEV_DEBUG
+//        self.selection.name + " " + self.selection.id.description.dropLast(24)
+//        #else
         self.selection.name
-        #endif
+//        #endif
     }
 
     var body: some View {
@@ -108,11 +118,11 @@ struct LayerNamesDropDownChoiceView: View {
                 StitchButton {
                     self.onSet(choice)
                 } label: {
-#if DEV_DEBUG
-                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
-#else
+//#if DEV_DEBUG
+//                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
+//#else
                     StitchTextView(string: choice.name)
-#endif
+//#endif
                 }
             }
         } label: {

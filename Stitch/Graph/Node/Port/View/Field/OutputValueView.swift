@@ -143,7 +143,9 @@ struct OutputValueView: View {
                                          id: coordinate,
                                          value: .assignedLayer(layerId),
                                          isForPinTo: false,
-                                         choices: graph.layerDropdownChoices(isForPinTo: false))
+                                         choices: graph.layerDropdownChoices(
+                                            isForNode: coordinate.nodeId,
+                                            isForPinTo: false))
             .disabled(true)
             
         case .pinTo(let pinToId):
@@ -151,7 +153,9 @@ struct OutputValueView: View {
                                          id: coordinate,
                                          value: .pinTo(pinToId),
                                          isForPinTo: true,
-                                         choices: graph.layerDropdownChoices(isForPinTo: true))
+                                         choices: graph.layerDropdownChoices(
+                                            isForNode: coordinate.nodeId,
+                                            isForPinTo: true))
             .disabled(true)
             
         case .anchorPopover(let anchor):
