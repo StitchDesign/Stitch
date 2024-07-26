@@ -315,6 +315,7 @@ extension LayerNodeViewModel: SchemaObserver {
               nodeDelegate: nil)
     }
 
+    @MainActor
     func update(from schema: LayerNodeEntity) {
         if self.layer != schema.layer {
             self.layer = schema.layer
@@ -335,6 +336,46 @@ extension LayerNodeViewModel: SchemaObserver {
                         nodeId: schema.id,
                         node: self.nodeDelegate)
         }
+        
+        // Process output canvases
+        self.updateOutputData(from: schema.outputCanvasPorts)
+    }
+    
+    @MainActor
+    func updateOutputData(from canvases: [CanvasNodeEntity?]) {
+        canvases.enumerated().forEach { portIndex, canvasEntity in
+            guard let outputData = self.outputPorts[safe: portIndex] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            let canvasViewModel = outputData.canvasObserver
+            let coordinate = LayerOutputCoordinate(node: self.id,
+                                                   portId: portIndex)
+            
+            // Create view model if not yet created (and should)
+            guard let canvasViewModel = canvasViewModel else {
+                if let canvasEntity = canvasEntity {
+                    outputData.canvasObserver = CanvasItemViewModel(
+                        from: canvasEntity,
+                        id: .layerOutput(coordinate),
+                        inputRowObservers: [],
+                        outputRowObservers: [outputData.rowObserver],
+                        node: self.nodeDelegate)
+                }
+                return
+            }
+            
+            // Update canvas view model
+            if let canvasEntity = canvasEntity {
+                canvasViewModel.update(from: canvasEntity)
+            }
+            
+            // Remove canvas view model
+            else {
+                outputData.canvasObserver = nil
+            }
+        }
     }
 
     func createSchema() -> LayerNodeEntity {
@@ -349,6 +390,11 @@ extension LayerNodeViewModel: SchemaObserver {
             schema[keyPath: inputType.schemaPortKeyPath] = self[keyPath: inputType.layerNodeKeyPath].createSchema()
         }
         
+        // Save output canvas data
+        schema.outputCanvasPorts = self.outputPorts.map {
+            $0.canvasObserver?.createSchema()
+        }
+        
         return schema
     }
     
@@ -358,9 +404,15 @@ extension LayerNodeViewModel: SchemaObserver {
 extension LayerNodeViewModel {
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        self.layer.layerGraphNode.inputDefinitions.compactMap {
+        let inputs = self.layer.layerGraphNode.inputDefinitions.compactMap {
             self[keyPath: $0.layerNodeKeyPath].canvasObserver
         }
+        
+        let outputs = self.outputPorts.compactMap {
+            $0.canvasObserver
+        }
+        
+        return inputs + outputs
     }
     
     @MainActor
