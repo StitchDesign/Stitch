@@ -63,8 +63,9 @@ final class GraphState: Sendable {
     var cameraSettings = CameraSettings()
 
     // View models
-    @MainActor
-    let graphUI: GraphUIState
+    @MainActor let graphUI: GraphUIState
+    
+    let previewWindowSizingObserver = PreviewWindowSizing()
 
     let visibleNodesViewModel = VisibleNodesViewModel()
     let graphMovement = GraphMovementObserver()

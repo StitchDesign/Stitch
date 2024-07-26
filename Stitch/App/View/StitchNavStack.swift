@@ -15,7 +15,8 @@ struct StitchNavStack: View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
                 .navigationDestination(for: GraphState.self) { graphState in
-                    StitchProjectView(graphState: graphState,
+                    StitchProjectView(store: store,
+                                      graphState: graphState,
                                       graphUI: graphState.graphUI,
                                       alertState: store.alertState)
                 }
