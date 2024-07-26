@@ -18,3 +18,4 @@ Bug fixes + other changes:
 - Fixed issue where press interaction node may not work on first project load
 - Node menu scroll position resets when reopened
 - Improved default size of field for Text Field layer
+- Added default value for SF Symbol node
