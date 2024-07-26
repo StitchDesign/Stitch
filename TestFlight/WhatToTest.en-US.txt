@@ -1,18 +1,20 @@
-Major performance improvements in documents:
-- Improved responsiveness of graph navigation and prototype gestures with large graphs
-- Fixed text cursor lag issues in the Insert Node menu
-- Fixed issue where node row menu dropdowns could freeze on Mac
-- Fixed regression where off-screen nodes would unnecessarily refresh UI
+What’s new:
+- Project icons on home screen use a thumbnail of the project’s prototype window
+- Node UI redesign
 
-New functionality:
-- Auto-layout support for font size input in Text layer node
+New layer node inputs:
+- Padding + spacing
+- Min/max width and height
+- Aspect ratio
+- “Stroke” now available on on layers
 
-Bug fixes:
-- Fixed “Down” output reliability in Press Interaction node
-- Fixed issue where media may not propagate through Value nodes
-- Fixed project deletion on iPhone app
-- Fixed issue where layer loops would show incorrect layer z-indexing
-- Fixed issue where nodes which initially render off-screen may display incorrect data
-- Improved reliability of input focus when tabbing between input fields on a node
-- Fixed issue where media may not display after pasting a node that was “cut”
-- Searching for “splitter” in Insert Node menu will display Value node in results
+Bug fixes + other changes:
+- Fixed crash on first-run experience
+- Fixed various crashes caused by some input edits
+- Graph edges use “curve” style by default
+- Node type options in dropdown list in alphabetical order
+- Re-enabled Cubic Bezier Animation patch node
+- Text field layers with full screen prototype preview are now focusable
+- Fixed issue where press interaction node may not work on first project load
+- Node menu scroll position resets when reopened
+- Improved default size of field for Text Field layer
