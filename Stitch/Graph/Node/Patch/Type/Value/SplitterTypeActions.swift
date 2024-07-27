@@ -36,6 +36,9 @@ struct SplitterTypeChanged: ProjectEnvironmentEvent {
             splitterNode: splitterNode,
             newType: newType,
             currentType: currentType)
+        
+        // Forces group port view models to update
+        graphState.updateGraphData()
 
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
         graphState.calculateFullGraph()
