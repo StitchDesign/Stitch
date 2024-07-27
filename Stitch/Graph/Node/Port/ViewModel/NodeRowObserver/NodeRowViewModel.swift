@@ -270,19 +270,11 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 extension OutputNodeRowViewModel {
     @MainActor
     func findConnectedCanvasItems() -> CanvasItemIdSet {
-        guard let downstreamNodeIds = self.rowDelegate?.getConnectedDownstreamNodes() else {
+        guard let downstreamCanvases = self.rowDelegate?.getConnectedDownstreamNodes() else {
             return .init()
         }
-        
-        let downstreamCanvasIds: [CanvasItemId] = downstreamNodeIds.compactMap { nodeId in
-            guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
-                  let canvas = node.getAllCanvasObservers().first(where: { $0.id.isNode }) else {
-                      return nil
-                  }
             
-            return canvas.id
-        }
-        
+        let downstreamCanvasIds = downstreamCanvases.map { $0.id }
         return Set(downstreamCanvasIds)
     }
     
