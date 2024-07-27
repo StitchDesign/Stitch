@@ -4,8 +4,6 @@ What’s new:
 
 New layer node inputs:
 - Padding + spacing
-- Min/max width and height
-- Aspect ratio
 - “Stroke” now available on on layers
 
 Bug fixes + other changes:
@@ -18,3 +16,4 @@ Bug fixes + other changes:
 - Fixed issue where press interaction node may not work on first project load
 - Node menu scroll position resets when reopened
 - Improved default size of field for Text Field layer
+- Added default value for SF Symbol node
