@@ -18,7 +18,10 @@ extension InputNodeRowObserver {
     func removeUpstreamConnection(activeIndex: ActiveIndex? = nil,
                                   isVisible: Bool? = nil) {
         let activeIndex = activeIndex ?? self.nodeDelegate?.activeIndex ?? .init(.zero)
-        let willUpstreamBeDisconnected = self.upstreamOutputObserver?.getConnectedDownstreamNodes() == Set([self.id.nodeId])
+        let downstreamStitches = self.upstreamOutputObserver?.getConnectedDownstreamNodes()
+            .map { $0.nodeDelegate?.id }
+            .toSet
+        let willUpstreamBeDisconnected = downstreamStitches == Set([self.id.nodeId])
 
         // Videos and audios need to be cleared from a now-disconnected node
         // TODO: this logic only works if the destination node of a removed edge is a speaker/video, and not if an edge was disconnected upstream from those nodes.
