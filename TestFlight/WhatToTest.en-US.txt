@@ -4,8 +4,6 @@ What’s new:
 
 New layer node inputs:
 - Padding + spacing
-- Min/max width and height
-- Aspect ratio
 - “Stroke” now available on on layers
 
 Bug fixes + other changes:
