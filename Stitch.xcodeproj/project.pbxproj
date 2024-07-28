@@ -624,7 +624,7 @@
 		ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */; };
 		ECA5774D275EC0E000CE9471 /* ExpansionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */; };
 		ECA5774F275EC4AB00CE9471 /* CursorDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */; };
-		ECA5C21B2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader in Sources */ = {isa = PBXBuildFile; fileRef = ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */; };
+		ECA5C21D2C56C2D3000B0DF2 /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5C21C2C56C2D3000B0DF2 /* PreviewWindowCoordinateSpaceReader.swift */; };
 		ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */; };
 		ECA8103526F3ED9F00131238 /* Anchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA8103426F3ED9F00131238 /* Anchoring.swift */; };
 		ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */; };
@@ -1525,7 +1525,7 @@
 		ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierUtils.swift; sourceTree = "<group>"; };
 		ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBoxView.swift; sourceTree = "<group>"; };
 		ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorDotView.swift; sourceTree = "<group>"; };
-		ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */ = {isa = PBXFileReference; lastKnownFileType = text; path = PreviewWindowCoordinateSpaceReader; sourceTree = "<group>"; };
+		ECA5C21C2C56C2D3000B0DF2 /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
 		ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingView.swift; sourceTree = "<group>"; };
 		ECA8103426F3ED9F00131238 /* Anchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Anchoring.swift; sourceTree = "<group>"; };
 		ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterPatchNode.swift; sourceTree = "<group>"; };
@@ -2274,8 +2274,8 @@
 				EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */,
 				B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */,
 				ECEF8D0C2BFD4460004FABCD /* LayerSizeReader.swift */,
+				ECA5C21C2C56C2D3000B0DF2 /* PreviewWindowCoordinateSpaceReader.swift */,
 				ECAE6CB52C506A3300C2A2C9 /* PinningUtils.swift */,
-				ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */,
 				EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */,
 				ECEF8D0E2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift */,
 			);
@@ -4790,7 +4790,6 @@
 				ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */,
 				EC11218D2942839700F0AE19 /* TrianglePatchNode.swift in Sources */,
 				EC4914A629359B9A00D74344 /* TextTrimNode.swift in Sources */,
-				ECA5C21B2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader in Sources */,
 				EC0E892626265B3200A586C2 /* LoopBuilder.swift in Sources */,
 				ECB7C72228A56C4B00252DE7 /* ClassicAnimationNumber.swift in Sources */,
 				ECB6EEA129317E50003D60C7 /* UserVisibleTypeSet.swift in Sources */,
@@ -4955,6 +4954,7 @@
 				EC9233822AE84EC00009168F /* NoKeyPressHostingController.swift in Sources */,
 				B56FFB242C18B53C00623CC7 /* StitchHostingController.swift in Sources */,
 				EC165EE029C8E1FE0024ECDF /* CodablePoint.swift in Sources */,
+				ECA5C21D2C56C2D3000B0DF2 /* PreviewWindowCoordinateSpaceReader.swift in Sources */,
 				EC98326B2B69D324003F9462 /* PossibleEdgesView.swift in Sources */,
 				ECA929FC260A693800281B52 /* DragInteractionPatchNode.swift in Sources */,
 				B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */,
