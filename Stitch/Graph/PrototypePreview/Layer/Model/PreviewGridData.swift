@@ -52,9 +52,16 @@ extension NodeViewModel {
         if newValue {
             // Unblock all pin-related inputs
             stitch.unblockPinInputs()
+            
+            // Block position and anchoring
+            stitch.blockPositionAndAnchoringInputs()
+            
         } else {
             // Block all pin-related inputs
             stitch.blockPinInputs()
+            
+            // Unblock position and anchoring
+            stitch.unblockPositionAndAnchoringInputs()
         }
     }
     
@@ -227,7 +234,7 @@ extension NodeViewModel {
         }
     }
     
-    // LayerGroup's isPinned = false
+    // LayerGroup's isPinned = false: we block pin inputs and unblock position, anchoring etc.
     
     @MainActor
     func blockPinInputs() {
@@ -240,6 +247,14 @@ extension NodeViewModel {
     }
     
     @MainActor
+    func unblockPositionAndAnchoringInputs() {
+        setBlockStatus(.position, isBlocked: false)
+        setBlockStatus(.anchoring, isBlocked: false)
+    }
+        
+    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
+    
+    @MainActor
     func unblockPinInputs() {
         LayerInputTypeSet.pinning.forEach {
             // Do not block the `isPinned` input itself
@@ -249,7 +264,12 @@ extension NodeViewModel {
         }
     }
     
-    
+    @MainActor
+    func blockPositionAndAnchoringInputs() {
+        setBlockStatus(.position, isBlocked: true)
+        setBlockStatus(.anchoring, isBlocked: true)
+    }
+        
     // LayerGroup's StitchOrientation = None
     
     @MainActor
