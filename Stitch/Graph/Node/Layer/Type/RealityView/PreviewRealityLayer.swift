@@ -14,6 +14,7 @@ struct PreviewRealityLayer: View {
     @Bindable var viewModel: LayerViewModel
     
     let parentSize: CGSize
+    let isGeneratedAtTopLevel: Bool
     let parentDisablesPosition: Bool
 
     var body: some View {
@@ -36,6 +37,7 @@ struct PreviewRealityLayer: View {
                 RealityLayerView(graph: graph,
                                  node: node, 
                                  layerViewModel: viewModel,
+                                 isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                  cameraFeedManager: cameraFeedManager,
                                  interactiveLayer: self.viewModel.interactiveLayer,
                                  allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
@@ -94,6 +96,7 @@ struct RealityLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
 
     let cameraFeedManager: CameraFeedManager
     let interactiveLayer: InteractiveLayer
@@ -149,6 +152,7 @@ struct RealityLayerView: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

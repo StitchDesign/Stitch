@@ -34,16 +34,18 @@ struct ImageLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         VisualMediaLayerView(graph: graph,
                              viewModel: viewModel,
                              parentSize: parentSize,
+                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                              parentDisablesPosition: parentDisablesPosition)
     }
     

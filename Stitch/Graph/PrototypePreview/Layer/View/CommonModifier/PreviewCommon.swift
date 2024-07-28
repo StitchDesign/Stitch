@@ -13,6 +13,7 @@ struct PreviewCommonModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool 
     let interactiveLayer: InteractiveLayer
     let position: CGSize
     let rotationX: CGFloat
@@ -57,8 +58,10 @@ struct PreviewCommonModifier: ViewModifier {
     func body(content: Content) -> some View {
 
         content
+//            .border(isGeneratedAtTopLevel ? .black : .green, width: 8)
             .modifier(PreviewCommonSizeModifier(
                     viewModel: layerViewModel,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     aspectRatio: layerViewModel.getAspectRatioData(),
                     size: size,
                     minWidth: layerViewModel.getMinWidth,
@@ -78,7 +81,8 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonModifierWithoutFrame(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                interactiveLayer: interactiveLayer,
+                interactiveLayer: interactiveLayer, 
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 position: position,
                 rotationX: rotationX,
                 rotationY: rotationY,

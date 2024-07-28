@@ -194,6 +194,8 @@ extension PortValue {
             return .padding(.zero)
         case .sizingScenario:
             return .sizingScenario(.defaultSizingScenario)
+        case .pinTo:
+            return .pinTo(.defaultPinToId)
         }
     }
 }

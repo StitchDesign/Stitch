@@ -22,6 +22,9 @@ extension CGFloat {
 // NOTE: it is the responsibility of the caller to make sure that sensible nil/non-nil params are passed in
 struct LayerSizeModifier: ViewModifier {
 
+    @Bindable var viewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
+    
     // TODO: non-frame-growing views like `Text`, `ProgressIndicator` etc. need .frame(width:height:alignment:) to be properly positioned with their frame; such views' dimennsions cannot be split up across separate `.frame(width:)`, `.frame(height:)` calls.
     // Do you need an additional `pos: adjustPosition` modifier specifically for something like `Text` ?
     let alignment: Alignment
@@ -50,10 +53,20 @@ struct LayerSizeModifier: ViewModifier {
         // logInView("LayerSizeModifier: minHeight: \(minHeight)")
         // logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
                
+        if isGeneratedAtTopLevel && (viewModel.isPinned.getBool ?? false) {
+            logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
+            // If this is the "PinnedView" for View A,
+            // then View A's "GhostView" will already have read the appropriate size etc. for View A.
+            // So we can just use the layer view model's pinnedSize
+            content.frame(width: viewModel.pinnedSize?.width,
+                          height: viewModel.pinnedSize?.height,
+                          alignment: alignment)
+        }
+
         // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
         
         // Width is pt, but height is auto (so can use min/max height)
-        if let width = width, !height.isDefined {
+        else if let width = width, !height.isDefined {
             // logInView("LayerSizeModifier: defined width but not height")
             
             content

@@ -624,6 +624,7 @@
 		ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */; };
 		ECA5774D275EC0E000CE9471 /* ExpansionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */; };
 		ECA5774F275EC4AB00CE9471 /* CursorDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */; };
+		ECA5C21B2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader in Sources */ = {isa = PBXBuildFile; fileRef = ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */; };
 		ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */; };
 		ECA8103526F3ED9F00131238 /* Anchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA8103426F3ED9F00131238 /* Anchoring.swift */; };
 		ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */; };
@@ -656,6 +657,7 @@
 		ECABB561269CE23100AC9931 /* NetworkRequestNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */; };
 		ECAD8930292EAF9A005A87A2 /* OptionEqualsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */; };
 		ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */; };
+		ECAE6CB62C506A3300C2A2C9 /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAE6CB52C506A3300C2A2C9 /* PinningUtils.swift */; };
 		ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA42695F8D100A1E1DA /* gracie_short.mov */; };
 		ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */ = {isa = PBXBuildFile; fileRef = ECB15BA62695FCC700A1E1DA /* pj_eating.mov */; };
 		ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB18FC92681469B00D439BE /* VideoHelpers.swift */; };
@@ -1523,6 +1525,7 @@
 		ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierUtils.swift; sourceTree = "<group>"; };
 		ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBoxView.swift; sourceTree = "<group>"; };
 		ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorDotView.swift; sourceTree = "<group>"; };
+		ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */ = {isa = PBXFileReference; lastKnownFileType = text; path = PreviewWindowCoordinateSpaceReader; sourceTree = "<group>"; };
 		ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingView.swift; sourceTree = "<group>"; };
 		ECA8103426F3ED9F00131238 /* Anchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Anchoring.swift; sourceTree = "<group>"; };
 		ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterPatchNode.swift; sourceTree = "<group>"; };
@@ -1555,6 +1558,7 @@
 		ECABB560269CE23100AC9931 /* NetworkRequestNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestNode.swift; sourceTree = "<group>"; };
 		ECAD892F292EAF9A005A87A2 /* OptionEqualsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionEqualsNode.swift; sourceTree = "<group>"; };
 		ECADA8B328FB5B5D0007748F /* UIImageExtensionUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensionUtils.swift; sourceTree = "<group>"; };
+		ECAE6CB52C506A3300C2A2C9 /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
 		ECB15BA42695F8D100A1E1DA /* gracie_short.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = gracie_short.mov; sourceTree = "<group>"; };
 		ECB15BA62695FCC700A1E1DA /* pj_eating.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = pj_eating.mov; sourceTree = "<group>"; };
 		ECB18FC92681469B00D439BE /* VideoHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoHelpers.swift; sourceTree = "<group>"; };
@@ -2270,6 +2274,8 @@
 				EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */,
 				B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */,
 				ECEF8D0C2BFD4460004FABCD /* LayerSizeReader.swift */,
+				ECAE6CB52C506A3300C2A2C9 /* PinningUtils.swift */,
+				ECA5C21A2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader */,
 				EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */,
 				ECEF8D0E2BFE9BE5004FABCD /* LayerGroupInteractableViewModifier.swift */,
 			);
@@ -4614,6 +4620,7 @@
 				B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */,
+				ECAE6CB62C506A3300C2A2C9 /* PinningUtils.swift in Sources */,
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,
 				EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */,
 				E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */,
@@ -4783,6 +4790,7 @@
 				ECB5361F26DD7A9600C3BE97 /* StitchFolderUtil.swift in Sources */,
 				EC11218D2942839700F0AE19 /* TrianglePatchNode.swift in Sources */,
 				EC4914A629359B9A00D74344 /* TextTrimNode.swift in Sources */,
+				ECA5C21B2C56BEFC000B0DF2 /* PreviewWindowCoordinateSpaceReader in Sources */,
 				EC0E892626265B3200A586C2 /* LoopBuilder.swift in Sources */,
 				ECB7C72228A56C4B00252DE7 /* ClassicAnimationNumber.swift in Sources */,
 				ECB6EEA129317E50003D60C7 /* UserVisibleTypeSet.swift in Sources */,
@@ -5961,7 +5969,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 21.1.0;
+				version = 22.0.0;
 			};
 		};
 		B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {

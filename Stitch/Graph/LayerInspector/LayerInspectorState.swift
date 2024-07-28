@@ -263,6 +263,12 @@ extension Layer {
     }
     
     @MainActor
+    var supportsPinningInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInputTypeSet.pinning).isEmpty
+    }
+    
+    @MainActor
     var supportsStrokeInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.stroke).isEmpty

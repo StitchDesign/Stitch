@@ -9,18 +9,112 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+/// "What is View A pinned to?"
+//enum PinToId: Equatable, Hashable, Codable {
+//    case root, // always preview window
+//         parent, // immediate parent; defaults to preview window if pinned layer has no parent
+//         layer(LayerNodeId)
+//}
+
+extension PinToId {
+    static let defaultPinToId = Self.root
+    
+    var display: String {
+        switch self {
+        case .root:
+            return LayerDropdownChoice.RootLayerDropDownChoice.name
+        case .parent:
+            return LayerDropdownChoice.ParentLayerDropDownChoice.name
+        case .layer(let x):
+            return x.id.description
+        }
+    }
+}
+
+enum PinReceiverDataCase: Equatable, Hashable, Codable {
+    case root(size: PinReceiverSizeData), // never has rotation data
+         // either a parent or a different layer
+         layer(size: PinReceiverSizeData,
+               rotation: PinReceiverRotationData)
+}
+
+struct PinReceiverRotationData: Equatable, Hashable, Codable {
+    // For determining PinnedView's rotation-anchor
+    var center: CGPoint
+    
+    // PinReceiver's rotation is applied to the PinnedView
+    var rotationX: CGFloat
+    var rotationY: CGFloat
+    var rotationZ: CGFloat
+}
+
+struct PinReceiverSizeData: Equatable, Hashable, Codable {
+    // for anchoring
+    var size: CGSize
+    var origin: CGPoint // always 0,0 for
+}
+
+/// the data for "View B", which receives the pinned View A
+struct PinReceiverData: Equatable {
+    
+//    let pinTo: PinToId
+    
+    // for anchoring
+    var size: CGSize
+    var origin: CGPoint // always 0,0 for
+    
+    // for rotation
+    // Note: not applicable for PinTo.root, since PreviewWindow cannot be rotated
+    var center: CGPoint
+    
+    // Note: for PinTo.root, will always be 0
+    var rotationX: CGFloat
+    var rotationY: CGFloat
+    var rotationZ: CGFloat
+}
+
+/// data for "View A", which is pinned to View B
+struct PinnedData: Equatable {
+
+    // size of the pinned view A, as affected by its parent;
+    // for anchoring;
+    // provided by the "GhostView"
+    var size: CGSize
+    
+    // center of the (top level) PinnedView;
+    // for rotation;
+    // provided by the "PinnedView"
+    var center: CGPoint
+}
+
+enum PinData: Equatable {
+    case pinReceiver(PinReceiverData),
+         pinned(PinnedData)
+}
+
 @Observable
 final class LayerViewModel {
     var id: PreviewCoordinate
     let layer: Layer
     let interactiveLayer: InteractiveLayer
     weak var nodeDelegate: NodeDelegate?
+            
+    // PINNING
     
-    // TODO: use `PortValue.sizingScenario` and retrieve from actual
-//    var sizingScenario: SizingScenario = .constrainHeight
+    // TODO: wrap these up into pinned- vs pinReceiving-data structures as seen above?
     
+    // data for pin-receiving view, i.e. View B
+    var pinReceiverSize: CGSize? = nil // anchor
+    var pinReceiverOrigin: CGPoint? = nil // anchor
+    var pinReceiverCenter: CGPoint? = nil // rotation
+    
+    // data for pinned view, i.e. View A
+    var pinnedSize: CGSize? = nil // parent-affected size etc.; read by a "Ghost View" that sits in normal, expected place in hierarchy
+    var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of GeneratePreview
+        
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
+    // Technically uses .local coordinate space
     var readSize: CGSize = .zero
 
     // Ports
@@ -126,6 +220,12 @@ final class LayerViewModel {
     // Spacing
     var spacing: PortValue
 
+    // Pinning
+    var isPinned: PortValue
+    var pinTo: PortValue
+    var pinAnchor: PortValue
+    var pinOffset: PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
@@ -246,6 +346,11 @@ final class LayerViewModel {
         self.spacing = LayerInputType.spacing.getDefaultValue(for: layer)
         
         self.sizingScenario = LayerInputType.sizingScenario.getDefaultValue(for: layer)
+        
+        self.isPinned = LayerInputType.isPinned.getDefaultValue(for: layer)
+        self.pinTo = LayerInputType.pinTo.getDefaultValue(for: layer)
+        self.pinAnchor = LayerInputType.pinAnchor.getDefaultValue(for: layer)
+        self.pinOffset = LayerInputType.pinOffset.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

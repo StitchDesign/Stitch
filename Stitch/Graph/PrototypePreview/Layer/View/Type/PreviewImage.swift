@@ -219,6 +219,7 @@ struct PreviewImageLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let interactiveLayer: InteractiveLayer
+    let isGeneratedAtTopLevel: Bool
     let image: UIImage
     let position: CGSize
     let rotationX: CGFloat
@@ -282,6 +283,7 @@ struct PreviewImageLayer: View {
             graph: graph,
             layerViewModel: layerViewModel,
             interactiveLayer: interactiveLayer,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             position: position,
             rotationX: rotationX,
             rotationY: rotationY,

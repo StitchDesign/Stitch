@@ -18,23 +18,58 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
 
+    // Needs to be two separate `LayerDataList`: one list for top level "PinnedViewA" and another for normally placed "GhostViewA"
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
         self.graph.cachedOrderedPreviewLayers
     }
     
+    var pinnedViews: LayerDataList {
+        let pinned = getPinnedViews(self.sortedLayerDataList,
+                                    acc: .init())
+        
+        log("GeneratePreview: pinned.count: \(pinned.count)")
+        log("GeneratePreview: pinned: \(pinned)")
+        return pinned
+    }
+    
     var body: some View {
-        PreviewLayersView(graph: graph,
-                          layers: sortedLayerDataList,
-                          parentSize: graph.previewWindowSize, 
-                          parentId: nil,
-                          parentOrientation: .none,
-                          parentPadding: .zero,
-                          parentSpacing: .zero,
-                          // Always false at top-level
-                          parentCornerRadius: 0,
-                          parentUsesHug: false,
-                          parentGridData: nil)
+        
+        ZStack {
+                        
+            // Regular rendering of views in their proper place in the hierarchy
+            PreviewLayersView(graph: graph,
+                              layers: sortedLayerDataList,
+                              parentSize: graph.previewWindowSize,
+                              isGeneratedAtTopLevel: false,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+            
+            // `PinnedView`s only
+            PreviewLayersView(graph: graph,
+                              layers: pinnedViews,
+                              parentSize: graph.previewWindowSize,
+                              // i.e. read this PinnedView's center (for rotation)
+                              isGeneratedAtTopLevel: true,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+//            .border(.black)
+        }
+        // Top-level coordinate space of preview window; for pinning
+        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+        
         .modifier(HoverGestureModifier(graph: graph,
                                        previewWindowSize: graph.previewWindowSize))
     }
@@ -53,6 +88,8 @@ struct PreviewLayersView: View {
      -- `parentSize` is group layer's size (unscaled)
      */
     let parentSize: CGSize
+    
+    let isGeneratedAtTopLevel: Bool
     
     // Non-nil and non-zero when this view called by GroupLayer
     let parentId: LayerNodeId?
@@ -103,6 +140,7 @@ struct PreviewLayersView: View {
         ForEach(layersInProperOrder) { layerData in
             LayerDataView(graph: graph,
                           layerData: layerData,
+                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
             
@@ -213,6 +251,7 @@ struct PreviewLayersView: View {
 struct LayerDataView: View {
     @Bindable var graph: GraphState
     let layerData: LayerData
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -236,6 +275,7 @@ struct LayerDataView: View {
                     let masked: some View = LayerDataView(
                         graph: graph,
                         layerData: maskedLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -243,6 +283,7 @@ struct LayerDataView: View {
                     let masker: some View = LayerDataView(
                         graph: graph,
                         layerData: maskerLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -259,6 +300,7 @@ struct LayerDataView: View {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
+                                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -274,6 +316,7 @@ struct LayerDataView: View {
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
+                                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -288,6 +331,7 @@ struct NonGroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var layerViewModel: LayerViewModel
     
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -297,6 +341,7 @@ struct NonGroupPreviewLayersView: View {
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              parentSize: parentSize,
+                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()
@@ -309,6 +354,7 @@ struct GroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     let layerViewModel: LayerViewModel
     let childrenData: LayerDataList
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -318,6 +364,7 @@ struct GroupPreviewLayersView: View {
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,
+                                   isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                    parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()

@@ -64,7 +64,7 @@ struct TextLayerNode: LayerNodeDefinition {
     .union(.strokeInputs)
     .union(.typography)
     .union(.aspectRatio)
-    .union(.sizing)
+    .union(.sizing).union(.pinning)
     
     
     
@@ -72,10 +72,12 @@ struct TextLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,
             color: viewModel.color.getColor ?? falseColor,
