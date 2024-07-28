@@ -10,49 +10,6 @@ import StitchSchemaKit
 
 // typealias PreviewZIndexMap = [PreviewCoordinate: CGFloat]
 
-// Returns a flat list of all pinned layer view models;
-// each pinned layer view model has both:
-// (1) a "ghost view" at its proper hierarchy spot (used for reading how pinned view is affected by e.g. layer group scale) and,
-// (2) a "pinned view" at the top most level i.e. 'global' preview window space (used for actual aligning of the pinned view with its pin-receiver)
-func getPinnedViews(_ layerDataList: LayerDataList,
-                    acc: LayerDataList) -> LayerDataList {
-    
-    var acc = acc
-    
-    layerDataList.forEach { layerData in
-    
-        switch layerData {
-        
-        case .nongroup(let layerViewModel):
-            if layerViewModel.isPinned.getBool ?? false {
-                acc.append(layerData)
-            }
-        
-        case .group(let layerViewModel, let childrenLayerDataList):
-            if layerViewModel.isPinned.getBool ?? false {
-                acc.append(layerData)
-            }
-            // Will this over-add the children?
-            
-            // We're saying, take the acc we already have and add these children to it;
-            // then add that list again to the children
-            let pinnedChildren = getPinnedViews(childrenLayerDataList, acc: acc)
-            acc += pinnedChildren
-            
-        // TODO: is this really the proper handling of masked views ?
-        case .mask(let masked, let masker):
-            let pinnedMaskeds = getPinnedViews(masked, acc: acc)
-            acc += pinnedMaskeds
-            
-            let pinnedMaskers = getPinnedViews(masker, acc: acc)
-            acc += pinnedMaskers
-        }
-    }
-    
-    return acc
-}
-
-
 /// The top-level preview window view encompassing all views.
 struct GeneratePreview: View {
     @Bindable var graph: GraphState
@@ -67,7 +24,6 @@ struct GeneratePreview: View {
         self.graph.cachedOrderedPreviewLayers
     }
     
-    // TODO: make this properly recursive
     var pinnedViews: LayerDataList {
         let pinned = getPinnedViews(self.sortedLayerDataList,
                                     acc: .init())

@@ -56,6 +56,7 @@ struct PreviewVideoLayer: View {
                          opacity: opacity,
                          fitStyle: videoFitStyle,
                          isClipped: isClipped,
+                         isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                          id: interactiveLayer.id,
                          position: position,
                          parentSize: parentSize)

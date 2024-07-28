@@ -10,80 +10,159 @@ import StitchSchemaKit
 import SwiftUI
 
 
-let PREVIEW_WINDOW_COORDINATE_SPACE = "previewWindow"
+// MARK: RECURSIVELY RETRIEVE PINNED VIEWS TO LIVE AT ROOT LEVEL OF PREVIEW WINDOW
 
-struct PreviewWindowCoordinateSpaceReader: ViewModifier {
-    
-    @Bindable var viewModel: LayerViewModel
+// TODO: handle proper z-indexing of pinned layers; a pinned layer's z-index should determine where it sits on the z-axis
 
-    let isGeneratedAtTopLevel: Bool
+// Returns a flat list of all pinned layer view models;
+// each pinned layer view model has both:
+// (1) a "ghost view" at its proper hierarchy spot (used for reading how pinned view is affected by e.g. layer group scale) and,
+// (2) a "pinned view" at the top most level i.e. 'global' preview window space (used for actual aligning of the pinned view with its pin-receiver)
+func getPinnedViews(_ layerDataList: LayerDataList,
+                    acc: LayerDataList) -> LayerDataList {
     
-    var isPinned: Bool {
-        viewModel.isPinned.getBool ?? false
+    var acc = acc
+    
+    layerDataList.forEach { layerData in
+    
+        switch layerData {
+        
+        case .nongroup(let layerViewModel):
+            if layerViewModel.isPinned.getBool ?? false {
+                acc.append(layerData)
+            }
+        
+        case .group(let layerViewModel, let childrenLayerDataList):
+            if layerViewModel.isPinned.getBool ?? false {
+                acc.append(layerData)
+            }
+            // Will this over-add the children?
+            
+            // We're saying, take the acc we already have and add these children to it;
+            // then add that list again to the children
+            let pinnedChildren = getPinnedViews(childrenLayerDataList, acc: acc)
+            acc += pinnedChildren
+            
+        // TODO: is this really the proper handling of masked views ?
+        case .mask(let masked, let masker):
+            let pinnedMaskeds = getPinnedViews(masked, acc: acc)
+            acc += pinnedMaskeds
+            
+            let pinnedMaskers = getPinnedViews(masker, acc: acc)
+            acc += pinnedMaskers
+        }
     }
     
-    // ALSO: if this is View A and it is not being generated at the top level,
-    // then we should hide the view
-    var isGhostView: Bool {
-        isPinned && !isGeneratedAtTopLevel
+    return acc
+}
+
+
+// MARK: POSITIONING
+
+func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
+                        from graph: GraphState) -> PinReceiverData? {
+
+    log("getPinReceiverLayerViewModel: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+                
+    guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
+        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
+        return graph.rootPinReceiverData
     }
+        
+    switch pinnedTo {
     
-    var key: PreviewCoordinate {
-        viewModel.id
-    }
+    case .root:
+        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
+        return graph.rootPinReceiverData
     
-    func body(content: Content) -> some View {
-        content
-//            .opacity(isGhostView ? 0.1 : 1) // added
-            .opacity(isGhostView ? 0 : 1) // added
-            .background {
-                GeometryReader { geometry in
-                    Color.clear.onChange(of: geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)),
-                                         initial: true) { oldValue, newValue in
-                        
-                        log("PreviewWindowCoordinateSpaceReader: viewModel.layer: \(viewModel.layer)")
-                        
-                        log("PreviewWindowCoordinateSpaceReader: key: \(key), size: \(newValue.size), origin: \(newValue.origin), mid: \(newValue.mid)")
-                        
-                        //viewModel.previewWindowRect = newValue
-                        
-                        if isPinned {
-                            // If this view is for a pinned layer view model,
-                            // and is generated at top level,
-                            // then we only update the "pinned center" (for rotation)
-                            if isGeneratedAtTopLevel {
-                                log("PreviewWindowCoordinateSpaceReader: pinned and at top level")
-                                viewModel.pinnedCenter = newValue.mid
-                            }
-                            
-                            // Else, if we're not at the top level,
-                            // then we read the "pinned size"
-                            else {
-                                log("PreviewWindowCoordinateSpaceReader: pinned but not at top level")
-                                viewModel.pinnedSize = newValue.size
-                            }
-                        }
-                        
-                        // If we're not a view for a pinned layer view model,
-                        // we could be a view for a pin-receiving layer view model, or not be related to pinning at all.
-                        // In either case, we always read the pin-receiveing relevant data.
-                        else {
-                            log("PreviewWindowCoordinateSpaceReader: either pin-receiving or not at all pin-related")
-                            viewModel.pinReceiverSize = newValue.size
-                            viewModel.pinReceiverOrigin = newValue.origin
-                            viewModel.pinReceiverCenter = newValue.mid
-                        }
-                    } // .onChange
-                } // GeometryReader
-            } // content.background
+        // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
+        // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
+    case .parent:
+        if let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+              let parent = layerNode.layerGroupId {
+            return getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
+                                      for: pinnedLayerViewModel,
+                                      from: graph)
+        } else {
+            return graph.rootPinReceiverData
+        }
+        
+    case .layer(let x):
+        return getPinReceiverData(pinReceiverId: x,
+                                  for: pinnedLayerViewModel,
+                                  from: graph)
     }
 }
 
-extension CGRect {
-    var mid: CGPoint {
-        .init(x: self.midX, y: self.midY)
+extension GraphState {
+    var rootPinReceiverData: PinReceiverData {
+        PinReceiverData(
+            // anchoring
+            size: self.previewWindowSize,
+
+            origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
+            
+            // rotation this will be ignored
+            center: .zero,
+            rotationX: .zero,
+            rotationY: .zero,
+            rotationZ: .zero)
     }
 }
+
+func getPinReceiverData(pinReceiverId: LayerNodeId,
+                        for pinnedLayerViewModel: LayerViewModel,
+                        from graph: GraphState) -> PinReceiverData? {
+    
+    guard let pinReceiver = graph.layerNodes.get(pinReceiverId.id) else {
+        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
+        return graph.rootPinReceiverData
+    }
+    
+    // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
+    let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.id.loopIndex]
+    
+    let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
+    
+    guard let pinReceiverLayerViewModel = (pinReceiverAtSameLoopIndex ?? firstPinReceiver) else {
+        log("getPinReceiverLayerViewModel: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
+        return nil
+    }
+    
+    guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
+          let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
+          let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter,
+          let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
+          let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
+          let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
+        log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
+        return nil
+    }
+    
+    
+    return PinReceiverData(
+        // anchoring
+        size: pinReceiverSize,
+        origin: pinReceiverOrigin,
+        
+        // rotation
+        center: pinReceiverCenter,
+        rotationX: pinReceiverRotationX,
+        rotationY: pinReceiverRotationY,
+        rotationZ: pinReceiverRotationZ)
+}
+
+
+
+func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
+                           pinReceiverData: PinReceiverData) -> StitchPosition {
+    
+    adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
+                   position: pinReceiverData.origin.toCGSize,
+                   anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
+                   parentSize: pinReceiverData.size)
+}
+
 
 // TODO: there must be a more elegant formula here
 func getRotationAnchor(lengthA: CGFloat,
