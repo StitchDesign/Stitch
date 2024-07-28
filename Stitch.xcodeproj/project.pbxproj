@@ -624,7 +624,6 @@
 		ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */; };
 		ECA5774D275EC0E000CE9471 /* ExpansionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */; };
 		ECA5774F275EC4AB00CE9471 /* CursorDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */; };
-		ECA5C2192C56946A000B0DF2 /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */; };
 		ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */; };
 		ECA8103526F3ED9F00131238 /* Anchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA8103426F3ED9F00131238 /* Anchoring.swift */; };
 		ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */; };
@@ -1525,7 +1524,6 @@
 		ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierUtils.swift; sourceTree = "<group>"; };
 		ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBoxView.swift; sourceTree = "<group>"; };
 		ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorDotView.swift; sourceTree = "<group>"; };
-		ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingView.swift; sourceTree = "<group>"; };
 		ECA8103426F3ED9F00131238 /* Anchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Anchoring.swift; sourceTree = "<group>"; };
 		ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterPatchNode.swift; sourceTree = "<group>"; };
@@ -1841,7 +1839,6 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
-				ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4395,7 +4392,6 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
-				ECA5C2192C56946A000B0DF2 /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
@@ -5969,7 +5965,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
 			requirement = {
 				kind = exactVersion;
-				version = 21.1.0;
+				version = 22.0.0;
 			};
 		};
 		B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {

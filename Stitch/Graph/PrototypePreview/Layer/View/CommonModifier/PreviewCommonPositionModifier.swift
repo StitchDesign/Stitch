@@ -60,7 +60,6 @@ extension GraphState {
     }
 }
 
-//
 func getPinReceiverData(pinReceiverId: LayerNodeId,
                         for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
@@ -142,16 +141,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
     func body(content: Content) -> some View {
         
         if viewModel.isPinned.getBool ?? false,
-//           let pinReceiverLayerViewModel = getPinReceiverData(for: viewModel, from: graph) {
            let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
             
             logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
-            
-//            let pinPos = adjustPosition(
-//                size: viewModel.pinnedSize ?? .zero,
-//                position: (pinReceiverLayerViewModel.pinReceiverOrigin ?? .zero).toCGSize,
-//                anchor: viewModel.pinAnchor.getAnchoring ?? .topLeft,
-//                parentSize: pinReceiverLayerViewModel.pinReceiverSize ?? .zero)
             
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
@@ -175,7 +167,5 @@ struct PreviewCommonPositionModifier: ViewModifier {
                     .position(x: pos.width, y: pos.height)
             }
         }
-        
-      
     }
 }
