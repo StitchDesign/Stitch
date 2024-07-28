@@ -590,7 +590,6 @@
 		EC9486A02AE191A900B51AB1 /* MouseInteractionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC94869F2AE191A900B51AB1 /* MouseInteractionNode.swift */; };
 		EC9486A22AE1ACED00B51AB1 /* LayerHoveredActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9486A12AE1ACEC00B51AB1 /* LayerHoveredActions.swift */; };
 		EC9486A42AE2007800B51AB1 /* HoverGestureModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */; };
-		EC954E302C53085000B34022 /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC954E2F2C53084F00B34022 /* StitchSchemaKit */; };
 		EC95748729B0231200048382 /* ProjectsHomeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC95748629B0231200048382 /* ProjectsHomeCommands.swift */; };
 		EC96B0462B8D097D00B58227 /* MoveToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC96B0452B8D097D00B58227 /* MoveToPackNode.swift */; };
 		EC98130F2AB247C700828A20 /* DrawnEdge.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC98130E2AB247C600828A20 /* DrawnEdge.swift */; };
@@ -625,6 +624,7 @@
 		ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */; };
 		ECA5774D275EC0E000CE9471 /* ExpansionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */; };
 		ECA5774F275EC4AB00CE9471 /* CursorDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */; };
+		ECA5C2192C56946A000B0DF2 /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */; };
 		ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */; };
 		ECA8103526F3ED9F00131238 /* Anchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA8103426F3ED9F00131238 /* Anchoring.swift */; };
 		ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */; };
@@ -1491,7 +1491,6 @@
 		EC94869F2AE191A900B51AB1 /* MouseInteractionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseInteractionNode.swift; sourceTree = "<group>"; };
 		EC9486A12AE1ACEC00B51AB1 /* LayerHoveredActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerHoveredActions.swift; sourceTree = "<group>"; };
 		EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HoverGestureModifier.swift; sourceTree = "<group>"; };
-		EC954E2F2C53084F00B34022 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		EC95748629B0231200048382 /* ProjectsHomeCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsHomeCommands.swift; sourceTree = "<group>"; };
 		EC96B0452B8D097D00B58227 /* MoveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveToPackNode.swift; sourceTree = "<group>"; };
 		EC98130E2AB247C600828A20 /* DrawnEdge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawnEdge.swift; sourceTree = "<group>"; };
@@ -1526,6 +1525,7 @@
 		ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierUtils.swift; sourceTree = "<group>"; };
 		ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBoxView.swift; sourceTree = "<group>"; };
 		ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorDotView.swift; sourceTree = "<group>"; };
+		ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingView.swift; sourceTree = "<group>"; };
 		ECA8103426F3ED9F00131238 /* Anchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Anchoring.swift; sourceTree = "<group>"; };
 		ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterPatchNode.swift; sourceTree = "<group>"; };
@@ -1841,7 +1841,7 @@
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
-				EC954E2F2C53084F00B34022 /* StitchSchemaKit */,
+				ECA5C2182C56946A000B0DF2 /* StitchSchemaKit */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
 				B56FFB522C195EA000623CC7 /* Graph */,
@@ -4395,7 +4395,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
-				EC954E302C53085000B34022 /* StitchSchemaKit in Resources */,
+				ECA5C2192C56946A000B0DF2 /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
