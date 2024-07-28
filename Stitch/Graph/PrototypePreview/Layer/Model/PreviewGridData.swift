@@ -232,14 +232,20 @@ extension NodeViewModel {
     @MainActor
     func blockPinInputs() {
         LayerInputTypeSet.pinning.forEach {
-            setBlockStatus($0, isBlocked: true)
+            // Do not block the `isPinned` input itself
+            if $0 != .isPinned {
+                setBlockStatus($0, isBlocked: true)
+            }
         }
     }
     
     @MainActor
     func unblockPinInputs() {
         LayerInputTypeSet.pinning.forEach {
-            setBlockStatus($0, isBlocked: false)
+            // Do not block the `isPinned` input itself
+            if $0 != .isPinned {
+                setBlockStatus($0, isBlocked: false)
+            }
         }
     }
     
