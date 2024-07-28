@@ -43,7 +43,9 @@ struct FloatingWindowView: View {
     //                      controlling rendering of preview
     @State var shouldRenderPreview = true
     
-    @ObservedObject var previewWindowSizing: PreviewWindowSizing
+    var previewWindowSizing: PreviewWindowSizing {
+        self.graph.previewWindowSizingObserver
+    }
 
     var dimensions: CGSize {
         previewWindowSizing.dimensions
@@ -222,8 +224,7 @@ struct FloatingWindowView: View {
             HStack(spacing: .zero) {
                 Spacer()
                 PreviewContent(graph: graph,
-                               isFullScreen: false,
-                               previewWindowSizing: self.previewWindowSizing)
+                               isFullScreen: false)
                 .frame(self.previewWindowSizing.dimensions)
             }
             Spacer()
@@ -240,8 +241,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
         FloatingWindowView(graph: .init(id: .init(), store: nil),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
-                           namespace: namespace,
-                           previewWindowSizing: .init())
+                           namespace: namespace)
     }
 }
 

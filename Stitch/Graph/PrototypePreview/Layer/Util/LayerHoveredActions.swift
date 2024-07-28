@@ -35,19 +35,19 @@ func updateMouseNodesPosition(mouseNodeIds: NodeIdSet,
     } else {
         graphState.graphUI.lastMouseNodeMovement = graphTime
     }
-
+    
     for mouseNodeId in mouseNodeIds {
-        if let node = graphState.getPatchNode(id: mouseNodeId) {
+        if let node = graphState.getPatchNode(id: mouseNodeId)?.patchCanvasItem {
             // Always scalar
-            node.getOutputRowObserver(MouseNodeOutputLocations.leftClick)?
+            node.outputViewModels[safe: MouseNodeOutputLocations.leftClick]?.rowDelegate?
                 .updateValues([PortValue.bool(leftClick)])
-
-            node.getOutputRowObserver(MouseNodeOutputLocations.position)?
+            
+            node.outputViewModels[safe: MouseNodeOutputLocations.position]?.rowDelegate?
                 .updateValues([PortValue.position(position)])
-
-            node.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
+            
+            node.outputViewModels[safe: MouseNodeOutputLocations.velocity]?.rowDelegate?
                 .updateValues([PortValue.position(finalVelocity)])
-
+            
         } else {
             log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")
         }

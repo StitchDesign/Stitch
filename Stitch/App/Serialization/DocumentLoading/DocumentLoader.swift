@@ -35,7 +35,11 @@ actor DocumentLoader {
                     existingData.modifiedDate = updatedDate
 
                     // Forces view to refresh
-                    existingData.loadingDocument = .initialized
+                    Task {
+                        await MainActor.run { [weak existingData] in
+                            existingData?.loadingDocument = .initialized
+                        }                        
+                    }
                 }
             }
 

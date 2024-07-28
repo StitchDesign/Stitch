@@ -292,33 +292,35 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor
-    func getConnectedDownstreamNodes() -> NodeIdSet {
-        guard
-            let rowViewModel = self.nodeRowViewModel,
-            let graph = self.nodeDelegate?.graphDelegate else {
+    func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
+        guard let graph = self.nodeDelegate?.graphDelegate,
+              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections
+            .get(self.id) else {
             return .init()
         }
         
-        guard let coordinate = rowViewModel.rowDelegate?.id,
-                let downstreamConnections = graph.connections
-            .get(coordinate) else {
-            return .init()
-        }
-        
-        let connectedDownstreamNodeIds = downstreamConnections
-            .map { $0.nodeId }
+        // Find all connected downstream canvas items
+        let connectedDownstreamNodes: [CanvasItemViewModel] = downstreamConnections
+            .flatMap { downstreamCoordinate -> [CanvasItemViewModel] in
+                guard let node = graph.getNodeViewModel(downstreamCoordinate.nodeId) else {
+                    return .init()
+                }
+                
+                return node.getAllCanvasObservers()
+            }
         
         // Include group nodes if any splitters are found
-        let downstreamGroupNodeIds: NodeIdList = connectedDownstreamNodeIds.compactMap { id in
-            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(id),
-                  node.splitterType?.isGroupSplitter ?? false else {
+        let downstreamGroupNodes: [CanvasItemViewModel] = connectedDownstreamNodes.compactMap { canvas in
+            guard let node = canvas.nodeDelegate,
+                  node.splitterType?.isGroupSplitter ?? false,
+                  let groupNodeId = canvas.parentGroupNodeId else {
                       return nil
                   }
             
-            return node.patchCanvasItem?.parentGroupNodeId
+            return graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode
         }
         
-        return Set(connectedDownstreamNodeIds + downstreamGroupNodeIds)
+        return connectedDownstreamNodes + downstreamGroupNodes
     }
 }
 
