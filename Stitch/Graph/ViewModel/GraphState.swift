@@ -553,18 +553,26 @@ extension GraphState {
     // TODO: will look slightly different once inputs live on PatchNodeViewModel and LayerNodeViewModel instead of just NodeViewModel
     @MainActor
     func getLayerInputOnGraph(_ id: LayerInputCoordinate) -> InputNodeRowViewModel? {
-        self.getInputRowViewModel(for: .init(graphItemType: .node,
-                                             nodeId: id.node,
-                                             portId: 0),
-                                  nodeId: id.node)
+        guard let canvasItem = self.getNodeViewModel(id.node)?.layerNode?[keyPath: id.keyPath.layerNodeKeyPath].canvasObserver else {
+            return nil
+        }
+        
+        return self.getInputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+                                                    nodeId: id.node,
+                                                    portId: 0),
+                                         nodeId: id.node)
     }
     
     @MainActor
     func getLayerOutputOnGraph(_ id: LayerOutputCoordinate) -> OutputNodeRowViewModel? {
-        self.getOutputRowViewModel(for: .init(graphItemType: .node,
-                                              nodeId: id.node,
-                                              portId: 0),
-                                   nodeId: id.node)
+        guard let canvasItem = self.getNodeViewModel(id.node)?.layerNode?.outputPorts[safe: id.portId]?.canvasObserver else {
+            return nil
+        }
+        
+        return self.getOutputRowViewModel(for: .init(graphItemType: .node(canvasItem.id),
+                                                     nodeId: id.node,
+                                                     portId: 0),
+                                          nodeId: id.node)
     }
     
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {

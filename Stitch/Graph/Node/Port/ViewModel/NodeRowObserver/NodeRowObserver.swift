@@ -25,11 +25,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeDelegate: NodeDelegate? { get set }
     
-    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
-    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
-    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
-    var userVisibleType: UserVisibleType? { get set }
-    
     var connectedNodes: NodeIdSet { get set }
     
     var hasLoopedValues: Bool { get set }
@@ -391,7 +386,7 @@ extension NodeRowViewModel {
         if let node = self.nodeDelegate,
            let layerInputForThisRow = rowDelegate.id.keyPath {
             node.blockOrUnblockFields(newValue: newValue,
-                                     layerInput: layerInputForThisRow)
+                                      layerInput: layerInputForThisRow)
         }
     }
 }

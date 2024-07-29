@@ -31,6 +31,10 @@ extension NodeRowObserver {
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
     
+    var userVisibleType: UserVisibleType? {
+        self.nodeDelegate?.userVisibleType
+    }
+    
     @MainActor
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
