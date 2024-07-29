@@ -11,12 +11,27 @@ import StitchSchemaKit
 
 enum GraphItemType: Hashable {
     case node(CanvasItemId)
-    case layerInspector
+    
+    // Passing in layer input type ensures uniqueness of IDs in inspector
+    case layerInspector(LayerInputType)
+}
+
+extension GraphItemType {
+    var isLayerInspector: Bool {
+        switch self {
+        case .layerInspector:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
     var nodeId: NodeId
+    
+    // TODO: this is always 0 for layer inpsector which creates issues for tabbing
     var portId: Int
 }
 
@@ -192,7 +207,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          nodeDelegate: NodeDelegate?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
-        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType == .layerInspector {
+        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
             fatalErrorIfDebug()
         }
         

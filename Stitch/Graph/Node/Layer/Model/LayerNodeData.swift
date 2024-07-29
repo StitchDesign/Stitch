@@ -31,12 +31,17 @@ final class InputLayerNodeRowData {
         var itemType: GraphItemType
         
         if FeatureFlags.USE_LAYER_INSPECTOR {
-            itemType = .layerInspector
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
         } else if let canvasObserver = canvasObserver {
             itemType = .node(canvasObserver.id)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector
+            itemType = .node(.node(.init()))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -64,12 +69,17 @@ final class OutputLayerNodeRowData {
         var itemType: GraphItemType
         
         if FeatureFlags.USE_LAYER_INSPECTOR {
-            itemType = .layerInspector
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
         } else if let canvasObserver = canvasObserver {
             itemType = .node(canvasObserver.id)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector
+            itemType = .node(.node(.init()))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
