@@ -120,7 +120,8 @@ extension NodeRowViewModel {
          2. Did values change AND visible in frame, or
          3. Is this an input for a layer node that is focused in the property sidebar?
          */
-        let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
+//        let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
+        let shouldUpdate = true
 
         if shouldUpdate {
             self.activeValue = newViewValue
@@ -195,7 +196,11 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
+        log("InputNodeRowViewModel: rowDelegate: \(rowDelegate)")
+        log("InputNodeRowViewModel: canvasItemDelegate: \(canvasItemDelegate)")
+        
         if let rowDelegate = rowDelegate {
+            log("InputNodeRowViewModel: will initialize values") // added
             self.initializeValues(rowDelegate: rowDelegate)
         }
     }

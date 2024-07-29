@@ -15,11 +15,11 @@ extension NodeViewModel {
 
     // When a PortValue changes, we may need to block or unblock certain
     @MainActor
-    func blockOrUnlockFields(newValue: PortValue,
+    func blockOrUnblockFields(newValue: PortValue,
                              layerInput: LayerInputType) {
         
         if !self.kind.isLayer {
-            log("blockOrUnlockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
+            log("blockOrUnblockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
             return
         }
                 
@@ -28,18 +28,23 @@ extension NodeViewModel {
         switch layerInput {
             
         case .orientation:
+            log("blockOrUnblockFields: orientation: \(newValue.getOrientation)")
             newValue.getOrientation.map(self.layerGroupOrientationUpdated)
                         
         case .size:
+            log("blockOrUnblockFields: size: \(newValue.getSize)")
             newValue.getSize.map(self.layerSizeUpdated)
             
         case .sizingScenario:
-            newValue.getSize.map(self.layerSizeUpdated)
+            log("blockOrUnblockFields: sizingScenario: \(newValue.getSize)")
+            newValue.getSizingScenario.map(self.sizingScenarioUpdated)
             
         case .isPinned:
+            log("blockOrUnblockFields: isPinned: \(newValue.getBool)")
             newValue.getBool.map(self.isPinnedUpdated)
             
         default:
+            log("blockOrUnblockFields: default")
             return
         }
     }

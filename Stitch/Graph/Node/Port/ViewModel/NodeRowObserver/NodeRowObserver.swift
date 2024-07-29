@@ -345,6 +345,12 @@ extension NodeRowViewModel {
             return
         }
         
+        guard let graphDelegate = self.graphDelegate else {
+//            fatalErrorIfDebug("activeValueChanged: no graph delegate")
+            log("activeValueChanged: no graph delegate")
+            return
+        }
+        
         let nodeIO = Self.RowObserver.nodeIOType
         let newRowType = newValue.getNodeRowType(nodeIO: nodeIO)
         let nodeRowTypeChanged = oldRowType != newRowType
@@ -389,9 +395,10 @@ extension NodeRowViewModel {
         } // zip
         
         if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
+//        if let node = graphDelegate.getNodeViewModel(self.id.nodeId),
            let layerInputForThisRow = self.rowDelegate?.id.keyPath {
-            node.blockOrUnlockFields(newValue: newValue,
-                                     layerInput: layerInputForThisRow)
+            node.blockOrUnblockFields(newValue: newValue,
+                                      layerInput: layerInputForThisRow)
         }
     }
 }

@@ -147,31 +147,17 @@ extension GraphState {
 
         case .group:
             log("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return nil
 
         // TODO: break this logic up into smaller, separate functions,
         // creating a layer node vs creating a patch node.
         case let .layer(x):
-            // just add directly to end of layer nodes list (ordered-dict)
-            guard let layerNode = x.defaultNode(
-                    id: newNodeId,
-                    position: center.toCGSize,
-                    zIndex: highestZIndex + 1,
-                    activeIndex: self.activeIndex,
-                    graphDelegate: self) else {
-                #if DEBUG
-                fatalError()
-                #endif
-                return nil
-            }
-
-            let sidebarLayerData = SidebarLayerData(id: layerNode.id)
-            self.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
-            
-            return layerNode
+            return self.createLayerNode(
+                layer: x,
+                newNodeId: newNodeId,
+                highestZIndex: highestZIndex + 1,
+                center: center)
 
         case let .patch(x):
 
@@ -192,4 +178,33 @@ extension GraphState {
             } // choice
         }
     }
+    
+    @MainActor
+    func createLayerNode(layer: Layer,
+                         newNodeId: NodeId,
+                         highestZIndex: ZIndex,
+                         center: CGPoint) -> NodeViewModel? {
+        
+        guard let layerNode = layer.defaultNode(
+                id: newNodeId,
+                position: center.toCGSize,
+                zIndex: highestZIndex + 1,
+                activeIndex: self.activeIndex,
+                graphDelegate: self) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+
+        // Update ordered sidebar layers
+        let sidebarLayerData = SidebarLayerData(id: layerNode.id)
+        self.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
+        
+        // Also update blocked/unblocked fields
+        
+        
+        return layerNode
+    }
+    
+    
 }
+

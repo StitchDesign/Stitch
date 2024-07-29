@@ -76,6 +76,7 @@ extension NodeViewModel {
         let nodeEntity = NodeEntity(id: id,
                                     nodeTypeEntity: nodeType,
                                     title: graphNode.defaultTitle)
+        log("NodeViewModel: convenience init: graphDelegate: \(graphDelegate)")
         self.init(from: nodeEntity,
                   activeIndex: activeIndex,
                   graphDelegate: graphDelegate)

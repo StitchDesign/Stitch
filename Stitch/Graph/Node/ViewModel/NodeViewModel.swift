@@ -73,8 +73,11 @@ final class NodeViewModel: Sendable {
     init(from schema: NodeEntity,
          activeIndex: ActiveIndex,
          graphDelegate: GraphDelegate?) {
+        log("NodeViewModel: init: graphDelegate: \(graphDelegate)")
         self.id = schema.id
         self.title = schema.title
+        
+        self.graphDelegate = graphDelegate
 
         // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
@@ -84,12 +87,18 @@ final class NodeViewModel: Sendable {
         self._cachedDisplayTitle = self.getDisplayTitle()
 
         // Set graph delegate BEFORE re-instantiating node type
-        self.graphDelegate = graphDelegate
+//        self.graphDelegate = graphDelegate
 
         // HACK: Set `self.nodeType` a second time, so that we can pass down the proper reference.
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
                                           nodeDelegate: self)
+        
+//        // Maybe just additionally go through all
+//        if case let .layer(layerNodeViewModel) = self.nodeType {
+//            // Newly created NodeViewModel may or may not have a loop in its input?
+//            layerNodeViewModel
+//        }
         
         self.createEphemeralObservers()
     }

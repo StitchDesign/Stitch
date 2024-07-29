@@ -80,6 +80,7 @@ extension InputLayerNodeRowData {
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
                 node: NodeDelegate?) {
+        self.rowObserver.nodeDelegate = node // added
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         
