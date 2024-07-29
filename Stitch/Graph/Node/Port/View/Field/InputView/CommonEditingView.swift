@@ -66,7 +66,7 @@ struct CommonEditingView: View {
         switch graph.graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
-//             log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
+            // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(id)")
             return k
         default:
             // log("CommonEditingView: thisFieldIsFocused: false")

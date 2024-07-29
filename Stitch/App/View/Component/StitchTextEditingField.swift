@@ -166,8 +166,8 @@ struct StitchTextEditingBindingField: View {
                 }
             }
             .onChange(of: self.isFocused, { oldValue, newValue in
-                 // log("StitchTextEditingBindingField: .onChange(of: self.isFocused): oldValue: \(oldValue)")
-                 // log("StitchTextEditingBindingField: .onChange(of: self.isFocused): newValue: \(newValue)")
+                log("StitchTextEditingBindingField: .onChange(of: self.isFocused): oldValue: \(oldValue)")
+                log("StitchTextEditingBindingField: .onChange(of: self.isFocused): newValue: \(newValue)")
                 // Logic for when we lose focus
                 if !newValue {
                     titleFieldValidator()
