@@ -75,10 +75,13 @@ func numberCoercer(_ values: PortValues,
             }
             return numberDefaultFalse
         case .string(let x):
-            guard let number = Double(x.string) else {
+            if let number = Double(x.string) {
+                return .number(number)
+            } else if x.string.isEmpty {
                 return numberDefaultFalse
+            } else {
+                return numberDefaultTrue
             }
-            return .number(number)
         default:
             return coerceToTruthyOrFalsey(value,
                                           graphTime: graphTime)
