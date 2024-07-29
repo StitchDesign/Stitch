@@ -388,9 +388,9 @@ extension NodeRowViewModel {
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
         
-        if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
-           let layerInputForThisRow = self.rowDelegate?.id.keyPath {
-            node.blockOrUnlockFields(newValue: newValue,
+        if let node = self.nodeDelegate,
+           let layerInputForThisRow = rowDelegate.id.keyPath {
+            node.blockOrUnblockFields(newValue: newValue,
                                      layerInput: layerInputForThisRow)
         }
     }

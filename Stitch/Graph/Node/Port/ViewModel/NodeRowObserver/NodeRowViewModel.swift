@@ -56,6 +56,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var portColor: PortColor { get set }
     
+    var nodeDelegate: NodeDelegate? { get set }
+    
     var rowDelegate: RowObserver? { get set }
     
     var canvasItemDelegate: CanvasItemViewModel? { get set }
