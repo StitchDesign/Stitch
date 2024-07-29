@@ -15,7 +15,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let interactiveLayer: InteractiveLayer
-    let isGeneratedAtTopLevel: Bool
     
     let position: StitchPosition
     let rotationX: CGFloat
@@ -96,9 +95,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 scale: scale))
 
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))
@@ -107,8 +103,6 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                graph: graph,
-                viewModel: layerViewModel,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
                 

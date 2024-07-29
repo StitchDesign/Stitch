@@ -110,7 +110,7 @@ extension UserVisibleType {
             return "Progress Style"
         case .mobileHapticStyle:
             return "Haptic Style"
-        case .strokeLineCap, .strokeLineJoin, .contentMode, .spacing, .padding, .sizingScenario, .pinToId:
+        case .strokeLineCap, .strokeLineJoin, .contentMode, .spacing, .padding, .sizingScenario:
             return self.rawValue
         }
     }
@@ -246,8 +246,6 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .padding
     case .sizingScenario:
         return .sizingScenario
-    case .pinTo:
-        return .pinToId
     }
 
 }
@@ -371,8 +369,6 @@ extension UserVisibleType {
             return .padding(.defaultPadding)
         case .sizingScenario:
             return .sizingScenario(.defaultSizingScenario)
-        case .pinToId:
-            return .pinTo(.defaultPinToId)
         }
     }
 

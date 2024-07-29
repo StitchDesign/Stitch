@@ -55,7 +55,7 @@ struct Model3DLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
@@ -65,12 +65,10 @@ struct Model3DLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         Preview3DModelLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,

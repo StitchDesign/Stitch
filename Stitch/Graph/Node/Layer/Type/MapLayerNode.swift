@@ -43,18 +43,16 @@ struct MapLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewMapLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             mapType: viewModel.mapType.getMapType ?? .standard,
             latLong: viewModel.mapLatLong.getPoint?.toCGSize ?? .zero,
@@ -88,7 +86,6 @@ let DEFAULT_MAP_LAYER_IMAGE_NAME = "defaultMapLayerImage"
 struct PreviewMapLayer: View {
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
 
     // Map-specific
@@ -142,7 +139,6 @@ struct PreviewMapLayer: View {
         mapView.modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

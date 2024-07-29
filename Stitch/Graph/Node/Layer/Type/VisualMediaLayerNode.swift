@@ -17,7 +17,6 @@ struct VisualMediaLayerView: View {
     @Bindable var viewModel: LayerViewModel
     
     let parentSize: CGSize
-    let isGeneratedAtTopLevel: Bool
     let parentDisablesPosition: Bool
     
     var mediaValue: AsyncMediaValue? {
@@ -85,14 +84,12 @@ struct VisualMediaLayerView: View {
                                viewModel: viewModel,
                                image: image,
                                parentSize: parentSize,
-                               isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                parentDisablesPosition: parentDisablesPosition)
             case .video(let video):
                 VideoLayerView(graph: graph,
                                viewModel: viewModel,
                                video: video,
                                parentSize: parentSize,
-                               isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                parentDisablesPosition: parentDisablesPosition)
             default:
                 // MARK: can't be EmptyView for the onChange below doesn't get called!
@@ -112,7 +109,6 @@ struct ImageLayerView: View {
     let image: UIImage
     
     let parentSize: CGSize
-    let isGeneratedAtTopLevel: Bool
     let parentDisablesPosition: Bool
 
     var body: some View {
@@ -120,7 +116,6 @@ struct ImageLayerView: View {
             graph: graph,
             layerViewModel: viewModel,
             interactiveLayer: viewModel.interactiveLayer,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             image: image,
             position: viewModel.position.getPosition ?? CGSize.zero,
             rotationX: viewModel.rotationX.asCGFloat,
@@ -155,7 +150,6 @@ struct VideoLayerView: View {
     @State var video: StitchVideoImportPlayer
     
     let parentSize: CGSize
-    let isGeneratedAtTopLevel: Bool
     let parentDisablesPosition: Bool
 
     var body: some View {
@@ -163,7 +157,6 @@ struct VideoLayerView: View {
             graph: graph,
             layerViewModel: viewModel,
             interactiveLayer: viewModel.interactiveLayer,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             videoPlayer: video,
             position: viewModel.position.getPosition ?? CGSize.zero,
             rotationX: viewModel.rotationX.asCGFloat,

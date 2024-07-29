@@ -14,9 +14,7 @@ struct PreviewLayerView: View {
     @Bindable var layerViewModel: LayerViewModel
     let layer: Layer
     let parentSize: CGSize
-    let isGeneratedAtTopLevel: Bool
     let parentDisablesPosition: Bool
-    
 
     var id: PreviewCoordinate {
         self.layerViewModel.id
@@ -27,7 +25,6 @@ struct PreviewLayerView: View {
                                      viewModel: layerViewModel,
                                      parentSize: parentSize,
                                      layersInGroup: [],
-                                     isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                      parentDisablesPosition: parentDisablesPosition)
         .eraseToAnyView()
     }

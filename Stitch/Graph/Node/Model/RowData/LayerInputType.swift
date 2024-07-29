@@ -214,14 +214,6 @@ extension LayerInputType {
             return .spacing(.defaultStitchSpacing)
         case .sizingScenario:
             return .sizingScenario(.auto)
-        case .isPinned:
-            return .bool(false)
-        case .pinTo:
-            return .pinTo(.defaultPinToId)
-        case .pinAnchor:
-            return .anchoring(.defaultAnchoring)
-        case .pinOffset:
-            return .size(.zero)
         }
     }
     
@@ -419,15 +411,6 @@ extension LayerInputType {
             
         case .sizingScenario:
             return \.sizingScenarioPort
-            
-        case .isPinned:
-            return \.isPinnedPort
-        case .pinTo:
-            return \.pinToPort
-        case .pinAnchor:
-            return \.pinAnchorPort
-        case .pinOffset:
-            return \.pinOffsetPort
         }
     }
     
@@ -659,14 +642,6 @@ extension LayerViewModel {
             return self.spacing
         case .sizingScenario:
             return self.sizingScenario
-        case .isPinned:
-            return self.isPinned
-        case .pinTo:
-            return self.pinTo
-        case .pinAnchor:
-            return self.pinAnchor
-        case .pinOffset:
-            return self.pinOffset
         }
     }
     
@@ -861,14 +836,6 @@ extension LayerViewModel {
             self.spacing = value
         case .sizingScenario:
             self.sizingScenario = value
-        case .isPinned:
-            self.isPinned = value
-        case .pinTo:
-            self.pinTo = value
-        case .pinAnchor:
-            self.pinAnchor = value
-        case .pinOffset:
-            self.pinOffset = value
         }
     }
 }
@@ -1058,14 +1025,6 @@ extension LayerInputType {
             return \.spacingPort
         case .sizingScenario:
             return \.sizingScenarioPort
-        case .isPinned:
-            return \.isPinnedPort
-        case .pinTo:
-            return \.pinToPort
-        case .pinAnchor:
-            return \.pinAnchorPort
-        case .pinOffset:
-            return \.pinOffsetPort
         }
     }
         
@@ -1258,15 +1217,6 @@ extension LayerInputType {
             return "Spacing"
         case .sizingScenario:
             return "Sizing Scenario"
-            
-        case .isPinned:
-            return "Pinned"
-        case .pinTo:
-            return "Pin To"
-        case .pinAnchor:
-            return "Anchor"
-        case .pinOffset:
-            return "Offset"
         }
     }
     

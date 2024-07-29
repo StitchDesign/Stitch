@@ -146,8 +146,6 @@ extension PortValue {
             return .spacing
         case .sizingScenario:
             return .singleDropdown(.sizingScenario)
-        case .pinTo:
-            return .pinTo
         }
     }
 

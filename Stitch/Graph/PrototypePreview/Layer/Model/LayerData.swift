@@ -24,7 +24,7 @@ indirect enum LayerType: Equatable, Hashable {
 }
 
 /// Data type used for getting sorted data in views.
-indirect enum LayerData {    
+indirect enum LayerData {
     case nongroup(LayerViewModel)
     case group(LayerViewModel, LayerDataList)
     case mask(masked: LayerDataList, masker: LayerDataList)

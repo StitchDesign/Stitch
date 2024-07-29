@@ -134,10 +134,6 @@ struct LayerInspectorView: View {
                 
                 section("Common", Self.common)
                 
-                if layerNode.layer.supportsPinningInputs {
-                    section("Pinning", LayerInputTypeSet.pinning)
-                }
-                
                 if layerNode.layer.supportsGroupInputs {
                     section("Group", Self.groupLayer)
                 }

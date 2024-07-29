@@ -134,9 +134,6 @@ extension NodeRowViewModel {
 
         case .assignedLayer:
             self.fieldValueTypes = [.init(type: .assignedLayer)]
-            
-        case .pinTo:
-            self.fieldValueTypes = [.init(type: .pinTo)]
 
         case .anchoring:
             self.fieldValueTypes = [.init(type: .anchoring)]

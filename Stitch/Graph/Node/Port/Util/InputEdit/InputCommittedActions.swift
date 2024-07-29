@@ -102,6 +102,7 @@ extension GraphState {
         // THEN we detach the edge.
         // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
         let valueAtIndex = input.activeValue
+        let nodeKind = nodeViewModel.kind
         let valueChange = (valueAtIndex != value)
         
         guard valueChange else {
@@ -112,11 +113,12 @@ extension GraphState {
         nodeViewModel.removeIncomingEdge(at: input.id,
                                          activeIndex: self.activeIndex)
 
-        // Block or unblock certain layer inputs
-        if let layerInputType = input.id.keyPath {
-            nodeViewModel.blockOrUnlockFields(
-                newValue: value,
-                layerInput: layerInputType)
+        if let sizingScenario = value.getSizingScenario {
+            nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario)
+        }
+        
+        if let orientation = value.getOrientation {
+            nodeViewModel.layerGroupOrientationUpdated(newValue: orientation)
         }
         
         let newCommandType = value.shapeCommandType

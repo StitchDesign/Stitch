@@ -20,7 +20,6 @@ let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_
 struct PreviewTextLayer: View {
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let text: String
     let color: Color
@@ -72,7 +71,6 @@ struct PreviewTextLayer: View {
         return view.modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,
