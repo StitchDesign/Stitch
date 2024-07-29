@@ -53,18 +53,16 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextFieldLayer(
             graph: graph,
             viewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             placeholder: viewModel.placeholderText.display,
             color: viewModel.color.getColor ?? falseColor,

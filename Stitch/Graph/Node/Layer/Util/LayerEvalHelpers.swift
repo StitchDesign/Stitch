@@ -62,7 +62,6 @@ struct ShapeLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
-    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
 
@@ -74,7 +73,6 @@ struct ShapeLayerView: View {
         PreviewShapeLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             color: viewModel.color.getColor ?? falseColor,
             position: viewModel.position.getPosition ?? .zero,

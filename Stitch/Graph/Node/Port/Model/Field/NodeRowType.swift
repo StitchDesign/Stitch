@@ -31,8 +31,7 @@ enum NodeRowType: Equatable {
          color,
          json,
          assignedLayer,
-         anchoring,
-         pinTo
+         anchoring
 }
 
 extension NodeRowType {
@@ -42,7 +41,7 @@ extension NodeRowType {
         switch self {
         case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo:
+        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring:
             return false
         }
     }
@@ -89,8 +88,6 @@ extension NodeRowType {
             return .textFont(.defaultStitchFont)
         case .spacing:
             return .spacing(.defaultStitchSpacing)
-        case .pinTo:
-            return .pinTo(.defaultPinToId)
         }
     }
 }

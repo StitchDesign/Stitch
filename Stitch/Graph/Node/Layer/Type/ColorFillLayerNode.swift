@@ -25,18 +25,16 @@ struct ColorFillLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewColorFillLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             color: viewModel.color.getColor ?? .falseColor,

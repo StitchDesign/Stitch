@@ -24,18 +24,16 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .setupMode
     ])
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewHitAreaLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             size: viewModel.size.getSize ?? defaultHitAreaSize,

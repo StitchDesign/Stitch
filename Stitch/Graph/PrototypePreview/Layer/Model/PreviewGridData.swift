@@ -22,46 +22,23 @@ extension NodeViewModel {
             log("blockOrUnlockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
             return
         }
-                
-        // TODO: Which is better? To look at layer input or port value?
-        // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
-        switch layerInput {
-            
-        case .orientation:
-            newValue.getOrientation.map(self.layerGroupOrientationUpdated)
-                        
-        case .size:
-            newValue.getSize.map(self.layerSizeUpdated)
-            
-        case .sizingScenario:
-            newValue.getSize.map(self.layerSizeUpdated)
-            
-        case .isPinned:
-            newValue.getBool.map(self.isPinnedUpdated)
+        
+        switch newValue {
+        
+        case .orientation(let x):
+            self.layerGroupOrientationUpdated(newValue: x)
+        
+        case .size(let x):
+            // Update when .size changed,
+            // but not .minSize, .maxSize inputs
+            if layerInput == .size {
+                self.layerSizeUpdated(newValue: x)
+            }
+        case .sizingScenario(let x):
+            self.sizingScenarioUpdated(scenario: x)
             
         default:
             return
-        }
-    }
-    
-    @MainActor
-    func isPinnedUpdated(newValue: Bool) {
-        
-        let stitch = self
-        
-        if newValue {
-            // Unblock all pin-related inputs
-            stitch.unblockPinInputs()
-            
-            // Block position and anchoring
-            stitch.blockPositionAndAnchoringInputs()
-            
-        } else {
-            // Block all pin-related inputs
-            stitch.blockPinInputs()
-            
-            // Unblock position and anchoring
-            stitch.unblockPositionAndAnchoringInputs()
         }
     }
     
@@ -233,42 +210,6 @@ extension NodeViewModel {
             return
         }
     }
-    
-    // LayerGroup's isPinned = false: we block pin inputs and unblock position, anchoring etc.
-    
-    @MainActor
-    func blockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                setBlockStatus($0, isBlocked: true)
-            }
-        }
-    }
-    
-    @MainActor
-    func unblockPositionAndAnchoringInputs() {
-        setBlockStatus(.position, isBlocked: false)
-        setBlockStatus(.anchoring, isBlocked: false)
-    }
-        
-    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
-    
-    @MainActor
-    func unblockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                setBlockStatus($0, isBlocked: false)
-            }
-        }
-    }
-    
-    @MainActor
-    func blockPositionAndAnchoringInputs() {
-        setBlockStatus(.position, isBlocked: true)
-        setBlockStatus(.anchoring, isBlocked: true)
-    }
         
     // LayerGroup's StitchOrientation = None
     
@@ -373,7 +314,13 @@ extension NodeViewModel {
     @MainActor func unblockWidthField() {
         setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
     }
-        
+    
+//    @MainActor func unblockWidthFields() {
+//        setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
+//    }
+    
     @MainActor
     func unblockAspectRatio() {
         setBlockStatus(.widthAxis, isBlocked: false)
@@ -392,7 +339,14 @@ extension NodeViewModel {
     @MainActor func unblockHeightField() {
         setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
     }
-
+    
+//    @MainActor func unblockHeightFields() {
+//        setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
+//    }
+    
+    
     // SizingScenario = Auto, LayerDimension = Point, Width
     
     @MainActor func blockMinAndMaxWidthFields() {

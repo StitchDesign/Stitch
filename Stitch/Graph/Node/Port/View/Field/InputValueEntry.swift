@@ -152,7 +152,7 @@ struct InputValueView: View {
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
             
-        case .spacing:
+        case .spacing(let spacing):
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
                                  fieldValue: fieldValue,
@@ -183,24 +183,11 @@ struct InputValueView: View {
                        alignment: .leading)
 
         case .layerDropdown(let layerId):
-            LayerNamesDropDownChoiceView(
-                graph: graph,
-                id: rowObserverId,
-                value: .assignedLayer(layerId),
-                isForPinTo: false,
-                choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                    isForPinTo: false)
-            )
+            // TODO: disable or use read-only view if this is an output ?
+            LayerNamesDropDownChoiceView(graph: graph,
+                                         id: rowObserverId,
+                                         value: .assignedLayer(layerId))
 
-        case .pinTo(let pinToId):
-            LayerNamesDropDownChoiceView(
-                graph: graph,
-                id: rowObserverId,
-                value: .pinTo(pinToId),
-                isForPinTo: true,
-                choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                    isForPinTo: true))
-            
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
                               selection: anchor)

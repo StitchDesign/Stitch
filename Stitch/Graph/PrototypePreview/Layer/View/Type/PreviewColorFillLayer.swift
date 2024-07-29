@@ -11,7 +11,6 @@ import StitchSchemaKit
 struct PreviewColorFillLayer: View {
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
     let position: CGSize = .zero
 
     var size: LayerSize {
@@ -41,7 +40,6 @@ struct PreviewColorFillLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: .zero,

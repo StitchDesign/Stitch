@@ -170,8 +170,6 @@ extension PortValues {
             return paddingCoercer(values)
         case .sizingScenario:
             return sizingScenarioCoercer(values)
-        case .pinTo:
-            return pinToCoercer(values)
         }
     }
 }

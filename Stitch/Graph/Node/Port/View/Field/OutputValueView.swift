@@ -123,41 +123,27 @@ struct OutputValueView: View {
         case .bool(let bool):
             BoolCheckboxView(id: nil,
                              value: bool)
-            
+
         case .dropdown(let choiceDisplay, let _):
             // Values that use dropdowns for their inputs use instead a display-only view for their outputs
             ReadOnlyValueEntry(value: choiceDisplay,
                                alignment: outputAlignment,
                                fontColor: STITCH_FONT_GRAY_COLOR)
-            
+
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
                                stitchFont: stitchFont)
-            // need enough width for font design + font weight name
-            .frame(minWidth: 200,
-                   alignment: .leading)
-            
+                // need enough width for font design + font weight name
+                .frame(minWidth: 200,
+                       alignment: .leading)
+
         case .layerDropdown(let layerId):
-            //            // TODO: disable or use read-only view if this is an output ?
+            // TODO: disable or use read-only view if this is an output ?
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
-                                         value: .assignedLayer(layerId),
-                                         isForPinTo: false,
-                                         choices: graph.layerDropdownChoices(
-                                            isForNode: coordinate.nodeId,
-                                            isForPinTo: false))
+                                         value: .assignedLayer(layerId))
             .disabled(true)
-            
-        case .pinTo(let pinToId):
-            LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
-                                         value: .pinTo(pinToId),
-                                         isForPinTo: true,
-                                         choices: graph.layerDropdownChoices(
-                                            isForNode: coordinate.nodeId,
-                                            isForPinTo: true))
-            .disabled(true)
-            
+
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
                               selection: anchor)

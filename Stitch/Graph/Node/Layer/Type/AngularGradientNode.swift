@@ -29,18 +29,16 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewAngularGradientLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             opacity: viewModel.opacity.getNumber ?? defaultOpacityNumber,
@@ -66,7 +64,6 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
 struct PreviewAngularGradientLayer: View {
     var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let enabled: Bool
     let opacity: Double
@@ -102,7 +99,6 @@ struct PreviewAngularGradientLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: .zero,

@@ -33,7 +33,6 @@ extension LayerDimension {
 struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
     
     let aspectRatio: AspectRatioData
     let size: LayerSize
@@ -76,8 +75,6 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 logInView("case .auto")
                 content
                     .modifier(LayerSizeModifier(
-                        viewModel: viewModel,
-                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
@@ -90,20 +87,12 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     ))
                     .modifier(LayerSizeReader(viewModel: viewModel))
                 
-                // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
-                // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
-                    .modifier(PreviewWindowCoordinateSpaceReader(
-                        viewModel: viewModel,
-                        isGeneratedAtTopLevel: isGeneratedAtTopLevel))
-                
             case .constrainHeight:
                 logInView("case .constrainHeight")
                 content
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                     .modifier(LayerSizeModifier(
-                        viewModel: viewModel,
-                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
@@ -122,8 +111,6 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                     .modifier(LayerSizeModifier(
-                        viewModel: viewModel,
-                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,

@@ -107,10 +107,6 @@ extension LayerNodeEntity {
          minSizePort: LayerInputDataEntity = LayerInputDataEntity.empty,
          maxSizePort: LayerInputDataEntity = LayerInputDataEntity.empty,
          spacingPort: LayerInputDataEntity = LayerInputDataEntity.empty,
-         isPinnedPort: LayerInputDataEntity = .empty,
-         pinToPort: LayerInputDataEntity = .empty,
-         pinAnchorPort: LayerInputDataEntity = .empty,
-         pinOffsetPort: LayerInputDataEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?,
          isExpandedInSidebar: Bool?) {
@@ -221,11 +217,6 @@ extension LayerNodeEntity {
             minSizePort: minSizePort,
             maxSizePort: maxSizePort,
             spacingPort: spacingPort,
-            
-            isPinnedPort: isPinnedPort,
-            pinToPort: pinToPort,
-            pinAnchorPort: pinAnchorPort,
-            pinOffsetPort: pinOffsetPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId,

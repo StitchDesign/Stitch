@@ -127,9 +127,7 @@ extension PortValue {
         case  .cameraDirection(let x):
             return x.display
         case .assignedLayer(let x):
-            return x?.id.description ?? "No Layers" // Doesn't seem correct?
-        case .pinTo(let x):
-            return x.display
+            return x?.id.description ?? "No Layers"
         case .scrollMode(let x):
             return x.display
         case .textAlignment(let x):
