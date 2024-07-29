@@ -319,6 +319,11 @@ extension NodeViewModel {
     }
     
     @MainActor
+    func getInputRowObserver(for layerInputType: LayerInputType) -> InputNodeRowObserver? {
+        self.getInputRowObserver(for: .keyPath(layerInputType))
+    }
+    
+    @MainActor
     func getOutputRowObserver(for portType: NodeIOPortType) -> OutputNodeRowObserver? {
         switch portType {
         case .keyPath:
