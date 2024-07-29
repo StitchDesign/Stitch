@@ -56,6 +56,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var portColor: PortColor { get set }
     
+    var nodeDelegate: NodeDelegate? { get set }
+    
     var rowDelegate: RowObserver? { get set }
     
     var canvasItemDelegate: CanvasItemViewModel? { get set }
@@ -75,6 +77,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
+         nodeDelegate: NodeDelegate?,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
@@ -176,8 +179,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
-    weak var canvasItemDelegate: CanvasItemViewModel?
+    weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
     var layerPortId: Int?
@@ -185,6 +189,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
+         nodeDelegate: NodeDelegate?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType == .layerInspector {
@@ -192,6 +197,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         }
         
         self.id = id
+        self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
@@ -249,15 +255,18 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
+         nodeDelegate: NodeDelegate?,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
+        self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
@@ -344,7 +353,8 @@ extension Array where Element: NodeRowViewModel {
                                                portId: portIndex)
                 
                 return Element(id: rowId,
-                               activeValue: newEntity.activeValue,
+                               activeValue: newEntity.activeValue, 
+                               nodeDelegate: canvas.nodeDelegate, // TODO: is this accurate?
                                rowDelegate: newEntity,
                                canvasItemDelegate: canvas)
             }

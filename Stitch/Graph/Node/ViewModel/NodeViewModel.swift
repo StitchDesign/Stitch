@@ -663,6 +663,7 @@ extension NodeViewModel {
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
                                                       activeValue: newInputObserver.activeValue,
+                                                      nodeDelegate: self,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
         

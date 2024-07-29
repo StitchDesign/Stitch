@@ -24,6 +24,7 @@ final class InputLayerNodeRowData {
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
+         nodeDelegate: NodeDelegate?,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
@@ -32,7 +33,8 @@ final class InputLayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue,
+                                           activeValue: rowObserver.activeValue, 
+                                           nodeDelegate: nodeDelegate,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -55,7 +57,8 @@ final class OutputLayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue,
+                                           activeValue: rowObserver.activeValue, 
+                                           nodeDelegate: rowObserver.nodeDelegate,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)

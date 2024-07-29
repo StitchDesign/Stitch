@@ -222,6 +222,7 @@ extension CanvasItemViewModel {
 extension InputLayerNodeRowData {
     @MainActor
     static func empty(_ layerInputType: LayerInputType,
+                      nodeDelegate: NodeDelegate?,
                       layer: Layer) -> Self {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(.rectangle),
@@ -229,9 +230,9 @@ extension InputLayerNodeRowData {
                                                id: .init(portId: -1, nodeId: .init()),
                                                activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil,
-                                               nodeDelegate: nil)
-        
+                                               nodeDelegate: nodeDelegate)
         return .init(rowObserver: rowObserver,
+                     nodeDelegate: nodeDelegate,
                      canvasObserver: nil)
     }
 }
