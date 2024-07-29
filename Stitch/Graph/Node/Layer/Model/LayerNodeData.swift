@@ -28,8 +28,17 @@ final class InputLayerNodeRowData {
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
+        var itemType: GraphItemType
         
-        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            itemType = .layerInspector
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
+        } else {
+            fatalErrorIfDebug()
+            itemType = .layerInspector
+        }
+        
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
@@ -52,8 +61,17 @@ final class OutputLayerNodeRowData {
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
+        var itemType: GraphItemType
         
-        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            itemType = .layerInspector
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
+        } else {
+            fatalErrorIfDebug()
+            itemType = .layerInspector
+        }
+        
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),

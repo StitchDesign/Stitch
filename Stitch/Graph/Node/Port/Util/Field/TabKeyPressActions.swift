@@ -188,7 +188,7 @@ extension NodeViewModel {
             // TODO: not yet supported. Need to move ordering logic from inspector view so that it can be leveraged here.
             fatalErrorIfDebug()
             return currentInput.fieldValueTypes.first!.id
-        case .node:
+        case .node(let canvasId):
             let portId = currentInputCoordinate.portId
             
             // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
@@ -208,7 +208,7 @@ extension NodeViewModel {
             if currentEligibleInput == firstEligibleInput,
                let maxFieldIndex = allInputs[safe: lastEligibleInput.originalIndex]?.maxFieldIndex {
                 return FieldCoordinate(
-                    rowId: .init(graphItemType: .node,
+                    rowId: .init(graphItemType: .node(canvasId),
                                  nodeId: nodeId,
                                  portId: lastEligibleInput.originalIndex),
                     fieldIndex: maxFieldIndex)
@@ -218,7 +218,7 @@ extension NodeViewModel {
             else if let previousEligibleInput = eligibleInputs.before(currentEligibleInput),
                     let maxFieldIndex = allInputs[safe: previousEligibleInput.originalIndex]?.maxFieldIndex{
                 
-                return FieldCoordinate(rowId: .init(graphItemType: .node,
+                return FieldCoordinate(rowId: .init(graphItemType: .node(canvasId),
                                                     nodeId: nodeId,
                                                     portId: previousEligibleInput.originalIndex),
                                        fieldIndex: maxFieldIndex)

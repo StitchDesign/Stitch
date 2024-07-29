@@ -18,7 +18,7 @@ struct FieldCoordinate: Hashable {
 
     static var fakeFieldCoordinate: Self {
         .init(
-            rowId: .init(graphItemType: .node, 
+            rowId: .init(graphItemType: .node(.node(.init())),
                          nodeId: .init(),
                          portId: 0),
             fieldIndex: 0)
