@@ -659,7 +659,7 @@ extension NodeViewModel {
                                                     upstreamOutputCoordinate: nil,
                                                     nodeDelegate: lastRowObserver.nodeDelegate)
         
-        let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node,
+        let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
                                                       activeValue: newInputObserver.activeValue,

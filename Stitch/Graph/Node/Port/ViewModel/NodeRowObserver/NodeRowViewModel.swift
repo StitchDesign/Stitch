@@ -9,8 +9,8 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-enum GraphItemType {
-    case node
+enum GraphItemType: Hashable {
+    case node(CanvasItemId)
     case layerInspector
 }
 
@@ -31,7 +31,7 @@ extension NodeRowViewModelId {
         }
     }
     
-    static let empty: Self = .init(graphItemType: .node,
+    static let empty: Self = .init(graphItemType: .node(.node(.init())),
                                    nodeId: .init(),
                                    portId: -1)
 }
@@ -347,7 +347,7 @@ extension Array where Element: NodeRowViewModel {
             if let entity = currentEntitiesMap.get(newEntity.id) {
                 return entity
             } else {
-                let rowId = NodeRowViewModelId(graphItemType: .node,
+                let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
                                                // Important this is the node ID from canvas for group nodes
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portId: portIndex)
