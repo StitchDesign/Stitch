@@ -284,6 +284,7 @@ final class LayerNodeViewModel {
             let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
             // Update inspector view model delegate before calling update fn
+            layerData.inspectorRowViewModel.nodeDelegate = nodeDelegate
             layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
             
             // Update row view model ID
