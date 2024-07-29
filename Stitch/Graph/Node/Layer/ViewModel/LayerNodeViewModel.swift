@@ -173,7 +173,9 @@ final class LayerNodeViewModel {
                                     nodeDelegate: nodeDelegate)
         
         let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
-            .empty(layerInput, nodeDelegate: nodeDelegate, layer: schema.layer)
+            InputLayerNodeRowData.empty(layerInput,
+                                        nodeDelegate: nodeDelegate,
+                                        layer: schema.layer)
         }
         
         self.positionPort = rowFn(.position)
@@ -283,6 +285,7 @@ final class LayerNodeViewModel {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
             let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
+//            layerData.rowObserver.id = id
             // Update inspector view model delegate before calling update fn
             layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
             

@@ -140,7 +140,8 @@ extension NodeRowViewModel {
          */
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
-        if shouldUpdate {
+//        if shouldUpdate {
+        if true {
             self.activeValue = newViewValue
 
             // TODO: pass in media to here!

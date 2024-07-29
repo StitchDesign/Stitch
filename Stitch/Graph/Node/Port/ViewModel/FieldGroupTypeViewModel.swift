@@ -180,12 +180,21 @@ extension NodeRowViewModel {
             fieldObserverGroup.updateFieldValues(fieldValues: fieldValues)
         }
         
-        if let node = self.nodeDelegate,
-           let layerInput = self.rowDelegate?.id.portType.keyPath {
-            node.blockOrUnblockFields(newValue: portValue,
-                                     layerInput: layerInput)
-        }
+//        if let node = self.nodeDelegate,
+//           let layerInput = self.rowDelegate?.id.portType.keyPath {
+//            node.blockOrUnblockFields(newValue: portValue,
+//                                     layerInput: layerInput)
+//        }
         
+        if let node = self.nodeDelegate,
+           let rowDelegate = self.rowDelegate {
+            if let layerInput = rowDelegate.id.portType.keyPath {
+             node.blockOrUnblockFields(newValue: portValue,
+                                      layerInput: layerInput)
+            } else {
+                log("had nodeDelegate and rowDelegate but not keypath: rowDelegate.id: \(rowDelegate.id)")
+            }
+        }
     }
 }
 
