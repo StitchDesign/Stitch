@@ -77,8 +77,10 @@ final class NodeViewModel: Sendable {
         self.title = schema.title
 
         // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
-        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
-                                          nodeId: schema.id,
+        self.nodeType = NodeViewModelType(from: .group(.init(position: .zero,
+                                                             zIndex: .zero,
+                                                             parentGroupNodeId: nil)),
+                                          nodeId: .init(),
                                           nodeDelegate: nil)
         
         self._cachedDisplayTitle = self.getDisplayTitle()
