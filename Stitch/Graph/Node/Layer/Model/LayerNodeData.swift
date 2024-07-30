@@ -175,22 +175,25 @@ extension InputLayerNodeRowData {
 //        self.rowObserver.update(from: schema.inputPort,
 //                                inputType: layerInputType)
         
-        schema.inputPort.values
+        let value: PortValue = schema.inputPort.values?.first ?? layerInputType.getDefaultValue(for: layerNode.layer)
         
+        if case let .anchoring(x) = value {
+            log("had anchoring inspector row view model: value: \(value)")
+        }
         
         self.inspectorRowViewModel.activeValueChanged(
-            oldValue: <#T##PortValue#>,
-            newValue: <#T##PortValue#>)
+            oldValue: value,
+            newValue: value)
         
-        // We also need to update the initialzied
-        if let x = self.inspectorRowViewModel.activeValue.getAnchoring {
-            log("had anchoring inspector row view model")
-            //            self.inspectorRowViewModel.activeValue = .anchoring(.bottomRight)
-            
-            self.inspectorRowViewModel.activeValueChanged(
-                oldValue: .anchoring(x),
-                newValue: .anchoring(.bottomRight))
-        }
+//        // We also need to update the initialzied
+//        if let x = self.inspectorRowViewModel.activeValue.getAnchoring {
+//            log("had anchoring inspector row view model")
+//            //            self.inspectorRowViewModel.activeValue = .anchoring(.bottomRight)
+//            
+//            self.inspectorRowViewModel.activeValueChanged(
+//                oldValue: .anchoring(x),
+//                newValue: .anchoring(.bottomRight))
+//        }
 //        
         
     }

@@ -46,9 +46,9 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
             let oldValue = observer.fieldValue
             let newValue = fieldValues[index]
 
-//            if oldValue != newValue {
+            if oldValue != newValue {
                 observer.fieldValue = newValue
-//            }
+            }
         }
     }
 

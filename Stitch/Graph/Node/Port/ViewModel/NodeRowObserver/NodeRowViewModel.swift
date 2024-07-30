@@ -129,8 +129,7 @@ extension NodeRowViewModel {
         }
         
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
-//        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
-        let isLayerFocusedInPropertySidebar = true
+        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
         let oldViewValue = self.activeValue // the old cached
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
                                                           activeIndex: activeIndex)
@@ -144,8 +143,7 @@ extension NodeRowViewModel {
          */
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
-//        if shouldUpdate {
-        if true {
+        if shouldUpdate {
             self.activeValue = newViewValue
             
             // TODO: pass in media to here!
