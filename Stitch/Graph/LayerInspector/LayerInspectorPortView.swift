@@ -11,27 +11,46 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     let layerInput: LayerInputType
     
-    @Bindable var rowViewModel: InputNodeRowViewModel
-    @Bindable var rowObserver: InputNodeRowObserver
+//    @Bindable var rowViewModel: InputNodeRowViewModel
+//    @Bindable var rowObserver: InputNodeRowObserver
+    
+    @Bindable var layerInputData: InputLayerNodeRowData
+    
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     var body: some View {
+        
         LayerInspectorPortView(layerProperty: .layerInput(layerInput),
-                               rowViewModel: rowViewModel,
-                               rowObserver: rowObserver,
+                               rowViewModel: layerInputData.inspectorRowViewModel,
+                               rowObserver: layerInputData.rowObserver,
                                node: node,
                                layerNode: layerNode,
                                graph: graph) { propertyRowIsSelected, isOnGraphAlready in
             NodeInputView(graph: graph,
-                          rowObserver: rowObserver,
-                          rowData: rowViewModel,
+                          rowObserver: layerInputData.rowObserver,
+                          rowData: layerInputData.inspectorRowViewModel,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
                           propertyIsAlreadyOnGraph: isOnGraphAlready,
                           isCanvasItemSelected: false)
         }
+        
+//        LayerInspectorPortView(layerProperty: .layerInput(layerInput),
+//                               rowViewModel: rowViewModel,
+//                               rowObserver: rowObserver,
+//                               node: node,
+//                               layerNode: layerNode,
+//                               graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+//            NodeInputView(graph: graph,
+//                          rowObserver: rowObserver,
+//                          rowData: rowViewModel,
+//                          forPropertySidebar: true,
+//                          propertyIsSelected: propertyRowIsSelected,
+//                          propertyIsAlreadyOnGraph: isOnGraphAlready,
+//                          isCanvasItemSelected: false)
+//        }
     }
 }
 

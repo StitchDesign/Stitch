@@ -28,7 +28,7 @@ extension NodeRowObserver {
         // Update cached view-specific data: "viewValue" i.e. activeValue
         self.updatePortViewModels(values: newValues)
         
-        self.postProcessing(oldValues: oldValues, newValues: newValues)
+//        self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
     
     var userVisibleType: UserVisibleType? {
@@ -39,7 +39,11 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     func updatePortViewModels(values: PortValues) {
-        self.getVisibleRowViewModels().forEach { rowViewModel in
+                
+        let visibleRowVMs = self.getVisibleRowViewModels()
+        log("updatePortViewModels: visibleRowVMs.count: \(visibleRowVMs.count)")
+        visibleRowVMs.forEach { (rowViewModel: RowViewModelType) in
+            log("updatePortViewModels: rowViewModel.id: \(rowViewModel.id)")
             rowViewModel.didPortValuesUpdate(values: values)
         }
     }
@@ -55,6 +59,7 @@ extension NodeRowObserver {
         return self.allRowViewModels.compactMap { rowViewModel in
             // No canvas means inspector, which for here practically speaking is visible
             guard let canvas = rowViewModel.canvasItemDelegate else {
+                rowViewModel.id
                 return rowViewModel
             }
                
@@ -205,15 +210,21 @@ extension Array where Element: NodeRowObserver {
         }
 
         newValuesList.enumerated().forEach { portId, values in
-            let observer = self[safe: portId] ??
-            // Sometimes observers aren't yet created for nodes with adjustable inputs
-            Element(values: values,
-                    nodeKind: nodeDelegate.kind,
-                    userVisibleType: userVisibleType,
-                    id: .init(portId: portId, nodeId: nodeId),
-                    activeIndex: .init(.zero),
-                    upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate)
+            
+            guard let observer = self[safe: portId] else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+//            let observer = self[safe: portId] ??
+//            // Sometimes observers aren't yet created for nodes with adjustable inputs
+//            Element(values: values,
+//                    nodeKind: nodeDelegate.kind,
+//                    userVisibleType: userVisibleType,
+//                    id: .init(portId: portId, nodeId: nodeId),
+//                    activeIndex: .init(.zero),
+//                    upstreamOutputCoordinate: nil,
+//                    nodeDelegate: nodeDelegate)
 
             // Only update values if there's no upstream connection
             if !observer.containsUpstreamConnection {

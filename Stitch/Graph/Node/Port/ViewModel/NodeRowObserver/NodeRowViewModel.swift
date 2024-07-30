@@ -120,13 +120,17 @@ extension NodeRowViewModel {
     
     @MainActor
     func didPortValuesUpdate(values: PortValues) {
+        if self.id.graphItemType == .layerInspector(.anchoring) {
+            log("had anchoring")
+        }
+        
         guard let rowDelegate = self.rowDelegate else {
             return
         }
         
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
-        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
-        
+//        let isLayerFocusedInPropertySidebar = rowDelegate.nodeDelegate?.graphDelegate?.layerFocusedInPropertyInspector == rowDelegate.id.nodeId
+        let isLayerFocusedInPropertySidebar = true
         let oldViewValue = self.activeValue // the old cached
         let newViewValue = PortValue.getActiveValue(allLoopedValues: values,
                                                           activeIndex: activeIndex)
@@ -140,9 +144,10 @@ extension NodeRowViewModel {
          */
         let shouldUpdate = didViewValueChange || isLayerFocusedInPropertySidebar
 
-        if shouldUpdate {
+//        if shouldUpdate {
+        if true {
             self.activeValue = newViewValue
-
+            
             // TODO: pass in media to here!
             self.activeValueChanged(oldValue: oldViewValue,
                                     newValue: newViewValue)

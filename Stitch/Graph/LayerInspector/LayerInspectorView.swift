@@ -233,7 +233,8 @@ struct LayerInspectorInputsSectionView: View {
                 
                 let inputListContainsInput = inputsList.contains(layerInput)
                 
-                let layerInputData = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                let layerInputData: InputLayerNodeRowData = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                
                 let rowObserver = layerInputData.rowObserver
                 
                 let allFieldsBlockedOut = layerInputData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
@@ -241,8 +242,9 @@ struct LayerInspectorInputsSectionView: View {
                 if inputListContainsInput && !allFieldsBlockedOut {
                     LayerInspectorInputPortView(
                         layerInput: layerInput,
-                        rowViewModel: layerInputData.inspectorRowViewModel,
-                        rowObserver: rowObserver,
+//                        rowViewModel: layerInputData.inspectorRowViewModel,
+//                        rowObserver: rowObserver,
+                        layerInputData: layerInputData,
                         node: node,
                         layerNode: layerNode,
                         graph: graph)

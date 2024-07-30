@@ -373,7 +373,7 @@ extension NodeRowViewModel {
             // Force update if any media--inefficient but works
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
-            if willUpdateField {
+            if willUpdateField { // WILL CREATE / RECREATE FIELDS
                 self.createFieldValueTypes(initialValue: newValue,
                                            nodeIO: nodeIO,
                                            importedMediaObject: importedMediaObject)

@@ -16,10 +16,18 @@ protocol LayerNodeRowData: AnyObject {
     var canvasObserver: CanvasItemViewModel? { get set }
 }
 
+
+// Umbrella for canvas, for inpsector,
 @Observable
 final class InputLayerNodeRowData {
+    
+    // what StitchEngine interacts with
     let rowObserver: InputNodeRowObserver
+    
+    // for layer inspector; contains row view model(s)
     let inspectorRowViewModel: InputNodeRowViewModel
+    
+    // for canvas: contains position etc. data, but ALSO CONTAINS row view models
     var canvasObserver: CanvasItemViewModel?
     
     @MainActor
@@ -111,8 +119,21 @@ extension InputLayerNodeRowData {
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
                 node: NodeDelegate?) {
+        
+        // Updates the part of the layer input data that StitchEngine uses: the 'fundamental' underlying port-values etc.
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
+        
+//        // Do we need the canvas item initialized first?
+//        if let x = self.inspectorRowViewModel.activeValue.getAnchoring {
+//            log("had anchoring inspector row view model")
+//            //            self.inspectorRowViewModel.activeValue = .anchoring(.bottomRight)
+//            
+//            self.inspectorRowViewModel.activeValueChanged(
+//                oldValue: .anchoring(x),
+//                newValue: .anchoring(.bottomRight))
+//        }
+//        
         
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
@@ -150,6 +171,28 @@ extension InputLayerNodeRowData {
         } else {
             self.canvasObserver = nil
         }
+        
+//        self.rowObserver.update(from: schema.inputPort,
+//                                inputType: layerInputType)
+        
+        schema.inputPort.values
+        
+        
+        self.inspectorRowViewModel.activeValueChanged(
+            oldValue: <#T##PortValue#>,
+            newValue: <#T##PortValue#>)
+        
+        // We also need to update the initialzied
+        if let x = self.inspectorRowViewModel.activeValue.getAnchoring {
+            log("had anchoring inspector row view model")
+            //            self.inspectorRowViewModel.activeValue = .anchoring(.bottomRight)
+            
+            self.inspectorRowViewModel.activeValueChanged(
+                oldValue: .anchoring(x),
+                newValue: .anchoring(.bottomRight))
+        }
+//        
+        
     }
     
     @MainActor

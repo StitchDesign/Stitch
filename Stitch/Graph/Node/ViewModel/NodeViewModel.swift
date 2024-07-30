@@ -77,6 +77,7 @@ final class NodeViewModel: Sendable {
         self.title = schema.title
 
         // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
+        log("NodeViewModel: init: nil init of NodeViewModelType")
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
                                           nodeDelegate: nil)
@@ -87,6 +88,7 @@ final class NodeViewModel: Sendable {
         self.graphDelegate = graphDelegate
 
         // HACK: Set `self.nodeType` a second time, so that we can pass down the proper reference.
+        log("NodeViewModel: init: non-nil init of NodeViewModelType")
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
                                           nodeDelegate: self)

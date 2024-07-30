@@ -152,6 +152,13 @@ final class LayerNodeViewModel {
     
     var isExpandedInSidebar: Bool?
 
+    // HELPFUL FOR FINDING THIS PART OF THE CODE
+    @MainActor
+    func createLayerNodeViewModelFromSchema(_ schema: LayerNodeEntity,
+                                            nodeDelegate: NodeDelegate?) -> Self {
+        Self.init(from: schema, nodeDelegate: nodeDelegate)
+    }
+    
     @MainActor
     init(from schema: LayerNodeEntity,
          nodeDelegate: NodeDelegate?) {

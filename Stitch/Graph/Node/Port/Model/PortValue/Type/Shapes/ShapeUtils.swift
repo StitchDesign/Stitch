@@ -73,6 +73,7 @@ extension InsettableShape {
             filledShape.overlay {
                 strokedShape
             }
+            .border(.red, width: 4)
         }
     }
 }
