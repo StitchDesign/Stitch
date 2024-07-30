@@ -68,27 +68,60 @@ struct PreviewCommonSizeModifier: ViewModifier {
         height.isParentPercentage
     }
     
+    var finalMinWidth: CGFloat? {
+        minWidth?.asFrameDimension(parentSize.width)
+    }
+    
+    var finalMaxWidth: CGFloat? {
+        maxWidth?.asFrameDimension(parentSize.width)
+    }
+    
+    var finalMinHeight: CGFloat? {
+        minHeight?.asFrameDimension(parentSize.height)
+    }
+    
+    var finalMaxHeight: CGFloat? {
+        maxHeight?.asFrameDimension(parentSize.height)
+    }
+    
+    var finalWidth: CGFloat? {
+        if usesParentPercentForWidth && (finalMinWidth.isDefined || finalMaxWidth.isDefined) {
+            return nil
+        } else {
+            return width.asFrameDimension(parentSize.width)
+        }
+    }
+    
+    var finalHeight: CGFloat? {
+        if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
+            return nil
+        } else {
+            return height.asFrameDimension(parentSize.height)
+        }
+    }
+    
+    
     func body(content: Content) -> some View {
         if FeatureFlags.USE_LAYER_INSPECTOR {
             switch sizingScenario {
             case .auto:
-                logInView("case .auto")
+                // logInView("case .auto")
                 content
                     .modifier(LayerSizeModifier(
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
-                        width: width.asFrameDimension(parentSize.width),
-                        height: height.asFrameDimension(parentSize.height),
-                        minWidth: minWidth?.asFrameDimension(parentSize.width),
-                        maxWidth: maxWidth?.asFrameDimension(parentSize.width),
-                        minHeight: minHeight?.asFrameDimension(parentSize.height),
-                        maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+                        width: finalWidth,
+                        height: finalHeight,
+                        minWidth: finalMinWidth,
+                        maxWidth: finalMaxWidth,
+                        minHeight: finalMinHeight,
+                        maxHeight: finalMaxHeight
                     ))
                     .modifier(LayerSizeReader(viewModel: viewModel))
                 
             case .constrainHeight:
-                logInView("case .constrainHeight")
+                // logInView("case .constrainHeight")
                 content
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
@@ -96,17 +129,17 @@ struct PreviewCommonSizeModifier: ViewModifier {
                         alignment: frameAlignment,
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
-                        width: width.asFrameDimension(parentSize.width),
+                        width: finalWidth,
                         height: nil,
-                        minWidth: minWidth?.asFrameDimension(parentSize.width),
-                        maxWidth: maxWidth?.asFrameDimension(parentSize.width),
+                        minWidth: finalMinWidth,
+                        maxWidth: finalMaxWidth,
                         minHeight: nil,
                         maxHeight: nil
                     ))
                     .modifier(LayerSizeReader(viewModel: viewModel))
                 
             case .constrainWidth:
-                logInView("case .constrainWidth")
+                // logInView("case .constrainWidth")
                 content
                 // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                     .modifier(PreviewAspectRatioModifier(data: aspectRatio))
@@ -115,18 +148,18 @@ struct PreviewCommonSizeModifier: ViewModifier {
                         usesParentPercentForWidth: usesParentPercentForWidth,
                         usesParentPercentForHeight: usesParentPercentForHeight,
                         width: nil,
-                        height: height.asFrameDimension(parentSize.height),
+                        height: finalHeight,
                         minWidth: nil,
                         maxWidth: nil,
-                        minHeight: minHeight?.asFrameDimension(parentSize.height),
-                        maxHeight: maxHeight?.asFrameDimension(parentSize.height)
+                        minHeight: finalMinHeight,
+                        maxHeight: finalMaxHeight
                     ))
                     .modifier(LayerSizeReader(viewModel: viewModel))
             }
         } else {
             content
-                .frame(width: width.asFrameDimension(parentSize.width),
-                       height: height.asFrameDimension(parentSize.height),
+                .frame(width: finalWidth,
+                       height: finalHeight,
                        alignment: frameAlignment)
                 .modifier(LayerSizeReader(viewModel: viewModel))
         }
