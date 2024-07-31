@@ -33,7 +33,7 @@ extension GraphState {
 // nil = no field focused
 // 0 =
 @MainActor
-func nextFieldOrInput(state: GraphDelegate,
+func nextFieldOrInput(state: GraphState,
                       focusedField: FieldCoordinate) -> FieldCoordinate? {
 
     let currentInputCoordinate = focusedField.rowId
@@ -65,7 +65,8 @@ func nextFieldOrInput(state: GraphDelegate,
     
     // Else, move to next input (or first input, if already on last input).
     else {
-        return node.nextInput(focusedField.rowId)
+        return node.nextInput(focusedField.rowId,
+                              propertySidebarState: state.graphUI.propertySidebar)
     }
 }
 
@@ -111,7 +112,8 @@ extension NodeRowViewModelId {
 
 extension NodeViewModel {
     @MainActor
-    func nextInput(_ currentInputCoordinate: NodeRowViewModelId) -> FieldCoordinate {
+    func nextInput(_ currentInputCoordinate: NodeRowViewModelId,
+                   propertySidebarState: PropertySidebarState) -> FieldCoordinate {
         
         // you need to figure out whether you're tabbing through patch node inputs (which use port id integers) or layer inputs (whether on canvas or in layer inspector)
         
@@ -168,7 +170,7 @@ extension NodeViewModel {
                 return .fakeFieldCoordinate // should never happen
             }
             
-            let layerInputs = layer.textInputsForThisLayer
+            let layerInputs = layer.textInputsForThisLayer(propertySidebarState.collapsedSections)
             
             // For LIG on graph, we'll only have a single
             guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
@@ -228,7 +230,7 @@ extension NodeRowViewModelId {
 
 
 extension Layer {
-    @MainActor var textInputsForThisLayer: [LayerInputType] {
+    @MainActor func textInputsForThisLayer(_ collapsedSections: Set<LayerInspectorSectionName>) -> [LayerInputType] {
         
         let layer = self
         
@@ -241,6 +243,7 @@ extension Layer {
         let masterInputsList: [LayerInputType] = LayerInspectorView.layerInspectorRowsInOrder(self)
             .filter { sectionNameAndInputs in
                 sectionNameAndInputs.0 != .shadow
+                &&  !collapsedSections.contains(sectionNameAndInputs.0)
             }
             .flatMap(\.1)
             .filter { layerInput in
@@ -256,7 +259,7 @@ extension Layer {
 }
 
 @MainActor
-func previousFieldOrInput(state: GraphDelegate,
+func previousFieldOrInput(state: GraphState,
                           focusedField: FieldCoordinate) -> FieldCoordinate? {
     
     let currentFieldIndex = focusedField.fieldIndex
@@ -294,13 +297,15 @@ func previousFieldOrInput(state: GraphDelegate,
     
     // Else: attempt to go to a previous input.
     else {
-        return node.previousInput(input)
+        return node.previousInput(input, 
+                                  propertySidebarState: state.graphUI.propertySidebar)
     }
 }
 
 extension NodeViewModel {
     @MainActor
-    func previousInput(_ currentInput: InputNodeRowViewModel) -> FieldCoordinate {
+    func previousInput(_ currentInput: InputNodeRowViewModel,
+                       propertySidebarState: PropertySidebarState) -> FieldCoordinate {
         let nodeId = self.id
         let currentInputCoordinate = currentInput.id
         
@@ -361,7 +366,7 @@ extension NodeViewModel {
                 return .fakeFieldCoordinate // should never happen
             }
             
-            let layerInputs = layer.textInputsForThisLayer
+            let layerInputs = layer.textInputsForThisLayer(propertySidebarState.collapsedSections)
             
             
             guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
