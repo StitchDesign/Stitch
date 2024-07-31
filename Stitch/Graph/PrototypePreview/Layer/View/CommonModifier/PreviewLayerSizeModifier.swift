@@ -53,20 +53,21 @@ struct LayerSizeModifier: ViewModifier {
         // logInView("LayerSizeModifier: minHeight: \(minHeight)")
         // logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
                
-        if isGeneratedAtTopLevel && (viewModel.isPinned.getBool ?? false) {
-            logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
-            // If this is the "PinnedView" for View A,
-            // then View A's "GhostView" will already have read the appropriate size etc. for View A.
-            // So we can just use the layer view model's pinnedSize
-            content.frame(width: viewModel.pinnedSize?.width,
-                          height: viewModel.pinnedSize?.height,
-                          alignment: alignment)
-        }
-
-        // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
-        
-        // Width is pt, but height is auto (so can use min/max height)
-        else if let width = width, !height.isDefined {
+//        if isGeneratedAtTopLevel && (viewModel.isPinned.getBool ?? false) {
+//            logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
+//            // If this is the "PinnedView" for View A,
+//            // then View A's "GhostView" will already have read the appropriate size etc. for View A.
+//            // So we can just use the layer view model's pinnedSize
+//            content.frame(width: viewModel.pinnedSize?.width,
+//                          height: viewModel.pinnedSize?.height,
+//                          alignment: alignment)
+//        }
+//
+//        // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
+//        
+//        // Width is pt, but height is auto (so can use min/max height)
+//        else 
+        if let width = width, !height.isDefined {
             // logInView("LayerSizeModifier: defined width but not height")
             
             content

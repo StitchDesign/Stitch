@@ -51,24 +51,24 @@ struct GeneratePreview: View {
                               parentUsesHug: false,
                               parentGridData: nil)
             
-            // `PinnedView`s only
-            PreviewLayersView(graph: graph,
-                              layers: pinnedViews,
-                              parentSize: graph.previewWindowSize,
-                              // i.e. read this PinnedView's center (for rotation)
-                              isGeneratedAtTopLevel: true,
-                              parentId: nil,
-                              parentOrientation: .none,
-                              parentPadding: .zero,
-                              parentSpacing: .zero,
-                              // Always false at top-level
-                              parentCornerRadius: 0,
-                              parentUsesHug: false,
-                              parentGridData: nil)
+//            // `PinnedView`s only
+//            PreviewLayersView(graph: graph,
+//                              layers: pinnedViews,
+//                              parentSize: graph.previewWindowSize,
+//                              // i.e. read this PinnedView's center (for rotation)
+//                              isGeneratedAtTopLevel: true,
+//                              parentId: nil,
+//                              parentOrientation: .none,
+//                              parentPadding: .zero,
+//                              parentSpacing: .zero,
+//                              // Always false at top-level
+//                              parentCornerRadius: 0,
+//                              parentUsesHug: false,
+//                              parentGridData: nil)
 //            .border(.black)
         }
         // Top-level coordinate space of preview window; for pinning
-        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+//        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
         .modifier(HoverGestureModifier(graph: graph,
                                        previewWindowSize: graph.previewWindowSize))

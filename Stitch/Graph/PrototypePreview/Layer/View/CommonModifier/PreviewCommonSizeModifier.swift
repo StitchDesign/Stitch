@@ -90,11 +90,11 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     ))
                     .modifier(LayerSizeReader(viewModel: viewModel))
                 
-                // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
-                // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
-                    .modifier(PreviewWindowCoordinateSpaceReader(
-                        viewModel: viewModel,
-                        isGeneratedAtTopLevel: isGeneratedAtTopLevel))
+//                // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
+//                // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
+//                    .modifier(PreviewWindowCoordinateSpaceReader(
+//                        viewModel: viewModel,
+//                        isGeneratedAtTopLevel: isGeneratedAtTopLevel))
                 
             case .constrainHeight:
                 logInView("case .constrainHeight")
