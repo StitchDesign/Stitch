@@ -234,10 +234,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          activeValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
-        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
-            fatalErrorIfDebug()
-        }
-        
         self.id = id
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
