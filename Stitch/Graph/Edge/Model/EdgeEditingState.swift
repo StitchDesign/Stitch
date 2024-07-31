@@ -35,7 +35,7 @@ struct EdgeEditingState {
     var originOutput: OutputPortViewData
 
     // the node that is east of, and the shortest distance from, the origin node
-    var nearbyNode: CanvasItemId
+    var nearbyCanvasItem: CanvasItemId
 
     var possibleEdges: PossibleEdgeSet
 
