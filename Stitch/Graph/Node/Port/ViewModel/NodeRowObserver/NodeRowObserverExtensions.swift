@@ -209,14 +209,6 @@ extension Array where Element: NodeRowObserver {
                 fatalErrorIfDebug()
                 return
             }
-//            // Sometimes observers aren't yet created for nodes with adjustable inputs
-//            Element(values: values,
-//                    nodeKind: nodeDelegate.kind,
-//                    userVisibleType: userVisibleType,
-//                    id: .init(portId: portId, nodeId: nodeId),
-//                    activeIndex: .init(.zero),
-//                    upstreamOutputCoordinate: nil,
-//                    nodeDelegate: nodeDelegate)
 
             // Only update values if there's no upstream connection
             if !observer.containsUpstreamConnection {
