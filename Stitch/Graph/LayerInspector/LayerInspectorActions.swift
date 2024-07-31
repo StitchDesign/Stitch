@@ -78,8 +78,8 @@ extension GraphState {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [input.rowObserver],
-            outputRowObservers: [],
-            nodeDelegate: node)
+            outputRowObservers: [])
+        input.canvasObserver?.initializeDelegate(node)
         
         self.graphUI.propertySidebar.selectedProperty = nil
         
@@ -128,8 +128,8 @@ extension GraphState {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [],
-            outputRowObservers: [output.rowObserver],
-            nodeDelegate: node)
+            outputRowObservers: [output.rowObserver])
+        output.canvasObserver?.initializeDelegate(node)
         
         self.graphUI.propertySidebar.selectedProperty = nil
         

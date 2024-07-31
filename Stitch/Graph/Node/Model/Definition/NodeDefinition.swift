@@ -79,28 +79,26 @@ extension NodeDefinition {
                                 parentGroupNodeId: GroupNodeId? = nil,
                                 activeIndex: ActiveIndex,
                                 graphDelegate: GraphDelegate?) -> NodeViewModel {
-        let node = NodeViewModel(from: Self.self,
-                                 id: id,
-                                 position: position,
-                                 zIndex: zIndex,
-                                 parentGroupNodeId: parentGroupNodeId,
-                                 activeIndex: activeIndex,
-                                 graphDelegate: graphDelegate)
-        return node
+        NodeViewModel(from: Self.self,
+                      id: id,
+                      position: position,
+                      zIndex: zIndex,
+                      parentGroupNodeId: parentGroupNodeId,
+                      activeIndex: activeIndex,
+                      graphDelegate: graphDelegate)
     }
 
-    @MainActor
-    static func createFakeViewModel() -> NodeViewModel {
-        Self.createViewModel(position: .zero,
-                             zIndex: .zero,
-                             activeIndex: .init(.zero),
-                             graphDelegate: nil)
-    }
-
-    @MainActor
-    static func createFakeNodeEntity() -> NodeEntity {
-        Self.createFakeViewModel().createSchema()
-    }
+//    @MainActor
+//    static func createFakeViewModel() -> NodeViewModel {
+//        Self.createViewModel(position: .zero,
+//                             zIndex: .zero,
+//                             activeIndex: .init(.zero))
+//    }
+//
+//    @MainActor
+//    static func createFakeNodeEntity() -> NodeEntity {
+//        Self.createFakeViewModel().createSchema()
+//    }
 }
 
 // fka `GraphNodeKind`

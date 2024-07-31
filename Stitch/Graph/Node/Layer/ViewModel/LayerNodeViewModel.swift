@@ -153,27 +153,15 @@ final class LayerNodeViewModel {
     var isExpandedInSidebar: Bool?
 
     @MainActor
-    init(from schema: LayerNodeEntity,
-         nodeDelegate: NodeDelegate?) {
-        // Create initial inputs and outputs using default data
-        let rowDefinitions = NodeKind.layer(schema.layer)
-            .rowDefinitions(for: nil)
-        
+    init(from schema: LayerNodeEntity) {
         self.id = schema.id
         self.layer = schema.layer
-        self.nodeDelegate = nodeDelegate
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar
         
-        self.outputPorts = rowDefinitions
-            .createOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList,
-                                    userVisibleType: nil,
-                                    nodeDelegate: nodeDelegate)
-        
         let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
-            .empty(layerInput, nodeDelegate: nodeDelegate, layer: schema.layer)
+            .empty(layerInput, layer: schema.layer)
         }
         
         self.positionPort = rowFn(.position)
@@ -273,54 +261,24 @@ final class LayerNodeViewModel {
         self.spacingPort = rowFn(.spacing)
         self.sizingScenarioPort = rowFn(.sizingScenario)
         
-        let graphNode = schema.layer.layerGraphNode
-        
         // Note: this should never actually be empty; only empty here as part of initialization; populated by a later call to `LayerNodeViewModel.didValuesUpdate`
         self.previewLayerViewModels = .init()
-        
-        // Initialize each NodeRowObserver for each expected layer input
-        for inputType in graphNode.inputDefinitions {
-            let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
-            
-            // Update inspector view model delegate before calling update fn
-            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
-            
-            // Update row view model ID
-            if FeatureFlags.USE_LAYER_INSPECTOR {
-                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
-                                                           nodeId: id.nodeId,
-                                                           portId: 0)
-            }
-            
-            // Update row observer
-            layerData.rowObserver.nodeKind = .layer(schema.layer)
-            layerData.rowObserver.nodeDelegate = nodeDelegate
-            layerData.rowObserver.id = id
-        }
-        
-        // Call update once everything above is in place
-        for inputType in graphNode.inputDefinitions {
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
-            
-            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
-                             layerInputType: inputType,
-                             layerNode: self,
-                             nodeId: schema.id,
-                             node: nodeDelegate)
-        }
     }
 }
 
 extension LayerNodeViewModel: SchemaObserver {
     @MainActor
     static func createObject(from entity: LayerNodeEntity) -> Self {
-        .init(from: entity,
-              nodeDelegate: nil)
+        .init(from: entity)
     }
 
     @MainActor
     func update(from schema: LayerNodeEntity) {
+        guard let node = self.nodeDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         if self.layer != schema.layer {
             self.layer = schema.layer
         }
@@ -338,7 +296,7 @@ extension LayerNodeViewModel: SchemaObserver {
                         layerInputType: $0,
                         layerNode: self,
                         nodeId: schema.id,
-                        node: self.nodeDelegate)
+                        node: node)
         }
         
         // Process output canvases
@@ -348,7 +306,8 @@ extension LayerNodeViewModel: SchemaObserver {
     @MainActor
     func updateOutputData(from canvases: [CanvasNodeEntity?]) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
-            guard let outputData = self.outputPorts[safe: portIndex] else {
+            guard let outputData = self.outputPorts[safe: portIndex],
+                  let node = self.nodeDelegate else {
                 fatalErrorIfDebug()
                 return
             }
@@ -364,8 +323,8 @@ extension LayerNodeViewModel: SchemaObserver {
                         from: canvasEntity,
                         id: .layerOutput(coordinate),
                         inputRowObservers: [],
-                        outputRowObservers: [outputData.rowObserver],
-                        node: self.nodeDelegate)
+                        outputRowObservers: [outputData.rowObserver])
+                    outputData.canvasObserver?.initializeDelegate(node)
                 }
                 return
             }
@@ -406,6 +365,56 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
+    @MainActor
+    func initializeDelegate(_ node: NodeDelegate,
+                            schema: LayerNodeEntity) {
+        let graphNode = schema.layer.layerGraphNode
+        
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.layer(schema.layer)
+            .rowDefinitions(for: nil)
+        
+        self.nodeDelegate = node
+        
+        self.outputPorts = rowDefinitions
+            .createOutputLayerPorts(schema: schema,
+                                    valuesList: rowDefinitions.outputs.defaultList,
+                                    userVisibleType: nil,
+                                    nodeDelegate: node)
+        
+        // Initialize each NodeRowObserver for each expected layer input
+        for inputType in graphNode.inputDefinitions {
+            let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            // Update inspector view model delegate before calling update fn
+            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
+            
+            // Update row view model ID
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
+                                                           nodeId: id.nodeId,
+                                                           portId: 0)
+            }
+            
+            // Update row observer
+            layerData.rowObserver.nodeKind = .layer(schema.layer)
+            layerData.rowObserver.nodeDelegate = nodeDelegate
+            layerData.rowObserver.id = id
+        }
+        
+        // Call update once everything above is in place
+        for inputType in graphNode.inputDefinitions {
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
+                             layerInputType: inputType,
+                             layerNode: self,
+                             nodeId: schema.id,
+                             node: node)
+        }
+    }
+    
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
         let inputs = self.layer.layerGraphNode.inputDefinitions.compactMap {

@@ -24,7 +24,6 @@ final class InputLayerNodeRowData {
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
-         nodeDelegate: NodeDelegate?,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
@@ -47,11 +46,16 @@ final class InputLayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue, 
-                                           nodeDelegate: nodeDelegate,
+                                           activeValue: rowObserver.activeValue,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.rowObserver.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node)
+        self.inspectorRowViewModel.nodeDelegate = node
     }
 }
 
@@ -85,11 +89,16 @@ final class OutputLayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue, 
-                                           nodeDelegate: rowObserver.nodeDelegate,
+                                           activeValue: rowObserver.activeValue,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.rowObserver.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node)
+        self.inspectorRowViewModel.initializeDelegate(node)
     }
 }
 
@@ -110,7 +119,7 @@ extension InputLayerNodeRowData {
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
-                node: NodeDelegate?) {
+                node: NodeDelegate) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         
@@ -129,8 +138,8 @@ extension InputLayerNodeRowData {
                     self.canvasObserver = .init(from: canvas,
                                                 id: canvasId,
                                                 inputRowObservers: [inputObserver],
-                                                outputRowObservers: [],
-                                                node: node)
+                                                outputRowObservers: [])
+                    self.canvasObserver?.initializeDelegate(node)
                 } else {
                     // MARK: this is a hacky solution to support old-style layer nodes.
                     // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
@@ -143,8 +152,8 @@ extension InputLayerNodeRowData {
                     self.canvasObserver = .init(from: canvas,
                                                 id: canvasId,
                                                 inputRowObservers: inputRowObservers,
-                                                outputRowObservers: layerNode.outputPorts.map { $0.rowObserver },
-                                                node: node)
+                                                outputRowObservers: layerNode.outputPorts.map { $0.rowObserver })
+                    self.canvasObserver?.initializeDelegate(node)
                 }
             }
         } else {

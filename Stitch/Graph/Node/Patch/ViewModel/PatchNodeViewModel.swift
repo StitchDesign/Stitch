@@ -50,8 +50,7 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
-    @MainActor init(from schema: PatchNodeEntity,
-                    node: NodeDelegate?) {
+    @MainActor init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
         
         self.id = schema.id
@@ -65,35 +64,31 @@ final class PatchNodeViewModel: Sendable {
             .rowDefinitions(for: schema.userVisibleType)
         let defaultOutputsList = rowDefinitions.outputs.defaultList
         
-        // Empty for now
-        self.canvasObserver = CanvasItemViewModel.createEmpty()
-        
         // Must set inputs before calling eval below
-        self.inputsObservers = schema.inputs
+        let inputsObservers = schema.inputs
             .createInputObservers(nodeId: schema.id,
                                   kind: kind,
-                                  userVisibleType: schema.userVisibleType,
-                                  nodeDelegate: node)
+                                  userVisibleType: schema.userVisibleType)
 
-        self.outputsObservers = rowDefinitions
+        let outputsObservers = rowDefinitions
             .createOutputObservers(nodeId: schema.id,
                                    values: defaultOutputsList,
                                    patch: schema.patch,
-                                   userVisibleType: schema.userVisibleType,
-                                   nodeDelegate: node)
+                                   userVisibleType: schema.userVisibleType)
         
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),
-                                    inputRowObservers: self.inputsObservers,
-                                    outputRowObservers: self.outputsObservers,
-                                    node: node)
+                                    inputRowObservers: inputsObservers,
+                                    outputRowObservers: outputsObservers)
+        
+        self.inputsObservers = inputsObservers
+        self.outputsObservers = outputsObservers
     }
 }
 
 extension PatchNodeViewModel: SchemaObserver {
     @MainActor static func createObject(from entity: PatchNodeEntity) -> Self {
-        self.init(from: entity,
-                  node: nil)
+        self.init(from: entity)
     }
 
     func update(from schema: PatchNodeEntity) {
@@ -127,6 +122,20 @@ extension PatchNodeViewModel: SchemaObserver {
 }
 
 extension PatchNodeViewModel {
+    @MainActor func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
+        self.delegate = node
+        
+        self.inputsObservers.forEach {
+            $0.initializeDelegate(node)
+        }
+        
+        self.outputsObservers.forEach {
+            $0.initializeDelegate(node)
+        }
+        
+        self.canvasObserver.initializeDelegate(node)
+    }
+    
     // Other inits better for public accesss
     @MainActor private convenience init(id: NodeId,
                              patch: Patch,
@@ -135,7 +144,7 @@ extension PatchNodeViewModel {
                              userVisibleType: UserVisibleType? = nil,
                              mathExpression: String?,
                              splitterNode: SplitterNodeEntity?,
-                             delegate: PatchNodeViewModelDelegate?) {
+                             delegate: PatchNodeViewModelDelegate) {
         let entity = PatchNodeEntity(id: id,
                                      patch: patch,
                                      inputs: inputs,
@@ -143,8 +152,8 @@ extension PatchNodeViewModel {
                                      userVisibleType: userVisibleType,
                                      splitterNode: splitterNode,
                                      mathExpression: mathExpression)
-        self.init(from: entity,
-                  node: delegate)
+        self.init(from: entity)
+        self.initializeDelegate(delegate)
         self.delegate = delegate
         self.splitterNode = splitterNode
     }
@@ -154,7 +163,7 @@ extension PatchNodeViewModel {
                      inputs: [NodePortInputEntity],
                      canvasEntity: CanvasNodeEntity,
                      userVisibleType: UserVisibleType? = nil,
-                     delegate: PatchNodeViewModelDelegate?) {
+                     delegate: PatchNodeViewModelDelegate) {
         self.init(id: id,
                   patch: patch,
                   inputs: inputs,
@@ -208,11 +217,11 @@ extension PatchNodeViewModel {
     }
     
     @MainActor
-    func updateMathExpressionNodeInputs(newExpression: String) {
+    func updateMathExpressionNodeInputs(newExpression: String,
+                                        node: NodeDelegate) {
         // Always set math-expr on node for its eval and (default) title
         self.mathExpression = newExpression
         
-
         // log("updateMathExpressionNodeInputs: newExpression: \(newExpression)")
 
         // Preserve order of presented characters;
@@ -228,15 +237,18 @@ extension PatchNodeViewModel {
         
         self._inputsObservers = variables.enumerated().map {
             let existingInput = oldInputs[safe: $0.offset]
-            return InputNodeRowObserver(
+            let inputObserver = InputNodeRowObserver(
                 values: existingInput?.0 ?? [.number(.zero)],
                 nodeKind: .patch(self.patch),
                 userVisibleType: self.userVisibleType,
                 id: InputCoordinate(portId: $0.offset,
                                     nodeId: self.id),
                 activeIndex: self.delegate?.activeIndex ?? .init(.zero),
-                upstreamOutputCoordinate: existingInput?.1,
-                nodeDelegate: self.delegate)
+                upstreamOutputCoordinate: existingInput?.1)
+            
+            inputObserver.initializeDelegate(node)
+            
+            return inputObserver
         }
         
         // Update cached port view data
@@ -294,8 +306,7 @@ extension NodeViewModel {
                                     title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
         
         self.init(from: nodeEntity,
-                  activeIndex: activeIndex,
-                  graphDelegate: nil)
+                  activeIndex: activeIndex)
     }
     
     @MainActor

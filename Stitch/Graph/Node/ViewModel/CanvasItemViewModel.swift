@@ -108,14 +108,12 @@ final class CanvasItemViewModel: Identifiable {
          zIndex: Double,
          parentGroupNodeId: NodeId?,
          inputRowObservers: [InputNodeRowObserver],
-         outputRowObservers: [OutputNodeRowObserver],
-         nodeDelegate: NodeDelegate?) {
+         outputRowObservers: [OutputNodeRowObserver]) {
         self.id = id
         self.position = position
         self.previousPosition = position
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
-        self.nodeDelegate = nodeDelegate
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
@@ -135,15 +133,13 @@ extension CanvasItemViewModel: SchemaObserver {
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
-                     outputRowObservers: [OutputNodeRowObserver],
-                     node: NodeDelegate?) {
+                     outputRowObservers: [OutputNodeRowObserver]) {
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
                   parentGroupNodeId: canvasEntity.parentGroupNodeId,
                   inputRowObservers: inputRowObservers,
-                  outputRowObservers: outputRowObservers,
-                  nodeDelegate: node)
+                  outputRowObservers: outputRowObservers)
     }
     
     func createSchema() -> CanvasNodeEntity {
@@ -174,6 +170,17 @@ extension CanvasItemViewModel: SchemaObserver {
 }
 
 extension CanvasItemViewModel {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.nodeDelegate = node
+        self.inputViewModels.forEach {
+            $0.initializeDelegate(node)
+        }
+        
+        self.outputViewModels.forEach {
+            $0.initializeDelegate(node)
+        }
+    }
+    
     @MainActor
     static func createEmpty() -> Self {
         .init(from: .init(position: .zero,
@@ -181,8 +188,7 @@ extension CanvasItemViewModel {
                           parentGroupNodeId: nil),
               id: .node(.init()),
               inputRowObservers: [],
-              outputRowObservers: [],
-              node: nil)
+              outputRowObservers: [])
     }
     
     var sizeByLocalBounds: CGSize {
@@ -222,17 +228,14 @@ extension CanvasItemViewModel {
 extension InputLayerNodeRowData {
     @MainActor
     static func empty(_ layerInputType: LayerInputType,
-                      nodeDelegate: NodeDelegate?,
                       layer: Layer) -> Self {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(.rectangle),
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(.position), nodeId: .init()),
                                                activeIndex: .init(.zero),
-                                               upstreamOutputCoordinate: nil,
-                                               nodeDelegate: nodeDelegate)
+                                               upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
-                     nodeDelegate: nodeDelegate,
                      canvasObserver: nil)
     }
 }

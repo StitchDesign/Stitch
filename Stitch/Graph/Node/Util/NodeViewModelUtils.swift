@@ -77,8 +77,11 @@ extension NodeViewModel {
                                     nodeTypeEntity: nodeType,
                                     title: graphNode.defaultTitle)
         self.init(from: nodeEntity,
-                  activeIndex: activeIndex,
-                  graphDelegate: graphDelegate)
+                  activeIndex: activeIndex)
+        
+        if let graphDelegate = graphDelegate {
+            self.initializeDelegate(graph: graphDelegate)
+        }
     }
 
     var userVisibleType: UserVisibleType? {
