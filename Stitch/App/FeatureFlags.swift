@@ -11,10 +11,4 @@ import StitchSchemaKit
 // Currently unused but will keep alive here.
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
-    
-    #if DEV_DEBUG
-    static let USE_LAYER_INSPECTOR = true
-    #else
-    static let USE_LAYER_INSPECTOR = false
-    #endif
 }

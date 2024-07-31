@@ -102,65 +102,57 @@ struct PreviewCommonSizeModifier: ViewModifier {
     
     
     func body(content: Content) -> some View {
-        if FeatureFlags.USE_LAYER_INSPECTOR {
-            switch sizingScenario {
-            case .auto:
-                // logInView("case .auto")
-                content
-                    .modifier(LayerSizeModifier(
-                        alignment: frameAlignment,
-                        usesParentPercentForWidth: usesParentPercentForWidth,
-                        usesParentPercentForHeight: usesParentPercentForHeight,
-                        width: finalWidth,
-                        height: finalHeight,
-                        minWidth: finalMinWidth,
-                        maxWidth: finalMaxWidth,
-                        minHeight: finalMinHeight,
-                        maxHeight: finalMaxHeight
-                    ))
-                    .modifier(LayerSizeReader(viewModel: viewModel))
-                
-            case .constrainHeight:
-                // logInView("case .constrainHeight")
-                content
-                // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                    .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-                    .modifier(LayerSizeModifier(
-                        alignment: frameAlignment,
-                        usesParentPercentForWidth: usesParentPercentForWidth,
-                        usesParentPercentForHeight: usesParentPercentForHeight,
-                        width: finalWidth,
-                        height: nil,
-                        minWidth: finalMinWidth,
-                        maxWidth: finalMaxWidth,
-                        minHeight: nil,
-                        maxHeight: nil
-                    ))
-                    .modifier(LayerSizeReader(viewModel: viewModel))
-                
-            case .constrainWidth:
-                // logInView("case .constrainWidth")
-                content
-                // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
-                    .modifier(PreviewAspectRatioModifier(data: aspectRatio))
-                    .modifier(LayerSizeModifier(
-                        alignment: frameAlignment,
-                        usesParentPercentForWidth: usesParentPercentForWidth,
-                        usesParentPercentForHeight: usesParentPercentForHeight,
-                        width: nil,
-                        height: finalHeight,
-                        minWidth: nil,
-                        maxWidth: nil,
-                        minHeight: finalMinHeight,
-                        maxHeight: finalMaxHeight
-                    ))
-                    .modifier(LayerSizeReader(viewModel: viewModel))
-            }
-        } else {
+        switch sizingScenario {
+        case .auto:
+            // logInView("case .auto")
             content
-                .frame(width: finalWidth,
-                       height: finalHeight,
-                       alignment: frameAlignment)
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: finalWidth,
+                    height: finalHeight,
+                    minWidth: finalMinWidth,
+                    maxWidth: finalMaxWidth,
+                    minHeight: finalMinHeight,
+                    maxHeight: finalMaxHeight
+                ))
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainHeight:
+            // logInView("case .constrainHeight")
+            content
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: finalWidth,
+                    height: nil,
+                    minWidth: finalMinWidth,
+                    maxWidth: finalMaxWidth,
+                    minHeight: nil,
+                    maxHeight: nil
+                ))
+                .modifier(LayerSizeReader(viewModel: viewModel))
+            
+        case .constrainWidth:
+            // logInView("case .constrainWidth")
+            content
+            // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
+                .modifier(PreviewAspectRatioModifier(data: aspectRatio))
+                .modifier(LayerSizeModifier(
+                    alignment: frameAlignment,
+                    usesParentPercentForWidth: usesParentPercentForWidth,
+                    usesParentPercentForHeight: usesParentPercentForHeight,
+                    width: nil,
+                    height: finalHeight,
+                    minWidth: nil,
+                    maxWidth: nil,
+                    minHeight: finalMinHeight,
+                    maxHeight: finalMaxHeight
+                ))
                 .modifier(LayerSizeReader(viewModel: viewModel))
         }
     }
