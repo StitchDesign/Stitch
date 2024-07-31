@@ -93,15 +93,15 @@ struct LayerInspectorView: View {
             List { }
         }
     }
-        
+    
     @MainActor @ViewBuilder
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
         
         // TODO: perf implications?
-        let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorInputsSectionView in
+        let section = { (title: LayerInspectorSectionName, layers: LayerInputTypeSet) -> LayerInspectorInputsSectionView in
             LayerInspectorInputsSectionView(
-                title: title,
+                sectionName: title,
                 layerInputs: layers,
                 node: node,
                 layerNode: layerNode,
@@ -131,9 +131,9 @@ struct LayerInspectorView: View {
                     let sectionName = sectionNameAndInputs.0
                     let sectionInputs = sectionNameAndInputs.1
                     
-                    if sectionName == "Shadow" {
+                    if sectionName == .shadow {
                         // will this row be selectable ?
-                        StitchTextView(string: sectionName)
+                        StitchTextView(string: sectionName.rawValue)
                             .padding(4)
                             .background {
                                 // Extending the hit area of the NodeInputOutputView view
@@ -151,9 +151,8 @@ struct LayerInspectorView: View {
                             }
                     }
                     
-                    else if !sectionNameAndInputs.1.isEmpty {
-                        section(sectionNameAndInputs.0,
-                                sectionNameAndInputs.1)
+                    else if !sectionInputs.isEmpty {
+                        section(sectionName, sectionInputs)
                     }
                     
                 }
@@ -251,9 +250,36 @@ struct LayerPropertyRowOriginReader: ViewModifier {
     }
 }
 
+struct LayerInspectorSectionToggled: GraphUIEvent {
+    let section: LayerInspectorSectionName
+    
+    func handle(state: GraphUIState) {
+        let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
+        if alreadyClosed {
+            state.propertySidebar.collapsedSections.remove(section)
+        } else {
+            state.propertySidebar.collapsedSections.insert(section)
+        }
+    }
+}
+
+enum LayerInspectorSectionName: String, Equatable, Hashable {
+    case required = "Required",
+         sizing = "Sizing",
+         positioning = "Positioning",
+         common = "Common",
+         group = "Group",
+         unknown = "Unknown",
+         typography = "Typography",
+         stroke = "Stroke",
+         rotation = "Rotation",
+         shadow = "Shadow",
+         layerEffects = "Layer Effects"
+}
+
 struct LayerInspectorInputsSectionView: View {
     
-    let title: String
+    let sectionName: LayerInspectorSectionName
     let layerInputs: LayerInputTypeSet
     
     @Bindable var node: NodeViewModel
@@ -290,7 +316,7 @@ struct LayerInspectorInputsSectionView: View {
             .transition(.slideInAndOut(edge: .top))
         } header: {
             HStack  {
-                StitchTextView(string: title)
+                StitchTextView(string: sectionName.rawValue)
                 Spacer()
                 let rotationZ: CGFloat = expanded ? 90 : 0
                 Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
@@ -303,6 +329,8 @@ struct LayerInspectorInputsSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
+                    dispatch(LayerInspectorSectionToggled(section: sectionName))
+                    
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
                            x == layerInput {

@@ -26,6 +26,8 @@ struct PropertySidebarState: Equatable {
     
     // Only layer inputs (not fields or outputs) can have flyouts
     var flyoutState: PropertySidebarFlyoutState? = nil
+    
+    var collapsedSections: Set<LayerInspectorSectionName> = .init()
 }
 
 struct PropertySidebarFlyoutState: Equatable {
@@ -70,19 +72,19 @@ extension LayerInspectorView {
 
     // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
     @MainActor
-    static func layerInspectorRowsInOrder(_ layer: Layer) -> [(String, LayerInputTypeSet)] {
+    static func layerInspectorRowsInOrder(_ layer: Layer) -> [(LayerInspectorSectionName, LayerInputTypeSet)] {
         [
-            ("Required", Self.required),
-            ("Sizing", Self.sizing),
-            ("Positioning", Self.positioning),
-            ("Common", Self.common),
-            ("Group", layer.supportsGroupInputs ? Self.groupLayer : []),
-            ("Enabled", layer.supportsUnknownInputs ? Self.unknown : []),
-            ("Typography", layer.supportsTypographyInputs ? Self.text : []),
-            ("Stroke", layer.supportsStrokeInputs ? Self.stroke : []),
-            ("Rotation", layer.supportsRotationInputs ? Self.rotation : []),
-            ("Shadow", layer.supportsShadowInputs ? Self.shadow : []),
-            ("Layer Effects", layer.supportsLayerEffectInputs ? Self.effects : []),
+            (.required, Self.required),
+            (.sizing, Self.sizing),
+            (.positioning, Self.positioning),
+            (.common, Self.common),
+            (.group, layer.supportsGroupInputs ? Self.groupLayer : []),
+            (.unknown, layer.supportsUnknownInputs ? Self.unknown : []),
+            (.typography, layer.supportsTypographyInputs ? Self.text : []),
+            (.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
+            (.rotation, layer.supportsRotationInputs ? Self.rotation : []),
+            (.shadow, layer.supportsShadowInputs ? Self.shadow : []),
+            (.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
         ]
     }
     

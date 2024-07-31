@@ -238,7 +238,16 @@ extension Layer {
         })
         
         // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use text-field
-        let layerInputs = LayerInspectorView.allInputs.filter { masterListInput in
+        let masterInputsList: [LayerInputType] = LayerInspectorView.layerInspectorRowsInOrder(self)
+            .filter { sectionNameAndInputs in
+                sectionNameAndInputs.0 != .shadow
+            }
+            .flatMap(\.1)
+            .filter { layerInput in
+                layerInput != .padding
+            }
+        
+        let layerInputs = masterInputsList.filter { masterListInput in
             thisLayersTextUsingInputs.contains(masterListInput)
         }
         
