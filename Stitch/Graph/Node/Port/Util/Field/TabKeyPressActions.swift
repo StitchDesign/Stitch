@@ -15,7 +15,7 @@ extension GraphState {
     func tabPressed(_ focusedInput: FieldCoordinate) {
         if let newFocusedInput = nextFieldOrInput(state: self,
                                                   focusedField: focusedInput) {
-            // log("tabPressed: newFocusedInput: \(newFocusedInput)")
+            log("tabPressed: newFocusedInput: \(newFocusedInput)")
             self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
         }
     }
@@ -24,7 +24,7 @@ extension GraphState {
     func shiftTabPressed(_ focusedInput: FieldCoordinate) {
         if let newFocusedInput = previousFieldOrInput(state: self,
                                                       focusedField: focusedInput) {
-            // log("shiftTabPressed: newFocusedInput: \(newFocusedInput)")
+            log("shiftTabPressed: newFocusedInput: \(newFocusedInput)")
             self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
         }
     }
@@ -63,7 +63,7 @@ func nextFieldOrInput(state: GraphDelegate,
 }
 
 struct TabEligibleInput: Equatable, Hashable {
-    // Input's original index in the last of node's inputs
+    // Input's original index in the list of node's inputs
     let originalIndex: Int
 }
 
@@ -90,10 +90,16 @@ extension NodeViewModel {
         // would have tab-eligible-input indices like `[1, 3]`
         let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
         
+        
+        
         guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
               let firstEligibleInput = eligibleInputs.first,
               let lastEligibleInput = eligibleInputs.last else {
-            fatalErrorIfDebug()
+            
+            
+            
+            
+//            fatalErrorIfDebug()
             return .fakeFieldCoordinate // should never happen
         }
         
