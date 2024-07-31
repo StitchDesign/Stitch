@@ -9,14 +9,29 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-enum GraphItemType {
-    case node
-    case layerInspector
+enum GraphItemType: Hashable {
+    case node(CanvasItemId)
+    
+    // Passing in layer input type ensures uniqueness of IDs in inspector
+    case layerInspector(LayerInputType)
+}
+
+extension GraphItemType {
+    var isLayerInspector: Bool {
+        switch self {
+        case .layerInspector:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
     var nodeId: NodeId
+    
+    // TODO: this is always 0 for layer inpsector which creates issues for tabbing
     var portId: Int
 }
 
@@ -31,7 +46,7 @@ extension NodeRowViewModelId {
         }
     }
     
-    static let empty: Self = .init(graphItemType: .node,
+    static let empty: Self = .init(graphItemType: .node(.node(.init())),
                                    nodeId: .init(),
                                    portId: -1)
 }
@@ -55,6 +70,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     var connectedCanvasItems: Set<CanvasItemId> { get set }
     
     var portColor: PortColor { get set }
+    
+    var nodeDelegate: NodeDelegate? { get set }
     
     var rowDelegate: RowObserver? { get set }
     
@@ -80,6 +97,16 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.nodeDelegate = node
+        self.initializeValues(rowDelegate: rowDelegate)
+    }
+    
     var portViewData: PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -176,8 +203,9 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
-    weak var canvasItemDelegate: CanvasItemViewModel?
+    weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
     var layerPortId: Int?
@@ -187,17 +215,14 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          activeValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
-        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType == .layerInspector {
+        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
             fatalErrorIfDebug()
         }
         
         self.id = id
+        self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        
-        if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate)
-        }
     }
 }
 
@@ -249,6 +274,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
@@ -258,6 +284,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
+        self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
         
@@ -270,19 +297,11 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
 extension OutputNodeRowViewModel {
     @MainActor
     func findConnectedCanvasItems() -> CanvasItemIdSet {
-        guard let downstreamNodeIds = self.rowDelegate?.getConnectedDownstreamNodes() else {
+        guard let downstreamCanvases = self.rowDelegate?.getConnectedDownstreamNodes() else {
             return .init()
         }
-        
-        let downstreamCanvasIds: [CanvasItemId] = downstreamNodeIds.compactMap { nodeId in
-            guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
-                  let canvas = node.getAllCanvasObservers().first(where: { $0.id.isNode }) else {
-                      return nil
-                  }
             
-            return canvas.id
-        }
-        
+        let downstreamCanvasIds = downstreamCanvases.map { $0.id }
         return Set(downstreamCanvasIds)
     }
     
@@ -346,7 +365,7 @@ extension Array where Element: NodeRowViewModel {
             if let entity = currentEntitiesMap.get(newEntity.id) {
                 return entity
             } else {
-                let rowId = NodeRowViewModelId(graphItemType: .node,
+                let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
                                                // Important this is the node ID from canvas for group nodes
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portId: portIndex)

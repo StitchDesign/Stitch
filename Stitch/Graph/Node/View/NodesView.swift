@@ -70,6 +70,7 @@ struct NodesView: View {
                     .overlay {
                         edgeDrawingView(inputs: inputs, 
                                         graph: self.graph)
+                        
                         EdgeInputLabelsView(inputs: inputs,
                                             graph: graph,
                                             graphUI: graph.graphUI)
@@ -137,11 +138,16 @@ struct EdgeInputLabelsView: View {
     var body: some View {
         let showLabels = graph.graphUI.edgeEditingState?.labelsShown ?? false
         
-        if let nearbyNodeId = graph.graphUI.edgeEditingState?.nearbyNode {
+        if let nearbyCanvasItem: CanvasItemId = graph.graphUI.edgeEditingState?.nearbyCanvasItem {
             ForEach(inputs) { inputRowViewModel in
+                
+                
+                // Doesn't seem to be needed? Checking the canvasItemDelegate seems to work well
                 // visibleNodeId property checks for group splitter inputs
-                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyNodeId)
-                let isVisible = isInputForNearbyNode && showLabels
+//                let isInputForNearbyNode = inputRowViewModel.visibleNodeIds.contains(nearbyCanvasItem)
+                
+                let isInputOnNearbyCanvasItem = inputRowViewModel.canvasItemDelegate?.id == nearbyCanvasItem
+                let isVisible = isInputOnNearbyCanvasItem && showLabels
                 
                 EdgeEditModeLabelsView(graph: graph,
                                        portId: inputRowViewModel.id.portId)

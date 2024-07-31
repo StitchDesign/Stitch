@@ -78,10 +78,8 @@ struct SidebarGroupCreated: GraphEventWithResponse {
         let assumedLayerGroupSize: LayerSize = groupFit.size
         
         // Update layer group's size input
-        newNode.getInputRowObserver(1)?.updateValues([.size(assumedLayerGroupSize)])
-        
-        
-        
+        newNode.getInputRowObserver(for: .size)?.updateValues([.size(assumedLayerGroupSize)])
+                
         return .persistenceResponse
     }
 }

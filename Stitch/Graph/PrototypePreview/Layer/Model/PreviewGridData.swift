@@ -15,11 +15,11 @@ extension NodeViewModel {
 
     // When a PortValue changes, we may need to block or unblock certain
     @MainActor
-    func blockOrUnlockFields(newValue: PortValue,
-                             layerInput: LayerInputType) {
+    func blockOrUnblockFields(newValue: PortValue,
+                              layerInput: LayerInputType) {
         
         if !self.kind.isLayer {
-            log("blockOrUnlockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
+            log("blockOrUnblockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
             return
         }
         
@@ -191,7 +191,8 @@ extension NodeViewModel {
                         isBlocked: Bool) {
         
         guard let fields = self.getLayerInspectorInputFields(input) else {
-            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
+            // Re-enable the fatal error when min/max fields are enabled for inspector
+//            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
             return
         }
         
