@@ -84,7 +84,7 @@ extension GraphState {
 
         self.graphUI.edgeEditingState = .init(
             originOutput: outputCoordinate,
-            nearbyNode: nearbyNodeId,
+            nearbyCanvasItem: nearbyNodeId,
             possibleEdges: possibleEdges,
             shownIds: alreadyShownEdges)
     }
@@ -232,8 +232,8 @@ extension GraphState {
             return
         }
         
-        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyNode) else {
-            log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyNode)")
+        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
+            log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyCanvasItem)")
             return
         }
         

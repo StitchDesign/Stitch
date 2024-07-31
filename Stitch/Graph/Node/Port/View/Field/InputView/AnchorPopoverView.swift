@@ -29,7 +29,6 @@ struct AnchorPopoverView: View {
 
     var body: some View {
         AnchoringGridIconView(anchor: selection)
-            .scaleEffect(0.18) // seems best?
             .onTapGesture {
                 self.isOpen.toggle()
             }
@@ -37,6 +36,8 @@ struct AnchorPopoverView: View {
                 popover
                     .padding(ANCHOR_POPOVER_PADDING)
             }
+        // Important: place *after* .popover, so that popover's arrow is not so far away from the grid-icon-view
+            .scaleEffect(0.18)
     }
 
     @MainActor

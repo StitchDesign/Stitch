@@ -37,7 +37,8 @@ struct MathExpressionFormulaEdited: GraphEvent {
         
         assertInDebug(node.kind.getPatch == .mathExpression)
         
-        node.patchNode?.updateMathExpressionNodeInputs(newExpression: newExpression)
+        node.patchNode?.updateMathExpressionNodeInputs(newExpression: newExpression, 
+                                                       node: node)
         node.calculate()
     }
 }

@@ -25,11 +25,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeDelegate: NodeDelegate? { get set }
     
-    // TODO: an input's or output's type is just the type of its PortValues; what does a separate `UserVisibleType` gain for us?
-    // Note: per chat with Elliot, this is mostly just for initializers; also seems to just be for inputs?
-    // TODO: get rid of redundant `userVisibleType` on NodeRowObservers or make them access it via NodeDelegate
-    var userVisibleType: UserVisibleType? { get set }
-    
     var connectedNodes: NodeIdSet { get set }
     
     var hasLoopedValues: Bool { get set }
@@ -46,8 +41,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?)
+         upstreamOutputCoordinate: NodeIOCoordinate?)
 }
 
 @Observable
@@ -115,15 +109,13 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     @MainActor
     convenience init(from schema: NodePortInputEntity,
-                     activeIndex: ActiveIndex,
-                     nodeDelegate: NodeDelegate?) {
+                     activeIndex: ActiveIndex) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
-                  upstreamOutputCoordinate: schema.portData.upstreamConnection,
-                  nodeDelegate: nodeDelegate)
+                  upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
     @MainActor
@@ -132,19 +124,13 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?) {
-        
+         upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-        
-        self.nodeDelegate = nodeDelegate
-        
-        postProcessing(oldValues: [], newValues: values)
     }
 }
 
@@ -187,8 +173,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          // always nil but needed for protocol
-         upstreamOutputCoordinate: NodeIOCoordinate? = nil,
-         nodeDelegate: NodeDelegate?) {
+         upstreamOutputCoordinate: NodeIOCoordinate? = nil) {
         
         assertInDebug(upstreamOutputCoordinate == nil)
         
@@ -197,10 +182,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.allLoopedValues = values
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-        
-        self.nodeDelegate = nodeDelegate
-        
-        postProcessing(oldValues: [], newValues: values)
     }
 }
 
@@ -292,33 +273,35 @@ extension OutputNodeRowObserver {
     }
     
     @MainActor
-    func getConnectedDownstreamNodes() -> NodeIdSet {
-        guard
-            let rowViewModel = self.nodeRowViewModel,
-            let graph = self.nodeDelegate?.graphDelegate else {
+    func getConnectedDownstreamNodes() -> [CanvasItemViewModel] {
+        guard let graph = self.nodeDelegate?.graphDelegate,
+              let downstreamConnections: Set<NodeIOCoordinate> = graph.connections
+            .get(self.id) else {
             return .init()
         }
         
-        guard let coordinate = rowViewModel.rowDelegate?.id,
-                let downstreamConnections = graph.connections
-            .get(coordinate) else {
-            return .init()
-        }
-        
-        let connectedDownstreamNodeIds = downstreamConnections
-            .map { $0.nodeId }
+        // Find all connected downstream canvas items
+        let connectedDownstreamNodes: [CanvasItemViewModel] = downstreamConnections
+            .flatMap { downstreamCoordinate -> [CanvasItemViewModel] in
+                guard let node = graph.getNodeViewModel(downstreamCoordinate.nodeId) else {
+                    return .init()
+                }
+                
+                return node.getAllCanvasObservers()
+            }
         
         // Include group nodes if any splitters are found
-        let downstreamGroupNodeIds: NodeIdList = connectedDownstreamNodeIds.compactMap { id in
-            guard let node = self.nodeDelegate?.graphDelegate?.getNodeViewModel(id),
-                  node.splitterType?.isGroupSplitter ?? false else {
+        let downstreamGroupNodes: [CanvasItemViewModel] = connectedDownstreamNodes.compactMap { canvas in
+            guard let node = canvas.nodeDelegate,
+                  node.splitterType?.isGroupSplitter ?? false,
+                  let groupNodeId = canvas.parentGroupNodeId else {
                       return nil
                   }
             
-            return node.patchCanvasItem?.parentGroupNodeId
+            return graph.getNodeViewModel(groupNodeId)?.nodeType.groupNode
         }
         
-        return Set(connectedDownstreamNodeIds + downstreamGroupNodeIds)
+        return connectedDownstreamNodes + downstreamGroupNodes
     }
 }
 
@@ -386,10 +369,10 @@ extension NodeRowViewModel {
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
         
-        if let node = self.graphDelegate?.getNodeViewModel(self.id.nodeId),
-           let layerInputForThisRow = self.rowDelegate?.id.keyPath {
-            node.blockOrUnlockFields(newValue: newValue,
-                                     layerInput: layerInputForThisRow)
+        if let node = self.nodeDelegate,
+           let layerInputForThisRow = rowDelegate.id.keyPath {
+            node.blockOrUnblockFields(newValue: newValue,
+                                      layerInput: layerInputForThisRow)
         }
     }
 }
@@ -412,6 +395,28 @@ extension NodeIOCoordinate: NodeRowId {
 }
 
 extension NodeRowObserver {
+    @MainActor
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         upstreamOutputCoordinate: NodeIOCoordinate?,
+         nodeDelegate: NodeDelegate) {
+        self.init(values: values,
+                  nodeKind: nodeKind,
+                  userVisibleType: userVisibleType,
+                  id: id,
+                  activeIndex: activeIndex,
+                  upstreamOutputCoordinate: upstreamOutputCoordinate)
+        self.initializeDelegate(nodeDelegate)
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.nodeDelegate = node
+        self.postProcessing(oldValues: [], newValues: values)
+    }
+    
     var values: PortValues {
         get {
             self.allLoopedValues

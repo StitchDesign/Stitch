@@ -82,22 +82,22 @@ class JsonTests: XCTestCase {
         let actual3 = JSON.jsonArrayFromValues([
             .size(.init(width: 51, height: 91)),
             .size(.init(width: 52, height: 92)),
-            .size(.init(width: 53, height: 93))
+            .size(.init(width: 53, height: .auto))
         ])
 
         let expected3 = parseJSON("""
         [
           {
-            "y" : 91,
-            "x" : 51
+            "height" : "91.0",
+            "width" : "51.0"
           },
           {
-            "y" : 92,
-            "x" : 52
+            "height" : "92.0",
+            "width" : "52.0"
           },
           {
-            "y" : 93,
-            "x" : 53
+            "height" : "auto",
+            "width" : "53.0"
           }
         ]
         """)

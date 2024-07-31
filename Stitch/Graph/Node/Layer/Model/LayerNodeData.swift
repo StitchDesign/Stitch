@@ -14,12 +14,13 @@ protocol LayerNodeRowData: AnyObject {
     
     var rowObserver: RowObserverable { get set }
     var canvasObserver: CanvasItemViewModel? { get set }
+    var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
 
 @Observable
-final class InputLayerNodeRowData {
-    let rowObserver: InputNodeRowObserver
-    let inspectorRowViewModel: InputNodeRowViewModel
+final class InputLayerNodeRowData: LayerNodeRowData {
+    var rowObserver: InputNodeRowObserver
+    var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
     
     @MainActor
@@ -27,8 +28,22 @@ final class InputLayerNodeRowData {
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
+        var itemType: GraphItemType
         
-        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
+        } else {
+            fatalErrorIfDebug()
+            itemType = .node(.node(.init()))
+        }
+        
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
@@ -40,9 +55,9 @@ final class InputLayerNodeRowData {
 }
 
 @Observable
-final class OutputLayerNodeRowData {
-    let rowObserver: OutputNodeRowObserver
-    let inspectorRowViewModel: OutputNodeRowViewModel
+final class OutputLayerNodeRowData: LayerNodeRowData {
+    var rowObserver: OutputNodeRowObserver
+    var inspectorRowViewModel: OutputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
     
     @MainActor
@@ -50,8 +65,22 @@ final class OutputLayerNodeRowData {
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
+        var itemType: GraphItemType
         
-        let itemType: GraphItemType = FeatureFlags.USE_LAYER_INSPECTOR ? .layerInspector : .node
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
+        } else {
+            fatalErrorIfDebug()
+            itemType = .node(.node(.init()))
+        }
+        
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
@@ -60,9 +89,21 @@ final class OutputLayerNodeRowData {
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
     }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.rowObserver.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node)
+        self.inspectorRowViewModel.initializeDelegate(node)
+    }
 }
 
 extension LayerNodeRowData {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.rowObserver.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node)
+        self.inspectorRowViewModel.initializeDelegate(node)
+    }
+    
     var allLoopedValues: PortValues {
         get {
             self.rowObserver.allLoopedValues
@@ -78,8 +119,7 @@ extension InputLayerNodeRowData {
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId,
-                node: NodeDelegate?) {
+                nodeId: NodeId) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         
@@ -98,8 +138,7 @@ extension InputLayerNodeRowData {
                     self.canvasObserver = .init(from: canvas,
                                                 id: canvasId,
                                                 inputRowObservers: [inputObserver],
-                                                outputRowObservers: [],
-                                                node: node)
+                                                outputRowObservers: [])
                 } else {
                     // MARK: this is a hacky solution to support old-style layer nodes.
                     // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
@@ -112,8 +151,7 @@ extension InputLayerNodeRowData {
                     self.canvasObserver = .init(from: canvas,
                                                 id: canvasId,
                                                 inputRowObservers: inputRowObservers,
-                                                outputRowObservers: layerNode.outputPorts.map { $0.rowObserver },
-                                                node: node)
+                                                outputRowObservers: layerNode.outputPorts.map { $0.rowObserver })
                 }
             }
         } else {

@@ -11,8 +11,7 @@ import StitchSchemaKit
 extension InputNodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
         self.init(from: entity,
-                  activeIndex: .init(.zero),
-                  nodeDelegate: nil)
+                  activeIndex: .init(.zero))
     }
 
     /// Updates values for inputs.
