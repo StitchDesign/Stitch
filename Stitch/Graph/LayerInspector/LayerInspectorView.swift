@@ -55,6 +55,8 @@ struct LayerInspectorView: View {
     var body: some View {
         if let node = selectedLayerNode,
            let layerNode = node.layerNode {
+            @Bindable var node = node
+            @Bindable var layerNode = layerNode
             
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
@@ -94,20 +96,21 @@ struct LayerInspectorView: View {
         }
     }
         
+    @ViewBuilder func section(node: NodeViewModel,
+                              layerNode: LayerNodeViewModel,
+                              title: String,
+                              layers: LayerInputTypeSet) -> some View {
+        LayerInspectorInputsSectionView(
+            title: title,
+            layerInputs: layers,
+            node: node,
+            layerNode: layerNode,
+            graph: graph)
+    }
+    
     @MainActor @ViewBuilder
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
-        
-        // TODO: perf implications?
-        let section = { (title: String, layers: LayerInputTypeSet) -> LayerInspectorInputsSectionView in
-            LayerInspectorInputsSectionView(
-                title: title,
-                layerInputs: layers,
-                node: node,
-                layerNode: layerNode,
-                graph: graph)
-        }
-        
         VStack(alignment: .leading) {
             
             //            // TODO: remove? make editable TextField for renaming etc.?
@@ -126,32 +129,59 @@ struct LayerInspectorView: View {
                 // TODO: remove?
                 Text(node.displayTitle).font(.title2)
                 
-                section("Required", Self.required)
+                section(node: node,
+                        layerNode: layerNode,
+                        title: "Required",
+                        layers: Self.required)
                 
-                section("Sizing", Self.sizing)
+                section(node: node,
+                        layerNode: layerNode,
+                        title: "Sizing",
+                        layers: Self.sizing)
                 
-                section("Positioning", Self.positioning)
+                section(node: node,
+                        layerNode: layerNode,
+                        title: "Positioning",
+                        layers: Self.positioning)
                 
-                section("Common", Self.common)
+                section(node: node,
+                        layerNode: layerNode,
+                        title: "Common",
+                        layers: Self.common)
                 
                 if layerNode.layer.supportsGroupInputs {
-                    section("Group", Self.groupLayer)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Group",
+                            layers: Self.groupLayer)
                 }
                 
                 if layerNode.layer.supportsUnknownInputs {
-                    section("Enabled", Self.unknown)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Enabled",
+                            layers: Self.unknown)
                 }
                 
                 if layerNode.layer.supportsTypographyInputs {
-                    section("Typography", Self.text)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Typography",
+                            layers: Self.text)
                 }
                 
                 if layerNode.layer.supportsStrokeInputs {
-                    section("Stroke", Self.stroke)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Stroke",
+                            layers: Self.stroke)
                 }
                 
                 if layerNode.layer.supportsRotationInputs {
-                    section("Rotation", Self.rotation)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Rotation",
+                            layers: Self.rotation)
                 }
                 
                 if layerNode.layer.supportsShadowInputs {
@@ -179,7 +209,10 @@ struct LayerInspectorView: View {
                 }
                 
                 if layerNode.layer.supportsLayerEffectInputs {
-                    section("Layer Effects", Self.effects)
+                    section(node: node,
+                            layerNode: layerNode,
+                            title: "Layer Effects",
+                            layers: Self.effects)
                 }
                 
                 LayerInspectorOutputsSectionView(node: node,

@@ -92,12 +92,21 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
 
 extension NodeRowViewModel {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.nodeDelegate = node
+        self.initializeValues(rowDelegate: rowDelegate)
+    }
+    
     var portViewData: PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -204,7 +213,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
@@ -215,10 +223,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        
-        if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate)
-        }
     }
 }
 
@@ -277,7 +281,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -368,8 +371,7 @@ extension Array where Element: NodeRowViewModel {
                                                portId: portIndex)
                 
                 return Element(id: rowId,
-                               activeValue: newEntity.activeValue, 
-                               nodeDelegate: canvas.nodeDelegate, // TODO: is this accurate?
+                               activeValue: newEntity.activeValue,
                                rowDelegate: newEntity,
                                canvasItemDelegate: canvas)
             }

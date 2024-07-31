@@ -191,7 +191,8 @@ extension NodeViewModel {
                         isBlocked: Bool) {
         
         guard let fields = self.getLayerInspectorInputFields(input) else {
-            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
+            // Re-enable the fatal error when min/max fields are enabled for inspector
+//            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
             return
         }
         

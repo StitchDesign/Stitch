@@ -54,10 +54,11 @@ final class NodeViewModel: Sendable {
     @MainActor
     static func createNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
                                               activeIndex: ActiveIndex,
-                                              graphDelegate: GraphDelegate?) -> NodeViewModel {
-        NodeViewModel(from: nodeSchema,
-                      activeIndex: activeIndex,
-                      graphDelegate: graphDelegate)
+                                              graphDelegate: GraphDelegate) -> NodeViewModel {
+        let node = NodeViewModel(from: nodeSchema,
+                                 activeIndex: activeIndex)
+        node.initializeDelegate(graph: graphDelegate)
+        return node
     }
 
     /// Called on initialization or prototype restart.
@@ -71,27 +72,22 @@ final class NodeViewModel: Sendable {
     // i.e. "create node view model from schema
     @MainActor
     init(from schema: NodeEntity,
-         activeIndex: ActiveIndex,
-         graphDelegate: GraphDelegate?) {
+         activeIndex: ActiveIndex) {
         self.id = schema.id
         self.title = schema.title
-
-        // HACK: Initialize `self.nodeType` with some value, so that we can have a non-nil
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
-                                          nodeId: schema.id,
-                                          nodeDelegate: nil)
+                                          nodeId: schema.id)
         
         self._cachedDisplayTitle = self.getDisplayTitle()
-
-        // Set graph delegate BEFORE re-instantiating node type
-        self.graphDelegate = graphDelegate
-
-        // HACK: Set `self.nodeType` a second time, so that we can pass down the proper reference.
-        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
-                                          nodeId: schema.id,
-                                          nodeDelegate: self)
-        
-        self.createEphemeralObservers()
+    }
+    
+    @MainActor
+    convenience init(from schema: NodeEntity,
+                     activeIndex: ActiveIndex,
+                     graphDelegate: GraphDelegate) {
+        self.init(from: schema,
+                  activeIndex: activeIndex)
+        self.initializeDelegate(graph: graphDelegate)
     }
 }
 
@@ -208,6 +204,12 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
 }
 
 extension NodeViewModel {
+    @MainActor func initializeDelegate(graph: GraphDelegate) {
+        self.graphDelegate = graph
+        self.nodeType.initializeDelegate(self)
+        self.createEphemeralObservers()
+    }
+    
     var computedStates: [ComputedNodeState]? {
         self.ephemeralObservers?.compactMap {
             $0 as? ComputedNodeState
@@ -519,8 +521,7 @@ extension NodeViewModel: SchemaObserver {
     @MainActor
     static func createObject(from entity: NodeEntity) -> Self {
         return .init(from: entity,
-                     activeIndex: .init(.zero),
-                     graphDelegate: nil)
+                     activeIndex: .init(.zero))
     }
 
     // MARK: main actor needed to prevent view updates from background thread
@@ -661,16 +662,16 @@ extension NodeViewModel {
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
                                                     activeIndex: self.activeIndex,
-                                                    upstreamOutputCoordinate: nil,
-                                                    nodeDelegate: lastRowObserver.nodeDelegate)
+                                                    upstreamOutputCoordinate: nil)
+        newInputObserver.initializeDelegate(self)
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
                                                       activeValue: newInputObserver.activeValue,
-                                                      nodeDelegate: self,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
+        newInputViewModel.initializeDelegate(self)
         
         patchNode.inputsObservers.append(newInputObserver)
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)

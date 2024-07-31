@@ -41,8 +41,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?)
+         upstreamOutputCoordinate: NodeIOCoordinate?)
 }
 
 @Observable
@@ -110,15 +109,13 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     @MainActor
     convenience init(from schema: NodePortInputEntity,
-                     activeIndex: ActiveIndex,
-                     nodeDelegate: NodeDelegate?) {
+                     activeIndex: ActiveIndex) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
                   activeIndex: activeIndex,
-                  upstreamOutputCoordinate: schema.portData.upstreamConnection,
-                  nodeDelegate: nodeDelegate)
+                  upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
     @MainActor
@@ -127,19 +124,13 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
-         upstreamOutputCoordinate: NodeIOCoordinate?,
-         nodeDelegate: NodeDelegate?) {
-        
+         upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-        
-        self.nodeDelegate = nodeDelegate
-        
-        postProcessing(oldValues: [], newValues: values)
     }
 }
 
@@ -182,8 +173,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          // always nil but needed for protocol
-         upstreamOutputCoordinate: NodeIOCoordinate? = nil,
-         nodeDelegate: NodeDelegate?) {
+         upstreamOutputCoordinate: NodeIOCoordinate? = nil) {
         
         assertInDebug(upstreamOutputCoordinate == nil)
         
@@ -192,10 +182,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.allLoopedValues = values
         self.userVisibleType = userVisibleType
         self.hasLoopedValues = values.hasLoop
-        
-        self.nodeDelegate = nodeDelegate
-        
-        postProcessing(oldValues: [], newValues: values)
     }
 }
 
@@ -409,6 +395,28 @@ extension NodeIOCoordinate: NodeRowId {
 }
 
 extension NodeRowObserver {
+    @MainActor
+    init(values: PortValues,
+         nodeKind: NodeKind,
+         userVisibleType: UserVisibleType?,
+         id: NodeIOCoordinate,
+         activeIndex: ActiveIndex,
+         upstreamOutputCoordinate: NodeIOCoordinate?,
+         nodeDelegate: NodeDelegate) {
+        self.init(values: values,
+                  nodeKind: nodeKind,
+                  userVisibleType: userVisibleType,
+                  id: id,
+                  activeIndex: activeIndex,
+                  upstreamOutputCoordinate: upstreamOutputCoordinate)
+        self.initializeDelegate(nodeDelegate)
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        self.nodeDelegate = node
+        self.postProcessing(oldValues: [], newValues: values)
+    }
+    
     var values: PortValues {
         get {
             self.allLoopedValues

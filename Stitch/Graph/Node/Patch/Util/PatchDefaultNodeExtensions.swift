@@ -246,7 +246,9 @@ extension Patch {
         //                                      graphNodes: .empty)
         //        }
         
-        node.graphDelegate = graphDelegate
+        if let graph = graphDelegate {
+            node.initializeDelegate(graph: graph)            
+        }
 
         return node
     }

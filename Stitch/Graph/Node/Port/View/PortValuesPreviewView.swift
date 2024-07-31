@@ -93,8 +93,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
                                           userVisibleType: data.userVisibleType,
                                           id: self.data.id,
                                           activeIndex: .init(index),
-                                          upstreamOutputCoordinate: nil,
-                                          nodeDelegate: self.data.nodeDelegate)
+                                          upstreamOutputCoordinate: nil)
 
             let fields = fieldValueTypes.flatMap { $0.fieldObservers }
 
