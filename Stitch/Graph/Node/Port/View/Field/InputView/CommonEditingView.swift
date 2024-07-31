@@ -12,7 +12,11 @@ let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
 let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH - 4.0
 
 // node field input/output width, per Figma Spec
-let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
+//let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
+//let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 68
+
+// TODO: keep 56 pts width for all fields except the LayerGroup spacing field?
+let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 72 // Enough space for `Between` of LayerGroup Spacing
 
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
