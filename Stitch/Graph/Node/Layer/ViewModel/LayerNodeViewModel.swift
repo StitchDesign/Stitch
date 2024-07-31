@@ -24,7 +24,7 @@ final class LayerNodeViewModel {
     var layer: Layer
 
     // View models for layers in prototype window
-    var previewLayerViewModels: [LayerViewModel]
+    var previewLayerViewModels: [LayerViewModel] = []
     
     // Some layer nodes contain outputs
     @MainActor var outputPorts: [OutputLayerNodeRowData] = []
@@ -154,15 +154,26 @@ final class LayerNodeViewModel {
 
     @MainActor
     init(from schema: LayerNodeEntity) {
+        let graphNode = schema.layer.layerGraphNode
+        
+        // Create initial inputs and outputs using default data
+        let rowDefinitions = NodeKind.layer(schema.layer)
+            .rowDefinitions(for: nil)
+        
+        let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
+                .empty(layerInput, layer: schema.layer)
+        }
+        
         self.id = schema.id
         self.layer = schema.layer
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
         self.isExpandedInSidebar = schema.isExpandedInSidebar
         
-        let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
-            .empty(layerInput, layer: schema.layer)
-        }
+        self.outputPorts = rowDefinitions
+            .createOutputLayerPorts(schema: schema,
+                                    valuesList: rowDefinitions.outputs.defaultList,
+                                    userVisibleType: nil)
         
         self.positionPort = rowFn(.position)
         self.sizePort = rowFn(.size)
@@ -261,8 +272,32 @@ final class LayerNodeViewModel {
         self.spacingPort = rowFn(.spacing)
         self.sizingScenarioPort = rowFn(.sizingScenario)
         
-        // Note: this should never actually be empty; only empty here as part of initialization; populated by a later call to `LayerNodeViewModel.didValuesUpdate`
-        self.previewLayerViewModels = .init()
+        // Initialize each NodeRowObserver for each expected layer input
+        for inputType in graphNode.inputDefinitions {
+            let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: self.id)
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            // Update row view model ID
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
+                                                           nodeId: id.nodeId,
+                                                           portId: 0)
+            }
+            
+            // Update row observer
+            layerData.rowObserver.nodeKind = .layer(self.layer)
+            layerData.rowObserver.id = id
+        }
+        
+        // Call update once everything above is in place
+        for inputType in graphNode.inputDefinitions {
+            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
+                             layerInputType: inputType,
+                             layerNode: self,
+                             nodeId: schema.id)
+        }
     }
 }
 
@@ -295,8 +330,7 @@ extension LayerNodeViewModel: SchemaObserver {
                 .update(from: schema[keyPath: $0.schemaPortKeyPath],
                         layerInputType: $0,
                         layerNode: self,
-                        nodeId: schema.id,
-                        node: node)
+                        nodeId: schema.id)
         }
         
         // Process output canvases
@@ -366,52 +400,22 @@ extension LayerNodeViewModel: SchemaObserver {
 
 extension LayerNodeViewModel {
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate,
-                            schema: LayerNodeEntity) {
-        let graphNode = schema.layer.layerGraphNode
-        
-        // Create initial inputs and outputs using default data
-        let rowDefinitions = NodeKind.layer(schema.layer)
+    func initializeDelegate(_ node: NodeDelegate) {
+        let graphNode = self.layer.layerGraphNode
+        let rowDefinitions = NodeKind.layer(self.layer)
             .rowDefinitions(for: nil)
         
         self.nodeDelegate = node
         
-        self.outputPorts = rowDefinitions
-            .createOutputLayerPorts(schema: schema,
-                                    valuesList: rowDefinitions.outputs.defaultList,
-                                    userVisibleType: nil,
-                                    nodeDelegate: node)
-        
-        // Initialize each NodeRowObserver for each expected layer input
-        for inputType in graphNode.inputDefinitions {
-            let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: schema.id)
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
-            
-            // Update inspector view model delegate before calling update fn
-            layerData.inspectorRowViewModel.rowDelegate = layerData.rowObserver
-            
-            // Update row view model ID
-            if FeatureFlags.USE_LAYER_INSPECTOR {
-                layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
-                                                           nodeId: id.nodeId,
-                                                           portId: 0)
-            }
-            
-            // Update row observer
-            layerData.rowObserver.nodeKind = .layer(schema.layer)
-            layerData.rowObserver.nodeDelegate = nodeDelegate
-            layerData.rowObserver.id = id
+        // Set up outputs
+        self.outputPorts.forEach {
+            $0.initializeDelegate(node)
         }
         
-        // Call update once everything above is in place
+        // Set up inputs
         for inputType in graphNode.inputDefinitions {
             let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
-            
-            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
-                             layerInputType: inputType,
-                             layerNode: self,
-                             nodeId: schema.id,
-                             node: node)
+            layerData.initializeDelegate(node)
         }
     }
     

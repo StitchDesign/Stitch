@@ -44,8 +44,7 @@ extension NodeViewModelType {
             
             patchNodeViewModel.initializeDelegate(patchDelegate)
         case .layer(let layerNodeViewModel):
-            layerNodeViewModel.initializeDelegate(node,
-                                                  schema: layerNodeViewModel.createSchema())
+            layerNodeViewModel.initializeDelegate(node)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node)
         }

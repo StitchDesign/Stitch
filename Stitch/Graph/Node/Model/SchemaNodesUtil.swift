@@ -131,8 +131,7 @@ extension NodeRowDefinitions {
     func createOutputLayerPorts(schema: LayerNodeEntity,
                                // Pass in values directly from eval
                                valuesList: PortValuesList,
-                               userVisibleType: UserVisibleType?,
-                               nodeDelegate: NodeDelegate) -> [OutputLayerNodeRowData] {
+                               userVisibleType: UserVisibleType?) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
         let kind = NodeKind.layer(schema.layer)
         
@@ -148,8 +147,6 @@ extension NodeRowDefinitions {
                                                  userVisibleType: userVisibleType,
                                                  id: .init(portId: portId, nodeId: nodeId),
                                                  activeIndex: .init(.zero))
-            
-            observer.initializeDelegate(nodeDelegate)
 
             if let canvasEntity = canvasEntity {
                 canvasObserver = CanvasItemViewModel(
@@ -158,7 +155,6 @@ extension NodeRowDefinitions {
                                                   portId: portId)),
                     inputRowObservers: [],
                     outputRowObservers: [observer])
-                canvasObserver?.initializeDelegate(nodeDelegate)
             }
             
             return OutputLayerNodeRowData(rowObserver: observer,
