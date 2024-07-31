@@ -161,7 +161,8 @@ final class LayerNodeViewModel {
             .rowDefinitions(for: nil)
         
         let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
-                .empty(layerInput, layer: schema.layer)
+                .empty(layerInput,
+                       layer: schema.layer)
         }
         
         self.id = schema.id
