@@ -80,7 +80,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
         } else if let canvasObserver = canvasObserver {
             itemType = .node(canvasObserver.id)
         } else {
-            fatalErrorIfDebug()
+            // Pre-layer inspector Stitch will create a fake row view model for inspector
             itemType = .node(.node(.init()))
         }
         
