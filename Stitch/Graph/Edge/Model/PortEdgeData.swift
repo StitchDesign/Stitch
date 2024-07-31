@@ -34,12 +34,8 @@ extension NodeIOCoordinate {
         // KeyPath = this is an address for layer-input on the graph,
         // i.e. a layer-input-on-graph canvas item
         case .keyPath(let x):
-            if FeatureFlags.USE_LAYER_INSPECTOR {
-                return .layerInput(LayerInputCoordinate(node: self.nodeId,
-                                                        keyPath: x))
-            } else {
-                return .node(self.nodeId)
-            }
+            return .layerInput(LayerInputCoordinate(node: self.nodeId,
+                                                    keyPath: x))
         }
     }
     
@@ -56,7 +52,7 @@ extension NodeIOCoordinate {
         
         let isLayer = graph.getNodeViewModel(self.nodeId)?.kind.isLayer ?? false
         
-        if isLayer && FeatureFlags.USE_LAYER_INSPECTOR {
+        if isLayer {
             return .layerOutput(LayerOutputCoordinate(node: self.nodeId,
                                                       portId: portId))
         } else {
