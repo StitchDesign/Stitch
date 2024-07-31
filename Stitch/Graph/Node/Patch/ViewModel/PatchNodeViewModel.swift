@@ -251,8 +251,9 @@ extension PatchNodeViewModel {
             return inputObserver
         }
         
-        // Update cached port view data
-//        self.updateAllPortViewData()
+        // Update input row view models in canvas
+        self.canvasObserver.inputViewModels.sync(with: self._inputsObservers,
+                                                 canvas: self.canvasObserver)
     }
     
     @MainActor

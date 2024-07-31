@@ -347,6 +347,9 @@ extension Array where Element: NodeRowViewModel {
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel) {
+        // This will be nil for some inits--that's ok, just need to set delegate after
+        let node = canvas.nodeDelegate
+        
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
@@ -370,10 +373,16 @@ extension Array where Element: NodeRowViewModel {
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portId: portIndex)
                 
-                return Element(id: rowId,
-                               activeValue: newEntity.activeValue,
-                               rowDelegate: newEntity,
-                               canvasItemDelegate: canvas)
+                let rowViewModel = Element(id: rowId,
+                                           activeValue: newEntity.activeValue,
+                                           rowDelegate: newEntity,
+                                           canvasItemDelegate: canvas)
+                
+                if let node = node {
+                    rowViewModel.initializeDelegate(node)                    
+                }
+                
+                return rowViewModel
             }
         }
     }
