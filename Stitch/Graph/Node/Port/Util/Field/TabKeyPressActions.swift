@@ -56,6 +56,13 @@ func nextFieldOrInput(state: GraphDelegate,
                                fieldIndex: nextFieldIndex)
     }
     
+    // Special case: LIG is only ever a single input, so we only move between fields
+    else if let layerInputOnGraph = currentInputCoordinate.graphItemType.getLayerInputCoordinateOnGraph {
+        return FieldCoordinate(rowId: currentInputCoordinate,
+                               // Go back to first field on the Layer-Input-on-Graph
+                               fieldIndex: 0)
+    }
+    
     // Else, move to next input (or first input, if already on last input).
     else {
         return node.nextInput(focusedField.rowId)
@@ -116,7 +123,7 @@ extension NodeViewModel {
             
             let allInputs = self.allInputRowViewModels
             let graphItemType = currentInputCoordinate.graphItemType
-            let portId = currentInputCoordinate.portId
+//            let portId = currentInputCoordinate.portId
             
             // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
             // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
@@ -163,7 +170,8 @@ extension NodeViewModel {
             }
             
             let layerInputs = layer.textInputsForThisLayer
-                        
+            
+            // For LIG on graph, we'll only have a single
             guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
                   let firstInput = layerInputs.first,
                   let lastInput = layerInputs.last else {
