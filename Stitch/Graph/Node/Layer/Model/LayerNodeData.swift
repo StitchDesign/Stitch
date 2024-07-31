@@ -25,7 +25,8 @@ final class InputLayerNodeRowData: LayerNodeRowData {
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,
-         canvasObserver: CanvasItemViewModel? = nil) {
+         canvasObserver: CanvasItemViewModel? = nil,
+         isEmpty: Bool = false) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
@@ -40,7 +41,9 @@ final class InputLayerNodeRowData: LayerNodeRowData {
         } else if let canvasObserver = canvasObserver {
             itemType = .node(canvasObserver.id)
         } else {
-            fatalErrorIfDebug()
+            if !isEmpty {
+                fatalErrorIfDebug()
+            }
             itemType = .node(.node(.init()))
         }
         
