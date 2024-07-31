@@ -107,7 +107,7 @@ struct LayerInspectorView: View {
                 layerNode: layerNode,
                 graph: graph)
         }
-        
+                
         VStack(alignment: .leading) {
             
             //            // TODO: remove? make editable TextField for renaming etc.?
@@ -126,65 +126,102 @@ struct LayerInspectorView: View {
                 // TODO: remove?
                 Text(node.displayTitle).font(.title2)
                 
-                section("Required", Self.required)
-                
-                section("Sizing", Self.sizing)
-                
-                section("Positioning", Self.positioning)
-                
-                section("Common", Self.common)
-                
-                if layerNode.layer.supportsGroupInputs {
-                    section("Group", Self.groupLayer)
-                }
-                
-                if layerNode.layer.supportsUnknownInputs {
-                    section("Enabled", Self.unknown)
-                }
-                
-                if layerNode.layer.supportsTypographyInputs {
-                    section("Typography", Self.text)
-                }
-                
-                if layerNode.layer.supportsStrokeInputs {
-                    section("Stroke", Self.stroke)
-                }
-                
-                if layerNode.layer.supportsRotationInputs {
-                    section("Rotation", Self.rotation)
-                }
-                
-                if layerNode.layer.supportsShadowInputs {
-//                    section("Shadow", Self.shadow)
+                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.0) { sectionNameAndInputs in
                     
-                    // will this row be selectable ?
-                    StitchTextView(string: "Shadow")
-                        .padding(4)
-                        .background {
-                            // Extending the hit area of the NodeInputOutputView view
-                            Color.white.opacity(0.001)
-                                .padding(-12)
-                                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                        }
+                    let sectionName = sectionNameAndInputs.0
+                    let sectionInputs = sectionNameAndInputs.1
                     
-                        .listRowBackground(Color.clear)
+                    if sectionName == "Shadow" {
+                        // will this row be selectable ?
+                        StitchTextView(string: sectionName)
+                            .padding(4)
+                            .background {
+                                // Extending the hit area of the NodeInputOutputView view
+                                Color.white.opacity(0.001)
+                                    .padding(-12)
+                                    .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                            }
+                            .listRowBackground(Color.clear)
+                            .modifier(LayerPropertyRowOriginReader(
+                                graph: graph,
+                                layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
+                            .onTapGesture {
+                                dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                                                       flyoutNodeId: node.id))
+                            }
+                    }
                     
-                        .modifier(LayerPropertyRowOriginReader(
-                            graph: graph,
-                            layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
-                        .onTapGesture {
-                            dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                                                   flyoutNodeId: node.id))
-                        }
-                }
-                
-                if layerNode.layer.supportsLayerEffectInputs {
-                    section("Layer Effects", Self.effects)
+                    else if !sectionNameAndInputs.1.isEmpty {
+                        section(sectionNameAndInputs.0,
+                                sectionNameAndInputs.1)
+                    }
+                    
                 }
                 
                 LayerInspectorOutputsSectionView(node: node,
                                                  layerNode: layerNode,
                                                  graph: graph)
+                
+//
+//                section("Required", Self.required)
+//                
+//                section("Sizing", Self.sizing)
+//                
+//                section("Positioning", Self.positioning)
+//                
+//                section("Common", Self.common)
+//                
+//                if layerNode.layer.supportsGroupInputs {
+//                    section("Group", Self.groupLayer)
+//                }
+//                
+//                if layerNode.layer.supportsUnknownInputs {
+//                    section("Enabled", Self.unknown)
+//                }
+//                
+//                if layerNode.layer.supportsTypographyInputs {
+//                    section("Typography", Self.text)
+//                }
+//                
+//                if layerNode.layer.supportsStrokeInputs {
+//                    section("Stroke", Self.stroke)
+//                }
+//                
+//                if layerNode.layer.supportsRotationInputs {
+//                    section("Rotation", Self.rotation)
+//                }
+//                
+//                if layerNode.layer.supportsShadowInputs {
+////                    section("Shadow", Self.shadow)
+//                    
+//                    // will this row be selectable ?
+//                    StitchTextView(string: "Shadow")
+//                        .padding(4)
+//                        .background {
+//                            // Extending the hit area of the NodeInputOutputView view
+//                            Color.white.opacity(0.001)
+//                                .padding(-12)
+//                                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                        }
+//                    
+//                        .listRowBackground(Color.clear)
+//                    
+//                        .modifier(LayerPropertyRowOriginReader(
+//                            graph: graph,
+//                            layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
+//                        .onTapGesture {
+//                            dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+//                                                   flyoutNodeId: node.id))
+//                        }
+//                }
+//                
+//                if layerNode.layer.supportsLayerEffectInputs {
+//                    section("Layer Effects", Self.effects)
+//                }
+                
+//                LayerInspectorOutputsSectionView(node: node,
+//                                                 layerNode: layerNode,
+//                                                 graph: graph)
             }
             
         } // VStack

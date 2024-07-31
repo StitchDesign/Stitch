@@ -48,6 +48,8 @@ struct PropertySidebarFlyoutState: Equatable {
 //    case padding(width: 300.0, )
 //}
 
+
+
 extension LayerInspectorView {
     // TODO: fill these out
         
@@ -65,6 +67,24 @@ extension LayerInspectorView {
         .union(Self.shadow)
         .union(Self.effects)
     
+
+    // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
+    @MainActor
+    static func layerInspectorRowsInOrder(_ layer: Layer) -> [(String, LayerInputTypeSet)] {
+        [
+            ("Required", Self.required),
+            ("Sizing", Self.sizing),
+            ("Positioning", Self.positioning),
+            ("Common", Self.common),
+            ("Group", layer.supportsGroupInputs ? Self.groupLayer : []),
+            ("Enabled", layer.supportsUnknownInputs ? Self.unknown : []),
+            ("Typography", layer.supportsTypographyInputs ? Self.text : []),
+            ("Stroke", layer.supportsStrokeInputs ? Self.stroke : []),
+            ("Rotation", layer.supportsRotationInputs ? Self.rotation : []),
+            ("Shadow", layer.supportsShadowInputs ? Self.shadow : []),
+            ("Layer Effects", layer.supportsLayerEffectInputs ? Self.effects : []),
+        ]
+    }
     
     @MainActor
     static let required: LayerInputTypeSet = [
