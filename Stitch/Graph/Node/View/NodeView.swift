@@ -142,8 +142,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             .modifier(CanvasItemTitlePadding())
             
             Spacer()
-            CanvasItemTag(isSelected: isSelected,
-                          nodeTagMenu: nodeTagMenu)
         }
     }
 
