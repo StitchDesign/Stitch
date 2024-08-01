@@ -65,7 +65,7 @@ func nextFieldOrInput(state: GraphState,
     
     // Else, move to next input (or first input, if already on last input).
     else {
-        return node.nextInput(focusedField.rowId,
+        return node.nextInput(focusedField,
                               propertySidebarState: state.graphUI.propertySidebar)
     }
 }
@@ -112,8 +112,10 @@ extension NodeRowViewModelId {
 
 extension NodeViewModel {
     @MainActor
-    func nextInput(_ currentInputCoordinate: NodeRowViewModelId,
+    func nextInput(_ currentFocusedField: FieldCoordinate,
                    propertySidebarState: PropertySidebarState) -> FieldCoordinate {
+        
+        let currentInputCoordinate: NodeRowViewModelId = currentFocusedField.rowId
         
         // you need to figure out whether you're tabbing through patch node inputs (which use port id integers) or layer inputs (whether on canvas or in layer inspector)
         
@@ -165,50 +167,114 @@ extension NodeViewModel {
             
         case .keyPath(let currentInputKey):
             
-            guard let layer = self.kind.getLayer else {
+//            guard let layer = self.kind.getLayer else {
+//                fatalErrorIfDebug()
+//                return .fakeFieldCoordinate // should never happen
+//            }
+            
+            guard let layerNode = self.layerNode else {
                 fatalErrorIfDebug()
                 return .fakeFieldCoordinate // should never happen
             }
             
-            let layerInputs = layer.textInputsForThisLayer(propertySidebarState.collapsedSections)
+//            let layer = layerNode.layer
+//            let layerInputs = layer.textInputsForThisLayer(propertySidebarState.collapsedSections)
             
-            // For LIG on graph, we'll only have a single
-            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
-                  let firstInput = layerInputs.first,
-                  let lastInput = layerInputs.last else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
+            let eligibleFields = getTabEligibleFields(
+                layerNode: layerNode,
+                collapsedSections: propertySidebarState.collapsedSections)
             
-            // If we're already on last input, then move to first input.
-            if currentInputKey == lastInput {
-                return FieldCoordinate(
-                    rowId: 
-//                            .init(
-//                        graphItemType: currentInputCoordinate.graphItemType.isLayerInspector ? .layerInspector(firstInput) : .node(.layerInput(.init(node: nodeId, keyPath: firstInput))),
-//                        nodeId: nodeId,
-//                        // irrelevant for layer input
-//                        portId: 0),
-                    currentInputCoordinate.updateLayerInputKeyPath(firstInput),
-                    
-                    fieldIndex: 0)
-                //
-                //                return FieldCoordinate(input: .init(portType: .keyPath(firstInput),
-//                                                    nodeId: nodeId),
-//                                       fieldIndex: 0)
-            }
-            // Else, move to next input:
-            else if let nextInputKey = layerInputs[safe: currentInputKeyIndex + 1] {
-                return FieldCoordinate(rowId: currentInputCoordinate.updateLayerInputKeyPath(nextInputKey),
-                                       fieldIndex: 0)
+            
+            // We now iterate through fields, so we don't have to worry about min/max field indices per se, do we ?
+            
+            
+            guard let currentEligibleField = eligibleFields.first(where: {
+                // eligible fields are equatable
+                $0 == .init(input: currentInputKey, fieldIndex: currentFocusedField.fieldIndex)
                 
-//                return FieldCoordinate(input: .init(portType: .keyPath(nextInputKey),
-//                                                    nodeId: nodeId),
-//                                       fieldIndex: 0)
-            } else {
+//                // For the currently focused layer input
+//                $0.input == currentInputKey
+//                
+//                // For the currently focused field index
+//                && $0.fieldIndex == currentFocusedField.fieldIndex
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
                 fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
+                return .fakeFieldCoordinate
             }
+            
+            // If we're already on the last eligible input-field, loop around to the first eligible-input field
+            if currentEligibleField == lastEligibleField {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(firstEligibleField.input),
+                    fieldIndex: firstEligibleField.fieldIndex)
+            }
+            
+            // Else, move to next eligible input-field
+            else if let nextEligibleField = eligibleFields[safe: currentEligibleFieldIndex] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(nextEligibleField.input),
+                    fieldIndex: nextEligibleField.fieldIndex)
+            } 
+            
+            // Should never happen
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+            
+//            
+////            // For LIG on graph, we'll only have a single
+////            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
+////                  let firstInput = layerInputs.first,
+////                  let lastInput = layerInputs.last else {
+////                fatalErrorIfDebug()
+////                return .fakeFieldCoordinate // should never happen
+////            }
+//            
+//            
+//            // For LIG on graph, we'll only have a single
+//            guard let currentInputKeyIndex = layerInputs.firstIndex(where: { $0 == currentInputKey }),
+//                  let firstInput = layerInputs.first,
+//                  let lastInput = layerInputs.last else {
+//                fatalErrorIfDebug()
+//                return .fakeFieldCoordinate // should never happen
+//            }
+//            
+//            
+//            // If we're already on last input, then move to first input.
+//            if currentInputKey == lastInput {
+//                return FieldCoordinate(
+//                    rowId: 
+////                            .init(
+////                        graphItemType: currentInputCoordinate.graphItemType.isLayerInspector ? .layerInspector(firstInput) : .node(.layerInput(.init(node: nodeId, keyPath: firstInput))),
+////                        nodeId: nodeId,
+////                        // irrelevant for layer input
+////                        portId: 0),
+//                    
+//                    currentInputCoordinate.updateLayerInputKeyPath(firstInput),
+//                    
+//                    fieldIndex: 0)
+//                //
+//                //                return FieldCoordinate(input: .init(portType: .keyPath(firstInput),
+////                                                    nodeId: nodeId),
+////                                       fieldIndex: 0)
+//            }
+//            // Else, move to next input:
+//            else if let nextInputKey = layerInputs[safe: currentInputKeyIndex + 1] {
+//                return FieldCoordinate(rowId: currentInputCoordinate.updateLayerInputKeyPath(nextInputKey),
+//                                       fieldIndex: 0)
+//                
+////                return FieldCoordinate(input: .init(portType: .keyPath(nextInputKey),
+////                                                    nodeId: nodeId),
+////                                       fieldIndex: 0)
+//            } else {
+//                fatalErrorIfDebug()
+//                return .fakeFieldCoordinate // should never happen
+//            }
             
         } // switch currentInputCoordindate.portType
     }
@@ -229,33 +295,83 @@ extension NodeRowViewModelId {
 }
 
 
-extension Layer {
-    @MainActor func textInputsForThisLayer(_ collapsedSections: Set<LayerInspectorSectionName>) -> [LayerInputType] {
-        
-        let layer = self
-        
-        // text-field-using inputs for this layer
-        let thisLayersTextUsingInputs = layer.layerGraphNode.inputDefinitions.filter({
-            $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
-        })
-        
-        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use text-field
-        let masterInputsList: [LayerInputType] = LayerInspectorView.layerInspectorRowsInOrder(self)
-            .filter { sectionNameAndInputs in
-                sectionNameAndInputs.0 != .shadow
-                &&  !collapsedSections.contains(sectionNameAndInputs.0)
-            }
-            .flatMap(\.1)
-            .filter { layerInput in
-                layerInput != .padding
-            }
-        
-        let layerInputs = masterInputsList.filter { masterListInput in
-            thisLayersTextUsingInputs.contains(masterListInput)
+//extension Layer {
+//    @MainActor func textInputsForThisLayer(_ collapsedSections: Set<LayerInspectorSectionName>) -> [LayerInputType] {
+//        
+//        let layer = self
+//        
+//        // text-field-using inputs for this layer
+//        let thisLayersTextUsingInputs = layer.layerGraphNode.inputDefinitions.filter({
+//            $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
+//        })
+//        
+//        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use text-field
+//        let masterInputsList: [LayerInputType] = LayerInspectorView.layerInspectorRowsInOrder(self)
+//            .filter { sectionNameAndInputs in
+//                sectionNameAndInputs.0 != .shadow
+//                &&  !collapsedSections.contains(sectionNameAndInputs.0)
+//            }
+//            .flatMap(\.1)
+//            .filter { layerInput in
+//                layerInput != .padding
+//            }
+//        
+//        let layerInputs = masterInputsList.filter { masterListInput in
+//            thisLayersTextUsingInputs.contains(masterListInput)
+//        }
+//        
+//        return layerInputs
+//    }
+//}
+
+struct EligibleField: Equatable, Hashable {
+    let input: NodeIOPortType // portId || layerInput
+    let fieldIndex: Int
+}
+
+struct LayerInputEligibleField: Identifiable, Equatable, Hashable {
+    let input: LayerInputType // portId || layerInput
+    let fieldIndex: Int
+}
+
+typealias LayerInputEligibleFields = OrderedSet<LayerInputEligibleField>
+
+@MainActor
+func getTabEligibleFields(layerNode: LayerNodeViewModel,
+                          collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
+    
+    let layer = layerNode.layer
+  
+    let eligibleFields: LayerInputEligibleFields = LayerInspectorView
+    
+    // Master, ordered list (ordered set)
+        .layerInspectorRowsInOrder(layer)
+    
+    // Remove inputs from sections that are (1) collapsed or (2) use a flyout
+        .filter { sectionNameAndInputs in
+            sectionNameAndInputs.0 != .shadow
+            && !collapsedSections.contains(sectionNameAndInputs.0)
         }
-        
-        return layerInputs
-    }
+    
+    // Handle just layer inputs now
+        .flatMap(\.1)
+    
+    // We're only interested in layer inputs that (1) use textfield and (2) not a flyout
+        .filter { layerInput in
+            layerInput.usesTextFields(layer) && !layerInput.usesFlyout
+        }
+    
+    // Turn each non-blocked field on a layeri input into a LayerInputEligibleField
+        .reduce(into: LayerInputEligibleFields(), { partialResult, layerInput in
+            (layerNode.getLayerInspectorInputFields(layerInput) ?? []).forEach { field in
+                if !field.isBlockedOut {
+                    partialResult.append(.init(input: layerInput,
+                                               fieldIndex: field.fieldIndex))
+                }
+            }
+        })
+
+    return eligibleFields
 }
 
 @MainActor
