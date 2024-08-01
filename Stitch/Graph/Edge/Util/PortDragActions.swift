@@ -213,7 +213,9 @@ extension OutputNodeRowViewModel {
         
         guard let from = graphState.edgeDrawingObserver.drawingGesture?.output,
               let to = graphState.edgeDrawingObserver.nearestEligibleInput,
-              let sourceNodeId = from.nodeDelegate?.id else {
+              // Get node delegate from row in case edge drag is for group,
+              // we want the splitter node delegate not the group node delegate
+              let sourceNodeId = from.rowDelegate?.nodeDelegate?.id else {
             log("OutputDragEnded: No active output drag or eligible input ...")
             graphState.edgeDrawingObserver.reset()
             
