@@ -36,11 +36,14 @@ struct KeyModifierPressBegan: GraphEvent {
         // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
         
         // Ignore shift/tab if no node input field is focused.
-        if let focusedInput = state.graphUI.reduxFocusedField?.getTextInputEdit {
+        if let focusedField = state.graphUI.reduxFocusedField?.getTextInputEdit,
+           let node = state.getNode(focusedField.rowId.nodeId) {
             if shiftHeld, tabPressed {
-                state.shiftTabPressed(focusedInput)
+                state.shiftTabPressed(focusedField: focusedField, 
+                                      node: node)
             } else if tabPressed {
-                state.tabPressed(focusedInput)
+                state.tabPressed(focusedField: focusedField, 
+                                 node: node)
             }
         }
     }

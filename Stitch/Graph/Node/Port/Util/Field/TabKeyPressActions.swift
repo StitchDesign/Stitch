@@ -10,225 +10,347 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
+
+// TODO: can likely consolidate a lot of the portId vs layerInput, tab vs shift+tab logic
+
 extension GraphState {
     @MainActor
-    func tabPressed(_ focusedInput: FieldCoordinate) {
-        if let newFocusedInput = nextFieldOrInput(state: self,
-                                                  focusedField: focusedInput) {
-            // log("tabPressed: newFocusedInput: \(newFocusedInput)")
-            self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
-        }
+    func tabPressed(focusedField: FieldCoordinate,
+                    node: NodeViewModel) {
+                
+        let newFocusedField = node.nextInput(focusedField,
+                                             propertySidebarState: self.graphUI.propertySidebar)
+
+        log("tabPressed: newFocusedField: \(newFocusedField)")
+        self.graphUI.reduxFocusedField = .textInput(newFocusedField)
     }
     
     @MainActor
-    func shiftTabPressed(_ focusedInput: FieldCoordinate) {
-        if let newFocusedInput = previousFieldOrInput(state: self,
-                                                      focusedField: focusedInput) {
-            // log("shiftTabPressed: newFocusedInput: \(newFocusedInput)")
-            self.graphUI.reduxFocusedField = .textInput(newFocusedInput)
-        }
+    func shiftTabPressed(focusedField: FieldCoordinate,
+                         node: NodeViewModel) {
+        
+        let newFocusedField = node.previousInput(focusedField,
+                                                 propertySidebarState: self.graphUI.propertySidebar)
+        
+        log("shiftTabPressed: newFocusedField: \(newFocusedField)")
+        self.graphUI.reduxFocusedField = .textInput(newFocusedField)
     }
 }
 
-// nil = no field focused
-// 0 =
-@MainActor
-func nextFieldOrInput(state: GraphDelegate,
-                      focusedField: FieldCoordinate) -> FieldCoordinate? {
-
-    let currentInputCoordinate = focusedField.rowId
-
-    // Retrieve the node view model,
-    guard let node = state.getNodeViewModel(focusedField.rowId.nodeId),
-          // actually, want to look at the activeValue?
-          // but that won't matter
-            let input = node.getInputRowViewModel(for: currentInputCoordinate) else {
-        log("nextFieldOrInput: Could not find node or input for field \(focusedField)")
-        return nil
+extension PortValue {
+    var inputUsesTextField: Bool {
+        self.getNodeRowType(nodeIO: .input).inputUsesTextField
     }
-
-    let maxFieldIndex = input.maxFieldIndex
-    let nextFieldIndex = focusedField.fieldIndex + 1
-    
-    // If we're not yet past max field index, return the incremented field index.
-    if nextFieldIndex <= maxFieldIndex {
-        return FieldCoordinate(rowId: currentInputCoordinate,
-                               fieldIndex: nextFieldIndex)
-    }
-    
-    // Else, move to next input (or first input, if already on last input).
-    else {
-        return node.nextInput(focusedField.rowId)
-    }
-}
-
-struct TabEligibleInput: Equatable, Hashable {
-    // Input's original index in the last of node's inputs
-    let originalIndex: Int
 }
 
 extension Array where Element: InputNodeRowViewModel {
-    func tabEligibleInputs() -> OrderedSet<TabEligibleInput> {
-        self.enumerated()
-            .reduce(into: OrderedSet<TabEligibleInput>()) { acc, item in
-                if item.element.activeValue.getNodeRowType(nodeIO: .input).inputUsesTextField {
-                    acc.append(.init(originalIndex: item.offset))
+    // Intended for PatchNodes, i.e. inputs that use portId integers
+    func portIdEligibleFields() -> PortIdEligibleFields {
+        let eligibleFields = self
+            .enumerated()
+            .flatMap { (item) -> [PortIdEligibleField] in
+                
+                let input = item.element
+                let portId = item.offset
+                
+                // We are only interested in inputs that use text-fields
+                guard input.activeValue.inputUsesTextField,
+                      let fields = input.fieldValueTypes.first?.fieldObservers else {
+                    return []
+                }
+
+                return fields.map { (field: InputFieldViewModel) in
+                    PortIdEligibleField(portId: portId,
+                                        fieldIndex: field.fieldIndex)
                 }
             }
+        
+        return PortIdEligibleFields(eligibleFields)
+    }
+}
+
+extension NodeRowViewModelId {
+    var portType: NodeIOPortType {
+        
+        switch self.graphItemType {
+        
+        case .layerInspector(let x):
+            return .keyPath(x)
+        
+        case .node(let canvasItemId):
+            switch canvasItemId {
+            case .layerInput(let x):
+                return .keyPath(x.keyPath)
+            case .layerOutput(let x):
+                return .portIndex(x.portId)
+            case .node:
+                return .portIndex(self.portId)
+            }
+        }
     }
 }
 
 extension NodeViewModel {
     @MainActor
-    func nextInput(_ currentInputCoordinate: NodeRowViewModelId) -> FieldCoordinate {
-        let allInputs = self.allInputRowViewModels
-        let graphItemType = currentInputCoordinate.graphItemType
-        let portId = currentInputCoordinate.portId
-                     
-        // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
-        // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
-        // would have tab-eligible-input indices like `[1, 3]`
-        let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
+    func nextInput(_ currentFocusedField: FieldCoordinate,
+                   propertySidebarState: PropertySidebarState) -> FieldCoordinate {
         
-        guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
-              let firstEligibleInput = eligibleInputs.first,
-              let lastEligibleInput = eligibleInputs.last else {
-            fatalErrorIfDebug()
-            return .fakeFieldCoordinate // should never happen
-        }
-        
-        // If we're already on last input, then move to first input.
-        if currentEligibleInput == lastEligibleInput {
-            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                nodeId: self.id,
-                                                portId: firstEligibleInput.originalIndex),
-                                   fieldIndex: 0)
-        }
-        
-        // Else, move to next input. In the list of eligible inputs, go to the next eligible input right after our current eligible input.
-        //            else if let nextEligibleInput = eligibleInputs.drop(while: { $0 != currentEligibleInput }).dropFirst().first {
-        
-        else if let nextEligibleInput = eligibleInputs.after(currentEligibleInput) {
-            return FieldCoordinate(rowId: .init(graphItemType: graphItemType,
-                                                nodeId: self.id,
-                                                portId: nextEligibleInput.originalIndex),
-                                   fieldIndex: 0)
-        }
-        
-        else {
-            fatalErrorIfDebug()
-            return .fakeFieldCoordinate // should never happen
-        }
-    }
-}
-
-extension Layer {
-    @MainActor var textInputsForThisLayer: [LayerInputType] {
-        
-        let layer = self
-        
-        // text-field-using inputs for this layer
-        let thisLayersTextUsingInputs = layer.layerGraphNode.inputDefinitions.filter({
-            $0.getDefaultValue(for: layer).getNodeRowType(nodeIO: .input).inputUsesTextField
-        })
-        
-        // filtering the property sidebar's master list down to only those inputs that are both (1) for this layer and (2) actually use text-field
-        let layerInputs = LayerInspectorView.allInputs.filter { masterListInput in
-            thisLayersTextUsingInputs.contains(masterListInput)
-        }
-        
-        return layerInputs
-    }
-}
-
-@MainActor
-func previousFieldOrInput(state: GraphDelegate,
-                          focusedField: FieldCoordinate) -> FieldCoordinate? {
-    
-    let currentFieldIndex = focusedField.fieldIndex
-    let currentInputCoordinate = focusedField.rowId
-    let nodeId = currentInputCoordinate.nodeId
-    
-    guard let input = state.getInputRowViewModel(for: focusedField.rowId,
-                                                 nodeId: nodeId),
-          let node = state.getNodeViewModel(nodeId) else {
-        log("nextFieldOrInput: Could not find node or input for field \(focusedField)")
-        return nil
-    }
-
-    // I would expect an input to have [field];
-    // but this is [[field]] ?
-    // is that because at one point we thought an input could have multiple rows?
-    // Yeah, seems so.
-//    let fieldsList: FieldGroupTypeViewModelList = input.fieldValueTypes
-//    let minimumFieldIndex = 0
-    
-    let previousFieldIndex = currentFieldIndex - 1
-    
-    // If we're not yet at the very first field, return the decremented field index.
-    if previousFieldIndex >= 0 {
-        return FieldCoordinate(rowId: currentInputCoordinate,
-                               fieldIndex: previousFieldIndex)
-    }
-    
-    // Else: attempt to go to a previous input.
-    else {
-        return node.previousInput(input)
-    }
-}
-
-extension NodeViewModel {
-    @MainActor
-    func previousInput(_ currentInput: InputNodeRowViewModel) -> FieldCoordinate {
-        let nodeId = self.id
-        let currentInputCoordinate = currentInput.id
-        
-        switch currentInput.id.graphItemType {
-        case .layerInspector:
-            // TODO: not yet supported. Need to move ordering logic from inspector view so that it can be leveraged here.
-            fatalErrorIfDebug()
-            return currentInput.fieldValueTypes.first!.id
-        case .node(let canvasId):
-            let portId = currentInputCoordinate.portId
+        let currentInputCoordinate: NodeRowViewModelId = currentFocusedField.rowId
+                        
+        switch currentInputCoordinate.portType {
             
-            // Input Indices, for only those ports on a patch node which are eligible for Tab or Shift+Tab.
-            // so e.g. a patch node with inputs like `[color, string, bool, position3D]`
-            // would have tab-eligible-input indices like `[1, 3]`
-            let allInputs = self.allNodeInputRowViewModels
-            let eligibleInputs: OrderedSet<TabEligibleInput> = allInputs.tabEligibleInputs()
+        case .portIndex(let portId):
+                        
+            let eligibleFields: PortIdEligibleFields = self.allInputRowViewModels.portIdEligibleFields()
             
-            guard let currentEligibleInput = eligibleInputs.first(where: { $0.originalIndex == portId }),
-                  let firstEligibleInput = eligibleInputs.first,
-                  let lastEligibleInput = eligibleInputs.last else {
+            guard let currentEligibleField = eligibleFields.first(where: {
+                $0 == .init(portId: portId,
+                            fieldIndex: currentFocusedField.fieldIndex)
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
                 fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
+                return .fakeFieldCoordinate
             }
             
-            // If we're already on the first eligible input, then "loop back" to the last field of the last eligible input.
-            if currentEligibleInput == firstEligibleInput,
-               let maxFieldIndex = allInputs[safe: lastEligibleInput.originalIndex]?.maxFieldIndex {
+            // If we're already on the last eligible input-field, loop around to the first eligible input-field
+            if currentEligibleField == lastEligibleField {
                 return FieldCoordinate(
-                    rowId: .init(graphItemType: .node(canvasId),
-                                 nodeId: nodeId,
-                                 portId: lastEligibleInput.originalIndex),
-                    fieldIndex: maxFieldIndex)
+                    rowId: currentInputCoordinate.updatePortId(firstEligibleField.portId),
+                    fieldIndex: firstEligibleField.fieldIndex)
             }
             
-            // Else, move to previous eligible input. In the list of eligible inputs, go to the previous eligible input right after our current eligible input.
-            else if let previousEligibleInput = eligibleInputs.before(currentEligibleInput),
-                    let maxFieldIndex = allInputs[safe: previousEligibleInput.originalIndex]?.maxFieldIndex{
-                
-                return FieldCoordinate(rowId: .init(graphItemType: .node(canvasId),
-                                                    nodeId: nodeId,
-                                                    portId: previousEligibleInput.originalIndex),
-                                       fieldIndex: maxFieldIndex)
+            // Else, move to next eligible input-field
+            else if let nextEligibleField = eligibleFields[safe: currentEligibleFieldIndex + 1] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updatePortId(nextEligibleField.portId),
+                    fieldIndex: nextEligibleField.fieldIndex)
             }
             
+            // Should never happen
             else {
                 fatalErrorIfDebug()
                 return .fakeFieldCoordinate // should never happen
             }
+            
+            
+        case .keyPath(let currentInputKey):
+            
+            guard let layerNode = self.layerNode else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
+            let eligibleFields = getTabEligibleFields(
+                layerNode: layerNode,
+                collapsedSections: propertySidebarState.collapsedSections)
+            
+            guard let currentEligibleField = eligibleFields.first(where: {
+                $0 == .init(input: currentInputKey,
+                            fieldIndex: currentFocusedField.fieldIndex)
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+            // If we're already on the last eligible input-field, loop around to the first eligible input-field
+            if currentEligibleField == lastEligibleField {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(firstEligibleField.input),
+                    fieldIndex: firstEligibleField.fieldIndex)
+            }
+            
+            // Else, move to next eligible input-field
+            else if let nextEligibleField = eligibleFields[safe: currentEligibleFieldIndex + 1] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(nextEligibleField.input),
+                    fieldIndex: nextEligibleField.fieldIndex)
+            } 
+            
+            // Should never happen
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+                        
+        } // switch currentInputCoordindate.portType
+    }
+}
+
+extension NodeRowViewModelId {
+    func updatePortId(_ newPortId: Int) -> Self {
+        // Only portId changes; tabbing to next input-field can't change the graph-item-type i.e. can't change the canvas-item-id
+        .init(graphItemType: self.graphItemType,
+              nodeId: self.nodeId,
+              portId: newPortId)
+    }
+    
+    func updateLayerInputKeyPath(_ newLayerInput: LayerInputType) -> Self {
+        
+        let newGraphItemType: GraphItemType = self.graphItemType.isLayerInspector
+        ? .layerInspector(newLayerInput)
+        : .node(.layerInput(.init(node: self.nodeId, keyPath: newLayerInput)))
+        
+        return .init(graphItemType: newGraphItemType,
+                     nodeId: self.nodeId,
+                     // Technically, irrelevant for LayerInput
+                     portId: self.portId)
+    }
+}
+
+// BETTER: use single structure
+struct EligibleField: Equatable, Hashable {
+    let input: NodeIOPortType // portId || layerInput
+    let fieldIndex: Int
+}
+
+struct PortIdEligibleField: Equatable, Hashable {
+    let portId: Int // portId || layerInput
+    let fieldIndex: Int
+}
+
+typealias PortIdEligibleFields = OrderedSet<PortIdEligibleField>
+
+struct LayerInputEligibleField: Equatable, Hashable {
+    let input: LayerInputType // portId || layerInput
+    let fieldIndex: Int
+}
+
+typealias LayerInputEligibleFields = OrderedSet<LayerInputEligibleField>
+
+@MainActor
+func getTabEligibleFields(layerNode: LayerNodeViewModel,
+                          collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
+    
+    let layer = layerNode.layer
+    let inputsForThisLayer = layer.layerGraphNode.inputDefinitions
+  
+    let eligibleFields: LayerInputEligibleFields = LayerInspectorView
+    
+    // Master, ordered list (ordered set)
+        .layerInspectorRowsInOrder(layer)
+    
+    // Remove inputs from sections that are (1) collapsed or (2) use a flyout
+        .filter {
+            $0.name != .shadow
+            && !collapsedSections.contains($0.name)
         }
+    
+    // Handle just layer inputs now
+        .flatMap(\.inputs)
+    
+    // We're only interested in layer inputs that (1) are for this layer, (2) use textfield and (3) do not use a  flyout
+        .filter { layerInput in
+            inputsForThisLayer.contains(layerInput)
+            && layerInput.usesTextFields(layer)
+            && !layerInput.usesFlyout
+        }
+    
+    // Turn each non-blocked field on a layeri input into a LayerInputEligibleField
+        .reduce(into: LayerInputEligibleFields(), { partialResult, layerInput in
+            (layerNode.getLayerInspectorInputFields(layerInput) ?? []).forEach { field in
+                if !field.isBlockedOut {
+                    partialResult.append(.init(input: layerInput,
+                                               fieldIndex: field.fieldIndex))
+                }
+            }
+        })
+
+    return eligibleFields
+}
+
+extension NodeViewModel {
+    @MainActor
+    func previousInput(_ currentFocusedField: FieldCoordinate,
+                       propertySidebarState: PropertySidebarState) -> FieldCoordinate {
+        
+        let currentInputCoordinate = currentFocusedField.rowId
+        
+        switch currentInputCoordinate.portType {
+        
+        case .portIndex(let portId):
+            let eligibleFields: PortIdEligibleFields = self.allNodeInputRowViewModels.portIdEligibleFields()
+              
+            guard let currentEligibleField = eligibleFields.first(where: {
+                // eligible fields are equatable
+                $0 == .init(portId: portId,
+                            fieldIndex: currentFocusedField.fieldIndex)
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+            // If we're already on the first input, loop back to the last eligible input-field
+            if currentEligibleField == firstEligibleField {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updatePortId(lastEligibleField.portId),
+                    fieldIndex: lastEligibleField.fieldIndex)
+            }
+                        
+            // Else, move to previous eligible input-field
+            else if let previousEligibleField = eligibleFields[safe: currentEligibleFieldIndex - 1] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updatePortId(previousEligibleField.portId),
+                    fieldIndex: previousEligibleField.fieldIndex)
+            }
+            
+            // Should never happen
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+        case .keyPath(let currentInputKey):
+            //
+            guard let layerNode = self.layerNode else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+
+            let eligibleFields = getTabEligibleFields(
+                layerNode: layerNode,
+                collapsedSections: propertySidebarState.collapsedSections)
+            
+            guard let currentEligibleField = eligibleFields.first(where: {
+                // eligible fields are equatable
+                $0 == .init(input: currentInputKey, 
+                            fieldIndex: currentFocusedField.fieldIndex)
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+            // If we're already on the first input, loop back to the last eligible input-field
+            if currentEligibleField == firstEligibleField {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(lastEligibleField.input),
+                    fieldIndex: lastEligibleField.fieldIndex)
+            }
+            
+            // Else, move to previous eligible input-field
+            else if let previousEligibleField = eligibleFields[safe: currentEligibleFieldIndex - 1] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(previousEligibleField.input),
+                    fieldIndex: previousEligibleField.fieldIndex)
+            } 
+            
+            // Should not happen
+            else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+        } // switch currentInput.id.portType
     }
     
     @MainActor

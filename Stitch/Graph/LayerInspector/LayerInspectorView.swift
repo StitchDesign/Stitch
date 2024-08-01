@@ -72,45 +72,26 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-//                         .onAppear {
-//#if DEV_DEBUG
-//                             let listedLayers = Self.required
-//                                 .union(Self.common)
-//                                 .union(Self.groupLayer)
-//                                 .union(Self.unknown)
-//                                 .union(Self.text)
-//                                 .union(Self.stroke)
-//                                 .union(Self.rotation)
-//                                 .union(Self.shadow)
-//                                 .union(Self.effects)
-//                             
-//                             let allLayers = LayerInputType.allCases.toSet
-//                             let diff = allLayers.subtracting(listedLayers)
-//                             log("diff: \(diff)")
-//                             assert(diff.count == 0)
-//#endif
-//                         }
+                         .onAppear {
+                             //#if DEV_DEBUG
+                             //                             // TODO: write a test; make sure we handle all layer input types at least in some cases?
+                             //                             let listedLayers = Self.allInputs
+                             //                             let allLayers = LayerInputType.allCases.toSet
+                             //                             let diff = allLayers.subtracting(listedLayers)
+                             //                             log("diff: \(diff)")
+                             //                             assert(diff.count == 0)
+                             //#endif
+                         }
         } else {
             // Empty List, so have same background
             List { }
         }
     }
-        
-    @ViewBuilder func section(node: NodeViewModel,
-                              layerNode: LayerNodeViewModel,
-                              title: String,
-                              layers: LayerInputTypeSet) -> some View {
-        LayerInspectorInputsSectionView(
-            title: title,
-            layerInputs: layers,
-            node: node,
-            layerNode: layerNode,
-            graph: graph)
-    }
-    
+ 
     @MainActor @ViewBuilder
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
+
         VStack(alignment: .leading) {
             
             //            // TODO: remove? make editable TextField for renaming etc.?
@@ -129,96 +110,48 @@ struct LayerInspectorView: View {
                 // TODO: remove?
                 Text(node.displayTitle).font(.title2)
                 
-                section(node: node,
-                        layerNode: layerNode,
-                        title: "Required",
-                        layers: Self.required)
-                
-                section(node: node,
-                        layerNode: layerNode,
-                        title: "Sizing",
-                        layers: Self.sizing)
-                
-                section(node: node,
-                        layerNode: layerNode,
-                        title: "Positioning",
-                        layers: Self.positioning)
-                
-                section(node: node,
-                        layerNode: layerNode,
-                        title: "Common",
-                        layers: Self.common)
-                
-                if layerNode.layer.supportsGroupInputs {
-                    section(node: node,
-                            layerNode: layerNode,
-                            title: "Group",
-                            layers: Self.groupLayer)
-                }
-                
-                if layerNode.layer.supportsUnknownInputs {
-                    section(node: node,
-                            layerNode: layerNode,
-                            title: "Enabled",
-                            layers: Self.unknown)
-                }
-                
-                if layerNode.layer.supportsTypographyInputs {
-                    section(node: node,
-                            layerNode: layerNode,
-                            title: "Typography",
-                            layers: Self.text)
-                }
-                
-                if layerNode.layer.supportsStrokeInputs {
-                    section(node: node,
-                            layerNode: layerNode,
-                            title: "Stroke",
-                            layers: Self.stroke)
-                }
-                
-                if layerNode.layer.supportsRotationInputs {
-                    section(node: node,
-                            layerNode: layerNode,
-                            title: "Rotation",
-                            layers: Self.rotation)
-                }
-                
-                if layerNode.layer.supportsShadowInputs {
-//                    section("Shadow", Self.shadow)
+                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
                     
-                    // will this row be selectable ?
-                    StitchTextView(string: "Shadow")
-                        .padding(4)
-                        .background {
-                            // Extending the hit area of the NodeInputOutputView view
-                            Color.white.opacity(0.001)
-                                .padding(-12)
-                                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                        }
+                    let sectionName = sectionNameAndInputs.name
+                    let sectionInputs = sectionNameAndInputs.inputs
                     
-                        .listRowBackground(Color.clear)
+                    // NOTE: Special case for a section that uses a flyout
+                    if sectionName == .shadow {
+                        // will this row be selectable ?
+                        StitchTextView(string: sectionName.rawValue)
+                            .padding(4)
+                            .background {
+                                // Extending the hit area of the NodeInputOutputView view
+                                Color.white.opacity(0.001)
+                                    .padding(-12)
+                                    .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+                            }
+                            .listRowBackground(Color.clear)
+                            .modifier(LayerPropertyRowOriginReader(
+                                graph: graph,
+                                layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
+                            .onTapGesture {
+                                dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                                                       flyoutNodeId: node.id))
+                            }
+                    }
                     
-                        .modifier(LayerPropertyRowOriginReader(
-                            graph: graph,
-                            layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
-                        .onTapGesture {
-                            dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                                                   flyoutNodeId: node.id))
-                        }
-                }
-                
-                if layerNode.layer.supportsLayerEffectInputs {
-                    section(node: node,
+                    // Else, render non-empty sections
+                    else if !sectionInputs.isEmpty {
+                        LayerInspectorInputsSectionView(
+                            sectionName: sectionName,
+                            layerInputs: sectionInputs,
+                            node: node,
                             layerNode: layerNode,
-                            title: "Layer Effects",
-                            layers: Self.effects)
-                }
+                            graph: graph)
+                    }
+                    
+                } // ForEach
                 
                 LayerInspectorOutputsSectionView(node: node,
                                                  layerNode: layerNode,
                                                  graph: graph)
-            }
+            } // List
             
         } // VStack
     }
@@ -247,9 +180,36 @@ struct LayerPropertyRowOriginReader: ViewModifier {
     }
 }
 
+struct LayerInspectorSectionToggled: GraphUIEvent {
+    let section: LayerInspectorSectionName
+    
+    func handle(state: GraphUIState) {
+        let alreadyClosed = state.propertySidebar.collapsedSections.contains(section)
+        if alreadyClosed {
+            state.propertySidebar.collapsedSections.remove(section)
+        } else {
+            state.propertySidebar.collapsedSections.insert(section)
+        }
+    }
+}
+
+enum LayerInspectorSectionName: String, Equatable, Hashable {
+    case required = "Required",
+         sizing = "Sizing",
+         positioning = "Positioning",
+         common = "Common",
+         group = "Group",
+         unknown = "Unknown",
+         typography = "Typography",
+         stroke = "Stroke",
+         rotation = "Rotation",
+         shadow = "Shadow",
+         layerEffects = "Layer Effects"
+}
+
 struct LayerInspectorInputsSectionView: View {
     
-    let title: String
+    let sectionName: LayerInspectorSectionName
     let layerInputs: LayerInputTypeSet
     
     @Bindable var node: NodeViewModel
@@ -286,7 +246,7 @@ struct LayerInspectorInputsSectionView: View {
             .transition(.slideInAndOut(edge: .top))
         } header: {
             HStack  {
-                StitchTextView(string: title)
+                StitchTextView(string: sectionName.rawValue)
                 Spacer()
                 let rotationZ: CGFloat = expanded ? 90 : 0
                 Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
@@ -299,6 +259,8 @@ struct LayerInspectorInputsSectionView: View {
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
+                    dispatch(LayerInspectorSectionToggled(section: sectionName))
+                    
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
                            x == layerInput {

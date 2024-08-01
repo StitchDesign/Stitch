@@ -25,6 +25,20 @@ extension GraphItemType {
             return false
         }
     }
+    
+    var getLayerInputCoordinateOnGraph: LayerInputCoordinate? {
+        switch self {
+        case .node(let x):
+            switch x {
+            case .layerInput(let x):
+                return x
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
 }
 
 struct NodeRowViewModelId: Hashable {
