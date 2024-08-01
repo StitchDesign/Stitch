@@ -92,7 +92,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         } // ZStack
         
         /*
-         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for the
+         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
          
          So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
          
