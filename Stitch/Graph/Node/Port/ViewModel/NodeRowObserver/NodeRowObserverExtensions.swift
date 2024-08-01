@@ -57,10 +57,15 @@ extension NodeRowObserver {
             guard let canvas = rowViewModel.canvasItemDelegate else {
                 return rowViewModel
             }
+            
+            // view model is rendering at this group context
+            let isVisibleInCurrentGroup = canvas.isVisibleInFrame &&
+            canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
+            
+            // always update group node, whose row view models don't otherwise update
+            let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
                
-            if canvas.isVisibleInFrame &&
-               // view model is rendering at this group context
-               canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused {
+            if isVisibleInCurrentGroup || isGroupNode {
                 return rowViewModel
             }
             
@@ -205,15 +210,10 @@ extension Array where Element: NodeRowObserver {
         }
 
         newValuesList.enumerated().forEach { portId, values in
-            let observer = self[safe: portId] ??
-            // Sometimes observers aren't yet created for nodes with adjustable inputs
-            Element(values: values,
-                    nodeKind: nodeDelegate.kind,
-                    userVisibleType: userVisibleType,
-                    id: .init(portId: portId, nodeId: nodeId),
-                    activeIndex: .init(.zero),
-                    upstreamOutputCoordinate: nil,
-                    nodeDelegate: nodeDelegate)
+            guard let observer = self[safe: portId] else {
+                fatalErrorIfDebug()
+                return
+            }
 
             // Only update values if there's no upstream connection
             if !observer.containsUpstreamConnection {

@@ -106,12 +106,21 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
 
 extension NodeRowViewModel {
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        guard let rowDelegate = self.rowDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        self.nodeDelegate = node
+        self.initializeValues(rowDelegate: rowDelegate)
+    }
+    
     var portViewData: PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
@@ -218,7 +227,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
@@ -229,10 +237,6 @@ final class InputNodeRowViewModel: NodeRowViewModel {
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        
-        if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate)
-        }
     }
 }
 
@@ -291,7 +295,6 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     @MainActor
     init(id: NodeRowViewModelId,
          activeValue: PortValue,
-         nodeDelegate: NodeDelegate?,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -358,6 +361,9 @@ extension Array where Element: NodeRowViewModel {
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel) {
+        // This will be nil for some inits--that's ok, just need to set delegate after
+        let node = canvas.nodeDelegate
+        
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
@@ -374,6 +380,11 @@ extension Array where Element: NodeRowViewModel {
         // Create or update entities from new list
         self = newEntities.enumerated().map { portIndex, newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
+                // Update index if ports for node were removed
+                entity.id = .init(graphItemType: entity.id.graphItemType,
+                                  nodeId: entity.id.nodeId,
+                                  portId: portIndex)
+                
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
@@ -381,11 +392,16 @@ extension Array where Element: NodeRowViewModel {
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portId: portIndex)
                 
-                return Element(id: rowId,
-                               activeValue: newEntity.activeValue, 
-                               nodeDelegate: canvas.nodeDelegate, // TODO: is this accurate?
-                               rowDelegate: newEntity,
-                               canvasItemDelegate: canvas)
+                let rowViewModel = Element(id: rowId,
+                                           activeValue: newEntity.activeValue,
+                                           rowDelegate: newEntity,
+                                           canvasItemDelegate: canvas)
+                
+                if let node = node {
+                    rowViewModel.initializeDelegate(node)                    
+                }
+                
+                return rowViewModel
             }
         }
     }

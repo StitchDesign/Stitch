@@ -55,6 +55,8 @@ struct LayerInspectorView: View {
     var body: some View {
         if let node = selectedLayerNode,
            let layerNode = node.layerNode {
+            @Bindable var node = node
+            @Bindable var layerNode = layerNode
             
             UIKitWrapper(ignoresKeyCommands: false,
                          name: "LayerInspectorView") {
@@ -70,44 +72,26 @@ struct LayerInspectorView: View {
                          .padding(.bottom, -20)
             #endif
             
-//                         .onAppear {
-//#if DEV_DEBUG
-//                             let listedLayers = Self.required
-//                                 .union(Self.common)
-//                                 .union(Self.groupLayer)
-//                                 .union(Self.unknown)
-//                                 .union(Self.text)
-//                                 .union(Self.stroke)
-//                                 .union(Self.rotation)
-//                                 .union(Self.shadow)
-//                                 .union(Self.effects)
-//                             
-//                             let allLayers = LayerInputType.allCases.toSet
-//                             let diff = allLayers.subtracting(listedLayers)
-//                             log("diff: \(diff)")
-//                             assert(diff.count == 0)
-//#endif
-//                         }
+                         .onAppear {
+                             //#if DEV_DEBUG
+                             //                             // TODO: write a test; make sure we handle all layer input types at least in some cases?
+                             //                             let listedLayers = Self.allInputs
+                             //                             let allLayers = LayerInputType.allCases.toSet
+                             //                             let diff = allLayers.subtracting(listedLayers)
+                             //                             log("diff: \(diff)")
+                             //                             assert(diff.count == 0)
+                             //#endif
+                         }
         } else {
             // Empty List, so have same background
             List { }
         }
     }
-    
+ 
     @MainActor @ViewBuilder
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
-        
-        // TODO: perf implications?
-        let section = { (title: LayerInspectorSectionName, layers: LayerInputTypeSet) -> LayerInspectorInputsSectionView in
-            LayerInspectorInputsSectionView(
-                sectionName: title,
-                layerInputs: layers,
-                node: node,
-                layerNode: layerNode,
-                graph: graph)
-        }
-                
+
         VStack(alignment: .leading) {
             
             //            // TODO: remove? make editable TextField for renaming etc.?
@@ -154,15 +138,20 @@ struct LayerInspectorView: View {
                     
                     // Else, render non-empty sections
                     else if !sectionInputs.isEmpty {
-                        section(sectionName, sectionInputs)
+                        LayerInspectorInputsSectionView(
+                            sectionName: sectionName,
+                            layerInputs: sectionInputs,
+                            node: node,
+                            layerNode: layerNode,
+                            graph: graph)
                     }
                     
-                }
+                } // ForEach
                 
                 LayerInspectorOutputsSectionView(node: node,
                                                  layerNode: layerNode,
                                                  graph: graph)
-            }
+            } // List
             
         } // VStack
     }

@@ -17,24 +17,36 @@ enum NodeViewModelType {
 extension NodeViewModelType {
     @MainActor
     init(from nodeType: NodeTypeEntity,
-         nodeId: NodeId,
-         nodeDelegate: NodeDelegate?) {
+         nodeId: NodeId) {
         switch nodeType {
         case .patch(let patchNode):
-            let viewModel = PatchNodeViewModel(from: patchNode, 
-                                               node: nodeDelegate)
+            let viewModel = PatchNodeViewModel(from: patchNode)
             self = .patch(viewModel)
         case .layer(let layerNode):
-            let viewModel = LayerNodeViewModel(from: layerNode,
-                                               nodeDelegate: nodeDelegate)
+            let viewModel = LayerNodeViewModel(from: layerNode)
             self = .layer(viewModel)
         case .group(let canvasNode):
             self = .group(.init(from: canvasNode, 
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
-                                outputRowObservers: [],
-                                node: nodeDelegate))
+                                outputRowObservers: []))
+        }
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        switch self {
+        case .patch(let patchNodeViewModel):
+            guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            patchNodeViewModel.initializeDelegate(patchDelegate)
+        case .layer(let layerNodeViewModel):
+            layerNodeViewModel.initializeDelegate(node)
+        case .group(let canvasItemViewModel):
+            canvasItemViewModel.initializeDelegate(node)
         }
     }
 
