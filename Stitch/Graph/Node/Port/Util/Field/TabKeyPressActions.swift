@@ -10,6 +10,9 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
+
+// TODO: can likely consolidate a lot of the portId vs layerInput, tab vs shift+tab logic
+
 extension GraphState {
     @MainActor
     func tabPressed(focusedField: FieldCoordinate,
