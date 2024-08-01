@@ -366,6 +366,11 @@ extension Array where Element: NodeRowViewModel {
         // Create or update entities from new list
         self = newEntities.enumerated().map { portIndex, newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
+                // Update index if ports for node were removed
+                entity.id = .init(graphItemType: entity.id.graphItemType,
+                                  nodeId: entity.id.nodeId,
+                                  portId: portIndex)
+                
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),

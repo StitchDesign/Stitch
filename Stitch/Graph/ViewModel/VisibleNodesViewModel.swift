@@ -127,16 +127,24 @@ extension VisibleNodesViewModel {
             self.buildUpstreamReferences(nodeEntity: nodeEntity)
         }
         
-        // Create port view models for group nodes once row observers have been established
+        // Sync port view models for applicable nodes
         self.nodes.values.forEach { node in
-            guard let canvasGroup = node.nodeType.groupNode else {
+            switch node.nodeType {
+            case .patch(let patchNode):
+                // Syncs ports if nodes had inputs added/removed
+                patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
+                                                           outputRowObservers: patchNode.outputsObservers)
+                
+            case .group(let canvasGroup):
+                // Create port view models for group nodes once row observers have been established
+                let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
+                let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
+                canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
+                                              outputRowObservers: outputRowObservers)
+                
+            default:
                 return
             }
-            
-            let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
-            let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
-            canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                          outputRowObservers: outputRowObservers)
         }
     }
 
