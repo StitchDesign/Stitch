@@ -78,9 +78,7 @@ extension GraphState {
                     graphTime: TimeInterval) -> NodeIdSet {
 
         guard let patchNode = node.patchNode else {
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return .init()
         }
 

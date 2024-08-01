@@ -60,7 +60,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     var position: CGPoint {
         self.node.position
     }
-
+    
     var body: some View {
         
         ZStack {
@@ -78,21 +78,30 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
              */
                 .gesture(TapGesture(count: 2).onEnded({
                     if self.stitch.kind.isGroup {
-                        log("NodeView: .gesture(TapGesture(count: 2)")
-                        log("NodeView: .gesture(TapGesture(count: 2): will set active group")
+                        log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
+                        log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
                         dispatch(GroupNodeDoubleTapped(id: GroupNodeId(stitch.id)))
                     }
                 }))
             
             // See GroupNodeView for group node double tap
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
-                    log("NodeView: .simultaneousGesture(TapGesture(count: 1)")
+                    log("NodeView: node \(stitch.id) .simultaneousGesture(TapGesture(count: 1)")
                     node.isTapped(graph: graph)
                 }))
-            
-//                .modifier(CanvasItemTag(isSelected: isSelected,
-//                                        nodeTagMenu: nodeTagMenu))
         } // ZStack
+        
+        /*
+         Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
+         
+         So, we must .overlay the node tag menu *after* the tap-gestures, so that tapping the node tag menu does not fire a single-tap.
+         
+         (This would not be required if TapGesture were not .simultaneous, but that is required for handling both single- and double-taps.)
+         */
+        .overlay(alignment: .topTrailing) {
+            CanvasItemTag(isSelected: isSelected,
+                          nodeTagMenu: nodeTagMenu)
+        }
         .canvasItemPositionHandler(graph: graph,
                                    node: node,
                                    position: position,
@@ -133,19 +142,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             .modifier(CanvasItemTitlePadding())
             
             Spacer()
-            CanvasItemTag(isSelected: isSelected,
-                          nodeTagMenu: nodeTagMenu)
-//            Menu {
-//                nodeTagMenu
-//            } label: {
-//                Image(systemName: "ellipsis.rectangle")
-//            }
-//            .buttonStyle(.plain)
-//            .scaleEffect(1.4)
-//            .frame(width: 24, height: 12)
-//            .foregroundColor(STITCH_TITLE_FONT_COLOR)
-//            .padding(.trailing, 8) // 8 from right edge, per Figma
-            
         }
     }
 
@@ -276,9 +272,13 @@ struct CanvasItemTitlePadding: ViewModifier {
         // Figma: 8 padding on left, 12 padding on top and bottom
         content
             .padding(.leading, 8)
-//            .padding(.trailing, 64) // enough distance from canvas item menu icon
-//            .padding(.trailing, 32) // enough distance from canvas item menu icon
-            .padding(.trailing, 16) // enough distance from canvas item menu icon
+        
+#if targetEnvironment(macCatalyst)
+            .padding(.trailing, 40) // enough distance from canvas item menu icon
+#else
+        //            .padding(.trailing, 64) // enough distance from canvas item menu icon
+            .padding(.trailing, 52) // enough distance from canvas item menu icon
+#endif
             .padding([.top, .bottom], 12)
     }
 }
@@ -321,7 +321,6 @@ struct CanvasItemTag: View {
                 nodeTagMenu
             } label: {
                 let iconName = "ellipsis.rectangle"
-                //                        let iconName = "ellipsis.circle"
                 Image(systemName: iconName)
                 
 #if !targetEnvironment(macCatalyst)
@@ -335,11 +334,13 @@ struct CanvasItemTag: View {
             .frame(width: 24, height: 12)
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
             .padding(.trailing, 8)
+            .offset(x: -16, y: 22)
 #else
             // iPad
             .menuStyle(.button)
             .buttonStyle(.borderless)
             .foregroundColor(STITCH_TITLE_FONT_COLOR)
+            .offset(x: -16, y: 4)
 #endif
             .opacity(isSelected ? 1 : 0)
     }

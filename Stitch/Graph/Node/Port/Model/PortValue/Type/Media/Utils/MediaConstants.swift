@@ -96,6 +96,11 @@ extension DefaultMediaOption {
             return [.none]
         }
     }
+    
+    /// Determines if some media is one of the provided default options given some `PortValue` media payload.
+    static func findDefaultOption(from media: AsyncMediaValue) -> DefaultMediaOption? {
+        DefaultMediaOption.allCases.first(where: { $0.mediaKey == media.mediaKey })
+    }
 }
 
 let CORE_ML_CLASSIFICATION_RESNET50_URL: URL = Resnet50.urlOfModelInThisBundle

@@ -624,6 +624,7 @@
 		ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */; };
 		ECA5774D275EC0E000CE9471 /* ExpansionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */; };
 		ECA5774F275EC4AB00CE9471 /* CursorDotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */; };
+		ECA5C2212C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5C2202C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift */; };
 		ECA6BB66280F2FC500695290 /* EdgeDrawingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */; };
 		ECA8103526F3ED9F00131238 /* Anchoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA8103426F3ED9F00131238 /* Anchoring.swift */; };
 		ECA929F0260A68DF00281B52 /* SplitterPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */; };
@@ -1523,6 +1524,7 @@
 		ECA56F78296736EB00ABE9A4 /* CubicBezierUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierUtils.swift; sourceTree = "<group>"; };
 		ECA5774C275EC0E000CE9471 /* ExpansionBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpansionBoxView.swift; sourceTree = "<group>"; };
 		ECA5774E275EC4AB00CE9471 /* CursorDotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CursorDotView.swift; sourceTree = "<group>"; };
+		ECA5C2202C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldTabKeyPressActions.swift; sourceTree = "<group>"; };
 		ECA6BB65280F2FC500695290 /* EdgeDrawingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeDrawingView.swift; sourceTree = "<group>"; };
 		ECA8103426F3ED9F00131238 /* Anchoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Anchoring.swift; sourceTree = "<group>"; };
 		ECA929EF260A68DF00281B52 /* SplitterPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterPatchNode.swift; sourceTree = "<group>"; };
@@ -2107,6 +2109,7 @@
 				B55500C12C1B9DF30081C3F1 /* FieldValueUtils.swift */,
 				ECE35EE327CEE7E100CB8F5C /* FieldCoercers.swift */,
 				ECECF3DC2C095A8F004A4D10 /* TabKeyPressActions.swift */,
+				ECA5C2202C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift */,
 			);
 			path = Field;
 			sourceTree = "<group>";
@@ -4603,6 +4606,7 @@
 				B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */,
 				EC49149929358DE200D74344 /* ColorToHexNode.swift in Sources */,
 				EC6AAE6B2B52337F00D07E3C /* IconName.swift in Sources */,
+				ECA5C2212C5ABEFC000B0DF2 /* OldTabKeyPressActions.swift in Sources */,
 				EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */,
 				E4114F6E2BD96BF700934151 /* VideoStreamingLayerNode.swift in Sources */,
 				ECFD9FAF297B748F00D86359 /* CopyAndPasteNodesActions.swift in Sources */,

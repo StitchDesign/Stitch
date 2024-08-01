@@ -25,6 +25,20 @@ extension GraphItemType {
             return false
         }
     }
+    
+    var getLayerInputCoordinateOnGraph: LayerInputCoordinate? {
+        switch self {
+        case .node(let x):
+            switch x {
+            case .layerInput(let x):
+                return x
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
 }
 
 struct NodeRowViewModelId: Hashable {
@@ -347,6 +361,9 @@ extension Array where Element: NodeRowViewModel {
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel) {
+        // This will be nil for some inits--that's ok, just need to set delegate after
+        let node = canvas.nodeDelegate
+        
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
@@ -363,6 +380,11 @@ extension Array where Element: NodeRowViewModel {
         // Create or update entities from new list
         self = newEntities.enumerated().map { portIndex, newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
+                // Update index if ports for node were removed
+                entity.id = .init(graphItemType: entity.id.graphItemType,
+                                  nodeId: entity.id.nodeId,
+                                  portId: portIndex)
+                
                 return entity
             } else {
                 let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
@@ -370,10 +392,16 @@ extension Array where Element: NodeRowViewModel {
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
                                                portId: portIndex)
                 
-                return Element(id: rowId,
-                               activeValue: newEntity.activeValue,
-                               rowDelegate: newEntity,
-                               canvasItemDelegate: canvas)
+                let rowViewModel = Element(id: rowId,
+                                           activeValue: newEntity.activeValue,
+                                           rowDelegate: newEntity,
+                                           canvasItemDelegate: canvas)
+                
+                if let node = node {
+                    rowViewModel.initializeDelegate(node)                    
+                }
+                
+                return rowViewModel
             }
         }
     }

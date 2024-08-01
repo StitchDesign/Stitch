@@ -165,6 +165,15 @@ extension NodeViewModel {
     }
 }
 
+// TODO: we also need to block or unblock the inputs of the row on the canvas as well
+extension LayerNodeViewModel {
+    @MainActor
+    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
+        self[keyPath: key.layerNodeKeyPath]
+            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
+    }
+}
+
 extension NodeViewModel {
     
     /// Gets fields for a layer specifically for its inputs in the layer inpsector, rather than a node.
@@ -174,9 +183,7 @@ extension NodeViewModel {
             fatalErrorIfDebug() // when can this actually happen?
             return nil
         }
-        
-        return layerNode[keyPath: key.layerNodeKeyPath]
-            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
+        return layerNode.getLayerInspectorInputFields(key)
     }
     
     /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.

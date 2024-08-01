@@ -19,6 +19,12 @@ extension LayerInputType {
             return false
         }
     }
+    
+    func usesTextFields(_ layer: Layer) -> Bool {
+        self.getDefaultValue(for: layer)
+            .getNodeRowType(nodeIO: .input)
+            .inputUsesTextField
+    }
 }
 
 // Used by a given flyout view to update its read-height in state,
