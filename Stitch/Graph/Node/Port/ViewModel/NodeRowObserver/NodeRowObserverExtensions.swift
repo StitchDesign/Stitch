@@ -57,10 +57,15 @@ extension NodeRowObserver {
             guard let canvas = rowViewModel.canvasItemDelegate else {
                 return rowViewModel
             }
+            
+            // view model is rendering at this group context
+            let isVisibleInCurrentGroup = canvas.isVisibleInFrame &&
+            canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
+            
+            // always update group node, whose row view models don't otherwise update
+            let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
                
-            if canvas.isVisibleInFrame &&
-               // view model is rendering at this group context
-               canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused {
+            if isVisibleInCurrentGroup || isGroupNode {
                 return rowViewModel
             }
             
