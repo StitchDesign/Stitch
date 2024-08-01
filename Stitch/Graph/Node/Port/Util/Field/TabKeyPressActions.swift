@@ -205,7 +205,7 @@ extension NodeViewModel {
                 return .fakeFieldCoordinate
             }
             
-            // If we're already on the last eligible input-field, loop around to the first eligible-input field
+            // If we're already on the last eligible input-field, loop around to the first eligible input-field
             if currentEligibleField == lastEligibleField {
                 return FieldCoordinate(
                     rowId: currentInputCoordinate.updateLayerInputKeyPath(firstEligibleField.input),
@@ -414,6 +414,7 @@ func previousFieldOrInput(state: GraphState,
     // Else: attempt to go to a previous input.
     else {
         return node.previousInput(input, 
+                                  focusedField,
                                   propertySidebarState: state.graphUI.propertySidebar)
     }
 }
@@ -421,6 +422,7 @@ func previousFieldOrInput(state: GraphState,
 extension NodeViewModel {
     @MainActor
     func previousInput(_ currentInput: InputNodeRowViewModel,
+                       _ currentFocusedField: FieldCoordinate,
                        propertySidebarState: PropertySidebarState) -> FieldCoordinate {
         let nodeId = self.id
         let currentInputCoordinate = currentInput.id
@@ -477,12 +479,10 @@ extension NodeViewModel {
             
         case .keyPath(let currentInputKey):
             
-            guard let layer = self.kind.getLayer else {
-                fatalErrorIfDebug()
-                return .fakeFieldCoordinate // should never happen
-            }
-            
-            return .fakeFieldCoordinate
+//            guard let layer = self.kind.getLayer else {
+//                fatalErrorIfDebug()
+//                return .fakeFieldCoordinate // should never happen
+//            }
             
 //            let layerInputs = layer.textInputsForThisLayer(propertySidebarState.collapsedSections)
 //            
@@ -493,36 +493,55 @@ extension NodeViewModel {
 //                fatalErrorIfDebug()
 //                return .fakeFieldCoordinate // should never happen
 //            }
-//            
-//            
-//            if currentInputKey == firstInput {
-//                return FieldCoordinate(
-//                    rowId: currentInputCoordinate.updateLayerInputKeyPath(lastInput),
-//                    fieldIndex: lastInput.maxFieldIndex(layer))
-//                
-////                return FieldCoordinate(
-////                    input: .init(portType: .keyPath(lastInput),
-////                                                    nodeId: nodeId),
-////                    fieldIndex: lastInput.maxFieldIndex(layer))
-//            }
-//            
-//            // Else, move to last field of the previous input:
-//            else if let previousInputKey = layerInputs[safe: currentInputKeyIndex - 1] {
-//                
-//                return FieldCoordinate(
-//                    rowId: currentInputCoordinate.updateLayerInputKeyPath(previousInputKey),
-//                    fieldIndex: previousInputKey.maxFieldIndex(layer))
-//                
-////                return FieldCoordinate(
-////                    input: .init(portType: .keyPath(previousInputKey),
-////                                 nodeId: nodeId),
-////                    fieldIndex: previousInputKey.maxFieldIndex(layer))
-//                
-//            } else {
-//                fatalErrorIfDebug()
-//                return .fakeFieldCoordinate // should never happen
-//            }
-                        
+//
+            guard let layerNode = self.layerNode else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+
+            let eligibleFields = getTabEligibleFields(
+                layerNode: layerNode,
+                collapsedSections: propertySidebarState.collapsedSections)
+            
+            guard let currentEligibleField = eligibleFields.first(where: {
+                // eligible fields are equatable
+                $0 == .init(input: currentInputKey, fieldIndex: currentFocusedField.fieldIndex)
+                
+//                // For the currently focused layer input
+//                $0.input == currentInputKey
+//
+//                // For the currently focused field index
+//                && $0.fieldIndex == currentFocusedField.fieldIndex
+            }),
+                  let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
+                  let lastEligibleField = eligibleFields.last,
+                  let firstEligibleField = eligibleFields.first else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate
+            }
+            
+            // If we're already on the first input, loop back to the last eligible input-field
+            if currentEligibleField == firstEligibleField {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(lastEligibleField.input),
+                    fieldIndex: lastEligibleField.fieldIndex)
+                
+                //                return FieldCoordinate(
+                //                    input: .init(portType: .keyPath(lastInput),
+                //                                                    nodeId: nodeId),
+                //                    fieldIndex: lastInput.maxFieldIndex(layer))
+            }
+            
+            // Else, move to previous eligible input-field
+            else if let previousEligibleField = eligibleFields[safe: currentEligibleFieldIndex - 1] {
+                return FieldCoordinate(
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(previousEligibleField.input),
+                    fieldIndex: previousEligibleField.fieldIndex)
+            } else {
+                fatalErrorIfDebug()
+                return .fakeFieldCoordinate // should never happen
+            }
+            
         } // switch currentInput.id.portType
     }
     
