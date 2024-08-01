@@ -272,9 +272,13 @@ struct CanvasItemTitlePadding: ViewModifier {
         // Figma: 8 padding on left, 12 padding on top and bottom
         content
             .padding(.leading, 8)
-//            .padding(.trailing, 64) // enough distance from canvas item menu icon
-//            .padding(.trailing, 32) // enough distance from canvas item menu icon
-            .padding(.trailing, 16) // enough distance from canvas item menu icon
+        
+#if targetEnvironment(macCatalyst)
+            .padding(.trailing, 40) // enough distance from canvas item menu icon
+#else
+        //            .padding(.trailing, 64) // enough distance from canvas item menu icon
+            .padding(.trailing, 52) // enough distance from canvas item menu icon
+#endif
             .padding([.top, .bottom], 12)
     }
 }
