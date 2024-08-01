@@ -224,6 +224,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
                           collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
     
     let layer = layerNode.layer
+    let inputsForThisLayer = layer.layerGraphNode.inputDefinitions
   
     let eligibleFields: LayerInputEligibleFields = LayerInspectorView
     
@@ -231,17 +232,19 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
         .layerInspectorRowsInOrder(layer)
     
     // Remove inputs from sections that are (1) collapsed or (2) use a flyout
-        .filter { sectionNameAndInputs in
-            sectionNameAndInputs.0 != .shadow
-            && !collapsedSections.contains(sectionNameAndInputs.0)
+        .filter {
+            $0.name != .shadow
+            && !collapsedSections.contains($0.name)
         }
     
     // Handle just layer inputs now
-        .flatMap(\.1)
+        .flatMap(\.inputs)
     
-    // We're only interested in layer inputs that (1) use textfield and (2) not a flyout
+    // We're only interested in layer inputs that (1) are for this layer, (2) use textfield and (3) do not use a  flyout
         .filter { layerInput in
-            layerInput.usesTextFields(layer) && !layerInput.usesFlyout
+            inputsForThisLayer.contains(layerInput)
+            && layerInput.usesTextFields(layer)
+            && !layerInput.usesFlyout
         }
     
     // Turn each non-blocked field on a layeri input into a LayerInputEligibleField

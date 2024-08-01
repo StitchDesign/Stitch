@@ -46,11 +46,18 @@ struct PropertySidebarFlyoutState: Equatable {
     }
 }
 
-//enum FlyoutKind: Equatable {
-//    case padding(width: 300.0, )
-//}
+struct LayerInspectorSectionData: Equatable, Hashable {
+    let name: LayerInspectorSectionName
+    let inputs: LayerInputTypeSet
+}
 
-
+extension LayerInspectorSectionData {
+    init(_ name: LayerInspectorSectionName, 
+         _ inputs: LayerInputTypeSet) {
+        self.name = name
+        self.inputs = inputs
+    }
+}
 
 extension LayerInspectorView {
     // TODO: fill these out
@@ -72,19 +79,19 @@ extension LayerInspectorView {
 
     // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
     @MainActor
-    static func layerInspectorRowsInOrder(_ layer: Layer) -> [(LayerInspectorSectionName, LayerInputTypeSet)] {
+    static func layerInspectorRowsInOrder(_ layer: Layer) -> [LayerInspectorSectionData] {
         [
-            (.required, Self.required),
-            (.sizing, Self.sizing),
-            (.positioning, Self.positioning),
-            (.common, Self.common),
-            (.group, layer.supportsGroupInputs ? Self.groupLayer : []),
-            (.unknown, layer.supportsUnknownInputs ? Self.unknown : []),
-            (.typography, layer.supportsTypographyInputs ? Self.text : []),
-            (.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
-            (.rotation, layer.supportsRotationInputs ? Self.rotation : []),
-            (.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-            (.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
+            .init(.required, Self.required),
+            .init(.sizing, Self.sizing),
+            .init(.positioning, Self.positioning),
+            .init(.common, Self.common),
+            .init(.group, layer.supportsGroupInputs ? Self.groupLayer : []),
+            .init(.unknown, layer.supportsUnknownInputs ? Self.unknown : []),
+            .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
+            .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
+            .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
+            .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
+            .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
         ]
     }
     
