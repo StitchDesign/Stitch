@@ -184,9 +184,6 @@ extension NodeViewModel {
             return nil
         }
         return layerNode.getLayerInspectorInputFields(key)
-//
-//        return layerNode[keyPath: key.layerNodeKeyPath]
-//            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
     }
     
     /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.
