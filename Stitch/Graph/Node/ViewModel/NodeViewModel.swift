@@ -510,8 +510,12 @@ extension NodeViewModel: NodeDelegate {
             return canvas.outputViewModels
             
         case .layer(let layer):
-            return layer.outputPorts.flatMap {
-                return $0.canvasObserver?.outputViewModels ?? []
+            return layer.outputPorts.flatMap { outputData in
+                if let canvas = outputData.canvasObserver {
+                    return canvas.outputViewModels + [outputData.inspectorRowViewModel]
+                }
+                
+                return [outputData.inspectorRowViewModel]
             }
         }
     }

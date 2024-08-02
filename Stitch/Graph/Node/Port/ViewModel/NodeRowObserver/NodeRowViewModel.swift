@@ -13,7 +13,8 @@ enum GraphItemType: Hashable {
     case node(CanvasItemId)
     
     // Passing in layer input type ensures uniqueness of IDs in inspector
-    case layerInspector(LayerInputType)
+//    case layerInspector(LayerInputType)
+    case layerInspector(NodeIOPortType) // portId (layer output) or layer-input-type (layer input)
 }
 
 extension GraphItemType {
