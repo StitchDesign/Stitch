@@ -23,7 +23,6 @@ struct FieldValueNumberView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
-    var isForSpacingField: Bool = false
 
     @State private var isButtonPressed = false
 
@@ -51,8 +50,7 @@ struct FieldValueNumberView: View {
                               choices: choices,
                               isAdjustmentBarInUse: isButtonPressed,
                               forPropertySidebar: forPropertySidebar,
-                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                              isForSpacingField: isForSpacingField)
+                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
         }
     }
 }
