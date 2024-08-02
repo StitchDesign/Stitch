@@ -189,9 +189,11 @@ struct CatalystTopBarGraphButtons: View {
             //                log("CatalystTopBarGraphButtons: to be implemented")
             //            }
             
-            CatalystNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                CatalystNavBarButton(action: {
+                    dispatch(LayerInspectorToggled())
+                }, iconName: .sfSymbol("sidebar.right"))
+            }
         }
     }
 }

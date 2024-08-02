@@ -122,8 +122,7 @@ struct InputValueView: View {
                               hasIncomingEdge: hasIncomingEdge,
                               isLargeString: string.isLargeString,
                               forPropertySidebar: forPropertySidebar,
-                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph, 
-                              isForSpacingField: false)
+                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
 
         case .number:
             FieldValueNumberView(graph: graph,
@@ -165,9 +164,7 @@ struct InputValueView: View {
                                  choices: StitchSpacing.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
-                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                 isForSpacingField: true)
-//            .frame(minWidth: SPACING_FIELD_WIDTH) // min width for "Between" dropdown of LayerGroup spacing
+                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
 
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId,
@@ -182,7 +179,7 @@ struct InputValueView: View {
             StitchFontDropdown(input: rowObserverId,
                                stitchFont: stitchFont)
                 // need enough width for font design + font weight name
-                .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
+                .frame(minWidth: 200,
                        alignment: .leading)
 
         case .layerDropdown(let layerId):

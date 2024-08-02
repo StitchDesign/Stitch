@@ -148,9 +148,11 @@ struct iPadGraphTopBarButtons: View {
             // the misc (...) button
             iPadGraphTopBarMiscMenu()
             
-            iPadNavBarButton(action: {
-                dispatch(LayerInspectorToggled())
-            }, iconName: .sfSymbol("sidebar.right"))
+            if FeatureFlags.USE_LAYER_INSPECTOR {
+                iPadNavBarButton(action: {
+                    dispatch(LayerInspectorToggled())
+                }, iconName: .sfSymbol("sidebar.right"))
+            }
         }
     }
 }

@@ -31,11 +31,20 @@ final class InputLayerNodeRowData: LayerNodeRowData {
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
         
-        if let inputType = rowObserver.id.keyPath {
-            itemType = .layerInspector(.keyPath(inputType))
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
         } else {
-            fatalErrorIfDebug()
-            itemType = .layerInspector(.keyPath(.position))
+            if !isEmpty {
+                fatalErrorIfDebug()
+            }
+            itemType = .node(.node(.init()))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -61,11 +70,18 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
         
-        if let portId = rowObserver.id.portId {
-            itemType = .layerInspector(.portIndex(portId))
+        if FeatureFlags.USE_LAYER_INSPECTOR {
+            if let inputType = rowObserver.id.keyPath {
+                itemType = .layerInspector(inputType)
+            } else {
+                fatalErrorIfDebug()
+                itemType = .layerInspector(.position)
+            }
+        } else if let canvasObserver = canvasObserver {
+            itemType = .node(canvasObserver.id)
         } else {
-            fatalErrorIfDebug()
-            itemType = .layerInspector(.keyPath(.position))
+            // Pre-layer inspector Stitch will create a fake row view model for inspector
+            itemType = .node(.node(.init()))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -115,16 +131,31 @@ extension InputLayerNodeRowData {
                 canvasObserver.update(from: canvas)
             } else {
                 // Make new canvas observer since none yet created
-                let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
-                                                             keyPath: layerInputType))
+                let canvasId = FeatureFlags.USE_LAYER_INSPECTOR ?
+                CanvasItemId.layerInput(.init(node: nodeId,
+                                              keyPath: layerInputType)) :
+                CanvasItemId.node(nodeId)
                 
-                let inputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].rowObserver
-                self.canvasObserver = .init(from: canvas,
-                                            id: canvasId,
-                                            inputRowObservers: [inputObserver],
-                                            outputRowObservers: [])
-                
-                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
+                if FeatureFlags.USE_LAYER_INSPECTOR {
+                    let inputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].rowObserver
+                    self.canvasObserver = .init(from: canvas,
+                                                id: canvasId,
+                                                inputRowObservers: [inputObserver],
+                                                outputRowObservers: [])
+                } else {
+                    // MARK: this is a hacky solution to support old-style layer nodes.
+                    // Via persistence, we arbitrarily pick one input in a layer to save canvas info.
+                    // So we load all ports here.
+                    let inputRowObservers = layerNode.layer.layerGraphNode.inputDefinitions
+                        .map { keyPath in
+                            layerNode[keyPath: keyPath.layerNodeKeyPath].rowObserver
+                        }
+                    
+                    self.canvasObserver = .init(from: canvas,
+                                                id: canvasId,
+                                                inputRowObservers: inputRowObservers,
+                                                outputRowObservers: layerNode.outputPorts.map { $0.rowObserver })
+                }
             }
         } else {
             self.canvasObserver = nil
