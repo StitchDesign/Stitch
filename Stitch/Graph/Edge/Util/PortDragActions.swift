@@ -50,7 +50,7 @@ extension InputNodeRowViewModel {
 
         
         guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
-              let sourceNodeId = drawingGesture.output.nodeDelegate?.id,
+              let sourceNodeId = drawingGesture.output.computationNode?.id,
               let nearestEligibleInput = graphState.edgeDrawingObserver.nearestEligibleInput else {
             log("InputDragEnded: drag ended, but could not create new edge")
             
