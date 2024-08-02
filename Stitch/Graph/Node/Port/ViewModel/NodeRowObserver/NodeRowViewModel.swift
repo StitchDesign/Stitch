@@ -13,8 +13,7 @@ enum GraphItemType: Hashable {
     case node(CanvasItemId)
     
     // Passing in layer input type ensures uniqueness of IDs in inspector
-//    case layerInspector(LayerInputType)
-    case layerInspector(NodeIOPortType) // portId (layer output) or layer-input-type (layer input)
+    case layerInspector(LayerInputType)
 }
 
 extension GraphItemType {
@@ -235,6 +234,10 @@ final class InputNodeRowViewModel: NodeRowViewModel {
          activeValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
+        if !FeatureFlags.USE_LAYER_INSPECTOR && id.graphItemType.isLayerInspector {
+            fatalErrorIfDebug()
+        }
+        
         self.id = id
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
