@@ -116,6 +116,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
     static let nodeIOType: NodeIO = .output
     let containsUpstreamConnection = false  // always false
 
+    // TODO: Outputs can only use portIds, so this should be something more specific than NodeIOCoordinate
     var id: NodeIOCoordinate = .init(portId: .zero, nodeId: .init())
     
     // Data-side for values
