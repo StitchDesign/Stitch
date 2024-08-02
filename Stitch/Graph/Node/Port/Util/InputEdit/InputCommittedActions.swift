@@ -102,7 +102,6 @@ extension GraphState {
         // THEN we detach the edge.
         // Should be okay since whenever we connect an edge, we evaluate the node and thus extend its inputs and outputs.
         let valueAtIndex = input.activeValue
-        let nodeKind = nodeViewModel.kind
         let valueChange = (valueAtIndex != value)
         
         guard valueChange else {
