@@ -50,7 +50,7 @@ extension InputNodeRowViewModel {
 
         
         guard let drawingGesture = graphState.edgeDrawingObserver.drawingGesture,
-              let sourceNodeId = drawingGesture.output.nodeDelegate?.id,
+              let sourceNodeId = drawingGesture.output.computationNode?.id,
               let nearestEligibleInput = graphState.edgeDrawingObserver.nearestEligibleInput else {
             log("InputDragEnded: drag ended, but could not create new edge")
             
@@ -215,7 +215,7 @@ extension OutputNodeRowViewModel {
               let to = graphState.edgeDrawingObserver.nearestEligibleInput,
               // Get node delegate from row in case edge drag is for group,
               // we want the splitter node delegate not the group node delegate
-              let sourceNodeId = from.rowDelegate?.nodeDelegate?.id else {
+              let sourceNodeId = from.computationNode?.id else {
             log("OutputDragEnded: No active output drag or eligible input ...")
             graphState.edgeDrawingObserver.reset()
             

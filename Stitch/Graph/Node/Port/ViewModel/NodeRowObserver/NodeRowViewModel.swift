@@ -111,6 +111,11 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 }
 
 extension NodeRowViewModel {
+    /// Ignores group nodes to ensure computation logic still works.
+    var computationNode: NodeDelegate? {
+        self.rowDelegate?.nodeDelegate
+    }
+    
     @MainActor func initializeDelegate(_ node: NodeDelegate) {
         guard let rowDelegate = self.rowDelegate else {
             fatalErrorIfDebug()
