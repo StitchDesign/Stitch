@@ -144,9 +144,15 @@ extension SplitterNodeEntity: GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> SplitterNodeEntity {
-        .init(id: newId,
-              lastModifiedDate: self.lastModifiedDate,
-              type: self.type)
+        // We want duplicated splitters to have slightly offsetted time
+        // otherwise groups will have ports constantly change order.
+        // Small hack here for a single copied node to prevent likelihood of equal dates.
+        let isSingleCopiedNode = copiedNodeIds.count == 1
+        let newDate = isSingleCopiedNode ? Date.now : self.lastModifiedDate + 1
+        
+        return .init(id: newId,
+                     lastModifiedDate: newDate,
+                     type: self.type)
     }
 }
 
