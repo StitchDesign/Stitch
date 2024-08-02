@@ -198,12 +198,16 @@ extension VisibleNodesViewModel {
                 
                 // Check for connected row observer rather than just setting ID--makes for
                 // a more robust check in ensuring the connection actually exists
-                let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate)
-                inputObserver.upstreamOutputCoordinate = connectedOutputObserver?.id
+                guard let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate) else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
                 
                 // Report to output observer that there's an edge (for port colors)
                 // We set this to false on default above
-                connectedOutputObserver?.containsDownstreamConnection = true
+                connectedOutputObserver.containsDownstreamConnection = true
             }
         }   
     }
