@@ -32,10 +32,10 @@ final class InputLayerNodeRowData: LayerNodeRowData {
         var itemType: GraphItemType
         
         if let inputType = rowObserver.id.keyPath {
-            itemType = .layerInspector(inputType)
+            itemType = .layerInspector(.keyPath(inputType))
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.position)
+            itemType = .layerInspector(.keyPath(.position))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -61,11 +61,11 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
         
-        if let inputType = rowObserver.id.keyPath {
-            itemType = .layerInspector(inputType)
+        if let portId = rowObserver.id.portId {
+            itemType = .layerInspector(.portIndex(portId))
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.position)
+            itemType = .layerInspector(.keyPath(.position))
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
