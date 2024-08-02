@@ -123,6 +123,8 @@ extension InputLayerNodeRowData {
                                             id: canvasId,
                                             inputRowObservers: [inputObserver],
                                             outputRowObservers: [])
+                
+                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
         } else {
             self.canvasObserver = nil
