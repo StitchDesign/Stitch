@@ -60,30 +60,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     var upstreamOutputCoordinate: NodeIOCoordinate? {
         @MainActor
         didSet(oldValue) {
-            let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
-            
-            guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
-                if let oldUpstreamObserver = self.upstreamOutputObserver {
-                    log("upstreamOutputCoordinate: removing edge")
-                    
-                    // Remove edge data
-                    oldUpstreamObserver.containsDownstreamConnection = false
-                }
-                
-                if coordinateValueChanged {
-                    // Flatten values
-                    let newFlattenedValues = self.allLoopedValues.flattenValues()
-                    self.updateValues(newFlattenedValues)
-                    
-                    // Recalculate node once values update
-                    self.nodeDelegate?.calculate()
-                }
-                
-                return
-            }
-            
-            // Update that upstream observer of new edge
-            self.upstreamOutputObserver?.containsDownstreamConnection = true
+            self.didUpstreamOutputCoordinateUpdate(oldValue: oldValue)
         }
     }
     
@@ -186,6 +163,34 @@ final class OutputNodeRowObserver: NodeRowObserver {
 }
 
 extension InputNodeRowObserver {
+    @MainActor
+    func didUpstreamOutputCoordinateUpdate(oldValue: NodeIOCoordinate?) {
+        let coordinateValueChanged = oldValue != self.upstreamOutputCoordinate
+        
+        guard let upstreamOutputCoordinate = self.upstreamOutputCoordinate else {
+            if let oldUpstreamObserver = self.upstreamOutputObserver {
+                log("upstreamOutputCoordinate: removing edge")
+                
+                // Remove edge data
+                oldUpstreamObserver.containsDownstreamConnection = false
+            }
+            
+            if coordinateValueChanged {
+                // Flatten values
+                let newFlattenedValues = self.allLoopedValues.flattenValues()
+                self.updateValues(newFlattenedValues)
+                
+                // Recalculate node once values update
+                self.nodeDelegate?.calculate()
+            }
+            
+            return
+        }
+        
+        // Update that upstream observer of new edge
+        self.upstreamOutputObserver?.containsDownstreamConnection = true
+    }
+    
     @MainActor var containsUpstreamConnection: Bool {
         self.upstreamOutputObserver.isDefined
     }
