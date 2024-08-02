@@ -69,7 +69,7 @@ extension StitchDocumentIdentifiable {
 
     /// URL location for recently deleted project.
     private var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchDocPath(self)
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self)
     }
 
     func getUrl(forRecentlyDeleted: Bool = false) -> URL {
@@ -147,7 +147,7 @@ extension StitchDocument: Transferable, Sendable {
         }
     }
 
-    static func openDocument(from importedUrl: URL, 
+    static func openDocument(from importedUrl: URL,
                              isImport: Bool = false,
                              isNonICloudDocumentsFile: Bool = false ) async throws -> StitchDocument? {
         
@@ -162,7 +162,7 @@ extension StitchDocument: Transferable, Sendable {
             try? FileManager.default.startDownloadingUbiquitousItem(at: importedUrl)
         }
         
-        guard let projectDataUrl = try Self.getUnzippedProjectData(importedUrl: importedUrl, isImport: isImport) else {
+        guard let projectDataUrl = try Self.getUnzippedProjectData(importedUrl: importedUrl) else {
             log("openDocument: could not get unzipped project data")
             return nil
         }
@@ -206,10 +206,15 @@ extension StitchDocument: Transferable, Sendable {
 
 extension StitchDocument {
     /// Unzips document contents on project import, returning the URL of the unzipped contents.
-    static func getUnzippedProjectData(importedUrl: URL, isImport: Bool) throws -> URL? {
-        guard isImport else {
-            // Nothing to extract, return the passed in URL
+    static func getUnzippedProjectData(importedUrl: URL) throws -> URL? {
+        // .stitchproject is already unzipped so we just return this
+        if importedUrl.pathExtension == UTType.stitchProjectData.preferredFilenameExtension {
             return importedUrl
+        }
+        
+        guard importedUrl.pathExtension == UTType.stitchDocument.preferredFilenameExtension else {
+            fatalErrorIfDebug("Expected .stitch file type but got: \(importedUrl.pathExtension)")
+            return nil
         }
 
         let unzipDestinationURL = StitchFileManager.tempDir
