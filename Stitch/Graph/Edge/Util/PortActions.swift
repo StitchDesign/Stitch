@@ -17,7 +17,6 @@ extension InputNodeRowObserver {
     @MainActor
     func removeUpstreamConnection(activeIndex: ActiveIndex? = nil,
                                   isVisible: Bool? = nil) {
-        let activeIndex = activeIndex ?? self.nodeDelegate?.activeIndex ?? .init(.zero)
         let downstreamStitches = self.upstreamOutputObserver?.getConnectedDownstreamNodes()
             .map { $0.nodeDelegate?.id }
             .toSet
