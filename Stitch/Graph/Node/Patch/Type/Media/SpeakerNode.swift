@@ -36,18 +36,16 @@ func speakerNode(id: NodeId,
 
 @MainActor
 func speakerEval(node: PatchNode) -> EvalResult {
-    let outputsValues = loopedEval(node: node) { values, loopIndex in
+    let _ = loopedEval(node: node) { values, loopIndex in
         guard let volume = values[safe: 1]?.getNumber,
               let speakerMedia = values.first?.asyncMedia?.mediaObject.soundFilePlayer else {
             log("speakerEval error: no engine or soundinput found.")
-            return [PortValue.number(0)]
+            return
         }
         
         // TODO: player volume should be displayed from this speaker node
         speakerMedia.updateVolume(volume)
-        return [PortValue.number(0)]
     }
-        .remapOutputs()
     
-    return EvalResult(outputsValues: outputsValues)
+    return .init(outputsValues: [])
 }
