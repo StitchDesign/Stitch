@@ -92,6 +92,10 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
+    var requiresOutputValuesChange: Bool {
+        self.kind.getPatch == .pressInteraction
+    }
+    
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
