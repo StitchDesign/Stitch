@@ -86,14 +86,11 @@ struct ReversePulseCoercion: GraphEvent {
     func handle(state: GraphState) {
         // Cannot recalculate full node in some examples (like delay node)
         // so we just update downstream nodes
-        guard let downstreamNodeInputs = state.connections.get(pulsedOutput),
-              let node = state.getNodeViewModel(pulsedOutput.nodeId),
+        guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
               let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType)?.allLoopedValues else {
-                  log("ReversePulseCoercion error: data not found.")
+                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
                   return
               }
-        
-        let downstreamNodeIds = downstreamNodeInputs.map { $0.nodeId }.toSet
         
         // Reverse the values in the downstream inputs
         let changedDownstreamNodeIds = state

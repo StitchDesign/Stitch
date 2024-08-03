@@ -27,7 +27,6 @@ extension StitchStore {
 extension StitchStore {
     @MainActor
     func deleteProject(document: StitchDocument) {
-        let fileManager = self.environment.fileManager
         let projectId = document.projectId
 
         switch StitchFileManager.removeStitchProject(
@@ -80,7 +79,7 @@ extension StitchStore {
     func undoDeleteProject(projectId: ProjectId) {
         // Find URL from recently deleted
         let deletedProjectURL = StitchDocument.recentlyDeletedURL
-            .appendingStitchDocPath(projectId)
+            .appendingStitchProjectDataPath(projectId)
 
         // Reimports deleted project
         Task {
