@@ -69,7 +69,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
 
             // Remove any possibly existing file with same name
             let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
-                .appendingStitchDocPath(projectId)
+                .appendingStitchProjectDataPath(projectId)
             
              log("StitchFileManager.removeStitchProject: recentlyDeletedProjectUrl: \(recentlyDeletedProjectUrl)")
             

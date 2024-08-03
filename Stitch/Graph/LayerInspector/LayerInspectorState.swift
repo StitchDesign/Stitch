@@ -60,11 +60,28 @@ extension LayerInspectorSectionData {
 }
 
 extension LayerInspectorView {
+    // TODO: fill these out
         
+    // TODO: better?: make the LayerInputTypeSet enum CaseIterable and have the enum ordering as the source of truth for this order
+    @MainActor
+    static let allInputs: LayerInputTypeSet = Self.required
+        .union(Self.positioning)
+        .union(Self.sizing)
+        .union(Self.common)
+        .union(Self.groupLayer)
+        .union(Self.unknown)
+        .union(Self.text)
+        .union(Self.stroke)
+        .union(Self.rotation)
+        .union(Self.shadow)
+        .union(Self.effects)
+    
+
     // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
     @MainActor
     static func layerInspectorRowsInOrder(_ layer: Layer) -> [LayerInspectorSectionData] {
         [
+            .init(.required, Self.required),
             .init(.sizing, Self.sizing),
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
@@ -77,7 +94,14 @@ extension LayerInspectorView {
             .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
         ]
     }
-        
+    
+    @MainActor
+    static let required: LayerInputTypeSet = [
+        .scale,
+        .opacity,
+        .pivot, // pivot point for scaling; put with
+    ]
+    
     @MainActor
     static let positioning: LayerInputTypeSet = [
         .position,
@@ -106,14 +130,6 @@ extension LayerInspectorView {
     // Includes some
     @MainActor
     static let common: LayerInputTypeSet = [
-        
-        // Required
-        .scale,
-        .opacity,
-        .pivot, // pivot point for scaling; put with
-        
-//        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
-        
         .masks,
         .clipped,
         

@@ -4,11 +4,12 @@ What’s new:
 
 New layer node inputs:
 - Padding + spacing
-- “Stroke” now available on on layers
+- “Stroke” now available on layers
 
 Bug fixes + other changes:
 - Fixed crash on first-run experience
 - Fixed various crashes caused by some input edits
+- Fixed project deletion undo
 - Graph edges use “curve” style by default
 - Node type options in dropdown list in alphabetical order
 - Re-enabled Cubic Bezier Animation patch node

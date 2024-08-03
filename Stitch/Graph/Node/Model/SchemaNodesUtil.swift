@@ -157,12 +157,8 @@ extension NodeRowDefinitions {
                     outputRowObservers: [observer])
             }
             
-            let outputData = OutputLayerNodeRowData(rowObserver: observer,
-                                                    canvasObserver: canvasObserver)
-            
-            outputData.inspectorRowViewModel.canvasItemDelegate = outputData.canvasObserver
-            
-            return outputData
+            return OutputLayerNodeRowData(rowObserver: observer,
+                                          canvasObserver: canvasObserver)
         }
     }
 }

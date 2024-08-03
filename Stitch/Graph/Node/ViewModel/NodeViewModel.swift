@@ -92,6 +92,10 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
+    var requiresOutputValuesChange: Bool {
+        self.kind.getPatch == .pressInteraction
+    }
+    
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
@@ -510,12 +514,13 @@ extension NodeViewModel: NodeDelegate {
             return canvas.outputViewModels
             
         case .layer(let layer):
-            return layer.outputPorts.flatMap { outputData in
-                if let canvas = outputData.canvasObserver {
-                    return canvas.outputViewModels + [outputData.inspectorRowViewModel]
+            // For old layer node we temporarily stuff the canvas item in its position port
+            if !FeatureFlags.USE_LAYER_INSPECTOR {
+                return layer.positionPort.canvasObserver?.outputViewModels ?? []
+            } else {
+                return layer.outputPorts.flatMap {
+                    return $0.canvasObserver?.outputViewModels ?? []
                 }
-                
-                return [outputData.inspectorRowViewModel]
             }
         }
     }

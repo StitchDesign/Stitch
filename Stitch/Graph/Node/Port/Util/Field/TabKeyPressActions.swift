@@ -75,7 +75,7 @@ extension NodeRowViewModelId {
         switch self.graphItemType {
         
         case .layerInspector(let x):
-            return x
+            return .keyPath(x)
         
         case .node(let canvasItemId):
             switch canvasItemId {
@@ -192,8 +192,7 @@ extension NodeRowViewModelId {
     func updateLayerInputKeyPath(_ newLayerInput: LayerInputType) -> Self {
         
         let newGraphItemType: GraphItemType = self.graphItemType.isLayerInspector
-        // Can assume .keyPath because we're only updating inputs
-        ? .layerInspector(.keyPath(newLayerInput))
+        ? .layerInspector(newLayerInput)
         : .node(.layerInput(.init(node: self.nodeId, keyPath: newLayerInput)))
         
         return .init(graphItemType: newGraphItemType,

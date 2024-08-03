@@ -69,7 +69,7 @@ extension GraphState {
         
         let nodeId = node.id
         
-        input.canvasObserver = CanvasItemViewModel(
+        input.canvasObserver = .init(
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
@@ -79,11 +79,7 @@ extension GraphState {
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [])
-        
         input.canvasObserver?.initializeDelegate(node)
-        
-        // Subscribe inspector row ui data to the row data's canvas item
-        input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
         
         self.graphUI.propertySidebar.selectedProperty = nil
         
@@ -124,7 +120,7 @@ extension GraphState {
                                  output: OutputLayerNodeRowData,
                                  portId: Int) {
         
-        output.canvasObserver = CanvasItemViewModel(
+        output.canvasObserver = .init(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
             position: self.newLayerPropertyLocation,
@@ -133,11 +129,7 @@ extension GraphState {
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [],
             outputRowObservers: [output.rowObserver])
-        
         output.canvasObserver?.initializeDelegate(node)
-        
-        // Subscribe inspector row ui data to the row data's canvas item
-        output.inspectorRowViewModel.canvasItemDelegate = output.canvasObserver
         
         self.graphUI.propertySidebar.selectedProperty = nil
         
