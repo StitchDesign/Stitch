@@ -5972,8 +5972,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.0.0;
+				kind = revision;
+				revision = 1525512db7832fdd719b3bb12f5806e779ccf729;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
