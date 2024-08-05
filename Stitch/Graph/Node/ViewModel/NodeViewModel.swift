@@ -266,7 +266,7 @@ extension NodeViewModel {
     
     // THIS METHOD ONLY USED WHEN A NODE COMES BACK ON-SCREEN ?
     // i.e. not a perf sensitive case
-    // Also, visibility status change DOES NOT affect looped-values etc. 
+    // Also, visibility status change DOES NOT affect looped-values etc.
     @MainActor
     func updateInputPortViewModels(activeIndex: ActiveIndex) {
         zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in

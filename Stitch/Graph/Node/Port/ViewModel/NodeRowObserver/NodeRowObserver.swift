@@ -31,7 +31,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
 //    var hasLoopedValues: Bool { get set }
     
     // perf-sensitive, so actually cached on row view model;
-    // temporarily also offering a computed-property API for contexts that need to be updated to look at row view model instead of just row observer 
+    // temporarily also offering a computed-property API for contexts that need to be updated to look at row view model instead of just row observer
     var hasLoopedValues: Bool { get }
     
     @MainActor var importedMediaObject: StitchMediaObject? { get }
@@ -51,7 +51,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
 }
 
 extension NodeRowObserver {
-    var hasEdge: Bool {
+    var hasLoopedValues: Bool {
         self.allLoopedValues.count > 1
     }
 }
@@ -94,7 +94,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     var connectedNodes: NodeIdSet = .init()
     
     // Can't be computed for rendering purposes
-    var hasLoopedValues: Bool = false
+//    var hasLoopedValues: Bool = false
     
     @MainActor
     convenience init(from schema: NodePortInputEntity,
@@ -119,7 +119,7 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
         self.allLoopedValues = values
         self.nodeKind = nodeKind
         self.userVisibleType = userVisibleType
-        self.hasLoopedValues = values.hasLoop
+//        self.hasLoopedValues = values.hasLoop
     }
 }
 
@@ -150,8 +150,8 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Only for outputs, designed for port edge color usage
     var containsDownstreamConnection = false
     
-    // Can't be computed for rendering purposes
-    var hasLoopedValues: Bool = false
+//    // Can't be computed for rendering purposes
+//    var hasLoopedValues: Bool = false
     
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
@@ -171,7 +171,7 @@ final class OutputNodeRowObserver: NodeRowObserver {
         self.nodeKind = nodeKind
         self.allLoopedValues = values
         self.userVisibleType = userVisibleType
-        self.hasLoopedValues = values.hasLoop
+//        self.hasLoopedValues = values.hasLoop
     }
 }
 
