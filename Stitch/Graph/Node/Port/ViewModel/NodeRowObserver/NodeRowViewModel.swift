@@ -81,7 +81,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     var hasLoop: Bool { get set }
     
 //    // Previously lived on RowObserver, now lives on RowVM
-    var hasEdge: Bool { get set }
+//    var hasEdge: Bool { get set }
+    @MainActor var hasEdge: Bool { get }
     
     // Holds view models for fields
     var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
@@ -223,11 +224,17 @@ extension PortValue {
 // UI data
 @Observable
 final class InputNodeRowViewModel: NodeRowViewModel {
+    
     typealias PortViewType = InputPortViewData
     
     var hasLoop: Bool = false // moved here from RowObserver
     
-    var hasEdge: Bool = false // moved here from RowObserver
+//    var hasEdge: Bool = false // moved here from RowObserver
+    @MainActor
+    var hasEdge: Bool {
+        // TODO: upstreamOutputCoordinate (i.e. incoming edge) will need to be defined at `row view model` instead of `row observer`, since a Width Field can have an incoming edge but its 
+        self.rowDelegate?.upstreamOutputCoordinate.isDefined ?? false
+    }
     
     static let nodeIO: NodeIO = .input
     
@@ -303,7 +310,12 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     
     var hasLoop: Bool = false // moved here from RowObserver
     
-    var hasEdge: Bool = false // moved here from RowObserver
+//    var hasEdge: Bool = false // moved here from RowObserver
+    @MainActor
+    var hasEdge: Bool {
+        // TOOD: see note in `InputNodeRowViewModel.hasEdge`; edges need to be defined to a row view model, not a row observer now
+        self.rowDelegate?.containsDownstreamConnection ?? false
+    }
     
     static let nodeIO: NodeIO = .output
     

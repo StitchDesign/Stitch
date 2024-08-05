@@ -37,7 +37,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     @MainActor var importedMediaObject: StitchMediaObject? { get }
     
     // accessed by NodeRowViewModel, uses for port color in UI
-    var hasEdge: Bool { get }
+//    var hasEdge: Bool { get }
     
     @MainActor var containsUpstreamConnection: Bool { get }
     
@@ -236,9 +236,9 @@ extension InputNodeRowObserver {
             .getOutputRowObserver(upstreamPortId)
     }
     
-    var hasEdge: Bool {
-        self.upstreamOutputCoordinate.isDefined
-    }
+//    var hasEdge: Bool {
+//        self.upstreamOutputCoordinate.isDefined
+//    }
     
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
         guard var inputs = self.nodeDelegate?.allInputViewModels else {
@@ -264,9 +264,9 @@ extension InputNodeRowObserver {
 }
 
 extension OutputNodeRowObserver {
-    var hasEdge: Bool {
-        self.containsDownstreamConnection
-    }
+//    var hasEdge: Bool {
+//        self.containsDownstreamConnection
+//    }
     
     @MainActor var allRowViewModels: [OutputNodeRowViewModel] {
         guard var outputs = self.nodeDelegate?.allOutputViewModels else {
