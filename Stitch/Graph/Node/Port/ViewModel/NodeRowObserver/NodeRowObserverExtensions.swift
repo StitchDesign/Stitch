@@ -190,6 +190,7 @@ extension Array where Element: NodeRowObserver {
         }
     }
     
+    // ONLY USED BY `updateOutputsObservers`
     @MainActor
     func updateAllValues(_ newValuesList: PortValuesList,
                          nodeId: NodeId,
@@ -219,12 +220,25 @@ extension Array where Element: NodeRowObserver {
                 return
             }
 
-            // Only update values if there's no upstream connection
-            if !observer.containsUpstreamConnection {
+            // ONLY USED BY `updateOutputsObservers`, but an output observer can never have an incoming edge
+            
+            let hasIncomingEdge = (observer as? InputNodeRowObserver)?.containsUpstreamConnection ?? false
+            
+            if !hasIncomingEdge {
                 observer.updateValues(values)
             }
+            
+//            if let inputObserver = (observer as? InputNodeRowObserver),
+//               !inputObserver.containsUpstreamConnection {
+//                observer.updateValues(values)
+//            }
+            
+            // Only update values if there's no upstream connection
+//            if !observer.containsUpstreamConnection {
+//                observer.updateValues(values)
+//            }
         }
-    }
+    } // updateAllValues
 }
 
 extension [InputNodeRowObserver] {

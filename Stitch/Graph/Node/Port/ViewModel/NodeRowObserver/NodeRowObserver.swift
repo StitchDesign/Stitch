@@ -35,12 +35,14 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     // temporarily also offering a computed-property API for contexts that need to be updated to look at row view model instead of just row observer
     var hasLoopedValues: Bool { get }
     
+    // Can continue to live on Row Observer; it's a fundamental property of the input / output
+    // TODO: is this only for `InputNodeRowObserver` ? can an output ever have an imported media object ?
     @MainActor var importedMediaObject: StitchMediaObject? { get }
     
     // accessed by NodeRowViewModel, uses for port color in UI
 //    var hasEdge: Bool { get }
     
-    @MainActor var containsUpstreamConnection: Bool { get }
+//    @MainActor var containsUpstreamConnection: Bool { get }
     
     @MainActor
     init(values: PortValues,
@@ -91,8 +93,8 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     
     // MARK: "derived data", cached for UI perf
     
-    // Tracks upstream/downstream nodes--cached for perf
-    var connectedNodes: NodeIdSet = .init()
+//    // Tracks upstream/downstream nodes--cached for perf
+//    var connectedNodes: NodeIdSet = .init()
     
     // Can't be computed for rendering purposes
 //    var hasLoopedValues: Bool = false
@@ -145,8 +147,8 @@ final class OutputNodeRowObserver: NodeRowObserver {
     
     // MARK: "derived data", cached for UI perf
     
-    // Tracks upstream/downstream nodes--cached for perf
-    var connectedNodes: NodeIdSet = .init()
+//    // Tracks upstream/downstream nodes--cached for perf
+//    var connectedNodes: NodeIdSet = .init()
     
     // Only for outputs, designed for port edge color usage
     var containsDownstreamConnection = false
