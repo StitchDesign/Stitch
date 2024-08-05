@@ -52,28 +52,10 @@ struct Preview3DModelLayer: View {
 
     var body: some View {
         Group {
-            /*
-             `Model3DView` is a UIViewRepresentable whose
-             updateUIView method adjusts opacity and isAnimation.
-             
-             When `model3DFilePath` changes, it is `updateUIView`,
-             rather than `makeUIView`,
-             which is called again.
-             
-             In order to change out the actual model,
-             we would have to recreate the entire scene in `updateUIView`;
-             but we don't want to do that when e.g. just opacity has changed.
-             
-             So we use a SwiftUI identifier modifier to tie
-             the UIViewRepresentable's identity to a given model,
-             i.e. model3DFilePath.
-             */
             if let entity = entity {
-                Model3DView(sceneSize: size.asCGSize!,
-                            model3DFilePath: entity.sourceURL,
-                            modelOpacity: opacity,
-                            isAnimating: entity.isAnimating)
-                .id(entity.sourceURL)
+                Model3DView(entity: entity,
+                            sceneSize: size.asCGSize!,
+                            modelOpacity: opacity)
                 .onAppear {
                     // Mark as layer so we regenerate views when finished loading
                     // Fixes bug where newly created graphs don't show model
@@ -119,14 +101,21 @@ struct Preview3DModelLayer: View {
 
 // SwiftUI View that contains a wrapper around the ViewController responsibile for displaying a 3D model
 struct Model3DView: UIViewRepresentable {
+    @Bindable var entity: StitchEntity
     let sceneSize: CGSize
-    let model3DFilePath: URL
     let modelOpacity: CGFloat
-    let isAnimating: Bool
+    
+    var model3DFilePath: URL {
+        entity.sourceURL
+    }
 
+    var isAnimating: Bool {
+        entity.isAnimating
+    }
+    
     func makeUIView(context: Context) -> SCNView {
         do {
-            let newScene = try SCNScene.init(url: model3DFilePath)
+            let newScene = try SCNScene(url: model3DFilePath)
             let sceneView = SCNView()
             sceneView.scene = newScene
             sceneView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
@@ -166,6 +155,9 @@ struct Model3DView: UIViewRepresentable {
         uiView.frame.size = CGSize(width: sceneSize.width, height: sceneSize.height)
         modelNode.opacity = modelOpacity
         modelNode.isPaused = !isAnimating
+        
+        if let transform = entity.transform {
+            modelNode.simdTransform = transform
+        }
     }
-
 }
