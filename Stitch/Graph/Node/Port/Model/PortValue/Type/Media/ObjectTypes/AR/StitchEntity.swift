@@ -10,6 +10,7 @@ import Foundation
 import StitchSchemaKit
 import RealityKit
 
+@Observable
 final class StitchEntity: NSObject, Sendable {
     let id: MediaObjectId
     let sourceURL: URL
@@ -17,11 +18,20 @@ final class StitchEntity: NSObject, Sendable {
     let nodeId: NodeId
     
     // Used just for anchors
-    var initialTransform: matrix_float4x4?
     weak var anchor: AnchorEntity?
     
-    @Published var isAnimating: Bool
-    @Published var entityStatus: LoadingStatus<Entity> = .loading
+    var isAnimating: Bool {
+        @MainActor didSet {
+            if isAnimating {
+                self.entityStatus.loadedInstance?.startAnimation()
+            } else {
+                self.entityStatus.loadedInstance?.stopAllAnimations()
+            }
+        }
+    }
+    
+    var transform: StitchMatrix?
+    var entityStatus: LoadingStatus<Entity> = .loading
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -38,7 +48,7 @@ final class StitchEntity: NSObject, Sendable {
         self.isAnimating = isAnimating
         
         // For usage with anchor node
-        self.initialTransform = initialTransform
+        self.transform = initialTransform
         self.anchor = anchor
         
         super.init()
@@ -66,8 +76,8 @@ final class StitchEntity: NSObject, Sendable {
                 if let stitchModelEntity = self {
                     if let anchor = self?.anchor {
                         // Set anchor transform
-                        if let initialTransform = self?.initialTransform {
-                            anchor.transform.matrix = initialTransform
+                        if let transform = self?.transform {
+                            anchor.transform.matrix = transform
                         }
                         
                         // MARK: must run on main thread
@@ -89,26 +99,17 @@ final class StitchEntity: NSObject, Sendable {
                 }
             })
             .store(in: &self.cancellables)
-        
-        // Subscribes to animation state changes
-        self.$isAnimating
-            .removeDuplicates()
-            .sink { [weak self] _isAnimating in
-                if _isAnimating {
-                    self?.entityStatus.loadedInstance?.startAnimation()
-                } else {
-                    self?.entityStatus.loadedInstance?.stopAllAnimations()
-                }
-            }
-            .store(in: &cancellables)
     }
     
     @MainActor func applyMatrix(newMatrix: StitchMatrix) {
+        // Update publisher, ensuring 3D model layer gets updated
+        self.transform = newMatrix
+        
         switch self.entityStatus {
         case .failed:
             return
         case .loading:
-            self.initialTransform = newMatrix
+            self.transform = newMatrix
         case .loaded(let t):
             t.applyMatrix(newMatrix: newMatrix)
         }
