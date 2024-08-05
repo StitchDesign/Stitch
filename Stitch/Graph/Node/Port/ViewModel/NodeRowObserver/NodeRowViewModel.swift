@@ -81,7 +81,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     var hasLoop: Bool { get set }
     
 //    // Previously lived on RowObserver, now lives on RowVM
-//    var hasEdge: Bool { get set }
+    var hasEdge: Bool { get set }
     
     // Holds view models for fields
     var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
@@ -194,9 +194,9 @@ extension NodeRowViewModel {
         self.setPortColorIfChanged(newColor)
     }
     
-    var hasEdge: Bool {
-        rowDelegate?.hasEdge ?? false
-    }
+//    var hasEdge: Bool {
+//        rowDelegate?.hasEdge ?? false
+//    }
     
 //    var hasLoop: Bool {
 //        rowDelegate?.hasLoopedValues ?? false
@@ -226,6 +226,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = InputPortViewData
     
     var hasLoop: Bool = false // moved here from RowObserver
+    
+    var hasEdge: Bool = false // moved here from RowObserver
     
     static let nodeIO: NodeIO = .input
     
@@ -300,6 +302,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = OutputPortViewData
     
     var hasLoop: Bool = false // moved here from RowObserver
+    
+    var hasEdge: Bool = false // moved here from RowObserver
     
     static let nodeIO: NodeIO = .output
     
