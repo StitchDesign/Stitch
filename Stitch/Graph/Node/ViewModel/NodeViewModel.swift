@@ -264,17 +264,24 @@ extension NodeViewModel {
         return false
     }
     
+    // THIS METHOD ONLY USED WHEN A NODE COMES BACK ON-SCREEN ?
     @MainActor
     func updateInputPortViewModels(activeIndex: ActiveIndex) {
         zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+            rowObserver.updatePortViewModels(
+                values: values,
+                // TODO: look at the cached hasLoopedValues on the row view model itself
+                hasLoopedValues: rowObserver.hasLoopedValues)
         }
     }
 
     @MainActor
     func updateOutputPortViewModels(activeIndex: ActiveIndex) {
         zip(self.getAllOutputsObservers(), self.outputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+            rowObserver.updatePortViewModels(
+                values: values,
+                // TODO: look at the cached hasLoopedValues on the row view model itself
+                hasLoopedValues: rowObserver.hasLoopedValues)
         }
     }
     

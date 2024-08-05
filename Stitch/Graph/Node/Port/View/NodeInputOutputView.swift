@@ -330,7 +330,8 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
          */
         .onTapGesture {
             // Do nothing when input/output doesn't contain a loop
-            if rowObserver.hasLoopedValues {
+//            if rowObserver.hasLoopedValues {
+            if rowViewModel.hasLoop {
                 self.showPopover.toggle()
             } else {
                 // If input/output count is no longer a loop,

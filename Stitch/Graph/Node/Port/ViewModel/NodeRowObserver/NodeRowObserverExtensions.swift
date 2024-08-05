@@ -21,12 +21,13 @@ extension NodeRowObserver {
         
         // Always update "hasLoop", since offscreen node may have an onscreen edge.
         let hasLoop = newValues.hasLoop
-        if hasLoop != self.hasLoopedValues {
-            self.hasLoopedValues = hasLoop
-        }
+//        if hasLoop != self.hasLoopedValues {
+//            self.hasLoopedValues = hasLoop
+//        }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.updatePortViewModels(values: newValues)
+        self.updatePortViewModels(values: newValues,
+                                  hasLoopedValues: hasLoop)
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
@@ -38,9 +39,12 @@ extension NodeRowObserver {
     @MainActor
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
-    func updatePortViewModels(values: PortValues) {
+    func updatePortViewModels(values: PortValues,
+                              // added:
+                              hasLoopedValues: Bool) {
         self.getVisibleRowViewModels().forEach { rowViewModel in
-            rowViewModel.didPortValuesUpdate(values: values)
+            rowViewModel.didPortValuesUpdate(values: values,
+                                             hasLoopedValues: hasLoopedValues)
         }
     }
     

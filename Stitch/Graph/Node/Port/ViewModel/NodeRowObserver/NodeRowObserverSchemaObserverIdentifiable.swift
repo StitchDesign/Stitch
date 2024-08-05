@@ -25,6 +25,14 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
         }
     }
 
+    // helper for easier-to-find name
+    @MainActor
+    func updateRowViewModels(from nodeConnection: NodeConnectionType,
+                             inputType: LayerInputType) {
+        self.update(from: nodeConnection,
+                    inputType: inputType)
+    }
+    
     /// Schema updates from layer.
     @MainActor
     func update(from nodeConnection: NodeConnectionType,

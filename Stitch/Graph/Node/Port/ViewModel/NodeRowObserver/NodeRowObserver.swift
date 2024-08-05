@@ -27,10 +27,16 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var connectedNodes: NodeIdSet { get set }
     
-    var hasLoopedValues: Bool { get set }
+    // accessed by NodeRowViewModel, for port color in UI
+//    var hasLoopedValues: Bool { get set }
+    
+    // perf-sensitive, so actually cached on row view model;
+    // temporarily also offering a computed-property API for contexts that need to be updated to look at row view model instead of just row observer 
+    var hasLoopedValues: Bool { get }
     
     @MainActor var importedMediaObject: StitchMediaObject? { get }
     
+    // accessed by NodeRowViewModel, uses for port color in UI
     var hasEdge: Bool { get }
     
     @MainActor var containsUpstreamConnection: Bool { get }
@@ -42,6 +48,12 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          id: NodeIOCoordinate,
          activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?)
+}
+
+extension NodeRowObserver {
+    var hasEdge: Bool {
+        self.allLoopedValues.count > 1
+    }
 }
 
 @Observable

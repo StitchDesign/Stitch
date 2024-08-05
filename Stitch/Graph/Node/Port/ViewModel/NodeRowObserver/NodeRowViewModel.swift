@@ -77,6 +77,12 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     // separate propety for perf reasons:
     var activeValue: PortValue { get set }
     
+    // previous lived in RowObserver
+    var hasLoop: Bool { get set }
+    
+//    // Previously lived on RowObserver, now lives on RowVM
+//    var hasEdge: Bool { get set }
+    
     // Holds view models for fields
     var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
     
@@ -148,7 +154,11 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func didPortValuesUpdate(values: PortValues) {
+    func didPortValuesUpdate(values: PortValues,
+                             hasLoopedValues: Bool) {
+        
+        self.hasLoop = hasLoopedValues
+        
         guard let rowDelegate = self.rowDelegate else {
             return
         }
@@ -188,9 +198,9 @@ extension NodeRowViewModel {
         rowDelegate?.hasEdge ?? false
     }
     
-    var hasLoop: Bool {
-        rowDelegate?.hasLoopedValues ?? false
-    }
+//    var hasLoop: Bool {
+//        rowDelegate?.hasLoopedValues ?? false
+//    }
 }
 
 extension PortValue {
@@ -215,14 +225,21 @@ extension PortValue {
 final class InputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = InputPortViewData
     
+    var hasLoop: Bool = false // moved here from RowObserver
+    
     static let nodeIO: NodeIO = .input
     
     var id: NodeRowViewModelId
     var activeValue: PortValue = .number(.zero)
+    
     var fieldValueTypes = FieldGroupTypeViewModelList<InputFieldViewModel>()
     var anchorPoint: CGPoint?
+    
+    // connected canvas items vs connected nodes ?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
+    
     var portColor: PortColor = .noEdge
+    
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
@@ -281,6 +298,8 @@ extension InputNodeRowViewModel {
 @Observable
 final class OutputNodeRowViewModel: NodeRowViewModel {
     typealias PortViewType = OutputPortViewData
+    
+    var hasLoop: Bool = false // moved here from RowObserver
     
     static let nodeIO: NodeIO = .output
     
