@@ -25,7 +25,8 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeDelegate: NodeDelegate? { get set }
     
-    var connectedNodes: NodeIdSet { get set }
+    // NOT USED ANYWHERE?
+//    var connectedNodes: NodeIdSet { get set }
     
     // accessed by NodeRowViewModel, for port color in UI
 //    var hasLoopedValues: Bool { get set }
