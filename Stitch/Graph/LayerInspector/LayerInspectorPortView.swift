@@ -83,10 +83,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var isOnGraphAlready: Bool {
-        if layerProperty == .layerInput(.opacity) {
-            log("rowViewModel.canvasItemDelegate.isDefined: \(rowViewModel.canvasItemDelegate.isDefined)")
-        }
-        return rowViewModel.canvasItemDelegate.isDefined
+        rowViewModel.canvasItemDelegate.isDefined
     }
     
     var body: some View {
