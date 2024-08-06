@@ -21,9 +21,12 @@ struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
                 }
             }
         }
+        // incorrect logic -- the layer
+//        state.sidebarSelectionState.all.map { } 
         
         state.copyAndPasteSelectedNodes()
         return .persistenceResponse
     }
 }
+
 

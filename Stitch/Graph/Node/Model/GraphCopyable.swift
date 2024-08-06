@@ -345,17 +345,32 @@ extension CanvasNodeEntity {
 
 extension GraphState {
     @MainActor
+//    func createCopiedComponent(groupNodeFocused: NodeId?,
+//                               selectedNodes: CanvasItemIdSet) -> StitchComponentCopiedResult {
     func createCopiedComponent(groupNodeFocused: NodeId?) -> StitchComponentCopiedResult {
-        let selectedNodeIds = self.selectedNodeIds
+        
+        // Pass these in manually, since
+//        let selectedNodeIds: CanvasItemIdSet = self.selectedNodeIds
+        
+//        let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
+//            .map { node in
+//                var node = node
+//                node.nodeTypeEntity.resetGroupId(groupNodeFocused)
+//                return node
+//            }
+
+        // TODO: pass in either SelectedSidebarLayers (layers duplicated) or CanvasItemIdSet (patches duplicated)
+        let selectedNodeIds: IdSet = self.orderedSidebarLayers.map(\.id).toSet
+                
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
                 node.nodeTypeEntity.resetGroupId(groupNodeFocused)
                 return node
             }
-
+        
         let selectedSidebarLayers = self.orderedSidebarLayers
-            .getSubset(from: selectedNodes.map { $0.id }.toSet)
+//            .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
         let copiedComponent = StitchComponent(nodes: selectedNodes,
                                               orderedSidebarLayers: selectedSidebarLayers)

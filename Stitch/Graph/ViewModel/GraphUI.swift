@@ -213,13 +213,68 @@ extension GraphUIState {
 }
 
 extension GraphState {
+    
+//    @MainActor
+//    func getSelectedNodeEntities(for selectedLayers: OrderedSidebarLayers) -> [NodeEntity] {
+//        selectedLayers.forEach { (sidebarLayer: SidebarLayerData) in
+//            let nodeId = sidebarLayer.id
+//
+//            guard let stitchViewModel: NodeViewModel = self.getNode(nodeId) {
+//                return []
+//            }
+//            
+//            let nodeSchema = stitchViewModel.createSchema()
+//            
+//            switch stitchViewModel.kind {
+//                // Node-UI-groups irrelevant when we're
+////            case .group:
+////                // Recursively add nodes in group
+////                let idsInGroup = self.visibleNodesViewModel.getCanvasItems()
+////                    .filter { $0.parentGroupNodeId == stitchViewModel.id }
+////                    .map { $0.id }
+////                    .toSet
+////                
+////                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInGroup)
+//                
+//            case .layer(let layer) where layer == .group:
+//                // Recursively add layer nodes in layer group
+//                let idsInLayerGroup = self.nodes.values
+//                    .flatMap { node -> [CanvasItemId] in
+//                        guard let layerNode = node.layerNode,
+//                              layerNode.layerGroupId == stitchViewModel.id else {
+//                            return []
+//                        }
+//                        
+//                        return layerNode.getAllCanvasObservers()
+//                            .map { $0.id }
+//                    }
+//                    .toSet
+//                
+//                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInLayerGroup)
+//                
+//            default:
+//                return [nodeSchema]
+//            }
+//            
+//        }
+//    }
+    
     /// Returns  `NodeEntities` given some selection state. Recursively gets group children if group selected.
     @MainActor
-    func getSelectedNodeEntities(for ids: CanvasItemIdSet) -> [NodeEntity] {
-        ids.flatMap { nodeId -> [NodeEntity] in
-            guard let nodeViewModel = self.getCanvasItem(nodeId),
-                  let stitchId = nodeViewModel.nodeDelegate?.id,
-                  let stitchViewModel = self.getNodeViewModel(stitchId) else {
+//    func getSelectedNodeEntities(for ids: CanvasItemIdSet) -> [NodeEntity] {
+    func getSelectedNodeEntities(for ids: NodeIdSet) -> [NodeEntity] {
+        ids.flatMap { (nodeId: NodeId) -> [NodeEntity] in
+            
+            // don't need the canvas item view model per se?
+            // just need a list of node ids;
+            // can't even be full CanvasItemId enum, because LayerInputOnGraphId cannot be duplicated etc.
+            
+            // need to be able to get selected node entities for
+//            guard let nodeViewModel: CanvasItemViewModel = self.getCanvasItem(nodeId),
+//                  let stitchId: NodeId = nodeViewModel.nodeDelegate?.id,
+//                  let stitchViewModel: NodeViewModel = self.getNodeViewModel(stitchId) else {
+            
+            guard let stitchViewModel: NodeViewModel = self.getNodeViewModel(nodeId) else {
                 return []
             }
             
@@ -227,17 +282,21 @@ extension GraphState {
             
             switch stitchViewModel.kind {
             case .group:
-                // Recursively add nodes in group
-                let idsInGroup = self.visibleNodesViewModel.getCanvasItems()
+                // Recursively add nodes in node-ui-grouping
+                let idsInGroup: NodeIdSet = self.visibleNodesViewModel
+                    .getCanvasItems()
                     .filter { $0.parentGroupNodeId == stitchViewModel.id }
-                    .map { $0.id }
+                    .compactMap { (canvasItem: CanvasItemViewModel) -> NodeId? in
+                        canvasItem.id.nodeCase
+                    }
                     .toSet
                 
                 return [nodeSchema] + self.getSelectedNodeEntities(for: idsInGroup)
                 
             case .layer(let layer) where layer == .group:
+                // TODO: update this; it's not about canvas items
                 // Recursively add layer nodes in layer group
-                let idsInLayerGroup = self.nodes.values
+                let idsInLayerGroup: CanvasItemIdSet = self.nodes.values
                     .flatMap { node -> [CanvasItemId] in
                         guard let layerNode = node.layerNode,
                               layerNode.layerGroupId == stitchViewModel.id else {
@@ -249,7 +308,8 @@ extension GraphState {
                     }
                     .toSet
                 
-                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInLayerGroup)
+//                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInLayerGroup)
+                return [nodeSchema]
                 
             default:
                 return [nodeSchema]
