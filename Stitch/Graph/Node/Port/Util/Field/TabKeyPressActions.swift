@@ -237,8 +237,9 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     
     // Remove inputs from sections that are (1) collapsed or (2) use a flyout
         .filter {
-            $0.name != .shadow
-            && !collapsedSections.contains($0.name)
+//            $0.name != .shadow
+//            && 
+            !collapsedSections.contains($0.name)
         }
     
     // Handle just layer inputs now

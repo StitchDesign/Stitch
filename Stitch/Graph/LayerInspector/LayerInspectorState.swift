@@ -73,7 +73,7 @@ extension LayerInspectorView {
             .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
-            .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
+//            .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
             .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
         ]
     }
@@ -242,6 +242,7 @@ extension LayerInspectorView {
     
     @MainActor
     static let effects: LayerInputTypeSet = [
+        SHADOW_FLYOUT_LAYER_INPUT_PROXY,
         .blur, // blur vs blurRadius ?
         .blurRadius,
         .blendMode,

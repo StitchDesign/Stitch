@@ -169,10 +169,21 @@ struct NodeInputView: View {
                 let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
-                if hidePaddingFieldsOnPropertySidebar {
+                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                
+                if isPaddingLayerInputRow, forPropertySidebar {
                     PaddingReadOnlyView(rowObserver: rowObserver,
                                         rowData: rowData,
                                         labelView: labelView)
+                    
+                } else if isShadowLayerInputRow, forPropertySidebar {
+                    StitchTextView(string: "Shadow",
+                                   fontColor: STITCH_FONT_GRAY_COLOR)
+                    .onTapGesture {
+                        dispatch(FlyoutToggled(
+                            flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                            flyoutNodeId: nodeId))
+                    }
                     
                 } else {
                     labelView
