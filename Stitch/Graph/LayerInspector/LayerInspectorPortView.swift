@@ -24,13 +24,47 @@ struct LayerInspectorInputPortView: View {
                                node: node,
                                layerNode: layerNode,
                                graph: graph) { propertyRowIsSelected, isOnGraphAlready in
-            NodeInputView(graph: graph,
-                          rowObserver: rowObserver,
-                          rowData: rowViewModel,
-                          forPropertySidebar: true,
-                          propertyIsSelected: propertyRowIsSelected,
-                          propertyIsAlreadyOnGraph: isOnGraphAlready,
-                          isCanvasItemSelected: false)
+            
+            HStack {
+                
+                if layerInput == .opacity {
+                    logInView("on opacity")
+                }
+                
+                if isOnGraphAlready,
+                   let canvasItemId = rowViewModel.canvasItemDelegate?.id {
+                    JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
+                        .border(.purple)
+                } else {
+                    AddLayerPropertyToGraphButton(
+                        propertyIsSelected: propertyRowIsSelected,
+                        coordinate: rowObserver.id)
+                    .border(.orange)
+                }
+                
+                HStack {
+                    NodeInputView(graph: graph,
+                                  rowObserver: rowObserver,
+                                  rowData: rowViewModel,
+                                  forPropertySidebar: true,
+                                  propertyIsSelected: propertyRowIsSelected,
+                                  propertyIsAlreadyOnGraph: isOnGraphAlready,
+                                  isCanvasItemSelected: false)
+                    Spacer()
+                }
+//                .padding(8)
+                .padding(.leading, 8)
+                .background {
+                    //
+//                    Color.green
+//                        .opacity(0.5)
+                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
+                        .cornerRadius(6)
+                }
+
+            }
+//            .border(.blue)
+            
         }
     }
 }
@@ -83,40 +117,48 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var isOnGraphAlready: Bool {
-        rowViewModel.canvasItemDelegate.isDefined
+        if layerProperty == .layerInput(.opacity) {
+            log("rowViewModel.canvasItemDelegate.isDefined: \(rowViewModel.canvasItemDelegate.isDefined)")
+        }
+        return rowViewModel.canvasItemDelegate.isDefined
     }
 
     var body: some View {
         
-        let listBackgroundColor: Color = isOnGraphAlready
-            ? Color.black.opacity(0.3)
-            : (self.propertyRowIsSelected
-               ? STITCH_PURPLE.opacity(0.4) : .clear)
+//        let listBackgroundColor: Color = isOnGraphAlready
+//            ? Color.black.opacity(0.3)
+//            : (self.propertyRowIsSelected
+//               ? STITCH_PURPLE.opacity(0.4) : .clear)
         
         // See if layer node uses this input
         rowView(propertyRowIsSelected, isOnGraphAlready)
-        .background {
-            // Extending the hit area of the NodeInputOutputView view
-            Color.white.opacity(0.001)
-                .padding(-12)
-                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-            
-            // TODO: this avoids accidentally selecting the row when using a dropdown, but then the row's overall-label and field-labels are no longer covered; so just add this .gesture to the overall-label and field-label views?
-//                .gesture(
-//                    TapGesture().onEnded({ _ in
-//                        log("LayerInspectorPortView tapped")
-//                        if isOnGraphAlready,
-//                           let canvasItemId = rowViewModel.canvasItemDelegate?.id {
-//                            dispatch(JumpToCanvasItem(id: canvasItemId))
-//                        } else {
-//                            withAnimation {
-//                                graph.graphUI.layerPropertyTapped(layerProperty)
-//                            }
-//                        }
-//                    })
-//                ) // .gesture
-        }
-        .listRowBackground(listBackgroundColor)
+            .listRowBackground(Color.clear)
+        
+//        .background {
+//            // Extending the hit area of the NodeInputOutputView view
+////            Color.white.opacity(0.001)
+//            Color.white.opacity(0.1)
+//                .padding(-12)
+//                .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                .cornerRadius(6)
+//                .border(.red)
+//            
+//            // TODO: this avoids accidentally selecting the row when using a dropdown, but then the row's overall-label and field-labels are no longer covered; so just add this .gesture to the overall-label and field-label views?
+////                .gesture(
+////                    TapGesture().onEnded({ _ in
+////                        log("LayerInspectorPortView tapped")
+////                        if isOnGraphAlready,
+////                           let canvasItemId = rowViewModel.canvasItemDelegate?.id {
+////                            dispatch(JumpToCanvasItem(id: canvasItemId))
+////                        } else {
+////                            withAnimation {
+////                                graph.graphUI.layerPropertyTapped(layerProperty)
+////                            }
+////                        }
+////                    })
+////                ) // .gesture
+//        }
+//        .listRowBackground(listBackgroundColor)
         //            .listRowSpacing(12)
         .gesture(
             TapGesture().onEnded({ _ in

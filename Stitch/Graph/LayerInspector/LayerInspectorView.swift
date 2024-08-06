@@ -58,30 +58,20 @@ struct LayerInspectorView: View {
             @Bindable var node = node
             @Bindable var layerNode = layerNode
             
-            UIKitWrapper(ignoresKeyCommands: false,
-                         name: "LayerInspectorView") {
+//            UIKitWrapper(ignoresKeyCommands: false,
+//                         name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
-            }
+//            }
 
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
-            #if targetEnvironment(macCatalyst)
-                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-            #else
-                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-                         .padding(.bottom, -20)
-            #endif
-            
-                         .onAppear {
-                             //#if DEV_DEBUG
-                             //                             // TODO: write a test; make sure we handle all layer input types at least in some cases?
-                             //                             let listedLayers = Self.allInputs
-                             //                             let allLayers = LayerInputType.allCases.toSet
-                             //                             let diff = allLayers.subtracting(listedLayers)
-                             //                             log("diff: \(diff)")
-                             //                             assert(diff.count == 0)
-                             //#endif
-                         }
+//            #if targetEnvironment(macCatalyst)
+//                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
+//            #else
+//                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
+//                         .padding(.bottom, -20)
+//            #endif
+//            
         } else {
             // Empty List, so have same background
             List { }
@@ -92,7 +82,13 @@ struct LayerInspectorView: View {
     func selectedLayerView(_ node: NodeViewModel,
                            _ layerNode: LayerNodeViewModel) -> some View {
 
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text(node.displayTitle).font(.title2)
+                Spacer()
+            }
+                .padding()
+                .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
             
             //            // TODO: remove? make editable TextField for renaming etc.?
             //            // TODO: want something that
@@ -108,7 +104,7 @@ struct LayerInspectorView: View {
             
             List {
                 // TODO: remove?
-                Text(node.displayTitle).font(.title2)
+//                Text(node.displayTitle).font(.title2)
                 
                 ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
                     
@@ -152,6 +148,9 @@ struct LayerInspectorView: View {
                                                  layerNode: layerNode,
                                                  graph: graph)
             } // List
+        
+        // Note: gives us sticky headers, but we lose background color?
+//            .listStyle(.plain)
             
         } // VStack
     }
@@ -245,14 +244,17 @@ struct LayerInspectorInputsSectionView: View {
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
-            HStack  {
-                StitchTextView(string: sectionName.rawValue)
-                Spacer()
+            
+            // TODO: use a button instead?
+            
+            HStack { // spacing of 8 ?
                 let rotationZ: CGFloat = expanded ? 90 : 0
                 Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
                     .rotation3DEffect(Angle(degrees: rotationZ),
                                       axis: (x: 0, y: 0, z: rotationZ))
                     .animation(.linear(duration: 0.2), value: rotationZ)
+                StitchTextView(string: sectionName.rawValue)
+                
             }
             .padding(4)
             .contentShape(Rectangle())
