@@ -104,29 +104,7 @@ struct LayerInspectorView: View {
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
-                    // NOTE: Special case for a section that uses a flyout
-                    if sectionName == .shadow {
-                        // will this row be selectable ?
-                        StitchTextView(string: sectionName.rawValue)
-                            .padding(4)
-                            .background {
-                                // Extending the hit area of the NodeInputOutputView view
-                                Color.white.opacity(0.001)
-                                    .padding(-12)
-                                    .padding(.trailing, -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                            }
-                            .listRowBackground(Color.clear)
-                            .modifier(LayerPropertyRowOriginReader(
-                                graph: graph,
-                                layerInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY))
-                            .onTapGesture {
-                                dispatch(FlyoutToggled(flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                                                       flyoutNodeId: node.id))
-                            }
-                    }
-                    
-                    // Else, render non-empty sections
-                    else if !sectionInputs.isEmpty {
+                    if !sectionInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
                             layerInputs: sectionInputs,
@@ -141,8 +119,6 @@ struct LayerInspectorView: View {
                                                  layerNode: layerNode,
                                                  graph: graph)
             } // List
-        
-        // Note: gives us sticky headers, but we lose background color?
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
             
@@ -153,7 +129,6 @@ struct LayerInspectorView: View {
         } // VStack
     }
 }
-
 
 
 struct LayerPropertyRowOriginReader: ViewModifier {
@@ -201,7 +176,7 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          typography = "Typography",
          stroke = "Stroke",
          rotation = "Rotation",
-         shadow = "Shadow",
+//         shadow = "Shadow",
          layerEffects = "Layer Effects"
 }
 
