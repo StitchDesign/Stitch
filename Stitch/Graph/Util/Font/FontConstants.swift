@@ -29,6 +29,10 @@ let VALUE_FIELD_BODY_COLOR: Color = Color(.valueFieldBody)
 
 let INSERT_NODE_MENU_SEARCH_TEXT: Color = Color(.insertNodeMenuTitle)
 
+// white in light mode, gray in dark mode
+let LAYER_INSPECTOR_ROW_CAPSULE_COLOR: Color = Color(.layerInspectorRowCapsule)
+let WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE = LAYER_INSPECTOR_ROW_CAPSULE_COLOR
+
 let SIDE_BAR_OPTIONS_TITLE_FONT_COLOR: Color = Color(.sideBarOptionsTitleFont)
 
 let CATALYST_TOP_BAR_ICON_SIZE = CGSize(width: 17, height: 17)
