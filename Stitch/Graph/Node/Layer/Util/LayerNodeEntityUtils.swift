@@ -17,7 +17,7 @@ extension LayerNodeEntity {
     // TODO: can we move this initialzier to StitchSchemaKit ?
     init(nodeId: NodeId,
          layer: Layer,
-         positionPort: LayerInputDataEntity = LayerInputDataEntity.empty,
+         positionPort: LayerInputEntity = LayerInputEntity.empty,
          sizePort: LayerInputDataEntity = LayerInputDataEntity.empty,
          scalePort: LayerInputDataEntity = LayerInputDataEntity.empty,
          anchoringPort: LayerInputDataEntity = LayerInputDataEntity.empty,

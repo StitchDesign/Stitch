@@ -1509,7 +1509,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
@@ -1817,7 +1817,7 @@ extension NodeKind {
                     inputs: [
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.number(10)],
@@ -1837,11 +1837,11 @@ extension NodeKind {
                     inputs: [
                         .init(
                             defaultValues: [.position(CGRect.defaultOval.origin.toCGSize)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.size(CGRect.defaultOval.size.toLayerSize)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         )
                     ],
                     outputs: [
@@ -1857,11 +1857,11 @@ extension NodeKind {
                     inputs: [
                         .init(
                             defaultValues: [.position(CGRect.defaultRoundedRectangle.rect.origin.toCGSize)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.size(CGRect.defaultRoundedRectangle.rect.size.toLayerSize)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [.number(CGRect.defaultRoundedRectangle.cornerRadius)],
@@ -1934,7 +1934,7 @@ extension NodeKind {
                             type: .string
                         ),
                         .init(
-                            label: LayerInputType.size.label(),
+                            label: LayerInputPort.size.label(),
                             type: .size
                         )
                     ]
@@ -1986,7 +1986,7 @@ extension NodeKind {
                             type: .bool
                         ),
                         .init(
-                            label: LayerInputType.position.label(),
+                            label: LayerInputPort.position.label(),
                             type: .position
                         ),
                         .init(
@@ -2019,7 +2019,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
@@ -2035,7 +2035,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.size(defaultTextSize)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [defaultOpacity],
@@ -2043,15 +2043,15 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(1)],
-                            label: LayerInputType.scale.label()
+                            label: LayerInputPort.scale.label()
                         ),
                         .init(
                             defaultValues: [.anchoring(.defaultAnchoring)],
-                            label: LayerInputType.anchoring.label()
+                            label: LayerInputPort.anchoring.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.zIndex.label()
+                            label: LayerInputPort.zIndex.label()
                         ),
                         .init(
                             defaultValues: [.number(36)],
@@ -2099,7 +2099,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
@@ -2115,7 +2115,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.size(defaultTextSize)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [defaultOpacity],
@@ -2123,15 +2123,15 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(1)],
-                            label: LayerInputType.scale.label()
+                            label: LayerInputPort.scale.label()
                         ),
                         .init(
                             defaultValues: [.anchoring(.defaultAnchoring)],
-                            label: LayerInputType.anchoring.label()
+                            label: LayerInputPort.anchoring.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.zIndex.label()
+                            label: LayerInputPort.zIndex.label()
                         ),
                         .init(
                             defaultValues: [.number(36)],
@@ -2177,7 +2177,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
@@ -2193,7 +2193,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.size(.LAYER_DEFAULT_SIZE)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [defaultOpacity],
@@ -2201,15 +2201,15 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(1)],
-                            label: LayerInputType.scale.label()
+                            label: LayerInputPort.scale.label()
                         ),
                         .init(
                             defaultValues: [.anchoring(.defaultAnchoring)],
-                            label: LayerInputType.anchoring.label()
+                            label: LayerInputPort.anchoring.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.zIndex.label()
+                            label: LayerInputPort.zIndex.label()
                         ),
                         .init(
                             defaultValues: [.layerStroke(.defaultStroke)],
@@ -2240,15 +2240,15 @@ extension NodeKind {
                     inputs: [
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.size(DEFAULT_GROUP_SIZE)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.zIndex.label()
+                            label: LayerInputPort.zIndex.label()
                         ),
                         .init(
                             defaultValues: [.bool(true)],
@@ -2256,11 +2256,11 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(1)],
-                            label: LayerInputType.scale.label()
+                            label: LayerInputPort.scale.label()
                         ),
                         .init(
                             defaultValues: [.anchoring(.defaultAnchoring)],
-                            label: LayerInputType.anchoring.label()
+                            label: LayerInputPort.anchoring.label()
                         ),
                         .init(
                             defaultValues: [.number(0)],
@@ -2335,11 +2335,11 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.position(StitchPosition.zero)],
-                            label: LayerInputType.position.label()
+                            label: LayerInputPort.position.label()
                         ),
                         .init(
                             defaultValues: [.size(defaultHitAreaSize)],
-                            label: LayerInputType.size.label()
+                            label: LayerInputPort.size.label()
                         ),
                         .init(
                             defaultValues: [.anchoring(.defaultAnchoring)],
@@ -2347,7 +2347,7 @@ extension NodeKind {
                         ),
                         .init(
                             defaultValues: [.number(0)],
-                            label: LayerInputType.zIndex.label()
+                            label: LayerInputPort.zIndex.label()
                         ),
                         .init(
                             defaultValues: [.bool(true)],

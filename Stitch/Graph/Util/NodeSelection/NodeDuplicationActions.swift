@@ -118,14 +118,24 @@ extension GraphState {
                 switch nodeEntity.nodeTypeEntity {
                 case .layer(let layerNode):
                     layerNode.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-                        let layerInputId = LayerInputCoordinate(node: nodeEntity.id,
-                                                                keyPath: inputType)
                         let portData = layerNode[keyPath: inputType.schemaPortKeyPath]
-                        
-                        if let canvas = portData.canvasItem,
-                           let canvasItem = self.getCanvasItem(.layerInput(layerInputId)) {
-                            canvasItem.select()
+                        let isPacked = portData.mode == .packed
+                        portData.allInputData.enumerated().forEach { portId, inputData in
+                            let unpackedId = UnpackedPortType(rawValue: portId)
+                            
+                            // If unpacked, make sure we get valid ID
+                            assertInDebug(isPacked || (!isPacked && unpackedId.isDefined))
+                            
+                            let portType: LayerInputKeyPathType = isPacked ? .packed : .unpacked(unpackedId ?? .port0)
+                            let layerId = LayerInputType(layerInput: inputType,
+                                                         portType: portType)
+                            if let canvas = inputData.canvasItem,
+                               let canvasItem = self.getCanvasItem(.layerInput(.init(node: nodeEntity.id,
+                                                                                     keyPath: layerId))) {
+                                canvasItem.select()
+                            }
                         }
+                        
                     }
                     
                 case .patch, .group:

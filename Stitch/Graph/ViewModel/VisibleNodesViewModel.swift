@@ -151,9 +151,7 @@ extension VisibleNodesViewModel {
     @MainActor
     func buildUpstreamReferences(nodeEntity: NodeEntity) {
         guard let nodeViewModel = self.nodes.get(nodeEntity.id) else {
-            #if DEBUG || DEV_DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return
         }
 
@@ -162,24 +160,33 @@ extension VisibleNodesViewModel {
            let layerNodeViewModel = nodeViewModel.layerNode {
             layerEntity.layer.layerGraphNode.inputDefinitions.forEach { inputType in
                 let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
-                let inputObserver = layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].rowObserver
                 
-                guard let connectedOutputCoordinate = schemaInput.inputPort.upstreamConnection else {
-                    inputObserver.upstreamOutputCoordinate = nil
-                    return
+                // Loop over ports for each layer input--multiple if in unpacked mode
+                layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].allInputData.forEach { inputData in
+                    let inputObserver = inputData.rowObserver
+                    let id = inputData.id
+                    guard let inputSchemaData = schemaInput.getInputData(from: id.portType) else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    guard let connectedOutputCoordinate = inputSchemaData.inputPort.upstreamConnection else {
+                        inputObserver.upstreamOutputCoordinate = nil
+                        return
+                    }
+                    
+                    // Check for connected row observer rather than just setting ID--makes for
+                    // a more robust check in ensuring the connection actually exists
+                    guard let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate) else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
+                    
+                    // Report to output observer that there's an edge (for port colors)
+                    // We set this to false on default above
+                    connectedOutputObserver.containsDownstreamConnection = true
                 }
-                
-                // Check for connected row observer rather than just setting ID--makes for
-                // a more robust check in ensuring the connection actually exists
-                guard let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate) else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
-                
-                // Report to output observer that there's an edge (for port colors)
-                // We set this to false on default above
-                connectedOutputObserver.containsDownstreamConnection = true
             }
         } else {
             nodeEntity.inputs.enumerated().forEach { portId, inputEntity in

@@ -19,6 +19,31 @@ extension LayerDimension {
 
 extension LayerInputType {
     func getDefaultValue(for layer: Layer) -> PortValue {
+        let defaultPackedValue = self.layerInput.getDefaultValue(for: layer)
+        
+        switch self.portType {
+        case .packed:
+            return defaultPackedValue
+                    
+        case .unpacked(let unpackedType):
+            guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
+                fatalErrorIfDebug("Unpacking shouldn't have been called for port: \(self.layerInput)")
+                return .none
+            }
+            
+            guard let valueAtPort = unpackedValues[safe: unpackedType.rawValue] else {
+                // Hit for .empty callers
+//                fatalErrorIfDebug()
+                return unpackedValues.first ?? .none
+            }
+            
+            return valueAtPort
+        }
+    }
+}
+
+extension LayerInputPort {
+    func getDefaultValue(for layer: Layer) -> PortValue {
         switch self {
             // Required everywhere
         case .position:
@@ -217,200 +242,203 @@ extension LayerInputType {
         }
     }
     
-    /// Keypath )mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
+    /// Keypath mapping to this schema version.
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputEntity> {
         switch self {
             
         // Required
         case .position:
             return \.positionPort
-        case .size:
-            return \.sizePort
-        case .scale:
-            return \.scalePort
-        case .anchoring:
-            return \.anchoringPort
-        case .opacity:
-            return \.opacityPort
-        case .zIndex:
-            return \.zIndexPort
-        
-        // Common
-        case .masks:
-            return \.masksPort
-        case .color:
-            return \.colorPort
-        case .rotationX:
-            return \.rotationXPort
-        case .rotationY:
-            return \.rotationYPort
-        case .rotationZ:
-            return \.rotationZPort
-        case .lineColor:
-            return \.lineColorPort
-        case .lineWidth:
-            return \.lineWidthPort
-        case .blur:
-            return \.blurPort
-        case .blendMode:
-            return \.blendModePort
-        case .brightness:
-            return \.brightnessPort
-        case .colorInvert:
-            return \.colorInvertPort
-        case .contrast:
-            return \.contrastPort
-        case .hueRotation:
-            return \.hueRotationPort
-        case .saturation:
-            return \.saturationPort
-        case .pivot:
-            return \.pivotPort
-        case .enabled:
-            return \.enabledPort
-        case .blurRadius:
-            return \.blurRadiusPort
-        case .backgroundColor:
-            return \.backgroundColorPort
-        case .isClipped:
-            return \.isClippedPort
-        case .orientation:
-            return \.orientationPort
-        case .padding:
-            return \.paddingPort
-        case .setupMode:
-            return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
-        case .cameraDirection:
-            return \.cameraDirectionPort
-        case .isCameraEnabled:
-            return \.isCameraEnabledPort
-        case .isShadowsEnabled:
-            return \.isShadowsEnabledPort
-        
-        case .shape:
-            return \.shapePort
-        case .strokePosition:
-            return \.strokePositionPort
-        case .strokeWidth:
-            return \.strokeWidthPort
-        case .strokeColor:
-            return \.strokeColorPort
-        case .strokeStart:
-            return \.strokeStartPort
-        case .strokeEnd:
-            return \.strokeEndPort
-        case .strokeLineCap:
-            return \.strokeLineCapPort
-        case .strokeLineJoin:
-            return \.strokeLineJoinPort
-        case .coordinateSystem:
-            return \.coordinateSystemPort
-        case .cornerRadius:
-            return \.cornerRadiusPort
-        
-        case .canvasLineColor:
-            return \.canvasLineColorPort
-        case .canvasLineWidth:
-            return \.canvasLineWidthPort
-        case .text:
-            return \.textPort
-        case .fontSize:
-            return \.fontSizePort
-        case .textAlignment:
-            return \.textAlignmentPort
-        case .verticalAlignment:
-            return \.verticalAlignmentPort
-        case .textDecoration:
-            return \.textDecorationPort
-        case .textFont:
-            return \.textFontPort
-        case .image:
-            return \.imagePort
-        case .video:
-            return \.videoPort
-        case .fitStyle:
-            return \.fitStylePort
-        case .clipped:
-            return \.clippedPort
-        case .isAnimating:
-            return \.isAnimatingPort
-        case .progressIndicatorStyle:
-            return \.progressIndicatorStylePort
-        case .progress:
-            return \.progressPort
-        case .model3D:
-            return \.model3DPort
-        case .mapType:
-            return \.mapTypePort
-        case .mapLatLong:
-            return \.mapLatLongPort
-        case .mapSpan:
-            return \.mapSpanPort
-        case .isSwitchToggled:
-            return \.isSwitchToggledPort
-        case .placeholderText:
-            return \.placeholderTextPort
-        case .startColor:
-            return \.startColorPort
-        case .endColor:
-            return \.endColorPort
-        case .startAnchor:
-            return \.startAnchorPort
-        case .endAnchor:
-            return \.endAnchorPort
-        case .centerAnchor:
-            return \.centerAnchorPort
-        case .startAngle:
-            return \.startAnglePort
-        case .endAngle:
-            return \.endAnglePort
-        case .startRadius:
-            return \.startRadiusPort
-        case .endRadius:
-            return \.endRadiusPort
-        
-        case .shadowColor:
-            return \.shadowColorPort
-        case .shadowOpacity:
-            return \.shadowOpacityPort
-        case .shadowRadius:
-            return \.shadowRadiusPort
-        case .shadowOffset:
-            return \.shadowOffsetPort
-        case .sfSymbol:
-            return \.sfSymbolPort
             
-        case .videoURL:
-            return \.videoURLPort
-        case .volume:
-            return \.volumePort
-            
-        case .spacingBetweenGridColumns:
-            return \.spacingBetweenGridColumnsPort
-        case .spacingBetweenGridRows:
-            return \.spacingBetweenGridRowsPort
-        case .itemAlignmentWithinGridCell:
-            return \.itemAlignmentWithinGridCellPort
-        
-        case .widthAxis:
-            return \.widthAxisPort
-        case .heightAxis:
-            return \.heightAxisPort
-        case .contentMode:
-            return \.contentModePort
-  
-        case .minSize:
-            return \.minSizePort
-        case .maxSize:
-            return \.maxSizePort
-        
-        case .spacing:
-            return \.spacingPort
-            
-        case .sizingScenario:
-            return \.sizingScenarioPort
+        default:
+            fatalError()
+//        case .size:
+//            return \.sizePort
+//        case .scale:
+//            return \.scalePort
+//        case .anchoring:
+//            return \.anchoringPort
+//        case .opacity:
+//            return \.opacityPort
+//        case .zIndex:
+//            return \.zIndexPort
+//        
+//        // Common
+//        case .masks:
+//            return \.masksPort
+//        case .color:
+//            return \.colorPort
+//        case .rotationX:
+//            return \.rotationXPort
+//        case .rotationY:
+//            return \.rotationYPort
+//        case .rotationZ:
+//            return \.rotationZPort
+//        case .lineColor:
+//            return \.lineColorPort
+//        case .lineWidth:
+//            return \.lineWidthPort
+//        case .blur:
+//            return \.blurPort
+//        case .blendMode:
+//            return \.blendModePort
+//        case .brightness:
+//            return \.brightnessPort
+//        case .colorInvert:
+//            return \.colorInvertPort
+//        case .contrast:
+//            return \.contrastPort
+//        case .hueRotation:
+//            return \.hueRotationPort
+//        case .saturation:
+//            return \.saturationPort
+//        case .pivot:
+//            return \.pivotPort
+//        case .enabled:
+//            return \.enabledPort
+//        case .blurRadius:
+//            return \.blurRadiusPort
+//        case .backgroundColor:
+//            return \.backgroundColorPort
+//        case .isClipped:
+//            return \.isClippedPort
+//        case .orientation:
+//            return \.orientationPort
+//        case .padding:
+//            return \.paddingPort
+//        case .setupMode:
+//            return \.setupModePort
+//        case .allAnchors:
+//            return \.allAnchorsPort
+//        case .cameraDirection:
+//            return \.cameraDirectionPort
+//        case .isCameraEnabled:
+//            return \.isCameraEnabledPort
+//        case .isShadowsEnabled:
+//            return \.isShadowsEnabledPort
+//        
+//        case .shape:
+//            return \.shapePort
+//        case .strokePosition:
+//            return \.strokePositionPort
+//        case .strokeWidth:
+//            return \.strokeWidthPort
+//        case .strokeColor:
+//            return \.strokeColorPort
+//        case .strokeStart:
+//            return \.strokeStartPort
+//        case .strokeEnd:
+//            return \.strokeEndPort
+//        case .strokeLineCap:
+//            return \.strokeLineCapPort
+//        case .strokeLineJoin:
+//            return \.strokeLineJoinPort
+//        case .coordinateSystem:
+//            return \.coordinateSystemPort
+//        case .cornerRadius:
+//            return \.cornerRadiusPort
+//        
+//        case .canvasLineColor:
+//            return \.canvasLineColorPort
+//        case .canvasLineWidth:
+//            return \.canvasLineWidthPort
+//        case .text:
+//            return \.textPort
+//        case .fontSize:
+//            return \.fontSizePort
+//        case .textAlignment:
+//            return \.textAlignmentPort
+//        case .verticalAlignment:
+//            return \.verticalAlignmentPort
+//        case .textDecoration:
+//            return \.textDecorationPort
+//        case .textFont:
+//            return \.textFontPort
+//        case .image:
+//            return \.imagePort
+//        case .video:
+//            return \.videoPort
+//        case .fitStyle:
+//            return \.fitStylePort
+//        case .clipped:
+//            return \.clippedPort
+//        case .isAnimating:
+//            return \.isAnimatingPort
+//        case .progressIndicatorStyle:
+//            return \.progressIndicatorStylePort
+//        case .progress:
+//            return \.progressPort
+//        case .model3D:
+//            return \.model3DPort
+//        case .mapType:
+//            return \.mapTypePort
+//        case .mapLatLong:
+//            return \.mapLatLongPort
+//        case .mapSpan:
+//            return \.mapSpanPort
+//        case .isSwitchToggled:
+//            return \.isSwitchToggledPort
+//        case .placeholderText:
+//            return \.placeholderTextPort
+//        case .startColor:
+//            return \.startColorPort
+//        case .endColor:
+//            return \.endColorPort
+//        case .startAnchor:
+//            return \.startAnchorPort
+//        case .endAnchor:
+//            return \.endAnchorPort
+//        case .centerAnchor:
+//            return \.centerAnchorPort
+//        case .startAngle:
+//            return \.startAnglePort
+//        case .endAngle:
+//            return \.endAnglePort
+//        case .startRadius:
+//            return \.startRadiusPort
+//        case .endRadius:
+//            return \.endRadiusPort
+//        
+//        case .shadowColor:
+//            return \.shadowColorPort
+//        case .shadowOpacity:
+//            return \.shadowOpacityPort
+//        case .shadowRadius:
+//            return \.shadowRadiusPort
+//        case .shadowOffset:
+//            return \.shadowOffsetPort
+//        case .sfSymbol:
+//            return \.sfSymbolPort
+//            
+//        case .videoURL:
+//            return \.videoURLPort
+//        case .volume:
+//            return \.volumePort
+//            
+//        case .spacingBetweenGridColumns:
+//            return \.spacingBetweenGridColumnsPort
+//        case .spacingBetweenGridRows:
+//            return \.spacingBetweenGridRowsPort
+//        case .itemAlignmentWithinGridCell:
+//            return \.itemAlignmentWithinGridCellPort
+//        
+//        case .widthAxis:
+//            return \.widthAxisPort
+//        case .heightAxis:
+//            return \.heightAxisPort
+//        case .contentMode:
+//            return \.contentModePort
+//  
+//        case .minSize:
+//            return \.minSizePort
+//        case .maxSize:
+//            return \.maxSizePort
+//        
+//        case .spacing:
+//            return \.spacingPort
+//            
+//        case .sizingScenario:
+//            return \.sizingScenarioPort
         }
     }
     
@@ -426,7 +454,7 @@ extension LayerInputType {
 }
 
 extension LayerViewModel {
-    func getValues(for inputType: LayerInputType) -> PortValues {
+    func getValues(for inputType: LayerInputPort) -> PortValues {
         assertInDebug(inputType.supportsLoopedTypes)
         
         switch inputType {
@@ -441,7 +469,7 @@ extension LayerViewModel {
     
     /// Updates inputs that accept an array of values.
     func updatePreviewLayerInput(_ values: PortValues,
-                                 inputType: LayerInputType) {
+                                 inputType: LayerInputPort) {
         assertInDebug(inputType.supportsLoopedTypes)
         
         switch inputType {
@@ -453,7 +481,7 @@ extension LayerViewModel {
     }
     
     /// Key paths for children preview layers.
-    func getValue(for inputType: LayerInputType) -> PortValue {
+    func getValue(for inputType: LayerInputPort) -> PortValue {
         switch inputType {
             // MARK: not supported here
         case .allAnchors:
@@ -647,7 +675,7 @@ extension LayerViewModel {
     
     /// Key paths for children preview layers.
     func updatePreviewLayerInput(_ value: PortValue,
-                                 inputType: LayerInputType) {
+                                 inputType: LayerInputPort) {
         switch inputType {
             // MARK: not supported here
         case .allAnchors:
@@ -840,194 +868,283 @@ extension LayerViewModel {
     }
 }
 
+extension LayerInputPort {
+    @MainActor
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
+        switch self {
+        case .position:
+            return \.positionPort
+            
+        default:
+            // TODO: support other ports
+            fatalError()
+            
+            //        case .size:
+            //            return \.sizePort
+            //        case .scale:
+            //            return \.scalePort
+            //        case .anchoring:
+            //            return \.anchoringPort
+            //        case .opacity:
+            //            return \.opacityPort
+            //        case .zIndex:
+            //            return \.zIndexPort
+            //        case .masks:
+            //            return \.masksPort
+            //        case .color:
+            //            return \.colorPort
+            //        case .rotationX:
+            //            return \.rotationXPort
+            //        case .rotationY:
+            //            return \.rotationYPort
+            //        case .rotationZ:
+            //            return \.rotationZPort
+            //        case .lineColor:
+            //            return \.lineColorPort
+            //        case .lineWidth:
+            //            return \.lineWidthPort
+            //        case .blur:
+            //            return \.blurPort
+            //        case .blendMode:
+            //            return \.blendModePort
+            //        case .brightness:
+            //            return \.brightnessPort
+            //        case .colorInvert:
+            //            return \.colorInvertPort
+            //        case .contrast:
+            //            return \.contrastPort
+            //        case .hueRotation:
+            //            return \.hueRotationPort
+            //        case .saturation:
+            //            return \.saturationPort
+            //        case .pivot:
+            //            return \.pivotPort
+            //        case .enabled:
+            //            return \.enabledPort
+            //        case .blurRadius:
+            //            return \.blurRadiusPort
+            //        case .backgroundColor:
+            //            return \.backgroundColorPort
+            //        case .isClipped:
+            //            return \.isClippedPort
+            //        case .orientation:
+            //            return \.orientationPort
+            //        case .padding:
+            //            return \.paddingPort
+            //        case .setupMode:
+            //            return \.setupModePort
+            //        case .allAnchors:
+            //            return \.allAnchorsPort
+            //        case .cameraDirection:
+            //            return \.cameraDirectionPort
+            //        case .isCameraEnabled:
+            //            return \.isCameraEnabledPort
+            //        case .isShadowsEnabled:
+            //            return \.isShadowsEnabledPort
+            //
+            //        case .shape:
+            //            return \.shapePort
+            //        case .strokePosition:
+            //            return \.strokePositionPort
+            //        case .strokeWidth:
+            //            return \.strokeWidthPort
+            //        case .strokeColor:
+            //            return \.strokeColorPort
+            //        case .strokeStart:
+            //            return \.strokeStartPort
+            //        case .strokeEnd:
+            //            return \.strokeEndPort
+            //
+            //        case .coordinateSystem:
+            //            return \.coordinateSystemPort
+            //        case .cornerRadius:
+            //            return \.cornerRadiusPort
+            //        case .canvasLineColor:
+            //            return \.canvasLineColorPort
+            //        case .canvasLineWidth:
+            //            return \.canvasLineWidthPort
+            //        case .text:
+            //            return \.textPort
+            //        case .fontSize:
+            //            return \.fontSizePort
+            //        case .textAlignment:
+            //            return \.textAlignmentPort
+            //        case .verticalAlignment:
+            //            return \.verticalAlignmentPort
+            //        case .textDecoration:
+            //            return \.textDecorationPort
+            //        case .textFont:
+            //            return \.textFontPort
+            //        case .image:
+            //            return \.imagePort
+            //        case .video:
+            //            return \.videoPort
+            //        case .fitStyle:
+            //            return \.fitStylePort
+            //        case .clipped:
+            //            return \.clippedPort
+            //        case .isAnimating:
+            //            return \.isAnimatingPort
+            //        case .progressIndicatorStyle:
+            //            return \.progressIndicatorStylePort
+            //        case .progress:
+            //            return \.progressPort
+            //        case .model3D:
+            //            return \.model3DPort
+            //        case .mapType:
+            //            return \.mapTypePort
+            //        case .mapLatLong:
+            //            return \.mapLatLongPort
+            //        case .mapSpan:
+            //            return \.mapSpanPort
+            //        case .isSwitchToggled:
+            //            return \.isSwitchToggledPort
+            //        case .placeholderText:
+            //            return \.placeholderTextPort
+            //        case .startColor:
+            //            return \.startColorPort
+            //        case .endColor:
+            //            return \.endColorPort
+            //        case .startAnchor:
+            //            return \.startAnchorPort
+            //        case .endAnchor:
+            //            return \.endAnchorPort
+            //        case .centerAnchor:
+            //            return \.centerAnchorPort
+            //        case .startAngle:
+            //            return \.startAnglePort
+            //        case .endAngle:
+            //            return \.endAnglePort
+            //        case .startRadius:
+            //            return \.startRadiusPort
+            //        case .endRadius:
+            //            return \.endRadiusPort
+            //        case .shadowColor:
+            //            return \.shadowColorPort
+            //        case .shadowOpacity:
+            //            return \.shadowOpacityPort
+            //        case .shadowRadius:
+            //            return \.shadowRadiusPort
+            //        case .shadowOffset:
+            //            return \.shadowOffsetPort
+            //        case .sfSymbol:
+            //            return \.sfSymbolPort
+            //        case .strokeLineCap:
+            //            return \.strokeLineCapPort
+            //        case .strokeLineJoin:
+            //            return \.strokeLineJoinPort
+            //        case .videoURL:
+            //            return \.videoURLPort
+            //        case .volume:
+            //            return \.volumePort
+            //        case .spacingBetweenGridColumns:
+            //            return \.spacingBetweenGridColumnsPort
+            //        case .spacingBetweenGridRows:
+            //            return \.spacingBetweenGridRowsPort
+            //        case .itemAlignmentWithinGridCell:
+            //            return \.itemAlignmentWithinGridCellPort
+            //        case .widthAxis:
+            //            return \.widthAxisPort
+            //        case .heightAxis:
+            //            return \.heightAxisPort
+            //        case .contentMode:
+            //            return \.contentModePort
+            //        case .minSize:
+            //            return \.minSizePort
+            //        case .maxSize:
+            //            return \.maxSizePort
+            //        case .spacing:
+            //            return \.spacingPort
+            //        case .sizingScenario:
+            //            return \.sizingScenarioPort
+        }
+    }
+    
+    /// Converts port data from an unpacked state into a packed state.
+    func packValues(from values: PortValues,
+                    layer: Layer) -> PortValue {
+        // Not relevant for all nodes
+        guard let unpackedPortCount = self.unpackedPortCount(layer: layer) else {
+            fatalErrorIfDebug("Shouldn't have been called for this port: \(self)")
+            return .none
+        }
+        
+        // Incoming values must match or exceed expected unpacked port count
+        assertInDebug(unpackedPortCount <= values.count)
+        
+        // shorten values list to expected count for port
+        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
+        
+        switch self {
+        case .position:
+            return shortenedValues.unpackedPositionCoercer()
+            
+        default:
+            // TODO: define behavior for other nodes
+            fatalError()
+        }
+    }
+    
+    /// Converts port data from unpacked state to packed state.
+    /// Optional because not all ports support this.
+    func unpackValues(from value: PortValue) -> PortValues? {
+        switch self {
+        case .position:
+            guard let position = value.getPosition else {
+                fatalErrorIfDebug()
+                return [value]
+            }
+            
+            return [.number(position.width), .number(position.height)]
+            
+        default:
+            // TODO: get to other types
+            fatalError()
+        }
+    }
+}
+
 extension LayerInputType {
     /// Key paths for parent layer view model
     @MainActor
     var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
-        switch self {
-        case .position:
-            return \.positionPort
-        case .size:
-            return \.sizePort
-        case .scale:
-            return \.scalePort
-        case .anchoring:
-            return \.anchoringPort
-        case .opacity:
-            return \.opacityPort
-        case .zIndex:
-            return \.zIndexPort
-        case .masks:
-            return \.masksPort
-        case .color:
-            return \.colorPort
-        case .rotationX:
-            return \.rotationXPort
-        case .rotationY:
-            return \.rotationYPort
-        case .rotationZ:
-            return \.rotationZPort
-        case .lineColor:
-            return \.lineColorPort
-        case .lineWidth:
-            return \.lineWidthPort
-        case .blur:
-            return \.blurPort
-        case .blendMode:
-            return \.blendModePort
-        case .brightness:
-            return \.brightnessPort
-        case .colorInvert:
-            return \.colorInvertPort
-        case .contrast:
-            return \.contrastPort
-        case .hueRotation:
-            return \.hueRotationPort
-        case .saturation:
-            return \.saturationPort
-        case .pivot:
-            return \.pivotPort
-        case .enabled:
-            return \.enabledPort
-        case .blurRadius:
-            return \.blurRadiusPort
-        case .backgroundColor:
-            return \.backgroundColorPort
-        case .isClipped:
-            return \.isClippedPort
-        case .orientation:
-            return \.orientationPort
-        case .padding:
-            return \.paddingPort
-        case .setupMode:
-            return \.setupModePort
-        case .allAnchors:
-            return \.allAnchorsPort
-        case .cameraDirection:
-            return \.cameraDirectionPort
-        case .isCameraEnabled:
-            return \.isCameraEnabledPort
-        case .isShadowsEnabled:
-            return \.isShadowsEnabledPort
+        let portKeyPath = self.layerInput.layerNodeKeyPath
         
-        case .shape:
-            return \.shapePort
-        case .strokePosition:
-            return \.strokePositionPort
-        case .strokeWidth:
-            return \.strokeWidthPort
-        case .strokeColor:
-            return \.strokeColorPort
-        case .strokeStart:
-            return \.strokeStartPort
-        case .strokeEnd:
-            return \.strokeEndPort
-            
-        case .coordinateSystem:
-            return \.coordinateSystemPort
-        case .cornerRadius:
-            return \.cornerRadiusPort
-        case .canvasLineColor:
-            return \.canvasLineColorPort
-        case .canvasLineWidth:
-            return \.canvasLineWidthPort
-        case .text:
-            return \.textPort
-        case .fontSize:
-            return \.fontSizePort
-        case .textAlignment:
-            return \.textAlignmentPort
-        case .verticalAlignment:
-            return \.verticalAlignmentPort
-        case .textDecoration:
-            return \.textDecorationPort
-        case .textFont:
-            return \.textFontPort
-        case .image:
-            return \.imagePort
-        case .video:
-            return \.videoPort
-        case .fitStyle:
-            return \.fitStylePort
-        case .clipped:
-            return \.clippedPort
-        case .isAnimating:
-            return \.isAnimatingPort
-        case .progressIndicatorStyle:
-            return \.progressIndicatorStylePort
-        case .progress:
-            return \.progressPort
-        case .model3D:
-            return \.model3DPort
-        case .mapType:
-            return \.mapTypePort
-        case .mapLatLong:
-            return \.mapLatLongPort
-        case .mapSpan:
-            return \.mapSpanPort
-        case .isSwitchToggled:
-            return \.isSwitchToggledPort
-        case .placeholderText:
-            return \.placeholderTextPort
-        case .startColor:
-            return \.startColorPort
-        case .endColor:
-            return \.endColorPort
-        case .startAnchor:
-            return \.startAnchorPort
-        case .endAnchor:
-            return \.endAnchorPort
-        case .centerAnchor:
-            return \.centerAnchorPort
-        case .startAngle:
-            return \.startAnglePort
-        case .endAngle:
-            return \.endAnglePort
-        case .startRadius:
-            return \.startRadiusPort
-        case .endRadius:
-            return \.endRadiusPort
-        case .shadowColor:
-            return \.shadowColorPort
-        case .shadowOpacity:
-            return \.shadowOpacityPort
-        case .shadowRadius:
-            return \.shadowRadiusPort
-        case .shadowOffset:
-            return \.shadowOffsetPort
-        case .sfSymbol:
-            return \.sfSymbolPort
-        case .strokeLineCap:
-            return \.strokeLineCapPort
-        case .strokeLineJoin:
-            return \.strokeLineJoinPort
-        case .videoURL:
-            return \.videoURLPort
-        case .volume:
-            return \.volumePort
-        case .spacingBetweenGridColumns:
-            return \.spacingBetweenGridColumnsPort
-        case .spacingBetweenGridRows:
-            return \.spacingBetweenGridRowsPort
-        case .itemAlignmentWithinGridCell:
-            return \.itemAlignmentWithinGridCellPort
-        case .widthAxis:
-            return \.widthAxisPort
-        case .heightAxis:
-            return \.heightAxisPort
-        case .contentMode:
-            return \.contentModePort
-        case .minSize:
-            return \.minSizePort
-        case .maxSize:
-            return \.maxSizePort
-        case .spacing:
-            return \.spacingPort
-        case .sizingScenario:
-            return \.sizingScenarioPort
+        switch self.portType {
+        case .packed:
+            return \.positionPort._packedData
+        case .unpacked(let unpackedType):
+            switch unpackedType {
+            case .port0:
+                return portKeyPath.appending(path: \._unpackedData.port0)
+            case .port1:
+                return portKeyPath.appending(path: \._unpackedData.port1)
+            case .port2:
+                return portKeyPath.appending(path: \._unpackedData.port2)
+            }
         }
     }
-        
+    
+//    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
+//        switch self.portType {
+//        case .packed:
+//            return \.
+//        }
+//    }
+}
+
+extension LayerInputEntity {
+    func getInputData(from portType: LayerInputKeyPathType) -> LayerInputDataEntity? {
+        switch portType {
+        case .packed:
+            return self.packedData
+        case .unpacked(let unpackedPortType):
+            return self.unpackedData[safe: unpackedPortType.rawValue]
+        }
+    }
+}
+
+extension LayerInputPort {
     // shortLabel = used for property sidebar
     func label(_ useShortLabel: Bool = false) -> String {
         switch self {
@@ -1104,7 +1221,7 @@ extension LayerInputType {
             return "Camera Enabled"
         case .isShadowsEnabled:
             return "Shadows Enabled"
-        
+            
         case .shape:
             return "Shape"
             
@@ -1124,7 +1241,7 @@ extension LayerInputType {
             return useShortLabel ? "Line Join" : "Stroke Line Join"
         case .coordinateSystem:
             return "Coordinate System"
-
+            
         case .canvasLineColor:
             return "Line Color"
         case .canvasLineWidth:
@@ -1219,13 +1336,82 @@ extension LayerInputType {
             return "Sizing Scenario"
         }
     }
-    
+
     var shouldResetGraphPreviews: Bool {
         switch self {
         case .zIndex, .masks:
             return true
         default:
             return false
+        }
+    }
+    
+    func unpackedPortCount(layer: Layer) -> Int? {
+        let fakeValue = self.getDefaultValue(for: layer)
+        let fakeUnpackedValues = self.unpackValues(from: fakeValue)
+        return fakeUnpackedValues?.count
+    }
+}
+
+//extension UnpackedPortType {
+//    @MainActor
+//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerInputUnpackedPortObserver, InputLayerNodeRowData> {
+//        switch self {
+//        case .port0:
+//            return \.port0
+//        case .port1:
+//            return \.port1
+//        case .port2:
+//            return \.port2
+//        }
+//    }
+//}
+
+extension LayerInputEntity {
+    static let empty: Self = .init(packedData: .empty,
+                                   unpackedData: [],
+                                   mode: .packed)
+    
+    var values: PortValues? {
+        switch self.mode {
+        case .packed:
+            return self.packedData.inputPort.values
+        case .unpacked:
+            // TODO: need to think through how this works if there are multiple unpacked ports and we only use some
+            fatalError()
+        }
+    }
+    
+    var canvasItems: [CanvasNodeEntity] {
+        switch self.mode {
+        case .packed:
+            if let canvas = self.packedData.canvasItem {
+                return [canvas]
+            }
+            
+            return []
+        case .unpacked:
+            return self.unpackedData.compactMap {
+                $0.canvasItem
+            }
+        }
+    }
+    
+    var inputConnections: [NodeConnectionType] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData.inputPort]
+        case .unpacked:
+            return self.unpackedData.map { $0.inputPort }
+        }
+    }
+    
+    var allInputData: [LayerInputDataEntity] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData]
+        case .unpacked:
+            return self.unpackedData
         }
     }
 }

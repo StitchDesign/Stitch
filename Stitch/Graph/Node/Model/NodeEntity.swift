@@ -21,7 +21,7 @@ extension NodeEntity {
             // Layer nodes save values data directy in its schema
             return layerNode.layer.layerGraphNode.inputDefinitions
                 .map { keyPath in
-                    layerNode[keyPath: keyPath.schemaPortKeyPath].inputPort.values
+                    layerNode[keyPath: keyPath.schemaPortKeyPath].values
                 }
         case .patch(let patchNode):
             return patchNode.inputs.map { $0.portData.values }
@@ -35,8 +35,8 @@ extension NodeEntity {
         case .patch(let patch):
             return [patch.canvasEntity]
         case .layer(let layer):
-            return layer.layer.layerGraphNode.inputDefinitions.compactMap {
-                layer[keyPath: $0.schemaPortKeyPath].canvasItem
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                layer[keyPath: $0.schemaPortKeyPath].canvasItems
             }
         case .group(let canvas):
             return [canvas]
@@ -50,12 +50,14 @@ extension NodeEntity {
             patch.canvasEntity = callback(patch.canvasEntity)
             self.nodeTypeEntity = .patch(patch)
         case .layer(var layer):
-            layer.layer.layerGraphNode.inputDefinitions.forEach {
-                if let canvas = layer[keyPath: $0.schemaPortKeyPath].canvasItem {
-                    let newCanvas = callback(canvas)
-                    layer[keyPath: $0.schemaPortKeyPath].canvasItem = newCanvas
-                }
-            }
+            // TODO: come back to copying to determine how we should map back to layer entity
+            fatalError()
+//            layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
+//                layer[keyPath: layerInput.schemaPortKeyPath].canvasItems.forEach { canvas in
+//                    let newCanvas = callback(canvas)
+//                    layer[keyPath: layerInput.schemaPortKeyPath].canvasItem = newCanvas
+//                }
+//            }
             
             self.nodeTypeEntity = .layer(layer)
         case .group(let canvas):
@@ -78,8 +80,8 @@ extension NodeEntity {
         case .patch(let patch):
             return patch.inputs.map { $0.portData }
         case .layer(let layer):
-            return layer.layer.layerGraphNode.inputDefinitions.map {
-                layer[keyPath: $0.schemaPortKeyPath].inputPort
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                layer[keyPath: $0.schemaPortKeyPath].inputConnections
             }
         case .group:
             return []

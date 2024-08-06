@@ -60,7 +60,7 @@ struct InputValueEntry: View {
             //                .border(.blue)
             
             if forPropertySidebar,
-               (rowViewModel.rowDelegate?.id.portType.keyPath?.usesFlyout ?? false) {
+               (rowViewModel.rowDelegate?.id.portType.keyPath?.layerInput.usesFlyout ?? false) {
                 Spacer()
             }
             

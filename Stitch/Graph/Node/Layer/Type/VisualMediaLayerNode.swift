@@ -23,7 +23,7 @@ struct VisualMediaLayerView: View {
         self.mediaPortValue._asyncMedia
     }
     
-    var layerInputType: LayerInputType {
+    var layerInputType: LayerInputPort {
         switch viewModel.layer {
         case .image:
             return .image

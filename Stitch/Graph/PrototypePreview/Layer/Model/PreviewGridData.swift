@@ -31,7 +31,7 @@ extension NodeViewModel {
         case .size(let x):
             // Update when .size changed,
             // but not .minSize, .maxSize inputs
-            if layerInput == .size {
+            if layerInput.layerInput == .size {
                 self.layerSizeUpdated(newValue: x)
             }
         case .sizingScenario(let x):
@@ -168,9 +168,12 @@ extension NodeViewModel {
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
     @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
-        self[keyPath: key.layerNodeKeyPath]
-            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
+    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
+        let port = self[keyPath: key.layerNodeKeyPath]
+        
+        return port.allInputData.flatMap {
+            $0.inspectorRowViewModel.fieldValueTypes.first?.fieldObservers ?? []
+        }
     }
 }
 
@@ -178,7 +181,7 @@ extension NodeViewModel {
     
     /// Gets fields for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
+    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels? {
         guard let layerNode = self.layerNode else {
             fatalErrorIfDebug() // when can this actually happen?
             return nil
@@ -188,15 +191,14 @@ extension NodeViewModel {
     
     /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInspectorInputField(_ key: LayerInputType) -> InputFieldViewModel? {
+    func getLayerInspectorInputField(_ key: LayerInputPort) -> InputFieldViewModel? {
         self.getLayerInspectorInputFields(key)?.first
     }
    
     @MainActor
-    func setBlockStatus(_ input: LayerInputType,
+    func setBlockStatus(_ input: LayerInputPort,
                         fieldIndex: Int? = nil,
                         isBlocked: Bool) {
-        
         guard let fields = self.getLayerInspectorInputFields(input) else {
             // Re-enable the fatal error when min/max fields are enabled for inspector
 //            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
@@ -272,8 +274,8 @@ extension NodeViewModel {
     func updateMinMaxWidthFieldsBlockingPerWidth() {
         
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let widthIsNumber = self.getInputRowObserver(for: .keyPath(.size))?
-            .activeValue.getSize?.width.isNumber else {
+        guard let widthIsNumber = self.getInputActivePortValue(for: .size)?
+            .getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
             return
         }
@@ -289,8 +291,8 @@ extension NodeViewModel {
     func updateMinMaxHeightFieldsBlockingPerHeight() {
 
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getInputRowObserver(for: .keyPath(.size))?
-            .activeValue.getSize?.height.isNumber else {
+        guard let heightIsNumber = self.getInputActivePortValue(for: .size)?
+            .getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
             return
         }
@@ -304,7 +306,7 @@ extension NodeViewModel {
     
     @MainActor
     func blockAspectRatio() {
-        [LayerInputType.widthAxis, .heightAxis, .contentMode]
+        [LayerInputPort.widthAxis, .heightAxis, .contentMode]
             .forEach {
                 setBlockStatus($0, isBlocked: true)
             }

@@ -95,6 +95,23 @@ extension NodeDelegate {
         self.defaultOutputs.map { [$0] }
     }
     
+    /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.inputsObservers
+        case .layer(let layer):
+            return layer.getSortedInputPorts().flatMap { portObserver in
+                // Grabs packed or unpacked data depending on what's used
+                portObserver.allInputData.map { $0.rowObserver }
+            }
+        case .group(let canvas):
+            return canvas.inputViewModels.compactMap {
+                $0.rowDelegate
+            }
+        }
+    }
+    
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
         self.getAllInputsObservers()

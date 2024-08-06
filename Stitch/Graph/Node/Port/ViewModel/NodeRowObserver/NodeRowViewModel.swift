@@ -13,11 +13,13 @@ enum GraphItemType: Hashable {
     case node(CanvasItemId)
     
     // Passing in layer input type ensures uniqueness of IDs in inspector
-//    case layerInspector(LayerInputType)
     case layerInspector(NodeIOPortType) // portId (layer output) or layer-input-type (layer input)
 }
 
 extension GraphItemType {
+    static let empty: Self = .layerInspector(.keyPath(.init(layerInput: .size,
+                                                            portType: .packed)))
+    
     var isLayerInspector: Bool {
         switch self {
         case .layerInspector:
