@@ -11,20 +11,7 @@ import Foundation
 struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        // Update selections UI, which copy/paste logic will use
-        
-        // Sidebar Selection State
-        state.sidebarSelectionState.all.map(\.asNodeId).forEach {
-            if let node = state.getNodeViewModel($0) {
-                node.getAllCanvasObservers().forEach {
-                    $0.select()
-                }
-            }
-        }
-        // incorrect logic -- the layer
-//        state.sidebarSelectionState.all.map { } 
-        
-        state.copyAndPasteSelectedNodes()
+        state.copyAndPasteSelectedNodes(selectedNodeIds: state.sidebarSelectionState.all.map(\.asNodeId).toSet)
         return .persistenceResponse
     }
 }

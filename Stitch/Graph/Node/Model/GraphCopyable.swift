@@ -343,25 +343,16 @@ extension CanvasNodeEntity {
     }
 }
 
+/*
+ Notes:
+ - only patch nodes can be duplicated via the canvas
+ - only layer nodes can be duplicated via the sidebar
+ - we can NEVER duplicate both patch nodes AND layer nodes AT THE SAME TIME
+ */
 extension GraphState {
     @MainActor
-//    func createCopiedComponent(groupNodeFocused: NodeId?,
-//                               selectedNodes: CanvasItemIdSet) -> StitchComponentCopiedResult {
-    func createCopiedComponent(groupNodeFocused: NodeId?) -> StitchComponentCopiedResult {
-        
-        // Pass these in manually, since
-//        let selectedNodeIds: CanvasItemIdSet = self.selectedNodeIds
-        
-//        let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
-//            .map { node in
-//                var node = node
-//                node.nodeTypeEntity.resetGroupId(groupNodeFocused)
-//                return node
-//            }
-
-        // TODO: pass in either SelectedSidebarLayers (layers duplicated) or CanvasItemIdSet (patches duplicated)
-        let selectedNodeIds: IdSet = self.orderedSidebarLayers.map(\.id).toSet
-                
+    func createCopiedComponent(groupNodeFocused: NodeId?,
+                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
@@ -370,7 +361,7 @@ extension GraphState {
             }
         
         let selectedSidebarLayers = self.orderedSidebarLayers
-//            .getSubset(from: selectedNodes.map { $0.id }.toSet)
+            .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
         let copiedComponent = StitchComponent(nodes: selectedNodes,
                                               orderedSidebarLayers: selectedSidebarLayers)
@@ -487,17 +478,19 @@ extension StitchComponent: Transferable {
 
 extension GraphState {
     @MainActor
-    func copyAndPasteSelectedNodes() {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId)
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId, 
+                                   selectedNodeIds: selectedNodeIds)
         self.insertNewComponent(copiedComponentResult)
     }
 
     @MainActor
-    func copyToClipboard() {
+    func copyToClipboard(selectedNodeIds: NodeIdSet) {
         // Copy selected nodes
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId)
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId,
+                                   selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in
             await self?.documentEncoder.processGraphCopyAction(copiedComponentResult)
