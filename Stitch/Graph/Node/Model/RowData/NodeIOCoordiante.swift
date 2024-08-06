@@ -84,4 +84,7 @@ extension LayerInputType {
             return false
         }
     }
+        
+    // TODO: temporary hack, or perhaps a convenient thing?
+    static let position: Self = .position(.packed)
 }
