@@ -128,11 +128,11 @@ extension InputLayerNodeRowData {
     }
 }
 
-extension LayerInputObserverMode {
+extension LayerInputObserver {
     var packedObserver: InputLayerNodeRowData? {
-        switch self {
-        case .packed(let inputLayerNodeRowData):
-            return inputLayerNodeRowData
+        switch self.mode {
+        case .packed:
+            return self.packedData
         case .unpacked:
             return nil
         }
@@ -145,18 +145,13 @@ extension LayerInputObserverMode {
                 nodeId: NodeId) {
         switch schema {
         case .packed(let inputSchema):
-            guard let packedInputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].packedObserver else {
-                // TODO: come back here to create packed observer if not yet created
-                fatalErrorIfDebug()
-                return
-            }
-            
+            let packedInputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
             packedInputObserver.update(from: inputSchema,
                                        layerInputType: layerInputType,
                                        layerNode: layerNode,
                                        nodeId: nodeId)
         case .unpacked(let unpackedObserverType):
-            fatalErrorIfDebug()
+            
         }
     }
     

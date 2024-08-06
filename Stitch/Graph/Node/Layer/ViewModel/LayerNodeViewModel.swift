@@ -40,50 +40,64 @@ extension LayerInputUnpackedPortObservable {
 //    }
 //}
 
-enum LayerInputObserverMode {
-    case packed(InputLayerNodeRowData)
-    case unpacked(UnpackedObserverType)
+// Must be a class for coordinate keypaths, which expect a reference type on the other end.
+final class LayerInputObserver {
+    // Not intended to be used as an API given both data payloads always exist
+    // Variables here necessary to ensure keypaths logic works
+    var _packedData: InputLayerNodeRowData
+    var _unpackedData: UnpackedObserverType
+    
+    var mode: LayerInputObserverMode
+    
+    init(packedData: InputLayerNodeRowData, unpackedData: UnpackedObserverType, mode: LayerInputObserverMode) {
+        self.packedData = packedData
+        self.unpackedData = unpackedData
+        self.mode = mode
+    }
 }
 
+enum LayerInputObserverMode {
+    case packed
+    case unpacked
+}
 
-extension LayerInputObserverMode {
+extension LayerInputObserver {
     var values: PortValues {
-        switch self {
-        case .packed(let inputData):
-            return inputData.rowObserver.values
-            
-        case .unpacked(let unpackedObserver):
-            return unpackedObserver.getParentPortValuesList()
+        switch self.mode {
+        case .packed:
+            return self._packedData.rowObserver.values
+        case .unpacked:
+            return self._unpackedData.getParentPortValuesList()
         }
     }
     
     @MainActor
     var allInputData: [InputLayerNodeRowData] {
-        switch self {
-        case .packed(let inputLayerNodeRowData):
-            return [inputLayerNodeRowData]
-        case .unpacked(let unpackedObserverType):
-            return unpackedObserverType.allPorts
+        switch self.mode {
+        case .packed:
+            return [self.packedData]
+        case .unpacked:
+            return self.unpackedData.allPorts
         }
     }
     
     @MainActor func initializeDelegate(_ node: NodeDelegate) {
-        switch self {
-        case .packed(let inputLayerNodeRowData):
-            inputLayerNodeRowData.initializeDelegate(node)
-        case .unpacked(let unpackedObserverType):
-            unpackedObserverType.initializeDelegate(node)
+        switch self.mode {
+        case .packed:
+            self.packedData.initializeDelegate(node)
+        case .unpacked:
+            self.unpackedData.initializeDelegate(node)
         }
     }
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        switch self {
-        case .packed(let inputLayerNodeRowData):
-            if let canvas = inputLayerNodeRowData.canvasObserver {
-                return [canvas]                
+        switch self.mode {
+        case .packed:
+            if let canvas = self.packedData.canvasObserver {
+                return [canvas]
             }
-        case .unpacked(let unpackedObserverType):
-            return unpackedObserverType.allPorts.compactMap {
+        case .unpacked:
+            return self.unpackedData.allPorts.compactMap {
                 $0.canvasObserver
             }
         }
@@ -168,7 +182,7 @@ final class LayerNodeViewModel {
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
-    @MainActor var positionPort: LayerInputObserverMode
+    @MainActor var positionPort: LayerInputObserver
     @MainActor var sizePort: InputLayerNodeRowData
     @MainActor var scalePort: InputLayerNodeRowData
     @MainActor var anchoringPort: InputLayerNodeRowData

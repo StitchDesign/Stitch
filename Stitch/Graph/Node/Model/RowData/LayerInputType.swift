@@ -846,13 +846,22 @@ extension LayerViewModel {
 extension LayerInputType {
     /// Key paths for parent layer view model
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserverMode> {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+//        return \LayerNodeViewModel.positionPort.packedData
+        
         switch self {
-        case .position:
-            return \.positionPort
+        case .position(let mode):
+            switch mode {
+            case .packed:
+                return \.positionPort._packedData
+            case .unpacked(unpackedType):
+                \.positionPort.unpackedData[unpackedType.rawValue]
+            }
             
         default:
             fatalError()
+            
+            
 //        case .size:
 //            return \.sizePort
 //        case .scale:
