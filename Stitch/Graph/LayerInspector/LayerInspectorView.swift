@@ -193,8 +193,7 @@ struct LayerInspectorSectionToggled: GraphUIEvent {
 }
 
 enum LayerInspectorSectionName: String, Equatable, Hashable {
-    case required = "Required",
-         sizing = "Sizing",
+    case sizing = "Sizing",
          positioning = "Positioning",
          common = "Common",
          group = "Group",
