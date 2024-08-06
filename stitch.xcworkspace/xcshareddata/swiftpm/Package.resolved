@@ -59,8 +59,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
-        "revision" : "f69d32a1dcadd830244c20f1519c2a094624cf8b",
-        "version" : "1.0.1"
+        "revision" : "922d3e6ad379c0025205984fc7f5a013bfba61a1"
       }
     },
     {
@@ -68,7 +67,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
       "state" : {
-        "revision" : "e39cbdc112d5fb0aac0e4b75b698bd93be923a76"
+        "revision" : "fa9b12a7fa4fa854c92280b68bfbef72440d82c7"
       }
     },
     {

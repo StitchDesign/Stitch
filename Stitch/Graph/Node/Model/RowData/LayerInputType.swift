@@ -19,6 +19,40 @@ extension LayerDimension {
 
 extension LayerInputType {
     func getDefaultValue(for layer: Layer) -> PortValue {
+        let defaultPackedValue = self.layerInput.getDefaultValue(for: layer)
+        
+        switch self.portType {
+        case .packed:
+            return defaultPackedValue
+                    
+        case .unpacked(let unpackedType):
+            if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                // TODO: ignore packing logic below for until feature is supported
+                return .none
+            }
+            
+            guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
+                if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                    // TODO: unpackValues caller needs to be fixed when removing feature flag
+//                    fatalErrorIfDebug("Unpacking shouldn't have been called for port: \(self.layerInput)")
+                }
+                
+                return .none
+            }
+            
+            guard let valueAtPort = unpackedValues[safe: unpackedType.rawValue] else {
+                // Hit for .empty callers
+//                fatalErrorIfDebug()
+                return unpackedValues.first ?? .none
+            }
+            
+            return valueAtPort
+        }
+    }
+}
+
+extension LayerInputPort {
+    func getDefaultValue(for layer: Layer) -> PortValue {
         switch self {
             // Required everywhere
         case .position:
@@ -225,8 +259,8 @@ extension LayerInputType {
         }
     }
     
-    /// Keypath )mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
+    /// Keypath mapping to this schema version.
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputEntity> {
         switch self {
             
         // Required
@@ -443,7 +477,7 @@ extension LayerInputType {
 }
 
 extension LayerViewModel {
-    func getValues(for inputType: LayerInputType) -> PortValues {
+    func getValues(for inputType: LayerInputPort) -> PortValues {
         assertInDebug(inputType.supportsLoopedTypes)
         
         switch inputType {
@@ -458,7 +492,7 @@ extension LayerViewModel {
     
     /// Updates inputs that accept an array of values.
     func updatePreviewLayerInput(_ values: PortValues,
-                                 inputType: LayerInputType) {
+                                 inputType: LayerInputPort) {
         assertInDebug(inputType.supportsLoopedTypes)
         
         switch inputType {
@@ -470,7 +504,7 @@ extension LayerViewModel {
     }
     
     /// Key paths for children preview layers.
-    func getValue(for inputType: LayerInputType) -> PortValue {
+    func getValue(for inputType: LayerInputPort) -> PortValue {
         switch inputType {
             // MARK: not supported here
         case .allAnchors:
@@ -672,7 +706,7 @@ extension LayerViewModel {
     
     /// Key paths for children preview layers.
     func updatePreviewLayerInput(_ value: PortValue,
-                                 inputType: LayerInputType) {
+                                 inputType: LayerInputPort) {
         switch inputType {
             // MARK: not supported here
         case .allAnchors:
@@ -873,10 +907,9 @@ extension LayerViewModel {
     }
 }
 
-extension LayerInputType {
-    /// Key paths for parent layer view model
+extension LayerInputPort {
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
         switch self {
         case .position:
             return \.positionPort
@@ -942,7 +975,7 @@ extension LayerInputType {
             return \.isCameraEnabledPort
         case .isShadowsEnabled:
             return \.isShadowsEnabledPort
-        
+            
         case .shape:
             return \.shapePort
         case .strokePosition:
@@ -1068,7 +1101,101 @@ extension LayerInputType {
             return \.pinOffsetPort
         }
     }
+    
+    /// Converts port data from an unpacked state into a packed state.
+    func packValues(from values: PortValues,
+                    layer: Layer) -> PortValue {
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            fatalErrorIfDebug("Shouldn't have been called.")
+            return .none
+        }
+
+        // Not relevant for all nodes
+        guard let unpackedPortCount = self.unpackedPortCount(layer: layer) else {
+            fatalErrorIfDebug("Shouldn't have been called for this port: \(self)")
+            return .none
+        }
         
+        // Incoming values must match or exceed expected unpacked port count
+        assertInDebug(unpackedPortCount <= values.count)
+        
+        // shorten values list to expected count for port
+        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
+        
+        switch self {
+        case .position:
+            return shortenedValues.unpackedPositionCoercer()
+            
+        default:
+            // TODO: define behavior for other nodes
+            fatalError()
+        }
+    }
+    
+    /// Converts port data from unpacked state to packed state.
+    /// Optional because not all ports support this.
+    func unpackValues(from value: PortValue) -> PortValues? {
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            fatalErrorIfDebug("Shouldn't have been called.")
+            return []
+        }
+        
+        switch self {
+        case .position:
+            guard let position = value.getPosition else {
+                fatalErrorIfDebug()
+                return [value]
+            }
+            
+            return [.number(position.width), .number(position.height)]
+            
+        default:
+            // TODO: get to other types
+            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+//                fatalError("Support other types")
+            }
+            
+            return nil
+        }
+    }
+}
+
+extension LayerInputType {
+    /// Key paths for parent layer view model
+    @MainActor
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+        let portKeyPath = self.layerInput.layerNodeKeyPath
+        
+        switch self.portType {
+        case .packed:
+            return portKeyPath.appending(path: \._packedData)
+        case .unpacked(let unpackedType):
+            switch unpackedType {
+            case .port0:
+                return portKeyPath.appending(path: \._unpackedData.port0)
+            case .port1:
+                return portKeyPath.appending(path: \._unpackedData.port1)
+            case .port2:
+                return portKeyPath.appending(path: \._unpackedData.port2)
+            case .port3:
+                return portKeyPath.appending(path: \._unpackedData.port3)
+            }
+        }
+    }
+}
+
+extension LayerInputEntity {
+    func getInputData(from portType: LayerInputKeyPathType) -> LayerInputDataEntity? {
+        switch portType {
+        case .packed:
+            return self.packedData
+        case .unpacked(let unpackedPortType):
+            return self.unpackedData[safe: unpackedPortType.rawValue]
+        }
+    }
+}
+
+extension LayerInputPort {
     // shortLabel = used for property sidebar
     func label(_ useShortLabel: Bool = false) -> String {
         switch self {
@@ -1145,7 +1272,7 @@ extension LayerInputType {
             return "Camera Enabled"
         case .isShadowsEnabled:
             return "Shadows Enabled"
-        
+            
         case .shape:
             return "Shape"
             
@@ -1165,7 +1292,7 @@ extension LayerInputType {
             return useShortLabel ? "Line Join" : "Stroke Line Join"
         case .coordinateSystem:
             return "Coordinate System"
-
+            
         case .canvasLineColor:
             return "Line Color"
         case .canvasLineWidth:
@@ -1268,13 +1395,75 @@ extension LayerInputType {
             return "Offset"
         }
     }
-    
+
     var shouldResetGraphPreviews: Bool {
         switch self {
         case .zIndex, .masks:
             return true
         default:
             return false
+        }
+    }
+    
+    func unpackedPortCount(layer: Layer) -> Int? {
+        let fakeValue = self.getDefaultValue(for: layer)
+        let fakeUnpackedValues = self.unpackValues(from: fakeValue)
+        return fakeUnpackedValues?.count
+    }
+}
+
+extension LayerInputEntity {
+    static let empty: Self = .init(packedData: .empty,
+                                   unpackedData: [])
+    
+    /// Gets all encoded values, without concern for pack/unpack state.
+    var encodedValues: [PortValues?] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData.inputPort.values]
+        case .unpacked:
+            return self.unpackedData.map { $0.inputPort.values }
+        }
+    }
+    
+    var mode: LayerInputMode {
+        if self.unpackedData.contains(where: { $0.canvasItem.isDefined }) {
+            return .unpacked
+        }
+        
+        return .packed
+    }
+    
+    var canvasItems: [CanvasNodeEntity] {
+        switch self.mode {
+        case .packed:
+            if let canvas = self.packedData.canvasItem {
+                return [canvas]
+            }
+            
+            return []
+        case .unpacked:
+            return self.unpackedData.compactMap {
+                $0.canvasItem
+            }
+        }
+    }
+    
+    var inputConnections: [NodeConnectionType] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData.inputPort]
+        case .unpacked:
+            return self.unpackedData.map { $0.inputPort }
+        }
+    }
+    
+    var allInputData: [LayerInputDataEntity] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData]
+        case .unpacked:
+            return self.unpackedData
         }
     }
 }

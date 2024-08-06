@@ -75,7 +75,7 @@ extension NodeIOPortType {
     }
 }
 
-extension LayerInputType {
+extension LayerInputPort {
     var isMediaImport: Bool {
         switch self {
         case .image, .video, .model3D:

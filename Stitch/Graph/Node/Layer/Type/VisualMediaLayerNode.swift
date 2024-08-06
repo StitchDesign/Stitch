@@ -24,7 +24,7 @@ struct VisualMediaLayerView: View {
         self.mediaPortValue._asyncMedia
     }
     
-    var layerInputType: LayerInputType {
+    var layerInputType: LayerInputPort {
         switch viewModel.layer {
         case .image:
             return .image
@@ -43,9 +43,9 @@ struct VisualMediaLayerView: View {
         
         switch layerNode.layer {
         case .image:
-            return layerNode.imagePort.rowObserver
+            return layerNode.imagePort._packedData.rowObserver
         case .video:
-            return layerNode.videoPort.rowObserver
+            return layerNode.videoPort._packedData.rowObserver
         default:
             fatalErrorIfDebug()
             return nil

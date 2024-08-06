@@ -193,7 +193,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
      }
      */
     let hasMask = maskerLayerData
-        .flatMap { layerNodes.get($0.id)?.layerNode?.masksPort.rowObserver.allLoopedValues.first?.getBool }
+        .flatMap { layerNodes.get($0.id)?.layerNode?.masksPort.activeValue.getBool }
         ?? false
     
     // WE HAD A MASKER FOR THIS SIDEBAR LAYER

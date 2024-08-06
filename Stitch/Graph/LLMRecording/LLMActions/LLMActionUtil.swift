@@ -26,7 +26,7 @@ extension GraphState {
 
             let addLayer = LLMAddLayerInput(
                 node: node.llmNodeTitle,
-                port: property.label())
+                port: property.layerInput.label())
             
             self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
         }
@@ -73,7 +73,7 @@ extension GraphState {
            let nodeId = canvasItem.nodeDelegate?.id,
            let node = self.getNode(nodeId) {
             
-            let layerInput = canvasItem.id.layerInputCase?.keyPath.label()
+            let layerInput = canvasItem.id.layerInputCase?.keyPath.layerInput.label()
             let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
                         
             let llmMoveNode = LLMMoveNode(

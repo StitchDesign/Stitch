@@ -26,7 +26,8 @@ extension NodeViewModel {
             .map { portId, inputData in
                 var coordinate: NodeIOCoordinate
                 if let layerInput = inputData.layerInputType {
-                    coordinate = .init(portType: .keyPath(layerInput),
+                    coordinate = .init(portType: .keyPath(.init(layerInput: layerInput,
+                                                                portType: .packed)),
                                        nodeId: id)
                 } else {
                     coordinate = .init(portId: portId, nodeId: id)
@@ -122,17 +123,12 @@ extension NodeViewModel {
 
     @MainActor
     var inputs: PortValuesList {
-        self.getAllInputsObservers().map { $0.allLoopedValues }
+        self.inputsValuesList
     }
 
     @MainActor
     var outputs: PortValuesList {
         self.getAllOutputsObservers().map { $0.allLoopedValues }
-    }
-    
-    @MainActor
-    func allRowObservers() -> [any NodeRowObserver] {
-        self.getAllInputsObservers() + self.getAllOutputsObservers()
     }
 
     /*

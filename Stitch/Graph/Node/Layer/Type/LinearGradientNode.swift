@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
-public typealias LayerInputTypeSet = OrderedSet<LayerInputType>
+public typealias LayerInputTypeSet = OrderedSet<LayerInputPort>
 let DEFAULT_GRADIENT_START_COLOR = Color(.yellow)
 let DEFAULT_GRADIENT_END_COLOR = Color(.blue)
 
