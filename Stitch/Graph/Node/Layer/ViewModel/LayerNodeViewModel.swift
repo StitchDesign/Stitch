@@ -279,7 +279,7 @@ final class LayerNodeViewModel {
             let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
             
             // Update row view model ID
-            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
+            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(.keyPath(inputType)),
                                                        nodeId: id.nodeId,
                                                        portId: 0)
             

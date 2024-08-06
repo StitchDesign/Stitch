@@ -12,11 +12,10 @@ let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
 let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH - 4.0
 
 // node field input/output width, per Figma Spec
-//let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
-//let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 68
+let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 
-// TODO: keep 56 pts width for all fields except the LayerGroup spacing field?
-let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 72 // Enough space for `Between` of LayerGroup Spacing
+let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
+let SPACING_FIELD_WIDTH: CGFloat = 72
 
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
@@ -43,6 +42,7 @@ struct CommonEditingView: View {
     
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isForSpacingField: Bool
     
     var id: FieldCoordinate {
         self.inputField.id
@@ -203,7 +203,8 @@ struct CommonEditingView: View {
         .modifier(InputViewBackground(
             backgroundColor: Self.editableTextFieldBackgroundColor,
             show: true, // always show background for a focused input
-            hasDropdown: choices.isDefined))
+            hasDropdown: choices.isDefined,
+            width: fieldWidth))
     }
     
     @MainActor
@@ -217,12 +218,17 @@ struct CommonEditingView: View {
         .modifier(InputViewBackground(
             backgroundColor: Self.readOnlyTextBackgroundColor,
             show: self.isHovering,
-            hasDropdown: choices.isDefined))
+            hasDropdown: choices.isDefined,
+            width: fieldWidth))
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
         .onTapGesture {
             dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
         }
+    }
+    
+    var fieldWidth: CGFloat {
+        isForSpacingField ? SPACING_FIELD_WIDTH : NODE_INPUT_OR_OUTPUT_WIDTH
     }
     
     #if DEV_DEBUG
@@ -262,6 +268,7 @@ struct InputViewBackground: ViewModifier {
     var backgroundColor: Color
     let show: Bool // if hovering or selected
     let hasDropdown: Bool
+    var width: CGFloat
     
     func body(content: Content) -> some View {
         content
@@ -269,11 +276,11 @@ struct InputViewBackground: ViewModifier {
         // When this field uses a dropdown,
         // we shrink the "typeable" area of the input,
         // so that typing never touches the dropdown's menu indicator.
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0),
+            .frame(width: width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0),
                    alignment: .leading)
         
         // ... But we always use a full-width background for the focus/hover effect.
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+            .frame(width: width,
                    alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {
