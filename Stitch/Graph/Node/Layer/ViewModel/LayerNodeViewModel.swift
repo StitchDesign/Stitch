@@ -14,17 +14,40 @@ import StitchEngine
 typealias LayerNode = NodeViewModel
 typealias LayerNodes = [LayerNode]
 
-protocol LayerInputUnpackedPortObservable {
-    @MainActor
-    var allPorts: [InputLayerNodeRowData] { get }
+final class LayerInputUnpackedPortObserver {
+    var port0: InputLayerNodeRowData
+    var port1: InputLayerNodeRowData
+    var port2: InputLayerNodeRowData
     
-    func getParentPortValuesList() -> PortValues
+    init(port0: InputLayerNodeRowData, port1: InputLayerNodeRowData, port2: InputLayerNodeRowData) {
+        self.port0 = port0
+        self.port1 = port1
+        self.port2 = port2
+    }
 }
 
-extension LayerInputUnpackedPortObservable {
+extension LayerInputUnpackedPortObserver {
+    @MainActor
+    func getParentPortValuesList() -> PortValues {
+        fatalError()
+    }
+    
+    @MainActor
+    var allPorts: [InputLayerNodeRowData] {
+        // needs input type to consider how many ports are used
+        fatalError()
+    }
+    
     @MainActor
     func createSchema() -> [LayerInputDataEntity] {
         self.allPorts.map { $0.createSchema() }
+    }
+    
+    @MainActor
+    func initializeDelegate(_ node: NodeDelegate) {
+        self.allPorts.forEach {
+            $0.initializeDelegate(node)
+        }
     }
 }
 
@@ -45,14 +68,13 @@ final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
     var _packedData: InputLayerNodeRowData
-    var _unpackedData: UnpackedObserverType
+    var _unpackedData: LayerInputUnpackedPortObserver
     
-    var mode: LayerInputObserverMode
+    var mode: LayerInputObserverMode = .packed
     
-    init(packedData: InputLayerNodeRowData, unpackedData: UnpackedObserverType, mode: LayerInputObserverMode) {
-        self.packedData = packedData
-        self.unpackedData = unpackedData
-        self.mode = mode
+    @MainActor
+    init(from schema: LayerNodeEntity, packedInputType: LayerInputType) {
+        self._packedData = .empty(packedInputType, layer: schema.layer)
     }
 }
 
@@ -62,6 +84,7 @@ enum LayerInputObserverMode {
 }
 
 extension LayerInputObserver {
+    @MainActor
     var values: PortValues {
         switch self.mode {
         case .packed:
@@ -75,94 +98,94 @@ extension LayerInputObserver {
     var allInputData: [InputLayerNodeRowData] {
         switch self.mode {
         case .packed:
-            return [self.packedData]
+            return [self._packedData]
         case .unpacked:
-            return self.unpackedData.allPorts
+            return self._unpackedData.allPorts
         }
     }
     
     @MainActor func initializeDelegate(_ node: NodeDelegate) {
         switch self.mode {
         case .packed:
-            self.packedData.initializeDelegate(node)
+            self._packedData.initializeDelegate(node)
         case .unpacked:
-            self.unpackedData.initializeDelegate(node)
+            self._unpackedData.initializeDelegate(node)
         }
     }
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
         switch self.mode {
         case .packed:
-            if let canvas = self.packedData.canvasObserver {
+            if let canvas = self._packedData.canvasObserver {
                 return [canvas]
             }
         case .unpacked:
-            return self.unpackedData.allPorts.compactMap {
+            return self._unpackedData.allPorts.compactMap {
                 $0.canvasObserver
             }
         }
     }
 }
 
-enum UnpackedObserverType {
-    case position(LayerInputUnpackedPortPosition)
-}
+//enum UnpackedObserverType {
+//    case position(LayerInputUnpackedPortPosition)
+//}
 
-extension UnpackedObserverType {
-    func createSchema() -> [LayerInputDataEntity] {
-        // TODO: create schemas for unpacked
-        fatalError()
-    }
-    
-    @MainActor
-    var allPorts: [InputLayerNodeRowData] {
-        switch self {
-        case .position(let layerInputUnpackedPortPosition):
-            return layerInputUnpackedPortPosition.allPorts
-        }
-    }
-    
-    func getParentPortValuesList() -> PortValues {
-        switch self {
-        case .position(let layerInputUnpackedPortPosition):
-            return layerInputUnpackedPortPosition.getParentPortValuesList()
-        }
-    }
-    
-    @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
-        self.allPorts.forEach {
-            $0.initializeDelegate(node)
-        }
-    }
-}
+//extension UnpackedObserverType {
+//    func createSchema() -> [LayerInputDataEntity] {
+//        // TODO: create schemas for unpacked
+//        fatalError()
+//    }
+//    
+//    @MainActor
+//    var allPorts: [InputLayerNodeRowData] {
+//        switch self {
+//        case .position(let layerInputUnpackedPortPosition):
+//            return layerInputUnpackedPortPosition.allPorts
+//        }
+//    }
+//    
+//    func getParentPortValuesList() -> PortValues {
+//        switch self {
+//        case .position(let layerInputUnpackedPortPosition):
+//            return layerInputUnpackedPortPosition.getParentPortValuesList()
+//        }
+//    }
+//    
+//    @MainActor
+//    func initializeDelegate(_ node: NodeDelegate) {
+//        self.allPorts.forEach {
+//            $0.initializeDelegate(node)
+//        }
+//    }
+//}
 
-@Observable
-final class LayerInputUnpackedPortPosition {
-    let xPort: InputLayerNodeRowData
-    let yPort: InputLayerNodeRowData
-    
-    @MainActor
-    init(from schemas: [LayerInputDataEntity],
-         layer: Layer) {
-        assertInDebug(schemas.count == 2)
-        
-        self.xPort = .empty(.position(.unpacked(.port0)), layer: layer)
-        self.yPort = .empty(.position(.unpacked(.port1)), layer: layer)
-        
-        
-    }
-}
+//@Observable
+//final class LayerInputUnpackedPortPosition {
+//    let xPort: InputLayerNodeRowData
+//    let yPort: InputLayerNodeRowData
+//    
+//    @MainActor
+//    init(from schemas: [LayerInputDataEntity],
+//         layer: Layer) {
+//        assertInDebug(schemas.count == 2)
+//        
+//        self.xPort = .empty(.position(.unpacked(.port0)), layer: layer)
+//        self.yPort = .empty(.position(.unpacked(.port1)), layer: layer)
+//        
+//        
+//    }
+//}
 
-extension LayerInputUnpackedPortPosition: LayerInputUnpackedPortObservable {
-    var allPorts: [InputLayerNodeRowData] {
-        [xPort, yPort]
-    }
-    
-    func getParentPortValuesList() -> PortValues {
-        fatalError()
-    }
-}
+//extension LayerInputUnpackedPortPosition: LayerInputUnpackedPortObservable {
+//    var allPorts: [InputLayerNodeRowData] {
+//        [xPort, yPort]
+//    }
+//    
+//    func getParentPortValuesList() -> PortValues {
+//        fatalError()
+//    }
+//}
 
 // primary = hidden via direct click from user
 // secondary = hidden because was a child of a group that was primary-hidden
@@ -327,7 +350,7 @@ final class LayerNodeViewModel {
                                     valuesList: rowDefinitions.outputs.defaultList,
                                     userVisibleType: nil)
         
-        self.positionPort = .packed(rowFn(.position(.packed)))
+        self.positionPort = .init(from: schema, packedInputType: .position(.packed))
         self.sizePort = rowFn(.size)
         self.scalePort = rowFn(.scale)
         self.anchoringPort = rowFn(.anchoring)

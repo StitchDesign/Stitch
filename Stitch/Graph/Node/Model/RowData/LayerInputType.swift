@@ -854,8 +854,15 @@ extension LayerInputType {
             switch mode {
             case .packed:
                 return \.positionPort._packedData
-            case .unpacked(unpackedType):
-                \.positionPort.unpackedData[unpackedType.rawValue]
+            case .unpacked(let unpackedType):
+                switch unpackedType {
+                case .port0:
+                    return \.positionPort._unpackedData.port0
+                case .port1:
+                    return \.positionPort._unpackedData.port1
+                case .port2:
+                    return \.positionPort._unpackedData.port2
+                }
             }
             
         default:
@@ -1244,3 +1251,17 @@ extension LayerInputType {
         }
     }
 }
+
+//extension UnpackedPortType {
+//    @MainActor
+//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerInputUnpackedPortObserver, InputLayerNodeRowData> {
+//        switch self {
+//        case .port0:
+//            return \.port0
+//        case .port1:
+//            return \.port1
+//        case .port2:
+//            return \.port2
+//        }
+//    }
+//}
