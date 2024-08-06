@@ -7,11 +7,148 @@
 
 import CoreData
 import Foundation
-import StitchSchemaKit
 import SwiftUI
+import StitchSchemaKit
+import StitchEngine
 
 typealias LayerNode = NodeViewModel
 typealias LayerNodes = [LayerNode]
+
+protocol LayerInputUnpackedPortObservable {
+    @MainActor
+    var allPorts: [InputLayerNodeRowData] { get }
+    
+    func getParentPortValuesList() -> PortValues
+}
+
+extension LayerInputUnpackedPortObservable {
+    @MainActor
+    func createSchema() -> [LayerInputDataEntity] {
+        self.allPorts.map { $0.createSchema() }
+    }
+}
+
+///// Needs to be class for StitchEngine which assumes reference objects with its mutation logic
+//final class LayerInputObserver {
+//    var id: NodeIOCoordinate    // ID used for NodeRowCalculatable
+//    var type: LayerInputObserverMode
+//    
+//    init(id: NodeIOCoordinate,
+//         type: LayerInputObserverMode) {
+//        self.id = id
+//        self.type = type
+//    }
+//}
+
+enum LayerInputObserverMode {
+    case packed(InputLayerNodeRowData)
+    case unpacked(UnpackedObserverType)
+}
+
+
+extension LayerInputObserverMode {
+    var values: PortValues {
+        switch self {
+        case .packed(let inputData):
+            return inputData.rowObserver.values
+            
+        case .unpacked(let unpackedObserver):
+            return unpackedObserver.getParentPortValuesList()
+        }
+    }
+    
+    @MainActor
+    var allInputData: [InputLayerNodeRowData] {
+        switch self {
+        case .packed(let inputLayerNodeRowData):
+            return [inputLayerNodeRowData]
+        case .unpacked(let unpackedObserverType):
+            return unpackedObserverType.allPorts
+        }
+    }
+    
+    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+        switch self {
+        case .packed(let inputLayerNodeRowData):
+            inputLayerNodeRowData.initializeDelegate(node)
+        case .unpacked(let unpackedObserverType):
+            unpackedObserverType.initializeDelegate(node)
+        }
+    }
+    
+    @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
+        switch self {
+        case .packed(let inputLayerNodeRowData):
+            if let canvas = inputLayerNodeRowData.canvasObserver {
+                return [canvas]                
+            }
+        case .unpacked(let unpackedObserverType):
+            return unpackedObserverType.allPorts.compactMap {
+                $0.canvasObserver
+            }
+        }
+    }
+}
+
+enum UnpackedObserverType {
+    case position(LayerInputUnpackedPortPosition)
+}
+
+extension UnpackedObserverType {
+    func createSchema() -> [LayerInputDataEntity] {
+        // TODO: create schemas for unpacked
+        fatalError()
+    }
+    
+    @MainActor
+    var allPorts: [InputLayerNodeRowData] {
+        switch self {
+        case .position(let layerInputUnpackedPortPosition):
+            return layerInputUnpackedPortPosition.allPorts
+        }
+    }
+    
+    func getParentPortValuesList() -> PortValues {
+        switch self {
+        case .position(let layerInputUnpackedPortPosition):
+            return layerInputUnpackedPortPosition.getParentPortValuesList()
+        }
+    }
+    
+    @MainActor
+    func initializeDelegate(_ node: NodeDelegate) {
+        self.allPorts.forEach {
+            $0.initializeDelegate(node)
+        }
+    }
+}
+
+@Observable
+final class LayerInputUnpackedPortPosition {
+    let xPort: InputLayerNodeRowData
+    let yPort: InputLayerNodeRowData
+    
+    @MainActor
+    init(from schemas: [LayerInputDataEntity],
+         layer: Layer) {
+        assertInDebug(schemas.count == 2)
+        
+        self.xPort = .empty(.position(.unpacked(.port0)), layer: layer)
+        self.yPort = .empty(.position(.unpacked(.port1)), layer: layer)
+        
+        
+    }
+}
+
+extension LayerInputUnpackedPortPosition: LayerInputUnpackedPortObservable {
+    var allPorts: [InputLayerNodeRowData] {
+        [xPort, yPort]
+    }
+    
+    func getParentPortValuesList() -> PortValues {
+        fatalError()
+    }
+}
 
 // primary = hidden via direct click from user
 // secondary = hidden because was a child of a group that was primary-hidden
@@ -31,7 +168,7 @@ final class LayerNodeViewModel {
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
-    @MainActor var positionPort: InputLayerNodeRowData
+    @MainActor var positionPort: LayerInputObserverMode
     @MainActor var sizePort: InputLayerNodeRowData
     @MainActor var scalePort: InputLayerNodeRowData
     @MainActor var anchoringPort: InputLayerNodeRowData
@@ -176,7 +313,7 @@ final class LayerNodeViewModel {
                                     valuesList: rowDefinitions.outputs.defaultList,
                                     userVisibleType: nil)
         
-        self.positionPort = rowFn(.position)
+        self.positionPort = .packed(rowFn(.position(.packed)))
         self.sizePort = rowFn(.size)
         self.scalePort = rowFn(.scale)
         self.anchoringPort = rowFn(.anchoring)
@@ -276,7 +413,12 @@ final class LayerNodeViewModel {
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
             let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: self.id)
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            
+            // expect packed case on initialization
+            guard let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath].packedObserver else {
+                fatalErrorIfDebug()
+                return
+            }
             
             // Update row view model ID
             layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
@@ -290,7 +432,7 @@ final class LayerNodeViewModel {
         
         // Call update once everything above is in place
         for inputType in graphNode.inputDefinitions {
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            let layerData: LayerInputObserverMode = self[keyPath: inputType.layerNodeKeyPath]
             
             layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
                              layerInputType: inputType,
@@ -413,15 +555,15 @@ extension LayerNodeViewModel {
         
         // Set up inputs
         for inputType in graphNode.inputDefinitions {
-            let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath]
+            let layerData = self[keyPath: inputType.layerNodeKeyPath]
             layerData.initializeDelegate(node)
         }
     }
     
     @MainActor
     func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        let inputs = self.layer.layerGraphNode.inputDefinitions.compactMap {
-            self[keyPath: $0.layerNodeKeyPath].canvasObserver
+        let inputs = self.layer.layerGraphNode.inputDefinitions.flatMap {
+            self[keyPath: $0.layerNodeKeyPath].getAllCanvasObservers()
         }
         
         let outputs = self.outputPorts.compactMap {
@@ -554,7 +696,8 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort.rowObserver.activeValue.getPoint
+        self.positionPort
+            .rowObserver.activeValue.getPoint
     }
     
     @MainActor

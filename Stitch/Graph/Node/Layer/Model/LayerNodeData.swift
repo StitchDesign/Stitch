@@ -35,7 +35,7 @@ final class InputLayerNodeRowData: LayerNodeRowData {
             itemType = .layerInspector(inputType)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.position)
+            itemType = .layerInspector(.size)
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -65,7 +65,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
             itemType = .layerInspector(inputType)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.position)
+            itemType = .layerInspector(.size)
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -109,7 +109,6 @@ extension InputLayerNodeRowData {
                 nodeId: NodeId) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
-        
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
                 canvasObserver.update(from: canvas)
@@ -118,17 +117,61 @@ extension InputLayerNodeRowData {
                 let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
                                                              keyPath: layerInputType))
                 
-                let inputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].rowObserver
                 self.canvasObserver = .init(from: canvas,
                                             id: canvasId,
-                                            inputRowObservers: [inputObserver],
+                                            inputRowObservers: [self.rowObserver],
                                             outputRowObservers: [])
             }
         } else {
             self.canvasObserver = nil
         }
     }
+}
+
+extension LayerInputObserverMode {
+    var packedObserver: InputLayerNodeRowData? {
+        switch self {
+        case .packed(let inputLayerNodeRowData):
+            return inputLayerNodeRowData
+        case .unpacked:
+            return nil
+        }
+    }
     
+    @MainActor
+    func update(from schema: LayerInputModeEntity,
+                layerInputType: LayerInputType,
+                layerNode: LayerNodeViewModel,
+                nodeId: NodeId) {
+        switch schema {
+        case .packed(let inputSchema):
+            guard let packedInputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath].packedObserver else {
+                // TODO: come back here to create packed observer if not yet created
+                fatalErrorIfDebug()
+                return
+            }
+            
+            packedInputObserver.update(from: inputSchema,
+                                       layerInputType: layerInputType,
+                                       layerNode: layerNode,
+                                       nodeId: nodeId)
+        case .unpacked(let unpackedObserverType):
+            fatalErrorIfDebug()
+        }
+    }
+    
+    @MainActor
+    func createSchema() -> LayerInputModeEntity {
+        switch self {
+        case .packed(let inputLayerNodeRowData):
+            return .packed(inputLayerNodeRowData.createSchema())
+        case .unpacked(let unpackedObserverType):
+            return .unpacked(unpackedObserverType.createSchema())
+        }
+    }
+}
+    
+extension InputLayerNodeRowData {
     @MainActor
     func createSchema() -> LayerInputDataEntity {
         .init(inputPort: self.rowObserver.createSchema().portData,

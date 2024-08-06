@@ -58,6 +58,7 @@
 		B51C3B8C29A9462A00043089 /* ARAnchorNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C3B8B29A9462A00043089 /* ARAnchorNode.swift */; };
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
+		B52513CD2C61D3D400AC5A3C /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B52513CC2C61D3D400AC5A3C /* StitchEngine */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
 		B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */; };
 		B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B530494627A0CBF500D970BB /* ViewUtils.swift */; };
@@ -186,7 +187,6 @@
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
-		B5BBA0282C50616E0099C8C0 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5BBA0272C50616E0099C8C0 /* StitchEngine */; };
 		B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */; };
 		B5C0E0AB299AD5FE00322A1E /* Camera App.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */; };
 		B5C0E0AD299AD69D00322A1E /* Earth Video.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AC299AD69D00322A1E /* Earth Video.stitch */; };
@@ -205,6 +205,8 @@
 		B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BC275833390086C297 /* ProjectAlertState.swift */; };
 		B5D689BF275836390086C297 /* ProjectAlertActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D689BE275836390086C297 /* ProjectAlertActions.swift */; };
 		B5D7EC79298DDEF300549E80 /* StitchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */; };
+		B5DB632B2C6128E800B78B68 /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = B5DB632A2C6128E700B78B68 /* StitchSchemaKit */; };
+		B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5DB632D2C61A8C900B78B68 /* StitchEngine */; };
 		B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */; };
 		B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */; };
 		B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */; };
@@ -1095,6 +1097,7 @@
 		B5D689BC275833390086C297 /* ProjectAlertState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertState.swift; sourceTree = "<group>"; };
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
 		B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEnvironment.swift; sourceTree = "<group>"; };
+		B5DB632A2C6128E700B78B68 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../StitchSchemaKit; sourceTree = "<group>"; };
 		B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepManager.swift; sourceTree = "<group>"; };
 		B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputedGraphState.swift; sourceTree = "<group>"; };
 		B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManager.swift; sourceTree = "<group>"; };
@@ -1777,8 +1780,9 @@
 				20D1601925A802FF005AEB72 /* NonEmpty in Frameworks */,
 				B50F416B2C1EB45B0082262F /* StitchSchemaKit in Frameworks */,
 				B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */,
+				B52513CD2C61D3D400AC5A3C /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
-				B5BBA0282C50616E0099C8C0 /* StitchEngine in Frameworks */,
+				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
 				EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */,
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
@@ -1837,6 +1841,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B5DB632A2C6128E700B78B68 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -4285,7 +4290,8 @@
 				B50F41672C1EB4320082262F /* StitchViewKit */,
 				B50F416A2C1EB45B0082262F /* StitchSchemaKit */,
 				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
-				B5BBA0272C50616E0099C8C0 /* StitchEngine */,
+				B5DB632D2C61A8C900B78B68 /* StitchEngine */,
+				B52513CC2C61D3D400AC5A3C /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4371,7 +4377,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
-				B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				B52513CB2C61D3D400AC5A3C /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -4392,6 +4398,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
+				B5DB632B2C6128E800B78B68 /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
@@ -5968,7 +5975,7 @@
 				revision = e7d39d45a2487960930f123556b739517b08f4ce;
 			};
 		};
-		B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+		B52513CB2C61D3D400AC5A3C /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
 			requirement = {
@@ -6076,13 +6083,17 @@
 			package = B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
 			productName = StitchSchemaKit;
 		};
+		B52513CC2C61D3D400AC5A3C /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B52513CB2C61D3D400AC5A3C /* XCRemoteSwiftPackageReference "StitchEngine" */;
+			productName = StitchEngine;
+		};
 		B56EA8A52C409898003D39E2 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
 		};
-		B5BBA0272C50616E0099C8C0 /* StitchEngine */ = {
+		B5DB632D2C61A8C900B78B68 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
 		};
 		B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */ = {
