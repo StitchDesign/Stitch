@@ -213,13 +213,13 @@ extension GraphUIState {
 }
 
 extension GraphState {
+    
     /// Returns  `NodeEntities` given some selection state. Recursively gets group children if group selected.
     @MainActor
-    func getSelectedNodeEntities(for ids: CanvasItemIdSet) -> [NodeEntity] {
-        ids.flatMap { nodeId -> [NodeEntity] in
-            guard let nodeViewModel = self.getCanvasItem(nodeId),
-                  let stitchId = nodeViewModel.nodeDelegate?.id,
-                  let stitchViewModel = self.getNodeViewModel(stitchId) else {
+    func getSelectedNodeEntities(for ids: NodeIdSet) -> [NodeEntity] {
+        ids.flatMap { (nodeId: NodeId) -> [NodeEntity] in
+                        
+            guard let stitchViewModel: NodeViewModel = self.getNodeViewModel(nodeId) else {
                 return []
             }
             
@@ -227,29 +227,30 @@ extension GraphState {
             
             switch stitchViewModel.kind {
             case .group:
-                // Recursively add nodes in group
-                let idsInGroup = self.visibleNodesViewModel.getCanvasItems()
+                // Recursively add nodes in node-ui-grouping
+                let idsInGroup: NodeIdSet = self.visibleNodesViewModel
+                    .getCanvasItems()
                     .filter { $0.parentGroupNodeId == stitchViewModel.id }
-                    .map { $0.id }
+                    .compactMap { $0.id.nodeCase }
                     .toSet
                 
                 return [nodeSchema] + self.getSelectedNodeEntities(for: idsInGroup)
                 
             case .layer(let layer) where layer == .group:
-                // Recursively add layer nodes in layer group
-                let idsInLayerGroup = self.nodes.values
-                    .flatMap { node -> [CanvasItemId] in
+                // When we duplicate a LayerGroup, we must also duplicate its children.
+                // Note that these children should have already been selected via the sidebar's selecton logic; but we can force that assumption here independently.
+                let children: NodeIdSet = self
+                    .nodes.values
+                    .compactMap { (node: NodeViewModel) -> NodeId? in
                         guard let layerNode = node.layerNode,
                               layerNode.layerGroupId == stitchViewModel.id else {
-                            return []
+                            return nil
                         }
-                        
-                        return layerNode.getAllCanvasObservers()
-                            .map { $0.id }
+                        return layerNode.id
                     }
                     .toSet
-                
-                return [nodeSchema] + self.getSelectedNodeEntities(for: idsInLayerGroup)
+
+                return [nodeSchema] + self.getSelectedNodeEntities(for: children)
                 
             default:
                 return [nodeSchema]
