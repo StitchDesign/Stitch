@@ -343,23 +343,17 @@ extension CanvasNodeEntity {
     }
 }
 
-/*
- Notes:
- - only patch nodes can be duplicated via the canvas
- - only layer nodes can be duplicated via the sidebar
- - we can NEVER duplicate both patch nodes AND layer nodes AT THE SAME TIME
- */
 extension GraphState {
     @MainActor
-    func createCopiedComponent(groupNodeFocused: NodeId?,
-                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult {
+    func createCopiedComponent(groupNodeFocused: NodeId?) -> StitchComponentCopiedResult {
+        let selectedNodeIds = self.selectedNodeIds
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
                 node.nodeTypeEntity.resetGroupId(groupNodeFocused)
                 return node
             }
-        
+
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
@@ -478,19 +472,17 @@ extension StitchComponent: Transferable {
 
 extension GraphState {
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+    func copyAndPasteSelectedNodes() {
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId, 
-                                   selectedNodeIds: selectedNodeIds)
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId)
         self.insertNewComponent(copiedComponentResult)
     }
 
     @MainActor
-    func copyToClipboard(selectedNodeIds: NodeIdSet) {
+    func copyToClipboard() {
         // Copy selected nodes
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId,
-                                   selectedNodeIds: selectedNodeIds)
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId)
 
         Task { [weak self] in
             await self?.documentEncoder.processGraphCopyAction(copiedComponentResult)

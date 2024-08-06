@@ -21,8 +21,7 @@ struct SelectedGraphItemsDuplicated: GraphEventWithResponse {
         }
         
         let copiedComponentResult = state.createCopiedComponent(
-            groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
-            selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId)
         
         state.insertNewComponent(copiedComponentResult)
         
