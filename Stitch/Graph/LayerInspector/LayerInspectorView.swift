@@ -18,6 +18,13 @@ extension LayerInputType: Identifiable {
 }
 
 #if targetEnvironment(macCatalyst)
+let INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET = 2.0
+#else
+let INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET = 4.0
+#endif
+
+
+#if targetEnvironment(macCatalyst)
 let INSPECTOR_LIST_TOP_PADDING = -40.0
 #else
 let INSPECTOR_LIST_TOP_PADDING = -60.0
@@ -58,20 +65,20 @@ struct LayerInspectorView: View {
             @Bindable var node = node
             @Bindable var layerNode = layerNode
             
-//            UIKitWrapper(ignoresKeyCommands: false,
-//                         name: "LayerInspectorView") {
+            UIKitWrapper(ignoresKeyCommands: false,
+                         name: "LayerInspectorView") {
                 selectedLayerView(node, layerNode)
-//            }
+            }
 
             // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
             // Takes care of the mysterious white top padding UIKitWrapper introduces
-//            #if targetEnvironment(macCatalyst)
-//                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-//            #else
-//                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-//                         .padding(.bottom, -20)
-//            #endif
-//            
+#if targetEnvironment(macCatalyst)
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
+#else
+                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
+                         .padding(.bottom, -20)
+#endif
+            
         } else {
             // Empty List, so have same background
             List { }
@@ -84,28 +91,14 @@ struct LayerInspectorView: View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
+                // TODO: should be editable, to rename the layer?
                 Text(node.displayTitle).font(.title2)
                 Spacer()
             }
                 .padding()
                 .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
-            
-            //            // TODO: remove? make editable TextField for renaming etc.?
-            //            // TODO: want something that
-            //            Text(node.displayTitle).font(.title2)
-            //                            .padding()
-            //#if targetEnvironment(macCatalyst)
-            //                .padding(.top, 12)
-            //#else
-            //                .padding(.top, 12)
-            //#endif
-            ////                         .background(.clear)
-            //
-            
+                        
             List {
-                // TODO: remove?
-//                Text(node.displayTitle).font(.title2)
-                
                 ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
                     
                     let sectionName = sectionNameAndInputs.name
@@ -151,10 +144,17 @@ struct LayerInspectorView: View {
         
         // Note: gives us sticky headers, but we lose background color?
 //            .listStyle(.plain)
+//            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
             
+            // Note: hard to be exact here
+            // The default ListStyle adds padding (visible if we do not use Color.clear as list row background), but using e.g. ListStyle.plain introduces sticky header sections that we do not want.
+            .padding([.leading], -6)
+            .padding([.trailing], -4)
         } // VStack
     }
 }
+
+
 
 struct LayerPropertyRowOriginReader: ViewModifier {
     
