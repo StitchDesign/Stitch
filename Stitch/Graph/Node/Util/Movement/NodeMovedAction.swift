@@ -77,7 +77,7 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
         
         guard state.graphUI.dragDuplication else {
             // Copy nodes if no drag started yet
-            state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            state.copyAndPasteSelectedNodes()
             state.graphUI.dragDuplication = true
             return .persistenceResponse
         }
