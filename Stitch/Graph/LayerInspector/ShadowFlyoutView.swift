@@ -74,7 +74,9 @@ struct ShadowFlyoutView: View {
     
     @MainActor
     var rows: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading,
+               // TODO: why must we double this?
+               spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             ForEach(LayerInspectorView.shadow) { shadowInput in
                 let layerInputData = layerNode[keyPath: shadowInput.layerNodeKeyPath]
                 NodeInputView(graph: graph,
@@ -84,11 +86,18 @@ struct ShadowFlyoutView: View {
                               propertyIsSelected: false, // NA
                               // TODO: applicable or not?
                               propertyIsAlreadyOnGraph: false ,
-                              isCanvasItemSelected: false)
+                              isCanvasItemSelected: false,
+                              forFlyout: true)
+                // Each row seems too tall? Probably from a set node row height somewhere?
+                // Uses padding to reduce size
+                .padding([.top, .bottom], -2)
+                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
+//                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
+                .background {
+                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
+                        .cornerRadius(6)
+                }
             }
         }
-//        .padding()
     }
-    
-    
 }

@@ -45,9 +45,9 @@ struct FlyoutClosed: GraphUIEvent {
 
 extension GraphUIState {
     func closeFlyout() {
-        withAnimation {
+//        withAnimation {
             self.propertySidebar.flyoutState = nil
-        }
+//        }
     }
 }
 

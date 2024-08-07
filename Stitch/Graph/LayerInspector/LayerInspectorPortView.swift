@@ -102,17 +102,23 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     var isOnGraphAlready: Bool {
         canvasItemId.isDefined
     }
+    
+    var canBeAddedToCanvas: Bool {
+        switch layerProperty {
+        case .layerInput(let layerInputType):
+            return !layerInputType.usesFlyout
+        case .layerOutput(let int):
+            return true
+        }
+    }
         
     var body: some View {
         HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
-            if let canvasItemId = canvasItemId {
-                JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
-            } else {
-                AddLayerPropertyToGraphButton(
-                    propertyIsSelected: propertyRowIsSelected,
-                    coordinate: rowObserver.id)
-            }
-            
+            LayerInspectorRowButton(layerProperty: layerProperty,
+                                    coordinate: rowObserver.id,
+                                    canvasItemId: canvasItemId,
+                                    isRowSelected: propertyRowIsSelected)
+                        
             HStack {
                 rowView(propertyRowIsSelected)
                 Spacer()

@@ -26,8 +26,12 @@ struct PaddingFlyoutView: View {
      
     var body: some View {
         
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading,
+               spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
+            
+            // TODO: need better padding here; but confounding favtor is UIKitWrapper
             FlyoutHeader(flyoutTitle: "Padding")
+                .padding(.bottom, 8)
                         
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
@@ -55,6 +59,7 @@ struct PaddingFlyoutView: View {
         }
     }
     
+    // TODO: why not just use `NodeInputView` here ?
     @ViewBuilder @MainActor
     var inputOutputRow: some View {
         FieldsListView(graph: graph,
@@ -76,6 +81,15 @@ struct PaddingFlyoutView: View {
                                 forPropertySidebar: true,
                                 // TODO: fix
                                 propertyIsAlreadyOnGraph: false)
+                // Each row seems too tall? Probably from a set node row height somewhere?
+                // Uses padding to reduce size
+                .padding([.top, .bottom], 4)
+                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
+//                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
+                .background {
+                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
+                        .cornerRadius(6)
+                }
             } else {
                 Color.clear
                     .onAppear {

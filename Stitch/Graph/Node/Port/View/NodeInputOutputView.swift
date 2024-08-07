@@ -8,9 +8,34 @@
 import SwiftUI
 import StitchSchemaKit
 
+struct LayerInspectorRowButton: View {
+    
+    let layerProperty: LayerInspectorRowId
+    let coordinate: NodeIOCoordinate
+    let canvasItemId: CanvasItemId?
+    let isRowSelected: Bool
+    
+    var canBeAddedToCanvas: Bool {
+        switch layerProperty {
+        case .layerInput(let layerInputType):
+            return !layerInputType.usesFlyout
+        case .layerOutput(let int):
+            return true
+        }
+    }
+    
+    var body: some View {
+        if let canvasItemId = canvasItemId {
+            JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
+        } else {
+            AddLayerPropertyToGraphButton(coordinate: coordinate)
+                .opacity((canBeAddedToCanvas && isRowSelected) ? 1.0 : 0.0)
+        }
+    }
+}
+
 // TODO: revisit this when we're able to add LayerNodes with outputs to the graph again
 struct AddLayerPropertyToGraphButton: View {
-    let propertyIsSelected: Bool
     let coordinate: NodeIOCoordinate
     
     var nodeId: NodeId {
@@ -32,7 +57,6 @@ struct AddLayerPropertyToGraphButton: View {
                                                      portId: portId))
                 }
             }
-            .opacity(propertyIsSelected ? 1 : 0)
     }
 }
 
@@ -123,6 +147,8 @@ struct NodeInputView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
     
+    var forFlyout: Bool = false
+    
     @MainActor
     private var graphUI: GraphUIState {
         self.graph.graphUI
@@ -169,8 +195,6 @@ struct NodeInputView: View {
                 }
                 
                 let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
-                let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
-                
                 let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
                 if isPaddingLayerInputRow, forPropertySidebar {
@@ -178,11 +202,12 @@ struct NodeInputView: View {
                                         rowData: rowData,
                                         labelView: labelView)
                     
-                } else if isShadowLayerInputRow, forPropertySidebar {
+                } else if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
                                        fontColor: STITCH_FONT_GRAY_COLOR)
                         Spacer()
+                        
                     }
                     .overlay {
                         Color.white.opacity(0.001)
@@ -204,7 +229,7 @@ struct NodeInputView: View {
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
                 }
-            }
+            } // HStack
         }
     }
     
