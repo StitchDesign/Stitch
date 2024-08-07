@@ -218,7 +218,8 @@ struct LayerInspectorInputsSectionView: View {
                         rowObserver: rowObserver,
                         node: node,
                         layerNode: layerNode,
-                        graph: graph)
+                        graph: graph,
+                        canvasItemId: layerInputData.canvasObserver?.id)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                            layerInput: layerInput))
                 }
@@ -285,7 +286,8 @@ struct LayerInspectorOutputsSectionView: View {
                             rowObserver: output.rowObserver,
                             node: node,
                             layerNode: layerNode,
-                            graph: graph)
+                            graph: graph, 
+                            canvasItemId: output.canvasObserver?.id)
                     } else {
                         Color.clear.onAppear {
                             fatalErrorIfDebug("Did not have portId for layer node output")

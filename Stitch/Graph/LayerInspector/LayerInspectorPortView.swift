@@ -16,20 +16,24 @@ struct LayerInspectorInputPortView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-    
+
+    let canvasItemId: CanvasItemId?
+        
     var body: some View {
+        
         LayerInspectorPortView(layerProperty: .layerInput(layerInput),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
                                node: node,
                                layerNode: layerNode,
-                               graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                               graph: graph,
+                               canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeInputView(graph: graph,
                           rowObserver: rowObserver,
                           rowData: rowViewModel,
                           forPropertySidebar: true,
                           propertyIsSelected: propertyRowIsSelected,
-                          propertyIsAlreadyOnGraph: isOnGraphAlready,
+                          propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                           isCanvasItemSelected: false)
         }
     }
@@ -44,19 +48,22 @@ struct LayerInspectorOutputPortView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
+    let canvasItemId: CanvasItemId?
+    
     var body: some View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
                                node: node,
                                layerNode: layerNode,
-                               graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                               graph: graph,
+                               canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeOutputView(graph: graph,
                            rowObserver: rowObserver,
                            rowData: rowViewModel,
                            forPropertySidebar: true,
                            propertyIsSelected: propertyRowIsSelected,
-                           propertyIsAlreadyOnGraph: isOnGraphAlready,
+                           propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                            isCanvasItemSelected: false)
         }
     }
@@ -78,9 +85,13 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
+        
+    // non-nil = this row is present on canvas
+    // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
+    let canvasItemId: CanvasItemId?
     
-    // Arguments: 1. is row selected; 2. isOnGraph
-    @ViewBuilder var rowView: (Bool, Bool) -> RowView
+    // Arguments: 1. is row selected
+    @ViewBuilder var rowView: (Bool) -> RowView
     
     // Is this property-row selected?
     @MainActor
@@ -89,14 +100,12 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var isOnGraphAlready: Bool {
-        rowViewModel.canvasItemDelegate.isDefined
+        canvasItemId.isDefined
     }
-    
+        
     var body: some View {
-                
         HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
-            if isOnGraphAlready,
-               let canvasItemId = rowViewModel.canvasItemDelegate?.id {
+            if let canvasItemId = canvasItemId {
                 JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
             } else {
                 AddLayerPropertyToGraphButton(
@@ -105,7 +114,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             }
             
             HStack {
-                rowView(propertyRowIsSelected, isOnGraphAlready)
+                rowView(propertyRowIsSelected)
                 Spacer()
             }
             .padding(.leading, LAYER_INSPECTOR_ROW_SPACING) // padding so that text is not flush with capsule background
@@ -133,8 +142,6 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         .listRowInsets(EdgeInsets(
             top: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
             leading: 0,
-//            leading: 4,
-//            leading: -2,
             bottom: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
             trailing: 0))
         .gesture(
