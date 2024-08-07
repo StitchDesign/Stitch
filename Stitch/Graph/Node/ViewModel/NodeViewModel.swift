@@ -325,8 +325,14 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func getInputRowObserver(for layerInputType: LayerInputType) -> InputNodeRowObserver? {
-        self.getInputRowObserver(for: .keyPath(layerInputType))
+    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
+        guard let layerNode = self.layerNode else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+        return portObserver.activeValue
     }
     
     @MainActor
@@ -494,13 +500,15 @@ extension NodeViewModel: NodeDelegate {
             
         case .layer(let layer):
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
-                let inputData = layer[keyPath: $0.layerNodeKeyPath]
+                let inputPort = layer[keyPath: $0.layerNodeKeyPath]
                 
-                if let canvas = inputData.canvasObserver {
-                    return canvas.inputViewModels + [inputData.inspectorRowViewModel]
+                return inputPort.allInputData.flatMap { inputData in
+                    if let canvas = inputData.canvasObserver {
+                        return canvas.inputViewModels + [inputData.inspectorRowViewModel]
+                    }
+                    
+                    return [inputData.inspectorRowViewModel]
                 }
-                
-                return [inputData.inspectorRowViewModel]
             }
         }
     }
