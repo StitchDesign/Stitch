@@ -51,10 +51,10 @@ extension GraphState {
     @MainActor
     func selectedGraphNodesDeleted(selectedNodes: CanvasItemIdSet) {
 
-        self.selectedCanvasItems.forEach {
-            self.deleteCanvasItem($0.id)
+        selectedNodes.forEach { canvasItemId in
+            self.deleteCanvasItem(canvasItemId)
         }
-        
+            
         // reset node-ui highlight/selection state
         self.graphUI.selection = GraphUISelectionState()
 
@@ -93,7 +93,12 @@ extension GraphState {
                 return
             }
             
-            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
+            let rowData = layerNode[keyPath: x.keyPath.layerNodeKeyPath]
+            rowData.canvasObserver = nil
+            // TODO: why must we also set canvasItemDelegate `nil`, even though we deleted the canvas observer?
+            rowData.inspectorRowViewModel.canvasItemDelegate = nil
+            
+//            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
