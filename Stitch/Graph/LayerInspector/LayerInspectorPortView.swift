@@ -62,6 +62,12 @@ struct LayerInspectorOutputPortView: View {
     }
 }
 
+// spacing between e.g. "add to graph" button (icon) and start of row capsule
+let LAYER_INSPECTOR_ROW_SPACING = 8.0
+
+// how big an icon / button is
+let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
+
 struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
     
     // input or output
@@ -88,7 +94,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     var body: some View {
                 
-        HStack(spacing: 8) {
+        HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
             if isOnGraphAlready,
                let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                 JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
@@ -102,7 +108,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
                 rowView(propertyRowIsSelected, isOnGraphAlready)
                 Spacer()
             }
-            .padding(.leading, 8)
+            .padding(.leading, LAYER_INSPECTOR_ROW_SPACING) // padding so that text is not flush with capsule background
             .background {
                 WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
                     .cornerRadius(6)
@@ -124,10 +130,13 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
-        .listRowInsets(EdgeInsets(top: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
-                                  leading: 0,
-                                  bottom: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
-                                  trailing: 0))
+        .listRowInsets(EdgeInsets(
+            top: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
+            leading: 0,
+//            leading: 4,
+//            leading: -2,
+            bottom: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
+            trailing: 0))
         .gesture(
             TapGesture().onEnded({ _ in
                 // log("LayerInspectorPortView tapped")

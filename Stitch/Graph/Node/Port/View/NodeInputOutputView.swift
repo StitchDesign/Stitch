@@ -20,7 +20,8 @@ struct AddLayerPropertyToGraphButton: View {
     var body: some View {
         Image(systemName: "plus.circle")
             .resizable()
-            .frame(width: 16, height: 16) // per Figma
+            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH, 
+                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {
                 if let layerInput = coordinate.keyPath {
                     dispatch(LayerInputAddedToGraph(
@@ -42,7 +43,8 @@ struct JumpToLayerPropertyOnGraphButton: View {
         // TODO: use a button ?
         Image(systemName: "scope")
             .resizable()
-            .frame(width: 16, height: 16)
+            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH, 
+                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
             .onTapGesture {
                 dispatch(JumpToCanvasItem(id: canvasItemId))
             }

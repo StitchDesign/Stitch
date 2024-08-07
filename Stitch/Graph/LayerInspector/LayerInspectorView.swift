@@ -59,26 +59,29 @@ struct LayerInspectorView: View {
         return node
     }
     
+    @State var safeAreaInsets: EdgeInsets = .init()
+    
     var body: some View {
         if let node = selectedLayerNode,
            let layerNode = node.layerNode {
             @Bindable var node = node
             @Bindable var layerNode = layerNode
             
-            UIKitWrapper(ignoresKeyCommands: false,
-                         name: "LayerInspectorView") {
-                selectedLayerView(node, layerNode)
+            // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
+            GeometryReader { geometry in
+                UIKitWrapper(ignoresKeyCommands: false,
+                             name: "LayerInspectorView") {
+                    selectedLayerView(node, layerNode)
+                }
+                             // TODO: Why subtract only half?
+                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
+                             .padding(.bottom, (-self.safeAreaInsets.bottom))
+                             .onChange(of: geometry.safeAreaInsets) { oldValue, newValue in
+//                                 log("safeAreaInsets: oldValue: \(oldValue)")
+//                                 log("safeAreaInsets: newValue: \(newValue)")
+                                 self.safeAreaInsets = newValue
+                             }
             }
-
-            // TODO: need UIKitWrapper to detect keypresses; alternatively, place UIKitWrapper on the sections themselves?
-            // Takes care of the mysterious white top padding UIKitWrapper introduces
-#if targetEnvironment(macCatalyst)
-                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-#else
-                         .padding(.top, INSPECTOR_LIST_TOP_PADDING)
-                         .padding(.bottom, -20)
-#endif
-            
         } else {
             // Empty List, so have same background
             List { }
@@ -96,8 +99,8 @@ struct LayerInspectorView: View {
                 Spacer()
             }
                 .padding()
-                .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
-                        
+                .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+            
             List {
                 ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
                     
@@ -112,7 +115,6 @@ struct LayerInspectorView: View {
                             layerNode: layerNode,
                             graph: graph)
                     }
-                    
                 } // ForEach
                 
                 LayerInspectorOutputsSectionView(node: node,
@@ -121,7 +123,7 @@ struct LayerInspectorView: View {
             } // List
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
-            
+                        
             // Note: hard to be exact here
             // The default ListStyle adds padding (visible if we do not use Color.clear as list row background), but using e.g. ListStyle.plain introduces sticky header sections that we do not want.
             .padding([.leading], -6)
@@ -190,6 +192,11 @@ struct LayerInspectorInputsSectionView: View {
     @Bindable var graph: GraphState
     
     @State private var expanded = true
+  
+    @MainActor
+    var isFirstSection: Bool {
+        LayerInspectorView.firstSectionName(layerNode.layer) == sectionName
+    }
     
     var body: some View {
         let inputsList = layerNode.layer.layerGraphNode.inputDefinitions
@@ -218,19 +225,26 @@ struct LayerInspectorInputsSectionView: View {
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
-            
             // TODO: use a button instead?
-            
-            HStack { // spacing of 8 ?
+            HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) { // spacing of 8 ?
                 let rotationZ: CGFloat = expanded ? 90 : 0
                 Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+                    .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                           height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
                     .rotation3DEffect(Angle(degrees: rotationZ),
                                       axis: (x: 0, y: 0, z: rotationZ))
                     .animation(.linear(duration: 0.2), value: rotationZ)
-                StitchTextView(string: sectionName.rawValue)
                 
+                StitchTextView(string: sectionName.rawValue)
             }
-            .padding(4)
+            // Note: list row insets appear to be the only way to control padding on a list's section headers
+            // TODO: how much spacing do we want between first section and very top of inspector?
+//            .listRowInsets(EdgeInsets(top: isFirstSection ? 20 : 0,
+            .listRowInsets(EdgeInsets(top: 0,
+                                      leading: 0,
+                                      bottom: 0,
+                                      trailing: 0))
+//            .padding(.bottom, isFirstSection ? 6 : 0)
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation {
@@ -279,13 +293,21 @@ struct LayerInspectorOutputsSectionView: View {
                     }
                 }
             } header: {
-                StitchTextView(string: "Outputs")
-                    .padding(4)
+                HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
+                    Rectangle().fill(.clear)
+                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+//                    
+                    StitchTextView(string: "Outputs")
+                }
+                .listRowInsets(EdgeInsets(top: 0,
+                                          leading: 0,
+                                          bottom: 0,
+                                          trailing: 0))
             }
         }
     }
 }
-
 
 //#Preview {
 //    let graph = GraphState(from: .init(), store: nil)
