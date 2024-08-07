@@ -14,6 +14,58 @@ extension simd_float4x4 {
     }
 }
 
+// Extension to create a 4x4 rotation matrix from Euler angles
+extension simd_float4x4 {
+    init(rotationZYX eulerAngles: SIMD3<Float>) {
+        let quaternion = simd_quatf(euler: eulerAngles)
+        self.init(quaternion: quaternion)
+    }
+    
+    // Create a 4x4 rotation matrix from a quaternion
+    init(quaternion: simd_quatf) {
+        self.init()
+        let x = quaternion.vector.x
+        let y = quaternion.vector.y
+        let z = quaternion.vector.z
+        let w = quaternion.vector.w
+        
+        let x2 = x * x
+        let y2 = y * y
+        let z2 = z * z
+        let xy = x * y
+        let xz = x * z
+        let yz = y * z
+        let wx = w * x
+        let wy = w * y
+        let wz = w * z
+        
+        self.columns = (
+            simd_float4(1 - 2 * (y2 + z2), 2 * (xy + wz), 2 * (xz - wy), 0),
+            simd_float4(2 * (xy - wz), 1 - 2 * (x2 + z2), 2 * (yz + wx), 0),
+            simd_float4(2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (x2 + y2), 0),
+            simd_float4(0, 0, 0, 1)
+        )
+    }
+}
+
+// Extension to create a 4x4 matrix from position, scale, and rotation
+extension simd_float4x4 {
+    init(position: SIMD3<Float>, scale: SIMD3<Float>, rotationZYX: SIMD3<Float>) {
+        let scaleMatrix = simd_float4x4(diagonal: SIMD4(scale, 1))
+        let rotationMatrix = simd_float4x4(rotationZYX: rotationZYX)
+        let translationMatrix = simd_float4x4(
+            SIMD4<Float>(1, 0, 0, 0),
+            SIMD4<Float>(0, 1, 0, 0),
+            SIMD4<Float>(0, 0, 1, 0),
+            SIMD4<Float>(position.x, position.y, position.z, 1)
+        )
+        
+        // Combine transformations: translation * rotation * scale
+        self = translationMatrix * rotationMatrix * scaleMatrix
+    }
+}
+
+
 extension simd_float3x3 {
     // Normalizes each column to unit scale
     func normalized() -> simd_float3x3 {
