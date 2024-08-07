@@ -125,16 +125,13 @@ extension LayerNodeViewModel {
     /// Second step for layer port initialization after all initial identifier data is set.
     @MainActor
     func initializePortSchema(layerSchema: LayerNodeEntity,
-                              layerInputPort: LayerInputPort,
-                              portType: LayerInputKeyPathType) {
-        let layerId = LayerInputType(layerInput: layerInputPort,
-                                     portType: portType)
-        let layerData = self[keyPath: layerId.layerNodeKeyPath]
+                              layerInputPort: LayerInputPort) {
+        let layerData = self[keyPath: layerInputPort.layerNodeKeyPath]
         
-        layerData.update(from: layerSchema[keyPath: layerId.schemaPortKeyPath],
-                         layerInputType: layerId,
+        layerData.update(from: layerSchema[keyPath: layerInputPort.schemaPortKeyPath],
+                         layerInputType: layerInputPort,
                          layerNode: self,
-                         nodeId: schema.id)
+                         nodeId: self.id)
     }
 }
 
@@ -169,37 +166,54 @@ extension LayerInputObserver {
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
-            return self.packedData
+            return self.packedObserver
         case .unpacked:
             return nil
         }
     }
     
     @MainActor
-    func update(from schema: LayerInputModeEntity,
-                layerInputType: LayerInputType,
+    func update(from schema: LayerInputEntity,
+                layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId) {
-        switch schema {
-        case .packed(let inputSchema):
-            let packedInputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-            packedInputObserver.update(from: inputSchema,
-                                       layerInputType: layerInputType,
-                                       layerNode: layerNode,
-                                       nodeId: nodeId)
-        case .unpacked(let unpackedObserverType):
+        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+        let unpackedObservers = portObserver._unpackedData.allPorts
+        assertInDebug(schema.unpackedData.count == unpackedObservers.count)
+
+        self.mode = schema.mode
+        
+        // Updated packed data
+        portObserver._packedData.update(from: schema.packedData,
+                                        layerInputType: .init(layerInput: layerInputType,
+                                                              portType: .packed),
+                                        layerNode: layerNode,
+                                        nodeId: nodeId)
+        
+        
+        // Update unpacked data
+        zip(unpackedObservers, schema.unpackedData).enumerated().forEach { portId, data in
+            guard let unpackedPortType = UnpackedPortType(rawValue: portId) else {
+                fatalErrorIfDebug()
+                return
+            }
             
+            let unpackedObserver = data.0
+            let unpackedSchema = data.1
+            
+            unpackedObserver.update(from: unpackedSchema,
+                                    layerInputType: .init(layerInput: layerInputType,
+                                                          portType: .unpacked(unpackedPortType)),
+                                    layerNode: layerNode,
+                                    nodeId: nodeId)
         }
     }
     
     @MainActor
-    func createSchema() -> LayerInputModeEntity {
-        switch self {
-        case .packed(let inputLayerNodeRowData):
-            return .packed(inputLayerNodeRowData.createSchema())
-        case .unpacked(let unpackedObserverType):
-            return .unpacked(unpackedObserverType.createSchema())
-        }
+    func createSchema() -> LayerInputEntity {
+        .init(packedData: self._packedData.createSchema(),
+              unpackedData: self._unpackedData.allPorts.map { $0.createSchema() },
+              mode: self.mode)
     }
 }
     

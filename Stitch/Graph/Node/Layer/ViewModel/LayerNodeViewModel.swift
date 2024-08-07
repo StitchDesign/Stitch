@@ -54,7 +54,7 @@ extension LayerInputUnpackedPortObserver {
 ///// Needs to be class for StitchEngine which assumes reference objects with its mutation logic
 //final class LayerInputObserver {
 //    var id: NodeIOCoordinate    // ID used for NodeRowCalculatable
-//    var type: LayerInputObserverMode
+//    var type: LayerInputMode
 //    
 //    init(id: NodeIOCoordinate,
 //         type: LayerInputObserverMode) {
@@ -70,7 +70,7 @@ final class LayerInputObserver {
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
-    var mode: LayerInputObserverMode = .packed
+    var mode: LayerInputMode = .packed
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
@@ -78,10 +78,10 @@ final class LayerInputObserver {
     }
 }
 
-enum LayerInputObserverMode {
-    case packed
-    case unpacked
-}
+//enum LayerInputMode {
+//    case packed
+//    case unpacked
+//}
 
 extension LayerInputObserver {
     @MainActor
@@ -471,15 +471,8 @@ final class LayerNodeViewModel {
         
         // Call update once everything above is in place
         for inputType in graphNode.inputDefinitions {
-            
-            // MARK: - come back here. created initializePortSchema to abstract this. Need to loop over unpacked ports like in above
-            
-//            let layerData: LayerInputObserverMode = self[keyPath: inputType.layerNodeKeyPath]
-//            
-//            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
-//                             layerInputType: inputType,
-//                             layerNode: self,
-//                             nodeId: schema.id)
+            self.initializePortSchema(layerSchema: schema,
+                                      layerInputPort: inputType)
         }
     }
 }

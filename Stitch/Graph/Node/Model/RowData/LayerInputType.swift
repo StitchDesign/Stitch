@@ -218,7 +218,7 @@ extension LayerInputPort {
     }
     
     /// Keypath mapping to this schema version.
-    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputModeEntity> {
+    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputEntity> {
         switch self {
             
         // Required
@@ -843,31 +843,16 @@ extension LayerViewModel {
     }
 }
 
-extension LayerInputType {
-    /// Key paths for parent layer view model
+extension LayerInputPort {
     @MainActor
-    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
-        //        return \LayerNodeViewModel.positionPort.packedData
-        
-        switch self.layerInput {
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
+        switch self {
         case .position:
-            switch self.portType {
-            case .packed:
-                return \.positionPort._packedData
-            case .unpacked(let unpackedType):
-                switch unpackedType {
-                case .port0:
-                    return \.positionPort._unpackedData.port0
-                case .port1:
-                    return \.positionPort._unpackedData.port1
-                case .port2:
-                    return \.positionPort._unpackedData.port2
-                }
-            }
+            return \.positionPort
             
         default:
+            // TODO: support other ports
             fatalError()
-            
             
             //        case .size:
             //            return \.sizePort
@@ -1047,6 +1032,28 @@ extension LayerInputType {
             //            return \.spacingPort
             //        case .sizingScenario:
             //            return \.sizingScenarioPort
+        }
+    }
+}
+
+extension LayerInputType {
+    /// Key paths for parent layer view model
+    @MainActor
+    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
+        let portKeyPath = self.layerInput.layerNodeKeyPath
+        
+        switch self.portType {
+        case .packed:
+            return \.positionPort._packedData
+        case .unpacked(let unpackedType):
+            switch unpackedType {
+            case .port0:
+                return portKeyPath.appending(path: \._unpackedData.port0)
+            case .port1:
+                return portKeyPath.appending(path: \._unpackedData.port1)
+            case .port2:
+                return portKeyPath.appending(path: \._unpackedData.port2)
+            }
         }
     }
 }
@@ -1279,25 +1286,25 @@ extension LayerInputPort {
 //    }
 //}
 
-extension LayerInputModeEntity {
+extension LayerInputEntity {
     var values: PortValues? {
-        switch self {
-        case .packed(let layerInputDataEntity):
-            return layerInputDataEntity.inputPort.values
-        case .unpacked(let array):
+        switch self.mode {
+        case .packed:
+            return self.packedData.inputPort.values
+        case .unpacked:
             // TODO: need to think through how this works if there are multiple unpacked ports and we only use some
             fatalError()
         }
     }
     
     var canvasItems: [CanvasNodeEntity] {
-        switch self {
-        case .packed(let layerInputDataEntity):
-            if let canvas = layerInputDataEntity.canvasItem {
-                return [canvas]                
+        switch self.mode {
+        case .packed:
+            if let canvas = self.packedData.canvasItem {
+                return [canvas]
             }
-        case .unpacked(let unpackedEntityList):
-            return unpackedEntityList.compactMap {
+        case .unpacked:
+            return self.unpackedData.compactMap {
                 $0.canvasItem
             }
         }
