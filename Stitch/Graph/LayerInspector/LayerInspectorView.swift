@@ -198,7 +198,6 @@ struct LayerInspectorInputsSectionView: View {
         LayerInspectorView.firstSectionName(layerNode.layer) == sectionName
     }
     
-    
     var body: some View {
         let inputsList = layerNode.layer.layerGraphNode.inputDefinitions
         
@@ -294,18 +293,21 @@ struct LayerInspectorOutputsSectionView: View {
                     }
                 }
             } header: {
-                StitchTextView(string: "Outputs")
-//                    .padding(.leading, 4)
-//                    .padding(4)
-//                    .listRowInsets(EdgeInsets(top: 0,
-//                                              leading: 0,
-//                                              bottom: 0,
-//                                              trailing: 0))
+                HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
+                    Rectangle().fill(.clear)
+                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+//                    
+                    StitchTextView(string: "Outputs")
+                }
+                .listRowInsets(EdgeInsets(top: 0,
+                                          leading: 0,
+                                          bottom: 0,
+                                          trailing: 0))
             }
         }
     }
 }
-
 
 //#Preview {
 //    let graph = GraphState(from: .init(), store: nil)
