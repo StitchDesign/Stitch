@@ -92,13 +92,8 @@ extension GraphState {
                 fatalErrorIfDebug()
                 return
             }
-            
-            let rowData = layerNode[keyPath: x.keyPath.layerNodeKeyPath]
-            rowData.canvasObserver = nil
-            // TODO: why must we also set canvasItemDelegate `nil`, even though we deleted the canvas observer?
-            rowData.inspectorRowViewModel.canvasItemDelegate = nil
-            
-//            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
+
+            layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
