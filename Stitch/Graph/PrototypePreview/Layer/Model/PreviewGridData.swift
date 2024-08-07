@@ -168,9 +168,12 @@ extension NodeViewModel {
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
     @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
-        self[keyPath: key.layerNodeKeyPath]
-            .inspectorRowViewModel.fieldValueTypes.first?.fieldObservers
+    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
+        let port = self[keyPath: key.layerNodeKeyPath]
+        
+        return port.allInputData.flatMap {
+            $0.inspectorRowViewModel.fieldValueTypes.first?.fieldObservers ?? []
+        }
     }
 }
 
@@ -178,7 +181,7 @@ extension NodeViewModel {
     
     /// Gets fields for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInspectorInputFields(_ key: LayerInputType) -> InputFieldViewModels? {
+    func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels? {
         guard let layerNode = self.layerNode else {
             fatalErrorIfDebug() // when can this actually happen?
             return nil
@@ -188,35 +191,37 @@ extension NodeViewModel {
     
     /// Gets field for a layer specifically for its inputs in the layer inpsector, rather than a node.
     @MainActor
-    func getLayerInspectorInputField(_ key: LayerInputType) -> InputFieldViewModel? {
+    func getLayerInspectorInputField(_ key: LayerInputPort) -> InputFieldViewModel? {
         self.getLayerInspectorInputFields(key)?.first
     }
    
     @MainActor
-    func setBlockStatus(_ input: LayerInputType,
+    func setBlockStatus(_ input: LayerInputPort,
                         fieldIndex: Int? = nil,
                         isBlocked: Bool) {
-        
-        guard let fields = self.getLayerInspectorInputFields(input) else {
-            // Re-enable the fatal error when min/max fields are enabled for inspector
-//            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
-            return
-        }
-        
-        // If we have a particular field-index, then we're modifiyng a particular field,
-        // like height or width.
-        if let fieldIndex = fieldIndex {
-            guard let field = fields[safeIndex: fieldIndex] else {
-                fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
-                return
-            }
-            field.isBlockedOut = isBlocked
-        }
-        // Else we're changing the whole input
-        else {
-            fields.forEach { $0.isBlockedOut = isBlocked }
-            return
-        }
+        // TODO: block status logic should be reconsidered given height/width can come from unpacked state
+        fatalError()
+//        
+//        guard let fields = self.getLayerInspectorInputFields(input) else {
+//            // Re-enable the fatal error when min/max fields are enabled for inspector
+////            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
+//            return
+//        }
+//        
+//        // If we have a particular field-index, then we're modifiyng a particular field,
+//        // like height or width.
+//        if let fieldIndex = fieldIndex {
+//            guard let field = fields[safeIndex: fieldIndex] else {
+//                fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
+//                return
+//            }
+//            field.isBlockedOut = isBlocked
+//        }
+//        // Else we're changing the whole input
+//        else {
+//            fields.forEach { $0.isBlockedOut = isBlocked }
+//            return
+//        }
     }
         
     // LayerGroup's StitchOrientation = None
