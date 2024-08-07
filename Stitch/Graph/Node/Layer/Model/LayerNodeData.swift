@@ -35,7 +35,7 @@ final class InputLayerNodeRowData: LayerNodeRowData {
             itemType = .layerInspector(inputType)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.size)
+            itemType = .empty
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
@@ -65,7 +65,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
             itemType = .layerInspector(inputType)
         } else {
             fatalErrorIfDebug()
-            itemType = .layerInspector(.size)
+            itemType = .empty
         }
         
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,

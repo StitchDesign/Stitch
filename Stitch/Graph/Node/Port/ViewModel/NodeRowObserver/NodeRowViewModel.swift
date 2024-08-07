@@ -17,6 +17,9 @@ enum GraphItemType: Hashable {
 }
 
 extension GraphItemType {
+    static let empty: Self = .layerInspector(.init(layerInput: .size,
+                                                   portType: .packed))
+    
     var isLayerInspector: Bool {
         switch self {
         case .layerInspector:

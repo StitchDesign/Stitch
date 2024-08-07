@@ -485,11 +485,6 @@ extension LayerNodeViewModel: SchemaObserver {
 
     @MainActor
     func update(from schema: LayerNodeEntity) {
-        guard let node = self.nodeDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         if self.layer != schema.layer {
             self.layer = schema.layer
         }
