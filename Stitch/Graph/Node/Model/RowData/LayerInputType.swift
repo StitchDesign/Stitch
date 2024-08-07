@@ -217,7 +217,7 @@ extension LayerInputPort {
         }
     }
     
-    /// Keypath )mapping to this schema version.
+    /// Keypath mapping to this schema version.
     var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputModeEntity> {
         switch self {
             
@@ -1252,6 +1252,17 @@ extension LayerInputPort {
             return false
         }
     }
+    
+    var unpackedPortCount: Int? {
+        switch self {
+        case .position:
+            return 2
+            
+        default:
+            // TODO: support other ports
+            fatalError()
+        }
+    }
 }
 
 //extension UnpackedPortType {
@@ -1267,3 +1278,28 @@ extension LayerInputPort {
 //        }
 //    }
 //}
+
+extension LayerInputModeEntity {
+    var values: PortValues? {
+        switch self {
+        case .packed(let layerInputDataEntity):
+            return layerInputDataEntity.inputPort.values
+        case .unpacked(let array):
+            // TODO: need to think through how this works if there are multiple unpacked ports and we only use some
+            fatalError()
+        }
+    }
+    
+    var canvasItems: [CanvasNodeEntity] {
+        switch self {
+        case .packed(let layerInputDataEntity):
+            if let canvas = layerInputDataEntity.canvasItem {
+                return [canvas]                
+            }
+        case .unpacked(let unpackedEntityList):
+            return unpackedEntityList.compactMap {
+                $0.canvasItem
+            }
+        }
+    }
+}

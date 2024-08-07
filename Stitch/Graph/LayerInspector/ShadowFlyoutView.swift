@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 // Represents "packed" shadow
-let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputType.shadowColor
+let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputPort.shadowColor
 
 struct FlyoutHeader: View {
     
@@ -75,17 +75,20 @@ struct ShadowFlyoutView: View {
     @MainActor
     var rows: some View {
         VStack(alignment: .leading) {
-            ForEach(LayerInspectorView.shadow) { shadowInput in
-                let layerInputData = layerNode[keyPath: shadowInput.layerNodeKeyPath]
-                NodeInputView(graph: graph,
-                              rowObserver: layerInputData.rowObserver,
-                              rowData: layerInputData.inspectorRowViewModel,
-                              forPropertySidebar: true,
-                              propertyIsSelected: false, // NA
-                              // TODO: applicable or not?
-                              propertyIsAlreadyOnGraph: false ,
-                              isCanvasItemSelected: false)
-            }
+            // TODO: fix flyout
+            fatalError()
+//            ForEach(LayerInspectorView.shadow) { shadowInput in
+//                let address = LayerInputType(layerInput: shadowInput, portType: .packed)
+//                let layerInputData = layerNode[keyPath: address.layerNodeKeyPath]
+//                NodeInputView(graph: graph,
+//                              rowObserver: layerInputData.rowObserver,
+//                              rowData: layerInputData.inspectorRowViewModel,
+//                              forPropertySidebar: true,
+//                              propertyIsSelected: false, // NA
+//                              // TODO: applicable or not?
+//                              propertyIsAlreadyOnGraph: false ,
+//                              isCanvasItemSelected: false)
+//            }
         }
 //        .padding()
     }

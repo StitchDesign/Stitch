@@ -101,6 +101,43 @@ extension LayerNodeRowData {
     }
 }
 
+extension LayerNodeViewModel {
+    /// First step for layer port initialization before schema settings are set.
+    @MainActor
+    func preinitializeSupportedPort(layerInputPort: LayerInputPort,
+                                    portType: LayerInputKeyPathType) {
+        let layerId = LayerInputType(layerInput: layerInputPort,
+                                     portType: portType)
+        let coordinateId = NodeIOCoordinate(portType: .keyPath(layerId), nodeId: self.id)
+        
+        let layerData: InputLayerNodeRowData = self[keyPath: layerId.layerNodeKeyPath]
+        
+        // Update row view model ID
+        layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(layerId),
+                                                   nodeId: self.id,
+                                                   portId: 0)
+        
+        // Update packed row observer
+        layerData.rowObserver.nodeKind = .layer(self.layer)
+        layerData.rowObserver.id = coordinateId
+    }
+    
+    /// Second step for layer port initialization after all initial identifier data is set.
+    @MainActor
+    func initializePortSchema(layerSchema: LayerNodeEntity,
+                              layerInputPort: LayerInputPort,
+                              portType: LayerInputKeyPathType) {
+        let layerId = LayerInputType(layerInput: layerInputPort,
+                                     portType: portType)
+        let layerData = self[keyPath: layerId.layerNodeKeyPath]
+        
+        layerData.update(from: layerSchema[keyPath: layerId.schemaPortKeyPath],
+                         layerInputType: layerId,
+                         layerNode: self,
+                         nodeId: schema.id)
+    }
+}
+
 extension InputLayerNodeRowData {
     @MainActor
     func update(from schema: LayerInputDataEntity,

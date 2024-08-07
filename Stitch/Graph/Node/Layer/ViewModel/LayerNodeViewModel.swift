@@ -73,7 +73,7 @@ final class LayerInputObserver {
     var mode: LayerInputObserverMode = .packed
     
     @MainActor
-    init(from schema: LayerNodeEntity, packedInputType: LayerInputType) {
+    init(from schema: LayerNodeEntity, port: LayerInputPort) {
         self._packedData = .empty(packedInputType, layer: schema.layer)
     }
 }
@@ -335,7 +335,8 @@ final class LayerNodeViewModel {
             .rowDefinitions(for: nil)
         
         let rowFn = { (layerInput: LayerInputPort) -> InputLayerNodeRowData in
-                .empty(layerInput,
+                .empty(.init(layerInput: layerInput,
+                             portType: .packed),
                        layer: schema.layer)
         }
         
@@ -350,7 +351,7 @@ final class LayerNodeViewModel {
                                     valuesList: rowDefinitions.outputs.defaultList,
                                     userVisibleType: nil)
         
-        self.positionPort = .init(from: schema, packedInputType: .position(.packed))
+        self.positionPort = .init(from: schema, port: .position)
         self.sizePort = rowFn(.size)
         self.scalePort = rowFn(.scale)
         self.anchoringPort = rowFn(.anchoring)
@@ -448,33 +449,37 @@ final class LayerNodeViewModel {
         self.sizingScenarioPort = rowFn(.sizingScenario)
         
         // Initialize each NodeRowObserver for each expected layer input
-        for inputType in graphNode.inputDefinitions {
-            let id = NodeIOCoordinate(portType: .keyPath(inputType), nodeId: self.id)
+        for layerInputPort in graphNode.inputDefinitions {
+            // Initialize packed port
+            self.preinitializeSupportedPort(layerInputPort: layerInputPort,
+                                            portType: .packed)
             
-            // expect packed case on initialization
-            guard let layerData: InputLayerNodeRowData = self[keyPath: inputType.layerNodeKeyPath].packedObserver else {
-                fatalErrorIfDebug()
-                return
+            // Check for ports which support unpacked state
+            if let unpackedPortCount = layerInputPort.unpackedPortCount {
+                (0..<unpackedPortCount).forEach { unpackedPortId in
+                    guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
+                        fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")
+                        return
+                    }
+                    
+                    // Initialize unpacked port
+                    self.preinitializeSupportedPort(layerInputPort: layerInputPort,
+                                                    portType: .unpacked(unpackedPortType))
+                }
             }
-            
-            // Update row view model ID
-            layerData.inspectorRowViewModel.id = .init(graphItemType: .layerInspector(inputType),
-                                                       nodeId: id.nodeId,
-                                                       portId: 0)
-            
-            // Update row observer
-            layerData.rowObserver.nodeKind = .layer(self.layer)
-            layerData.rowObserver.id = id
         }
         
         // Call update once everything above is in place
         for inputType in graphNode.inputDefinitions {
-            let layerData: LayerInputObserverMode = self[keyPath: inputType.layerNodeKeyPath]
             
-            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
-                             layerInputType: inputType,
-                             layerNode: self,
-                             nodeId: schema.id)
+            // MARK: - come back here. created initializePortSchema to abstract this. Need to loop over unpacked ports like in above
+            
+//            let layerData: LayerInputObserverMode = self[keyPath: inputType.layerNodeKeyPath]
+//            
+//            layerData.update(from: schema[keyPath: inputType.schemaPortKeyPath],
+//                             layerInputType: inputType,
+//                             layerNode: self,
+//                             nodeId: schema.id)
         }
     }
 }

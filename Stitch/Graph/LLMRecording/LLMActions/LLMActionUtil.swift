@@ -19,7 +19,7 @@ extension NodeViewModel {
 extension GraphState {
 
     @MainActor
-    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
+    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputPort) {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.graphUI.llmRecording.isRecording,
            let node = self.getNodeViewModel(nodeId) {
@@ -73,7 +73,7 @@ extension GraphState {
            let nodeId = canvasItem.nodeDelegate?.id,
            let node = self.getNode(nodeId) {
             
-            let layerInput = canvasItem.id.layerInputCase?.keyPath.label()
+            let layerInput = canvasItem.id.layerInputCase?.keyPath.layerInput.label()
             let layerOutPort = canvasItem.id.layerOutputCase?.portId.description
                         
             let llmMoveNode = LLMMoveNode(
