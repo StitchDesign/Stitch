@@ -87,12 +87,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var body: some View {
-        
-        if layerProperty == .layerInput(.sizingScenario) {
-            logInView("LayerInspectorPortView: isOnGraphAlready: \(isOnGraphAlready)")
-            logInView("LayerInspectorPortView: rowViewModel.canvasItemDelegate?.id: \(rowViewModel.canvasItemDelegate?.id)")
-        }
-        
+                
         HStack(spacing: 8) {
             if isOnGraphAlready,
                let canvasItemId = rowViewModel.canvasItemDelegate?.id {
