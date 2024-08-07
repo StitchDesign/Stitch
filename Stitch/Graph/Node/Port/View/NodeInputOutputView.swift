@@ -230,16 +230,6 @@ struct NodeInputView: View {
                                    valueEntryView: valueEntryView)
                 }
             } // HStack
-//            .border(.blue)
-//            .padding(forFlyout
-//                     ? LAYER_INSPECTOR_ROW_SPACING/4
-//                     : 0)
-//            .border(.orange)
-//            .background {
-//                WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-//                    .cornerRadius(6)
-//                    .opacity(forFlyout ? 1.0 : 0.0)
-//            }
         }
     }
     
