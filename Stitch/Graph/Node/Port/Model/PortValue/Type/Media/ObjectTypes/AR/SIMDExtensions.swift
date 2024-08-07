@@ -48,6 +48,29 @@ extension simd_float4x4 {
     }
 }
 
+// Extension to create a quaternion from Euler angles
+extension simd_quatf {
+    init(euler angles: SIMD3<Float>) {
+        // Convert Euler angles to quaternion using the ZYX convention
+        let c1 = cos(angles.x / 2)
+        let s1 = sin(angles.x / 2)
+        let c2 = cos(angles.y / 2)
+        let s2 = sin(angles.y / 2)
+        let c3 = cos(angles.z / 2)
+        let s3 = sin(angles.z / 2)
+        
+        let c1c2 = c1 * c2
+        let s1s2 = s1 * s2
+        
+        let w = c1c2 * c3 - s1s2 * s3
+        let x = c1c2 * s3 + s1s2 * c3
+        let y = s1 * c2 * c3 + c1 * s2 * s3
+        let z = c1 * s2 * c3 - s1 * c2 * s3
+        
+        self.init(ix: x, iy: y, iz: z, r: w)
+    }
+}
+
 // Extension to create a 4x4 matrix from position, scale, and rotation
 extension simd_float4x4 {
     init(position: SIMD3<Float>, scale: SIMD3<Float>, rotationZYX: SIMD3<Float>) {
