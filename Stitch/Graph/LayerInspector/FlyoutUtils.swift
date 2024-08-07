@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 
-extension LayerInputType {
+extension LayerInputPort {
     var usesFlyout: Bool {
         switch self {
         case .padding, .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:

@@ -334,7 +334,7 @@ final class LayerNodeViewModel {
         let rowDefinitions = NodeKind.layer(schema.layer)
             .rowDefinitions(for: nil)
         
-        let rowFn = { (layerInput: LayerInputType) -> InputLayerNodeRowData in
+        let rowFn = { (layerInput: LayerInputPort) -> InputLayerNodeRowData in
                 .empty(layerInput,
                        layer: schema.layer)
         }

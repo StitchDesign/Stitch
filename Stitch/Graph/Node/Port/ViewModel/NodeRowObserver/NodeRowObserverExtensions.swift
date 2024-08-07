@@ -174,7 +174,7 @@ extension NodeRowObserver {
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
             
         case .keyPath(let keyPath):
-            return keyPath.label(useShortLabel)
+            return keyPath.layerInput.label(useShortLabel)
         }
     }
 }
