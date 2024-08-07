@@ -26,7 +26,7 @@ struct SelectedGraphItemsCut: GraphEvent {
         }
 
         // Copy selected graph data to clipboard
-        state.copyToClipboard()
+        state.copyToClipboard(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
 
         // Delete selected nodes
         state.selectedNodeIds.forEach {
@@ -59,8 +59,8 @@ struct SelectedGraphItemsCopied: GraphEvent {
             log("Copy disabled during LLM Recording")
             return
         }
-        
-        state.copyToClipboard()
+                
+        state.copyToClipboard(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
     }
 }
 

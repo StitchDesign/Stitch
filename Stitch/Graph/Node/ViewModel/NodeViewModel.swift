@@ -514,13 +514,12 @@ extension NodeViewModel: NodeDelegate {
             return canvas.outputViewModels
             
         case .layer(let layer):
-            // For old layer node we temporarily stuff the canvas item in its position port
-            if !FeatureFlags.USE_LAYER_INSPECTOR {
-                return layer.positionPort.canvasObserver?.outputViewModels ?? []
-            } else {
-                return layer.outputPorts.flatMap {
-                    return $0.canvasObserver?.outputViewModels ?? []
+            return layer.outputPorts.flatMap { outputData in
+                if let canvas = outputData.canvasObserver {
+                    return canvas.outputViewModels + [outputData.inspectorRowViewModel]
                 }
+                
+                return [outputData.inspectorRowViewModel]
             }
         }
     }

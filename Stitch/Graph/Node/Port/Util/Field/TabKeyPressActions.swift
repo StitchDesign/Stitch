@@ -75,7 +75,7 @@ extension NodeRowViewModelId {
         switch self.graphItemType {
         
         case .layerInspector(let x):
-            return .keyPath(x)
+            return x
         
         case .node(let canvasItemId):
             switch canvasItemId {
@@ -192,7 +192,8 @@ extension NodeRowViewModelId {
     func updateLayerInputKeyPath(_ newLayerInput: LayerInputType) -> Self {
         
         let newGraphItemType: GraphItemType = self.graphItemType.isLayerInspector
-        ? .layerInspector(newLayerInput)
+        // Can assume .keyPath because we're only updating inputs
+        ? .layerInspector(.keyPath(newLayerInput))
         : .node(.layerInput(.init(node: self.nodeId, keyPath: newLayerInput)))
         
         return .init(graphItemType: newGraphItemType,
@@ -236,8 +237,9 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     
     // Remove inputs from sections that are (1) collapsed or (2) use a flyout
         .filter {
-            $0.name != .shadow
-            && !collapsedSections.contains($0.name)
+//            $0.name != .shadow
+//            && 
+            !collapsedSections.contains($0.name)
         }
     
     // Handle just layer inputs now

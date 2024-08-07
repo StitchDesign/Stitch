@@ -20,7 +20,7 @@ struct AddLayerPropertyToGraphButton: View {
     var body: some View {
         Image(systemName: "plus.circle")
             .resizable()
-            .frame(width: 15, height: 15)
+            .frame(width: 16, height: 16) // per Figma
             .onTapGesture {
                 if let layerInput = coordinate.keyPath {
                     dispatch(LayerInputAddedToGraph(
@@ -32,6 +32,20 @@ struct AddLayerPropertyToGraphButton: View {
                 }
             }
             .opacity(propertyIsSelected ? 1 : 0)
+    }
+}
+
+struct JumpToLayerPropertyOnGraphButton: View {
+    let canvasItemId: CanvasItemId
+        
+    var body: some View {
+        // TODO: use a button ?
+        Image(systemName: "scope")
+            .resizable()
+            .frame(width: 16, height: 16)
+            .onTapGesture {
+                dispatch(JumpToCanvasItem(id: canvasItemId))
+            }
     }
 }
 
@@ -64,19 +78,11 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     
     var isGroupNode: Bool {
         self.rowData.nodeDelegate?.kind.isGroup ?? false
-    }
+    } 
     
     var body: some View {
-        HStack(spacing: NODE_COMMON_SPACING) {
-            if forPropertySidebar {
-                AddLayerPropertyToGraphButton(propertyIsSelected: propertyIsSelected,
-                                              coordinate: self.rowObserver.id)
-            }
-            
             // Fields and port ordering depending on input/output
             self.fieldsView(rowData, labelView)
-        }
-        //        .frame(height: NODE_ROW_HEIGHT)
         
         // Don't specify height for layer inspector property row, so that multifields can be shown vertically
         .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
@@ -163,10 +169,27 @@ struct NodeInputView: View {
                 let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
-                if hidePaddingFieldsOnPropertySidebar {
+                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                
+                if isPaddingLayerInputRow, forPropertySidebar {
                     PaddingReadOnlyView(rowObserver: rowObserver,
                                         rowData: rowData,
                                         labelView: labelView)
+                    
+                } else if isShadowLayerInputRow, forPropertySidebar {
+                    HStack {
+                        StitchTextView(string: "Shadow",
+                                       fontColor: STITCH_FONT_GRAY_COLOR)
+                        Spacer()
+                    }
+                    .overlay {
+                        Color.white.opacity(0.001)
+                            .onTapGesture {
+                                dispatch(FlyoutToggled(
+                                    flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                                    flyoutNodeId: nodeId))
+                            }
+                    }
                     
                 } else {
                     labelView

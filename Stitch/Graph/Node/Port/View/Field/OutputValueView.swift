@@ -98,12 +98,12 @@ struct OutputValueView: View {
     // - input or,
     // - field within a multifield output
     var outputAlignment: Alignment {
-        isMultiField ? .leading : .trailing
+        if forPropertySidebar {
+            return .leading
+        } else {
+            return isMultiField ? .leading : .trailing
+        }
     }
-
-//    var isInput: Bool {
-//        self.nodeIO == .input
-//    }
 
     var body: some View {
         switch fieldValue {
@@ -113,9 +113,7 @@ struct OutputValueView: View {
                                alignment: outputAlignment,
                                fontColor: STITCH_FONT_GRAY_COLOR)
 
-        case .number, .layerDimension,
-            //
-                .spacing:
+        case .number, .layerDimension, .spacing:
             ReadOnlyValueEntry(value: fieldValue.stringValue,
                                alignment: outputAlignment,
                                fontColor: STITCH_FONT_GRAY_COLOR)
