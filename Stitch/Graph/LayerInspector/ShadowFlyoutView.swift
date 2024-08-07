@@ -43,7 +43,6 @@ struct ShadowFlyoutView: View {
         
         VStack(alignment: .leading) {
             FlyoutHeader(flyoutTitle: "Shadow")
-                .border(.teal)
             
             // TODO: why does UIKitWrapper mess up padding so badly?
 //            UIKitWrapper(ignoresKeyCommands: false,

@@ -209,7 +209,6 @@ struct NodeInputView: View {
                         Spacer()
                         
                     }
-                    .border(.green)
                     .overlay {
                         Color.white.opacity(0.001)
                             .onTapGesture {
