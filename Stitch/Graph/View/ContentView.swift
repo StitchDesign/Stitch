@@ -12,7 +12,7 @@ import StitchSchemaKit
  CONTENT VIEW
  ---------------------------------------------------------------- */
 
-struct ContentView: View {
+struct ContentView: View, KeyboardReadable {
     @State private var menuHeight: CGFloat = INSERT_NODE_MENU_MAX_HEIGHT
     
     // Controlled by a GeometryReader that respects keyboard safe-area,
@@ -76,10 +76,14 @@ struct ContentView: View {
             nodeAndMenu
             
             // NOTE: APPARENTLY NOT NEEDED ANYMORE?
-//            #if !targetEnvironment(macCatalyst)
-//            .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
-//            .ignoresSafeArea([.keyboard])
-//            #endif
+#if !targetEnvironment(macCatalyst)
+                .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
+                .ignoresSafeArea([.keyboard])
+#endif
+//            .overlay {
+//                flyout
+////                    .ignoresSafeArea([.keyboard])
+//            }
         }
        .environment(\.viewframe, graphUI.frame)
        .environment(\.isSelectionBoxInUse, graphUI.selection.isSelecting)
@@ -124,7 +128,7 @@ struct ContentView: View {
                             namespace: graphNamespace)
                     }
                 }
-                // Layer Inspector Flyout must sit above preview window
+//                // Layer Inspector Flyout must sit above preview window
                 .overlay {
                     flyout
                 }
@@ -180,72 +184,85 @@ struct ContentView: View {
     // TODO: move this to a separate view?
     @ViewBuilder
     var flyout: some View {
+        OpenFlyoutView(graph: graph)
         
-        if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-           let node = graph.getNodeViewModel(flyoutState.input.nodeId),
-           let layerNode = node.layerNode,
-           let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
-            
-            let flyoutSize = flyoutState.flyoutSize
-            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
-            
-            // If pseudo-modal-background placed here,
-            // then we disable scroll
-            #if DEV_DEBUG || DEBUG
-            let pseudoPopoverBackgroundOpacity = 0.1
-            #else
-            let pseudoPopoverBackgroundOpacity = 0.001
-            #endif
-            
-            Color.blue.opacity(pseudoPopoverBackgroundOpacity)
-            // SwiftUI native .popover disables scroll; probably best solution here.
-            // .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                .onTapGesture {
-                    dispatch(FlyoutClosed())
-                }
-            
-            let topPadding = graph.graphUI.propertySidebar.safeAreaTopPadding
-              
-            // // Apaprently don't need to worry about bottom safe areas of UIKitWrapper ?
-            // let bottomPadding = graph.graphUI.propertySidebar.safeAreaBottomPadding
-            
-            // Place top edge of flyout at top of graph;
-            // We subtract half the screen height because we use .offset modifier
-            let start = -(graph.graphUI.frame.midY - flyoutSize.height/2)
-                        
-            // If the bottom edge of the flyout will go past the bottom edge of the screen,
-            // move the flyout up a bit.
-            let flyoutEndpoint = entry.y + flyoutSize.height // where the flyout's bottom edge would be
-            let safeAreaAdjustment = flyoutEndpoint > graph.graphUI.frame.maxY
-            ? ((flyoutEndpoint - graph.graphUI.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
-            : 0
-            
-            let flyoutPosition = start // move flyout's top edge to top of graph
-            + entry.y // move flyout's top edge to row's height
-            + topPadding // handle padding added by UIKit wrapper
-            - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
-            
-            HStack {
-                Spacer()
-                Group {
-                    if flyoutState.flyoutInput == .padding {
-                        PaddingFlyoutView(graph: graph,
-                                          rowViewModel: inputData.inspectorRowViewModel,
-                                          layer: layerNode.layer,
-                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
-                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-                        ShadowFlyoutView(node: node, layerNode: layerNode, graph: graph)
-                    }
-                }
-                .offset(
-                    x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
-                    - 8, // "padding"
-                    
-                    y: flyoutPosition
-                )
-            }
-        }
+//        if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
+//           let node = graph.getNodeViewModel(flyoutState.input.nodeId),
+//           let layerNode = node.layerNode,
+//           let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
+//            
+//            let flyoutSize = flyoutState.flyoutSize
+//            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
+//            
+//            // If pseudo-modal-background placed here,
+//            // then we disable scroll
+//            #if DEV_DEBUG || DEBUG
+//            let pseudoPopoverBackgroundOpacity = 0.1
+//            #else
+//            let pseudoPopoverBackgroundOpacity = 0.001
+//            #endif
+//            
+//            Color.blue.opacity(pseudoPopoverBackgroundOpacity)
+//            // SwiftUI native .popover disables scroll; probably best solution here.
+//            // .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
+//                .onTapGesture {
+//                    dispatch(FlyoutClosed())
+//                }
+//            
+//            let topPadding = graph.graphUI.propertySidebar.safeAreaTopPadding
+//              
+//            // // Apaprently don't need to worry about bottom safe areas of UIKitWrapper ?
+//            // let bottomPadding = graph.graphUI.propertySidebar.safeAreaBottomPadding
+//            
+//            // Place top edge of flyout at top of graph;
+//            // We subtract half the screen height because we use .offset modifier
+//            let start = -(graph.graphUI.frame.midY - flyoutSize.height/2)
+//                        
+//            // If the bottom edge of the flyout will go past the bottom edge of the screen,
+//            // move the flyout up a bit.
+//            let flyoutEndpoint = entry.y + flyoutSize.height // where the flyout's bottom edge would be
+//            let safeAreaAdjustment = flyoutEndpoint > graph.graphUI.frame.maxY
+//            ? ((flyoutEndpoint - graph.graphUI.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
+//            : 0
+//            
+//            let flyoutPosition = start // move flyout's top edge to top of graph
+//            + entry.y // move flyout's top edge to row's height
+//            + topPadding // handle padding added by UIKit wrapper
+//            - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
+//            
+//            HStack {
+//                Spacer()
+//                Group {
+//                    if flyoutState.flyoutInput == .padding {
+//                        PaddingFlyoutView(graph: graph,
+//                                          rowViewModel: inputData.inspectorRowViewModel,
+//                                          layer: layerNode.layer,
+//                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
+//                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+//                        ShadowFlyoutView(node: node, 
+//                                         layerNode: layerNode,
+//                                         graph: graph)
+//                    }
+//                }
+//                .offset(
+//                    x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
+//                    - 8, // "padding"
+//                    
+//                    y: flyoutPosition - (self.keyboardOpen ? 64 : 0)
+//                )
+//                .onReceive(keyboardPublisher) { value in
+//                    log("onReceive(keyboardPublisher): value: \(value)")
+//                    log("onReceive(keyboardPublisher): self.keyboardOpen was: \(self.keyboardOpen)")
+//                    withAnimation {
+//                        self.keyboardOpen = value
+//                    }
+//                    log("onReceive(keyboardPublisher): self.keyboardOpen is now: \(self.keyboardOpen)")
+//                }
+//            }
+//        }
     } // var flyout: some View { ...
+    
+//    @State var keyboardOpen: Bool = false
 }
 
 // struct ContentView_Previews: PreviewProvider {

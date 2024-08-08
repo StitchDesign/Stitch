@@ -389,6 +389,7 @@
 		EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */; };
 		EC2BBF062947BCCD005BCCDB /* PreviewColorFillLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BBF052947BCCD005BCCDB /* PreviewColorFillLayer.swift */; };
 		EC2BD63426CACD2E00D45154 /* MaxNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2BD63326CACD2E00D45154 /* MaxNode.swift */; };
+		EC2C8C992C654D5300D067B8 /* OpenFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */; };
 		EC2D8F0C29650AE800062867 /* CubicBezierAnimationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2D8F0B29650AE800062867 /* CubicBezierAnimationNode.swift */; };
 		EC2DD172289B6BA50089D501 /* NodeDuplicationActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2DD171289B6BA50089D501 /* NodeDuplicationActions.swift */; };
 		EC2DD178289B6BF80089D501 /* NodeInputChangedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2DD177289B6BF80089D501 /* NodeInputChangedActions.swift */; };
@@ -1293,6 +1294,7 @@
 		EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorFillLayerNode.swift; sourceTree = "<group>"; };
 		EC2BBF052947BCCD005BCCDB /* PreviewColorFillLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewColorFillLayer.swift; sourceTree = "<group>"; };
 		EC2BD63326CACD2E00D45154 /* MaxNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaxNode.swift; sourceTree = "<group>"; };
+		EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenFlyoutView.swift; sourceTree = "<group>"; };
 		EC2D8F0B29650AE800062867 /* CubicBezierAnimationNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CubicBezierAnimationNode.swift; sourceTree = "<group>"; };
 		EC2DD171289B6BA50089D501 /* NodeDuplicationActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDuplicationActions.swift; sourceTree = "<group>"; };
 		EC2DD177289B6BF80089D501 /* NodeInputChangedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeInputChangedActions.swift; sourceTree = "<group>"; };
@@ -1911,6 +1913,7 @@
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */,
+				EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */,
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
@@ -5048,6 +5051,7 @@
 				EC609DC42935468000BF60A5 /* SubtractNode.swift in Sources */,
 				EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */,
 				ECF6AEF7263CB7C70011C679 /* NotNode.swift in Sources */,
+				EC2C8C992C654D5300D067B8 /* OpenFlyoutView.swift in Sources */,
 				EC8DE63C2637689600A22587 /* NodeRowType.swift in Sources */,
 				EC609DBE2935311900BF60A5 /* UIKitExtensionUtils.swift in Sources */,
 				B530D5032C18AB390005C6A9 /* AppThemeActions.swift in Sources */,

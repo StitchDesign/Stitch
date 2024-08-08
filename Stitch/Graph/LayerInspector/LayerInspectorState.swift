@@ -22,7 +22,7 @@ final class PropertySidebarObserver {
     
     // Used for positioning flyouts; read and populated by every row,
     // even if row does not support a flyout or has no active flyout.
-    // TODO: use `x` of left edge of property sidebar
+    // TODO: only needs to be the `y` value, since `x` is static (based on layer inspector's static width)
     var propertyRowOrigins: [LayerInputType: CGPoint] = .init()
     
     // Only layer inputs (not fields or outputs) can have flyouts
@@ -30,6 +30,7 @@ final class PropertySidebarObserver {
     
     var collapsedSections: Set<LayerInspectorSectionName> = .init()
     
+    // NOTE: Specific to positioning the flyout when flyout's bottom edge could sit below graph's bottom edge
     var safeAreaTopPadding: CGFloat = 0
     
     // TODO: why do we not need to worry about bottom padding from UIKitWrapper?
@@ -45,6 +46,8 @@ struct PropertySidebarFlyoutState: Equatable {
     // User tapped this row, so we opened its flyout
     var flyoutInput: LayerInputType
     var flyoutNode: NodeId
+    
+    var keyboardIsOpen: Bool = false
     
     var input: InputCoordinate {
         InputCoordinate(portType: .keyPath(self.flyoutInput),
