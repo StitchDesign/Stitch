@@ -68,6 +68,7 @@ extension LayerInspectorSectionData {
 extension LayerInspectorView {
         
     // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
+    // TODO: need to consolidate this logic across the LayerInspectorRowView UI ?
     @MainActor
     static func layerInspectorRowsInOrder(_ layer: Layer) -> [LayerInspectorSectionData] {
         [
@@ -75,7 +76,6 @@ extension LayerInspectorView {
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
             .init(.group, layer.supportsGroupInputs ? Self.groupLayer : []),
-            .init(.unknown, layer.supportsUnknownInputs ? Self.unknown : []),
             .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
@@ -131,6 +131,7 @@ extension LayerInspectorView {
         .color, // Text color vs Rectangle color
         
         // Hit Area
+        .enabled,
         .setupMode,
         
         // Model3D
@@ -164,6 +165,10 @@ extension LayerInspectorView {
         
         // Switch
         .isSwitchToggled,
+        
+        // TODO: what are these inputs, actually?
+        .lineColor,
+        .lineWidth,
         
         // Gradients
         .startColor,
@@ -205,15 +210,7 @@ extension LayerInspectorView {
         .spacingBetweenGridRows,
         .itemAlignmentWithinGridCell
     ]
-    
-    // TODO: what are these inputs?
-    @MainActor
-    static let unknown: LayerInputTypeSet = [
-        .lineColor,
-        .lineWidth,
-        .enabled // what is this?
-    ]
- 
+   
     @MainActor
     static let text: LayerInputTypeSet = [
         .text,
@@ -268,17 +265,11 @@ extension LayerInspectorView {
 // TODO: derive this from exsiting LayerNodeDefinition ? i.e. filter which sections we show by the LayerNodeDefinition's input list
 extension Layer {
     
- 
+    // TODO: can you get rid of all these checks?
     @MainActor
     var supportsGroupInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.groupLayer).isEmpty
-    }
-    
-    @MainActor
-    var supportsUnknownInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInspectorView.unknown).isEmpty
     }
     
     @MainActor
