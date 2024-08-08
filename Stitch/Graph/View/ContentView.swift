@@ -74,10 +74,12 @@ struct ContentView: View {
 
             // Must IGNORE keyboard safe-area
             nodeAndMenu
-            #if !targetEnvironment(macCatalyst)
-            .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
-            .ignoresSafeArea([.keyboard])
-            #endif
+            
+            // NOTE: APPARENTLY NOT NEEDED ANYMORE?
+//            #if !targetEnvironment(macCatalyst)
+//            .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
+//            .ignoresSafeArea([.keyboard])
+//            #endif
         }
        .environment(\.viewframe, graphUI.frame)
        .environment(\.isSelectionBoxInUse, graphUI.selection.isSelecting)
@@ -127,12 +129,13 @@ struct ContentView: View {
                     flyout
                 }
                 
-                // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or pposition):
-                // we must apply the `.ignoresSafeArea` modifier to the ProjectNavigationView, rather than .overlay's contents
-#if !targetEnvironment(macCatalyst)
-                .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
-                .ignoresSafeArea([.keyboard])
-#endif
+                // NOTE: APPARENTLY NOT NEEDED ANYMORE?
+//                // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or position):
+//                // we must apply the `.ignoresSafeArea` modifier to the ProjectNavigationView, rather than .overlay's contents
+//                #if !targetEnvironment(macCatalyst)
+//                                .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
+//                                .ignoresSafeArea([.keyboard])
+//                #endif
             }
         } // ZStack
         
