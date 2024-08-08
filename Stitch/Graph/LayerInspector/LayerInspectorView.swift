@@ -67,29 +67,29 @@ struct LayerInspectorView: View {
             @Bindable var node = node
             @Bindable var layerNode = layerNode
             
-//            // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
-//            GeometryReader { geometry in
-//                UIKitWrapper(ignoresKeyCommands: false,
-//                             name: "LayerInspectorView") {
-//                    selectedLayerView(node, layerNode)
-//                }
-//                             // TODO: Why subtract only half?
-////                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
-////                             .padding(.bottom, (-self.safeAreaInsets.bottom))
-//                
-//                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
-//                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
-//                
-//                             .onChange(of: geometry.safeAreaInsets) { oldValue, newValue in
-////                                 log("safeAreaInsets: oldValue: \(oldValue)")
-////                                 log("safeAreaInsets: newValue: \(newValue)")
-////                                 self.safeAreaInsets = newValue
-//                                 graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
-//                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
-//                             }
-//            }
+            // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
+            GeometryReader { geometry in
+                UIKitWrapper(ignoresKeyCommands: false,
+                             name: "LayerInspectorView") {
+                    selectedLayerView(node, layerNode)
+                }
+                             // TODO: Why subtract only half?
+//                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
+//                             .padding(.bottom, (-self.safeAreaInsets.bottom))
+                
+                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
+                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
+                
+                             .onChange(of: geometry.safeAreaInsets) { oldValue, newValue in
+//                                 log("safeAreaInsets: oldValue: \(oldValue)")
+//                                 log("safeAreaInsets: newValue: \(newValue)")
+//                                 self.safeAreaInsets = newValue
+                                 graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
+                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
+                             }
+            }
             
-            selectedLayerView(node, layerNode)
+//            selectedLayerView(node, layerNode)
             
         } else {
             // Empty List, so have same background

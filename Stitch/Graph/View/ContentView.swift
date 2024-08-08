@@ -223,7 +223,7 @@ struct ContentView: View {
             // If the bottom edge of the flyout will go past the bottom edge of the screen,
             // move the flyout up a bit.
             let safeAreaAdjustment = flyOutEndpoint > graph.graphUI.frame.maxY
-            ? ((flyOutEndpoint - graph.graphUI.frame.maxY) + 8) // +8 for padding from bottom
+            ? ((flyOutEndpoint - graph.graphUI.frame.maxY) + 8 + topPadding) // +8 for padding from bottom
             : 0
             
             let yAdjustment = yStartAdjustment + entry.y + topPadding
