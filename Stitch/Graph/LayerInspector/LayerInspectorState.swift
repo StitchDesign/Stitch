@@ -29,6 +29,11 @@ final class PropertySidebarObserver {
     var flyoutState: PropertySidebarFlyoutState? = nil
     
     var collapsedSections: Set<LayerInspectorSectionName> = .init()
+    
+    var safeAreaTopPadding: CGFloat = 0
+    
+    // TODO: why do we not need to worry about bottom padding from UIKitWrapper?
+    // var safeAreaBottomPadding: CGFloat = 0
 }
 
 struct PropertySidebarFlyoutState: Equatable {
