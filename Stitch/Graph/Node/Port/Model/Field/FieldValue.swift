@@ -24,6 +24,7 @@ enum FieldValue: Equatable, Sendable {
     case color(Color)
     case dropdown(String, PortValues)
     case layerDropdown(LayerNodeId?)
+    case pinTo(PinToId)
     case anchorPopover(Anchoring)
     case media(FieldValueMedia)
     case pulse(TimeInterval)
@@ -53,6 +54,8 @@ extension FieldValue {
             return x.description
         case .anchorPopover(let x):
             return x.display
+        case .pinTo(let x):
+            return x.display
         // case .layerDropdown(let x): // TODO: retrieve layer name?
             // TODO: provide real values here
         case .color, .layerDropdown, .textFontDropdown, .spacing:
@@ -60,6 +63,7 @@ extension FieldValue {
         }
     }
 
+    // Where and how is this used? Perhaps should return `String?`
     var stringValue: String {
         switch self {
         case .string(let string):
@@ -76,6 +80,8 @@ extension FieldValue {
             return bool.description
         case .spacing(let spacing):
             return spacing.display
+        case .pinTo(let x):
+            return x.display
         case .color, .dropdown, .layerDropdown, .anchorPopover, .media, .pulse, .textFontDropdown:
             return ""
         }

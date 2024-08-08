@@ -428,6 +428,7 @@
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
+		EC48F02F2C657A3B00DB3ACB /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */; };
 		EC49148C29357DF400D74344 /* GreaterThanNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148B29357DF400D74344 /* GreaterThanNode.swift */; };
 		EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148E293580EE00D74344 /* ColorToHSLNode.swift */; };
 		EC4914912935891700D74344 /* HSLColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4914902935891700D74344 /* HSLColor.swift */; };
@@ -1332,6 +1333,7 @@
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
+		EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		EC49148B29357DF400D74344 /* GreaterThanNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreaterThanNode.swift; sourceTree = "<group>"; };
 		EC49148E293580EE00D74344 /* ColorToHSLNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorToHSLNode.swift; sourceTree = "<group>"; };
 		EC4914902935891700D74344 /* HSLColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSLColor.swift; sourceTree = "<group>"; };
@@ -1840,6 +1842,7 @@
 			isa = PBXGroup;
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
+				EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
@@ -4395,6 +4398,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
+				EC48F02F2C657A3B00DB3ACB /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
