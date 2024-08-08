@@ -22,12 +22,17 @@ extension Transform {
                              rotationY: Float,
                              rotationZ: Float,
                              rotationReal: Float) -> Transform {
-        let rotation = simd_quatf(real: rotationReal, imag: SIMD3([rotationX, rotationY, rotationZ]))
-        let scale = SIMD3([scaleX, scaleY, scaleZ])
         let position = SIMD3([positionX, positionY, positionZ])
+        let scale = SIMD3([scaleX, scaleY, scaleZ])
+        
+        // MARK: we swap Y with X, hack but works
+        let rotation = SIMD3([rotationY, rotationX, rotationZ])
 
-        let transform = Transform(scale: scale, rotation: rotation, translation: position)
-        return transform
+        let matrix = simd_float4x4(position: position,
+                                   scale: scale,
+                                   rotation: rotation)
+        
+        return .init(matrix: matrix)
     }
 
     var position: SCNVector3 {

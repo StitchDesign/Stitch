@@ -18,7 +18,7 @@ func fatalErrorIfDebug(_ message: String = "") {
 }
 
 func assertInDebug(_ conditional: Bool) {
-#if DEV || DEV_DEBUG
+#if DEBUG || DEV_DEBUG
     assert(conditional)
 #endif
 }
