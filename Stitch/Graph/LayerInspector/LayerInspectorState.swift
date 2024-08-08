@@ -29,6 +29,9 @@ final class PropertySidebarObserver {
     var flyoutState: PropertySidebarFlyoutState? = nil
     
     var collapsedSections: Set<LayerInspectorSectionName> = .init()
+    
+    var safeAreaTopPadding: CGFloat = 0
+    var safeAreaBottomPadding: CGFloat = 0
 }
 
 struct PropertySidebarFlyoutState: Equatable {

@@ -200,6 +200,40 @@ struct ContentView: View {
                     dispatch(FlyoutClosed())
                 }
             
+            logInView("ContentView: flyout: graph.graphUI.frame.minY: \(graph.graphUI.frame.minY)")
+            logInView("ContentView: flyout: graph.graphUI.frame.midY: \(graph.graphUI.frame.midY)")
+            logInView("ContentView: flyout: graph.graphUI.frame.maxY: \(graph.graphUI.frame.maxY)")
+            logInView("ContentView: flyout: flyoutSize.height: \(flyoutSize.height)")
+            logInView("ContentView: flyout: flyoutSize.height/2: \(flyoutSize.height/2)")
+            logInView("ContentView: flyout: entry.y: \(entry.y)")
+//            logInView("ContentView: flyout: INSPECTOR_LIST_TOP_PADDING: \(INSPECTOR_LIST_TOP_PADDING)")
+            
+            let topPadding = graph.graphUI.propertySidebar.safeAreaTopPadding
+            let bottomPadding = graph.graphUI.propertySidebar.safeAreaBottomPadding
+            
+            logInView("ContentView: flyout: topPadding: \(topPadding)")
+            
+            // Place top edge of flyout at top of graph
+            let yStartAdjustment = -(graph.graphUI.frame.midY - flyoutSize.height/2)
+            logInView("ContentView: flyout: yStartAdjustment: \(yStartAdjustment)")
+//            let yAdjustment = yStartAdjustment + entry.y + INSPECTOR_LIST_TOP_PADDING
+            
+            let flyOutEndpoint = entry.y + flyoutSize.height
+                        
+            // If the bottom edge of the flyout will go past the bottom edge of the screen,
+            // move the flyout up a bit.
+            let safeAreaAdjustment = flyOutEndpoint > graph.graphUI.frame.maxY
+            ? ((flyOutEndpoint - graph.graphUI.frame.maxY) + 8) // +8 for padding from bottom
+            : 0
+            
+            let yAdjustment = yStartAdjustment + entry.y + topPadding
+            
+            logInView("ContentView: flyout: flyOutEndpoint: \(flyOutEndpoint)")
+            logInView("ContentView: flyout: safeAreaAdjustment: \(safeAreaAdjustment)")
+            logInView("ContentView: flyout: yAdjustment: \(yAdjustment)")
+            
+            
+            
             HStack {
                 Spacer()
                 Group {
@@ -216,9 +250,19 @@ struct ContentView: View {
                     x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
                     - 8, // "padding"
                     
-                    y:  -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
-                    + entry.y // move down to row's y height
-                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's list padding
+                    y: yAdjustment - safeAreaAdjustment // - 160
+                    
+                    // this is an offset, so we're moving it up
+                    // to get to top of screen... why are we subtracting
+                    // offset y 0 = we've placed it in the y middle of parent;
+                    // so must subtract (half of parent's height) AND (half of flyout's height) to get the flyout's top edge to the top of the screen
+                    
+//                        -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
+//                    
+//                    + entry.y // move down to row's y height
+//                    
+//                    // This is dynamic; so needs to be stored on GraphUI PropertySidebarState
+//                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's list padding
                 )
             }
         }
