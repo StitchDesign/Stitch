@@ -187,7 +187,6 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          positioning = "Positioning",
          common = "Common",
          group = "Group",
-         unknown = "Unknown",
          typography = "Typography",
          stroke = "Stroke",
          rotation = "Rotation",
