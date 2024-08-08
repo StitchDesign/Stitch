@@ -213,6 +213,9 @@ struct ContentView: View {
             
             logInView("ContentView: flyout: topPadding: \(topPadding)")
             
+            // Apaprently we don't need to worry about the bottom-padding.
+            logInView("ContentView: flyout: bottomPadding: \(bottomPadding)")
+            
             // Place top edge of flyout at top of graph
             let yStartAdjustment = -(graph.graphUI.frame.midY - flyoutSize.height/2)
             logInView("ContentView: flyout: yStartAdjustment: \(yStartAdjustment)")

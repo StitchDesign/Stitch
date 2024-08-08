@@ -16,32 +16,32 @@ struct PaddingFlyoutView: View {
     
     static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
     
-    // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace 
+    // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace
     static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
-        
+    
     @Bindable var graph: GraphState
     let rowViewModel: InputNodeRowViewModel
     let layer: Layer
     let hasIncomingEdge: Bool
-     
+    
     var body: some View {
         
-        VStack(alignment: .leading,
-               spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
+        VStack(alignment: .leading) {
+            //               spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 4) {
             
-            // TODO: need better padding here; but confounding favtor is UIKitWrapper
+            // TODO: need better padding here; but confounding factor is UIKitWrapper
             FlyoutHeader(flyoutTitle: "Padding")
-                .padding(.bottom, 8)
-                        
+            //                .padding(.bottom, 8)
+            
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
             
             // TODO: UIKitWrapper adds a bit of padding at the bottom?
-            UIKitWrapper(ignoresKeyCommands: false,
-                         name: "PaddingFlyout") {
-                // TODO: finalize this logic once fields are in?
-                inputOutputRow
-            }
+            //            UIKitWrapper(ignoresKeyCommands: false,
+            //                         name: "PaddingFlyout") {
+            // TODO: finalize this logic once fields are in?
+            inputOutputRow
+            //            }
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
@@ -85,7 +85,7 @@ struct PaddingFlyoutView: View {
                 // Uses padding to reduce size
                 .padding([.top, .bottom], 4)
                 .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
-//                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
+                //                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
                 .background {
                     WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
                         .cornerRadius(6)
