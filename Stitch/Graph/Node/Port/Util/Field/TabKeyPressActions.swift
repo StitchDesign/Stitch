@@ -93,7 +93,7 @@ extension NodeRowViewModelId {
 extension NodeViewModel {
     @MainActor
     func nextInput(_ currentFocusedField: FieldCoordinate,
-                   propertySidebarState: PropertySidebarState) -> FieldCoordinate {
+                   propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
         
         let currentInputCoordinate: NodeRowViewModelId = currentFocusedField.rowId
                         
@@ -268,7 +268,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
 extension NodeViewModel {
     @MainActor
     func previousInput(_ currentFocusedField: FieldCoordinate,
-                       propertySidebarState: PropertySidebarState) -> FieldCoordinate {
+                       propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
         
         let currentInputCoordinate = currentFocusedField.rowId
         
