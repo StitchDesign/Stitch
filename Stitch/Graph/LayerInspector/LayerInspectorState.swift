@@ -16,7 +16,8 @@ enum LayerInspectorRowId: Equatable, Hashable {
 
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
-struct PropertySidebarState: Equatable {
+@Observable
+final class PropertySidebarObserver {
     var selectedProperty: LayerInspectorRowId?
     
     // Used for positioning flyouts; read and populated by every row,
