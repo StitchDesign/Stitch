@@ -173,7 +173,8 @@ struct ContentView: View {
             routerNamespace: routerNamespace,
             animationCompleted: showFullScreenAnimateCompleted)
     }
-    
+        
+    // TODO: move this to a separate view?
     @ViewBuilder
     var flyout: some View {
         
@@ -200,42 +201,26 @@ struct ContentView: View {
                     dispatch(FlyoutClosed())
                 }
             
-            logInView("ContentView: flyout: graph.graphUI.frame.minY: \(graph.graphUI.frame.minY)")
-            logInView("ContentView: flyout: graph.graphUI.frame.midY: \(graph.graphUI.frame.midY)")
-            logInView("ContentView: flyout: graph.graphUI.frame.maxY: \(graph.graphUI.frame.maxY)")
-            logInView("ContentView: flyout: flyoutSize.height: \(flyoutSize.height)")
-            logInView("ContentView: flyout: flyoutSize.height/2: \(flyoutSize.height/2)")
-            logInView("ContentView: flyout: entry.y: \(entry.y)")
-//            logInView("ContentView: flyout: INSPECTOR_LIST_TOP_PADDING: \(INSPECTOR_LIST_TOP_PADDING)")
-            
             let topPadding = graph.graphUI.propertySidebar.safeAreaTopPadding
-            let bottomPadding = graph.graphUI.propertySidebar.safeAreaBottomPadding
+              
+            // // Apaprently don't need to worry about bottom safe areas of UIKitWrapper ?
+            // let bottomPadding = graph.graphUI.propertySidebar.safeAreaBottomPadding
             
-            logInView("ContentView: flyout: topPadding: \(topPadding)")
-            
-            // Apaprently we don't need to worry about the bottom-padding.
-            logInView("ContentView: flyout: bottomPadding: \(bottomPadding)")
-            
-            // Place top edge of flyout at top of graph
-            let yStartAdjustment = -(graph.graphUI.frame.midY - flyoutSize.height/2)
-            logInView("ContentView: flyout: yStartAdjustment: \(yStartAdjustment)")
-//            let yAdjustment = yStartAdjustment + entry.y + INSPECTOR_LIST_TOP_PADDING
-            
-            let flyOutEndpoint = entry.y + flyoutSize.height
+            // Place top edge of flyout at top of graph;
+            // We subtract half the screen height because we use .offset modifier
+            let start = -(graph.graphUI.frame.midY - flyoutSize.height/2)
                         
             // If the bottom edge of the flyout will go past the bottom edge of the screen,
             // move the flyout up a bit.
-            let safeAreaAdjustment = flyOutEndpoint > graph.graphUI.frame.maxY
-            ? ((flyOutEndpoint - graph.graphUI.frame.maxY) + 8 + topPadding) // +8 for padding from bottom
+            let flyoutEndpoint = entry.y + flyoutSize.height // where the flyout's bottom edge would be
+            let safeAreaAdjustment = flyoutEndpoint > graph.graphUI.frame.maxY
+            ? ((flyoutEndpoint - graph.graphUI.frame.maxY) + FLYOUT_SAFE_AREA_BOTTOM_PADDING + topPadding) // +8 for padding from bottom
             : 0
             
-            let yAdjustment = yStartAdjustment + entry.y + topPadding
-            
-            logInView("ContentView: flyout: flyOutEndpoint: \(flyOutEndpoint)")
-            logInView("ContentView: flyout: safeAreaAdjustment: \(safeAreaAdjustment)")
-            logInView("ContentView: flyout: yAdjustment: \(yAdjustment)")
-            
-            
+            let flyoutPosition = start // move flyout's top edge to top of graph
+            + entry.y // move flyout's top edge to row's height
+            + topPadding // handle padding added by UIKit wrapper
+            - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
             
             HStack {
                 Spacer()
@@ -253,24 +238,11 @@ struct ContentView: View {
                     x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH // move left
                     - 8, // "padding"
                     
-                    y: yAdjustment - safeAreaAdjustment // - 160
-                    
-                    // this is an offset, so we're moving it up
-                    // to get to top of screen... why are we subtracting
-                    // offset y 0 = we've placed it in the y middle of parent;
-                    // so must subtract (half of parent's height) AND (half of flyout's height) to get the flyout's top edge to the top of the screen
-                    
-//                        -(graph.graphUI.frame.midY - flyoutSize.height/2) // move up to top of graph
-//                    
-//                    + entry.y // move down to row's y height
-//                    
-//                    // This is dynamic; so needs to be stored on GraphUI PropertySidebarState
-//                    + INSPECTOR_LIST_TOP_PADDING // move up per inspector's list padding
+                    y: flyoutPosition
                 )
             }
         }
     } // var flyout: some View { ...
-    
 }
 
 // struct ContentView_Previews: PreviewProvider {

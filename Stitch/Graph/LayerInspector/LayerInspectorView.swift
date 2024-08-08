@@ -26,8 +26,10 @@ let INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET = 4.0
 
 #if targetEnvironment(macCatalyst)
 let INSPECTOR_LIST_TOP_PADDING = -40.0
+let FLYOUT_SAFE_AREA_BOTTOM_PADDING = 16.0
 #else
 let INSPECTOR_LIST_TOP_PADDING = -60.0
+let FLYOUT_SAFE_AREA_BOTTOM_PADDING = 24.0
 #endif
 
 // MARK: Right-hand sidebar i.e. "Property sidebar"
@@ -59,7 +61,8 @@ struct LayerInspectorView: View {
         return node
     }
     
-//    @State var safeAreaInsets: EdgeInsets = .init()
+    // TODO: why can't we use
+    @State var safeAreaInsets: EdgeInsets = .init()
     
     var body: some View {
         if let node = selectedLayerNode,
@@ -74,18 +77,19 @@ struct LayerInspectorView: View {
                     selectedLayerView(node, layerNode)
                 }
                              // TODO: Why subtract only half?
-//                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
-//                             .padding(.bottom, (-self.safeAreaInsets.bottom))
+                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
+                             .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
-                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
-                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
+                            // TODO: why is this inaccurate?
+//                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
+//                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
                 
-                             .onChange(of: geometry.safeAreaInsets) { oldValue, newValue in
+                             .onChange(of: geometry.safeAreaInsets, initial: true) { oldValue, newValue in
 //                                 log("safeAreaInsets: oldValue: \(oldValue)")
 //                                 log("safeAreaInsets: newValue: \(newValue)")
-//                                 self.safeAreaInsets = newValue
+                                 self.safeAreaInsets = newValue
                                  graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
-                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
+//                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
                              }
             }
             
