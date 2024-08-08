@@ -62,6 +62,14 @@ extension LayerInputTypeSet {
         .padding,
         .spacing
     ]
+    
+    @MainActor
+    static let pinning: LayerInputTypeSet = [
+        .isPinned,
+        .pinTo,
+        .pinAnchor,
+        .pinOffset
+    ]
 }
 
 extension StrokeLineCap: PortValueEnum {
