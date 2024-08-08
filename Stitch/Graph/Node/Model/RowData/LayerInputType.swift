@@ -26,7 +26,11 @@ extension LayerInputType {
             return defaultPackedValue
                     
         case .unpacked(let unpackedType):
-            let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue)
+            guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
+                fatalErrorIfDebug("Unpacking shouldn't have been called for port: \(self.layerInput)")
+                return .none
+            }
+            
             guard let valueAtPort = unpackedValues[safe: unpackedType.rawValue] else {
                 fatalErrorIfDebug()
                 return unpackedValues.first ?? .none
@@ -1057,7 +1061,12 @@ extension LayerInputPort {
     
     /// Converts port data from an unpacked state into a packed state.
     func packValues(from values: PortValues) -> PortValue {
-        let unpackedPortCount = self.unpackedPortCount
+        // Not relevant for all nodes
+        guard let unpackedPortCount = self.unpackedPortCount else {
+            fatalErrorIfDebug("Shouldn't have been called for this port: \(self)")
+            return .none
+        }
+        
         assertInDebug(unpackedPortCount < values.count)
         
         // shorten values list to expected count for port
@@ -1079,8 +1088,9 @@ extension LayerInputPort {
         }
     }
     
-    /// COnverts port data from unpacked state to packed state.
-    func unpackValues(from value: PortValue) -> PortValues {
+    /// Converts port data from unpacked state to packed state.
+    /// Optional because not all ports support this.
+    func unpackValues(from value: PortValue) -> PortValues? {
         switch self {
         case .position:
             guard let position = value.getPosition else {
@@ -1321,10 +1331,10 @@ extension LayerInputPort {
         }
     }
     
-    var unpackedPortCount: Int {
+    var unpackedPortCount: Int? {
         let fakeValue = PortValue.number(.zero)
         let fakeUnpackedValues = self.unpackValues(from: fakeValue)
-        return fakeUnpackedValues.count
+        return fakeUnpackedValues?.count
     }
 }
 
@@ -1365,6 +1375,15 @@ extension LayerInputEntity {
             return self.unpackedData.compactMap {
                 $0.canvasItem
             }
+        }
+    }
+    
+    var inputConnections: [NodeConnectionType] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData.inputPort]
+        case .unpacked:
+            return self.unpackedData.map { $0.inputPort }
         }
     }
 }

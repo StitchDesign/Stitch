@@ -80,8 +80,8 @@ extension NodeEntity {
         case .patch(let patch):
             return patch.inputs.map { $0.portData }
         case .layer(let layer):
-            return layer.layer.layerGraphNode.inputDefinitions.map {
-                layer[keyPath: $0.schemaPortKeyPath].inputPort
+            return layer.layer.layerGraphNode.inputDefinitions.flatMap {
+                layer[keyPath: $0.schemaPortKeyPath].inputConnections
             }
         case .group:
             return []

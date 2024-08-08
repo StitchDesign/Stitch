@@ -104,7 +104,8 @@ final class LayerInputObserver {
                                         portType: .packed),
                                   layer: schema.layer)
         
-        self._unpackedData = .init(port0: .empty(.init(layerInput: port,
+        self._unpackedData = .init(layerPort: port,
+                                   port0: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port0)),
                                                  layer: schema.layer),
                                    port1: .empty(.init(layerInput: port,
@@ -128,7 +129,7 @@ extension LayerInputObserver {
         case .packed:
             return self._packedData.rowObserver.values
         case .unpacked:
-            return self._unpackedData.getParentPortValuesList(layerPort: self.port)
+            return self._unpackedData.getParentPortValuesList()
         }
     }
     

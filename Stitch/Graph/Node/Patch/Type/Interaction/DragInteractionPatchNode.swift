@@ -50,7 +50,7 @@ struct DragInteractionNode: PatchNodeDefinition {
             ],
             outputs: [
                 .init(
-                    label: LayerInputType.position.label(),
+                    label: LayerInputPort.position.label(),
                     type: .position
                 ),
                 .init(
