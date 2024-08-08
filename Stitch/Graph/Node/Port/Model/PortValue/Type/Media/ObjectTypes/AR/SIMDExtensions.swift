@@ -48,9 +48,9 @@ extension simd_float4x4 {
     }
 
     // Extension to create a 4x4 matrix from position, scale, and rotation
-    init(position: SIMD3<Float>, scale: SIMD3<Float>, rotationZYX: SIMD3<Float>) {
+    init(position: SIMD3<Float>, scale: SIMD3<Float>, rotation: SIMD3<Float>) {
         let scaleMatrix = simd_float4x4(diagonal: SIMD4(scale, 1))
-        let rotationMatrix = simd_float4x4(rotationZYX: rotationZYX)
+        let rotationMatrix = simd_float4x4(rotationZYX: rotation)
         let translationMatrix = simd_float4x4(
             SIMD4<Float>(1, 0, 0, 0),
             SIMD4<Float>(0, 1, 0, 0),

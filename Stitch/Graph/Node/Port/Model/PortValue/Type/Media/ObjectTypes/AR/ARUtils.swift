@@ -24,11 +24,13 @@ extension Transform {
                              rotationReal: Float) -> Transform {
         let position = SIMD3([positionX, positionY, positionZ])
         let scale = SIMD3([scaleX, scaleY, scaleZ])
-        let rotation = SIMD3([rotationX, rotationY, rotationZ])
+        
+        // MARK: we swap Y with X, hack but works
+        let rotation = SIMD3([rotationY, rotationX, rotationZ])
 
         let matrix = simd_float4x4(position: position,
                                    scale: scale,
-                                   rotationZYX: rotation)
+                                   rotation: rotation)
         
         return .init(matrix: matrix)
     }
