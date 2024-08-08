@@ -56,6 +56,7 @@
 		B51523BC2B8C2FB1000042CF /* DocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */; };
 		B5175C8C28877E2700BF71B6 /* Unsupported Version.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */; };
 		B51C3B8C29A9462A00043089 /* ARAnchorNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C3B8B29A9462A00043089 /* ARAnchorNode.swift */; };
+		B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */; };
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B52513CD2C61D3D400AC5A3C /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B52513CC2C61D3D400AC5A3C /* StitchEngine */; };
@@ -951,6 +952,7 @@
 		B5175C8728877E2700BF71B6 /* Unsupported Version.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Unsupported Version.stitch"; sourceTree = "<group>"; };
 		B5191A202C165A9C007741D3 /* StitchEngine.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = StitchEngine.xcframework; path = ../StitchEngine/StitchEngine.xcframework; sourceTree = "<group>"; };
 		B51C3B8B29A9462A00043089 /* ARAnchorNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARAnchorNode.swift; sourceTree = "<group>"; };
+		B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpackedValueCoercer.swift; sourceTree = "<group>"; };
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
@@ -2524,6 +2526,7 @@
 				ECFEFF9926BDD93F00CF042E /* PortValueDefaults.swift */,
 				B5743AEC29CC128100B3230D /* PortValueComparable.swift */,
 				B55500AE2C1B778F0081C3F1 /* NodeIOCoordinateUtils.swift */,
+				B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */,
 			);
 			path = PortValue;
 			sourceTree = "<group>";
@@ -4472,6 +4475,7 @@
 				ECE35EE027CEE50300CB8F5C /* FieldValueHelpers.swift in Sources */,
 				EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */,
 				EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */,
+				B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */,
 				ECD83F1B2C1A0C5F00722AD7 /* LLMView.swift in Sources */,
 				ECA92A54260A6BB700281B52 /* Output.swift in Sources */,
 				ECCE40E327E29B5D0068484B /* ICloudSyncStatus.swift in Sources */,

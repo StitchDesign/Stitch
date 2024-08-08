@@ -15,27 +15,50 @@ typealias LayerNode = NodeViewModel
 typealias LayerNodes = [LayerNode]
 
 final class LayerInputUnpackedPortObserver {
+    let layerPort: LayerInputPort
+    
     var port0: InputLayerNodeRowData
     var port1: InputLayerNodeRowData
     var port2: InputLayerNodeRowData
     
-    init(port0: InputLayerNodeRowData, port1: InputLayerNodeRowData, port2: InputLayerNodeRowData) {
+    init(layerPort: LayerInputPort,
+         port0: InputLayerNodeRowData,
+         port1: InputLayerNodeRowData,
+         port2: InputLayerNodeRowData) {
+        self.layerPort = layerPort
         self.port0 = port0
         self.port1 = port1
         self.port2 = port2
+    }
+    
+    /// Only to be used by `allPorts` helper.
+    private var _allAvailablePorts: [InputLayerNodeRowData] {
+        [port0, port1, port2]
     }
 }
 
 extension LayerInputUnpackedPortObserver {
     @MainActor
     func getParentPortValuesList() -> PortValues {
-        fatalError()
+        let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
+        let lengthenedValues: PortValuesList = allRawValues.lengthenArrays()
+        
+        // Remap values so we can process packing logic
+        let remappedValues = lengthenedValues.remapValuesByLoop()
+        let packedValues = remappedValues.map { valuesList in
+            self.layerPort.packValues(from: valuesList)
+        }
+        
+        return packedValues
     }
     
     @MainActor
     var allPorts: [InputLayerNodeRowData] {
-        // needs input type to consider how many ports are used
-        fatalError()
+        let portsToUse = layerPort.unpackedPortCount
+        let relevantPorts = self._allAvailablePorts.suffix(portsToUse)
+        assertInDebug(portsToUse == relevantPorts.count)
+        
+        return Array(relevantPorts)
     }
     
     @MainActor
@@ -70,11 +93,26 @@ final class LayerInputObserver {
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
+    let port: LayerInputPort
     var mode: LayerInputMode = .packed
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
-        self._packedData = .empty(packedInputType, layer: schema.layer)
+        self.port = port
+        
+        self._packedData = .empty(.init(layerInput: port,
+                                        portType: .packed),
+                                  layer: schema.layer)
+        
+        self._unpackedData = .init(port0: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port0)),
+                                                 layer: schema.layer),
+                                   port1: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port1)),
+                                                 layer: schema.layer),
+                                   port2: .empty(.init(layerInput: port,
+                                                       portType: .unpacked(.port2)),
+                                                 layer: schema.layer))
     }
 }
 
@@ -90,7 +128,7 @@ extension LayerInputObserver {
         case .packed:
             return self._packedData.rowObserver.values
         case .unpacked:
-            return self._unpackedData.getParentPortValuesList()
+            return self._unpackedData.getParentPortValuesList(layerPort: self.port)
         }
     }
     

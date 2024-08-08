@@ -17,6 +17,26 @@ extension LayerDimension {
     static let DEFAULT_FONT_SIZE = Self.number(.DEFAULT_FONT_SIZE)
 }
 
+extension LayerInputType {
+    func getDefaultValue(for layer: Layer) -> PortValue {
+        let defaultPackedValue = self.layerInput.getDefaultValue(for: layer)
+        
+        switch self.portType {
+        case .packed:
+            return defaultPackedValue
+                    
+        case .unpacked(let unpackedType):
+            let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue)
+            guard let valueAtPort = unpackedValues[safe: unpackedType.rawValue] else {
+                fatalErrorIfDebug()
+                return unpackedValues.first ?? .none
+            }
+            
+            return valueAtPort
+        }
+    }
+}
+
 extension LayerInputPort {
     func getDefaultValue(for layer: Layer) -> PortValue {
         switch self {
@@ -1034,6 +1054,47 @@ extension LayerInputPort {
             //            return \.sizingScenarioPort
         }
     }
+    
+    /// Converts port data from an unpacked state into a packed state.
+    func packValues(from values: PortValues) -> PortValue {
+        let unpackedPortCount = self.unpackedPortCount
+        assertInDebug(unpackedPortCount < values.count)
+        
+        // shorten values list to expected count for port
+        let shortenedValues: PortValues = values.suffix(unpackedPortCount)
+        
+        switch self {
+        case .position:
+            // graph time only needed for pulse
+            guard let parentValue = positionCoercer(shortenedValues,
+                                                    graphTime: .zero).first else {
+                fatalErrorIfDebug()
+                return .position(.zero)
+            }
+            return parentValue
+            
+        default:
+            // TODO: define behavior for other nodes
+            fatalError()
+        }
+    }
+    
+    /// COnverts port data from unpacked state to packed state.
+    func unpackValues(from value: PortValue) -> PortValues {
+        switch self {
+        case .position:
+            guard let position = value.getPosition else {
+                fatalErrorIfDebug()
+                return [value]
+            }
+            
+            return [.number(position.width), .number(position.height)]
+            
+        default:
+            // TODO: get to other types
+            fatalError()
+        }
+    }
 }
 
 extension LayerInputType {
@@ -1260,15 +1321,10 @@ extension LayerInputPort {
         }
     }
     
-    var unpackedPortCount: Int? {
-        switch self {
-        case .position:
-            return 2
-            
-        default:
-            // TODO: support other ports
-            fatalError()
-        }
+    var unpackedPortCount: Int {
+        let fakeValue = PortValue.number(.zero)
+        let fakeUnpackedValues = self.unpackValues(from: fakeValue)
+        return fakeUnpackedValues.count
     }
 }
 
@@ -1303,6 +1359,8 @@ extension LayerInputEntity {
             if let canvas = self.packedData.canvasItem {
                 return [canvas]
             }
+            
+            return []
         case .unpacked:
             return self.unpackedData.compactMap {
                 $0.canvasItem

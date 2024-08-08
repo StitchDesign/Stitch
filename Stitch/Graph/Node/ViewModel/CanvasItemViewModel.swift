@@ -232,7 +232,7 @@ extension InputLayerNodeRowData {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(.rectangle),
                                                userVisibleType: nil,
-                                               id: .init(portType: .keyPath(.position(.packed)), nodeId: .init()),
+                                               id: id,
                                                activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
