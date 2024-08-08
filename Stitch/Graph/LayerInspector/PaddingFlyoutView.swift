@@ -27,11 +27,8 @@ struct PaddingFlyoutView: View {
     var body: some View {
         
         VStack(alignment: .leading) {
-            //               spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 4) {
-            
             // TODO: need better padding here; but confounding factor is UIKitWrapper
             FlyoutHeader(flyoutTitle: "Padding")
-            //                .padding(.bottom, 8)
             
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
@@ -46,7 +43,8 @@ struct PaddingFlyoutView: View {
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.PADDING_FLYOUT_WIDTH, height: Self.PADDING_FLYOUT_HEIGHT)
+        .frame(width: Self.PADDING_FLYOUT_WIDTH, 
+               height: Self.PADDING_FLYOUT_HEIGHT)
         .background {
             GeometryReader { geometry in
                 Color.clear
