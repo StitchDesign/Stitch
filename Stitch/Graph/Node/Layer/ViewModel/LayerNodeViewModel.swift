@@ -54,7 +54,11 @@ extension LayerInputUnpackedPortObserver {
     
     @MainActor
     var allPorts: [InputLayerNodeRowData] {
-        let portsToUse = layerPort.unpackedPortCount
+        guard let portsToUse = layerPort.unpackedPortCount else {
+            fatalErrorIfDebug("API used for port which doesn't support unpacking")
+            return []
+        }
+        
         let relevantPorts = self._allAvailablePorts.suffix(portsToUse)
         assertInDebug(portsToUse == relevantPorts.count)
         
@@ -122,7 +126,21 @@ final class LayerInputObserver {
 //    case unpacked
 //}
 
+enum LayerInputObserverMode {
+    case packed(InputLayerNodeRowData)
+    case unpacked(LayerInputUnpackedPortObserver)
+}
+
 extension LayerInputObserver {
+    var observerMode: LayerInputObserverMode {
+        switch self.mode {
+        case .packed:
+            return .packed(self._packedData)
+        case .unpacked:
+            return .unpacked(self._unpackedData)
+        }
+    }
+    
     @MainActor
     var values: PortValues {
         switch self.mode {
@@ -782,8 +800,7 @@ extension Layer {
 extension LayerNodeViewModel {
     @MainActor
     func layerPosition(_ activeIndex: ActiveIndex) -> CGPoint? {
-        self.positionPort
-            .rowObserver.activeValue.getPoint
+        self.positionPort.activeValue.getPoint
     }
     
     @MainActor

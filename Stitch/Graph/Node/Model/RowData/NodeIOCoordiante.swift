@@ -75,7 +75,7 @@ extension NodeIOPortType {
     }
 }
 
-extension LayerInputType {
+extension LayerInputPort {
     var isMediaImport: Bool {
         switch self {
         case .image, .video, .model3D:
@@ -85,6 +85,5 @@ extension LayerInputType {
         }
     }
         
-    // TODO: temporary hack, or perhaps a convenient thing?
-    static let position: Self = .position(.packed)
+    static let position = LayerInputPort.position
 }

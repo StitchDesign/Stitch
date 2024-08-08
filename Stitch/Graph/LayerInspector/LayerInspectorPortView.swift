@@ -11,19 +11,17 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     let layerInput: LayerInputType
     
-    @Bindable var rowViewModel: InputNodeRowViewModel
-    @Bindable var rowObserver: InputNodeRowObserver
+    @Bindable var portObserver: LayerInputObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     var body: some View {
         LayerInspectorPortView(layerProperty: .layerInput(layerInput),
-                               rowViewModel: rowViewModel,
-                               rowObserver: rowObserver,
+                               portObserver: portObserver,
                                node: node,
                                layerNode: layerNode,
-                               graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                               graph: graph) { rowObserver, rowViewModel, propertyRowIsSelected, isOnGraphAlready in
             NodeInputView(graph: graph,
                           rowObserver: rowObserver,
                           rowData: rowViewModel,
@@ -67,14 +65,13 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     // input or output
     let layerProperty: LayerInspectorRowId
     
-    @Bindable var rowViewModel: RowObserver.RowViewModelType
-    @Bindable var rowObserver: RowObserver
+    @Bindable var portObserver: LayerInputObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
-    // Arguments: 1. is row selected; 2. isOnGraph
-    @ViewBuilder var rowView: (Bool, Bool) -> RowView
+    // Args: 1. parent row observer, 2. inspector row view model, 3. is row selected; 4. isOnGraph
+    @ViewBuilder var rowView: (RowObserver, RowObserver.RowViewModelType, Bool, Bool) -> RowView
     
     // Is this property-row selected?
     @MainActor
@@ -86,15 +83,28 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         rowViewModel.canvasItemDelegate.isDefined
     }
 
+    var listBackgroundColor: Color {
+        isOnGraphAlready ? Color.black.opacity(0.3)
+        : (self.propertyRowIsSelected ? STITCH_PURPLE.opacity(0.4) : .clear)
+    }
+
     var body: some View {
-        
-        let listBackgroundColor: Color = isOnGraphAlready
-            ? Color.black.opacity(0.3)
-            : (self.propertyRowIsSelected
-               ? STITCH_PURPLE.opacity(0.4) : .clear)
-        
-        // See if layer node uses this input
-        rowView(propertyRowIsSelected, isOnGraphAlready)
+        Group {
+            switch portObserver.observerMode {
+            case .packed(let inputLayerNodeRowData):
+                rowView(inputLayerNodeRowData.rowObserver,
+                        inputLayerNodeRowData.inspectorRowViewModel,
+                        propertyRowIsSelected,
+                        isOnGraphAlready)
+            case .unpacked(let unpackedPortObserver):
+                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+                    rowView(unpackedPort.rowObserver,
+                            unpackedPort.inspectorRowViewModel,
+                            propertyRowIsSelected,
+                            isOnGraphAlready)
+                }
+            }
+        }
         .background {
             // Extending the hit area of the NodeInputOutputView view
             Color.white.opacity(0.001)
