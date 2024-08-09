@@ -55,9 +55,12 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         //                textLayerAlignment: .center))
 
             .modifier(PreviewLayerRotationModifier(
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ))
+                graph: graph,
+                viewModel: viewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ))
 
             .scaleEffect(scale,
                          anchor: pivot.toPivot)

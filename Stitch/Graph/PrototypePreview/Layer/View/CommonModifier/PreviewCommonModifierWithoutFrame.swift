@@ -96,6 +96,9 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 scale: scale))
 
             .modifier(PreviewLayerRotationModifier(
+                graph: graph,
+                viewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))
