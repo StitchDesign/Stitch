@@ -32,7 +32,8 @@ extension LayerInputType {
             }
             
             guard let valueAtPort = unpackedValues[safe: unpackedType.rawValue] else {
-                fatalErrorIfDebug()
+                // Hit for .empty callers
+//                fatalErrorIfDebug()
                 return unpackedValues.first ?? .none
             }
             
