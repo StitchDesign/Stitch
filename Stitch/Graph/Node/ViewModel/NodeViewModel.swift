@@ -96,12 +96,32 @@ extension NodeViewModel: NodeCalculatable {
         self.kind.getPatch == .pressInteraction
     }
     
+    /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
+    @MainActor func getAllViewInputsObservers() -> [InputNodeRowObserver] {
+        switch self.nodeType {
+        case .patch(let patch):
+            return patch.inputsObservers
+        case .layer(let layer):
+            return layer.getSortedInputPorts().flatMap { portObserver in
+                // Grabs packed or unpacked data depending on what's used
+                portObserver.allInputData.map { $0.rowObserver }
+            }
+        case .group(let canvas):
+            return canvas.inputViewModels.compactMap {
+                $0.rowDelegate
+            }
+        }
+    }
+    
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers
         case .layer(let layer):
-            return layer.getSortedInputObservers()
+            // Always get all-up packed observer here
+            return layer.getSortedInputPorts().map {
+                $0._packedData.rowObserver
+            }
         case .group(let canvas):
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate
@@ -270,15 +290,15 @@ extension NodeViewModel {
     
     @MainActor
     func updateInputPortViewModels(activeIndex: ActiveIndex) {
-        zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+        self.getAllViewInputsObservers().forEach { rowObserver in
+            rowObserver.updatePortViewModels()
         }
     }
 
     @MainActor
     func updateOutputPortViewModels(activeIndex: ActiveIndex) {
-        zip(self.getAllOutputsObservers(), self.outputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+        self.getAllOutputsObservers().forEach { rowObserver in
+            rowObserver.updatePortViewModels()
         }
     }
     
@@ -350,14 +370,14 @@ extension NodeViewModel {
     
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
+        self.getAllViewInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.id == id }
     }
     
     @MainActor
     func getInputRowViewModel(nodeRowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
+        self.getAllViewInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.id == id }
     }
@@ -366,7 +386,7 @@ extension NodeViewModel {
     func getInputRowViewModel(nodeId: NodeId,
                               graphItemType: GraphItemType,
                               portType: NodeIOPortType) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
+        self.getAllViewInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.rowDelegate?.id == .init(portType: portType,
                                                  nodeId: nodeId) }
@@ -563,7 +583,7 @@ extension NodeViewModel: SchemaObserver {
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self.getAllInputsObservers().onPrototypeRestart()
+        self.getAllViewInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
         // Flatten interaction nodes' outputs when graph reset
@@ -578,7 +598,7 @@ extension NodeViewModel: Identifiable { }
 extension NodeViewModel {
     @MainActor
     func activeIndexChanged(activeIndex: ActiveIndex) {
-        self.getAllInputsObservers().forEach { observer in
+        self.getAllViewInputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
@@ -616,7 +636,7 @@ extension NodeViewModel {
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor
     func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> PortValuesList {
-        self.getAllInputsObservers()
+        self.getAllViewInputsObservers()
             .filter { $0.hasUpstreamInteractionNode(nodes) }
             .map(\.allLoopedValues)
     }

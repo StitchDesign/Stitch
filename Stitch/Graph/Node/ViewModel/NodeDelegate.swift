@@ -97,7 +97,7 @@ extension NodeDelegate {
     
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
-        self.getAllInputsObservers()
+        self.getAllViewInputsObservers()
             .flatMap { $0.allRowViewModels }
     }
     

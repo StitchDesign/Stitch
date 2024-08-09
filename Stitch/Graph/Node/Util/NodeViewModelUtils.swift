@@ -129,11 +129,6 @@ extension NodeViewModel {
     var outputs: PortValuesList {
         self.getAllOutputsObservers().map { $0.allLoopedValues }
     }
-    
-    @MainActor
-    func allRowObservers() -> [any NodeRowObserver] {
-        self.getAllInputsObservers() + self.getAllOutputsObservers()
-    }
 
     /*
      Used only for node type changes, i.e. changing the type of existing inputs.
@@ -153,7 +148,7 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
-        self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
+        self.getAllViewInputsObservers().enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
                 nodeKind: self.kind,

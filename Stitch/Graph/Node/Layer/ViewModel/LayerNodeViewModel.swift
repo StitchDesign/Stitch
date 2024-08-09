@@ -678,9 +678,9 @@ extension LayerNodeViewModel {
     }
     
     @MainActor
-    func getSortedInputObservers() -> [InputNodeRowObserver] {
+    func getSortedInputPorts() -> [LayerInputObserver] {
         self.layer.layerGraphNode.inputDefinitions.map {
-            self[keyPath: $0.layerNodeKeyPath].rowObserver
+            self[keyPath: $0.layerNodeKeyPath]
         }
     }
     
