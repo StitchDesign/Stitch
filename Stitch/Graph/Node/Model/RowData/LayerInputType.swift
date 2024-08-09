@@ -1051,7 +1051,7 @@ extension LayerInputType {
         case .contentMode:
             return \.contentModePort
         case .minSize:
-            return \.minSizePort
+            return \.minSizePort 
         case .maxSize:
             return \.maxSizePort
         case .spacing:

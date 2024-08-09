@@ -11,19 +11,17 @@ import StitchSchemaKit
 
 // this should be a single field committed
 // ASSUMES: only single field values use dropdown
-struct PickerOptionSelected: ProjectEnvironmentEvent {
+struct PickerOptionSelected: GraphEventWithResponse {
 
     let input: InputCoordinate
     let choice: PortValue
     var isPersistence = true
 
-    func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: GraphState) -> GraphResponse {
         //        log("PickerOptionSelected: input: \(input)")`
         //        log("PickerOptionSelected: choice: \(choice)")
-        graphState.inputEditCommitted(input: input,
-                                      value: choice)
+        state.inputEditCommitted(input: input,
+                                 value: choice)
         return .init(willPersist: isPersistence)
     }
 }
@@ -37,7 +35,7 @@ struct InteractionPickerOptionSelected: GraphEventWithResponse {
     // the new choice for assigned layer
     let layerNodeIdSelection: LayerNodeId?
 
-    func handle(state state: GraphState) -> GraphResponse {
+    func handle(state: GraphState) -> GraphResponse {
         // log("InteractionPickerOptionSelected: input: \(interactionPatchNodeInput)")
         // log("InteractionPickerOptionSelected: layerNodeIdSelection: \(layerNodeIdSelection)")
 

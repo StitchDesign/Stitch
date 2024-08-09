@@ -47,7 +47,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .union(.strokeInputs)
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
@@ -57,9 +57,11 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(graph: graph,
                          layerViewModel: viewModel,
+                         isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                          interactiveLayer: viewModel.interactiveLayer,
                          lineColor: viewModel.lineColor.getColor ?? CanvasSketchLayerNodeHelpers.defaultLineColor,
                          lineWidth: viewModel.lineWidth.getNumber ?? CanvasSketchLayerNodeHelpers.defaultLineWidth,

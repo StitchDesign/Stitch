@@ -14,6 +14,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     
     let position: StitchPosition

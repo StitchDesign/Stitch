@@ -13,6 +13,7 @@ struct PreviewCommonModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let position: CGSize
     let rotationX: CGFloat
@@ -78,6 +79,7 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonModifierWithoutFrame(
                 graph: graph,
                 layerViewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

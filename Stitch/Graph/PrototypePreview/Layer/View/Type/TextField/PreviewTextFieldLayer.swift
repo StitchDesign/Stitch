@@ -13,6 +13,7 @@ struct PreviewTextFieldLayer: View {
 
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     
     let placeholder: String
@@ -136,6 +137,7 @@ struct PreviewTextFieldLayer: View {
         previewTextField.modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

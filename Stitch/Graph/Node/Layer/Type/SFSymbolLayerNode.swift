@@ -39,12 +39,12 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         
         let stroke = viewModel.getLayerStrokeData()
@@ -52,6 +52,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         return PreviewSFSymbolLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             sfSymbol: viewModel.sfSymbol.getString?.string ?? "",
             color: viewModel.color.getColor ?? falseColor,
@@ -85,7 +86,8 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
 struct PreviewSFSymbolLayer: View {
     var graph: GraphState // doesn't need to be @Bindable ?
     let layerViewModel: LayerViewModel
-    let interactiveLayer: InteractiveLayer
+    let isGeneratedAtTopLevel: Bool
+let interactiveLayer: InteractiveLayer
     
     let sfSymbol: String
     let color: Color
@@ -124,6 +126,7 @@ struct PreviewSFSymbolLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

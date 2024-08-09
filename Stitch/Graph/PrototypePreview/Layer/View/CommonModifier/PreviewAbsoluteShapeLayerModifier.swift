@@ -14,6 +14,8 @@ import StitchSchemaKit
 struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
 
     @Bindable var graph: GraphState
+    @Bindable var viewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let position: CGPoint // offset
     let rotationX: CGFloat

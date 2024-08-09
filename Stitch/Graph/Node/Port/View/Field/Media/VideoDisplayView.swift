@@ -26,6 +26,8 @@ struct VideoDisplayView: View {
     let fitStyle: VisualMediaFitStyle // = .fill
     let isClipped: Bool
 
+    let isGeneratedAtTopLevel: Bool
+    
     let id: PreviewCoordinate
     let position: StitchPosition
     let parentSize: CGSize

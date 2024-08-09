@@ -77,18 +77,19 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
         .union(.paddingAndSpacing)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewGroupLayer(
             graph: graph,
             layerViewModel: viewModel,
             layersInGroup: layersInGroup,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             size: viewModel.size.getSize ?? defaultTextSize, // CGSize.zero,

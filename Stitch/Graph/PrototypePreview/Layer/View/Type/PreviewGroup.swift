@@ -32,7 +32,7 @@ struct PreviewGroupLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList // child layers for THIS group
-    
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     
     let position: CGSize
@@ -169,7 +169,8 @@ struct PreviewGroupLayer: View {
     @ViewBuilder
     private var groupLayer: some View {
         PreviewLayersView(graph: graph,
-                          layers: layersInGroup,
+                          layers: layersInGroup, 
+                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                           // This Group's size will be the `parentSize` for the `layersInGroup`
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,
