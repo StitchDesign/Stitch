@@ -58,14 +58,14 @@ struct FlyoutToggled: GraphUIEvent {
     
     func handle(state: GraphUIState) {
         if let flyoutState = state.propertySidebar.flyoutState,
-           flyoutState.flyoutInput.layerInput == flyoutInput,
+           flyoutState.flyoutInput == flyoutInput,
            flyoutState.flyoutNode == flyoutNodeId {
             state.closeFlyout()
         } else {
 //            withAnimation {
                 state.propertySidebar.flyoutState = .init(
                     // TODO: assuming flyout state is packed here
-                    flyoutInput: .init(layerInput: flyoutInput, portType: .packed),
+                    flyoutInput: flyoutInput,
                     flyoutNode: flyoutNodeId)
 //            }
         }

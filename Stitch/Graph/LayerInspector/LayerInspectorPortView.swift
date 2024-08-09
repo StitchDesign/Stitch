@@ -8,7 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct LayerInspectorInputPortView: View {    
+struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
@@ -18,10 +18,7 @@ struct LayerInspectorInputPortView: View {
         Group {
             switch portObserver.observerMode {
             case .packed(let inputLayerNodeRowData):
-                let id = LayerInputType(layerInput: portObserver.port,
-                                        portType: .packed)
-                
-                LayerInspectorPortView(layerProperty: .layerInput(id),
+                LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
                                        rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
                                        rowObserver: inputLayerNodeRowData.rowObserver,
                                        node: node,
@@ -38,11 +35,7 @@ struct LayerInspectorInputPortView: View {
             case .unpacked(let unpackedPortObserver):
                 HStack {
                     ForEach(unpackedPortObserver.allPorts) { unpackedPort in
-                        let id = unpackedPort.rowObserver.id.keyPath
-                        let failedId = LayerInputType(layerInput: portObserver.port,
-                                                      portType: .unpacked(.port0))
-                        
-                        LayerInspectorPortView(layerProperty: .layerInput(id ?? failedId),
+                        LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
                                                rowViewModel: unpackedPort.inspectorRowViewModel,
                                                rowObserver: unpackedPort.rowObserver,
                                                node: node,
@@ -56,11 +49,6 @@ struct LayerInspectorInputPortView: View {
                                           propertyIsAlreadyOnGraph: isOnGraphAlready,
                                           isCanvasItemSelected: false)
                         }
-#if DEBUG || DEV_DEBUG
-                                               .onAppear {
-                                                   assertInDebug(id.isDefined)
-                                               }
-#endif
                     }
                 }
             }

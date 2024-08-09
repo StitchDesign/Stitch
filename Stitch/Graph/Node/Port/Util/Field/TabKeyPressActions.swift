@@ -147,7 +147,7 @@ extension NodeViewModel {
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {
-                $0 == .init(input: currentInputKey,
+                $0 == .init(input: currentInputKey.layerInput,
                             fieldIndex: currentFocusedField.fieldIndex)
             }),
                   let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
@@ -160,14 +160,18 @@ extension NodeViewModel {
             // If we're already on the last eligible input-field, loop around to the first eligible input-field
             if currentEligibleField == lastEligibleField {
                 return FieldCoordinate(
-                    rowId: currentInputCoordinate.updateLayerInputKeyPath(firstEligibleField.input),
+                    // TODO: support unpacking in tabs
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(.init(layerInput: firstEligibleField.input,
+                                                                                portType: .packed)),
                     fieldIndex: firstEligibleField.fieldIndex)
             }
             
             // Else, move to next eligible input-field
             else if let nextEligibleField = eligibleFields[safe: currentEligibleFieldIndex + 1] {
+                // TODO: support unpacking in tabs
                 return FieldCoordinate(
-                    rowId: currentInputCoordinate.updateLayerInputKeyPath(nextEligibleField.input),
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(.init(layerInput: nextEligibleField.input,
+                                                                                portType: .packed)),
                     fieldIndex: nextEligibleField.fieldIndex)
             } 
             
@@ -320,7 +324,8 @@ extension NodeViewModel {
             
             guard let currentEligibleField = eligibleFields.first(where: {
                 // eligible fields are equatable
-                $0 == .init(input: currentInputKey, 
+                // TODO: support prev input tabbing for unpacked
+                $0 == .init(input: currentInputKey.layerInput,
                             fieldIndex: currentFocusedField.fieldIndex)
             }),
                   let currentEligibleFieldIndex = eligibleFields.firstIndex(of: currentEligibleField),
@@ -332,15 +337,19 @@ extension NodeViewModel {
             
             // If we're already on the first input, loop back to the last eligible input-field
             if currentEligibleField == firstEligibleField {
+                // TODO: support prev input tabbing for unpacked
                 return FieldCoordinate(
-                    rowId: currentInputCoordinate.updateLayerInputKeyPath(lastEligibleField.input),
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(.init(layerInput: lastEligibleField.input,
+                                                                                portType: .packed)),
                     fieldIndex: lastEligibleField.fieldIndex)
             }
             
             // Else, move to previous eligible input-field
             else if let previousEligibleField = eligibleFields[safe: currentEligibleFieldIndex - 1] {
                 return FieldCoordinate(
-                    rowId: currentInputCoordinate.updateLayerInputKeyPath(previousEligibleField.input),
+                    // TODO: support prev input tabbing for unpacked
+                    rowId: currentInputCoordinate.updateLayerInputKeyPath(.init(layerInput: previousEligibleField.input,
+                                                                                portType: .packed)),
                     fieldIndex: previousEligibleField.fieldIndex)
             } 
             

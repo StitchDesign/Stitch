@@ -1127,6 +1127,24 @@ extension LayerInputType {
             }
         }
     }
+    
+//    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
+//        switch self.portType {
+//        case .packed:
+//            return \.
+//        }
+//    }
+}
+
+extension LayerInputEntity {
+    func getInputData(from portType: LayerInputKeyPathType) -> LayerInputDataEntity? {
+        switch portType {
+        case .packed:
+            return self.packedData
+        case .unpacked(let unpackedPortType):
+            return self.unpackedData[safe: unpackedPortType.rawValue]
+        }
+    }
 }
 
 extension LayerInputPort {

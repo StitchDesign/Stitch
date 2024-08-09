@@ -19,6 +19,7 @@ protocol LayerNodeRowData: AnyObject {
 
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
+    let id: LayerInputType
     var rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
@@ -27,6 +28,10 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
          isEmpty: Bool = false) {
+        let keyPath = rowObserver.id.keyPath
+        assertInDebug(keyPath.isDefined)
+        
+        self.id = keyPath ?? .init(layerInput: .position, portType: .packed)
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
         var itemType: GraphItemType
