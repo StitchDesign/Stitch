@@ -430,6 +430,7 @@
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
 		EC48F02F2C657A3B00DB3ACB /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */; };
 		EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0302C65975200DB3ACB /* PinningUtils.swift */; };
+		EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */; };
 		EC49148C29357DF400D74344 /* GreaterThanNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148B29357DF400D74344 /* GreaterThanNode.swift */; };
 		EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148E293580EE00D74344 /* ColorToHSLNode.swift */; };
 		EC4914912935891700D74344 /* HSLColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4914902935891700D74344 /* HSLColor.swift */; };
@@ -1336,6 +1337,7 @@
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
 		EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		EC48F0302C65975200DB3ACB /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
+		EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
 		EC49148B29357DF400D74344 /* GreaterThanNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreaterThanNode.swift; sourceTree = "<group>"; };
 		EC49148E293580EE00D74344 /* ColorToHSLNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorToHSLNode.swift; sourceTree = "<group>"; };
 		EC4914902935891700D74344 /* HSLColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSLColor.swift; sourceTree = "<group>"; };
@@ -2272,6 +2274,7 @@
 				ECF01AEC264F2151003B5AF2 /* PreviewCommon.swift */,
 				B55500E12C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift */,
 				B55500E62C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift */,
+				EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */,
 				B55500E82C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift */,
 				EC48F0302C65975200DB3ACB /* PinningUtils.swift */,
 				B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */,
@@ -4447,6 +4450,7 @@
 				ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */,
 				EC9F0C8D26549B38003DFD41 /* CameraFeedNode.swift in Sources */,
 				EC4914A429359B3F00D74344 /* TextStartsWithNode.swift in Sources */,
+				EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */,
 				EC211A482698A6F10068A0F0 /* JSONUtils.swift in Sources */,
 				B5EC874F28256DD0004C2AB3 /* AlertsViewModifier.swift in Sources */,
 				E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */,

@@ -61,7 +61,8 @@ struct VideoDisplayView: View {
         }
         .opacity(opacity)
         .modifier(PreviewCommonSizeModifier(
-            viewModel: layerViewModel,
+            viewModel: layerViewModel, 
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,

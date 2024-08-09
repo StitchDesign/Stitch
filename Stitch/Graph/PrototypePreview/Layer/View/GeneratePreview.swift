@@ -18,25 +18,72 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
 
+    // Needs to be two separate `LayerDataList`: one list for top level "PinnedViewA" and another for normally placed "GhostViewA"
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
         self.graph.cachedOrderedPreviewLayers
     }
     
+    var pinnedViews: LayerDataList {
+         let pinned = getPinnedViews(self.sortedLayerDataList,
+                                     acc: .init())
+
+         log("GeneratePreview: pinned.count: \(pinned.count)")
+         log("GeneratePreview: pinned: \(pinned)")
+         return pinned
+     }
+    
     var body: some View {
-        PreviewLayersView(graph: graph,
-                          layers: sortedLayerDataList,
-                          // True only for `PinnedView`s
-                          isGeneratedAtTopLevel: false,
-                          parentSize: graph.previewWindowSize,
-                          parentId: nil,
-                          parentOrientation: .none,
-                          parentPadding: .zero,
-                          parentSpacing: .zero,
-                          // Always false at top-level
-                          parentCornerRadius: 0,
-                          parentUsesHug: false,
-                          parentGridData: nil)
+//        PreviewLayersView(graph: graph,
+//                          layers: sortedLayerDataList,
+//                          // True only for `PinnedView`s
+//                          isGeneratedAtTopLevel: false,
+//                          parentSize: graph.previewWindowSize,
+//                          parentId: nil,
+//                          parentOrientation: .none,
+//                          parentPadding: .zero,
+//                          parentSpacing: .zero,
+//                          // Always false at top-level
+//                          parentCornerRadius: 0,
+//                          parentUsesHug: false,
+//                          parentGridData: nil)
+        
+        
+        ZStack {
+
+            // Regular rendering of views in their proper place in the hierarchy
+            PreviewLayersView(graph: graph,
+                              layers: sortedLayerDataList,
+                              isGeneratedAtTopLevel: false,
+                              parentSize: graph.previewWindowSize,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+
+            // `PinnedView`s only
+            PreviewLayersView(graph: graph,
+                              layers: pinnedViews,
+                              // i.e. read this PinnedView's center (for rotation)
+                              isGeneratedAtTopLevel: true,
+                              parentSize: graph.previewWindowSize,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+//            .border(.black)
+        }
+        // Top-level coordinate space of preview window; for pinning
+        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+        
         .modifier(HoverGestureModifier(graph: graph,
                                        previewWindowSize: graph.previewWindowSize))
     }

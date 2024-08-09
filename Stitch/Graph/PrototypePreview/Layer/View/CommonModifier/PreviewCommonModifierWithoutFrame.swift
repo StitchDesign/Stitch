@@ -104,6 +104,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
+                graph: graph,
+                viewModel: layerViewModel,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
                 

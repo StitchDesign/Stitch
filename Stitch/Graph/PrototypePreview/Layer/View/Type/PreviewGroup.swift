@@ -111,6 +111,7 @@ struct PreviewGroupLayer: View {
         
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -152,6 +153,8 @@ struct PreviewGroupLayer: View {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
+                graph: graph,
+                viewModel: layerViewModel,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
         
