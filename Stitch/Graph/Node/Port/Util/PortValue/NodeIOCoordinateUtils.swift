@@ -23,7 +23,7 @@ extension InputCoordinate {
     var isMediaSelectorLocation: Bool {
         switch self.portType {
         case .keyPath(let layerInputType):
-            return layerInputType.isMediaImport
+            return layerInputType.layerInput.isMediaImport
         case .portIndex(let portId):
             return portId == InputCoordinate.mediaSelectorPortId
         }

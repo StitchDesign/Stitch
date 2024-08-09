@@ -199,29 +199,26 @@ extension NodeViewModel {
     func setBlockStatus(_ input: LayerInputPort,
                         fieldIndex: Int? = nil,
                         isBlocked: Bool) {
-        // TODO: block status logic should be reconsidered given height/width can come from unpacked state
-        fatalError()
-//        
-//        guard let fields = self.getLayerInspectorInputFields(input) else {
-//            // Re-enable the fatal error when min/max fields are enabled for inspector
-////            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
-//            return
-//        }
-//        
-//        // If we have a particular field-index, then we're modifiyng a particular field,
-//        // like height or width.
-//        if let fieldIndex = fieldIndex {
-//            guard let field = fields[safeIndex: fieldIndex] else {
-//                fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
-//                return
-//            }
-//            field.isBlockedOut = isBlocked
-//        }
-//        // Else we're changing the whole input
-//        else {
-//            fields.forEach { $0.isBlockedOut = isBlocked }
-//            return
-//        }
+        guard let fields = self.getLayerInspectorInputFields(input) else {
+            // Re-enable the fatal error when min/max fields are enabled for inspector
+//            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
+            return
+        }
+        
+        // If we have a particular field-index, then we're modifiyng a particular field,
+        // like height or width.
+        if let fieldIndex = fieldIndex {
+            guard let field = fields[safeIndex: fieldIndex] else {
+                fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
+                return
+            }
+            field.isBlockedOut = isBlocked
+        }
+        // Else we're changing the whole input
+        else {
+            fields.forEach { $0.isBlockedOut = isBlocked }
+            return
+        }
     }
         
     // LayerGroup's StitchOrientation = None
@@ -309,7 +306,7 @@ extension NodeViewModel {
     
     @MainActor
     func blockAspectRatio() {
-        [LayerInputType.widthAxis, .heightAxis, .contentMode]
+        [LayerInputPort.widthAxis, .heightAxis, .contentMode]
             .forEach {
                 setBlockStatus($0, isBlocked: true)
             }

@@ -76,6 +76,44 @@ extension LayerInputUnpackedPortObserver {
             $0.initializeDelegate(node)
         }
     }
+    
+    @MainActor
+    /// From packed values, unpacks them for unpack layer input scenario.
+    func updateValues(from packedValues: PortValues,
+                      layerNode: LayerNodeViewModel) {
+        let unpackedValues = packedValues.map { self.layerPort.unpackValues(from: $0) }
+        
+        guard let unpackedPortCount = unpackedValues.first??.count else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // Remap values to be all organized for a particular port
+        (0..<unpackedPortCount).forEach { portId in
+            guard let unpackedId = UnpackedPortType(rawValue: portId) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            // Grab loop of values from unpacked array for this indexed unpacked port
+            let values = unpackedValues.map {
+                guard let value = $0?[safe: portId] else {
+                    fatalErrorIfDebug()
+                    return .none
+                }
+                
+                return value
+            }
+            
+            let portTypeId: LayerInputKeyPathType = .unpacked(unpackedId)
+            let layerId = LayerInputType(layerInput: self.layerPort,
+                                        portType: portTypeId)
+            let rowObserver = layerNode[keyPath: layerId.layerNodeKeyPath].rowObserver
+            
+            // Update row observer values per usual
+            rowObserver.updateValues(values)
+        }
+    }
 }
 
 ///// Needs to be class for StitchEngine which assumes reference objects with its mutation logic
@@ -188,13 +226,14 @@ extension LayerInputObserver {
     }
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
-        switch self.mode {
-        case .packed:
-            if let canvas = self._packedData.canvasObserver {
+        switch self.observerMode {
+        case .packed(let packedData):
+            if let canvas = packedData.canvasObserver {
                 return [canvas]
             }
-        case .unpacked:
-            return self._unpackedData.allPorts.compactMap {
+            return []
+        case .unpacked(let unpackedData):
+            return unpackedData.allPorts.compactMap {
                 $0.canvasObserver
             }
         }

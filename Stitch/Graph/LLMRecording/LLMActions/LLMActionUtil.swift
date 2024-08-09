@@ -19,14 +19,14 @@ extension NodeViewModel {
 extension GraphState {
 
     @MainActor
-    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputPort) {
+    func maybeCreateLLMAddLayerInput(_ nodeId: NodeId, _ property: LayerInputType) {
         // If we're LLM-recording, add an `LLMAddNode` action
         if self.graphUI.llmRecording.isRecording,
            let node = self.getNodeViewModel(nodeId) {
 
             let addLayer = LLMAddLayerInput(
                 node: node.llmNodeTitle,
-                port: property.label())
+                port: property.layerInput.label())
             
             self.graphUI.llmRecording.actions.append(.addLayerInput(addLayer))
         }
