@@ -13,9 +13,10 @@ struct PreviewRealityLayer: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-
+    
     var body: some View {
         let nodeId = self.viewModel.id.layerNodeId.id
         let position = viewModel.position.getPosition ?? .zero
@@ -26,7 +27,7 @@ struct PreviewRealityLayer: View {
         let size = layerSize.asCGSize(parentSize)
         let anchoring = viewModel.anchoring.getAnchoring ?? .defaultAnchoring
         let scale = viewModel.scale.asCGFloat
-
+        
         switch graph.cameraFeedManager {
         case .loaded(let cameraFeedManager):
             if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
@@ -34,9 +35,10 @@ struct PreviewRealityLayer: View {
                 @Bindable var node = node
                 
                 RealityLayerView(graph: graph,
-                                 node: node, 
+                                 node: node,
                                  layerViewModel: viewModel,
-                                 cameraFeedManager: cameraFeedManager,
+                                 cameraFeedManager: cameraFeedManager, 
+                                 isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                  interactiveLayer: self.viewModel.interactiveLayer,
                                  allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
                                  position: position,
@@ -56,7 +58,7 @@ struct PreviewRealityLayer: View {
                                  colorInvert: viewModel.colorInvert.getBool ?? .defaultColorInvertForLayerEffect,
                                  contrast: viewModel.contrast.getNumber ?? .defaultContrastForLayerEffect,
                                  hueRotation: viewModel.hueRotation.getNumber ?? .defaultHueRotationForLayerEffect,
-                                 saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect, 
+                                 saturation: viewModel.saturation.getNumber ?? .defaultSaturationForLayerEffect,
                                  pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
                                  shadowColor: viewModel.shadowColor.getColor ?? .defaultShadowColor,
                                  shadowOpacity: viewModel.shadowOpacity.getNumber ?? .defaultShadowOpacity,
@@ -64,22 +66,22 @@ struct PreviewRealityLayer: View {
                                  shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
                                  parentSize: parentSize,
                                  parentDisablesPosition: parentDisablesPosition)
-                    .onAppear {
-                        // Update list of node Ids using camera
-                        cameraFeedManager.enabledNodeIds.insert(nodeId)
-                    }
+                .onAppear {
+                    // Update list of node Ids using camera
+                    cameraFeedManager.enabledNodeIds.insert(nodeId)
+                }
             } else {
                 EmptyView()
                     .onAppear {
-                        #if DEBUG
+#if DEBUG
                         fatalError()
-                        #endif
+#endif
                     }
             }
-
+            
         case .loading, .failed:
             EmptyView()
-
+            
         case .none:
             // Note that EmptyView won't trigger the onApppear closure
             Color.clear
@@ -94,8 +96,9 @@ struct RealityLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
-
+    
     let cameraFeedManager: CameraFeedManager
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let allAnchors: [GraphMediaValue]
     let position: CGSize
@@ -125,11 +128,11 @@ struct RealityLayerView: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-
+    
     var body: some View {
         Group {
             if let arView = cameraFeedManager.arView,
-                !graph.isGeneratingProjectThumbnail {
+               !graph.isGeneratingProjectThumbnail {
                 RealityView(arView: arView,
                             size: layerSize,
                             scale: scale,
@@ -149,6 +152,7 @@ struct RealityLayerView: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

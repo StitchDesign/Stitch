@@ -69,6 +69,7 @@ extension LayerInspectorSectionData {
 }
 
 extension LayerInspectorView {
+//extension LayerInputTypeSet {
         
     // TODO: for tab purposes, exclude flyout fields (shadow inputs, padding)?
     // TODO: need to consolidate this logic across the LayerInspectorRowView UI ?
@@ -79,6 +80,7 @@ extension LayerInspectorView {
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
             .init(.group, layer.supportsGroupInputs ? Self.groupLayer : []),
+            .init(.pinning, layer.supportsPinningInputs ? Self.pinning : []),
             .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
@@ -215,6 +217,9 @@ extension LayerInspectorView {
     ]
    
     @MainActor
+    static let pinning: LayerInputTypeSet = LayerInputTypeSet.pinning
+    
+    @MainActor
     static let text: LayerInputTypeSet = [
         .text,
         .placeholderText,
@@ -273,6 +278,12 @@ extension Layer {
     var supportsGroupInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.groupLayer).isEmpty
+    }
+    
+    @MainActor
+    var supportsPinningInputs: Bool {
+        let layerInputs = self.layerGraphNode.inputDefinitions
+        return !layerInputs.intersection(LayerInputTypeSet.pinning).isEmpty
     }
     
     @MainActor

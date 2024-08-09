@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 /// Represents each individual field grouping encompassing an entire port value) (i.e. x + y coordinate)
 enum FieldGroupType {
-    case hW, xY, xYZ, xYZW, padding, spacing, dropdown, bool, asyncMedia, number, string, readOnly, layerDimension, pulse, color, json, assignedLayer, anchoring
+    case hW, xY, xYZ, xYZW, padding, spacing, dropdown, bool, asyncMedia, number, string, readOnly, layerDimension, pulse, color, json, assignedLayer, anchoring, pinTo
 }
 
 extension FieldGroupType {
@@ -31,7 +31,7 @@ extension FieldGroupType {
                 PADDING_BOTTOM_FIELD_LABEL,
                 PADDING_LEFT_FIELD_LABEL
             ]
-        case .dropdown, .bool, .asyncMedia, .number, .string, .readOnly, .layerDimension, .pulse, .color, .json, .assignedLayer, .anchoring, .spacing:
+        case .dropdown, .bool, .asyncMedia, .number, .string, .readOnly, .layerDimension, .pulse, .color, .json, .assignedLayer, .anchoring, .spacing, .pinTo:
             return [""]
         }
     }
@@ -83,6 +83,9 @@ extension FieldGroupType {
         case .assignedLayer:
             return [.layerDropdown(nil)]
 
+        case .pinTo:
+            return [.pinTo(.defaultPinToId)]
+            
         case .anchoring:
             return [.anchorPopover(.defaultAnchoring)]
 

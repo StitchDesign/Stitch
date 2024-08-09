@@ -128,6 +128,7 @@ extension Anchoring { // : PortValueEnum {
     }
 }
 
+// Does this need to change for pinning?
 func adjustPosition(size: CGSize, // child's size
                     position: StitchPosition, // child's position; UNSCALED
                     anchor: Anchoring, // child's anchor

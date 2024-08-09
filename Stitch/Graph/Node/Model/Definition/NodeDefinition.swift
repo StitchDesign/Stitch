@@ -50,7 +50,8 @@ protocol LayerNodeDefinition: NodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, 
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> Content
 }
 

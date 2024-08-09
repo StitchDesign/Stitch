@@ -13,6 +13,7 @@ struct PreviewHitAreaLayer: View {
     
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let position: StitchPosition
     let size: LayerSize
@@ -34,7 +35,8 @@ struct PreviewHitAreaLayer: View {
         } else {
             color.modifier(PreviewCommonModifier(
                 graph: graph,
-                layerViewModel: layerViewModel,
+                layerViewModel: layerViewModel, 
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: .zero,

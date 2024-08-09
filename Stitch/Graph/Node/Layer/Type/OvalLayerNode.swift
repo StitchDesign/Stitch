@@ -52,16 +52,18 @@ struct OvalLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, 
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         ShapeLayerView(graph: graph,
                        viewModel: viewModel,
+                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                        parentSize: parentSize,
                        parentDisablesPosition: parentDisablesPosition)
     }
