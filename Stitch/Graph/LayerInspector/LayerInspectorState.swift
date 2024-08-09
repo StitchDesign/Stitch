@@ -37,11 +37,13 @@ struct PropertySidebarFlyoutState: Equatable {
     var flyoutSize: CGSize = .zero
     
     // User tapped this row, so we opened its flyout
-    var flyoutInput: LayerInputType
+    var flyoutInput: LayerInputPort
     var flyoutNode: NodeId
     
     var input: InputCoordinate {
-        InputCoordinate(portType: .keyPath(self.flyoutInput),
+        // TODO: flyouts only for packed state?
+        InputCoordinate(portType: .keyPath(.init(layerInput: flyoutInput,
+                                                 portType: .packed)),
                         nodeId: self.flyoutNode)
     }
 }

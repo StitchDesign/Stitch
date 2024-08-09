@@ -279,7 +279,9 @@ extension String {
         
         // Prefer to look for layer input first; ASSUMES every layer input has a label
         if let inputLabel = llmPort.parseLLMPortAsLabelForLayerInputType {
-            return .keyPath(inputLabel)
+            // TODO: support for unpack type in LLM
+            return .keyPath(.init(layerInput: inputLabel,
+                                  portType: .packed))
         }
         
         // Else, we must have a layer output; note: do layer outputs ALWAYS have labels?
