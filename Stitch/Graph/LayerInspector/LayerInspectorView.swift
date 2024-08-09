@@ -227,17 +227,22 @@ struct LayerInspectorInputsSectionView: View {
         
         Section(isExpanded: $expanded) {
             ForEach(layerInputs) { layerInput in
-                let inputListContainsInput = inputsList.contains(layerInput)
-                let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
-                
-                if inputListContainsInput {
-                    LayerInspectorInputPortView(
-                        portObserver: layerPort,
-                        node: node,
-                        layerNode: layerNode,
-                        graph: graph)
-                    .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                           layerInput: layerInput))
+                if layerInput != .position {
+                    // TODO: remove position check
+                    EmptyView()
+                } else {
+                    let inputListContainsInput = inputsList.contains(layerInput)
+                    let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                    
+                    if inputListContainsInput {
+                        LayerInspectorInputPortView(
+                            portObserver: layerPort,
+                            node: node,
+                            layerNode: layerNode,
+                            graph: graph)
+                        .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                               layerInput: layerInput))
+                    }
                 }
             }
             .transition(.slideInAndOut(edge: .top))
