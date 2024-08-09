@@ -26,7 +26,7 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.updatePortViewModels(values: newValues)
+        self.updatePortViewModels()
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }

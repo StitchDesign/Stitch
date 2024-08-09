@@ -160,7 +160,7 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
+                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == .padding
                 let hidePaddingFieldsOnPropertySidebar = isPaddingLayerInputRow && forPropertySidebar
                 
                 if hidePaddingFieldsOnPropertySidebar {

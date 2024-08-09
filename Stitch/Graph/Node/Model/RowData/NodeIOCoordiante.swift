@@ -84,6 +84,4 @@ extension LayerInputPort {
             return false
         }
     }
-        
-    static let position = LayerInputPort.position
 }
