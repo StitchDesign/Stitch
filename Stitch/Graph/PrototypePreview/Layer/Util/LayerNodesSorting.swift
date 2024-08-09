@@ -50,6 +50,8 @@ extension VisibleNodesViewModel {
             
             guard lhsZIndex != rhsZIndex else {
                 // Larger sidebar indices should be higher in stack
+                
+                // ^^ no, it's the opposite, right? The first item in the ordered sidebar will have index=0 but should actually be on top ?
                 return lhsSidebarIndex > rhsSidebarIndex
             }
             

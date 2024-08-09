@@ -38,16 +38,18 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, 
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewVideoStreamLayer(
             graph: graph,
-            layerViewModel: viewModel,
+            layerViewModel: viewModel, 
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             currentVideoURLString: Binding<String>(
@@ -77,7 +79,8 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
 struct PreviewVideoStreamLayer: View {
     var graph: GraphState
     let layerViewModel: LayerViewModel
-    let interactiveLayer: InteractiveLayer
+    let isGeneratedAtTopLevel: Bool
+let interactiveLayer: InteractiveLayer
     let enabled: Bool
     @Binding var currentVideoURLString: String 
     let volume: Double
@@ -104,6 +107,7 @@ struct PreviewVideoStreamLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
+                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

@@ -478,6 +478,15 @@ extension PortValue {
             return nil
         }
     }
+    
+    var getPinToId: PinToId? {
+        switch self {
+        case .pinTo(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }
 
 extension SizingScenario {

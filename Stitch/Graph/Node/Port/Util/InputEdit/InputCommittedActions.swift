@@ -62,14 +62,14 @@ extension GraphState {
      Used in two different cases:
      1. text field commit: edits have actively been parsed and coerced; no need to update input again.
      2. json field, adjustment bar etc. commits: no edits have taken place; so must update input.
-
+     
      `value: PortValue?` is nil in case 1, non-nil in case 2.
-
+     
      `value`, when non-nil, is either:
      (A) a single value or
      (B) the parent value (multifield) for an input that has multiple fields:
      eg PortValue.Position -> (FieldValue.Number, FieldValue.Number)
-
+     
      */
     @MainActor
     func inputEditCommitted(input: NodeIOCoordinate,
@@ -111,34 +111,33 @@ extension GraphState {
         
         nodeViewModel.removeIncomingEdge(at: input.id,
                                          activeIndex: self.activeIndex)
-
-        if let sizingScenario = value.getSizingScenario {
-            nodeViewModel.sizingScenarioUpdated(scenario: sizingScenario)
+        
+        // Block or unblock certain layer inputs
+        if let layerInputType = input.id.keyPath {
+            nodeViewModel.blockOrUnblockFields(
+                newValue: value,
+                layerInput: layerInputType)
+            
+            let newCommandType = value.shapeCommandType
+            
+            // If we changed the command type on a ShapeCommand input,
+            // then we may need to change the ShapeCommand case
+            // (e.g. from .moveTo -> .curveTo).
+            
+            if let shapeCommand = valueAtIndex.shapeCommand,
+               let newCommandType = newCommandType {
+                value = .shapeCommand(shapeCommand.convert(to: newCommandType))
+                log("GraphState.inputEditCommitted: value is now: \(value)")
+            }
+            
+            // Only change the input if valued actually changed.
+            input.setValuesInInput([value])
+            
+            self.maybeCreateLLMSetInput(node: nodeViewModel,
+                                        input: input.id,
+                                        value: value)
+            
+            self.calculate(nodeId)
         }
-        
-        if let orientation = value.getOrientation {
-            nodeViewModel.layerGroupOrientationUpdated(newValue: orientation)
-        }
-        
-        let newCommandType = value.shapeCommandType
-        
-        // If we changed the command type on a ShapeCommand input,
-        // then we may need to change the ShapeCommand case
-        // (e.g. from .moveTo -> .curveTo).
-        
-        if let shapeCommand = valueAtIndex.shapeCommand,
-           let newCommandType = newCommandType {
-            value = .shapeCommand(shapeCommand.convert(to: newCommandType))
-            log("GraphState.inputEditCommitted: value is now: \(value)")
-        }
-        
-        // Only change the input if valued actually changed.
-        input.setValuesInInput([value])
-        
-        self.maybeCreateLLMSetInput(node: nodeViewModel,
-                                    input: input.id,
-                                    value: value)
-        
-        self.calculate(nodeId)
     }
 }
