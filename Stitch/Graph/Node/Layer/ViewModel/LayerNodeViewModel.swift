@@ -16,16 +16,19 @@ typealias LayerNodes = [LayerNode]
 
 final class LayerInputUnpackedPortObserver {
     let layerPort: LayerInputPort
+    let layer: Layer
     
     var port0: InputLayerNodeRowData
     var port1: InputLayerNodeRowData
     var port2: InputLayerNodeRowData
     
     init(layerPort: LayerInputPort,
+         layer: Layer,
          port0: InputLayerNodeRowData,
          port1: InputLayerNodeRowData,
          port2: InputLayerNodeRowData) {
         self.layerPort = layerPort
+        self.layer = layer
         self.port0 = port0
         self.port1 = port1
         self.port2 = port2
@@ -38,15 +41,6 @@ final class LayerInputUnpackedPortObserver {
 }
 
 extension LayerInputUnpackedPortObserver {
-    var layer: Layer {
-        guard let layer = self.port0.rowObserver.nodeDelegate?.kind.getLayer else {
-            fatalErrorIfDebug()
-            return .shape
-        }
-        
-        return layer
-    }
-    
     @MainActor
     func getParentPortValuesList() -> PortValues {
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
@@ -158,6 +152,7 @@ final class LayerInputObserver {
                                   layer: schema.layer)
         
         self._unpackedData = .init(layerPort: port,
+                                   layer: schema.layer,
                                    port0: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port0)),
                                                  layer: schema.layer),
