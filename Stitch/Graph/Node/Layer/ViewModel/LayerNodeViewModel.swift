@@ -38,6 +38,15 @@ final class LayerInputUnpackedPortObserver {
 }
 
 extension LayerInputUnpackedPortObserver {
+    var layer: Layer {
+        guard let layer = self.port0.rowObserver.nodeDelegate?.kind.getLayer else {
+            fatalErrorIfDebug()
+            return .shape
+        }
+        
+        return layer
+    }
+    
     @MainActor
     func getParentPortValuesList() -> PortValues {
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
@@ -46,7 +55,8 @@ extension LayerInputUnpackedPortObserver {
         // Remap values so we can process packing logic
         let remappedValues = lengthenedValues.remapValuesByLoop()
         let packedValues = remappedValues.map { valuesList in
-            self.layerPort.packValues(from: valuesList)
+            self.layerPort.packValues(from: valuesList, 
+                                      layer: self.layer)
         }
         
         return packedValues
@@ -54,7 +64,7 @@ extension LayerInputUnpackedPortObserver {
     
     @MainActor
     var allPorts: [InputLayerNodeRowData] {
-        guard let portsToUse = layerPort.unpackedPortCount else {
+        guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
             fatalErrorIfDebug("API used for port which doesn't support unpacking")
             return []
         }
@@ -580,7 +590,7 @@ final class LayerNodeViewModel {
                                             portType: .packed)
             
             // Check for ports which support unpacked state
-            if let unpackedPortCount = layerInputPort.unpackedPortCount {
+            if let unpackedPortCount = layerInputPort.unpackedPortCount(layer: self.layer) {
                 (0..<unpackedPortCount).forEach { unpackedPortId in
                     guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
                         fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")

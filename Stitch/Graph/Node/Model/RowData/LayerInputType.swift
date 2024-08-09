@@ -1061,9 +1061,10 @@ extension LayerInputPort {
     }
     
     /// Converts port data from an unpacked state into a packed state.
-    func packValues(from values: PortValues) -> PortValue {
+    func packValues(from values: PortValues,
+                    layer: Layer) -> PortValue {
         // Not relevant for all nodes
-        guard let unpackedPortCount = self.unpackedPortCount else {
+        guard let unpackedPortCount = self.unpackedPortCount(layer: layer) else {
             fatalErrorIfDebug("Shouldn't have been called for this port: \(self)")
             return .none
         }
@@ -1350,8 +1351,8 @@ extension LayerInputPort {
         }
     }
     
-    var unpackedPortCount: Int? {
-        let fakeValue = PortValue.number(.zero)
+    func unpackedPortCount(layer: Layer) -> Int? {
+        let fakeValue = self.getDefaultValue(for: layer)
         let fakeUnpackedValues = self.unpackValues(from: fakeValue)
         return fakeUnpackedValues?.count
     }
