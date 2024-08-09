@@ -183,7 +183,7 @@ struct ContentView: View {
            let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
-            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
+            let inputData: InputLayerNodeRowData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
             
             // If pseudo-modal-background placed here,
             // then we disable scroll
@@ -203,12 +203,13 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 Group {
-                    if flyoutState.flyoutInput.portType == .padding {
+                    // TODO: fix flyout to support unpack
+                    if flyoutState.flyoutInput.layerInput == .padding {
                         PaddingFlyoutView(graph: graph,
                                           rowViewModel: inputData.inspectorRowViewModel,
                                           layer: layerNode.layer,
                                           hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
-                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+                    } else if flyoutState.flyoutInput.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
                         ShadowFlyoutView(node: node, layerNode: layerNode, graph: graph)
                     }
                 }

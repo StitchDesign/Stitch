@@ -53,18 +53,19 @@ extension GraphUIState {
 
 struct FlyoutToggled: GraphUIEvent {
     
-    let flyoutInput: LayerInputType
+    let flyoutInput: LayerInputPort
     let flyoutNodeId: NodeId
     
     func handle(state: GraphUIState) {
         if let flyoutState = state.propertySidebar.flyoutState,
-           flyoutState.flyoutInput == flyoutInput,
+           flyoutState.flyoutInput.layerInput == flyoutInput,
            flyoutState.flyoutNode == flyoutNodeId {
             state.closeFlyout()
         } else {
 //            withAnimation {
                 state.propertySidebar.flyoutState = .init(
-                    flyoutInput: flyoutInput,
+                    // TODO: assuming flyout state is packed here
+                    flyoutInput: .init(layerInput: flyoutInput, portType: .packed),
                     flyoutNode: flyoutNodeId)
 //            }
         }

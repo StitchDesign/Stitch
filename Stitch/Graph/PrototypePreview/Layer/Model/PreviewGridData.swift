@@ -31,7 +31,7 @@ extension NodeViewModel {
         case .size(let x):
             // Update when .size changed,
             // but not .minSize, .maxSize inputs
-            if layerInput == .size {
+            if layerInput.layerInput == .size {
                 self.layerSizeUpdated(newValue: x)
             }
         case .sizingScenario(let x):
@@ -277,7 +277,7 @@ extension NodeViewModel {
     func updateMinMaxWidthFieldsBlockingPerWidth() {
         
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let widthIsNumber = self.getInputActivePortValue(for: .size)
+        guard let widthIsNumber = self.getInputActivePortValue(for: .size)?
             .getSize?.width.isNumber else {
             fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
             return
@@ -294,7 +294,7 @@ extension NodeViewModel {
     func updateMinMaxHeightFieldsBlockingPerHeight() {
 
         // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getInputActivePortValue(for: .size)
+        guard let heightIsNumber = self.getInputActivePortValue(for: .size)?
             .getSize?.height.isNumber else {
             fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
             return
