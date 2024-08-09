@@ -99,7 +99,7 @@ extension LayerInputUnpackedPortObserver {
             let values = unpackedValues.map {
                 guard let value = $0?[safe: portId] else {
                     fatalErrorIfDebug()
-                    return .none
+                    return PortValue.none
                 }
                 
                 return value

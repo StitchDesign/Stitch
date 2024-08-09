@@ -18,7 +18,7 @@ protocol LayerNodeRowData: AnyObject {
 }
 
 @Observable
-final class InputLayerNodeRowData: LayerNodeRowData {
+final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     var rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?

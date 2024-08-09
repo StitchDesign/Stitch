@@ -8,27 +8,62 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct LayerInspectorInputPortView: View {
-    let layerInput: LayerInputType
-    
+struct LayerInspectorInputPortView: View {    
     @Bindable var portObserver: LayerInputObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     var body: some View {
-        LayerInspectorPortView(layerProperty: .layerInput(layerInput),
-                               portObserver: portObserver,
-                               node: node,
-                               layerNode: layerNode,
-                               graph: graph) { rowObserver, rowViewModel, propertyRowIsSelected, isOnGraphAlready in
-            NodeInputView(graph: graph,
-                          rowObserver: rowObserver,
-                          rowData: rowViewModel,
-                          forPropertySidebar: true,
-                          propertyIsSelected: propertyRowIsSelected,
-                          propertyIsAlreadyOnGraph: isOnGraphAlready,
-                          isCanvasItemSelected: false)
+        Group {
+            switch portObserver.observerMode {
+            case .packed(let inputLayerNodeRowData):
+                let id = LayerInputType(layerInput: portObserver.port,
+                                        portType: .packed)
+                
+                LayerInspectorPortView(layerProperty: .layerInput(id),
+                                       rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
+                                       rowObserver: inputLayerNodeRowData.rowObserver,
+                                       node: node,
+                                       layerNode: layerNode,
+                                       graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                    NodeInputView(graph: graph,
+                                  rowObserver: inputLayerNodeRowData.rowObserver,
+                                  rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                                  forPropertySidebar: true,
+                                  propertyIsSelected: propertyRowIsSelected,
+                                  propertyIsAlreadyOnGraph: isOnGraphAlready,
+                                  isCanvasItemSelected: false)
+                }
+            case .unpacked(let unpackedPortObserver):
+                HStack {
+                    ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+                        let id = unpackedPort.rowObserver.id.keyPath
+                        let failedId = LayerInputType(layerInput: portObserver.port,
+                                                      portType: .unpacked(.port0))
+                        
+                        LayerInspectorPortView(layerProperty: .layerInput(id ?? failedId),
+                                               rowViewModel: unpackedPort.inspectorRowViewModel,
+                                               rowObserver: unpackedPort.rowObserver,
+                                               node: node,
+                                               layerNode: layerNode,
+                                               graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                            NodeInputView(graph: graph,
+                                          rowObserver: unpackedPort.rowObserver,
+                                          rowData: unpackedPort.inspectorRowViewModel,
+                                          forPropertySidebar: true,
+                                          propertyIsSelected: propertyRowIsSelected,
+                                          propertyIsAlreadyOnGraph: isOnGraphAlready,
+                                          isCanvasItemSelected: false)
+                        }
+#if DEBUG || DEV_DEBUG
+                                               .onAppear {
+                                                   assertInDebug(id.isDefined)
+                                               }
+#endif
+                    }
+                }
+            }
         }
     }
 }
@@ -50,12 +85,12 @@ struct LayerInspectorOutputPortView: View {
                                layerNode: layerNode,
                                graph: graph) { propertyRowIsSelected, isOnGraphAlready in
             NodeOutputView(graph: graph,
-                          rowObserver: rowObserver,
-                          rowData: rowViewModel,
-                          forPropertySidebar: true,
-                          propertyIsSelected: propertyRowIsSelected,
-                          propertyIsAlreadyOnGraph: isOnGraphAlready,
-                          isCanvasItemSelected: false)
+                           rowObserver: rowObserver,
+                           rowData: rowViewModel,
+                           forPropertySidebar: true,
+                           propertyIsSelected: propertyRowIsSelected,
+                           propertyIsAlreadyOnGraph: isOnGraphAlready,
+                           isCanvasItemSelected: false)
         }
     }
 }
@@ -65,13 +100,14 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     // input or output
     let layerProperty: LayerInspectorRowId
     
-    @Bindable var portObserver: LayerInputObserver
+    @Bindable var rowViewModel: RowObserver.RowViewModelType
+    @Bindable var rowObserver: RowObserver
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
-    // Args: 1. parent row observer, 2. inspector row view model, 3. is row selected; 4. isOnGraph
-    @ViewBuilder var rowView: (RowObserver, RowObserver.RowViewModelType, Bool, Bool) -> RowView
+    // Args: 1. is row selected; 2. isOnGraph
+    @ViewBuilder var rowView: (Bool, Bool) -> RowView
     
     // Is this property-row selected?
     @MainActor
@@ -83,26 +119,23 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         rowViewModel.canvasItemDelegate.isDefined
     }
 
+    @MainActor
     var listBackgroundColor: Color {
         isOnGraphAlready ? Color.black.opacity(0.3)
         : (self.propertyRowIsSelected ? STITCH_PURPLE.opacity(0.4) : .clear)
     }
 
+    var isInputBlockedOut: Bool {
+        rowViewModel.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+    }
+
     var body: some View {
         Group {
-            switch portObserver.observerMode {
-            case .packed(let inputLayerNodeRowData):
-                rowView(inputLayerNodeRowData.rowObserver,
-                        inputLayerNodeRowData.inspectorRowViewModel,
-                        propertyRowIsSelected,
+            if isInputBlockedOut {
+                Color.clear
+            } else {
+                rowView(propertyRowIsSelected,
                         isOnGraphAlready)
-            case .unpacked(let unpackedPortObserver):
-                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
-                    rowView(unpackedPort.rowObserver,
-                            unpackedPort.inspectorRowViewModel,
-                            propertyRowIsSelected,
-                            isOnGraphAlready)
-                }
             }
         }
         .background {

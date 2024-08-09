@@ -216,7 +216,7 @@ struct PortIdEligibleField: Equatable, Hashable {
 typealias PortIdEligibleFields = OrderedSet<PortIdEligibleField>
 
 struct LayerInputEligibleField: Equatable, Hashable {
-    let input: LayerInputType // portId || layerInput
+    let input: LayerInputPort // portId || layerInput
     let fieldIndex: Int
 }
 
@@ -252,7 +252,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
     
     // Turn each non-blocked field on a layeri input into a LayerInputEligibleField
         .reduce(into: LayerInputEligibleFields(), { partialResult, layerInput in
-            (layerNode.getLayerInspectorInputFields(layerInput) ?? []).forEach { field in
+            (layerNode.getLayerInspectorInputFields(layerInput)).forEach { field in
                 if !field.isBlockedOut {
                     partialResult.append(.init(input: layerInput,
                                                fieldIndex: field.fieldIndex))
