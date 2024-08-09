@@ -1353,6 +1353,10 @@ extension LayerInputPort {
 //}
 
 extension LayerInputEntity {
+    static let empty: Self = .init(packedData: .empty,
+                                   unpackedData: [],
+                                   mode: .packed)
+    
     var values: PortValues? {
         switch self.mode {
         case .packed:
@@ -1384,6 +1388,15 @@ extension LayerInputEntity {
             return [self.packedData.inputPort]
         case .unpacked:
             return self.unpackedData.map { $0.inputPort }
+        }
+    }
+    
+    var allInputData: [LayerInputDataEntity] {
+        switch self.mode {
+        case .packed:
+            return [self.packedData]
+        case .unpacked:
+            return self.unpackedData
         }
     }
 }

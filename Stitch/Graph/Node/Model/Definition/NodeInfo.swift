@@ -74,7 +74,7 @@ struct NodeInputDefinition: Encodable {
     var isTypeStatic = false
     
     // Specifically for layers
-    var layerInputType: LayerInputType?
+    var layerInputType: LayerInputPort?
 }
 
 extension NodeInputDefinition {

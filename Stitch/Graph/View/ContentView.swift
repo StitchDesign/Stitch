@@ -203,7 +203,7 @@ struct ContentView: View {
             HStack {
                 Spacer()
                 Group {
-                    if flyoutState.flyoutInput == .padding {
+                    if flyoutState.flyoutInput.portType == .padding {
                         PaddingFlyoutView(graph: graph,
                                           rowViewModel: inputData.inspectorRowViewModel,
                                           layer: layerNode.layer,

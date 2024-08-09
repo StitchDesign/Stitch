@@ -26,7 +26,8 @@ extension NodeViewModel {
             .map { portId, inputData in
                 var coordinate: NodeIOCoordinate
                 if let layerInput = inputData.layerInputType {
-                    coordinate = .init(portType: .keyPath(layerInput),
+                    coordinate = .init(portType: .keyPath(.init(layerInput: layerInput,
+                                                                portType: .packed)),
                                        nodeId: id)
                 } else {
                     coordinate = .init(portId: portId, nodeId: id)

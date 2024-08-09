@@ -344,10 +344,11 @@ extension String {
     }
     
     // Is the `port: String` a label for layer node input?
-    var parseLLMPortAsLabelForLayerInputType: LayerInputType? {
+    var parseLLMPortAsLabelForLayerInputType: LayerInputPort? {
         
-        if let layerInput = LayerInputType.allCases.first(where: {
-            $0.label() == self }) {
+        if let layerInput = LayerInputPort.allCases.first(where: {
+            $0.label() == self
+        }) {
             return layerInput
         }
         return nil
@@ -456,7 +457,7 @@ extension NodeIOCoordinate {
         
             // If we have a LayerNode input, use that label
         case .keyPath(let x):
-            return x.label()
+            return x.layerInput.label()
             
             // If we have a PatchNode input/output, or LayerNode output,
             // try to find the label per node definitions
