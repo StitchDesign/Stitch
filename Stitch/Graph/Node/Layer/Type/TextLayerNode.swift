@@ -60,11 +60,11 @@ struct TextLayerNode: LayerNodeDefinition {
 //        .shadowRadius,
 //        .shadowOffset
     ])
-    .union(.layerEffects)
-    .union(.strokeInputs)
-    .union(.typography)
-    .union(.aspectRatio)
-    .union(.sizing)
+//    .union(.layerEffects)
+//    .union(.strokeInputs)
+//    .union(.typography)
+//    .union(.aspectRatio)
+//    .union(.sizing)
     
     
     
