@@ -64,18 +64,19 @@ struct TextLayerNode: LayerNodeDefinition {
     .union(.strokeInputs)
     .union(.typography)
     .union(.aspectRatio)
-    .union(.sizing)
+    .union(.sizing).union(.pinning)
     
     
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
             graph: graph,
             layerViewModel: viewModel,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,
             color: viewModel.color.getColor ?? falseColor,

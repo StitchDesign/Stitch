@@ -136,11 +136,25 @@ struct OutputValueView: View {
                        alignment: .leading)
 
         case .layerDropdown(let layerId):
-            // TODO: disable or use read-only view if this is an output ?
-            LayerNamesDropDownChoiceView(graph: graph,
-                                         id: coordinate,
-                                         value: .assignedLayer(layerId))
-            .disabled(true)
+                   //            // TODO: disable or use read-only view if this is an output ?
+                   LayerNamesDropDownChoiceView(graph: graph,
+                                                id: coordinate,
+                                                value: .assignedLayer(layerId),
+                                                isForPinTo: false,
+                                                choices: graph.layerDropdownChoices(
+                                                   isForNode: coordinate.nodeId,
+                                                   isForPinTo: false))
+                   .disabled(true)
+
+               case .pinTo(let pinToId):
+                   LayerNamesDropDownChoiceView(graph: graph,
+                                                id: coordinate,
+                                                value: .pinTo(pinToId),
+                                                isForPinTo: true,
+                                                choices: graph.layerDropdownChoices(
+                                                   isForNode: coordinate.nodeId,
+                                                   isForPinTo: true))
+                   .disabled(true)
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,

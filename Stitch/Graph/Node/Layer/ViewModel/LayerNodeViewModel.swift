@@ -127,6 +127,11 @@ final class LayerNodeViewModel {
     @MainActor var spacingPort: InputLayerNodeRowData
     @MainActor var sizingScenarioPort: InputLayerNodeRowData
 
+    @MainActor var isPinnedPort: InputLayerNodeRowData
+    @MainActor var pinToPort: InputLayerNodeRowData
+    @MainActor var pinAnchorPort: InputLayerNodeRowData
+    @MainActor var pinOffsetPort: InputLayerNodeRowData
+    
     weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -272,6 +277,11 @@ final class LayerNodeViewModel {
         self.maxSizePort = rowFn(.maxSize)
         self.spacingPort = rowFn(.spacing)
         self.sizingScenarioPort = rowFn(.sizingScenario)
+        
+        self.isPinnedPort = rowFn(.isPinned)
+        self.pinToPort = rowFn(.pinTo)
+        self.pinAnchorPort = rowFn(.pinAnchor)
+        self.pinOffsetPort = rowFn(.pinOffset)
         
         // Initialize each NodeRowObserver for each expected layer input
         for inputType in graphNode.inputDefinitions {
