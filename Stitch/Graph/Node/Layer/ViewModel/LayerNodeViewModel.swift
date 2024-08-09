@@ -129,6 +129,7 @@ extension LayerInputUnpackedPortObserver {
 //}
 
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
+@Observable
 final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
@@ -170,6 +171,17 @@ enum LayerInputObserverMode {
 }
 
 extension LayerInputObserver {
+    /// Updates all-up values, handling scenarios like unpacked if applicable.
+    @MainActor func updatePortValues(_ values: PortValues) {
+        // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
+        self._packedData.rowObserver.updateValues(values)
+    }
+    
+    /// All-up values for this port
+    var allLoopedValues: PortValues {
+        self._packedData.allLoopedValues
+    }
+    
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:
