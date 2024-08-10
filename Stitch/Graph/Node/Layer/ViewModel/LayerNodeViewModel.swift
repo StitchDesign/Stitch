@@ -254,6 +254,15 @@ extension LayerInputObserver {
     }
     
     @MainActor func toggleMode() {
+        let nodeId = self._packedData.rowObserver.id.nodeId
+        let parentGroupNodeId = self.graphDelegate?.groupNodeFocused
+        
+        guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
+              let layerNode = node.layerNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         switch self.mode {
         case .packed:
             // Reset packed state
@@ -262,13 +271,15 @@ extension LayerInputObserver {
             // Toggle state
             self.mode = .unpacked
             self._unpackedData.allPorts.forEach { unpackedPort in
-                unpackedPort.canvasObserver = .init(id: .layerInput(.init(node: unpackedPort.rowObserver.id.nodeId,
-                                                                          keyPath: unpackedPort.id)),
-                                                    position: .zero,
-                                                    zIndex: .zero,
-                                                    parentGroupNodeId: self.graphDelegate?.groupNodeFocused,
-                                                    inputRowObservers: [unpackedPort.rowObserver],
-                                                    outputRowObservers: [])
+                var unpackSchema = unpackedPort.createSchema()
+                unpackSchema.canvasItem = .init(position: .zero,
+                                                zIndex: .zero,
+                                                parentGroupNodeId: parentGroupNodeId)
+                unpackedPort.update(from: unpackSchema,
+                                    layerInputType: unpackedPort.id,
+                                    layerNode: layerNode,
+                                    nodeId: nodeId,
+                                    nodeDelegate: node)
             }
             
         case .unpacked:
@@ -276,7 +287,7 @@ extension LayerInputObserver {
                 fatalErrorIfDebug()
                 return
             }
-            
+
             // Reset unpacked state
             self._unpackedData.allPorts.forEach {
                 $0.resetOnPackModeToggle()
@@ -284,13 +295,17 @@ extension LayerInputObserver {
             
             // Toggle state
             self.mode = .packed
-            self._packedData.canvasObserver = .init(id: .layerInput(.init(node: self._packedData.rowObserver.id.nodeId,
-                                                                          keyPath: packedKeyPath)),
-                                                    position: .zero,
-                                                    zIndex: .zero,
-                                                    parentGroupNodeId: self.graphDelegate?.groupNodeFocused,
-                                                    inputRowObservers: [_packedData.rowObserver],
-                                                    outputRowObservers: [])
+            
+            var packedSchema = self._packedData.createSchema()
+            packedSchema.canvasItem = .init(position: .zero,
+                                            zIndex: .zero,
+                                            parentGroupNodeId: parentGroupNodeId)
+            
+            self._packedData.update(from: packedSchema,
+                                    layerInputType: packedKeyPath,
+                                    layerNode: layerNode,
+                                    nodeId: nodeId,
+                                    nodeDelegate: node)
         }
     }
 }

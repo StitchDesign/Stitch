@@ -27,7 +27,8 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
-         isEmpty: Bool = false) {
+         isEmpty: Bool = false,
+         nodeDelegate: NodeDelegate? = nil) {
         let keyPath = rowObserver.id.keyPath
         assertInDebug(keyPath.isDefined)
         
@@ -145,7 +146,8 @@ extension InputLayerNodeRowData {
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId) {
+                nodeId: NodeId,
+                nodeDelegate: NodeDelegate? = nil) {
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         if let canvas = schema.canvasItem {
@@ -163,6 +165,10 @@ extension InputLayerNodeRowData {
             }
         } else {
             self.canvasObserver = nil
+        }
+        
+        if let node = nodeDelegate {
+            self.initializeDelegate(node)
         }
     }
 }
