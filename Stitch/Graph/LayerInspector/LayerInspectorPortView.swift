@@ -20,7 +20,7 @@ struct LayerInspectorInputPortView: View {
             case .packed(let inputLayerNodeRowData):
                 HStack {
                     Button {
-                        self.portObserver.mode = .unpacked
+                        self.portObserver.toggleMode()
                     } label: {
                         Text("Unpack")
                     }
@@ -43,7 +43,7 @@ struct LayerInspectorInputPortView: View {
             case .unpacked(let unpackedPortObserver):
                 HStack {
                     Button {
-                        self.portObserver.mode = .packed
+                        self.portObserver.toggleMode()
                     } label: {
                         Text("Pack")
                     }

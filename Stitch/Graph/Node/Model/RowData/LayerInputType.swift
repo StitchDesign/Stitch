@@ -1072,7 +1072,7 @@ extension LayerInputPort {
         assertInDebug(unpackedPortCount < values.count)
         
         // shorten values list to expected count for port
-        let shortenedValues: PortValues = values.suffix(unpackedPortCount)
+        let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
         
         switch self {
         case .position:

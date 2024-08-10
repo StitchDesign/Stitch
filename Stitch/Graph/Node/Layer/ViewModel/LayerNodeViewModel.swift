@@ -63,7 +63,7 @@ extension LayerInputUnpackedPortObserver {
             return []
         }
         
-        let relevantPorts = self._allAvailablePorts.suffix(portsToUse)
+        let relevantPorts = self._allAvailablePorts.prefix(upTo: portsToUse)
         assertInDebug(portsToUse == relevantPorts.count)
         
         return Array(relevantPorts)
@@ -140,11 +140,13 @@ final class LayerInputObserver {
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
+    let layer: Layer
     let port: LayerInputPort
     var mode: LayerInputMode = .packed
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
+        self.layer = schema.layer
         self.port = port
         
         self._packedData = .empty(.init(layerInput: port,
@@ -249,6 +251,55 @@ extension LayerInputObserver {
                 $0.canvasObserver
             }
         }
+    }
+    
+    @MainActor func toggleMode() {
+        switch self.mode {
+        case .packed:
+            // Reset packed state
+            self._packedData.resetOnPackModeToggle()
+            
+            // Toggle state
+            self.mode = .unpacked
+            self._unpackedData.allPorts.forEach { unpackedPort in
+                unpackedPort.canvasObserver = .init(id: .layerInput(.init(node: unpackedPort.rowObserver.id.nodeId,
+                                                                          keyPath: unpackedPort.id)),
+                                                    position: .zero,
+                                                    zIndex: .zero,
+                                                    parentGroupNodeId: self.graphDelegate?.groupNodeFocused,
+                                                    inputRowObservers: [unpackedPort.rowObserver],
+                                                    outputRowObservers: [])
+            }
+            
+        case .unpacked:
+            guard let packedKeyPath = self.__packedData.rowObserver.id.keyPath else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            // Reset unpacked state
+            self._unpackedData.allPorts.forEach {
+                $0.resetOnPackModeToggle()
+            }
+            
+            // Toggle state
+            self.mode = .packed
+            self._packedData.canvasObserver = .init(id: .layerInput(.init(node: self._packedData.rowObserver.id.nodeId,
+                                                                          keyPath: packedKeyPath)),
+                                                    position: .zero,
+                                                    zIndex: .zero,
+                                                    parentGroupNodeId: self.graphDelegate?.groupNodeFocused,
+                                                    inputRowObservers: [_packedData.rowObserver],
+                                                    outputRowObservers: [])
+        }
+    }
+}
+
+extension InputLayerNodeRowData {
+    /// Resets canvas data and connections when toggled between pack/unpack state.
+    func resetOnPackModeToggle() {
+        self.rowObserver.upstreamOutputCoordinate = nil
+        self.canvasObserver = nil
     }
 }
 
