@@ -165,11 +165,6 @@ final class LayerInputObserver {
     }
 }
 
-//enum LayerInputMode {
-//    case packed
-//    case unpacked
-//}
-
 enum LayerInputObserverMode {
     case packed(InputLayerNodeRowData)
     case unpacked(LayerInputUnpackedPortObserver)
@@ -225,11 +220,11 @@ extension LayerInputObserver {
     
     @MainActor
     var allInputData: [InputLayerNodeRowData] {
-        switch self.mode {
-        case .packed:
-            return [self._packedData]
-        case .unpacked:
-            return self._unpackedData.allPorts
+        switch self.observerMode {
+        case .packed(let packedData):
+            return [packedData]
+        case .unpacked(let unpackedObserver):
+            return unpackedObserver.allPorts
         }
     }
     

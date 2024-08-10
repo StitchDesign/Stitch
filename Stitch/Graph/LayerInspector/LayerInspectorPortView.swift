@@ -18,22 +18,36 @@ struct LayerInspectorInputPortView: View {
         Group {
             switch portObserver.observerMode {
             case .packed(let inputLayerNodeRowData):
-                LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
-                                       rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
-                                       rowObserver: inputLayerNodeRowData.rowObserver,
-                                       node: node,
-                                       layerNode: layerNode,
-                                       graph: graph) { propertyRowIsSelected, isOnGraphAlready in
-                    NodeInputView(graph: graph,
-                                  rowObserver: inputLayerNodeRowData.rowObserver,
-                                  rowData: inputLayerNodeRowData.inspectorRowViewModel,
-                                  forPropertySidebar: true,
-                                  propertyIsSelected: propertyRowIsSelected,
-                                  propertyIsAlreadyOnGraph: isOnGraphAlready,
-                                  isCanvasItemSelected: false)
+                HStack {
+                    Button {
+                        self.portObserver.mode = .unpacked
+                    } label: {
+                        Text("Unpack")
+                    }
+                    LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
+                                           rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
+                                           rowObserver: inputLayerNodeRowData.rowObserver,
+                                           node: node,
+                                           layerNode: layerNode,
+                                           graph: graph) { propertyRowIsSelected, isOnGraphAlready in
+                        NodeInputView(graph: graph,
+                                      rowObserver: inputLayerNodeRowData.rowObserver,
+                                      rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                                      forPropertySidebar: true,
+                                      propertyIsSelected: propertyRowIsSelected,
+                                      propertyIsAlreadyOnGraph: isOnGraphAlready,
+                                      isCanvasItemSelected: false)
+                    }
                 }
+                
             case .unpacked(let unpackedPortObserver):
                 HStack {
+                    Button {
+                        self.portObserver.mode = .packed
+                    } label: {
+                        Text("Pack")
+                    }
+                    
                     ForEach(unpackedPortObserver.allPorts) { unpackedPort in
                         LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
                                                rowViewModel: unpackedPort.inspectorRowViewModel,
