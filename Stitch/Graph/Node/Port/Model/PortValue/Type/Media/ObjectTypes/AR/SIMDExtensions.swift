@@ -9,13 +9,6 @@ extension SIMD4 {
     }
 }
 
-extension simd_float4x4 {
-    var upperLeft3x3: simd_float3x3 {
-        return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
-    }
-}
-
-
 
 // Extension to create a quaternion from Euler angles
 extension simd_quatf {
@@ -85,10 +78,8 @@ extension simd_float3x3 {
     }
 }
 
-
-
 // Extension to create a 4x4 rotation matrix from Euler angles
-extension simd_float4x4 {
+extension StitchMatrix {
     init(rotationZYX eulerAngles: SIMD3<Float>) {
         let quaternion = simd_quatf(euler: eulerAngles)
         self.init(quaternion: quaternion)
@@ -135,6 +126,10 @@ extension simd_float4x4 {
         self = translationMatrix * rotationMatrix * scaleMatrix
     }
     
+    var upperLeft3x3: simd_float3x3 {
+        return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
+    }
+
     var position: SCNVector3 {
         SCNVector3(columns.3.x, columns.3.y, columns.3.z)
     }
@@ -162,5 +157,3 @@ extension simd_float4x4 {
         }
     }
 }
-
-
