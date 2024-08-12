@@ -234,16 +234,16 @@ func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Por
     if let value = values.first, // only one input port
        let matrix = value.getMatrix {
         return (
-            .number(Double(matrix.scnPosition.x)),
-            .number(Double(matrix.scnPosition.y)),
-            .number(Double(matrix.scnPosition.z)),
+            .number(Double(matrix.position.x)),
+            .number(Double(matrix.position.y)),
+            .number(Double(matrix.position.z)),
             .number(Double(matrix.scale.x)),
             .number(Double(matrix.scale.y)),
             .number(Double(matrix.scale.z)),
-            .number(Double(matrix.rotation.imag.x)),
-            .number(Double(matrix.rotation.imag.y)),
-            .number(Double(matrix.rotation.imag.z)),
-            .number(Double(matrix.rotation.real))
+            .number(Double(matrix.rotationInRadians.x)),
+            .number(Double(matrix.rotationInRadians.y)),
+            .number(Double(matrix.rotationInRadians.z)),
+            .number(Double(0.0))
         )
     } else {
         fatalError("unpack matrix")
