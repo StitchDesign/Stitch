@@ -123,7 +123,7 @@ extension NodeViewModel {
 
     @MainActor
     var inputs: PortValuesList {
-        self.getAllInputsObservers().map { $0.allLoopedValues }
+        self.inputsValuesList
     }
 
     @MainActor

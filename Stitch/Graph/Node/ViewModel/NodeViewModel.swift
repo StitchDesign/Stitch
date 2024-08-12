@@ -116,7 +116,12 @@ extension NodeViewModel: NodeCalculatable {
         self.kind.getPatch == .pressInteraction
     }
     
-    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
+    var inputsValuesList: PortValuesList {
+        self.getAllParentInputsObservers().map { $0.values }
+    }
+    
+    /// Ignores unpacked observers for layers to ensure we just get parent values. Mostly used for inputs values getters.
+    @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers
@@ -493,7 +498,7 @@ extension NodeViewModel: NodeDelegate {
     }
     
     var inputsRowCount: Int {
-        self.getAllInputsObservers().count
+        self.getAllParentInputsObservers().count
     }
     
     var outputsRowCount: Int {

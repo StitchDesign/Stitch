@@ -95,8 +95,13 @@ extension NodeDelegate {
         self.defaultOutputs.map { [$0] }
     }
     
-    /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
+    // TODO: remove if works
     @MainActor func getAllViewInputsObservers() -> [InputNodeRowObserver] {
+        self.getAllInputsObservers()
+    }
+    
+    /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
+    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
         switch self.nodeType {
         case .patch(let patch):
             return patch.inputsObservers
