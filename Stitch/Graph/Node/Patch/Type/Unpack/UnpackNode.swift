@@ -240,9 +240,9 @@ func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Por
             .number(Double(matrix.scale.x)),
             .number(Double(matrix.scale.y)),
             .number(Double(matrix.scale.z)),
-            .number(Double(matrix.quaternion.imag.x)),
-            .number(Double(matrix.quaternion.imag.y)),
-            .number(Double(matrix.quaternion.imag.x)),
+            .number(Double(matrix.rotationInRadians.x)),
+            .number(Double(matrix.rotationInRadians.y)),
+            .number(Double(matrix.rotationInRadians.z)),
             .number(Double(0.0))
         )
     } else {
