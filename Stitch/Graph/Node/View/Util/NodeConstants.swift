@@ -44,7 +44,7 @@ let CATALYST_COLOR_VALUE_BUTTON_SIZE: CGSize = CGSize(
 
 let TEXT_FIELD_MIN_WIDTH: CGFloat = 12
 
-let DEFAULT_TRANSFORM_MATRIX_MODEL = Transform.createMatrix(
+let DEFAULT_TRANSFORM_MATRIX = Transform.createMatrix(
     positionX: 0,
     positionY: 0,
     positionZ: 0,
