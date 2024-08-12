@@ -700,6 +700,15 @@ extension LayerNodeViewModel: SchemaObserver {
     }
     
     @MainActor
+    /// Helper which discovers a layer node's inputs and passes its port into a callback.
+    func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
+        self.layer.layerGraphNode.inputDefinitions.forEach {
+            let port = self[keyPath: $0.layerNodeKeyPath]
+            callback(port)
+        }
+    }
+    
+    @MainActor
     func updateOutputData(from canvases: [CanvasNodeEntity?]) {
         canvases.enumerated().forEach { portIndex, canvasEntity in
             guard let outputData = self.outputPorts[safe: portIndex],

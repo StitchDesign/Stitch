@@ -92,6 +92,26 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
+    /// Invoked so we can process unpacked row observers and bubble up their values in the port.
+    func didLayerNodeEvaluate() {
+        self.layerNode?.forEachInput { inputPort in
+            switch inputPort.observerMode {
+            case .unpacked(let unpackedObserver):
+                let valuesFromUnpackedObservers = unpackedObserver.getParentPortValuesList()
+                
+                // Bubble up values to packed observer, which feeds info to layers
+                inputPort._packedData.rowObserver.updateValues(valuesFromUnpackedObservers)
+                
+            case .packed:
+                return
+            }
+        }
+    }
+
+    var isLayer: Bool {
+        self.kind.getLayer.isDefined
+    }
+    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
