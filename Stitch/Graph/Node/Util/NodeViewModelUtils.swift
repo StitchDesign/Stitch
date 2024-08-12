@@ -149,7 +149,7 @@ extension NodeViewModel {
 
         self.userVisibleType = newType
         
-        self.getAllViewInputsObservers().enumerated().forEach { index, inputObserver in
+        self.getAllInputsObservers().enumerated().forEach { index, inputObserver in
             inputObserver.changeInputType(
                 to: newType,
                 nodeKind: self.kind,

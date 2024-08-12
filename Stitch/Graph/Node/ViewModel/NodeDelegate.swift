@@ -95,11 +95,6 @@ extension NodeDelegate {
         self.defaultOutputs.map { [$0] }
     }
     
-    // TODO: remove if works
-    @MainActor func getAllViewInputsObservers() -> [InputNodeRowObserver] {
-        self.getAllInputsObservers()
-    }
-    
     /// Similar to `getAllInputsObservers` but gets unpacked layer observers if used.
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
         switch self.nodeType {
@@ -119,7 +114,7 @@ extension NodeDelegate {
     
     @MainActor
     var allInputRowViewModels: [InputNodeRowViewModel] {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
     }
     

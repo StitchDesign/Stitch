@@ -101,7 +101,7 @@ extension NodeViewModel: NodeCalculatable {
     }
     
     @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
     }
     
     var inputsValuesList: PortValuesList {
@@ -288,7 +288,7 @@ extension NodeViewModel {
     
     @MainActor
     func updateInputPortViewModels(activeIndex: ActiveIndex) {
-        self.getAllViewInputsObservers().forEach { rowObserver in
+        self.getAllInputsObservers().forEach { rowObserver in
             rowObserver.updatePortViewModels()
         }
     }
@@ -368,14 +368,14 @@ extension NodeViewModel {
     
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.id == id }
     }
     
     @MainActor
     func getInputRowViewModel(nodeRowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.id == id }
     }
@@ -384,7 +384,7 @@ extension NodeViewModel {
     func getInputRowViewModel(nodeId: NodeId,
                               graphItemType: GraphItemType,
                               portType: NodeIOPortType) -> InputNodeRowViewModel? {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
             .flatMap { $0.allRowViewModels }
             .first { $0.rowDelegate?.id == .init(portType: portType,
                                                  nodeId: nodeId) }
@@ -581,7 +581,7 @@ extension NodeViewModel: SchemaObserver {
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
-        self.getAllViewInputsObservers().onPrototypeRestart()
+        self.getAllInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
         // Flatten interaction nodes' outputs when graph reset
@@ -596,7 +596,7 @@ extension NodeViewModel: Identifiable { }
 extension NodeViewModel {
     @MainActor
     func activeIndexChanged(activeIndex: ActiveIndex) {
-        self.getAllViewInputsObservers().forEach { observer in
+        self.getAllInputsObservers().forEach { observer in
             let oldValue = observer.activeValue
             let newValue = PortValue
                 .getActiveValue(allLoopedValues: observer.allLoopedValues,
@@ -634,7 +634,7 @@ extension NodeViewModel {
     // See https://github.com/vpl-codesign/stitch/issues/5148
     @MainActor
     func inputsWithoutImmediatelyUpstreamInteractionNode(_ nodes: NodesViewModelDict) -> PortValuesList {
-        self.getAllViewInputsObservers()
+        self.getAllInputsObservers()
             .filter { $0.hasUpstreamInteractionNode(nodes) }
             .map(\.allLoopedValues)
     }

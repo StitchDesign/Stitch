@@ -22,7 +22,7 @@ struct ProjectNavigationView: View {
     // Tracks edge changes to reset cached data
     @MainActor var upstreamConnections: [NodeIOCoordinate?] {
         self.graph.nodes.values
-            .flatMap { $0.getAllViewInputsObservers() }
+            .flatMap { $0.getAllInputsObservers() }
             .map { $0.upstreamOutputCoordinate }
     }
 
