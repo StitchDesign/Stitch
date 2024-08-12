@@ -111,16 +111,9 @@ extension simd_float4x4 {
         )
     }
 
-    // Extract position from the matrix
-//    var position: SIMD3<Float> {
-//        .init(columns.3.x, columns.3.y, columns.3.z)
-//    }
-    
-    
     var position: SCNVector3 {
         SCNVector3(columns.3.x, columns.3.y, columns.3.z)
     }
-
 
     // Extract scale from the matrix
     var scale: SIMD3<Float> {
