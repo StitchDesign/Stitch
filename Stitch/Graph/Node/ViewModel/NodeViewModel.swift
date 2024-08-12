@@ -92,22 +92,6 @@ final class NodeViewModel: Sendable {
 }
 
 extension NodeViewModel: NodeCalculatable {
-    /// Invoked so we can process unpacked row observers and bubble up their values in the port.
-    func didLayerNodeEvaluate() {
-        self.layerNode?.forEachInput { inputPort in
-            switch inputPort.observerMode {
-            case .unpacked(let unpackedObserver):
-                let valuesFromUnpackedObservers = unpackedObserver.getParentPortValuesList()
-                
-                // Bubble up values to packed observer, which feeds info to layers
-                inputPort._packedData.rowObserver.updateValues(valuesFromUnpackedObservers)
-                
-            case .packed:
-                return
-            }
-        }
-    }
-
     var isLayer: Bool {
         self.kind.getLayer.isDefined
     }
@@ -116,23 +100,29 @@ extension NodeViewModel: NodeCalculatable {
         self.kind.getPatch == .pressInteraction
     }
     
-    var inputsValuesList: PortValuesList {
-        self.getAllParentInputsObservers().map { $0.values }
+    @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
+        self.getAllViewInputsObservers()
     }
     
-    /// Ignores unpacked observers for layers to ensure we just get parent values. Mostly used for inputs values getters.
-    @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
+    var inputsValuesList: PortValuesList {
         switch self.nodeType {
         case .patch(let patch):
-            return patch.inputsObservers
+            return patch.inputsObservers.map { $0.allLoopedValues }
         case .layer(let layer):
             // Always get all-up packed observer here
-            return layer.getSortedInputPorts().map {
-                $0._packedData.rowObserver
+            return layer.getSortedInputPorts().map { inputPort in
+                switch inputPort.observerMode {
+                case .unpacked(let unpackedObserver):
+                    let valuesFromUnpackedObservers = unpackedObserver.getParentPortValuesList()
+                    return valuesFromUnpackedObservers
+
+                case .packed(let packedObserver):
+                    return packedObserver.allLoopedValues
+                }
             }
         case .group(let canvas):
             return canvas.inputViewModels.compactMap {
-                $0.rowDelegate
+                $0.rowDelegate?.allLoopedValues
             }
         }
     }

@@ -307,6 +307,8 @@ extension LayerInputObserver {
                                     nodeId: nodeId,
                                     nodeDelegate: node)
         }
+        
+        self.graphDelegate?.updateGraphData(document: nil)
     }
 }
 

@@ -99,6 +99,9 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }
+    
+    /// Invoked when nodes change on graph.
+    func updateGraphData(document: StitchDocument?)
 }
 
 extension GraphDelegate {
