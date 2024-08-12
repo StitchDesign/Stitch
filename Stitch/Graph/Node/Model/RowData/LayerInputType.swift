@@ -1076,13 +1076,7 @@ extension LayerInputPort {
         
         switch self {
         case .position:
-            // graph time only needed for pulse
-            guard let parentValue = positionCoercer(shortenedValues,
-                                                    graphTime: .zero).first else {
-                fatalErrorIfDebug()
-                return .position(.zero)
-            }
-            return parentValue
+            return shortenedValues.unpackedPositionCoercer()
             
         default:
             // TODO: define behavior for other nodes

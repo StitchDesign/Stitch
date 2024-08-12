@@ -293,7 +293,33 @@ func sizeCoercer(_ values: PortValues,
 func positionCoercer(_ values: PortValues,
                      graphTime: TimeInterval) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
-        value.unpackedPositionCoercer()
+        switch value {
+        case .position:
+            return value
+        case .number(let x):
+            return .position(x.toStitchPosition)
+        case .size(let x):
+            return .position(x.asAlgebraicCGSize)
+        case .layerDimension(let x):
+            return .position(StitchPosition(
+                                width: x.asNumber,
+                                height: x.asNumber))
+        case .int(let x):
+            return .position(x.toStitchPosition)
+        case .point3D(let x):
+            return .position(x.toStitchPosition)
+        case .point4D(let x):
+            return .position(x.toStitchPosition)
+        case .json(let x):
+            return x.value.toStitchPosition.map(PortValue.position) ?? defaultPositionFalse
+        case .bool(let x):
+            return .position(x ? .multiplicationIdentity : .zero)
+        default:
+            return coerceToTruthyOrFalsey(value,
+                                          graphTime: graphTime)
+                ? defaultPositionTrue
+                : defaultPositionFalse
+        }
     }
 }
 
