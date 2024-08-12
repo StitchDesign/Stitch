@@ -141,6 +141,18 @@ extension simd_float4x4 {
         )
     }
     
+    var rotationX: SIMD3<Float> {
+        return SIMD3<Float>(rotationMatrix[0][0], rotationMatrix[1][0], rotationMatrix[2][0])
+    }
+
+    var rotationY: SIMD3<Float> {
+        return SIMD3<Float>(rotationMatrix[0][1], rotationMatrix[1][1], rotationMatrix[2][1])
+    }
+
+    var rotationZ: SIMD3<Float> {
+        return SIMD3<Float>(rotationMatrix[0][2], rotationMatrix[1][2], rotationMatrix[2][2])
+    }
+    
     var orientation: simd_quatf {
         simd_quaternion(self)
     }
