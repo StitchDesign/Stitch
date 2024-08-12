@@ -190,7 +190,6 @@ extension LayerInputObserver {
                 nodeId: NodeId) {
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
-        assertInDebug(schema.unpackedData.count == unpackedObservers.count)
 
         self.mode = schema.mode
         
