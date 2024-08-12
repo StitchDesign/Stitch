@@ -1,6 +1,7 @@
 import Foundation
 import StitchSchemaKit
 import simd
+import SceneKit
 
 extension SIMD4 {
     var xyz: SIMD3<Scalar> {
@@ -14,54 +15,7 @@ extension simd_float4x4 {
     }
 }
 
-// Extension to create a 4x4 rotation matrix from Euler angles
-extension simd_float4x4 {
-    init(rotationZYX eulerAngles: SIMD3<Float>) {
-        let quaternion = simd_quatf(euler: eulerAngles)
-        self.init(quaternion: quaternion)
-    }
-    
-    // Create a 4x4 rotation matrix from a quaternion
-    init(quaternion: simd_quatf) {
-        self.init()
-        let x = quaternion.vector.x
-        let y = quaternion.vector.y
-        let z = quaternion.vector.z
-        let w = quaternion.vector.w
-        
-        let x2 = x * x
-        let y2 = y * y
-        let z2 = z * z
-        let xy = x * y
-        let xz = x * z
-        let yz = y * z
-        let wx = w * x
-        let wy = w * y
-        let wz = w * z
-        
-        self.columns = (
-            simd_float4(1 - 2 * (y2 + z2), 2 * (xy + wz), 2 * (xz - wy), 0),
-            simd_float4(2 * (xy - wz), 1 - 2 * (x2 + z2), 2 * (yz + wx), 0),
-            simd_float4(2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (x2 + y2), 0),
-            simd_float4(0, 0, 0, 1)
-        )
-    }
 
-    // Extension to create a 4x4 matrix from position, scale, and rotation
-    init(position: SIMD3<Float>, scale: SIMD3<Float>, rotation: SIMD3<Float>) {
-        let scaleMatrix = simd_float4x4(diagonal: SIMD4(scale, 1))
-        let rotationMatrix = simd_float4x4(rotationZYX: rotation)
-        let translationMatrix = simd_float4x4(
-            SIMD4<Float>(1, 0, 0, 0),
-            SIMD4<Float>(0, 1, 0, 0),
-            SIMD4<Float>(0, 0, 1, 0),
-            SIMD4<Float>(position.x, position.y, position.z, 1)
-        )
-        
-        // Combine transformations: translation * rotation * scale
-        self = translationMatrix * rotationMatrix * scaleMatrix
-    }
-}
 
 // Extension to create a quaternion from Euler angles
 extension simd_quatf {
@@ -130,3 +84,83 @@ extension simd_float3x3 {
         }
     }
 }
+
+
+
+// Extension to create a 4x4 rotation matrix from Euler angles
+extension simd_float4x4 {
+    init(rotationZYX eulerAngles: SIMD3<Float>) {
+        let quaternion = simd_quatf(euler: eulerAngles)
+        self.init(quaternion: quaternion)
+    }
+    
+    // Create a 4x4 rotation matrix from a quaternion
+    init(quaternion: simd_quatf) {
+        self.init()
+        let x = quaternion.vector.x
+        let y = quaternion.vector.y
+        let z = quaternion.vector.z
+        let w = quaternion.vector.w
+        
+        let x2 = x * x
+        let y2 = y * y
+        let z2 = z * z
+        let xy = x * y
+        let xz = x * z
+        let yz = y * z
+        let wx = w * x
+        let wy = w * y
+        let wz = w * z
+        
+        self.columns = (
+            simd_float4(1 - 2 * (y2 + z2), 2 * (xy + wz), 2 * (xz - wy), 0),
+            simd_float4(2 * (xy - wz), 1 - 2 * (x2 + z2), 2 * (yz + wx), 0),
+            simd_float4(2 * (xz + wy), 2 * (yz - wx), 1 - 2 * (x2 + y2), 0),
+            simd_float4(0, 0, 0, 1)
+        )
+    }
+
+    // Extension to create a 4x4 matrix from position, scale, and rotation
+    init(position: SIMD3<Float>, scale: SIMD3<Float>, rotation: SIMD3<Float>) {
+        let scaleMatrix = simd_float4x4(diagonal: SIMD4(scale, 1))
+        let rotationMatrix = simd_float4x4(rotationZYX: rotation)
+        let translationMatrix = simd_float4x4(
+            SIMD4<Float>(1, 0, 0, 0),
+            SIMD4<Float>(0, 1, 0, 0),
+            SIMD4<Float>(0, 0, 1, 0),
+            SIMD4<Float>(position.x, position.y, position.z, 1)
+        )
+        
+        // Combine transformations: translation * rotation * scale
+        self = translationMatrix * rotationMatrix * scaleMatrix
+    }
+    
+    var position: SCNVector3 {
+        SCNVector3(columns.3.x, columns.3.y, columns.3.z)
+    }
+
+    var orientation: simd_quatf {
+        simd_quaternion(self)
+    }
+
+    var rotation: simd_quatf {
+        let qw = sqrt(1 + columns.0.x + columns.1.y + columns.2.z) / 2
+        let qx = (columns.2.y - columns.1.z) / (4 * qw)
+        let qy = (columns.0.z - columns.2.x) / (4 * qw)
+        let qz = (columns.1.x - columns.0.y) / (4 * qw)
+        return simd_quatf(ix: qx, iy: qy, iz: qz, r: qw)
+    }
+
+    var scale: SCNVector3 {
+        get {
+            SCNVector3(columns.0.x, columns.1.y, columns.2.z)
+        }
+        set(newvalue) {
+            self.columns.0.x = newvalue.x
+            self.columns.1.y = newvalue.y
+            self.columns.2.z = newvalue.z
+        }
+    }
+}
+
+
