@@ -234,9 +234,9 @@ func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Por
     if let value = values.first, // only one input port
        let matrix = value.getMatrix {
         return (
-            .number(Double(matrix.position.x)),
-            .number(Double(matrix.position.y)),
-            .number(Double(matrix.position.z)),
+            .number(Double(matrix.scnPosition.x)),
+            .number(Double(matrix.scnPosition.y)),
+            .number(Double(matrix.scnPosition.z)),
             .number(Double(matrix.scale.x)),
             .number(Double(matrix.scale.y)),
             .number(Double(matrix.scale.z)),

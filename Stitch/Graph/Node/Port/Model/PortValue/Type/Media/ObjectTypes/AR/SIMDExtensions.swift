@@ -130,7 +130,7 @@ extension StitchMatrix {
         return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
     }
 
-    var position: SCNVector3 {
+    var scnPosition: SCNVector3 {
         SCNVector3(columns.3.x, columns.3.y, columns.3.z)
     }
 
