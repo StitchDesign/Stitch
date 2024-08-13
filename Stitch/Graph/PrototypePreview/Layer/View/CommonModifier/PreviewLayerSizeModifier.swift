@@ -107,7 +107,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are pt (so no min/max size at all)
         else if let width = width, let height = height {
-            //             logInView("LayerSizeModifier: defined width and height")
+            logInView("LayerSizeModifier: defined width and height")
             content
                 .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
                 .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
@@ -119,7 +119,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are auto, so use min/max height and width
         else if someMinMaxDefined {
-            //             logInView("LayerSizeModifier: defined min-max")
+                         logInView("LayerSizeModifier: defined min-max")
             content.frame(minWidth: minWidth,
                           maxWidth: maxWidth,
                           minHeight: minHeight,
@@ -129,7 +129,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Default
         else {
-            // logInView("LayerSizeModifier: default")
+             logInView("LayerSizeModifier: default")
             content.frame(width: width,
                           height: height,
                           alignment: alignment)

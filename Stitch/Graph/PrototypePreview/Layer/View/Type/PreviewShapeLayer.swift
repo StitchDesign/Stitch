@@ -108,7 +108,7 @@ struct PreviewShapeLayer: View {
                     graph: graph,
                     layerViewModel: layerViewModel,
                     isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-                interactiveLayer: interactiveLayer,
+                    interactiveLayer: interactiveLayer,
                     position: position,
                     rotationX: rotationX,
                     rotationY: rotationY,

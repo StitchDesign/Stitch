@@ -10,51 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 
 
-// MARK: RECURSIVELY RETRIEVE PINNED VIEWS TO LIVE AT ROOT LEVEL OF PREVIEW WINDOW
-
-// TODO: handle proper z-indexing of pinned layers; a pinned layer's z-index should determine where it sits on the z-axis
-
-// Returns a flat list of all pinned layer view models;
-// each pinned layer view model has both:
-// (1) a "ghost view" at its proper hierarchy spot (used for reading how pinned view is affected by e.g. layer group scale) and,
-// (2) a "pinned view" at the top most level i.e. 'global' preview window space (used for actual aligning of the pinned view with its pin-receiver)
-func getPinnedViews(_ layerDataList: LayerDataList,
-                    acc: LayerDataList) -> LayerDataList {
-    
-    var acc = acc
-    
-    layerDataList.forEach { layerData in
-    
-        switch layerData {
-        
-        case .nongroup(let layerViewModel):
-            if layerViewModel.isPinned.getBool ?? false {
-                acc.append(layerData)
-            }
-        
-        case .group(let layerViewModel, let childrenLayerDataList):
-            if layerViewModel.isPinned.getBool ?? false {
-                acc.append(layerData)
-            }
-            // Will this over-add the children?
-            
-            // We're saying, take the acc we already have and add these children to it;
-            // then add that list again to the children
-            let pinnedChildren = getPinnedViews(childrenLayerDataList, acc: acc)
-            acc += pinnedChildren
-            
-        // TODO: is this really the proper handling of masked views ?
-        case .mask(let masked, let masker):
-            let pinnedMaskeds = getPinnedViews(masked, acc: acc)
-            acc += pinnedMaskeds
-            
-            let pinnedMaskers = getPinnedViews(masker, acc: acc)
-            acc += pinnedMaskers
-        }
-    }
-    
-    return acc
-}
 
 
 // MARK: POSITIONING
@@ -62,17 +17,17 @@ func getPinnedViews(_ layerDataList: LayerDataList,
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
-    log("getPinReceiverLayerViewModel: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
                 
     guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
-        log("getPinReceiverLayerViewModel: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
+        log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
         return graph.rootPinReceiverData
     }
         
     switch pinnedTo {
     
     case .root:
-        log("getPinReceiverLayerViewModel: WILL RETURN ROOT CASE")
+        log("getPinReceiverData: WILL RETURN ROOT CASE")
         return graph.rootPinReceiverData
     
         // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
@@ -115,7 +70,7 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
                         from graph: GraphState) -> PinReceiverData? {
     
     guard let pinReceiver = graph.layerNodes.get(pinReceiverId.id) else {
-        log("getPinReceiverLayerViewModel: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
+        log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
         return graph.rootPinReceiverData
     }
     
@@ -125,7 +80,7 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
     let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
     
     guard let pinReceiverLayerViewModel = (pinReceiverAtSameLoopIndex ?? firstPinReceiver) else {
-        log("getPinReceiverLayerViewModel: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
+        log("getPinReceiverData: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
         return nil
     }
     
@@ -135,7 +90,7 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
           let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
           let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
           let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
-        log("getPinReceiverLayerViewModel: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
+        log("getPinReceiverData: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
         return nil
     }
     

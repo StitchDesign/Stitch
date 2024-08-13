@@ -91,6 +91,26 @@ enum PinData: Equatable {
     case pinReceiver(PinReceiverData),
          pinned(PinnedData)
 }
+//
+//extension LayerViewModel {
+//    var isGhostView: Bool {
+//        switch self.pinnedViewType {
+//        case .ghostView:
+//            return self.isPinned.getBool ?? false
+//        default:
+//            return false
+//        }
+//    }
+//    
+//    var isPinnedView: Bool {
+//        switch self.pinnedViewType {
+//        case .pinnedView:
+//            return self.isPinned.getBool ?? false
+//        default:
+//            return false
+//        }
+//    }
+//}
 
 @Observable
 final class LayerViewModel {
@@ -111,9 +131,11 @@ final class LayerViewModel {
     // data for pinned view, i.e. View A
     var pinnedSize: CGSize? = nil // parent-affected size etc.; read by a "Ghost View" that sits in normal, expected place in hierarchy
     var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of GeneratePreview
-    
-    // TODO: use `PortValue.sizingScenario` and retrieve from actual
-//    var sizingScenario: SizingScenario = .constrainHeight
+
+    // Determined when we create LayerType from raw sidebar layers; then passed on when we create LayerData from LayerType;
+    // "Are we PinnedViewA or GhostViewA?"
+//    var pinnedViewType: PinnedViewType? = nil
+
     
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.

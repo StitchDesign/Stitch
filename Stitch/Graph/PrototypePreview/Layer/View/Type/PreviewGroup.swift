@@ -176,7 +176,7 @@ struct PreviewGroupLayer: View {
     private var groupLayer: some View {
         PreviewLayersView(graph: graph,
                           layers: layersInGroup, 
-                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+//                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                           // This Group's size will be the `parentSize` for the `layersInGroup`
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,

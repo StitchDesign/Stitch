@@ -9,12 +9,93 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+
+
+
+
+/* --------------- */
+
+/*
+ Oval A
+ pinTo input: [B, B, C]
+ i.e. "pin A to B", "pin A to B," "pin A to C" -> 3 layer view models
+ 
+ i.e. 
+ "pin A Loop Index 0 to B",
+ "pin A Loop Index 1 to B",
+ "pin A Loop Index 2 to C"
+ = 3 layer view models total
+ 
+ 
+ 
+ e.g. color input: [Red, Blue, Green] -> 3 layer view models
+ 
+ 3 layer view models (2 are pinned to B, 1 is pinned to C)
+ */
+
+
+/*
+ START
+ 
+ Oval A
+ 
+ Group 1
+ - B
+ 
+ Group 2
+ - C
+
+ RESULTING SIDEBAR LAYER DATA LIST ?
+ [
+    A,
+    Group 1 { children: [B, A] }
+    Group 2 { children: [C, A] }
+ ]
+ */
+
+
+/*
+ WANT
+ 
+ Oval A
+ 
+ Group 1
+ - B, A
+ 
+ Group 2
+ - C, A
+ */
+
+/*
+ start with A, is it pinned to any views?
+ */
+
+/*
+ []
+ */
+
+
+/*
+ Raw side bar order (nested, but no notion of loops)
+ 
+ LayerType set/list (nested + notion of loops)
+ 
+ 
+ LayerDataList
+ */
+
+
 extension VisibleNodesViewModel {
     
     /// Recursively creates a sorted list of layers.
+    ///
+    
+    // NEEDS TO TAKE A PIN-MAP
     @MainActor
     func recursivePreviewLayers(sidebarLayers: SidebarLayerList) -> LayerDataList {
         // let layerIdsInHierarchy = sidebarLayers.map { $0.id.asLayerNodeId }
+        
+        let pinMap: PinMap = self.getPinMap()
         
         var layerTypesAtThisLevel = LayerTypeSet()
         var handled = LayerIdSet()
@@ -28,12 +109,16 @@ extension VisibleNodesViewModel {
                     layerTypesAtThisLevel: layerTypesAtThisLevel,
                     handled: handled,
                     sidebarLayers: sidebarLayers,
-                    layerNodes: self.layerNodes)
+                    layerNodes: self.layerNodes,
+                    pinMap: pinMap)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(newLayerTypesAtThisLevel)
             handled = handled.union(newLayersUsedAsMaskers)
         }
-               
+        
+        // TODO: at proper hierarchy level, insert
+        
+        
         // log("recursivePreviewLayers: DONE GETTING ALL LAYER TYPES: \(layerTypesAtThisLevel)")
         
         // Sorting comparator
@@ -52,6 +137,11 @@ extension VisibleNodesViewModel {
                 // Larger sidebar indices should be higher in stack
                 
                 // ^^ no, it's the opposite, right? The first item in the ordered sidebar will have index=0 but should actually be on top ?
+                //
+                // Depends on ZStack vs VStack
+                // - ZStack: smallest index = bottom of stack, largest index = top of stack
+                // - VStack: smallest index = top of column, largest index = bottom of column
+                // - HStack: smallest index = far left of row, largest index = far right of row
                 return lhsSidebarIndex > rhsSidebarIndex
             }
             
@@ -65,7 +155,7 @@ extension VisibleNodesViewModel {
             self.getLayerDataFromLayerType(layerType, layerNodes: self.layerNodes)
         }
         
-//        log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
+        log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
         return sortedLayerDataList
     }
@@ -73,7 +163,10 @@ extension VisibleNodesViewModel {
     @MainActor
     func getLayerDataFromLayerType(_ layerType: LayerType,
                                    layerNodes: NodesViewModelDict) -> LayerData? {
-
+        
+        log("getLayerDataFromLayerType: on layerType: \(layerType.layer)")
+        log("getLayerDataFromLayerType: on layerType pinnedViewType: \(layerType.pinnedViewType)")
+        
         switch layerType {
 
         case .mask(masked: let masked, masker: let masker):
@@ -89,47 +182,102 @@ extension VisibleNodesViewModel {
                          masker: maskerLayerData)
             
         case .nongroup(let data): // LayerData
-            guard let previewLayer = layerNodes.get(data.id.layerNodeId.id)?
-                .layerNode?.previewLayerViewModels[safe: data.id.loopIndex] else {
+            guard let previewLayer: LayerViewModel = layerNodes
+                .get(data.id.layerNodeId.id)?
+                .layerNode?
+                .previewLayerViewModels[safe: data.id.loopIndex] else {
+                
                 return nil
             }
-            return .nongroup(previewLayer)
+            
+//            log("getLayerDataFromLayerType: previewLayer.pinnedViewType was: \(previewLayer.pinnedViewType)")
+//            
+//            // Pass the pinned-view-type from the LayerType to the LayerViewModel
+//            previewLayer.pinnedViewType = layerType.pinnedViewType
+//            log("getLayerDataFromLayerType: previewLayer.pinnedViewType is now: \(previewLayer.pinnedViewType)")
+            
+            return .nongroup(previewLayer, 
+                             isPinnedView: layerType.pinnedViewType == .pinnedView)
 
         case .group(let layerGroupData): // LayerGroupData
-            guard let previewLayer = layerNodes.get(layerGroupData.id.layerNodeId.asNodeId)?
-                .layerNode?.previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
+            guard let previewLayer: LayerViewModel = layerNodes
+                .get(layerGroupData.id.layerNodeId.asNodeId)?
+                .layerNode?
+                .previewLayerViewModels[safe: layerGroupData.id.loopIndex] else {
+                
                 return nil
             }
 
+            // Pass the pinned-view-type from the LayerType to the LayerViewModel
+//            previewLayer.pinnedViewType = layerType.pinnedViewType
+            
             // Recursively call on group data
+            // TODO: we start the recursion all over again here? do we need to pass on the same pinMap?
             let childrenData = self.recursivePreviewLayers(
                 sidebarLayers: layerGroupData.childrenSidebarLayers)
 
-            return .group(previewLayer, childrenData)
+            return .group(previewLayer, 
+                          childrenData,
+                          isPinnedView: layerType.pinnedViewType == .pinnedView)
         }
     }
 }
+
+/*
+ LayerType list / ordered-set
+ 
+ "A is pinned on top of B"
+ 
+ [
+    LayerType,
+    LayerType
+        children: [
+            LayerType, <-- for B
+            LayerType
+            LayerType <-- for A; inserted when we iterated over B
+        ],
+    LayerType <-- for A; the "ghost view"
+ ]
+ 
+ 
+ */
 
 // TODO: should SidebarLayerData be an enum on children (can be empty list) vs no-children ?
 // TODO: rename `SidebarLayerData` to `SidebarLayer` ?
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
-                                       layerNodes: NodesViewModelDict) -> LayerTypeSet {
+                                       layerNodes: NodesViewModelDict,
+                                       // "A is pinned on top of B," "D is pinned on top of B"
+//                                       // B -> A i.e. "pin-receiving layer -> pinned layer"
+//                                       
+//                                       /*
+//                                        Oval A has pinTo input = [B, B, C]
+//                                        
+//                                        pinMap will be [
+//                                            B: { A },
+//                                            C: { A }
+//                                        ]
+//                                        */
+//                                       
+//                                       pinMap: [LayerNodeId: LayerIdSet]
+                                       isPinnedView: Bool
+) -> LayerTypeSet {
         
     guard let layerNode = layerNodes.get(layerData.id)?.layerNode else {
         // Can happen when we e.g. ungroup a layer
         // fatalErrorIfDebug("Could not find layer node for sidebar layer \(layerData.id)")
         return .init()
     }
-    
+        
     if let children = layerData.children {
         let layerTypes: LayerTypeSet = layerNode.previewLayerViewModels
-            .map {
-                .group(.init(id: $0.id,
-                             zIndex: $0.zIndex.getNumber ?? .zero,
-                             sidebarIndex: sidebarIndex,
-                             childrenSidebarLayers: children,
-                             layer: layerNode.layer))
+            .map { layerViewModel in
+                    .group(.init(id: layerViewModel.id,
+                                 zIndex: layerViewModel.zIndex.getNumber ?? .zero,
+                                 sidebarIndex: sidebarIndex,
+                                 childrenSidebarLayers: children,
+                                 layer: layerNode.layer, 
+                                 pinnedViewType: isPinnedView ? .pinnedView : nil))
             }
             .toOrderedSet
         
@@ -140,11 +288,12 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     else {
         let layerTypes: LayerTypeSet = layerNode.previewLayerViewModels
             .reversed() // Reverse loop's layer view models, for default "ZStack" case
-            .map {
-                .nongroup(.init(id: $0.id,
-                                zIndex: $0.zIndex.getNumber ?? .zero,
+            .map { layerViewModel in
+                .nongroup(.init(id: layerViewModel.id,
+                                zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                 sidebarIndex: sidebarIndex,
-                                layer: layerNode.layer))
+                                layer: layerNode.layer,
+                                pinnedViewType: isPinnedView ? .pinnedView : nil))
             }
             .toOrderedSet
         
@@ -160,23 +309,24 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            layerTypesAtThisLevel: LayerTypeSet, // i.e. acc
                            handled: LayerIdSet, // i.e. acc2
                            sidebarLayers: SidebarLayerList, // raw sidebar layers
-                           layerNodes: NodesViewModelDict) -> (LayerTypeSet,
-                                                               // layers used as masks
-                                                               // TODO: not needed anymore?
-                                                               LayerIdSet) {
+                           layerNodes: NodesViewModelDict,
+                           pinMap: PinMap) -> (LayerTypeSet,
+                                               // layers used as masks
+                                               // TODO: not needed anymore?
+                                               LayerIdSet) {
     
     var layerTypesAtThisLevel = layerTypesAtThisLevel
     var handled = handled
     
-//    log("recursivePreviewLayers: on sidebarIndex \(sidebarIndex)")
-//    log("recursivePreviewLayers: layerData id: \(layerData.id)")
-//    log("recursivePreviewLayers: layerTypesAtThisLevel: \(layerTypesAtThisLevel)")
+    log("handleRawSidebarLayer: on sidebarIndex \(sidebarIndex)")
+    log("handleRawSidebarLayer: layerData id: \(layerData.id)")
+    log("handleRawSidebarLayer: layerTypesAtThisLevel: \(layerTypesAtThisLevel)")
     
     guard !handled.contains(layerData.id.asLayerNodeId) else {
-        // log("recursivePreviewLayers: this layerData was already handled, returning early")
+        // log("handleRawSidebarLayer: this layerData was already handled, returning early")
         return (layerTypesAtThisLevel, handled)
     }
-    
+        
     // if this sidebar layer has a masker, the masker's index will be *immediately* below
     let maskerSidebarIndex = sidebarIndex + 1
     let maskerLayerData: SidebarLayerData? = sidebarLayers[safe: maskerSidebarIndex]
@@ -200,14 +350,15 @@ func handleRawSidebarLayer(sidebarIndex: Int,
     if hasMask,
        let maskerLayerData = maskerLayerData {
         
-//         log("recursivePreviewLayers: HAD MASKER BELOW")
-//         log("recursivePreviewLayers: maskerLayerData \(maskerLayerData.id)")
+        log("handleRawSidebarLayer: HAD MASKER BELOW")
+        log("handleRawSidebarLayer: maskerLayerData \(maskerLayerData.id)")
         
         // Note: a given masked/masker view might be a loop, so we get back not 1 but a list of LayerTypes
         let masked = getLayerTypesFromSidebarLayerData(
             layerData,
             sidebarIndex: sidebarIndex,
-            layerNodes: layerNodes)
+            layerNodes: layerNodes,
+            isPinnedView: false)
         
         // this masked view has now been handled
         handled.insert(layerData.id.asLayerNodeId)
@@ -219,7 +370,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             layerTypesAtThisLevel: .init(), // each mask-recur-level has own layer types
             handled: handled, // ... but a given layer can only appear at a single mask-recur-level
             sidebarLayers: sidebarLayers,
-            layerNodes: layerNodes)
+            layerNodes: layerNodes,
+            pinMap: pinMap)
         
         handled = handled.union(acc2)
                 
@@ -235,30 +387,89 @@ func handleRawSidebarLayer(sidebarIndex: Int,
     
     // WE DID NOT HAVE A MASKER FOR THIS SIDEBAR LAYER
     else {
-//         log("recursivePreviewLayers: DID NOT HAVE MASKER BELOW")
+         log("handleRawSidebarLayer: DID NOT HAVE MASKER BELOW")
         
         if !handled.contains(layerData.id.asLayerNodeId) {
             
             let layerTypesFromThisSidebar = getLayerTypesFromSidebarLayerData(
                 layerData,
                 sidebarIndex: sidebarIndex,
-                layerNodes: layerNodes)
+                layerNodes: layerNodes,
+                isPinnedView: false)
             
-            //             log("recursivePreviewLayers: layerTypesFromThisSidebar: \(layerTypesFromThisSidebar)")
-            //             log("recursivePreviewLayers: layerTypesFromThisSidebar.count: \(layerTypesFromThisSidebar.count)")
+            log("handleRawSidebarLayer: layerTypesFromThisSidebar: \(layerTypesFromThisSidebar)")
+            log("handleRawSidebarLayer: layerTypesFromThisSidebar.count: \(layerTypesFromThisSidebar.count)")
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisSidebar)
             
             handled.insert(layerData.id.asLayerNodeId)
+            
+            // Does this layer have other layers pinned to it?
+            // e.g. in the "A is pinned on top of B" scenario, B has A as a pinned view.
+            // TODO: how does this work with masking?
+            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
+                
+                pinnedViews.forEach { (pinnedView: LayerNodeId) in
+                    // `.get` uses
+                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
+                        
+                        log("handleRawSidebarLayer: had pinned views for \(layerData.id): \(pinnedViews)")
+                        
+                        // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
+                        let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
+                            
+                            // use the layer data for the pinned view A, not the pin-receiving view B
+                            layerDataForPinnedView, // layerData,
+                            
+                            /*
+                             Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
+                             
+                             Group 1
+                                - B
+                             Group 2
+                                - C
+                                - Q
+                             A
+                             
+                             Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
+                             */
+                            sidebarIndex: sidebarIndex,
+                            
+                            // unchanged
+                            layerNodes: layerNodes,
+                            
+                            isPinnedView: true
+                            
+//                            // unchanged, right? doesn't need to be modified etc.
+//                            pinMap: pinMap
+                        )
+                        
+                        log("handleRawSidebarLayer: layer types from this pinned view \(pinnedView.id) were \(layerTypesFromThisPinnedView)")
+                            
+                        layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisPinnedView)
+                    } else {
+                        log("handleRawSidebarLayer: no pinned views for \(layerData.id)")
+                    }
+                    
+                    
+                } // pinnedViews.forEach
+                
+                // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
+                
+            }
+            
+            
+            
+            
         }
-//        else {
-//            log("recursivePreviewLayers: skipping this layerData since it was already used as a masker: handled: \(handled)")
-//        }
+        else {
+            log("handleRawSidebarLayer: skipping this layerData since it was already used as a masker: handled: \(handled)")
+        }
         
     } // else
     
-//    log("recursivePreviewLayers: done: layerTypesAtThisLevel for sidebar index \(sidebarIndex): \(layerTypesAtThisLevel)")
-//    log("recursivePreviewLayers: done: handled for sidebar index \(sidebarIndex): \(handled)")
+    log("handleRawSidebarLayer: done: layerTypesAtThisLevel for sidebar index \(sidebarIndex): \(layerTypesAtThisLevel)")
+    log("handleRawSidebarLayer: done: handled for sidebar index \(sidebarIndex): \(handled)")
     
     return (layerTypesAtThisLevel, handled)
 }

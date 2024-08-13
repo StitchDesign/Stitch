@@ -34,7 +34,16 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     func body(content: Content) -> some View {
         content
 //            .opacity(isGhostView ? 0.1 : 1) // added
-            .opacity(isGhostView ? 0 : 1) // added
+            
+            //
+//            .opacity(isGhostView ? 0 : 1)
+        
+        // TODO: why is some non-zero opacity required ?
+            .opacity(isGhostView ? 0.1 : 1) // added
+            .offset(x: isGhostView ? 100 : 0) // added
+        
+        
+//            .opacity(isGhostView ? 0.001 : 1) // added
             .background {
                 GeometryReader { geometry in
                     Color.clear.onChange(of: geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)),
@@ -58,7 +67,14 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                             // Else, if we're not at the top level,
                             // then we read the "pinned size"
                             else {
-                                log("PreviewWindowCoordinateSpaceReader: pinned but not at top level")
+                                log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
+                                if newValue.width.isNaN || newValue.height.isNaN {
+//                                    log("Had NaN, will not set size")
+                                    log("Had NaN, will use fake size")
+                                    viewModel.pinnedSize = .init(width: 200, height: 200)
+                                    return
+                                }
+                                
                                 viewModel.pinnedSize = newValue.size
                             }
                         }
