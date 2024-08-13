@@ -148,6 +148,7 @@ extension InputLayerNodeRowData {
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
                 nodeDelegate: NodeDelegate? = nil) {
+        self.rowObserver.id.nodeId = nodeId
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
         if let canvas = schema.canvasItem {
@@ -193,6 +194,7 @@ extension LayerInputObserver {
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
 
+        self.port = layerInputType
         self.mode = schema.mode
         
         // Updated packed data

@@ -1127,7 +1127,7 @@ extension LayerInputType {
         
         switch self.portType {
         case .packed:
-            return \.positionPort._packedData
+            return portKeyPath.appending(path: \._packedData)
         case .unpacked(let unpackedType):
             switch unpackedType {
             case .port0:

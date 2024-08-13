@@ -75,7 +75,7 @@ protocol NodeDelegate: AnyObject {
                                            activeIndex: ActiveIndex)
     
     @MainActor func blockOrUnblockFields(newValue: PortValue,
-                                         layerInput: LayerInputType)
+                                         layerInput: LayerInputPort)
     
     @MainActor func calculate()
 }

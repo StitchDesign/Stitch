@@ -16,7 +16,7 @@ extension NodeViewModel {
     // When a PortValue changes, we may need to block or unblock certain
     @MainActor
     func blockOrUnblockFields(newValue: PortValue,
-                              layerInput: LayerInputType) {
+                              layerInput: LayerInputPort) {
         
         if !self.kind.isLayer {
             log("blockOrUnblockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
@@ -31,7 +31,7 @@ extension NodeViewModel {
         case .size(let x):
             // Update when .size changed,
             // but not .minSize, .maxSize inputs
-            if layerInput.layerInput == .size {
+            if layerInput == .size {
                 self.layerSizeUpdated(newValue: x)
             }
         case .sizingScenario(let x):

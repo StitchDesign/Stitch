@@ -150,7 +150,7 @@ final class LayerInputObserver {
     var _unpackedData: LayerInputUnpackedPortObserver
     
     let layer: Layer
-    let port: LayerInputPort
+    var port: LayerInputPort
     var mode: LayerInputMode = .packed
     
     @MainActor
@@ -725,10 +725,6 @@ extension LayerNodeViewModel: SchemaObserver {
 extension LayerNodeViewModel {
     @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
-        let graphNode = self.layer.layerGraphNode
-        let rowDefinitions = NodeKind.layer(self.layer)
-            .rowDefinitions(for: nil)
-        
         self.nodeDelegate = node
         
         // Set up outputs
@@ -737,9 +733,14 @@ extension LayerNodeViewModel {
         }
         
         // Set up inputs
-        for inputType in graphNode.inputDefinitions {
-            let layerData = self[keyPath: inputType.layerNodeKeyPath]
-            layerData.initializeDelegate(node)
+        self.forEachInput { layerInput in
+            layerInput.initializeDelegate(node)
+        }
+        
+        // Set blocked fields after all fields have been initialized
+        self.forEachInput { layerInput in
+            node.blockOrUnblockFields(newValue: layerInput.activeValue,
+                                      layerInput: layerInput.port)
         }
     }
     

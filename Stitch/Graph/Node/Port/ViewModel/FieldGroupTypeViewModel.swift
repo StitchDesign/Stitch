@@ -179,13 +179,6 @@ extension NodeRowViewModel {
         zip(self.fieldValueTypes, fieldValuesList).forEach { fieldObserverGroup, fieldValues in
             fieldObserverGroup.updateFieldValues(fieldValues: fieldValues)
         }
-        
-        if let node = self.nodeDelegate,
-           let layerInput = self.rowDelegate?.id.portType.keyPath {
-            node.blockOrUnblockFields(newValue: portValue,
-                                     layerInput: layerInput)
-        }
-        
     }
 }
 
