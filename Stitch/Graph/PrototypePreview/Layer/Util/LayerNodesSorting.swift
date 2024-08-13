@@ -420,12 +420,16 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                     
                     log("handleRawSidebarLayer: handling the view \(pinnedView) that is pinned to view \(layerData.id)")
                     
+                    
+                    
                     // `.get` uses
 //                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
                     if let layerDataForPinnedView = sidebarLayers.first(where: { $0.id == pinnedView.id
-                    }) {
+                    }),
+                       let sidebarIndexOfPinnedView = sidebarLayers.firstIndex(where: { $0.id == pinnedView.id } ) {
                         
                         log("handleRawSidebarLayer: layerDataForPinnedView: \(layerDataForPinnedView)")
+                        log("handleRawSidebarLayer: sidebarIndexOfPinnedView: \(sidebarIndexOfPinnedView)")
                         
                         // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
                         let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
@@ -445,7 +449,16 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                              
                              Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
                              */
-                            sidebarIndex: sidebarIndex,
+                            
+                            sidebarIndex: sidebarIndexOfPinnedView,
+                            
+//                            sidebarIndex: sidebarIndex,
+                            
+                            // A is always above B
+//                            sidebarIndex: sidebarIndex - 1, // treat the
+                            
+//                             A is always below B
+//                            sidebarIndex: sidebarIndex + 1, // treat the
                             
                             // unchanged
                             layerNodes: layerNodes,
@@ -467,15 +480,9 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                 } // pinnedViews.forEach
                 
                 // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
-                
-                
-                
             }
             
             handled.insert(layerData.id.asLayerNodeId)
-            
-            
-            
             
         }
         else {
