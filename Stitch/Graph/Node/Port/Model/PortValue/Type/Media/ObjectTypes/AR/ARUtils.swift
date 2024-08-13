@@ -25,12 +25,11 @@ extension Transform {
         let position = SIMD3([positionX, positionY, positionZ])
         let scale = SIMD3([scaleX, scaleY, scaleZ])
         
-        // MARK: we swap Y with X, hack but works
-        let rotation = SIMD3([rotationY, rotationX, rotationZ])
-
+        let rotation = SIMD3([rotationZ, rotationY, rotationX])
+        
         let matrix = simd_float4x4(position: position,
                                    scale: scale,
-                                   rotation: rotation)
+                                   rotationZYX: rotation)
         
         return .init(matrix: matrix)
     }
@@ -46,34 +45,34 @@ extension StitchMatrix: Hashable {
     }
 }
 
-extension StitchMatrix {
-    var position: SCNVector3 {
-        SCNVector3(columns.3.x, columns.3.y, columns.3.z)
-    }
-
-    var orientation: simd_quatf {
-        simd_quaternion(self)
-    }
-
-    var rotation: simd_quatf {
-        let qw = sqrt(1 + columns.0.x + columns.1.y + columns.2.z) / 2
-        let qx = (columns.2.y - columns.1.z) / (4 * qw)
-        let qy = (columns.0.z - columns.2.x) / (4 * qw)
-        let qz = (columns.1.x - columns.0.y) / (4 * qw)
-        return simd_quatf(ix: qx, iy: qy, iz: qz, r: qw)
-    }
-
-    var scale: SCNVector3 {
-        get {
-            SCNVector3(columns.0.x, columns.1.y, columns.2.z)
-        }
-        set(newvalue) {
-            self.columns.0.x = newvalue.x
-            self.columns.1.y = newvalue.y
-            self.columns.2.z = newvalue.z
-        }
-    }
-}
+//extension StitchMatrix {
+//    var position: SCNVector3 {
+//        SCNVector3(columns.3.x, columns.3.y, columns.3.z)
+//    }
+//
+//    var orientation: simd_quatf {
+//        simd_quaternion(self)
+//    }
+//
+//    var rotation: simd_quatf {
+//        let qw = sqrt(1 + columns.0.x + columns.1.y + columns.2.z) / 2
+//        let qx = (columns.2.y - columns.1.z) / (4 * qw)
+//        let qy = (columns.0.z - columns.2.x) / (4 * qw)
+//        let qz = (columns.1.x - columns.0.y) / (4 * qw)
+//        return simd_quatf(ix: qx, iy: qy, iz: qz, r: qw)
+//    }
+//
+//    var scale: SCNVector3 {
+//        get {
+//            SCNVector3(columns.0.x, columns.1.y, columns.2.z)
+//        }
+//        set(newvalue) {
+//            self.columns.0.x = newvalue.x
+//            self.columns.1.y = newvalue.y
+//            self.columns.2.z = newvalue.z
+//        }
+//    }
+//}
 
 extension SCNVector3 {
     static func==(lhs: SCNVector3, rhs: SCNVector3) -> Bool {
