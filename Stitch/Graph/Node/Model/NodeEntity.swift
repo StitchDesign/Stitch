@@ -50,14 +50,22 @@ extension NodeEntity {
             patch.canvasEntity = callback(patch.canvasEntity)
             self.nodeTypeEntity = .patch(patch)
         case .layer(var layer):
-            // TODO: come back to copying to determine how we should map back to layer entity
-            fatalError()
-//            layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
-//                layer[keyPath: layerInput.schemaPortKeyPath].canvasItems.forEach { canvas in
-//                    let newCanvas = callback(canvas)
-//                    layer[keyPath: layerInput.schemaPortKeyPath].canvasItem = newCanvas
-//                }
-//            }
+            // Update packed and unpacked canvas items, if they exist
+            layer.layer.layerGraphNode.inputDefinitions.forEach { layerInput in
+                var inputPortSchema = layer[keyPath: layerInput.schemaPortKeyPath]
+                
+                if let packedCanvas = inputPortSchema.packedData.canvasItem {
+                    inputPortSchema.packedData.canvasItem = callback(packedCanvas)
+                }
+                
+                inputPortSchema.unpackedData = inputPortSchema.unpackedData.map { unpackedData in
+                    var unpackedData = unpackedData
+                    if let canvas = unpackedData.canvasItem {
+                        unpackedData.canvasItem = callback(canvas)
+                    }
+                    return unpackedData
+                }
+            }
             
             self.nodeTypeEntity = .layer(layer)
         case .group(let canvas):
