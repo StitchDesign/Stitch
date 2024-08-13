@@ -30,8 +30,6 @@ extension simd_quatf {
     }
 }
 
-
-
 // Extension to create a 4x4 rotation matrix from Euler angles
 extension simd_float4x4 {
     var upperLeft3x3: simd_float3x3 {
@@ -78,7 +76,6 @@ extension simd_float4x4 {
         return angles
     }
 
-
     // Initialize from a 3x3 rotation matrix
     init(_ rotationMatrix: simd_float3x3) {
         self.init(
@@ -111,14 +108,18 @@ extension simd_float4x4 {
             SIMD3<Float>(columns.2.x, columns.2.y, columns.2.z) / scale.z
         )
     }
-
-    
     var orientation: simd_quatf {
         simd_quaternion(self)
     }
-
-
-    // New method to extract rotation in radians
+    
+    var rotation: simd_quatf {
+        let qw = sqrt(1 + columns.0.x + columns.1.y + columns.2.z) / 2
+        let qx = (columns.2.y - columns.1.z) / (4 * qw)
+        let qy = (columns.0.z - columns.2.x) / (4 * qw)
+        let qz = (columns.1.x - columns.0.y) / (4 * qw)
+        return simd_quatf(ix: qx, iy: qy, iz: qz, r: qw)
+    }
+    
     var rotationInRadians: SIMD3<Float> {
         let rotMatrix = rotationMatrix
         var angles = SIMD3<Float>()
