@@ -42,29 +42,29 @@ struct TextLayerNode: LayerNodeDefinition {
     static let layer = Layer.text
 
     static let inputDefinitions: LayerInputTypeSet = .init([
-//        .text,
-//        .color,
-        .position
-//        .rotationX,
-//        .rotationY,
-//        .rotationZ,
-//        .size,
-//        .opacity,
-//        .scale,
-//        .anchoring,
-//        .zIndex,
-//        .pivot,
-//        .masks,
-//        .shadowColor,
-//        .shadowOpacity,
-//        .shadowRadius,
-//        .shadowOffset
+        .text,
+        .color,
+        .position,
+        .rotationX,
+        .rotationY,
+        .rotationZ,
+        .size,
+        .opacity,
+        .scale,
+        .anchoring,
+        .zIndex,
+        .pivot,
+        .masks,
+        .shadowColor,
+        .shadowOpacity,
+        .shadowRadius,
+        .shadowOffset
     ])
-//    .union(.layerEffects)
-//    .union(.strokeInputs)
-//    .union(.typography)
-//    .union(.aspectRatio)
-//    .union(.sizing)
+    .union(.layerEffects)
+    .union(.strokeInputs)
+    .union(.typography)
+    .union(.aspectRatio)
+    .union(.sizing)
     
     
     

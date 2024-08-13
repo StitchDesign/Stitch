@@ -57,9 +57,12 @@ extension LayerInputUnpackedPortObserver {
     }
     
     @MainActor
-    var allPorts: [InputLayerNodeRowData] {
+    var allPorts: [InputLayerNodeRowData] {        
         guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
-            fatalErrorIfDebug("API used for port which doesn't support unpacking")
+            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                // TODO: ignore unpacked ports until we support unpacking
+                fatalErrorIfDebug("API used for port which doesn't support unpacking")
+            }
             return []
         }
         

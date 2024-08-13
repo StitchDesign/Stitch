@@ -21,11 +21,14 @@ struct LayerInspectorInputPortView: View {
             switch portObserver.observerMode {
             case .packed(let inputLayerNodeRowData):
                 HStack {
-                    Button {
-                        self.portObserver.toggleMode()
-                    } label: {
-                        Text("Unpack")
+                    if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                        Button {
+                            self.portObserver.toggleMode()
+                        } label: {
+                            Text("Unpack")
+                        }
                     }
+                    
                     LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
                                            rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
                                            rowObserver: inputLayerNodeRowData.rowObserver,
@@ -45,10 +48,12 @@ struct LayerInspectorInputPortView: View {
                 
             case .unpacked(let unpackedPortObserver):
                 HStack {
-                    Button {
-                        self.portObserver.toggleMode()
-                    } label: {
-                        Text("Pack")
+                    if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                        Button {
+                            self.portObserver.toggleMode()
+                        } label: {
+                            Text("Pack")
+                        }
                     }
                     
                     ForEach(unpackedPortObserver.allPorts) { unpackedPort in
