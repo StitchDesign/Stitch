@@ -233,6 +233,8 @@ func point4DUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Po
 func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) {
     if let value = values.first, // only one input port
        let matrix = value.getMatrix {
+        let eulerAngles = matrix.eulerAngles
+
         return (
             .number(Double(matrix.position.x)),
             .number(Double(matrix.position.y)),
@@ -240,9 +242,9 @@ func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Por
             .number(Double(matrix.scale.x)),
             .number(Double(matrix.scale.y)),
             .number(Double(matrix.scale.z)),
-            .number(Double(matrix.rotationInRadians.x)),
-            .number(Double(matrix.rotationInRadians.y)),
-            .number(Double(matrix.rotationInRadians.z)),
+            .number(Double(eulerAngles.x)),
+            .number(Double(eulerAngles.y)),
+            .number(Double(eulerAngles.z)),
             .number(Double(0.0))
         )
     } else {
