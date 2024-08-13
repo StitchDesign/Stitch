@@ -25,9 +25,9 @@ indirect enum LayerType: Equatable, Hashable {
 
 /// Data type used for getting sorted data in views.
 indirect enum LayerData {
-    case nongroup(LayerViewModel, isPinnedView: Bool)
+    case nongroup(LayerViewModel, isPinnedView: Bool, pinnedId: UUID)
 //    case nongroup(LayerViewModel)
-    case group(LayerViewModel, LayerDataList, isPinnedView: Bool)
+    case group(LayerViewModel, LayerDataList, isPinnedView: Bool, pinnedId: UUID)
 //    case group(LayerViewModel, LayerDataList)
     case mask(masked: LayerDataList, masker: LayerDataList)
 }
@@ -150,41 +150,56 @@ struct LayerDataId: Equatable, Hashable, Codable {
 }
 
 extension LayerData: Identifiable {
-//    var id: PreviewCoordinate {
-//        self.layer.id
-//    }
+    var id: PreviewCoordinate {
+        self.layer.id
+    }
 
-    var id: LayerDataId {
+//    var id: LayerDataId {
+//        LayerDataId(coordinate: self.layer.id,
+//                    isPinned: self.isPinned)
+//    }
+    var layerDataId: LayerDataId {
         LayerDataId(coordinate: self.layer.id,
                     isPinned: self.isPinned)
     }
 
-    
     var groupDataList: LayerDataList? {
         switch self {
         case .nongroup, .mask:
             return nil
-        case .group(_, let layerDataList, _):
+        case .group(_, let layerDataList, _, _):
             return layerDataList
         }
     }
 
     var isPinned: Bool {
         switch self {
-        case .nongroup(_, let isPinned):
+        case .nongroup(_, let isPinned, _):
             return isPinned
-        case .group(_, _, let isPinned):
+        case .group(_, _, let isPinned, _):
             return isPinned
         case .mask:
             return false
         }
     }
     
+    var pinnedId: UUID {
+        switch self {
+        case .nongroup(_, _, let pinnedId):
+            return pinnedId
+        case .group(_, _, _, let pinnedId):
+            return pinnedId
+        case .mask:
+            fatalErrorIfDebug()
+            return .init()
+        }
+    }
+    
     var layer: LayerViewModel {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(let layer, _, _):
             return layer
-        case .group(let layer, _, _):
+        case .group(let layer, _, _, _):
             return layer
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
@@ -194,9 +209,9 @@ extension LayerData: Identifiable {
     
     var zIndex: CGFloat {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(let layer, _, _):
             return layer.zIndex.getNumber ?? .zero
-        case .group(let layer, _, _):
+        case .group(let layer, _, _, _):
             return layer.zIndex.getNumber ?? .zero
         case .mask(masked: let masked, masker: _):
             // TODO: is z-index for a LayerData really the first

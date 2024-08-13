@@ -197,7 +197,8 @@ extension VisibleNodesViewModel {
 //            log("getLayerDataFromLayerType: previewLayer.pinnedViewType is now: \(previewLayer.pinnedViewType)")
             
             return .nongroup(previewLayer, 
-                             isPinnedView: layerType.pinnedViewType == .pinnedView)
+                             isPinnedView: layerType.pinnedViewType == .pinnedView,
+                             pinnedId: .init())
 
         case .group(let layerGroupData): // LayerGroupData
             guard let previewLayer: LayerViewModel = layerNodes
@@ -218,7 +219,8 @@ extension VisibleNodesViewModel {
 
             return .group(previewLayer, 
                           childrenData,
-                          isPinnedView: layerType.pinnedViewType == .pinnedView)
+                          isPinnedView: layerType.pinnedViewType == .pinnedView,
+                          pinnedId: .init())
         }
     }
 }

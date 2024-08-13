@@ -205,14 +205,25 @@ struct PreviewLayersView: View {
             Spacer()
         }
         
-        ForEach(layersInProperOrder, id: \.id) { layerData in
-            logInView("PreviewLayerView: layerData \(layerData.layer) with layerData.id: \(layerData.id)")
+        logInView("PreviewLayerView: layersAsViews CALLED")
+        
+//        ForEach(layersInProperOrder, id: \.id) { layerData in
+//        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
+//        ForEach(layersInProperOrder, id: \.isPinned) { layerData in
+        
+        // Need identifier that distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
+        ForEach(layersInProperOrder, id: \.pinnedId) { layerData in
+//        ForEach(layersInProperOrder) { layerData in
+            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
+            logInView("PreviewLayerView: layerData.id \(layerData.id)")
+            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
+            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
+            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
+                      
+                      
             
             LayerDataView(graph: graph,
                           layerData: layerData,
-//                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-                          // Is Generated At Top level
-//                          isGeneratedAtTopLevel: layerData.isPinned,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
             
@@ -368,14 +379,14 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel, let isPinned):
+        case .nongroup(let layerViewModel, 
+                       let isPinned,
+                       _):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
-//                                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-//                                          isGeneratedAtTopLevel: layerViewModel.isPinnedView,
                                           isGeneratedAtTopLevel: isPinned,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
@@ -385,7 +396,8 @@ struct LayerDataView: View {
                         
         case .group(let layerViewModel,
                     let childrenData,
-                    let isPinned):
+                    let isPinned,
+                    _):
             
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
@@ -393,8 +405,6 @@ struct LayerDataView: View {
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
-//                                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-//                                       isGeneratedAtTopLevel: layerViewModel.isPinnedView,
                                        isGeneratedAtTopLevel: isPinned,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
