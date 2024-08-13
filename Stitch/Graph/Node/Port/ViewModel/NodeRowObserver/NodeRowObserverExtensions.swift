@@ -15,7 +15,8 @@ extension NodeRowObserver {
     func updateValues(_ newValues: PortValues) {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
-        if let layerId = self.id.keyPath,
+        if FeatureFlags.SUPPORTS_LAYER_UNPACK,
+           let layerId = self.id.keyPath,
            layerId.portType == .packed,
            let layerNode = self.nodeDelegate?.layerNodeViewModel {
             let layerInputPort = layerNode[keyPath: layerId.layerInput.layerNodeKeyPath]

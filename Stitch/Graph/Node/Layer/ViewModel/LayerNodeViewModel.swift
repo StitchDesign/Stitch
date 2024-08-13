@@ -43,6 +43,11 @@ final class LayerInputUnpackedPortObserver {
 extension LayerInputUnpackedPortObserver {
     @MainActor
     func getParentPortValuesList() -> PortValues {
+        // TODO: ignore unpacked ports until we support unpacking
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            return []
+        }
+        
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
         let lengthenedValues: PortValuesList = allRawValues.lengthenArrays()
         
@@ -58,11 +63,12 @@ extension LayerInputUnpackedPortObserver {
     
     @MainActor
     var allPorts: [InputLayerNodeRowData] {        
+        // TODO: ignore unpacked ports until we support unpacking
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            return []
+        }
+
         guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
-            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                // TODO: ignore unpacked ports until we support unpacking
-                fatalErrorIfDebug("API used for port which doesn't support unpacking")
-            }
             return []
         }
         
@@ -591,17 +597,19 @@ final class LayerNodeViewModel {
                                             portType: .packed)
             
             // Check for ports which support unpacked state
-            if let unpackedPortCount = layerInputPort.unpackedPortCount(layer: self.layer) {
-                (0..<unpackedPortCount).forEach { unpackedPortId in
-                    guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
-                        fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")
-                        return
+            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                if let unpackedPortCount = layerInputPort.unpackedPortCount(layer: self.layer) {
+                    (0..<unpackedPortCount).forEach { unpackedPortId in
+                        guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
+                            fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")
+                            return
+                        }
+                        
+                        // Initialize unpacked port
+                        self.preinitializeSupportedPort(layerInputPort: layerInputPort,
+                                                        portType: .unpacked(unpackedPortType))
                     }
-                    
-                    // Initialize unpacked port
-                    self.preinitializeSupportedPort(layerInputPort: layerInputPort,
-                                                    portType: .unpacked(unpackedPortType))
-                }
+                }                
             }
         }
         

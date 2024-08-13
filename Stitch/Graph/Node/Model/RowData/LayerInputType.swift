@@ -26,6 +26,11 @@ extension LayerInputType {
             return defaultPackedValue
                     
         case .unpacked(let unpackedType):
+            if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                // TODO: ignore packing logic below for until feature is supported
+                return .none
+            }
+            
             guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
                 if FeatureFlags.SUPPORTS_LAYER_UNPACK {
                     // TODO: unpackValues caller needs to be fixed when removing feature flag
@@ -1059,6 +1064,11 @@ extension LayerInputPort {
     /// Converts port data from an unpacked state into a packed state.
     func packValues(from values: PortValues,
                     layer: Layer) -> PortValue {
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            fatalErrorIfDebug("Shouldn't have been called.")
+            return .none
+        }
+
         // Not relevant for all nodes
         guard let unpackedPortCount = self.unpackedPortCount(layer: layer) else {
             fatalErrorIfDebug("Shouldn't have been called for this port: \(self)")
@@ -1084,6 +1094,11 @@ extension LayerInputPort {
     /// Converts port data from unpacked state to packed state.
     /// Optional because not all ports support this.
     func unpackValues(from value: PortValue) -> PortValues? {
+        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
+            fatalErrorIfDebug("Shouldn't have been called.")
+            return []
+        }
+        
         switch self {
         case .position:
             guard let position = value.getPosition else {
