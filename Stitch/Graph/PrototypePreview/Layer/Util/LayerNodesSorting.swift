@@ -249,21 +249,7 @@ extension VisibleNodesViewModel {
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
                                        layerNodes: NodesViewModelDict,
-                                       // "A is pinned on top of B," "D is pinned on top of B"
-//                                       // B -> A i.e. "pin-receiving layer -> pinned layer"
-//                                       
-//                                       /*
-//                                        Oval A has pinTo input = [B, B, C]
-//                                        
-//                                        pinMap will be [
-//                                            B: { A },
-//                                            C: { A }
-//                                        ]
-//                                        */
-//                                       
-//                                       pinMap: [LayerNodeId: LayerIdSet]
-                                       isPinnedView: Bool
-) -> LayerTypeSet {
+                                       isPinnedView: Bool) -> LayerTypeSet {
         
     guard let layerNode = layerNodes.get(layerData.id)?.layerNode else {
         // Can happen when we e.g. ungroup a layer
@@ -420,13 +406,16 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                     
                     log("handleRawSidebarLayer: handling the view \(pinnedView) that is pinned to view \(layerData.id)")
                     
+                    let _sidebarIndexOfPinnedView = sidebarLayers.firstIndex(where: { $0.id == pinnedView.id } )
                     
+                    log("handleRawSidebarLayer: _sidebarIndexOfPinnedView: \(_sidebarIndexOfPinnedView)")
+                    
+                    let sidebarIndexOfPinnedView = _sidebarIndexOfPinnedView ?? .zero
                     
                     // `.get` uses
 //                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
                     if let layerDataForPinnedView = sidebarLayers.first(where: { $0.id == pinnedView.id
-                    }),
-                       let sidebarIndexOfPinnedView = sidebarLayers.firstIndex(where: { $0.id == pinnedView.id } ) {
+                    }) {
                         
                         log("handleRawSidebarLayer: layerDataForPinnedView: \(layerDataForPinnedView)")
                         log("handleRawSidebarLayer: sidebarIndexOfPinnedView: \(sidebarIndexOfPinnedView)")
