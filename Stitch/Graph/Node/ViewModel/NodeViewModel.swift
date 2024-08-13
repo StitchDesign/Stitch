@@ -91,11 +91,7 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: NodeCalculatable {
-    var isLayer: Bool {
-        self.kind.getLayer.isDefined
-    }
-    
+extension NodeViewModel: NodeCalculatable {    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
