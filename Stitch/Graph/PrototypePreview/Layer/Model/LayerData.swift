@@ -154,10 +154,6 @@ extension LayerData: Identifiable {
         self.layer.id
     }
 
-//    var id: LayerDataId {
-//        LayerDataId(coordinate: self.layer.id,
-//                    isPinned: self.isPinned)
-//    }
     var layerDataId: LayerDataId {
         LayerDataId(coordinate: self.layer.id,
                     isPinned: self.isPinned)

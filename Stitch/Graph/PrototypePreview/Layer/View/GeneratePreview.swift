@@ -205,20 +205,24 @@ struct PreviewLayersView: View {
             Spacer()
         }
         
-        logInView("PreviewLayerView: layersAsViews CALLED")
+//        logInView("PreviewLayerView: layersAsViews CALLED")
         
 //        ForEach(layersInProperOrder, id: \.id) { layerData in
 //        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
 //        ForEach(layersInProperOrder, id: \.isPinned) { layerData in
         
         // Need identifier that distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-        ForEach(layersInProperOrder, id: \.pinnedId) { layerData in
-//        ForEach(layersInProperOrder) { layerData in
-            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
-            logInView("PreviewLayerView: layerData.id \(layerData.id)")
-            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
-            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
-            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
+//        ForEach(layersInProperOrder, id: \.pinnedId) { layerData in
+        
+        // LayerDataId is actually enough to make the distinction
+        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
+
+            //        ForEach(layersInProperOrder) { layerData in
+//            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
+//            logInView("PreviewLayerView: layerData.id \(layerData.id)")
+//            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
+//            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
+//            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
                       
                       
             
@@ -358,8 +362,6 @@ struct LayerDataView: View {
                     let masked: some View = LayerDataView(
                         graph: graph,
                         layerData: maskedLayerData,
-//                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-//                        isGeneratedAtTopLevel: layerViewModel.isPinnedView,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -367,8 +369,6 @@ struct LayerDataView: View {
                     let masker: some View = LayerDataView(
                         graph: graph,
                         layerData: maskerLayerData,
-//                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
-//                        isGeneratedAtTopLevel: layerViewModel.isPinnedView,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
