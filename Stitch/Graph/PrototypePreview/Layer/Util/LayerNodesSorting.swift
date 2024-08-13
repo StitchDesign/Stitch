@@ -249,21 +249,7 @@ extension VisibleNodesViewModel {
 func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                        sidebarIndex: Int,
                                        layerNodes: NodesViewModelDict,
-                                       // "A is pinned on top of B," "D is pinned on top of B"
-//                                       // B -> A i.e. "pin-receiving layer -> pinned layer"
-//                                       
-//                                       /*
-//                                        Oval A has pinTo input = [B, B, C]
-//                                        
-//                                        pinMap will be [
-//                                            B: { A },
-//                                            C: { A }
-//                                        ]
-//                                        */
-//                                       
-//                                       pinMap: [LayerNodeId: LayerIdSet]
-                                       isPinnedView: Bool
-) -> LayerTypeSet {
+                                       isPinnedView: Bool) -> LayerTypeSet {
         
     guard let layerNode = layerNodes.get(layerData.id)?.layerNode else {
         // Can happen when we e.g. ungroup a layer
@@ -352,8 +338,8 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     if hasMask,
        let maskerLayerData = maskerLayerData {
         
-        log("handleRawSidebarLayer: HAD MASKER BELOW")
-        log("handleRawSidebarLayer: maskerLayerData \(maskerLayerData.id)")
+//        log("handleRawSidebarLayer: HAD MASKER BELOW")
+//        log("handleRawSidebarLayer: maskerLayerData \(maskerLayerData.id)")
         
         // Note: a given masked/masker view might be a loop, so we get back not 1 but a list of LayerTypes
         let masked = getLayerTypesFromSidebarLayerData(
