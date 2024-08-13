@@ -34,7 +34,7 @@ extension LayerInputType {
             guard let unpackedValues = self.layerInput.unpackValues(from: defaultPackedValue) else {
                 if FeatureFlags.SUPPORTS_LAYER_UNPACK {
                     // TODO: unpackValues caller needs to be fixed when removing feature flag
-                    fatalErrorIfDebug("Unpacking shouldn't have been called for port: \(self.layerInput)")
+//                    fatalErrorIfDebug("Unpacking shouldn't have been called for port: \(self.layerInput)")
                 }
                 
                 return .none
@@ -1111,7 +1111,7 @@ extension LayerInputPort {
         default:
             // TODO: get to other types
             if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                fatalError("Support other types")
+//                fatalError("Support other types")
             }
             
             return nil
@@ -1139,13 +1139,6 @@ extension LayerInputType {
             }
         }
     }
-    
-//    var schemaPortKeyPath: WritableKeyPath<LayerNodeEntity, LayerInputDataEntity> {
-//        switch self.portType {
-//        case .packed:
-//            return \.
-//        }
-//    }
 }
 
 extension LayerInputEntity {
