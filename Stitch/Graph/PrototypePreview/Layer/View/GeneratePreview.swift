@@ -205,12 +205,8 @@ struct PreviewLayersView: View {
             Spacer()
         }
         
-//        logInView("PreviewLayerView: layersAsViews CALLED")
-        
-//        ForEach(layersInProperOrder, id: \.id) { layerData in
-//        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
-//        ForEach(layersInProperOrder, id: \.isPinned) { layerData in
-        
+        logInView("PreviewLayerView: layersAsViews CALLED")
+                
         // Need identifier that distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
 //        ForEach(layersInProperOrder, id: \.pinnedId) { layerData in
         
@@ -218,11 +214,11 @@ struct PreviewLayersView: View {
         ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
 
             //        ForEach(layersInProperOrder) { layerData in
-//            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
-//            logInView("PreviewLayerView: layerData.id \(layerData.id)")
-//            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
-//            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
-//            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
+            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
+            logInView("PreviewLayerView: layerData.id \(layerData.id)")
+            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
+            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
+            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
                       
                       
             

@@ -306,13 +306,13 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
 // TODO: properly handle a loop in the `mask: Bool` input of a layer node
 // TODO: write tests for this logic
 @MainActor
-func handleRawSidebarLayer(sidebarIndex: Int,
-                           layerData: SidebarLayerData,
-                           layerTypesAtThisLevel: LayerTypeSet, // i.e. acc
-                           handled: LayerIdSet, // i.e. acc2
-                           sidebarLayers: SidebarLayerList, // raw sidebar layers
-                           layerNodes: NodesViewModelDict,
-                           pinMap: PinMap) -> (LayerTypeSet,
+    func handleRawSidebarLayer(sidebarIndex: Int,
+                               layerData: SidebarLayerData,
+                               layerTypesAtThisLevel: LayerTypeSet, // i.e. acc
+                               handled: LayerIdSet, // i.e. acc2
+                               sidebarLayers: SidebarLayerList, // raw sidebar layers
+                               layerNodes: NodesViewModelDict,
+                               pinMap: PinMap) -> (LayerTypeSet,
                                                // layers used as masks
                                                // TODO: not needed anymore?
                                                LayerIdSet) {
@@ -404,18 +404,28 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisSidebar)
             
-            handled.insert(layerData.id.asLayerNodeId)
+//            handled.insert(layerData.id.asLayerNodeId)
             
             // Does this layer have other layers pinned to it?
             // e.g. in the "A is pinned on top of B" scenario, B has A as a pinned view.
             // TODO: how does this work with masking?
+            
+            // "Does this layer have other views pinned to it?"
+            // i.e. "Is this layer the B to some A and C?"
             if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
+                log("handleRawSidebarLayer: the view \(layerData.id) had the following views pinned to it: \(pinnedViews)")
                 
+                // ... if so, iterate through B and C
                 pinnedViews.forEach { (pinnedView: LayerNodeId) in
+                    
+                    log("handleRawSidebarLayer: handling the view \(pinnedView) that is pinned to view \(layerData.id)")
+                    
                     // `.get` uses
-                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
+//                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
+                    if let layerDataForPinnedView = sidebarLayers.first(where: { $0.id == pinnedView.id
+                    }) {
                         
-                        log("handleRawSidebarLayer: had pinned views for \(layerData.id): \(pinnedViews)")
+                        log("handleRawSidebarLayer: layerDataForPinnedView: \(layerDataForPinnedView)")
                         
                         // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
                         let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
@@ -458,7 +468,11 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                 
                 // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
                 
+                
+                
             }
+            
+            handled.insert(layerData.id.asLayerNodeId)
             
             
             

@@ -80,6 +80,9 @@ struct LayerSizeModifier: ViewModifier {
               content.frame(width: viewModel.pinnedSize?.width,
                             height: viewModel.pinnedSize?.height,
                             alignment: alignment)
+//            content.frame(width: 150,
+//                          height: 150,
+//                          alignment: alignment)
           }
         
         // Width is pt, but height is auto (so can use min/max height)
