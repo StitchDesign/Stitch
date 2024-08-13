@@ -219,27 +219,22 @@ struct LayerInspectorInputsSectionView: View {
         
         Section(isExpanded: $expanded) {
             ForEach(layerInputs) { layerInput in
-                if layerInput != .position {
-                    // TODO: remove position check
-                    EmptyView()
-                } else {
-                    let inputListContainsInput = inputsList.contains(layerInput)
-                    let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
-
-                    // TODO: only using packed data here
-                    let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
-                    
-                    if inputListContainsInput && !allFieldsBlockedOut {
-                        LayerInspectorInputPortView(
-                            portObserver: layerPort,
-                            node: node,
-                            layerNode: layerNode,
-                            graph: graph,
-                            // TODO: only using packed data here
-                            canvasItemId: layerPort._packedData.canvasObserver?.id)
-                        .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                               layerInput: layerInput))
-                    }
+                let inputListContainsInput = inputsList.contains(layerInput)
+                let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
+                
+                // TODO: only using packed data here
+                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                
+                if inputListContainsInput && !allFieldsBlockedOut {
+                    LayerInspectorInputPortView(
+                        portObserver: layerPort,
+                        node: node,
+                        layerNode: layerNode,
+                        graph: graph,
+                        // TODO: only using packed data here
+                        canvasItemId: layerPort._packedData.canvasObserver?.id)
+                    .modifier(LayerPropertyRowOriginReader(graph: graph,
+                                                           layerInput: layerInput))
                 }
             }
             .transition(.slideInAndOut(edge: .top))

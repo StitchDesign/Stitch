@@ -310,6 +310,12 @@ extension LayerInputObserver {
         
         self.graphDelegate?.updateGraphData(document: nil)
     }
+    
+    /// Helper only intended for use with ports that don't support unpacked mode.
+    var rowObserver: InputNodeRowObserver {
+        assertInDebug(self.mode == .packed)
+        return self._packedData.rowObserver
+    }
 }
 
 extension InputLayerNodeRowData {
@@ -319,66 +325,6 @@ extension InputLayerNodeRowData {
         self.canvasObserver = nil
     }
 }
-
-//enum UnpackedObserverType {
-//    case position(LayerInputUnpackedPortPosition)
-//}
-
-//extension UnpackedObserverType {
-//    func createSchema() -> [LayerInputDataEntity] {
-//        // TODO: create schemas for unpacked
-//        fatalError()
-//    }
-//    
-//    @MainActor
-//    var allPorts: [InputLayerNodeRowData] {
-//        switch self {
-//        case .position(let layerInputUnpackedPortPosition):
-//            return layerInputUnpackedPortPosition.allPorts
-//        }
-//    }
-//    
-//    func getParentPortValuesList() -> PortValues {
-//        switch self {
-//        case .position(let layerInputUnpackedPortPosition):
-//            return layerInputUnpackedPortPosition.getParentPortValuesList()
-//        }
-//    }
-//    
-//    @MainActor
-//    func initializeDelegate(_ node: NodeDelegate) {
-//        self.allPorts.forEach {
-//            $0.initializeDelegate(node)
-//        }
-//    }
-//}
-
-//@Observable
-//final class LayerInputUnpackedPortPosition {
-//    let xPort: InputLayerNodeRowData
-//    let yPort: InputLayerNodeRowData
-//    
-//    @MainActor
-//    init(from schemas: [LayerInputDataEntity],
-//         layer: Layer) {
-//        assertInDebug(schemas.count == 2)
-//        
-//        self.xPort = .empty(.position(.unpacked(.port0)), layer: layer)
-//        self.yPort = .empty(.position(.unpacked(.port1)), layer: layer)
-//        
-//        
-//    }
-//}
-
-//extension LayerInputUnpackedPortPosition: LayerInputUnpackedPortObservable {
-//    var allPorts: [InputLayerNodeRowData] {
-//        [xPort, yPort]
-//    }
-//    
-//    func getParentPortValuesList() -> PortValues {
-//        fatalError()
-//    }
-//}
 
 // primary = hidden via direct click from user
 // secondary = hidden because was a child of a group that was primary-hidden
@@ -399,100 +345,100 @@ final class LayerNodeViewModel {
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
     @MainActor var positionPort: LayerInputObserver
-    @MainActor var sizePort: InputLayerNodeRowData
-    @MainActor var scalePort: InputLayerNodeRowData
-    @MainActor var anchoringPort: InputLayerNodeRowData
-    @MainActor var opacityPort: InputLayerNodeRowData
-    @MainActor var zIndexPort: InputLayerNodeRowData
-    @MainActor var masksPort: InputLayerNodeRowData
-    @MainActor var colorPort: InputLayerNodeRowData
-    @MainActor var startColorPort: InputLayerNodeRowData
-    @MainActor var endColorPort: InputLayerNodeRowData
-    @MainActor var startAnchorPort: InputLayerNodeRowData
-    @MainActor var endAnchorPort: InputLayerNodeRowData
-    @MainActor var centerAnchorPort: InputLayerNodeRowData
-    @MainActor var startAnglePort: InputLayerNodeRowData
-    @MainActor var endAnglePort: InputLayerNodeRowData
-    @MainActor var startRadiusPort: InputLayerNodeRowData
-    @MainActor var endRadiusPort: InputLayerNodeRowData
-    @MainActor var rotationXPort: InputLayerNodeRowData
-    @MainActor var rotationYPort: InputLayerNodeRowData
-    @MainActor var rotationZPort: InputLayerNodeRowData
-    @MainActor var lineColorPort: InputLayerNodeRowData
-    @MainActor var lineWidthPort: InputLayerNodeRowData
-    @MainActor var blurPort: InputLayerNodeRowData
-    @MainActor var blendModePort: InputLayerNodeRowData
-    @MainActor var brightnessPort: InputLayerNodeRowData
-    @MainActor var colorInvertPort: InputLayerNodeRowData
-    @MainActor var contrastPort: InputLayerNodeRowData
-    @MainActor var hueRotationPort: InputLayerNodeRowData
-    @MainActor var saturationPort: InputLayerNodeRowData
-    @MainActor var pivotPort: InputLayerNodeRowData
-    @MainActor var enabledPort: InputLayerNodeRowData
-    @MainActor var blurRadiusPort: InputLayerNodeRowData
-    @MainActor var backgroundColorPort: InputLayerNodeRowData
-    @MainActor var isClippedPort: InputLayerNodeRowData
-    @MainActor var orientationPort: InputLayerNodeRowData
-    @MainActor var paddingPort: InputLayerNodeRowData
-    @MainActor var setupModePort: InputLayerNodeRowData
-    @MainActor var allAnchorsPort: InputLayerNodeRowData
-    @MainActor var cameraDirectionPort: InputLayerNodeRowData
-    @MainActor var isCameraEnabledPort: InputLayerNodeRowData
-    @MainActor var isShadowsEnabledPort: InputLayerNodeRowData
+    @MainActor var sizePort: LayerInputObserver
+    @MainActor var scalePort: LayerInputObserver
+    @MainActor var anchoringPort: LayerInputObserver
+    @MainActor var opacityPort: LayerInputObserver
+    @MainActor var zIndexPort: LayerInputObserver
+    @MainActor var masksPort: LayerInputObserver
+    @MainActor var colorPort: LayerInputObserver
+    @MainActor var startColorPort: LayerInputObserver
+    @MainActor var endColorPort: LayerInputObserver
+    @MainActor var startAnchorPort: LayerInputObserver
+    @MainActor var endAnchorPort: LayerInputObserver
+    @MainActor var centerAnchorPort: LayerInputObserver
+    @MainActor var startAnglePort: LayerInputObserver
+    @MainActor var endAnglePort: LayerInputObserver
+    @MainActor var startRadiusPort: LayerInputObserver
+    @MainActor var endRadiusPort: LayerInputObserver
+    @MainActor var rotationXPort: LayerInputObserver
+    @MainActor var rotationYPort: LayerInputObserver
+    @MainActor var rotationZPort: LayerInputObserver
+    @MainActor var lineColorPort: LayerInputObserver
+    @MainActor var lineWidthPort: LayerInputObserver
+    @MainActor var blurPort: LayerInputObserver
+    @MainActor var blendModePort: LayerInputObserver
+    @MainActor var brightnessPort: LayerInputObserver
+    @MainActor var colorInvertPort: LayerInputObserver
+    @MainActor var contrastPort: LayerInputObserver
+    @MainActor var hueRotationPort: LayerInputObserver
+    @MainActor var saturationPort: LayerInputObserver
+    @MainActor var pivotPort: LayerInputObserver
+    @MainActor var enabledPort: LayerInputObserver
+    @MainActor var blurRadiusPort: LayerInputObserver
+    @MainActor var backgroundColorPort: LayerInputObserver
+    @MainActor var isClippedPort: LayerInputObserver
+    @MainActor var orientationPort: LayerInputObserver
+    @MainActor var paddingPort: LayerInputObserver
+    @MainActor var setupModePort: LayerInputObserver
+    @MainActor var allAnchorsPort: LayerInputObserver
+    @MainActor var cameraDirectionPort: LayerInputObserver
+    @MainActor var isCameraEnabledPort: LayerInputObserver
+    @MainActor var isShadowsEnabledPort: LayerInputObserver
     
-    @MainActor var shapePort: InputLayerNodeRowData
-    @MainActor var strokePositionPort: InputLayerNodeRowData
-    @MainActor var strokeWidthPort: InputLayerNodeRowData
-    @MainActor var strokeColorPort: InputLayerNodeRowData
-    @MainActor var strokeStartPort: InputLayerNodeRowData
-    @MainActor var strokeEndPort: InputLayerNodeRowData
-    @MainActor var strokeLineCapPort: InputLayerNodeRowData
-    @MainActor var strokeLineJoinPort: InputLayerNodeRowData
-    @MainActor var coordinateSystemPort: InputLayerNodeRowData
+    @MainActor var shapePort: LayerInputObserver
+    @MainActor var strokePositionPort: LayerInputObserver
+    @MainActor var strokeWidthPort: LayerInputObserver
+    @MainActor var strokeColorPort: LayerInputObserver
+    @MainActor var strokeStartPort: LayerInputObserver
+    @MainActor var strokeEndPort: LayerInputObserver
+    @MainActor var strokeLineCapPort: LayerInputObserver
+    @MainActor var strokeLineJoinPort: LayerInputObserver
+    @MainActor var coordinateSystemPort: LayerInputObserver
     
-    @MainActor var cornerRadiusPort: InputLayerNodeRowData
-    @MainActor var canvasLineColorPort: InputLayerNodeRowData
-    @MainActor var canvasLineWidthPort: InputLayerNodeRowData
-    @MainActor var textPort: InputLayerNodeRowData
-    @MainActor var fontSizePort: InputLayerNodeRowData
-    @MainActor var textAlignmentPort: InputLayerNodeRowData
-    @MainActor var verticalAlignmentPort: InputLayerNodeRowData
-    @MainActor var textDecorationPort: InputLayerNodeRowData
-    @MainActor var textFontPort: InputLayerNodeRowData
-    @MainActor var imagePort: InputLayerNodeRowData
-    @MainActor var videoPort: InputLayerNodeRowData
-    @MainActor var fitStylePort: InputLayerNodeRowData
-    @MainActor var clippedPort: InputLayerNodeRowData
-    @MainActor var isAnimatingPort: InputLayerNodeRowData
-    @MainActor var progressIndicatorStylePort: InputLayerNodeRowData
-    @MainActor var progressPort: InputLayerNodeRowData
-    @MainActor var model3DPort: InputLayerNodeRowData
-    @MainActor var mapTypePort: InputLayerNodeRowData
-    @MainActor var mapLatLongPort: InputLayerNodeRowData
-    @MainActor var mapSpanPort: InputLayerNodeRowData
-    @MainActor var isSwitchToggledPort: InputLayerNodeRowData
-    @MainActor var placeholderTextPort: InputLayerNodeRowData
+    @MainActor var cornerRadiusPort: LayerInputObserver
+    @MainActor var canvasLineColorPort: LayerInputObserver
+    @MainActor var canvasLineWidthPort: LayerInputObserver
+    @MainActor var textPort: LayerInputObserver
+    @MainActor var fontSizePort: LayerInputObserver
+    @MainActor var textAlignmentPort: LayerInputObserver
+    @MainActor var verticalAlignmentPort: LayerInputObserver
+    @MainActor var textDecorationPort: LayerInputObserver
+    @MainActor var textFontPort: LayerInputObserver
+    @MainActor var imagePort: LayerInputObserver
+    @MainActor var videoPort: LayerInputObserver
+    @MainActor var fitStylePort: LayerInputObserver
+    @MainActor var clippedPort: LayerInputObserver
+    @MainActor var isAnimatingPort: LayerInputObserver
+    @MainActor var progressIndicatorStylePort: LayerInputObserver
+    @MainActor var progressPort: LayerInputObserver
+    @MainActor var model3DPort: LayerInputObserver
+    @MainActor var mapTypePort: LayerInputObserver
+    @MainActor var mapLatLongPort: LayerInputObserver
+    @MainActor var mapSpanPort: LayerInputObserver
+    @MainActor var isSwitchToggledPort: LayerInputObserver
+    @MainActor var placeholderTextPort: LayerInputObserver
     
-    @MainActor var shadowColorPort: InputLayerNodeRowData
-    @MainActor var shadowOpacityPort: InputLayerNodeRowData
-    @MainActor var shadowRadiusPort: InputLayerNodeRowData
-    @MainActor var shadowOffsetPort: InputLayerNodeRowData
-    @MainActor var sfSymbolPort: InputLayerNodeRowData
+    @MainActor var shadowColorPort: LayerInputObserver
+    @MainActor var shadowOpacityPort: LayerInputObserver
+    @MainActor var shadowRadiusPort: LayerInputObserver
+    @MainActor var shadowOffsetPort: LayerInputObserver
+    @MainActor var sfSymbolPort: LayerInputObserver
     
-    @MainActor var videoURLPort: InputLayerNodeRowData
-    @MainActor var volumePort: InputLayerNodeRowData
+    @MainActor var videoURLPort: LayerInputObserver
+    @MainActor var volumePort: LayerInputObserver
     
-    @MainActor var spacingBetweenGridColumnsPort: InputLayerNodeRowData
-    @MainActor var spacingBetweenGridRowsPort: InputLayerNodeRowData
-    @MainActor var itemAlignmentWithinGridCellPort: InputLayerNodeRowData
+    @MainActor var spacingBetweenGridColumnsPort: LayerInputObserver
+    @MainActor var spacingBetweenGridRowsPort: LayerInputObserver
+    @MainActor var itemAlignmentWithinGridCellPort: LayerInputObserver
     
-    @MainActor var widthAxisPort: InputLayerNodeRowData
-    @MainActor var heightAxisPort: InputLayerNodeRowData
-    @MainActor var contentModePort: InputLayerNodeRowData
-    @MainActor var minSizePort: InputLayerNodeRowData
-    @MainActor var maxSizePort: InputLayerNodeRowData
-    @MainActor var spacingPort: InputLayerNodeRowData
-    @MainActor var sizingScenarioPort: InputLayerNodeRowData
+    @MainActor var widthAxisPort: LayerInputObserver
+    @MainActor var heightAxisPort: LayerInputObserver
+    @MainActor var contentModePort: LayerInputObserver
+    @MainActor var minSizePort: LayerInputObserver
+    @MainActor var maxSizePort: LayerInputObserver
+    @MainActor var spacingPort: LayerInputObserver
+    @MainActor var sizingScenarioPort: LayerInputObserver
 
     weak var nodeDelegate: NodeDelegate?
 
@@ -527,12 +473,6 @@ final class LayerNodeViewModel {
         let rowDefinitions = NodeKind.layer(schema.layer)
             .rowDefinitions(for: nil)
         
-        let rowFn = { (layerInput: LayerInputPort) -> InputLayerNodeRowData in
-                .empty(.init(layerInput: layerInput,
-                             portType: .packed),
-                       layer: schema.layer)
-        }
-        
         self.id = schema.id
         self.layer = schema.layer
         self.hasSidebarVisibility = schema.hasSidebarVisibility
@@ -545,101 +485,101 @@ final class LayerNodeViewModel {
                                     userVisibleType: nil)
         
         self.positionPort = .init(from: schema, port: .position)
-        self.sizePort = rowFn(.size)
-        self.scalePort = rowFn(.scale)
-        self.anchoringPort = rowFn(.anchoring)
-        self.opacityPort = rowFn(.opacity)
-        self.zIndexPort = rowFn(.zIndex)
-        self.masksPort = rowFn(.masks)
-        self.colorPort = rowFn(.color)
-        self.startColorPort = rowFn(.startColor)
-        self.endColorPort = rowFn(.endColor)
-        self.startAnchorPort = rowFn(.startAnchor)
-        self.endAnchorPort = rowFn(.endAnchor)
-        self.centerAnchorPort = rowFn(.centerAnchor)
-        self.startAnglePort = rowFn(.startAngle)
-        self.endAnglePort = rowFn(.endAngle)
-        self.startRadiusPort = rowFn(.startRadius)
-        self.endRadiusPort = rowFn(.endRadius)
-        self.rotationXPort = rowFn(.rotationX)
-        self.rotationYPort = rowFn(.rotationY)
-        self.rotationZPort = rowFn(.rotationZ)
-        self.lineColorPort = rowFn(.lineColor)
-        self.lineWidthPort = rowFn(.lineWidth)
-        self.blurPort = rowFn(.blur)
-        self.blendModePort = rowFn(.blendMode)
-        self.brightnessPort = rowFn(.brightness)
-        self.colorInvertPort = rowFn(.colorInvert)
-        self.contrastPort = rowFn(.contrast)
-        self.hueRotationPort = rowFn(.hueRotation)
-        self.saturationPort = rowFn(.saturation)
-        self.pivotPort = rowFn(.pivot)
-        self.enabledPort = rowFn(.enabled)
-        self.blurRadiusPort = rowFn(.blurRadius)
-        self.backgroundColorPort = rowFn(.backgroundColor)
-        self.isClippedPort = rowFn(.isClipped)
-        self.orientationPort = rowFn(.orientation)
-        self.paddingPort = rowFn(.padding)
-        self.setupModePort = rowFn(.setupMode)
-        self.allAnchorsPort = rowFn(.allAnchors)
-        self.cameraDirectionPort = rowFn(.cameraDirection)
-        self.isCameraEnabledPort = rowFn(.isCameraEnabled)
-        self.isShadowsEnabledPort = rowFn(.isShadowsEnabled)
+        self.sizePort = .init(from: schema, port: .size)
+        self.scalePort = .init(from: schema, port: .scale)
+        self.anchoringPort = .init(from: schema, port: .anchoring)
+        self.opacityPort = .init(from: schema, port: .opacity)
+        self.zIndexPort = .init(from: schema, port: .zIndex)
+        self.masksPort = .init(from: schema, port: .masks)
+        self.colorPort = .init(from: schema, port: .color)
+        self.startColorPort = .init(from: schema, port: .startColor)
+        self.endColorPort = .init(from: schema, port: .endColor)
+        self.startAnchorPort = .init(from: schema, port: .startAnchor)
+        self.endAnchorPort = .init(from: schema, port: .endAnchor)
+        self.centerAnchorPort = .init(from: schema, port: .centerAnchor)
+        self.startAnglePort = .init(from: schema, port: .startAngle)
+        self.endAnglePort = .init(from: schema, port: .endAngle)
+        self.startRadiusPort = .init(from: schema, port: .startRadius)
+        self.endRadiusPort = .init(from: schema, port: .endRadius)
+        self.rotationXPort = .init(from: schema, port: .rotationX)
+        self.rotationYPort = .init(from: schema, port: .rotationY)
+        self.rotationZPort = .init(from: schema, port: .rotationZ)
+        self.lineColorPort = .init(from: schema, port: .lineColor)
+        self.lineWidthPort = .init(from: schema, port: .lineWidth)
+        self.blurPort = .init(from: schema, port: .blur)
+        self.blendModePort = .init(from: schema, port: .blendMode)
+        self.brightnessPort = .init(from: schema, port: .brightness)
+        self.colorInvertPort = .init(from: schema, port: .colorInvert)
+        self.contrastPort = .init(from: schema, port: .contrast)
+        self.hueRotationPort = .init(from: schema, port: .hueRotation)
+        self.saturationPort = .init(from: schema, port: .saturation)
+        self.pivotPort = .init(from: schema, port: .pivot)
+        self.enabledPort = .init(from: schema, port: .enabled)
+        self.blurRadiusPort = .init(from: schema, port: .blurRadius)
+        self.backgroundColorPort = .init(from: schema, port: .backgroundColor)
+        self.isClippedPort = .init(from: schema, port: .isClipped)
+        self.orientationPort = .init(from: schema, port: .orientation)
+        self.paddingPort = .init(from: schema, port: .padding)
+        self.setupModePort = .init(from: schema, port: .setupMode)
+        self.allAnchorsPort = .init(from: schema, port: .allAnchors)
+        self.cameraDirectionPort = .init(from: schema, port: .cameraDirection)
+        self.isCameraEnabledPort = .init(from: schema, port: .isCameraEnabled)
+        self.isShadowsEnabledPort = .init(from: schema, port: .isShadowsEnabled)
         
-        self.shapePort = rowFn(.shape)
-        self.strokePositionPort = rowFn(.strokePosition)
-        self.strokeWidthPort = rowFn(.strokeWidth)
-        self.strokeColorPort = rowFn(.strokeColor)
-        self.strokeStartPort = rowFn(.strokeStart)
-        self.strokeEndPort = rowFn(.strokeEnd)
-        self.strokeLineCapPort = rowFn(.strokeEnd)
-        self.strokeLineJoinPort = rowFn(.strokeEnd)
-        self.coordinateSystemPort = rowFn(.coordinateSystem)
+        self.shapePort = .init(from: schema, port: .shape)
+        self.strokePositionPort = .init(from: schema, port: .strokePosition)
+        self.strokeWidthPort = .init(from: schema, port: .strokeWidth)
+        self.strokeColorPort = .init(from: schema, port: .strokeColor)
+        self.strokeStartPort = .init(from: schema, port: .strokeStart)
+        self.strokeEndPort = .init(from: schema, port: .strokeEnd)
+        self.strokeLineCapPort = .init(from: schema, port: .strokeEnd)
+        self.strokeLineJoinPort = .init(from: schema, port: .strokeEnd)
+        self.coordinateSystemPort = .init(from: schema, port: .coordinateSystem)
         
-        self.cornerRadiusPort = rowFn(.cornerRadius)
-        self.canvasLineColorPort = rowFn(.canvasLineColor)
-        self.canvasLineWidthPort = rowFn(.canvasLineWidth)
-        self.textPort = rowFn(.text)
-        self.fontSizePort = rowFn(.fontSize)
-        self.textAlignmentPort = rowFn(.textAlignment)
-        self.verticalAlignmentPort = rowFn(.verticalAlignment)
-        self.textDecorationPort = rowFn(.textDecoration)
-        self.textFontPort = rowFn(.textFont)
-        self.imagePort = rowFn(.image)
-        self.videoPort = rowFn(.video)
-        self.fitStylePort = rowFn(.fitStyle)
-        self.clippedPort = rowFn(.clipped)
-        self.isAnimatingPort = rowFn(.isAnimating)
-        self.progressIndicatorStylePort = rowFn(.progressIndicatorStyle)
-        self.progressPort = rowFn(.progress)
-        self.model3DPort = rowFn(.model3D)
-        self.mapTypePort = rowFn(.mapType)
-        self.mapLatLongPort = rowFn(.mapLatLong)
-        self.mapSpanPort = rowFn(.mapSpan)
-        self.isSwitchToggledPort = rowFn(.isSwitchToggled)
-        self.placeholderTextPort = rowFn(.placeholderText)
+        self.cornerRadiusPort = .init(from: schema, port: .cornerRadius)
+        self.canvasLineColorPort = .init(from: schema, port: .canvasLineColor)
+        self.canvasLineWidthPort = .init(from: schema, port: .canvasLineWidth)
+        self.textPort = .init(from: schema, port: .text)
+        self.fontSizePort = .init(from: schema, port: .fontSize)
+        self.textAlignmentPort = .init(from: schema, port: .textAlignment)
+        self.verticalAlignmentPort = .init(from: schema, port: .verticalAlignment)
+        self.textDecorationPort = .init(from: schema, port: .textDecoration)
+        self.textFontPort = .init(from: schema, port: .textFont)
+        self.imagePort = .init(from: schema, port: .image)
+        self.videoPort = .init(from: schema, port: .video)
+        self.fitStylePort = .init(from: schema, port: .fitStyle)
+        self.clippedPort = .init(from: schema, port: .clipped)
+        self.isAnimatingPort = .init(from: schema, port: .isAnimating)
+        self.progressIndicatorStylePort = .init(from: schema, port: .progressIndicatorStyle)
+        self.progressPort = .init(from: schema, port: .progress)
+        self.model3DPort = .init(from: schema, port: .model3D)
+        self.mapTypePort = .init(from: schema, port: .mapType)
+        self.mapLatLongPort = .init(from: schema, port: .mapLatLong)
+        self.mapSpanPort = .init(from: schema, port: .mapSpan)
+        self.isSwitchToggledPort = .init(from: schema, port: .isSwitchToggled)
+        self.placeholderTextPort = .init(from: schema, port: .placeholderText)
         
-        self.shadowColorPort = rowFn(.shadowColor)
-        self.shadowOpacityPort = rowFn(.shadowOpacity)
-        self.shadowRadiusPort = rowFn(.shadowRadius)
-        self.shadowOffsetPort = rowFn(.shadowOffset)
+        self.shadowColorPort = .init(from: schema, port: .shadowColor)
+        self.shadowOpacityPort = .init(from: schema, port: .shadowOpacity)
+        self.shadowRadiusPort = .init(from: schema, port: .shadowRadius)
+        self.shadowOffsetPort = .init(from: schema, port: .shadowOffset)
         
-        self.sfSymbolPort = rowFn(.sfSymbol)
+        self.sfSymbolPort = .init(from: schema, port: .sfSymbol)
         
-        self.videoURLPort = rowFn(.videoURL)
-        self.volumePort = rowFn(.volume)
+        self.videoURLPort = .init(from: schema, port: .videoURL)
+        self.volumePort = .init(from: schema, port: .volume)
         
-        self.spacingBetweenGridColumnsPort = rowFn(.spacingBetweenGridColumns)
-        self.spacingBetweenGridRowsPort = rowFn(.spacingBetweenGridRows)
-        self.itemAlignmentWithinGridCellPort = rowFn(.itemAlignmentWithinGridCell)
+        self.spacingBetweenGridColumnsPort = .init(from: schema, port: .spacingBetweenGridColumns)
+        self.spacingBetweenGridRowsPort = .init(from: schema, port: .spacingBetweenGridRows)
+        self.itemAlignmentWithinGridCellPort = .init(from: schema, port: .itemAlignmentWithinGridCell)
 
-        self.widthAxisPort = rowFn(.widthAxis)
-        self.heightAxisPort = rowFn(.heightAxis)
-        self.contentModePort = rowFn(.contentMode)
-        self.minSizePort = rowFn(.minSize)
-        self.maxSizePort = rowFn(.maxSize)
-        self.spacingPort = rowFn(.spacing)
-        self.sizingScenarioPort = rowFn(.sizingScenario)
+        self.widthAxisPort = .init(from: schema, port: .widthAxis)
+        self.heightAxisPort = .init(from: schema, port: .heightAxis)
+        self.contentModePort = .init(from: schema, port: .contentMode)
+        self.minSizePort = .init(from: schema, port: .minSize)
+        self.maxSizePort = .init(from: schema, port: .maxSize)
+        self.spacingPort = .init(from: schema, port: .spacing)
+        self.sizingScenarioPort = .init(from: schema, port: .sizingScenario)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {
@@ -814,7 +754,7 @@ extension LayerNodeViewModel {
     
     @MainActor
     func layerSize(_ activeIndex: ActiveIndex) -> LayerSize? {
-        self.sizePort.rowObserver.activeValue.getSize
+        self.sizePort.activeValue.getSize
     }
     
     /// Updates one or more preview layers given some layer node.
@@ -935,9 +875,9 @@ extension LayerNodeViewModel {
     func scaledLayerSize(for nodeId: NodeId,
                          parentSize: CGSize,
                          activeIndex: ActiveIndex) -> ScaledSize? {
-        let scale = self.scalePort.rowObserver.activeValue.getNumber ?? .zero
+        let scale = self.scalePort.activeValue.getNumber ?? .zero
         
-        return self.sizePort.rowObserver.activeValue
+        return self.sizePort.activeValue
             .getSize?.asCGSize(parentSize)
             .asScaledSize(scale)
     }

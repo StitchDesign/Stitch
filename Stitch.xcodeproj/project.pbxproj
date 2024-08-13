@@ -62,6 +62,7 @@
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
 		B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */; };
 		B52FC62B2C6BC3E800D30D29 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B52FC62A2C6BC3E800D30D29 /* StitchEngine */; };
+		B52FC62D2C6BC89C00D30D29 /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = B52FC62C2C6BC89C00D30D29 /* StitchSchemaKit */; };
 		B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B530494627A0CBF500D970BB /* ViewUtils.swift */; };
 		B5305CE7285150E2008F11F4 /* beach.png in Resources */ = {isa = PBXBuildFile; fileRef = B5305CE6285150E2008F11F4 /* beach.png */; };
 		B530D5032C18AB390005C6A9 /* AppThemeActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B530D5022C18AB390005C6A9 /* AppThemeActions.swift */; };
@@ -958,6 +959,7 @@
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
 		B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCopyable.swift; sourceTree = "<group>"; };
+		B52FC62C2C6BC89C00D30D29 /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../StitchSchemaKit; sourceTree = "<group>"; };
 		B530494627A0CBF500D970BB /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		B5305CE6285150E2008F11F4 /* beach.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = beach.png; sourceTree = "<group>"; };
 		B530D5022C18AB390005C6A9 /* AppThemeActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppThemeActions.swift; sourceTree = "<group>"; };
@@ -1845,6 +1847,7 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
+				B52FC62C2C6BC89C00D30D29 /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -4404,6 +4407,7 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
+				B52FC62D2C6BC89C00D30D29 /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,

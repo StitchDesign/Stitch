@@ -1,5 +1,4 @@
 {
-  "originHash" : "b309fd93b7d629140eb5404a0ce5e7e1d197e1c049d7bfb483a2e32daee2d62d",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -60,15 +59,6 @@
       "location" : "https://github.com/vpl-codesign/StitchEngineClosedSource.git",
       "state" : {
         "revision" : "4b67e5218c21e47b665dee53b48b504d62260207"
-      }
-    },
-    {
-      "identity" : "stitchschemakit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
-      "state" : {
-        "branch" : "u/ellbosch/2408/inspector-unpacked",
-        "revision" : "49af8af25e933d97c959df304a84b44cf73e4f84"
       }
     },
     {
@@ -143,5 +133,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
