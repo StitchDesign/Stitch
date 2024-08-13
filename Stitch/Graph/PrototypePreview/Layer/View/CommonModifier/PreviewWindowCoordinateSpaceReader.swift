@@ -36,11 +36,11 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
 //            .opacity(isGhostView ? 0.1 : 1) // added
             
             //
-//            .opacity(isGhostView ? 0 : 1)
+            .opacity(isGhostView ? 0 : 1)
         
         // TODO: why is some non-zero opacity required ?
-            .opacity(isGhostView ? 0.1 : 1) // added
-            .offset(x: isGhostView ? 100 : 0) // added
+//            .opacity(isGhostView ? 0.1 : 1) // added
+//            .offset(x: isGhostView ? 100 : 0) // added
         
         
 //            .opacity(isGhostView ? 0.001 : 1) // added
