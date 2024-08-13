@@ -38,7 +38,6 @@ extension simd_float4x4 {
         return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
     }
     
-    
     // Create a 4x4 rotation matrix from Euler angles (in radians)
     init(rotationZYX eulerAngles: SIMD3<Float>) {
         let cx = cos(eulerAngles.x), sx = sin(eulerAngles.x)
@@ -53,6 +52,32 @@ extension simd_float4x4 {
 
         self.init(rotationMatrix)
     }
+
+    // Extract Euler angles (in radians) from the matrix
+    var eulerAngles: SIMD3<Float> {
+        let rotMatrix = rotationMatrix
+        var angles = SIMD3<Float>()
+
+        // Singularity check
+        if abs(rotMatrix[0, 2]) >= 1 - 1e-6 {
+            // Gimbal lock case
+            angles.z = 0
+            if rotMatrix[0, 2] < 0 {
+                angles.y = .pi / 2
+                angles.x = atan2(rotMatrix[1, 0], rotMatrix[2, 0])
+            } else {
+                angles.y = -.pi / 2
+                angles.x = atan2(-rotMatrix[1, 0], -rotMatrix[2, 0])
+            }
+        } else {
+            angles.y = -asin(rotMatrix[0, 2])
+            angles.x = atan2(rotMatrix[1, 2] / cos(angles.y), rotMatrix[2, 2] / cos(angles.y))
+            angles.z = atan2(rotMatrix[0, 1] / cos(angles.y), rotMatrix[0, 0] / cos(angles.y))
+        }
+
+        return angles
+    }
+
 
     // Initialize from a 3x3 rotation matrix
     init(_ rotationMatrix: simd_float3x3) {
@@ -86,45 +111,7 @@ extension simd_float4x4 {
             SIMD3<Float>(columns.2.x, columns.2.y, columns.2.z) / scale.z
         )
     }
-    // Extract Euler angles (in radians) from the matrix
-    var eulerAngles: SIMD3<Float> {
-        let rotMatrix = rotationMatrix
-        var angles = SIMD3<Float>()
 
-        // Singularity check
-        if abs(rotMatrix[0, 2]) >= 1 - 1e-6 {
-            // Gimbal lock case
-            angles.z = 0
-            if rotMatrix[0, 2] < 0 {
-                angles.y = .pi / 2
-                angles.x = atan2(rotMatrix[1, 0], rotMatrix[2, 0])
-            } else {
-                angles.y = -.pi / 2
-                angles.x = atan2(-rotMatrix[1, 0], -rotMatrix[2, 0])
-            }
-        } else {
-            angles.y = -asin(rotMatrix[0, 2])
-            angles.x = atan2(rotMatrix[1, 2] / cos(angles.y), rotMatrix[2, 2] / cos(angles.y))
-            angles.z = atan2(rotMatrix[0, 1] / cos(angles.y), rotMatrix[0, 0] / cos(angles.y))
-        }
-
-        return angles
-    }
-
-    
-    
-    
-    var rotationX: SIMD3<Float> {
-        return SIMD3<Float>(rotationMatrix[0][0], rotationMatrix[1][0], rotationMatrix[2][0])
-    }
-
-    var rotationY: SIMD3<Float> {
-        return SIMD3<Float>(rotationMatrix[0][1], rotationMatrix[1][1], rotationMatrix[2][1])
-    }
-
-    var rotationZ: SIMD3<Float> {
-        return SIMD3<Float>(rotationMatrix[0][2], rotationMatrix[1][2], rotationMatrix[2][2])
-    }
     
     var orientation: simd_quatf {
         simd_quaternion(self)
