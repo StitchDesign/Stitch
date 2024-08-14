@@ -13,7 +13,7 @@ struct MatrixPackPatchNode: PatchNodeDefinition {
     static let patch = Patch.matrixTransformPack
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        let inputMatrix = DEFAULT_TRANSFORM_MATRIX_MODEL
+        let inputMatrix = DEFAULT_TRANSFORM_MATRIX
         return NodeRowDefinitions(inputs: [
             .init(defaultValues: [.number(Double(inputMatrix.position.x))],
                   label: "Position X",
