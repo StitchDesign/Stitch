@@ -190,15 +190,8 @@ extension VisibleNodesViewModel {
                 return nil
             }
             
-//            log("getLayerDataFromLayerType: previewLayer.pinnedViewType was: \(previewLayer.pinnedViewType)")
-//            
-//            // Pass the pinned-view-type from the LayerType to the LayerViewModel
-//            previewLayer.pinnedViewType = layerType.pinnedViewType
-//            log("getLayerDataFromLayerType: previewLayer.pinnedViewType is now: \(previewLayer.pinnedViewType)")
-            
             return .nongroup(previewLayer, 
-                             isPinnedView: layerType.pinnedViewType == .pinnedView,
-                             pinnedId: .init())
+                             isPinnedView: layerType.pinnedViewType == .pinnedView)
 
         case .group(let layerGroupData): // LayerGroupData
             guard let previewLayer: LayerViewModel = layerNodes
@@ -219,8 +212,7 @@ extension VisibleNodesViewModel {
 
             return .group(previewLayer, 
                           childrenData,
-                          isPinnedView: layerType.pinnedViewType == .pinnedView,
-                          pinnedId: .init())
+                          isPinnedView: layerType.pinnedViewType == .pinnedView)
         }
     }
 }
@@ -240,8 +232,6 @@ extension VisibleNodesViewModel {
         ],
     LayerType <-- for A; the "ghost view"
  ]
- 
- 
  */
 
 // TODO: should SidebarLayerData be an enum on children (can be empty list) vs no-children ?

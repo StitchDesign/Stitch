@@ -207,20 +207,13 @@ struct PreviewLayersView: View {
         
         logInView("PreviewLayerView: layersAsViews CALLED")
                 
-        // Need identifier that distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-//        ForEach(layersInProperOrder, id: \.pinnedId) { layerData in
-        
-        // LayerDataId is actually enough to make the distinction
+        // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
 
-            //        ForEach(layersInProperOrder) { layerData in
             logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
             logInView("PreviewLayerView: layerData.id \(layerData.id)")
             logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
             logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
-            logInView("PreviewLayerView: layerData.pinnedId \(layerData.pinnedId)")
-                      
-                      
             
             LayerDataView(graph: graph,
                           layerData: layerData,
@@ -375,9 +368,7 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel, 
-                       let isPinned,
-                       _):
+        case .nongroup(let layerViewModel, let isPinned):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(graph: graph,
@@ -390,11 +381,7 @@ struct LayerDataView: View {
                 EmptyView()
             }
                         
-        case .group(let layerViewModel,
-                    let childrenData,
-                    let isPinned,
-                    _):
-            
+        case .group(let layerViewModel, let childrenData, let isPinned):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 GroupPreviewLayersView(graph: graph,
