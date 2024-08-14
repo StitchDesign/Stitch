@@ -250,7 +250,7 @@ func matrixPackOp(values: PortValues) -> PortValue {
        let quatY = values[safe: PackNodeMatrixLocations.rotationY]?.getNumber,
        let quatZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber,
        let quatW = values[safe: PackNodeMatrixLocations.rotationReal]?.getNumber {
-        return .matrixTransform(Transform.createMatrix(positionX: Float(x), positionY: Float(y), positionZ: Float(z), scaleX: Float(scaleX), scaleY: Float(scaleY), scaleZ: Float(scaleZ), rotationX: Float(quatX), rotationY: Float(quatY), rotationZ: Float(quatZ), rotationReal: Float(quatW)).matrix)
+        return .transform(Transform.createMatrix(positionX: Float(x), positionY: Float(y), positionZ: Float(z), scaleX: Float(scaleX), scaleY: Float(scaleY), scaleZ: Float(scaleZ), rotationX: Float(quatX), rotationY: Float(quatY), rotationZ: Float(quatZ), rotationReal: Float(quatW)).matrix)
     } else {
         #if DEV_DEBUG
         fatalError("matrixEvaluation")

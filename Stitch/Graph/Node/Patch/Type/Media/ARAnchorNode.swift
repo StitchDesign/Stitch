@@ -8,7 +8,6 @@
 import Foundation
 import StitchSchemaKit
 import RealityKit
-
 struct ArAnchorNode: PatchNodeDefinition {
     static let patch = Patch.arAnchor
 
@@ -20,7 +19,7 @@ struct ArAnchorNode: PatchNodeDefinition {
                     label: "3D Model"
                 ),
                 .init(
-                    defaultValues: [.matrixTransform(DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix)],
+                    defaultValues: [.transform(DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix)],
                     label: "Transform"
                 )
             ],

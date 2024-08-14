@@ -103,7 +103,7 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
                 return [prevValue]
             }
             
-            return [.matrixTransform(raycastResult.worldTransform)]
+            return [.transform(raycastResult.worldTransform)]
         }
     }
 }

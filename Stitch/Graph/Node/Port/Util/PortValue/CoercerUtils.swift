@@ -85,8 +85,8 @@ extension PortValues {
             return point3DCoercer(values, graphTime: currentGraphTime)
         case .point4D:
             return point4DCoercer(values, graphTime: currentGraphTime)
-        case .matrixTransform:
-            return matrixCoercer(values)
+        case .transform:
+            return transformCoercer(values)
         case .asyncMedia:
             return asyncMediaCoercer(values)
         case .json:

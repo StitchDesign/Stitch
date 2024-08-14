@@ -19,7 +19,7 @@ extension PortValue {
              .color,
              .none,
              .asyncMedia,
-             .matrixTransform,
+             .transform,
              .shape:
             // add?: .importAction
             return false
@@ -51,7 +51,7 @@ extension PortValue {
             .position, .size, .point3D,
 
             // not editable
-            .pulse, .none, .matrixTransform,
+            .pulse, .none, .transform,
 
             // chosen via file import, not text edit
             .asyncMedia,
