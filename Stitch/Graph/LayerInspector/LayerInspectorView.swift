@@ -230,9 +230,7 @@ struct LayerInspectorInputsSectionView: View {
                         portObserver: layerPort,
                         node: node,
                         layerNode: layerNode,
-                        graph: graph,
-                        // TODO: only using packed data here
-                        canvasItemId: layerPort._packedData.canvasObserver?.id)
+                        graph: graph)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                            layerInput: layerInput))
                 }

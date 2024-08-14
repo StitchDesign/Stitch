@@ -13,14 +13,15 @@ struct LayerInspectorInputPortView: View {
     @Bindable var node: NodeViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-
-    let canvasItemId: CanvasItemId?
         
     var body: some View {
         Group {
             switch portObserver.observerMode {
             case .packed(let inputLayerNodeRowData):
+                let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
+                
                 HStack {
+                    // MARK: debugging unpack feature
                     if FeatureFlags.SUPPORTS_LAYER_UNPACK {
                         Button {
                             self.portObserver.toggleMode()
@@ -48,6 +49,7 @@ struct LayerInspectorInputPortView: View {
                 
             case .unpacked(let unpackedPortObserver):
                 HStack {
+                    // MARK: debugging unpack feature
                     if FeatureFlags.SUPPORTS_LAYER_UNPACK {
                         Button {
                             self.portObserver.toggleMode()
@@ -57,6 +59,8 @@ struct LayerInspectorInputPortView: View {
                     }
                     
                     ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+                        let canvasItemId = unpackedPort.canvasObserver?.id
+    
                         LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
                                                rowViewModel: unpackedPort.inspectorRowViewModel,
                                                rowObserver: unpackedPort.rowObserver,
