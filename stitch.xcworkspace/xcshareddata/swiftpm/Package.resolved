@@ -54,11 +54,11 @@
       }
     },
     {
-      "identity" : "stitchengineclosedsource",
+      "identity" : "stitchengine",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/StitchEngineClosedSource.git",
+      "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
-        "revision" : "4b67e5218c21e47b665dee53b48b504d62260207"
+        "revision" : "f69d32a1dcadd830244c20f1519c2a094624cf8b"
       }
     },
     {
