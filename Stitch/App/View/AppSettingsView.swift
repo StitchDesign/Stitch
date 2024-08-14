@@ -162,7 +162,9 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
+#if DEV_DEBUG || DEBUG
             llmRecordingModePicker
+#endif
         }
     }
 

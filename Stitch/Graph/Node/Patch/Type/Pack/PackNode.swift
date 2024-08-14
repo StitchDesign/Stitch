@@ -88,7 +88,7 @@ struct PackPatchNode: PatchNodeDefinition {
             ]
 
         case .matrixTransform:
-            let inputMatrix = DEFAULT_TRANSFORM_MATRIX_MODEL
+            let inputMatrix = DEFAULT_TRANSFORM_MATRIX
             return [
                 .init(defaultValues: [.number(Double(inputMatrix.position.x))],
                       label: "Position X",
