@@ -230,7 +230,7 @@ func point4DUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Po
     }
 }
 
-func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) {
+func transformUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) {
     if let value = values.first, // only one input port
        let matrix = value.getMatrix {
         return (
@@ -304,7 +304,7 @@ func unpackEval(inputs: PortValuesList,
         return outputEvalHelper10(
             inputs: inputs,
             outputs: [],
-            operation: matrixUnpackOp)
+            operation: transformUnpackOp)
     case .shapeCommand:
         return resultsMaker4(inputs)(shapeCommandOp)
     default:

@@ -1,5 +1,5 @@
 //
-//  MatrixUnpackNode.swift
+//  TransformUnpacPatchkNode.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 2/23/24.
@@ -8,8 +8,8 @@
 import Foundation
 import StitchSchemaKit
 
-struct MatrixUnpackPatchNode: PatchNodeDefinition {
-    static let patch = Patch.matrixTransformUnpack
+struct TransformUnpackPatchNode: PatchNodeDefinition {
+    static let patch = Patch.transformUnpack
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(inputs: .singleUnlabeledInput(.matrixTransform),
@@ -36,10 +36,10 @@ struct MatrixUnpackPatchNode: PatchNodeDefinition {
     }
 }
 
-func matrixTransformUnpackEval(inputs: PortValuesList,
+func transformUnpackEval(inputs: PortValuesList,
                                outputs: PortValuesList) -> PortValuesList {
 
     outputEvalHelper10(inputs: inputs,
                        outputs: [],
-                       operation: matrixUnpackOp)
+                       operation: transformUnpackOp)
 }
