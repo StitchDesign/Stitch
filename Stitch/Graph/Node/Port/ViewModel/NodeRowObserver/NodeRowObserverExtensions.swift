@@ -21,10 +21,10 @@ extension NodeRowObserver {
            let layerNode = self.nodeDelegate?.layerNodeViewModel {
             let layerInputPort = layerNode[keyPath: layerId.layerInput.layerNodeKeyPath]
             
-            if layerInputPort.mode == .unpacked {
+            if let unpackedObserver = layerInputPort.unpackedObserver {
                 log("NodeRowObserver.updateValues: will update unpacked values")
-                layerInputPort._unpackedData.updateValues(from: newValues,
-                                                          layerNode: layerNode)
+                unpackedObserver.updateValues(from: newValues,
+                                              layerNode: layerNode)
                 
                 // Exit so we don't update this packed row observer unnecessarily
                 return

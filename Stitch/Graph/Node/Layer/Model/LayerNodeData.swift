@@ -177,11 +177,22 @@ extension InputLayerNodeRowData {
 }
 
 extension LayerInputObserver {
+    @MainActor
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
             return self.packedObserver
         case .unpacked:
+            return nil
+        }
+    }
+    
+    @MainActor
+    var unpackedObserver: LayerInputUnpackedPortObserver? {
+        switch self.mode {
+        case .unpacked:
+            return self._unpackedData
+        default:
             return nil
         }
     }
@@ -195,7 +206,6 @@ extension LayerInputObserver {
         let unpackedObservers = portObserver._unpackedData.allPorts
 
         self.port = layerInputType
-        self.mode = schema.mode
         
         // Updated packed data
         portObserver._packedData.update(from: schema.packedData,
@@ -226,8 +236,7 @@ extension LayerInputObserver {
     @MainActor
     func createSchema() -> LayerInputEntity {
         .init(packedData: self._packedData.createSchema(),
-              unpackedData: self._unpackedData.allPorts.map { $0.createSchema() },
-              mode: self.mode)
+              unpackedData: self._unpackedData.allPorts.map { $0.createSchema() })
     }
 }
     

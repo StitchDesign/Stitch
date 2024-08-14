@@ -180,8 +180,7 @@ extension LayerInputEntity: GraphCopyable {
             $0.createCopy(newId: newId,
                           mappableData: mappableData,
                           copiedNodeIds: copiedNodeIds)
-        },
-              mode: self.mode)
+        })
     }
 }
 

@@ -141,6 +141,12 @@ extension LayerInputUnpackedPortObserver {
 //    }
 //}
 
+// TODO: move
+enum LayerInputMode {
+    case packed
+    case unpacked
+}
+
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable
 final class LayerInputObserver {
@@ -151,7 +157,6 @@ final class LayerInputObserver {
     
     let layer: Layer
     var port: LayerInputPort
-    var mode: LayerInputMode = .packed
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
@@ -182,6 +187,15 @@ enum LayerInputObserverMode {
 }
 
 extension LayerInputObserver {
+    @MainActor
+    var mode: LayerInputMode {
+        if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
+            return .unpacked
+        }
+        
+        return .packed
+    }
+    
     /// Updates all-up values, handling scenarios like unpacked if applicable.
     @MainActor func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
@@ -193,6 +207,7 @@ extension LayerInputObserver {
         self._packedData.allLoopedValues
     }
     
+    @MainActor
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:
@@ -277,8 +292,6 @@ extension LayerInputObserver {
             // Reset packed state
             self._packedData.resetOnPackModeToggle()
             
-            // Toggle state
-            self.mode = .unpacked
             self._unpackedData.allPorts.forEach { unpackedPort in
                 var unpackSchema = unpackedPort.createSchema()
                 unpackSchema.canvasItem = .init(position: .zero,
@@ -302,9 +315,6 @@ extension LayerInputObserver {
                 $0.resetOnPackModeToggle()
             }
             
-            // Toggle state
-            self.mode = .packed
-            
             var packedSchema = self._packedData.createSchema()
             packedSchema.canvasItem = .init(position: .zero,
                                             zIndex: .zero,
@@ -321,6 +331,7 @@ extension LayerInputObserver {
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.
+    @MainActor
     var rowObserver: InputNodeRowObserver {
         assertInDebug(self.mode == .packed)
         return self._packedData.rowObserver

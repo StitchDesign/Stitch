@@ -20,8 +20,8 @@ extension NodeEntity {
         case .layer(let layerNode):
             // Layer nodes save values data directy in its schema
             return layerNode.layer.layerGraphNode.inputDefinitions
-                .map { keyPath in
-                    layerNode[keyPath: keyPath.schemaPortKeyPath].values
+                .flatMap { keyPath in
+                    layerNode[keyPath: keyPath.schemaPortKeyPath].encodedValues
                 }
         case .patch(let patchNode):
             return patchNode.inputs.map { $0.portData.values }

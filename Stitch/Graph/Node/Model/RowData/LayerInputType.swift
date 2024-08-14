@@ -1377,17 +1377,24 @@ extension LayerInputPort {
 
 extension LayerInputEntity {
     static let empty: Self = .init(packedData: .empty,
-                                   unpackedData: [],
-                                   mode: .packed)
+                                   unpackedData: [])
     
-    var values: PortValues? {
+    /// Gets all encoded values, without concern for pack/unpack state.
+    var encodedValues: [PortValues?] {
         switch self.mode {
         case .packed:
-            return self.packedData.inputPort.values
+            return [self.packedData.inputPort.values]
         case .unpacked:
-            // TODO: need to think through how this works if there are multiple unpacked ports and we only use some
-            fatalError()
+            return self.unpackedData.map { $0.inputPort.values }
         }
+    }
+    
+    var mode: LayerInputMode {
+        if self.unpackedData.contains(where: { $0.canvasItem.isDefined }) {
+            return .unpacked
+        }
+        
+        return .packed
     }
     
     var canvasItems: [CanvasNodeEntity] {
