@@ -67,10 +67,10 @@ struct UnpackPatchNode: PatchNodeDefinition {
                       defaultType: .point4D)
             ]
 
-        case .matrixTransform:
+        case .transform:
             return [
                 .init(label: "",
-                      defaultType: .matrixTransform)
+                      defaultType: .transform)
             ]
 
         case .shapeCommand:
@@ -125,7 +125,7 @@ struct UnpackPatchNode: PatchNodeDefinition {
                       type: .number)
             ]
 
-        case .matrixTransform:
+        case .transform:
             return [
                 .init(label: "Position X",
                       type: .number),
@@ -300,7 +300,7 @@ func unpackEval(inputs: PortValuesList,
         return resultsMaker3(inputs)(point3DUnpackOp)
     case .point4D:
         return resultsMaker4(inputs)(point4DUnpackOp)
-    case .matrixTransform:
+    case .transform:
         return outputEvalHelper10(
             inputs: inputs,
             outputs: [],
