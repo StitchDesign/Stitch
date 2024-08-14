@@ -150,9 +150,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
                     isGeneratedAtTopLevel: isGeneratedAtTopLevel))
-            
-            
-            
+                        
         case .constrainWidth:
             // logInView("case .constrainWidth")
             content
@@ -175,7 +173,6 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
                     isGeneratedAtTopLevel: isGeneratedAtTopLevel))
-            
         }
     }
 }

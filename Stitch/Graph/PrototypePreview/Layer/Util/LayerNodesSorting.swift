@@ -10,87 +10,9 @@ import SwiftUI
 import StitchSchemaKit
 
 
-
-
-
-/* --------------- */
-
-/*
- Oval A
- pinTo input: [B, B, C]
- i.e. "pin A to B", "pin A to B," "pin A to C" -> 3 layer view models
- 
- i.e. 
- "pin A Loop Index 0 to B",
- "pin A Loop Index 1 to B",
- "pin A Loop Index 2 to C"
- = 3 layer view models total
- 
- 
- 
- e.g. color input: [Red, Blue, Green] -> 3 layer view models
- 
- 3 layer view models (2 are pinned to B, 1 is pinned to C)
- */
-
-
-/*
- START
- 
- Oval A
- 
- Group 1
- - B
- 
- Group 2
- - C
-
- RESULTING SIDEBAR LAYER DATA LIST ?
- [
-    A,
-    Group 1 { children: [B, A] }
-    Group 2 { children: [C, A] }
- ]
- */
-
-
-/*
- WANT
- 
- Oval A
- 
- Group 1
- - B, A
- 
- Group 2
- - C, A
- */
-
-/*
- start with A, is it pinned to any views?
- */
-
-/*
- []
- */
-
-
-/*
- Raw side bar order (nested, but no notion of loops)
- 
- LayerType set/list (nested + notion of loops)
- 
- 
- LayerDataList
- */
-
-
 extension VisibleNodesViewModel {
     
     /// Recursively creates a sorted list of layers.
-    ///
-    
-    // NEEDS TO TAKE A PIN-MAP
     @MainActor
     func recursivePreviewLayers(sidebarLayers: SidebarLayerList) -> LayerDataList {
         // let layerIdsInHierarchy = sidebarLayers.map { $0.id.asLayerNodeId }
@@ -116,9 +38,6 @@ extension VisibleNodesViewModel {
             handled = handled.union(newLayersUsedAsMaskers)
         }
         
-        // TODO: at proper hierarchy level, insert
-        
-        
         // log("recursivePreviewLayers: DONE GETTING ALL LAYER TYPES: \(layerTypesAtThisLevel)")
         
         // Sorting comparator
@@ -134,14 +53,14 @@ extension VisibleNodesViewModel {
             // 2. Sidebar order
             
             guard lhsZIndex != rhsZIndex else {
-                // Larger sidebar indices should be higher in stack
-                
-                // ^^ no, it's the opposite, right? The first item in the ordered sidebar will have index=0 but should actually be on top ?
-                //
-                // Depends on ZStack vs VStack
-                // - ZStack: smallest index = bottom of stack, largest index = top of stack
-                // - VStack: smallest index = top of column, largest index = bottom of column
-                // - HStack: smallest index = far left of row, largest index = far right of row
+                /*
+                 Larger sidebar indices should be higher in stack
+                 
+                 ... actually, depends on stack-type:
+                 - ZStack: smallest index = bottom of stack, largest index = top of stack
+                 - VStack: smallest index = top of column, largest index = bottom of column
+                 - HStack: smallest index = far left of row, largest index = far right of row
+                 */
                 return lhsSidebarIndex > rhsSidebarIndex
             }
             
@@ -151,7 +70,6 @@ extension VisibleNodesViewModel {
         let sortedLayerTypes = layerTypesAtThisLevel.sorted(by: comparator)
         
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
-            
             self.getLayerDataFromLayerType(layerType, layerNodes: self.layerNodes)
         }
         
@@ -216,23 +134,6 @@ extension VisibleNodesViewModel {
         }
     }
 }
-
-/*
- LayerType list / ordered-set
- 
- "A is pinned on top of B"
- 
- [
-    LayerType,
-    LayerType
-        children: [
-            LayerType, <-- for B
-            LayerType
-            LayerType <-- for A; inserted when we iterated over B
-        ],
-    LayerType <-- for A; the "ghost view"
- ]
- */
 
 // TODO: should SidebarLayerData be an enum on children (can be empty list) vs no-children ?
 // TODO: rename `SidebarLayerData` to `SidebarLayer` ?
@@ -328,8 +229,8 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     if hasMask,
        let maskerLayerData = maskerLayerData {
         
-        log("handleRawSidebarLayer: HAD MASKER BELOW")
-        log("handleRawSidebarLayer: maskerLayerData \(maskerLayerData.id)")
+        //        log("handleRawSidebarLayer: HAD MASKER BELOW")
+        //        log("handleRawSidebarLayer: maskerLayerData \(maskerLayerData.id)")
         
         // Note: a given masked/masker view might be a loop, so we get back not 1 but a list of LayerTypes
         let masked = getLayerTypesFromSidebarLayerData(
@@ -365,7 +266,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     
     // WE DID NOT HAVE A MASKER FOR THIS SIDEBAR LAYER
     else {
-         log("handleRawSidebarLayer: DID NOT HAVE MASKER BELOW")
+        // log("handleRawSidebarLayer: DID NOT HAVE MASKER BELOW")
         
         if !handled.contains(layerData.id.asLayerNodeId) {
             
@@ -380,7 +281,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisSidebar)
             
-//            handled.insert(layerData.id.asLayerNodeId)
+            handled.insert(layerData.id.asLayerNodeId)
             
             // Does this layer have other layers pinned to it?
             // e.g. in the "A is pinned on top of B" scenario, B has A as a pinned view.
@@ -389,23 +290,20 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
             // "Does this layer have other views pinned to it?"
             // i.e. "Is this layer the B to some A and C?"
             if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
-                log("handleRawSidebarLayer: the view \(layerData.id) had the following views pinned to it: \(pinnedViews)")
+                log("handleRawSidebarLayer: we have pinned views \(pinnedViews) for layer \(layerData.id)")
                 
                 // ... if so, iterate through B and C
                 pinnedViews.forEach { (pinnedView: LayerNodeId) in
                     
-                    log("handleRawSidebarLayer: handling the view \(pinnedView) that is pinned to view \(layerData.id)")
+                    log("handleRawSidebarLayer: handling pinned view \(pinnedView) for layer \(layerData.id)")
                     
-                    let _sidebarIndexOfPinnedView = sidebarLayers.firstIndex(where: { $0.id == pinnedView.id } )
-                    
+                    let _sidebarIndexOfPinnedView = sidebarLayers.getSidebarLayerDataIndex(pinnedView.id)
+                                        
                     log("handleRawSidebarLayer: _sidebarIndexOfPinnedView: \(_sidebarIndexOfPinnedView)")
                     
                     let sidebarIndexOfPinnedView = _sidebarIndexOfPinnedView ?? .zero
                     
-                    // `.get` uses
-//                    if let layerDataForPinnedView = sidebarLayers.get(pinnedView.id) {
-                    if let layerDataForPinnedView = sidebarLayers.first(where: { $0.id == pinnedView.id
-                    }) {
+                    if let layerDataForPinnedView = sidebarLayers.getSidebarLayerData(pinnedView.id) {
                         
                         log("handleRawSidebarLayer: layerDataForPinnedView: \(layerDataForPinnedView)")
                         log("handleRawSidebarLayer: sidebarIndexOfPinnedView: \(sidebarIndexOfPinnedView)")
@@ -414,7 +312,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                         let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
                             
                             // use the layer data for the pinned view A, not the pin-receiving view B
-                            layerDataForPinnedView, // layerData,
+                            layerDataForPinnedView,
                             
                             /*
                              Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
@@ -428,25 +326,10 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                              
                              Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
                              */
-                            
                             sidebarIndex: sidebarIndexOfPinnedView,
                             
-//                            sidebarIndex: sidebarIndex,
-                            
-                            // A is always above B
-//                            sidebarIndex: sidebarIndex - 1, // treat the
-                            
-//                             A is always below B
-//                            sidebarIndex: sidebarIndex + 1, // treat the
-                            
-                            // unchanged
                             layerNodes: layerNodes,
-                            
-                            isPinnedView: true
-                            
-//                            // unchanged, right? doesn't need to be modified etc.
-//                            pinMap: pinMap
-                        )
+                            isPinnedView: true)
                         
                         log("handleRawSidebarLayer: layer types from this pinned view \(pinnedView.id) were \(layerTypesFromThisPinnedView)")
                             
@@ -461,12 +344,11 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                 // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
             }
             
-            handled.insert(layerData.id.asLayerNodeId)
-            
+//            handled.insert(layerData.id.asLayerNodeId)
         }
-        else {
-            log("handleRawSidebarLayer: skipping this layerData since it was already used as a masker: handled: \(handled)")
-        }
+        //        else {
+        //            log("handleRawSidebarLayer: skipping this layerData since it was already used as a masker: handled: \(handled)")
+        //        }
         
     } // else
     
@@ -475,3 +357,47 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
     
     return (layerTypesAtThisLevel, handled)
 }
+
+extension SidebarLayerList {
+    
+    // TODO: remove after StitchViewModelKit's `StitchNestedList.get` method is fixed
+    func getSidebarLayerData(_ layerId: NodeId) -> SidebarLayerData? {
+        let layer: SidebarLayerData? = nil
+        
+        for sidebarLayerData in self {
+            
+            if sidebarLayerData.id == layerId {
+                return sidebarLayerData
+            } 
+            
+            else if let layerFoundInChildren = sidebarLayerData.children?.getSidebarLayerData(layerId) {
+                return layerFoundInChildren
+            }
+        } // self.forEach
+        
+        //        log("SidebarLayerList: getSidebarLayerData: for layerId \(layerId), found layer \(layer)")
+        
+        return layer
+    }
+    
+    //
+    func getSidebarLayerDataIndex(_ layerId: NodeId) -> Int? {
+        let index: Int? = nil
+        
+        for sidebarLayerData in self {
+            
+            if sidebarLayerData.id == layerId {
+                return self.firstIndex(of: sidebarLayerData)
+            }
+            
+            else if let indexFoundInChildren = sidebarLayerData.children?.getSidebarLayerDataIndex(layerId) {
+                return indexFoundInChildren
+            }
+        } // self.forEach
+        
+        //        log("SidebarLayerList: getSidebarLayerData: for layerId \(layerId), found layer \(layer)")
+        
+        return index
+    }
+}
+

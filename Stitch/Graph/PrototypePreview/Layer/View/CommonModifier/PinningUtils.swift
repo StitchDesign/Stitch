@@ -9,10 +9,23 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-
-
-
 // MARK: POSITIONING
+
+extension GraphState {
+    var rootPinReceiverData: PinReceiverData {
+        PinReceiverData(
+            // anchoring
+            size: self.previewWindowSize,
+
+            origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
+            
+            // rotation this will be ignored
+            center: .zero,
+            rotationX: .zero,
+            rotationY: .zero,
+            rotationZ: .zero)
+    }
+}
 
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
@@ -27,7 +40,6 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
     switch pinnedTo {
     
     case .root:
-        log("getPinReceiverData: WILL RETURN ROOT CASE")
         return graph.rootPinReceiverData
     
         // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
@@ -49,19 +61,18 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
     }
 }
 
-extension GraphState {
-    var rootPinReceiverData: PinReceiverData {
-        PinReceiverData(
-            // anchoring
-            size: self.previewWindowSize,
-
-            origin: .zero, // should be okay, since preview window is root of PreviewWindowCoordinate space anyway?
-            
-            // rotation this will be ignored
-            center: .zero,
-            rotationX: .zero,
-            rotationY: .zero,
-            rotationZ: .zero)
+extension PinToId {
+    // nil: either pinToId = root or  pinToId could not be found
+    func asLayerNodeId(_ pinnedViewId: LayerNodeId,
+                       from graph: GraphState) -> LayerNodeId? {
+        switch self {
+        case .root:
+            return nil // root has no associated layer node id
+        case .layer(let x):
+            return x
+        case .parent:
+            return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
+        }
     }
 }
 
@@ -93,7 +104,6 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
         log("getPinReceiverData: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
         return nil
     }
-    
     
     return PinReceiverData(
         // anchoring

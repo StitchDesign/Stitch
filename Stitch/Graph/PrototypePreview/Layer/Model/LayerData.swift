@@ -26,9 +26,7 @@ indirect enum LayerType: Equatable, Hashable {
 /// Data type used for getting sorted data in views.
 indirect enum LayerData {
     case nongroup(LayerViewModel, isPinnedView: Bool)
-//    case nongroup(LayerViewModel)
     case group(LayerViewModel, LayerDataList, isPinnedView: Bool)
-//    case group(LayerViewModel, LayerDataList)
     case mask(masked: LayerDataList, masker: LayerDataList)
 }
 
@@ -144,6 +142,8 @@ extension LayerType {
     }
 }
 
+// If pinned, the same layer view model is rendered in PreviewLayers twice (GhostView, PinnedView),
+// so we need an id that distinguishes
 struct LayerDataId: Equatable, Hashable, Codable {
     let coordinate: PreviewCoordinate
     let isPinned: Bool
@@ -154,6 +154,7 @@ extension LayerData: Identifiable {
         self.layer.id
     }
 
+    // Perf cost?
     var layerDataId: LayerDataId {
         LayerDataId(coordinate: self.layer.id,
                     isPinned: self.isPinned)
