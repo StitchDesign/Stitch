@@ -188,7 +188,6 @@ struct LayerRotationModifier: ViewModifier {
                     // TODO: why does `.ignoredByLayout` negatively affect the Monthly Stays demo?
                     .ignoredByLayout())
         } else {
-            // Non-pinned views are not "ignored by layout"
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
                                             axis: (x: rotationX,

@@ -9,6 +9,65 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+// MARK: SORTING
+
+/*
+ "A is pinned on top of B," "D is pinned on top of B"
+ B -> A i.e. "pin-receiving layer -> pinned layer"
+  
+ Oval A has pinTo input loop = [B, B, C]
+ Oval D has pinTo input loop = [C]
+ 
+ pinMap will be [
+     B: { A },
+     C: { A, D },
+ ]
+ */
+typealias PinMap = [LayerNodeId: LayerIdSet]
+
+extension VisibleNodesViewModel {
+    
+    @MainActor
+    func getPinMap() -> PinMap {
+        
+        var pinMap = PinMap()
+        
+        // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
+        self.layerNodes.forEach { (nodeId: NodeId, node: NodeViewModel) in
+            
+            node.layerNodeViewModel?.pinToPort.allLoopedValues.forEach({ value in
+                
+                if let pinToId = value.getPinToId {
+                    
+                    switch pinToId {
+                        
+                    case .layer(let pinReceivingLayer):
+                        let pinnedLayer = nodeId.asLayerNodeId
+                        
+                        log("getPinMap: pinMap was: \(pinMap)")
+                        log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
+                        
+                        var current = pinMap.get(pinReceivingLayer) ?? .init()
+                        log("getPinMap: current was: \(current)")
+                        
+                        current.insert(pinnedLayer)
+                        log("getPinMap: current is now: \(current)")
+                        
+                        pinMap.updateValue(current, forKey: pinReceivingLayer)
+                        log("getPinMap: pinMap is now: \(pinMap)")
+                        
+                    default:
+                        log("getPinMap: handle parent or root case later")
+                    }
+                }
+            })
+        } // self.layerNodes.forEach
+        
+        return pinMap
+    }
+}
+
+
 // MARK: POSITIONING
 
 extension GraphState {

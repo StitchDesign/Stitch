@@ -8,72 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-// typealias PreviewZIndexMap = [PreviewCoordinate: CGFloat]
-
-// `one pin-receiving layer view model -> its pinned layer view models`
-//typealias PinMap = [LayerNodeId: LayerIdSet]
-//typealias PinMap = [LayerNodeId: Set<PreviewCoordinate>]
-
-
-
-
-/*
- "A is pinned on top of B," "D is pinned on top of B"
- B -> A i.e. "pin-receiving layer -> pinned layer"
- 
- 
- Oval A has pinTo input loop = [B, B, C]
- Oval D has pinTo input loop = [C]
- 
- pinMap will be [
-     B: { A },
-     C: { A, D },
- ]
- */
-typealias PinMap = [LayerNodeId: LayerIdSet]
-
-extension VisibleNodesViewModel {
-    
-    @MainActor
-    func getPinMap() -> PinMap {
-        
-        var pinMap = PinMap()
-        
-        // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
-        self.layerNodes.forEach { (nodeId: NodeId, node: NodeViewModel) in
-            
-            node.layerNodeViewModel?.pinToPort.allLoopedValues.forEach({ value in
-                
-                if let pinToId = value.getPinToId {
-                    
-                    switch pinToId {
-                        
-                    case .layer(let pinReceivingLayer):
-                        let pinnedLayer = nodeId.asLayerNodeId
-                        
-                        log("getPinMap: pinMap was: \(pinMap)")
-                        log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
-                        
-                        var current = pinMap.get(pinReceivingLayer) ?? .init()
-                        log("getPinMap: current was: \(current)")
-                        
-                        current.insert(pinnedLayer)
-                        log("getPinMap: current is now: \(current)")
-                        
-                        pinMap.updateValue(current, forKey: pinReceivingLayer)
-                        log("getPinMap: pinMap is now: \(pinMap)")
-                        
-                    default:
-                        log("getPinMap: handle parent or root case later")
-                    }
-                }
-            })
-        } // self.layerNodes.forEach
-        
-        return pinMap
-    }
-}
-
 
 /// The top-level preview window view encompassing all views.
 struct GeneratePreview: View {
@@ -88,17 +22,7 @@ struct GeneratePreview: View {
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
         self.graph.cachedOrderedPreviewLayers
-//        self.graph.updateOrderedPreviewLayers()
     }
-    
-//    var pinnedViews: LayerDataList {
-//         let pinned = getPinnedViews(self.sortedLayerDataList,
-//                                     acc: .init())
-//
-//         log("GeneratePreview: pinned.count: \(pinned.count)")
-//         log("GeneratePreview: pinned: \(pinned)")
-//         return pinned
-//     }
     
     var body: some View {
         ZStack {
@@ -116,24 +40,6 @@ struct GeneratePreview: View {
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)
-
-//            // `PinnedView`s only
-//            PreviewLayersView(graph: graph,
-//                              layers: pinnedViews,
-//                              // i.e. read this PinnedView's center (for rotation)
-//                              // TODO: Will this be incorrect for rotation uing `.ignoredByLayout` or not?
-//                              
-//                              isGeneratedAtTopLevel: true,
-//                              parentSize: graph.previewWindowSize,
-//                              parentId: nil,
-//                              parentOrientation: .none,
-//                              parentPadding: .zero,
-//                              parentSpacing: .zero,
-//                              // Always false at top-level
-//                              parentCornerRadius: 0,
-//                              parentUsesHug: false,
-//                              parentGridData: nil)
-//            .border(.black)
         }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
@@ -147,9 +53,7 @@ struct GeneratePreview: View {
 struct PreviewLayersView: View {
     @Bindable var graph: GraphState
     let layers: LayerDataList
-    
-//    let isGeneratedAtTopLevel: Bool
-    
+        
     /*
      When `PreviewLayersView` called from top-level:
      -- `parentSize` is preview window size
@@ -327,7 +231,6 @@ struct PreviewLayersView: View {
 struct LayerDataView: View {
     @Bindable var graph: GraphState
     let layerData: LayerData
-//    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
