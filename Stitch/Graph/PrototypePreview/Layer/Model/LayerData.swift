@@ -60,8 +60,6 @@ enum PinnedViewType {
 }
 
 extension LayerType {
-
-    // DEBUG ONLY?
     var id: PreviewCoordinate {
         switch self {
         case .nongroup(let data):
@@ -75,6 +73,7 @@ extension LayerType {
         }
     }
 
+    // DEBUG ONLY?
     var layer: Layer {
         switch self {
         case .nongroup(let data):

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
+extension VisibleNodesViewModel {
     func receivesAPin(_ layerId: NodeId) -> Bool {
         for layerNode in self.layerNodes {
             if let layerViewModels = layerNode.value.layerNode?.previewLayerViewModels {
@@ -82,7 +82,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         } else {
             // TODO: cache this ?
             // TODO: why does the pin-receiving view *also* need to use `.ignoredByLayout` ?
-            return graph.receivesAPin(viewModel.id.layerNodeId.asNodeId)
+            return graph.visibleNodesViewModel.receivesAPin(viewModel.id.layerNodeId.asNodeId)
         }
     }
     

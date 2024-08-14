@@ -26,17 +26,14 @@ struct GeneratePreview: View {
     
     var body: some View {
         ZStack {
-
             // Regular rendering of views in their proper place in the hierarchy
             PreviewLayersView(graph: graph,
                               layers: sortedLayerDataList,
-//                              isGeneratedAtTopLevel: false,
                               parentSize: graph.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
                               parentPadding: .zero,
                               parentSpacing: .zero,
-                              // Always false at top-level
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)

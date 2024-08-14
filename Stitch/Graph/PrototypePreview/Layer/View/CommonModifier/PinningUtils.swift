@@ -23,10 +23,11 @@ import SwiftUI
      C: { A, D },
  ]
  */
-typealias PinMap = [LayerNodeId: LayerIdSet]
+typealias PinMap = [LayerNodeId?: LayerIdSet]
 
 extension VisibleNodesViewModel {
     
+    // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
     @MainActor
     func getPinMap() -> PinMap {
         
@@ -35,30 +36,34 @@ extension VisibleNodesViewModel {
         // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
         self.layerNodes.forEach { (nodeId: NodeId, node: NodeViewModel) in
             
-            node.layerNodeViewModel?.pinToPort.allLoopedValues.forEach({ value in
-                
-                if let pinToId = value.getPinToId {
+            // Iterate th
+            node.layerNode?.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
+                                
+                if let pinToId = viewModel.pinTo.getPinToId {
                     
-                    switch pinToId {
-                        
-                    case .layer(let pinReceivingLayer):
-                        let pinnedLayer = nodeId.asLayerNodeId
-                        
-                        log("getPinMap: pinMap was: \(pinMap)")
-                        log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
-                        
-                        var current = pinMap.get(pinReceivingLayer) ?? .init()
-                        log("getPinMap: current was: \(current)")
-                        
-                        current.insert(pinnedLayer)
-                        log("getPinMap: current is now: \(current)")
-                        
-                        pinMap.updateValue(current, forKey: pinReceivingLayer)
-                        log("getPinMap: pinMap is now: \(pinMap)")
-                        
-                    default:
-                        log("getPinMap: handle parent or root case later")
+                    // `PinToId.root` case does not have a corresponding layer node,
+                    //
+                   let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
+                    
+                    if pinReceivingLayer == nil && pinToId != .root {
+                        fatalErrorIfDebug("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'")
+                        return
                     }
+                    
+                    let pinnedLayer = nodeId.asLayerNodeId
+                    
+                    log("getPinMap: pinMap was: \(pinMap)")
+                    log("getPinMap: \(pinnedLayer) layer view model is pinned to layer \(pinnedLayer)")
+                    
+                    var current = pinMap.get(pinReceivingLayer) ?? .init()
+                    log("getPinMap: current was: \(current)")
+                    
+                    current.insert(pinnedLayer)
+                    log("getPinMap: current is now: \(current)")
+                    
+                    pinMap.updateValue(current, forKey: pinReceivingLayer)
+                    log("getPinMap: pinMap is now: \(pinMap)")
+            
                 }
             })
         } // self.layerNodes.forEach
@@ -123,7 +128,7 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
 extension PinToId {
     // nil: either pinToId = root or  pinToId could not be found
     func asLayerNodeId(_ pinnedViewId: LayerNodeId,
-                       from graph: GraphState) -> LayerNodeId? {
+                       from graph: VisibleNodesViewModel) -> LayerNodeId? {
         switch self {
         case .root:
             return nil // root has no associated layer node id
