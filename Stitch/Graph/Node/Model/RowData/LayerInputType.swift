@@ -1361,20 +1361,6 @@ extension LayerInputPort {
     }
 }
 
-//extension UnpackedPortType {
-//    @MainActor
-//    var layerNodeKeyPath: ReferenceWritableKeyPath<LayerInputUnpackedPortObserver, InputLayerNodeRowData> {
-//        switch self {
-//        case .port0:
-//            return \.port0
-//        case .port1:
-//            return \.port1
-//        case .port2:
-//            return \.port2
-//        }
-//    }
-//}
-
 extension LayerInputEntity {
     static let empty: Self = .init(packedData: .empty,
                                    unpackedData: [])

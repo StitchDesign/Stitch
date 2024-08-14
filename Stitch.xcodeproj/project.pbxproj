@@ -42,6 +42,8 @@
 		8B77BA792713CED400255C40 /* GraphUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B77BA782713CED300255C40 /* GraphUI.swift */; };
 		8B77BA7B2713D35C00255C40 /* GraphUIActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B77BA7A2713D35C00255C40 /* GraphUIActions.swift */; };
 		8BD59DA526CCB93400F38DFF /* SchemaConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */; };
+		B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */; };
+		B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50192082C6D100E00A048ED /* LayerInputObserver.swift */; };
 		B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */; };
 		B50AD530292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */; };
 		B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */; };
@@ -940,6 +942,8 @@
 		8B77BA782713CED300255C40 /* GraphUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphUI.swift; sourceTree = "<group>"; };
 		8B77BA7A2713D35C00255C40 /* GraphUIActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphUIActions.swift; sourceTree = "<group>"; };
 		8BD59DA426CCB93400F38DFF /* SchemaConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaConversionTests.swift; sourceTree = "<group>"; };
+		B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputUnpackedPortObserver.swift; sourceTree = "<group>"; };
+		B50192082C6D100E00A048ED /* LayerInputObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerInputObserver.swift; sourceTree = "<group>"; };
 		B506CEC92A26B19300FD9F37 /* NodeFieldsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeFieldsView.swift; sourceTree = "<group>"; };
 		B50AD52F292C9DDF003CC61E /* InsertNodeMenuNodeDescriptionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuNodeDescriptionView.swift; sourceTree = "<group>"; };
 		B50AD533292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsertNodeMenuSearchResults.swift; sourceTree = "<group>"; };
@@ -1916,6 +1920,15 @@
 			path = Sounds;
 			sourceTree = "<group>";
 		};
+		B50192072C6D100000A048ED /* Layer */ = {
+			isa = PBXGroup;
+			children = (
+				B50192052C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift */,
+				B50192082C6D100E00A048ED /* LayerInputObserver.swift */,
+			);
+			path = Layer;
+			sourceTree = "<group>";
+		};
 		B50F416F2C1F52A70082262F /* LayerInspector */ = {
 			isa = PBXGroup;
 			children = (
@@ -2129,6 +2142,7 @@
 		B55500BE2C1B9D700081C3F1 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				B50192072C6D100000A048ED /* Layer */,
 				EC3A6C452C20C23200CCBACC /* NodeRowObserver */,
 				B55500BF2C1B9D890081C3F1 /* FieldGroupTypeViewModel.swift */,
 				B55500C32C1B9E300081C3F1 /* FieldViewModel.swift */,
@@ -4501,6 +4515,7 @@
 				ECEEA4FD2AFCA90F00C7CE86 /* CommentBoxGestureActions.swift in Sources */,
 				ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */,
 				EC004DD52B44EE6000C5DB33 /* LayerEvalExtensions.swift in Sources */,
+				B50192062C6D0FB300A048ED /* LayerInputUnpackedPortObserver.swift in Sources */,
 				EC4914A02935979800D74344 /* TextReplaceNode.swift in Sources */,
 				ECE639202C489C4F00FB8D5F /* ShadowFlyoutView.swift in Sources */,
 				EC572B3B26337C5F00C8E49A /* NodeTypeUtils.swift in Sources */,
@@ -4816,6 +4831,7 @@
 				EC2942332BA136D500D14CD1 /* LayerNodesForSidebarDict.swift in Sources */,
 				EC0F334A2BED93D9008093BC /* NodeDelegate.swift in Sources */,
 				EC5E3A1828188DF5001E156F /* ProjectDestructiveActions.swift in Sources */,
+				B50192092C6D100E00A048ED /* LayerInputObserver.swift in Sources */,
 				ECA92A50260A6B8F00281B52 /* Input.swift in Sources */,
 				B506CECA2A26B19300FD9F37 /* NodeFieldsView.swift in Sources */,
 				ECDC622226584F8400F67ED8 /* PHPickerView.swift in Sources */,
