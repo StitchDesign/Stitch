@@ -47,7 +47,7 @@ struct TransformPackPatchNode: PatchNodeDefinition {
                   isTypeStatic: true)
         ],
         outputs: [
-            .init(type: .matrixTransform)
+            .init(type: .transform)
         ])
 
     }

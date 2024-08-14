@@ -12,7 +12,7 @@ struct TransformUnpackPatchNode: PatchNodeDefinition {
     static let patch = Patch.transformUnpack
 
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
-        .init(inputs: .singleUnlabeledInput(.matrixTransform),
+        .init(inputs: .singleUnlabeledInput(.transform),
               outputs: [.init(label: "Position X",
                               type: .number),
                         .init(label: "Position Y",
