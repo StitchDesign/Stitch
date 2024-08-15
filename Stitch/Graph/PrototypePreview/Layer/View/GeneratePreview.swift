@@ -17,7 +17,6 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
 
-    // Needs to be two separate `LayerDataList`: one list for top level "PinnedViewA" and another for normally placed "GhostViewA"
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
