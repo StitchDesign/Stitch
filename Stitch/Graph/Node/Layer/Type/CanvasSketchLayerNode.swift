@@ -57,11 +57,11 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
-                        isPinnedViewRendering: Bool,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(graph: graph,
                          layerViewModel: viewModel,
-                         isPinnedViewRendering: isPinnedViewRendering,
+                         isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                          interactiveLayer: viewModel.interactiveLayer,
                          lineColor: viewModel.lineColor.getColor ?? CanvasSketchLayerNodeHelpers.defaultLineColor,
                          lineWidth: viewModel.lineWidth.getNumber ?? CanvasSketchLayerNodeHelpers.defaultLineWidth,

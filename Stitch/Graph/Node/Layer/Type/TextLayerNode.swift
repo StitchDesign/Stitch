@@ -71,12 +71,12 @@ struct TextLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             text: viewModel.text.display,
             color: viewModel.color.getColor ?? falseColor,

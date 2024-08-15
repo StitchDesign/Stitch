@@ -35,12 +35,12 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewProgressIndicatorLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             animating: Binding<Bool>(
                 get: { viewModel.isAnimating.getBool ?? true },
@@ -73,7 +73,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
 struct PreviewProgressIndicatorLayer: View {
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     @Binding var animating: Bool
     var style: ProgressIndicatorStyle
@@ -116,7 +116,7 @@ struct PreviewProgressIndicatorLayer: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: 0,

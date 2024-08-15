@@ -33,7 +33,7 @@ extension LayerDimension {
 struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     
     let aspectRatio: AspectRatioData
     let size: LayerSize
@@ -109,7 +109,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
             content
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
@@ -126,7 +126,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
             // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel))
             
         case .constrainHeight:
             // logInView("case .constrainHeight")
@@ -135,7 +135,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
@@ -149,8 +149,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(LayerSizeReader(viewModel: viewModel))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
-                        
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel))
+            
+            
+            
         case .constrainWidth:
             // logInView("case .constrainWidth")
             content
@@ -158,7 +160,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
@@ -172,7 +174,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(LayerSizeReader(viewModel: viewModel))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel))
+            
         }
     }
 }

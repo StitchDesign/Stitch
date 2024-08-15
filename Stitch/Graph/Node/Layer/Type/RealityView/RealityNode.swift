@@ -44,11 +44,11 @@ struct RealityViewLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
+                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewRealityLayer(graph: graph,
                             viewModel: viewModel,
-                            isPinnedViewRendering: isPinnedViewRendering,
+                            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                             parentSize: parentSize,
                             parentDisablesPosition: parentDisablesPosition)
     }

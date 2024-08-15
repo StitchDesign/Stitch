@@ -16,7 +16,7 @@ struct VisualMediaLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -84,14 +84,14 @@ struct VisualMediaLayerView: View {
                 ImageLayerView(graph: graph,
                                viewModel: viewModel,
                                image: image, 
-                               isPinnedViewRendering: isPinnedViewRendering,
+                               isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                parentSize: parentSize,
                                parentDisablesPosition: parentDisablesPosition)
             case .video(let video):
                 VideoLayerView(graph: graph,
                                viewModel: viewModel,
                                video: video,
-                               isPinnedViewRendering: isPinnedViewRendering,
+                               isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                parentSize: parentSize,
                                parentDisablesPosition: parentDisablesPosition)
             default:
@@ -111,7 +111,7 @@ struct ImageLayerView: View {
     @Bindable var viewModel: LayerViewModel
     let image: UIImage
     
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
 
@@ -119,7 +119,7 @@ struct ImageLayerView: View {
         PreviewImageLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             image: image,
             position: viewModel.position.getPosition ?? CGSize.zero,
@@ -154,7 +154,7 @@ struct VideoLayerView: View {
     @Bindable var viewModel: LayerViewModel
     @State var video: StitchVideoImportPlayer
     
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
 
@@ -162,7 +162,7 @@ struct VideoLayerView: View {
         PreviewVideoLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             videoPlayer: video,
             position: viewModel.position.getPosition ?? CGSize.zero,
