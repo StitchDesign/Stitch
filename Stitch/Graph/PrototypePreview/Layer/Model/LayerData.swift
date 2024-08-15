@@ -42,7 +42,7 @@ struct LayerGroupData: Equatable, Hashable {
     let id: PreviewCoordinate
     let zIndex: CGFloat
     let sidebarIndex: Int
-    let childrenSidebarLayers: SidebarLayerList // why isn't this a list of
+    let childrenSidebarLayers: SidebarLayerList
     let layer: Layer // debug
     let pinnedViewType: PinnedViewType?
 }

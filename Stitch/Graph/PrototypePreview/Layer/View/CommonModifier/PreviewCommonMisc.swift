@@ -9,26 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension VisibleNodesViewModel {
-    func receivesAPin(_ layerId: NodeId) -> Bool {
-        for layerNode in self.layerNodes {
-            if let layerViewModels = layerNode.value.layerNode?.previewLayerViewModels {
-                for layerViewModel in layerViewModels {
-                    if let pinToId = layerViewModel.pinTo.getPinToId,
-                       let layerNodeId = pinToId.asLayerNodeId(layerViewModel.id.layerNodeId,
-                                                               from: self),
-                       layerId == layerNodeId.asNodeId {
-                        
-                        return true
-                    }
-                }
-            }
-        }
-        
-        return false
-    }
-}
-
 // To avoid a bug where GeometryReader treats a rotated view as increased in size,
 // we use _Rotation3DEffect.ignoredByLayout instead of .rotation3DEffect:
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
@@ -75,17 +55,12 @@ struct PreviewLayerRotationModifier: ViewModifier {
         isPinned && isPinnedViewRendering
     }
     
+    @MainActor
     var receivesPin: Bool {
-        // Perf hack: skip this expensive check if we have no-rotation
-        if rotationX == .zero, rotationY == .zero, rotationZ == .zero {
-            return false
-        } else {
-            // TODO: cache this ?
-            // TODO: why does the pin-receiving view *also* need to use `.ignoredByLayout` ?
-            return graph.visibleNodesViewModel.receivesAPin(viewModel.id.layerNodeId.asNodeId)
-        }
+        !(self.graph.graphUI.pinMap.get(viewModel.id.layerNodeId) ?? []).isEmpty
     }
     
+    @MainActor
     var shouldBeIgnoredByLayout: Bool {
         isPinned || receivesPin
     }
@@ -135,6 +110,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    @MainActor
     func rotationModifier(degrees: CGFloat) -> LayerRotationModifier {
         LayerRotationModifier(degrees: degrees,
                               rotationX: finalRotationX,

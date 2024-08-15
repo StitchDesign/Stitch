@@ -14,7 +14,7 @@ extension VisibleNodesViewModel {
     /// Recursively creates a sorted list of layers.
     @MainActor
     func recursivePreviewLayers(sidebarLayers: SidebarLayerList,
-                                isRoot: Bool) -> LayerDataList {
+                                isRoot: Bool) -> (LayerDataList, PinMap) {
         
         let pinMap: PinMap = self.getPinMap()
         
@@ -88,7 +88,7 @@ extension VisibleNodesViewModel {
         
         log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
-        return sortedLayerDataList
+        return (sortedLayerDataList, pinMap)
     }
     
     @MainActor
@@ -135,7 +135,7 @@ extension VisibleNodesViewModel {
             
             // Recursively call on group data
             // TODO: we start the recursion all over again here? do we need to pass on the same pinMap?
-            let childrenData = self.recursivePreviewLayers(
+            let (childrenData, _) = self.recursivePreviewLayers(
                 sidebarLayers: layerGroupData.childrenSidebarLayers,
                 isRoot: false)
             
