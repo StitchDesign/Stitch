@@ -30,6 +30,10 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 
 @Observable
 final class GraphUIState {
+    
+    /// Used in rotation modifier to know whether view receives a pin;
+    /// updated whenever preview layers cache is updated.
+    var pinMap = PinMap()
 
     let propertySidebar = PropertySidebarObserver()
     
