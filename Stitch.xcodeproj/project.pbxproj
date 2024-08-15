@@ -253,6 +253,7 @@
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
+		E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */; };
 		E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */; };
 		E4CC7D0D28F48EF6008EA1C0 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4CC7D0C28F48EF6008EA1C0 /* QuickLook.framework */; };
 		E4CC7D1028F48EF6008EA1C0 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D0F28F48EF6008EA1C0 /* PreviewViewController.swift */; };
@@ -1791,6 +1792,7 @@
 				B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */,
 				20D1601925A802FF005AEB72 /* NonEmpty in Frameworks */,
 				B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */,
+				E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */,
 				B58612AF2C68681600C64313 /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
@@ -4314,8 +4316,8 @@
 				ECD5438D29A003F8009D0A30 /* DisplayLink */,
 				B50F41672C1EB4320082262F /* StitchViewKit */,
 				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
-				B5BBA0272C50616E0099C8C0 /* StitchEngine */,
 				E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */,
+				E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4401,7 +4403,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */,
-				E4CC357F2C6D39D600DF5B3C /* XCLocalSwiftPackageReference "../StitchSchemaKit" */,
+				E4CB840B2C6E8E85000D6D31 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5964,7 +5966,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		E4CC357F2C6D39D600DF5B3C /* XCLocalSwiftPackageReference "../StitchSchemaKit" */ = {
+		E4CB840B2C6E8E85000D6D31 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../StitchSchemaKit;
 		};
@@ -6135,6 +6137,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
 			productName = DirectoryWatcher;
+		};
+		E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchSchemaKit;
 		};
 		E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;
