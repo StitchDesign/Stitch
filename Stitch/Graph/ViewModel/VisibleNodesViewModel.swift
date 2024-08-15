@@ -39,11 +39,6 @@ extension VisibleNodesViewModel {
     func getViewModel(_ id: NodeId) -> NodeViewModel? {
         self.nodes.get(id)
     }
-    
-    // Provide an API more consistent with GraphState, GraphDelegate
-    func getNode(_ id: NodeId) -> NodeViewModel? {
-        self.getViewModel(id)
-    }
 
     func removeOldViewModels(currentIds: NodeIdSet,
                              newIds: NodeIdSet,

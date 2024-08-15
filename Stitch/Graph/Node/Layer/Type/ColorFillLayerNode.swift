@@ -31,12 +31,12 @@ struct ColorFillLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
-                        isPinnedViewRendering: Bool,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewColorFillLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
             color: viewModel.color.getColor ?? .falseColor,

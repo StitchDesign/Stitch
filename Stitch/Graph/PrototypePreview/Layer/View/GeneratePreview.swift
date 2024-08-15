@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+// typealias PreviewZIndexMap = [PreviewCoordinate: CGFloat]
 
 /// The top-level preview window view encompassing all views.
 struct GeneratePreview: View {
@@ -17,25 +18,68 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
 
-    @MainActor
+    // Needs to be two separate `LayerDataList`: one list for top level "PinnedViewA" and another for normally placed "GhostViewA"
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
         self.graph.cachedOrderedPreviewLayers
     }
     
+    var pinnedViews: LayerDataList {
+         let pinned = getPinnedViews(self.sortedLayerDataList,
+                                     acc: .init())
+
+         log("GeneratePreview: pinned.count: \(pinned.count)")
+         log("GeneratePreview: pinned: \(pinned)")
+         return pinned
+     }
+    
     var body: some View {
+//        PreviewLayersView(graph: graph,
+//                          layers: sortedLayerDataList,
+//                          // True only for `PinnedView`s
+//                          isGeneratedAtTopLevel: false,
+//                          parentSize: graph.previewWindowSize,
+//                          parentId: nil,
+//                          parentOrientation: .none,
+//                          parentPadding: .zero,
+//                          parentSpacing: .zero,
+//                          // Always false at top-level
+//                          parentCornerRadius: 0,
+//                          parentUsesHug: false,
+//                          parentGridData: nil)
+        
+        
         ZStack {
+
             // Regular rendering of views in their proper place in the hierarchy
             PreviewLayersView(graph: graph,
                               layers: sortedLayerDataList,
+                              isGeneratedAtTopLevel: false,
                               parentSize: graph.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
                               parentPadding: .zero,
                               parentSpacing: .zero,
+                              // Always false at top-level
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)
+
+            // `PinnedView`s only
+            PreviewLayersView(graph: graph,
+                              layers: pinnedViews,
+                              // i.e. read this PinnedView's center (for rotation)
+                              isGeneratedAtTopLevel: true,
+                              parentSize: graph.previewWindowSize,
+                              parentId: nil,
+                              parentOrientation: .none,
+                              parentPadding: .zero,
+                              parentSpacing: .zero,
+                              // Always false at top-level
+                              parentCornerRadius: 0,
+                              parentUsesHug: false,
+                              parentGridData: nil)
+//            .border(.black)
         }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
@@ -49,7 +93,9 @@ struct GeneratePreview: View {
 struct PreviewLayersView: View {
     @Bindable var graph: GraphState
     let layers: LayerDataList
-        
+    
+    let isGeneratedAtTopLevel: Bool
+    
     /*
      When `PreviewLayersView` called from top-level:
      -- `parentSize` is preview window size
@@ -104,12 +150,11 @@ struct PreviewLayersView: View {
         if spacing.isEvenly {
             Spacer()
         }
-                        
-        // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
-            
+        
+        ForEach(layersInProperOrder) { layerData in
             LayerDataView(graph: graph,
                           layerData: layerData,
+                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
             
@@ -220,6 +265,7 @@ struct PreviewLayersView: View {
 struct LayerDataView: View {
     @Bindable var graph: GraphState
     let layerData: LayerData
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -243,6 +289,7 @@ struct LayerDataView: View {
                     let masked: some View = LayerDataView(
                         graph: graph,
                         layerData: maskedLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -250,6 +297,7 @@ struct LayerDataView: View {
                     let masker: some View = LayerDataView(
                         graph: graph,
                         layerData: maskerLayerData,
+                        isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition)
                     
@@ -260,27 +308,29 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel, let isPinned):
+        case .nongroup(let layerViewModel):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
-                                          isPinnedViewRendering: isPinned,
+                                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
                 EmptyView()
             }
                         
-        case .group(let layerViewModel, let childrenData, let isPinned):
+        case .group(let layerViewModel,
+                    let childrenData):
+            
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 GroupPreviewLayersView(graph: graph,
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
-                                       isPinnedViewRendering: isPinned,
+                                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -295,7 +345,7 @@ struct NonGroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var layerViewModel: LayerViewModel
 
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -304,7 +354,7 @@ struct NonGroupPreviewLayersView: View {
             PreviewLayerView(graph: graph,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
-                             isPinnedViewRendering: isPinnedViewRendering,
+                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                              parentSize: parentSize,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
@@ -318,7 +368,7 @@ struct GroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     let layerViewModel: LayerViewModel
     let childrenData: LayerDataList
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -328,7 +378,7 @@ struct GroupPreviewLayersView: View {
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,
-                                   isPinnedViewRendering: isPinnedViewRendering,
+                                   isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                                    parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()
