@@ -381,10 +381,6 @@ extension NodeViewModel {
     
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        guard let graph = self.graphDelegate else {
-            return nil
-        }
-        
         switch id.graphItemType {
         case .node(let canvasId):
             let canvas = self.getCanvasObserver(for: canvasId)
@@ -410,9 +406,27 @@ extension NodeViewModel {
     
     @MainActor
     func getOutputRowViewModel(for id: NodeRowViewModelId) -> OutputNodeRowViewModel? {
-        self.getAllOutputsObservers()
-            .flatMap { $0.allRowViewModels }
-            .first { $0.id == id }
+        switch id.graphItemType {
+        case .node(let canvasId):
+            let canvas = self.getCanvasObserver(for: canvasId)
+            return canvas?.outputViewModels[safe: id.portId]
+            
+        case .layerInspector(let portType):
+            guard let layerNode = self.layerNode else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            switch portType {
+            case .keyPath:
+                fatalErrorIfDebug("unexpected keypath for output view model getter")
+                return nil
+                
+            case .portIndex(let portId):
+                let outputData = layerNode.outputPorts[safe: portId]
+                return outputData?.inspectorRowViewModel
+            }
+        }
     }
 
     /// Gets output row observer for some node.
