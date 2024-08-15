@@ -16,7 +16,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -32,7 +32,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
         if viewModel.isPinned.getBool ?? false,
-           isGeneratedAtTopLevel,
+           isPinnedViewRendering,
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
@@ -52,11 +52,17 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     var isPinnedView: Bool {
-        isPinned && isGeneratedAtTopLevel
+        isPinned && isPinnedViewRendering
     }
     
-    var isGhostView: Bool {
-        isPinned && !isGeneratedAtTopLevel
+    @MainActor
+    var receivesPin: Bool {
+        !(self.graph.graphUI.pinMap.get(viewModel.id.layerNodeId) ?? []).isEmpty
+    }
+    
+    @MainActor
+    var shouldBeIgnoredByLayout: Bool {
+        isPinned || receivesPin
     }
     
     // PinnedViewA uses rotation value of its pin-receiver View B
@@ -104,6 +110,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    @MainActor
     func rotationModifier(degrees: CGFloat) -> LayerRotationModifier {
         LayerRotationModifier(degrees: degrees,
                               rotationX: finalRotationX,
@@ -111,7 +118,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
                               rotationZ: finalRotationZ,
                               rotationAnchorX: self.rotationAnchorX,
                               rotationAnchorY: self.rotationAnchorY,
-                              isGhostView: isGhostView)
+                              shouldBeIgnoredByLayout: shouldBeIgnoredByLayout)
     }
     
     func body(content: Content) -> some View {
@@ -143,10 +150,10 @@ struct LayerRotationModifier: ViewModifier {
     let rotationAnchorX: CGFloat
     let rotationAnchorY: CGFloat
     
-    let isGhostView: Bool
+    let shouldBeIgnoredByLayout: Bool
     
     func body(content: Content) -> some View {
-        if isGhostView {
+        if shouldBeIgnoredByLayout {
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
                                             axis: (x: rotationX,
@@ -192,4 +199,3 @@ struct PreviewLayerEffectsModifier: ViewModifier {
             .saturation(saturation)
     }
 }
-

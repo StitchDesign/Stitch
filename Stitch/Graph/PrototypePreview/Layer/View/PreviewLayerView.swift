@@ -13,7 +13,7 @@ struct PreviewLayerView: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layer: Layer
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
 
@@ -26,7 +26,7 @@ struct PreviewLayerView: View {
                                      viewModel: layerViewModel,
                                      parentSize: parentSize,
                                      layersInGroup: [],
-                                     isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                                     isPinnedViewRendering: isPinnedViewRendering,
                                      parentDisablesPosition: parentDisablesPosition)
         .eraseToAnyView()
     }
