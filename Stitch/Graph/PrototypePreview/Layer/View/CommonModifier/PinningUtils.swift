@@ -39,7 +39,9 @@ extension VisibleNodesViewModel {
             // Iterate th
             node.layerNode?.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
                                 
-                if let pinToId = viewModel.pinTo.getPinToId {
+                // have to check whether the viewModel is actually pinned as well
+                if (viewModel.isPinned.getBool ?? false),
+                   let pinToId = viewModel.pinTo.getPinToId {
                     
                     // `PinToId.root` case does not have a corresponding layer node,
                     //

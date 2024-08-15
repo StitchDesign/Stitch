@@ -15,7 +15,6 @@ extension VisibleNodesViewModel {
     @MainActor
     func recursivePreviewLayers(sidebarLayers: SidebarLayerList,
                                 isRoot: Bool) -> LayerDataList {
-        // let layerIdsInHierarchy = sidebarLayers.map { $0.id.asLayerNodeId }
         
         let pinMap: PinMap = self.getPinMap()
         
