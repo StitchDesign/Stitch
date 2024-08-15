@@ -251,6 +251,31 @@ extension NodeViewModel {
         }
     }
     
+    @MainActor
+    func getCanvasObserver(for id: CanvasItemId) -> CanvasItemViewModel? {
+        switch nodeType {
+        case .patch(let patchNode):
+            assertInDebug(patchNode.canvasObserver.id == id)
+            return patchNode.canvasObserver
+        
+        case .layer(let layerNode):
+            switch id {
+            case .layerInput(let layerInput):
+                return layerNode[keyPath: layerInput.keyPath.layerNodeKeyPath].canvasObserver
+                
+            case .layerOutput(let layerOutput):
+                return layerNode.outputPorts[safe: layerOutput.portId]?.canvasObserver
+                
+            case .node:
+                fatalErrorIfDebug("Node case not supported for layers")
+                return nil
+            }
+        
+        case .group(let canvasObserver):
+            return canvasObserver
+        }
+    }
+    
     var patchCanvasItem: CanvasItemViewModel? {
         switch nodeType {
         case .patch(let patchNode):
@@ -356,34 +381,31 @@ extension NodeViewModel {
     
     @MainActor
     func getInputRowViewModel(for id: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
-            .flatMap { $0.allRowViewModels }
-            .first { $0.id == id }
-    }
-    
-    @MainActor
-    func getInputRowViewModel(nodeRowId: NodeRowViewModelId) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
-            .flatMap { $0.allRowViewModels }
-            .first { $0.id == id }
-    }
-
-    @MainActor
-    func getInputRowViewModel(nodeId: NodeId,
-                              graphItemType: GraphItemType,
-                              portType: NodeIOPortType) -> InputNodeRowViewModel? {
-        self.getAllInputsObservers()
-            .flatMap { $0.allRowViewModels }
-            .first { $0.rowDelegate?.id == .init(portType: portType,
-                                                 nodeId: nodeId) }
-    }
-    
-    @MainActor
-    func getInputRowViewModel(for id: NodeIOCoordinate,
-                              graphItemType: GraphItemType) -> InputNodeRowViewModel? {
-        self.getInputRowViewModel(nodeId: id.nodeId,
-                                  graphItemType: graphItemType,
-                                  portType: id.portType)
+        guard let graph = self.graphDelegate else {
+            return nil
+        }
+        
+        switch id.graphItemType {
+        case .node(let canvasId):
+            let canvas = self.getCanvasObserver(for: canvasId)
+            return canvas?.inputViewModels[safe: id.portId]
+            
+        case .layerInspector(let portType):
+            guard let layerNode = self.layerNode else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            switch portType {
+            case .portIndex:
+                fatalErrorIfDebug("unexpected port index for input view model getter")
+                return nil
+                
+            case .keyPath(let keyPath):
+                let inputData = layerNode[keyPath: keyPath.layerNodeKeyPath]
+                return inputData.inspectorRowViewModel
+            }
+        }
     }
     
     @MainActor
