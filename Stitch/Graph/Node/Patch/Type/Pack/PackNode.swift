@@ -316,8 +316,8 @@ func packEval(inputs: PortValuesList,
         return result(point3DPackOp)
     case (.number, 4):
         return result(point4DPackOp)
-    case (.number, 10):
-        return result(matrixPackOp)
+    case (.number, 9):
+        return result(transformPackOp)
     case (.shapeCommandType, _):
         return result(shapeCommandOp)
     default:
