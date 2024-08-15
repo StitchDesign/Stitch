@@ -23,7 +23,7 @@ extension CGFloat {
 struct LayerSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     
     // TODO: non-frame-growing views like `Text`, `ProgressIndicator` etc. need .frame(width:height:alignment:) to be properly positioned with their frame; such views' dimennsions cannot be split up across separate `.frame(width:)`, `.frame(height:)` calls.
     // Do you need an additional `pos: adjustPosition` modifier specifically for something like `Text` ?
@@ -72,8 +72,8 @@ struct LayerSizeModifier: ViewModifier {
         // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
         
         
-        if isGeneratedAtTopLevel && (viewModel.isPinned.getBool ?? false) {
-              logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
+        if isPinnedViewRendering && (viewModel.isPinned.getBool ?? false) {
+              // logInView("LayerSizeModifier: will use pinned size for layer \(viewModel.layer), pinnedSize: \(viewModel.pinnedSize)")
               // If this is the "PinnedView" for View A,
               // then View A's "GhostView" will already have read the appropriate size etc. for View A.
               // So we can just use the layer view model's pinnedSize
@@ -107,7 +107,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are pt (so no min/max size at all)
         else if let width = width, let height = height {
-            //             logInView("LayerSizeModifier: defined width and height")
+            // logInView("LayerSizeModifier: defined width and height")
             content
                 .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
                 .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
@@ -119,7 +119,7 @@ struct LayerSizeModifier: ViewModifier {
         
         // Both height and width are auto, so use min/max height and width
         else if someMinMaxDefined {
-            //             logInView("LayerSizeModifier: defined min-max")
+            // logInView("LayerSizeModifier: defined min-max")
             content.frame(minWidth: minWidth,
                           maxWidth: maxWidth,
                           minHeight: minHeight,

@@ -13,7 +13,7 @@ struct PreviewCommonModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let position: CGSize
     let rotationX: CGFloat
@@ -60,7 +60,7 @@ struct PreviewCommonModifier: ViewModifier {
         content
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel, 
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -80,7 +80,7 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonModifierWithoutFrame(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: rotationX,

@@ -15,7 +15,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let position: CGPoint // offset
     let rotationX: CGFloat
@@ -57,7 +57,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
             .modifier(PreviewLayerRotationModifier(
                 graph: graph,
                 viewModel: viewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))
