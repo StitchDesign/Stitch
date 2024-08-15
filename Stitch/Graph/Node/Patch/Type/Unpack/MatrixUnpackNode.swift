@@ -39,7 +39,7 @@ struct TransformUnpackPatchNode: PatchNodeDefinition {
 func transformUnpackEval(inputs: PortValuesList,
                                outputs: PortValuesList) -> PortValuesList {
 
-    outputEvalHelper10(inputs: inputs,
+    outputEvalHelper9(inputs: inputs,
                        outputs: [],
                        operation: transformUnpackOp)
 }
