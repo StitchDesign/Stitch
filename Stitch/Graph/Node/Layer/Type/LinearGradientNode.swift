@@ -37,12 +37,12 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
-                        isGeneratedAtTopLevel: Bool,
+                        isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewLinearGradientLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true, 
             opacity: viewModel.opacity.getNumber ?? defaultOpacityNumber,
@@ -67,7 +67,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
 struct PreviewLinearGradientLayer: View {
     var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let enabled: Bool
     let opacity: Double
@@ -100,7 +100,7 @@ struct PreviewLinearGradientLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: .zero,
