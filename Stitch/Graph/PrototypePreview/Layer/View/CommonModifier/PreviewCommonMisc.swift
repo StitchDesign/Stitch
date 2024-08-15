@@ -9,6 +9,26 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension VisibleNodesViewModel {
+    func receivesAPin(_ layerId: NodeId) -> Bool {
+        for layerNode in self.layerNodes {
+            if let layerViewModels = layerNode.value.layerNode?.previewLayerViewModels {
+                for layerViewModel in layerViewModels {
+                    if let pinToId = layerViewModel.pinTo.getPinToId,
+                       let layerNodeId = pinToId.asLayerNodeId(layerViewModel.id.layerNodeId,
+                                                               from: self),
+                       layerId == layerNodeId.asNodeId {
+                        
+                        return true
+                    }
+                }
+            }
+        }
+        
+        return false
+    }
+}
+
 // To avoid a bug where GeometryReader treats a rotated view as increased in size,
 // we use _Rotation3DEffect.ignoredByLayout instead of .rotation3DEffect:
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
@@ -16,7 +36,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -32,7 +52,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
         if viewModel.isPinned.getBool ?? false,
-           isGeneratedAtTopLevel,
+           isPinnedViewRendering,
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
@@ -52,11 +72,22 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     var isPinnedView: Bool {
-        isPinned && isGeneratedAtTopLevel
+        isPinned && isPinnedViewRendering
     }
     
-    var isGhostView: Bool {
-        isPinned && !isGeneratedAtTopLevel
+    var receivesPin: Bool {
+        // Perf hack: skip this expensive check if we have no-rotation
+        if rotationX == .zero, rotationY == .zero, rotationZ == .zero {
+            return false
+        } else {
+            // TODO: cache this ?
+            // TODO: why does the pin-receiving view *also* need to use `.ignoredByLayout` ?
+            return graph.visibleNodesViewModel.receivesAPin(viewModel.id.layerNodeId.asNodeId)
+        }
+    }
+    
+    var shouldBeIgnoredByLayout: Bool {
+        isPinned || receivesPin
     }
     
     // PinnedViewA uses rotation value of its pin-receiver View B
@@ -111,7 +142,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
                               rotationZ: finalRotationZ,
                               rotationAnchorX: self.rotationAnchorX,
                               rotationAnchorY: self.rotationAnchorY,
-                              isGhostView: isGhostView)
+                              shouldBeIgnoredByLayout: shouldBeIgnoredByLayout)
     }
     
     func body(content: Content) -> some View {
@@ -143,10 +174,10 @@ struct LayerRotationModifier: ViewModifier {
     let rotationAnchorX: CGFloat
     let rotationAnchorY: CGFloat
     
-    let isGhostView: Bool
+    let shouldBeIgnoredByLayout: Bool
     
     func body(content: Content) -> some View {
-        if isGhostView {
+        if shouldBeIgnoredByLayout {
             content
                 .modifier(_Rotation3DEffect(angle: Angle(degrees: degrees),
                                             axis: (x: rotationX,
@@ -192,4 +223,3 @@ struct PreviewLayerEffectsModifier: ViewModifier {
             .saturation(saturation)
     }
 }
-

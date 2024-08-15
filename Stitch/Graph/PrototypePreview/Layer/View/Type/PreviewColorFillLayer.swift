@@ -18,7 +18,7 @@ struct PreviewColorFillLayer: View {
     }
 
     // struct PreviewColorFillLayer: View {
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let enabled: Bool
     let color: Color
@@ -41,7 +41,7 @@ struct PreviewColorFillLayer: View {
             .modifier(PreviewCommonModifier(
                 graph: graph,
                 layerViewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 rotationX: .zero,

@@ -26,7 +26,7 @@ struct VideoDisplayView: View {
     let fitStyle: VisualMediaFitStyle // = .fill
     let isClipped: Bool
 
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     
     let id: PreviewCoordinate
     let position: StitchPosition
@@ -62,7 +62,7 @@ struct VideoDisplayView: View {
         .opacity(opacity)
         .modifier(PreviewCommonSizeModifier(
             viewModel: layerViewModel, 
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,
