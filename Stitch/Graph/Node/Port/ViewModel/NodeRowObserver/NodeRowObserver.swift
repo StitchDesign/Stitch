@@ -229,25 +229,57 @@ extension InputNodeRowObserver {
     }
     
     @MainActor var allRowViewModels: [InputNodeRowViewModel] {
-        guard var inputs = self.nodeDelegate?.allInputViewModels else {
+        guard let node = self.nodeDelegate else {
             return []
         }
         
-        // Find row view models for group
-        if let patchNode = self.nodeDelegate?.patchNodeViewModel,
-           patchNode.splitterNode?.type == .input {
-            // Group id is the only other row view model's canvas's parent ID
-            if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
-               let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
-                inputs += groupNode.inputViewModels.filter {
-                    $0.rowDelegate?.id == self.id
+        var inputs = [InputNodeRowViewModel]()
+        
+        switch node.nodeType {
+        case . patch(let patchNode):
+            guard let portId = self.id.portId,
+                  let patchInput = patchNode.canvasObserver.inputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            inputs.append(patchInput)
+            
+            // Find row view models for group if applicable
+            if patchNode.splitterNode?.type == .input {
+                // Group id is the only other row view model's canvas's parent ID
+                if let groupNodeId = inputs.first?.canvasItemDelegate?.parentGroupNodeId,
+                   let groupNode = self.nodeDelegate?.graphDelegate?.getNodeViewModel(groupNodeId)?.nodeType.groupNode {
+                    inputs += groupNode.inputViewModels.filter {
+                        $0.rowDelegate?.id == self.id
+                    }
                 }
             }
+            
+        case .layer(let layerNode):
+            guard let keyPath = id.keyPath else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            let port = layerNode[keyPath: keyPath.layerNodeKeyPath]
+            inputs.append(port.inspectorRowViewModel)
+            
+            if let canvasInput = port.canvasObserver?.inputViewModels.first {
+                inputs.append(canvasInput)
+            }
+            
+        case .group(let canvas):
+            guard let portId = self.id.portId,
+                  let groupInput = canvas.inputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            inputs.append(groupInput)
         }
-        
-        return inputs.filter {
-            $0.rowDelegate?.id == self.id
-        }
+
+        return inputs
     }
 }
 
