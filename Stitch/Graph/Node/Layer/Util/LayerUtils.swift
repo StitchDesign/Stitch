@@ -24,7 +24,7 @@ extension Layer {
         return inputType.supportsLoopedTypes
     }
 
-    func getPreviewLayerInputType(at portId: Int) -> LayerInputType? {
+    func getPreviewLayerInputType(at portId: Int) -> LayerInputPort? {
         self.layerGraphNode.inputDefinitions[safe: portId]
     }
     

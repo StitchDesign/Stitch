@@ -10,7 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 
-extension LayerInputType {
+extension LayerInputPort {
     var usesFlyout: Bool {
         switch self {
         case .padding, .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
@@ -53,7 +53,7 @@ extension GraphUIState {
 
 struct FlyoutToggled: GraphUIEvent {
     
-    let flyoutInput: LayerInputType
+    let flyoutInput: LayerInputPort
     let flyoutNodeId: NodeId
     
     func handle(state: GraphUIState) {
@@ -64,6 +64,7 @@ struct FlyoutToggled: GraphUIEvent {
         } else {
 //            withAnimation {
                 state.propertySidebar.flyoutState = .init(
+                    // TODO: assuming flyout state is packed here
                     flyoutInput: flyoutInput,
                     flyoutNode: flyoutNodeId)
 //            }

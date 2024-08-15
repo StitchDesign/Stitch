@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 // Represents "packed" shadow
-let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputType.shadowColor
+let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputPort.shadowColor
 
 struct FlyoutHeader: View {
     
@@ -78,7 +78,8 @@ struct ShadowFlyoutView: View {
                // TODO: why must we double this?
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             ForEach(LayerInspectorView.shadow) { shadowInput in
-                let layerInputData = layerNode[keyPath: shadowInput.layerNodeKeyPath]
+                let layerInputPort = layerNode[keyPath: shadowInput.layerNodeKeyPath]
+                let layerInputData = layerInputPort._packedData
                 NodeInputView(graph: graph,
                               rowObserver: layerInputData.rowObserver,
                               rowData: layerInputData.inspectorRowViewModel,
@@ -96,6 +97,10 @@ struct ShadowFlyoutView: View {
                 .background {
                     WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
                         .cornerRadius(6)
+                }
+                .onChange(of: layerInputPort.mode) {
+                    // Unpacked modes not supported here
+                    assertInDebug(layerInputPort.mode == .packed)
                 }
             }
         }
