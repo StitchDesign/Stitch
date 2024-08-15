@@ -17,6 +17,11 @@ protocol LayerNodeRowData: AnyObject {
     var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
 
+/*
+ Data for a single "row"; could represent a packed input or a single field of an unpacked input.
+ 
+ So e.g. could be for Size input, or Size input's Width or Height field.
+ */
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     let id: LayerInputType

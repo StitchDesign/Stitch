@@ -70,27 +70,7 @@ extension GraphState {
             fatalErrorIfDebug("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }
-        
-        let newNodeId = NodeId()
-        
-        /*
-         1. Create a 'fake, UI-only' node view model that will live in property-sidebar-state and never be rendered on the canvas etc.
-         
-         Note: ignore the node view models
-         */
-        guard let layerMultiselectNode = self.createNode(
-            graphTime: self.graphStepState.graphTime, // doesn't matter
-            newNodeId: newNodeId,
-            highestZIndex: .zero, // doesn't matter
-            choice: .layer(firstSelectedLayerNode.layer), // needs to be .layer ? but otherwise doesn't really matter ?
-            // doesn't matter
-            center: .zero) else {
-            
-            fatalErrorIfDebug("multipleSidebarLayersSelected: could not create fake ui-node")
-            return nil
-        }
-        
-        // 2. Get the layer properties common to every selected layer
+      
         
         var commonLayerInputs = Set<LayerInputPort>()
                 
@@ -115,22 +95,33 @@ extension GraphState {
         
         log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
-        // need to iterate through the common inputs and determine whether that input's value is same across all the layers; if it's not, then add a field-coordinate to the "fields with heterogenous values" set
+        var multiselectInputs = [LayerInputPort: LayerMultiselectInput]()
+        
+        // Turn the common layer inputs into the `LayerMultiselectInput`s
         commonLayerInputs.forEach { (commonLayerInput: LayerInputPort) in
-            <#code#>
-        }
+            
+            let observers: [LayerInputObserver] = selectedNodes.compactMap { (selectedNode: NodeViewModel) in
+                
+                if let layerNode = selectedNode.layerNode {
+                    let observer: LayerInputObserver = layerNode[keyPath: commonLayerInput.layerNodeKeyPath]
+                    return observer
+                }
+                return nil
+            }
+            
+            let multiselectInput: LayerMultiselectInput = .init(
+                input: commonLayerInput,
+                observers: observers)
+            
+            // order doesn't matter
+            multiselectInputs.updateValue(multiselectInput,
+                                          forKey: commonLayerInput)
+            
+        } // commonLayerInputs.forEach
         
+        log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
-        
-        // 3. Distinguish between fields whose values
-        
-        
-        
-        
-        // create
-        
-        
-        
+        return .init(inputs: multiselectInputs)
     }
 }
 
