@@ -60,14 +60,15 @@ extension GraphState {
         }
         
         guard selectedNodes.count == selectedSidebarLayers.count else {
-            fatalErrorIfDebug("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
+            // Can happen when we delete a node that is technically still selected
+            log("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
             return nil
         }
         
         guard let firstSelectedLayer = selectedSidebarLayers.first,
               let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer.asNodeId),
               let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
-            fatalErrorIfDebug("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
+            log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil
         }
       
@@ -81,7 +82,7 @@ extension GraphState {
                 // The layer inputs this layer-node supports
                 guard let layerInputs = selectedNode.layerNode?.layer.layerGraphNode.inputDefinitions else {
                     // Did not
-                    fatalErrorIfDebug("multipleSidebarLayersSelected: Did not have a layer node for a selected layer?")
+                    log("multipleSidebarLayersSelected: Did not have a layer node for a selected layer?")
                     return false
                 }
                 

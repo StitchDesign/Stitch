@@ -45,44 +45,109 @@ struct LayerInspectorView: View {
     
     @Bindable var graph: GraphState // should be Bindable?
     
-    // TODO: property sidebar changes when multiple sidebar layers are selected
+//    // TODO: property sidebar changes when multiple sidebar layers are selected
+//    @MainActor
+//    var selectedLayerNode: NodeViewModel? {
+//        
+//        guard !graph.orderedSidebarLayers.isEmpty else {
+//            return nil
+//        }
+//        
+//        // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
+//        let inspectedLayer = graph.layerFocusedInPropertyInspector
+//        guard let inspectedLayerId = inspectedLayer,
+//              let node = graph.getNodeViewModel(inspectedLayerId),
+//              node.layerNode.isDefined else {
+//            log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
+//            return nil
+//        }
+//        
+//        return node
+//    }
+    
     @MainActor
-    var selectedLayerNode: NodeViewModel? {
+    var layerInspectorData: (header: String,
+                             inputs: LayerInputObserverDict,
+                             outputs: [OutputLayerNodeRowData])? {
+        
         
         guard !graph.orderedSidebarLayers.isEmpty else {
             return nil
         }
+
+        let selectedLayers = graph.sidebarSelectionState.nonEditModeSelections
         
-        // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
-        let inspectedLayer = graph.layerFocusedInPropertyInspector
-        guard let inspectedLayerId = inspectedLayer,
-              let node = graph.getNodeViewModel(inspectedLayerId),
-              node.layerNode.isDefined else {
-            log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
-            return nil
+        
+        // multiselect
+        if selectedLayers.count > 1 {
+            guard let multiselectState = graph.graphUI.propertySidebar.layerMultiselectObserver else {
+                fatalErrorIfDebug("Had multiple selected layers but no multiselect state")
+                return nil
+            }
+            
+            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict
+            
+            return (header: "Multiselect",
+                    inputs: inputs,
+                    outputs: []) // TODO: multiselect: implement these
+            
         }
         
-        return node
+        // else had 0 or 1 layers selected:
+        else {
+            let inspectedLayer = graph.layerFocusedInPropertyInspector
+            guard let inspectedLayerId = inspectedLayer,
+                  let node = graph.getNodeViewModel(inspectedLayerId),
+                  let layerNode = node.layerNode else {
+                // isn't this really bad? shouldn't we crash?
+                log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
+                return nil
+            }
+            
+            let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
+            
+            return (header: node.displayTitle,
+                    inputs: inputs,
+                    outputs: layerNode.outputPorts)
+        }
+        
+//        // If no layers selected, then return last/first layer
+//        if selectedLayers.isEmpty {
+//            return nil
+//        } else if selectedLayers.count == 1,
+//                  let selectedLayer = selectedLayers.first {
+//            
+//        } else
+    
     }
     
     // TODO: why can't we use
     @State var safeAreaInsets: EdgeInsets = .init()
     
     var body: some View {
-        if let node = selectedLayerNode,
-           let layerNode = node.layerNode {
-            @Bindable var node = node
-            @Bindable var layerNode = layerNode
+//        if let node = selectedLayerNode,
+//           let layerNode = node.layerNode {
+//            @Bindable var node = node
+//            @Bindable var layerNode = layerNode
+        
+        if let layerInspectorData = layerInspectorData {
             
             // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
             GeometryReader { geometry in
                 UIKitWrapper(ignoresKeyCommands: false,
                              name: "LayerInspectorView") {
+                    
                     selectedLayerView(
-                        layerInspectorHeader: node.displayTitle,
-                        //                                      layerInputObserverDict: layerNode.unfilteredLayerInputObserverDict,
-                        layerInputObserverDict: layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions),
-                        layerOutputs: layerNode.outputPorts)
+                        layerInspectorHeader: layerInspectorData.header,
+                        layerInputObserverDict: layerInspectorData.inputs,
+                        layerOutputs: layerInspectorData.outputs)
+                    
+//                    selectedLayerView(
+//                        layerInspectorHeader: node.displayTitle,
+//                        //                                      layerInputObserverDict: layerNode.unfilteredLayerInputObserverDict,
+//                        layerInputObserverDict: layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions),
+//                        layerOutputs: layerNode.outputPorts)
+                    
                 }
                 // TODO: Why subtract only half?
                              .padding(.top, (-self.safeAreaInsets.top/2 + 8))

@@ -38,13 +38,27 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
  P and Q's scale input = 1, P and Q
  */
 
+typealias LayerMultiselectInputDict = [LayerInputPort: LayerMultiselectInput]
+
 @Observable
 final class LayerMultiSelectObserver {
     // inputs that are common across all the selected layers
-    var inputs: [LayerInputPort: LayerMultiselectInput] // order doesn't matter?
+    var inputs: LayerMultiselectInputDict // order doesn't matter?
     
-    init(inputs: [LayerInputPort: LayerMultiselectInput]) {
+    init(inputs: LayerMultiselectInputDict) {
         self.inputs = inputs
+    }
+    
+    // Note: this loses information about the heterogenous values etc.
+    var asLayerInputObserverDict: LayerInputObserverDict {
+        self.inputs.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+            // not quite accurate; just need to grab the first observer?
+            //
+            if let firstObserver = layerInput.value.observers.first {
+                partialResult.updateValue(firstObserver,
+                                          forKey: layerInput.key)
+            }
+        }
     }
 }
 
