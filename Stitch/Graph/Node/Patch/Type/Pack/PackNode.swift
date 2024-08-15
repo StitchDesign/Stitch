@@ -239,7 +239,7 @@ func point4DPackOp(values: PortValues) -> PortValue {
     }
 }
 
-func matrixPackOp(values: PortValues) -> PortValue {
+func transformPackOp(values: PortValues) -> PortValue {
     if let x = values[safe: PackNodeMatrixLocations.x]?.getNumber,
        let y = values[safe: PackNodeMatrixLocations.y]?.getNumber,
        let z = values[safe: PackNodeMatrixLocations.z]?.getNumber,
@@ -254,7 +254,7 @@ func matrixPackOp(values: PortValues) -> PortValue {
         #if DEV_DEBUG
         fatalError("matrixEvaluation")
         #endif
-        return defaultTransformAnchor
+        return defaultTransform
     }
 }
 

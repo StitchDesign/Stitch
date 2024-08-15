@@ -55,5 +55,5 @@ struct TransformPackPatchNode: PatchNodeDefinition {
 
 func transformPackEval(inputs: PortValuesList,
                              outputs: PortValuesList) -> PortValuesList {
-    resultsMaker(inputs)(matrixPackOp)
+    resultsMaker(inputs)(transformPackOp)
 }
