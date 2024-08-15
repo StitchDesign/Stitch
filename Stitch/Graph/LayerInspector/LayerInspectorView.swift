@@ -10,10 +10,14 @@ import SwiftUI
 import StitchSchemaKit
 
 extension LayerInputType: Identifiable {
-    // https://stackoverflow.com/questions/71358712/swiftui-is-it-ok-to-use-hashvalue-in-identifiable
-    // Actually, using hashValue for id is a bad idea?
-    public var id: Int {
-        self.hashValue
+    public var id: Self {
+        self
+    }
+}
+
+extension LayerInputPort: Identifiable {
+    public var id: Self {
+        self
     }
 }
 
@@ -149,7 +153,7 @@ struct LayerInspectorView: View {
 struct LayerPropertyRowOriginReader: ViewModifier {
     
     @Bindable var graph: GraphState
-    let layerInput: LayerInputType
+    let layerInput: LayerInputPort
     
     func body(content: Content) -> some View {
         content.background {
@@ -216,23 +220,18 @@ struct LayerInspectorInputsSectionView: View {
         
         Section(isExpanded: $expanded) {
             ForEach(layerInputs) { layerInput in
-                
                 let inputListContainsInput = inputsList.contains(layerInput)
+                let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
                 
-                let layerInputData = layerNode[keyPath: layerInput.layerNodeKeyPath]
-                let rowObserver = layerInputData.rowObserver
-                
-                let allFieldsBlockedOut = layerInputData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                // TODO: only using packed data here
+                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if inputListContainsInput && !allFieldsBlockedOut {
                     LayerInspectorInputPortView(
-                        layerInput: layerInput,
-                        rowViewModel: layerInputData.inspectorRowViewModel,
-                        rowObserver: rowObserver,
+                        portObserver: layerPort,
                         node: node,
                         layerNode: layerNode,
-                        graph: graph,
-                        canvasItemId: layerInputData.canvasObserver?.id)
+                        graph: graph)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                            layerInput: layerInput))
                 }
@@ -267,7 +266,7 @@ struct LayerInspectorInputsSectionView: View {
                     
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
-                           x == layerInput {
+                           x.layerInput == layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }

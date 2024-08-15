@@ -378,7 +378,7 @@ extension NodeRowViewModel {
         if let node = self.nodeDelegate,
            let layerInputForThisRow = rowDelegate.id.keyPath {
             node.blockOrUnblockFields(newValue: newValue,
-                                      layerInput: layerInputForThisRow)
+                                      layerInput: layerInputForThisRow.layerInput)
         }
     }
 }

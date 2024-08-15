@@ -71,7 +71,7 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
                     type: .media
                 ),
                 .init(
-                    label: LayerInputType.size.label(),
+                    label: LayerInputPort.size.label(),
                     type: .size
                 )
             ]

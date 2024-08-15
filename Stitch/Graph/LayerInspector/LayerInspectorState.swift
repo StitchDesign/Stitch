@@ -23,7 +23,7 @@ final class PropertySidebarObserver {
     // Used for positioning flyouts; read and populated by every row,
     // even if row does not support a flyout or has no active flyout.
     // TODO: only needs to be the `y` value, since `x` is static (based on layer inspector's static width)
-    var propertyRowOrigins: [LayerInputType: CGPoint] = .init()
+    var propertyRowOrigins: [LayerInputPort: CGPoint] = .init()
     
     // Only layer inputs (not fields or outputs) can have flyouts
     var flyoutState: PropertySidebarFlyoutState? = nil
@@ -44,13 +44,15 @@ struct PropertySidebarFlyoutState: Equatable {
     var flyoutSize: CGSize = .zero
     
     // User tapped this row, so we opened its flyout
-    var flyoutInput: LayerInputType
+    var flyoutInput: LayerInputPort
     var flyoutNode: NodeId
     
     var keyboardIsOpen: Bool = false
     
     var input: InputCoordinate {
-        InputCoordinate(portType: .keyPath(self.flyoutInput),
+        // TODO: flyouts only for packed state?
+        InputCoordinate(portType: .keyPath(.init(layerInput: flyoutInput,
+                                                 portType: .packed)),
                         nodeId: self.flyoutNode)
     }
 }
