@@ -13,7 +13,7 @@ struct PreviewVideoLayer: View {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let videoPlayer: StitchVideoImportPlayer
     let position: CGSize
@@ -56,7 +56,7 @@ struct PreviewVideoLayer: View {
                          opacity: opacity,
                          fitStyle: videoFitStyle,
                          isClipped: isClipped, 
-                         isPinnedViewRendering: isPinnedViewRendering,
+                         isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                          id: interactiveLayer.id,
                          position: position,
                          parentSize: parentSize)
@@ -65,7 +65,7 @@ struct PreviewVideoLayer: View {
         .modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

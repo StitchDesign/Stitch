@@ -25,7 +25,7 @@ struct CanvasSketchView: View {
 
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
 
     let lineColor: Color
@@ -70,7 +70,7 @@ struct CanvasSketchView: View {
         return view.modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

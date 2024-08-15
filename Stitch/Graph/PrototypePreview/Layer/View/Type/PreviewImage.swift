@@ -218,7 +218,7 @@ struct NilImageView: View {
 struct PreviewImageLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     let image: UIImage
     let position: CGSize
@@ -282,7 +282,7 @@ struct PreviewImageLayer: View {
         .modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: layerViewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
+            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                 interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

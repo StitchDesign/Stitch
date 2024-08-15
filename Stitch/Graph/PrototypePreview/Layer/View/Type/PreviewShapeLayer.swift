@@ -16,7 +16,7 @@ import StitchSchemaKit
 struct PreviewShapeLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let isPinnedViewRendering: Bool
+    let isGeneratedAtTopLevel: Bool
     let interactiveLayer: InteractiveLayer
     
     let color: Color
@@ -85,7 +85,7 @@ struct PreviewShapeLayer: View {
                 .modifier(PreviewAbsoluteShapeLayerModifier(
                     graph: graph, 
                     viewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                     interactiveLayer: interactiveLayer,
                     position: position.toCGPoint,
                     rotationX: rotationX,
@@ -107,8 +107,8 @@ struct PreviewShapeLayer: View {
                 .modifier(PreviewCommonModifier(
                     graph: graph,
                     layerViewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    interactiveLayer: interactiveLayer,
+                    isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                interactiveLayer: interactiveLayer,
                     position: position,
                     rotationX: rotationX,
                     rotationY: rotationY,
