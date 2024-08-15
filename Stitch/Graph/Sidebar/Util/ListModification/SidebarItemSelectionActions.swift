@@ -18,25 +18,122 @@ struct SidebarItemTapped: GraphEvent {
     func handle(state: GraphState) {
         let alreadySelected = state.sidebarSelectionState
             .nonEditModeSelections.contains(id)
-    
-        // TODO: support multiple selections and filter property inspector appropriately
+
+        // TODO: better: allow multiple selections via cmd+click, not single click
         if alreadySelected {
-            state.sidebarSelectionState.nonEditModeSelections = .init()
+            state.sidebarSelectionState.nonEditModeSelections.remove(id)
         } else {
-            state.sidebarSelectionState.nonEditModeSelections = .init([id])
+            state.sidebarSelectionState.nonEditModeSelections.append(id)
         }
+
+        if state.sidebarSelectionState.nonEditModeSelections.count > 1 {
+            state.graphUI.propertySidebar.layerMultiselectObserver = state.multipleSidebarLayersSelected()
+        } else {
+            state.graphUI.propertySidebar.layerMultiselectObserver = nil
+        }
+        
+        // TODO: support multiple selections and filter property inspector appropriately
+//        if alreadySelected {
+//            state.sidebarSelectionState.nonEditModeSelections = .init()
+//        } else {
+////            state.sidebarSelectionState.nonEditModeSelections = .init([id])
+//            state.sidebarSelectionState.nonEditModeSelections.append(id)
+//        }
         
         // Reset selected row in property sidebar when focused-layers changes
         state.graphUI.propertySidebar.selectedProperty = nil
-        
-        // TODO: better: allow multiple selections via cmd+click, not single click
-//        if alreadySelected {
-//            state.sidebarSelectionState.nonEditModeSelections.remove(id)
-//        } else {
-//            state.sidebarSelectionState.nonEditModeSelections.append(id)
-//        }
     }
 }
+
+
+
+extension GraphState {
+    
+    @MainActor
+    func multipleSidebarLayersSelected() -> LayerMultiSelectObserver? {
+        
+                // The order per se doesn't matter?
+        let selectedSidebarLayers: OrderedLayerNodeIdSet = self.sidebarSelectionState.nonEditModeSelections
+                
+        let selectedNodes: [NodeViewModel] = selectedSidebarLayers.compactMap {
+            self.getNode($0.asNodeId)
+        }
+        
+        guard selectedNodes.count == selectedSidebarLayers.count else {
+            fatalErrorIfDebug("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
+            return nil
+        }
+        
+        guard let firstSelectedLayer = selectedSidebarLayers.first,
+              let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer.asNodeId),
+              let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
+            fatalErrorIfDebug("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
+            return nil
+        }
+        
+        let newNodeId = NodeId()
+        
+        /*
+         1. Create a 'fake, UI-only' node view model that will live in property-sidebar-state and never be rendered on the canvas etc.
+         
+         Note: ignore the node view models
+         */
+        guard let layerMultiselectNode = self.createNode(
+            graphTime: self.graphStepState.graphTime, // doesn't matter
+            newNodeId: newNodeId,
+            highestZIndex: .zero, // doesn't matter
+            choice: .layer(firstSelectedLayerNode.layer), // needs to be .layer ? but otherwise doesn't really matter ?
+            // doesn't matter
+            center: .zero) else {
+            
+            fatalErrorIfDebug("multipleSidebarLayersSelected: could not create fake ui-node")
+            return nil
+        }
+        
+        // 2. Get the layer properties common to every selected layer
+        
+        var commonLayerInputs = Set<LayerInputPort>()
+                
+        LayerInputPort.allCases.forEach { layerInputPort in
+            
+            let everySelectedLayerUsesThisPort = selectedNodes.allSatisfy { selectedNode in
+                
+                // The layer inputs this layer-node supports
+                guard let layerInputs = selectedNode.layerNode?.layer.layerGraphNode.inputDefinitions else {
+                    // Did not
+                    fatalErrorIfDebug("multipleSidebarLayersSelected: Did not have a layer node for a selected layer?")
+                    return false
+                }
+                
+                return layerInputs.contains(layerInputPort)
+            }
+            
+            if everySelectedLayerUsesThisPort {
+                commonLayerInputs.insert(layerInputPort)
+            }
+        }
+        
+        log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
+        
+        // need to iterate through the common inputs and determine whether that input's value is same across all the layers; if it's not, then add a field-coordinate to the "fields with heterogenous values" set
+        commonLayerInputs.forEach { (commonLayerInput: LayerInputPort) in
+            <#code#>
+        }
+        
+        
+        
+        // 3. Distinguish between fields whose values
+        
+        
+        
+        
+        // create
+        
+        
+        
+    }
+}
+
 
 // group or top level
 struct SidebarItemSelected: GraphEvent {

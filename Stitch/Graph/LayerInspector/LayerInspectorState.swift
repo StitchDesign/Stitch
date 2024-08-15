@@ -16,8 +16,55 @@ enum LayerInspectorRowId: Equatable, Hashable {
 
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
+/*
+ Suppose:
+ 
+ Left sidebar:
+ - Oval P (selected)
+ - Rectangle Q (selected)
+ 
+ And:
+ * P and Q's scale input = 1
+ * P and Q's size input = { width: 100, height: 100 }
+ * P's position input = { x: 0, y: 0 }
+ * Q's position input = { x: 50, y: 50 }
+ 
+ The resulting LayerMultiSelectObserver will look like:
+ * 
+ * fieldsWithSameValue { }
+ 
+ 
+ Suppose:
+ P and Q's scale input = 1, P and Q
+ */
+@Observable
+final class LayerMultiSelectObserver {
+    
+    // Fields on the multiselect-layer node that do not have the same value, and so in the UI need to show "Multi" etc.
+    // Note: these are field-coordinates *for the multiselect-layer ui-node*, but are determined by selected layers' inputs' values when the ui-node is created
+    var fieldsWithHeterogenousValues: Set<FieldCoordinate>
+    
+    var commonInputs: Set<LayerInputPort>
+    
+    // Our LayerInspector view, row and field UI etc. are all effectively a function of a node view model
+    // so we create a
+    var layerMultiselectNode: NodeViewModel
+    
+    init(fieldsWithHeterogenousValues: Set<FieldCoordinate>,
+         commonInputs: Set<LayerInputPort>,
+         layerMultiselectNode: NodeViewModel) {
+        self.fieldsWithHeterogenousValues = fieldsWithHeterogenousValues
+        self.commonInputs = commonInputs
+        self.layerMultiselectNode = layerMultiselectNode
+    }
+}
+
+
 @Observable
 final class PropertySidebarObserver {
+    
+    var layerMultiselectObserver: LayerMultiSelectObserver?
+    
     var selectedProperty: LayerInspectorRowId?
     
     // Used for positioning flyouts; read and populated by every row,
