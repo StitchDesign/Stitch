@@ -104,16 +104,9 @@ struct PreviewLayersView: View {
         if spacing.isEvenly {
             Spacer()
         }
-        
-        logInView("PreviewLayerView: layersAsViews CALLED")
-                
+                        
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
-
-            logInView("PreviewLayerView: layerData.layer.layer \(layerData.layer.layer)")
-            logInView("PreviewLayerView: layerData.id \(layerData.id)")
-            logInView("PreviewLayerView: layerData.layerDataId \(layerData.layerDataId)")
-            logInView("PreviewLayerView: layerData.isPinned \(layerData.isPinned)")
             
             LayerDataView(graph: graph,
                           layerData: layerData,

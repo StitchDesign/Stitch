@@ -60,8 +60,6 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                                 log("PreviewWindowCoordinateSpaceReader: pinned but not at top level: newValue.size: \(newValue.size)")
                                 if newValue.width.isNaN || newValue.height.isNaN {
                                     log("Had NaN, will not set size")
-//                                    log("Had NaN, will use fake size")
-//                                    viewModel.pinnedSize = .init(width: 200, height: 200)
                                     return
                                 }
                                 

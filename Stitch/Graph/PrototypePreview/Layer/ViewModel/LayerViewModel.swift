@@ -24,23 +24,6 @@ extension PinToId {
     }
 }
 
-enum PinReceiverDataCase: Equatable, Hashable, Codable {
-    case root(size: PinReceiverSizeData), // never has rotation data
-         // either a parent or a different layer
-         layer(size: PinReceiverSizeData,
-               rotation: PinReceiverRotationData)
-}
-
-struct PinReceiverRotationData: Equatable, Hashable, Codable {
-    // For determining PinnedView's rotation-anchor
-    var center: CGPoint
-
-    // PinReceiver's rotation is applied to the PinnedView
-    var rotationX: CGFloat
-    var rotationY: CGFloat
-    var rotationZ: CGFloat
-}
-
 struct PinReceiverSizeData: Equatable, Hashable, Codable {
     // for anchoring
     var size: CGSize
@@ -49,8 +32,6 @@ struct PinReceiverSizeData: Equatable, Hashable, Codable {
 
 /// the data for "View B", which receives the pinned View A
 struct PinReceiverData: Equatable {
-
-//    let pinTo: PinToId
 
     // for anchoring
     var size: CGSize
@@ -64,25 +45,6 @@ struct PinReceiverData: Equatable {
     var rotationX: CGFloat
     var rotationY: CGFloat
     var rotationZ: CGFloat
-}
-
-/// data for "View A", which is pinned to View B
-struct PinnedData: Equatable {
-
-    // size of the pinned view A, as affected by its parent;
-    // for anchoring;
-    // provided by the "GhostView"
-    var size: CGSize
-
-    // center of the (top level) PinnedView;
-    // for rotation;
-    // provided by the "PinnedView"
-    var center: CGPoint
-}
-
-enum PinData: Equatable {
-    case pinReceiver(PinReceiverData),
-         pinned(PinnedData)
 }
 
 @Observable
