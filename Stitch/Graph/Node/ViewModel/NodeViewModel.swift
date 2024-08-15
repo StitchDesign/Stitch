@@ -106,14 +106,7 @@ extension NodeViewModel: NodeCalculatable {
             return patch.inputsObservers.map { $0.allLoopedValues }
         case .layer(let layer):
             return layer.getSortedInputPorts().map { inputPort in
-                switch inputPort.observerMode {
-                case .packed(let packedObserver):
-                    return packedObserver.allLoopedValues
-
-                case .unpacked(let unpackedObserver):
-                    let valuesFromUnpackedObservers = unpackedObserver.getParentPortValuesList()
-                    return valuesFromUnpackedObservers
-                }
+                inputPort.allLoopedValues
             }
         case .group(let canvas):
             return canvas.inputViewModels.compactMap {

@@ -62,8 +62,16 @@ extension LayerInputObserver {
     }
     
     /// All-up values for this port
+    @MainActor
     var allLoopedValues: PortValues {
-        self._packedData.allLoopedValues
+        switch self.observerMode {
+        case .packed(let packedObserver):
+            return packedObserver.allLoopedValues
+
+        case .unpacked(let unpackedObserver):
+            let valuesFromUnpackedObservers = unpackedObserver.getParentPortValuesList()
+            return valuesFromUnpackedObservers
+        }
     }
     
     @MainActor
@@ -114,12 +122,8 @@ extension LayerInputObserver {
     }
     
     @MainActor func initializeDelegate(_ node: NodeDelegate) {
-        switch self.mode {
-        case .packed:
-            self._packedData.initializeDelegate(node)
-        case .unpacked:
-            self._unpackedData.initializeDelegate(node)
-        }
+        self._packedData.initializeDelegate(node)
+        self._unpackedData.initializeDelegate(node)
     }
     
     @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
@@ -136,9 +140,9 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor func toggleMode() {
+    /// Called after the pack mode changes for some port.
+    @MainActor func wasPackModeToggled() {
         let nodeId = self._packedData.rowObserver.id.nodeId
-        let parentGroupNodeId = self.graphDelegate?.groupNodeFocused
         
         guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
               let layerNode = node.layerNode else {
@@ -147,43 +151,28 @@ extension LayerInputObserver {
         }
         
         switch self.mode {
-        case .packed:
+        case .unpacked:
+            // Get values from previous packed mode
+            let values = self._packedData.allLoopedValues
+            
             // Reset packed state
             self._packedData.resetOnPackModeToggle()
             
-            self._unpackedData.allPorts.forEach { unpackedPort in
-                var unpackSchema = unpackedPort.createSchema()
-                unpackSchema.canvasItem = .init(position: .zero,
-                                                zIndex: .zero,
-                                                parentGroupNodeId: parentGroupNodeId)
-                unpackedPort.update(from: unpackSchema,
-                                    layerInputType: unpackedPort.id,
-                                    layerNode: layerNode,
-                                    nodeId: nodeId,
-                                    nodeDelegate: node)
-            }
+            // Update values of new unpacked row observers
+            self._unpackedData.updateValues(from: values,
+                                            layerNode: layerNode)
             
-        case .unpacked:
-            guard let packedKeyPath = self.__packedData.rowObserver.id.keyPath else {
-                fatalErrorIfDebug()
-                return
-            }
-
+        case .packed:
+            // Get values from previous unpacked mode
+            let values = self._unpackedData.getParentPortValuesList()
+            
             // Reset unpacked state
             self._unpackedData.allPorts.forEach {
                 $0.resetOnPackModeToggle()
             }
             
-            var packedSchema = self._packedData.createSchema()
-            packedSchema.canvasItem = .init(position: .zero,
-                                            zIndex: .zero,
-                                            parentGroupNodeId: parentGroupNodeId)
-            
-            self._packedData.update(from: packedSchema,
-                                    layerInputType: packedKeyPath,
-                                    layerNode: layerNode,
-                                    nodeId: nodeId,
-                                    nodeDelegate: node)
+            // Update values to packed observer
+            self._packedData.rowObserver.updateValues(values)
         }
         
         self.graphDelegate?.updateGraphData(document: nil)

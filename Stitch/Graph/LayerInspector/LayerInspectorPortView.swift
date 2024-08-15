@@ -15,8 +15,10 @@ struct LayerInspectorInputPortView: View {
     @Bindable var graph: GraphState
         
     var body: some View {
+        let observerMode = portObserver.observerMode
+        
         Group {
-            switch portObserver.observerMode {
+            switch observerMode {
             case .packed(let inputLayerNodeRowData):
                 let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
                 
@@ -24,7 +26,8 @@ struct LayerInspectorInputPortView: View {
                     // MARK: debugging unpack feature
                     if FeatureFlags.SUPPORTS_LAYER_UNPACK {
                         Button {
-                            self.portObserver.toggleMode()
+                            // TODO: canvas item creation only used for debugging
+                            self.debug__createUnpackedCanvasItems()
                         } label: {
                             Text("Unpack")
                         }
@@ -49,15 +52,6 @@ struct LayerInspectorInputPortView: View {
                 
             case .unpacked(let unpackedPortObserver):
                 HStack {
-                    // MARK: debugging unpack feature
-                    if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                        Button {
-                            self.portObserver.toggleMode()
-                        } label: {
-                            Text("Pack")
-                        }
-                    }
-                    
                     ForEach(unpackedPortObserver.allPorts) { unpackedPort in
                         let canvasItemId = unpackedPort.canvasObserver?.id
     
@@ -79,6 +73,27 @@ struct LayerInspectorInputPortView: View {
                     }
                 }
             }
+        }
+        .onChange(of: portObserver.mode) {
+            self.portObserver.wasPackModeToggled()
+        }
+    }
+    
+    // TODO: canvas item creation only used for debugging
+    @MainActor func debug__createUnpackedCanvasItems() {
+        let nodeId = portObserver._packedData.rowObserver.id.nodeId
+        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        
+        portObserver._unpackedData.allPorts.forEach { unpackedPort in
+            var unpackSchema = unpackedPort.createSchema()
+            unpackSchema.canvasItem = .init(position: .zero,
+                                            zIndex: .zero,
+                                            parentGroupNodeId: parentGroupNodeId)
+            unpackedPort.update(from: unpackSchema,
+                                layerInputType: unpackedPort.id,
+                                layerNode: layerNode,
+                                nodeId: nodeId,
+                                nodeDelegate: node)
         }
     }
 }
