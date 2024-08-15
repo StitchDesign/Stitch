@@ -39,11 +39,11 @@ struct VideoLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
-                        isGeneratedAtTopLevel: Bool,
+                        isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         VisualMediaLayerView(graph: graph,
                              viewModel: viewModel,
-                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                             isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,
                              parentDisablesPosition: parentDisablesPosition)
     }

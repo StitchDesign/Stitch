@@ -44,12 +44,12 @@ struct SwitchLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
+                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewSwitchLayer(
             graph: graph,
             viewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             id: viewModel.id, 
             isEnabled: viewModel.enabled.getBool ?? false,
@@ -87,7 +87,7 @@ struct PreviewSwitchLayer: View {
     
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let id: PreviewCoordinate
     let isEnabled: Bool
@@ -117,7 +117,7 @@ struct PreviewSwitchLayer: View {
         return view.modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

@@ -32,7 +32,7 @@ struct PreviewGroupLayer: View {
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList // child layers for THIS group
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     
     let position: CGSize
@@ -111,7 +111,7 @@ struct PreviewGroupLayer: View {
         
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -137,7 +137,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewLayerRotationModifier(
                 graph: graph,
                 viewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))
@@ -176,7 +176,7 @@ struct PreviewGroupLayer: View {
     private var groupLayer: some View {
         PreviewLayersView(graph: graph,
                           layers: layersInGroup, 
-                          isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+//                          isPinnedViewRendering: isPinnedViewRendering,
                           // This Group's size will be the `parentSize` for the `layersInGroup`
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,

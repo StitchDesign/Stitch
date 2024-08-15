@@ -265,8 +265,11 @@ extension GraphState: SchemaObserver {
     func updateOrderedPreviewLayers() {
         // Cannot use Equality check here since LayerData does not conform to Equatable;
         // so instead we should be smart about only calling this when layer nodes actually change.
-        self.cachedOrderedPreviewLayers = self.visibleNodesViewModel
-            .recursivePreviewLayers(sidebarLayers: self.orderedSidebarLayers)
+        let (previewLayers, pinMap) = self.visibleNodesViewModel
+            .recursivePreviewLayers(sidebarLayers: self.orderedSidebarLayers,
+                                    isRoot: true)
+        self.cachedOrderedPreviewLayers = previewLayers
+        self.graphUI.pinMap = pinMap
     }
 
     func createSchema() -> StitchDocument {

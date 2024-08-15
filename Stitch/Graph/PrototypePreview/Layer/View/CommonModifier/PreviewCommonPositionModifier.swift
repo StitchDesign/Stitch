@@ -10,18 +10,6 @@ import SwiftUI
 import StitchSchemaKit
 
 
-//
-//  PreviewCommonPositionModifier.swift
-//  Stitch
-//
-//  Created by Elliot Boschwitz on 6/13/24.
-//
-
-import Foundation
-import SwiftUI
-import StitchSchemaKit
-
-
 struct PreviewCommonPositionModifier: ViewModifier {
     
     // Needed so that Pinned View A can retrieve View B's position, size, center and Ghost View A's
@@ -52,20 +40,22 @@ struct PreviewCommonPositionModifier: ViewModifier {
         if viewModel.isPinned.getBool ?? false,
            let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
             
-            logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
+            // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
             
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
+            // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+            // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+            
             content
                 .position(x: pinPos.width, y: pinPos.height)
                 .offset(x: pinOffset.width, y: pinOffset.height)
             
-            
         } else {
-            logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+            // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
             // Ghost views do not use .position modifier, but it doesn't matter;
             // we only read a Ghost View's size
             //        if parentDisablesPosition || isGhostView {
