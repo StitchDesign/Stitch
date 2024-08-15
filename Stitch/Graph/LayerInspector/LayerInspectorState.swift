@@ -48,6 +48,34 @@ final class LayerMultiSelectObserver {
     }
 }
 
+// A representation of a layer node's ports, separate from the layer node itself
+typealias LayerInputObserverDict = [LayerInputPort: LayerInputObserver]
+
+extension LayerNodeViewModel {
+    
+    @MainActor
+    var unfilteredLayerInputObserverDict: LayerInputObserverDict {
+        LayerInputPort.allCases.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+            partialResult.updateValue(self[keyPath: layerInput.layerNodeKeyPath],
+                                      forKey: layerInput)
+        }
+    }
+    
+    // Coin
+    @MainActor
+    func filteredLayerInputObserverDict(supportedInputs: LayerInputTypeSet) -> LayerInputObserverDict {
+        
+        self.unfilteredLayerInputObserverDict
+            .reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+                
+                if supportedInputs.contains(layerInput.key) {
+                    partialResult.updateValue(layerInput.value,
+                                              forKey: layerInput.key)
+                }
+            }
+    }
+}
+
 // `input` but actually could be input OR output
 @Observable
 final class LayerMultiselectInput {
@@ -164,6 +192,21 @@ extension LayerInspectorView {
             .init(.layerEffects, layer.supportsLayerEffectInputs ? Self.effects : []),
         ]
     }
+    
+    @MainActor
+    static let unfilteredLayerInspectorRowsInOrder: [LayerInspectorSectionData] =
+        [
+            .init(.sizing, Self.sizing),
+            .init(.positioning, Self.positioning),
+            .init(.common, Self.common),
+            .init(.group, Self.groupLayer),
+            .init(.pinning, Self.pinning),
+            .init(.typography, Self.text),
+            .init(.stroke, Self.stroke),
+            .init(.rotation, Self.rotation),
+//            .init(.shadow, Self.shadow),
+            .init(.layerEffects, Self.effects)
+        ]
     
     @MainActor
     static func firstSectionName(_ layer: Layer) -> LayerInspectorSectionName? {

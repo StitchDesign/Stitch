@@ -78,26 +78,28 @@ struct LayerInspectorView: View {
             GeometryReader { geometry in
                 UIKitWrapper(ignoresKeyCommands: false,
                              name: "LayerInspectorView") {
-                    selectedLayerView(node, layerNode)
+                    selectedLayerView(
+                        layerInspectorHeader: node.displayTitle,
+                        //                                      layerInputObserverDict: layerNode.unfilteredLayerInputObserverDict,
+                        layerInputObserverDict: layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions),
+                        layerOutputs: layerNode.outputPorts)
                 }
-                             // TODO: Why subtract only half?
+                // TODO: Why subtract only half?
                              .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
-                            // TODO: why is this inaccurate?
-//                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
-//                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
+                // TODO: why is this inaccurate?
+                //                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
+                //                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
                 
                              .onChange(of: geometry.safeAreaInsets, initial: true) { oldValue, newValue in
-//                                 log("safeAreaInsets: oldValue: \(oldValue)")
-//                                 log("safeAreaInsets: newValue: \(newValue)")
+                                 //                                 log("safeAreaInsets: oldValue: \(oldValue)")
+                                 //                                 log("safeAreaInsets: newValue: \(newValue)")
                                  self.safeAreaInsets = newValue
                                  graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
-//                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
+                                 //                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
                              }
             }
-            
-//            selectedLayerView(node, layerNode)
             
         } else {
             // Empty List, so have same background
@@ -106,38 +108,51 @@ struct LayerInspectorView: View {
     }
  
     @MainActor @ViewBuilder
-    func selectedLayerView(_ node: NodeViewModel,
-                           _ layerNode: LayerNodeViewModel) -> some View {
+    func selectedLayerView(layerInspectorHeader: String,
+                           // Represents the already-filtered layer input+observer for this specific layer
+                           layerInputObserverDict: LayerInputObserverDict,
+//                           layerInputsAndObservers: [LayerInputAndObserver],
+                           layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 // TODO: should be editable, to rename the layer?
-                Text(node.displayTitle).font(.title2)
+                Text(layerInspectorHeader).font(.title2)
                 Spacer()
             }
                 .padding()
                 .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
             
             List {
-                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
+                ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
+                    
+//                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
                     
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
                     // (layer input + observer) for each layer input in this section that is actually supported by this specific layer
-                    let supportedInputsForThisLayer = layerNode.layer.inputDefinitions
+//                    let supportedInputsForThisLayer = layerNode.layer.inputDefinitions
                     
                     let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
-                        guard supportedInputsForThisLayer.contains(sectionInput) else {
+//                        guard supportedInputsForThisLayer.contains(sectionInput),
+                        
+                        let isSupported = layerInputObserverDict.get(sectionInput).isDefined
+                        
+                        guard isSupported,
+                              let observer = layerInputObserverDict[sectionInput] else {
                             return nil
                         }
+                        
                         return LayerInputAndObserver(
                             layerInput: sectionInput,
-                            portObserver: layerNode[keyPath: sectionInput.layerNodeKeyPath])
+//                            portObserver: layerNode[keyPath: sectionInput.layerNodeKeyPath])
+                            portObserver: observer)
                     }
                     
                     // TODO: when can this ever really be empty?
-                    if !sectionInputs.isEmpty {
+//                    if !sectionInputs.isEmpty {
+                    if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
                             layerInputs: filteredInputs,
@@ -147,7 +162,7 @@ struct LayerInspectorView: View {
                 } // ForEach
                 
                 LayerInspectorOutputsSectionView(
-                    outputs: layerNode.outputPorts,
+                    outputs: layerOutputs,
                     graph: graph)
             } // List
 //            .listStyle(.plain)
