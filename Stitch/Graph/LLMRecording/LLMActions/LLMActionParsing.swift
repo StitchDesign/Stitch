@@ -279,7 +279,9 @@ extension String {
         
         // Prefer to look for layer input first; ASSUMES every layer input has a label
         if let inputLabel = llmPort.parseLLMPortAsLabelForLayerInputType {
-            return .keyPath(inputLabel)
+            // TODO: support for unpack type in LLM
+            return .keyPath(.init(layerInput: inputLabel,
+                                  portType: .packed))
         }
         
         // Else, we must have a layer output; note: do layer outputs ALWAYS have labels?
@@ -344,10 +346,11 @@ extension String {
     }
     
     // Is the `port: String` a label for layer node input?
-    var parseLLMPortAsLabelForLayerInputType: LayerInputType? {
+    var parseLLMPortAsLabelForLayerInputType: LayerInputPort? {
         
-        if let layerInput = LayerInputType.allCases.first(where: {
-            $0.label() == self }) {
+        if let layerInput = LayerInputPort.allCases.first(where: {
+            $0.label() == self
+        }) {
             return layerInput
         }
         return nil
@@ -456,7 +459,7 @@ extension NodeIOCoordinate {
         
             // If we have a LayerNode input, use that label
         case .keyPath(let x):
-            return x.label()
+            return x.layerInput.label()
             
             // If we have a PatchNode input/output, or LayerNode output,
             // try to find the label per node definitions

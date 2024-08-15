@@ -116,7 +116,7 @@ extension GraphState {
         if let layerInputType = input.id.keyPath {
             nodeViewModel.blockOrUnblockFields(
                 newValue: value,
-                layerInput: layerInputType)
+                layerInput: layerInputType.layerInput)
             
             let newCommandType = value.shapeCommandType
             

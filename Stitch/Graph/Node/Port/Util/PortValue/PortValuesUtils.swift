@@ -73,6 +73,11 @@ extension PortValuesList {
 
         return (longestLoopLength, adjustedInputs)
     }
+    
+    func lengthenArrays() -> Self {
+        let data = self.getMaxCountAndLengthenedArrays()
+        return data.1
+    }
 
     /// Used by eval helpers to remap a sequence of eval op output results for some node's outputs.
     func remapOutputs() -> Self {

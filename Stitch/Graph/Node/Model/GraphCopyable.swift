@@ -169,15 +169,27 @@ extension LayerInputDataEntity: GraphCopyable {
     }
 }
 
+extension LayerInputEntity: GraphCopyable {
+    func createCopy(newId: NodeId,
+                    mappableData: [NodeId : NodeId],
+                    copiedNodeIds: NodeIdSet) -> LayerInputEntity {
+        .init(packedData: self.packedData.createCopy(newId: newId,
+                                                     mappableData: mappableData,
+                                                     copiedNodeIds: copiedNodeIds),
+              unpackedData: self.unpackedData.map {
+            $0.createCopy(newId: newId,
+                          mappableData: mappableData,
+                          copiedNodeIds: copiedNodeIds)
+        })
+    }
+}
+
 extension LayerNodeEntity: GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],
                     copiedNodeIds: NodeIdSet) -> LayerNodeEntity {
         var newSchema = LayerNodeEntity(nodeId: newId,
                                         layer: self.layer,
-                                        positionPort: positionPort.createCopy(newId: newId,
-                                                                              mappableData: mappableData,
-                                                                              copiedNodeIds: copiedNodeIds),
                                         hasSidebarVisibility: self.hasSidebarVisibility,
                                         layerGroupId: mappableData.get(self.layerGroupId),
                                         isExpandedInSidebar: self.isExpandedInSidebar)
@@ -316,7 +328,19 @@ extension NodeTypeEntity {
         case .layer(var layerNode):
             // Reset groups for inputs
             layerNode.layer.layerGraphNode.inputDefinitions.forEach {
-                layerNode[keyPath: $0.schemaPortKeyPath].canvasItem?.resetGroupId(focusedGroupId)
+                var schema = layerNode[keyPath: $0.schemaPortKeyPath]
+                switch schema.mode {
+                case .packed:
+                    schema.packedData.canvasItem?.resetGroupId(focusedGroupId)
+                case .unpacked:
+                    schema.unpackedData = schema.unpackedData.map { unpackedInput in
+                        var unpackedInput = unpackedInput
+                        unpackedInput.canvasItem?.resetGroupId(focusedGroupId)
+                        return unpackedInput
+                    }
+                }
+                
+                layerNode[keyPath: $0.schemaPortKeyPath] = schema
             }
             
             // Reset groups for outputs

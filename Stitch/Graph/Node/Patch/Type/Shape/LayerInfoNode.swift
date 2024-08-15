@@ -36,15 +36,15 @@ struct LayerInfoPatchNode: PatchNodeDefinition {
                     type: .bool
                 ),
                 .init(
-                    label: LayerInputType.position.label(),
+                    label: LayerInputPort.position.label(),
                     type: .position
                 ),
                 .init(
-                    label: LayerInputType.size.label(),
+                    label: LayerInputPort.size.label(),
                     type: .size
                 ),
                 .init(
-                    label: LayerInputType.scale.label(),
+                    label: LayerInputPort.scale.label(),
                     type: .number
                 ),
                 .init(
@@ -52,11 +52,11 @@ struct LayerInfoPatchNode: PatchNodeDefinition {
                     type: .anchoring
                 ),
                 .init(
-                    label: LayerInputType.opacity.label(),
+                    label: LayerInputPort.opacity.label(),
                     type: .number
                 ),
                 .init(
-                    label: LayerInputType.zIndex.label(),
+                    label: LayerInputPort.zIndex.label(),
                     type: .number
                 ),
                 .init(

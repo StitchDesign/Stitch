@@ -19,7 +19,9 @@ struct OpenFlyoutView: View, KeyboardReadable {
            let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
-            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
+            
+            // assumes packed data
+            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]._packedData
             
             // If pseudo-modal-background placed here,
             // then we disable scroll

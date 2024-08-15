@@ -13,6 +13,24 @@ import StitchSchemaKit
 extension NodeRowObserver {
     @MainActor
     func updateValues(_ newValues: PortValues) {
+        // Check if this port is for a packed layer input but the set mode is unpacked
+        // Valid scenarios here--we use input row observer getters for all-up value getting
+        if FeatureFlags.SUPPORTS_LAYER_UNPACK,
+           let layerId = self.id.keyPath,
+           layerId.portType == .packed,
+           let layerNode = self.nodeDelegate?.layerNodeViewModel {
+            let layerInputPort = layerNode[keyPath: layerId.layerInput.layerNodeKeyPath]
+            
+            if let unpackedObserver = layerInputPort.unpackedObserver {
+                log("NodeRowObserver.updateValues: will update unpacked values")
+                unpackedObserver.updateValues(from: newValues,
+                                              layerNode: layerNode)
+                
+                // Exit so we don't update this packed row observer unnecessarily
+                return
+            }
+        }
+        
         // Save these for `postProcessing`
         let oldValues = self.allLoopedValues
         
@@ -26,7 +44,7 @@ extension NodeRowObserver {
         }
         
         // Update cached view-specific data: "viewValue" i.e. activeValue
-        self.updatePortViewModels(values: newValues)
+        self.updatePortViewModels()
         
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
@@ -38,9 +56,9 @@ extension NodeRowObserver {
     @MainActor
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
-    func updatePortViewModels(values: PortValues) {
+    func updatePortViewModels() {
         self.getVisibleRowViewModels().forEach { rowViewModel in
-            rowViewModel.didPortValuesUpdate(values: values)
+            rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
     }
     
@@ -174,7 +192,7 @@ extension NodeRowObserver {
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
             
         case .keyPath(let keyPath):
-            return keyPath.label(useShortLabel)
+            return keyPath.layerInput.label(useShortLabel)
         }
     }
 }
