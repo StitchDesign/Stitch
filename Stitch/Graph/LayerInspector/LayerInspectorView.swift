@@ -124,19 +124,31 @@ struct LayerInspectorView: View {
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
+                    // (layer input + observer) for each layer input in this section that is actually supported by this specific layer
+                    let supportedInputsForThisLayer = layerNode.layer.inputDefinitions
+                    
+                    let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
+                        guard supportedInputsForThisLayer.contains(sectionInput) else {
+                            return nil
+                        }
+                        return LayerInputAndObserver(
+                            layerInput: sectionInput,
+                            portObserver: layerNode[keyPath: sectionInput.layerNodeKeyPath])
+                    }
+                    
+                    // TODO: when can this ever really be empty?
                     if !sectionInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
-                            layerInputs: sectionInputs,
-                            node: node,
-                            layerNode: layerNode,
-                            graph: graph)
+                            layerInputs: filteredInputs,
+                            graph: graph
+                        )
                     }
                 } // ForEach
                 
-                LayerInspectorOutputsSectionView(node: node,
-                                                 layerNode: layerNode,
-                                                 graph: graph)
+                LayerInspectorOutputsSectionView(
+                    outputs: layerNode.outputPorts,
+                    graph: graph)
             } // List
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
@@ -199,41 +211,36 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          layerEffects = "Layer Effects"
 }
 
+// Named Tuple
+typealias LayerInputAndObserver = (layerInput: LayerInputPort,
+                                   portObserver: LayerInputObserver)
+
+// This view now needs to receive the inputs it will be listing,
+// rather than receiving the entire layer node.
 struct LayerInspectorInputsSectionView: View {
     
     let sectionName: LayerInspectorSectionName
-    let layerInputs: LayerInputTypeSet
     
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+    // This section's layer inputs, filtered to excluded any not supported by this specific layer.
+    let layerInputs: [LayerInputAndObserver]
     @Bindable var graph: GraphState
+
     
     @State private var expanded = true
-  
-    @MainActor
-    var isFirstSection: Bool {
-        LayerInspectorView.firstSectionName(layerNode.layer) == sectionName
-    }
-    
+      
     var body: some View {
-        let inputsList = layerNode.layer.layerGraphNode.inputDefinitions
-        
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs) { layerInput in
-                let inputListContainsInput = inputsList.contains(layerInput)
-                let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
+            ForEach(layerInputs, id: \.layerInput) { layerInput in
+                let layerPort: LayerInputObserver = layerInput.portObserver
                 
                 // TODO: only using packed data here
                 let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
-                if inputListContainsInput && !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(
-                        portObserver: layerPort,
-                        node: node,
-                        layerNode: layerNode,
-                        graph: graph)
+                if !allFieldsBlockedOut {
+                    LayerInspectorInputPortView(portObserver: layerPort,
+                                                graph: graph)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                           layerInput: layerInput))
+                                                           layerInput: layerInput.layerInput))
                 }
             }
             .transition(.slideInAndOut(edge: .top))
@@ -251,13 +258,10 @@ struct LayerInspectorInputsSectionView: View {
                 StitchTextView(string: sectionName.rawValue)
             }
             // Note: list row insets appear to be the only way to control padding on a list's section headers
-            // TODO: how much spacing do we want between first section and very top of inspector?
-//            .listRowInsets(EdgeInsets(top: isFirstSection ? 20 : 0,
             .listRowInsets(EdgeInsets(top: 0,
                                       leading: 0,
                                       bottom: 0,
                                       trailing: 0))
-//            .padding(.bottom, isFirstSection ? 6 : 0)
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation {
@@ -266,7 +270,7 @@ struct LayerInspectorInputsSectionView: View {
                     
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
-                           x.layerInput == layerInput {
+                           x.layerInput == layerInput.layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
@@ -278,13 +282,15 @@ struct LayerInspectorInputsSectionView: View {
 
 struct LayerInspectorOutputsSectionView: View {
     
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+//    @Bindable var node: NodeViewModel
+//    @Bindable var layerNode: LayerNodeViewModel
+    
+    var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
     
     var body: some View {
         
-        let outputs = layerNode.outputPorts
+//        let outputs = layerNode.outputPorts
         
         if outputs.isEmpty {
             EmptyView()
@@ -296,8 +302,8 @@ struct LayerInspectorOutputsSectionView: View {
                             outputPortId: portId,
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
-                            node: node,
-                            layerNode: layerNode,
+//                            node: node,
+//                            layerNode: layerNode,
                             graph: graph, 
                             canvasItemId: output.canvasObserver?.id)
                     } else {

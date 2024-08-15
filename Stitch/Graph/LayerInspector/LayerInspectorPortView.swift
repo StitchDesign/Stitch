@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+//    @Bindable var node: NodeViewModel
+//    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
         
     var body: some View {
@@ -36,8 +36,8 @@ struct LayerInspectorInputPortView: View {
                     LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
                                            rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
                                            rowObserver: inputLayerNodeRowData.rowObserver,
-                                           node: node,
-                                           layerNode: layerNode,
+//                                           node: node,
+//                                           layerNode: layerNode,
                                            graph: graph,
                                            canvasItemId: canvasItemId) { propertyRowIsSelected in
                         NodeInputView(graph: graph,
@@ -58,8 +58,8 @@ struct LayerInspectorInputPortView: View {
                         LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
                                                rowViewModel: unpackedPort.inspectorRowViewModel,
                                                rowObserver: unpackedPort.rowObserver,
-                                               node: node,
-                                               layerNode: layerNode,
+//                                               node: node,
+//                                               layerNode: layerNode,
                                                graph: graph,
                                                canvasItemId: canvasItemId) { propertyRowIsSelected in
                             NodeInputView(graph: graph,
@@ -81,20 +81,23 @@ struct LayerInspectorInputPortView: View {
     
     // TODO: canvas item creation only used for debugging
     @MainActor func debug__createUnpackedCanvasItems() {
-        let nodeId = portObserver._packedData.rowObserver.id.nodeId
-        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); creation of unpacked canvas items should be handled outside of the view, and maybe not be allowed for layer multiselect?
+        fatalErrorIfDebug()
         
-        portObserver._unpackedData.allPorts.forEach { unpackedPort in
-            var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: .zero,
-                                            zIndex: .zero,
-                                            parentGroupNodeId: parentGroupNodeId)
-            unpackedPort.update(from: unpackSchema,
-                                layerInputType: unpackedPort.id,
-                                layerNode: layerNode,
-                                nodeId: nodeId,
-                                nodeDelegate: node)
-        }
+//        let nodeId = portObserver._packedData.rowObserver.id.nodeId
+//        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+//        
+//        portObserver._unpackedData.allPorts.forEach { unpackedPort in
+//            var unpackSchema = unpackedPort.createSchema()
+//            unpackSchema.canvasItem = .init(position: .zero,
+//                                            zIndex: .zero,
+//                                            parentGroupNodeId: parentGroupNodeId)
+//            unpackedPort.update(from: unpackSchema,
+//                                layerInputType: unpackedPort.id,
+//                                layerNode: layerNode,
+//                                nodeId: nodeId,
+//                                nodeDelegate: node)
+//        }
     }
 }
 
@@ -103,8 +106,8 @@ struct LayerInspectorOutputPortView: View {
     
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+//    @Bindable var node: NodeViewModel
+//    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     let canvasItemId: CanvasItemId?
@@ -113,8 +116,8 @@ struct LayerInspectorOutputPortView: View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
-                               node: node,
-                               layerNode: layerNode,
+//                               node: node,
+//                               layerNode: layerNode,
                                graph: graph,
                                canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeOutputView(graph: graph,
@@ -141,8 +144,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     @Bindable var rowViewModel: RowObserver.RowViewModelType
     @Bindable var rowObserver: RowObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+//    @Bindable var node: NodeViewModel
+//    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
         
     // non-nil = this row is present on canvas
@@ -166,7 +169,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         switch layerProperty {
         case .layerInput(let layerInputType):
             return !layerInputType.layerInput.usesFlyout
-        case .layerOutput(let int):
+        case .layerOutput:
             return true
         }
     }

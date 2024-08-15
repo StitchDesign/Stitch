@@ -158,6 +158,7 @@ struct NodeInputView: View {
         self.rowObserver.id.nodeId
     }
     
+    // pass in instead of accessing via nodeDelegate
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
