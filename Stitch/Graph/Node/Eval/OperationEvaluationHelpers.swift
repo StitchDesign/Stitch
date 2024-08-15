@@ -31,6 +31,7 @@ typealias Operation4 = (PortValues) -> (PortValue, PortValue, PortValue, PortVal
 
 typealias PortValueTuple8 = (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue)
 typealias Operation8 = (PortValues, Int) -> PortValueTuple8
+typealias Operation9 = (PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue)
 
 typealias Operation10 = (PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue)
 
@@ -242,6 +243,46 @@ func outputEvalHelper8(inputs: PortValuesList,
     }
 
     return [firstOutputLoop, secondOutputLoop, threeOutputLoop, fourthOutputLoop, fifthOutputLoop, sixthOutputLoop, seventhOutputLoop, eighthOutputLoop]
+}
+
+func outputEvalHelper9(inputs: PortValuesList,
+                        outputs: PortValuesList,
+                        operation: Operation9) -> PortValuesList {
+
+    var firstOutputLoop: PortValues = []
+    var secondOutputLoop: PortValues = []
+    var threeOutputLoop: PortValues = []
+    var fourthOutputLoop: PortValues = []
+    var fifthOutputLoop: PortValues = []
+    var sixthOutputLoop: PortValues = []
+    var seventhOutputLoop: PortValues = []
+    var eighthOutputLoop: PortValues = []
+    var ninthOutputLoop: PortValues = []
+
+    let (longestLoopLength, adjustedInputs) = getMaxCountAndLengthenedArrays(inputs,
+                                                                             outputs)
+
+    (0..<longestLoopLength).forEach { (index: Int) in
+
+        var callArgs: PortValues = []
+
+        adjustedInputs.forEach { (input: PortValues) in
+            callArgs.append(input[index])
+        }
+
+        let x: (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) = operation(callArgs)
+        firstOutputLoop.append(x.0)
+        secondOutputLoop.append(x.1)
+        threeOutputLoop.append(x.2)
+        fourthOutputLoop.append(x.3)
+        fifthOutputLoop.append(x.4)
+        sixthOutputLoop.append(x.5)
+        seventhOutputLoop.append(x.6)
+        eighthOutputLoop.append(x.7)
+        ninthOutputLoop.append(x.8)
+    }
+
+    return [firstOutputLoop, secondOutputLoop, threeOutputLoop, fourthOutputLoop, fifthOutputLoop, sixthOutputLoop, seventhOutputLoop, eighthOutputLoop, ninthOutputLoop]
 }
 
 

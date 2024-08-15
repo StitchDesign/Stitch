@@ -19,7 +19,7 @@ struct ArAnchorNode: PatchNodeDefinition {
                     label: "3D Model"
                 ),
                 .init(
-                    defaultValues: [.transform(DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix)],
+                    defaultValues: [.transform(DEFAULT_STITCH_TRANSFORM)],
                     label: "Transform"
                 )
             ],
@@ -61,7 +61,10 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
             return values.prevOutputs(node: node)
         }
         
-        let transformMatrix = values[safe: 1]?.getMatrix ?? DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix
+        //MARK: TODO NFA FIX
+        let transformMatrix = StitchMatrix()
+
+//        let transformMatrix = values[safe: 1]?.getMatrix ?? DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix
         
         if let anchorEntity = mediaObserver.arAnchor {
             let anchorId = mediaObserver.anchorMediaId

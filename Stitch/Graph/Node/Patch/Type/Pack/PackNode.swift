@@ -246,11 +246,10 @@ func matrixPackOp(values: PortValues) -> PortValue {
        let scaleX = values[safe: PackNodeMatrixLocations.scaleX]?.getNumber,
        let scaleY = values[safe: PackNodeMatrixLocations.scaleY]?.getNumber,
        let scaleZ = values[safe: PackNodeMatrixLocations.scaleZ]?.getNumber,
-       let quatX = values[safe: PackNodeMatrixLocations.rotationX]?.getNumber,
-       let quatY = values[safe: PackNodeMatrixLocations.rotationY]?.getNumber,
-       let quatZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber,
-       let quatW = values[safe: PackNodeMatrixLocations.rotationReal]?.getNumber {
-        return .transform(Transform.createMatrix(positionX: Float(x), positionY: Float(y), positionZ: Float(z), scaleX: Float(scaleX), scaleY: Float(scaleY), scaleZ: Float(scaleZ), rotationX: Float(quatX), rotationY: Float(quatY), rotationZ: Float(quatZ), rotationReal: Float(quatW)).matrix)
+       let rotationX = values[safe: PackNodeMatrixLocations.rotationX]?.getNumber,
+       let rotationY = values[safe: PackNodeMatrixLocations.rotationY]?.getNumber,
+       let rotationZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber {
+        return .transform(StitchTransform.init(positionX: x, positionY: y, positionZ: z, scaleX: scaleX, scaleY: scaleY, scaleZ: scaleZ, rotationX: rotationX, rotationY: rotationY, rotationZ: rotationZ))
     } else {
         #if DEV_DEBUG
         fatalError("matrixEvaluation")

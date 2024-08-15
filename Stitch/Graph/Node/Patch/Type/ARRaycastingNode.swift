@@ -103,7 +103,9 @@ func arRayCastingEval(node: PatchNode) -> EvalResult {
                 return [prevValue]
             }
             
-            return [.transform(raycastResult.worldTransform)]
+            //MARK: TODO - NFA - UPDATE THIS
+            return [.transform(StitchTransform())]
+//            return [.transform(raycastResult.worldTransform)]
         }
     }
 }

@@ -230,25 +230,24 @@ func point4DUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Po
     }
 }
 
-func transformUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) {
+func transformUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue, PortValue) {
     if let value = values.first, // only one input port
-       let matrix = value.getMatrix {
+       let transform = value.getTransform {
         return (
-            .number(Double(matrix.position.x)),
-            .number(Double(matrix.position.y)),
-            .number(Double(matrix.position.z)),
-            .number(Double(matrix.scale.x)),
-            .number(Double(matrix.scale.y)),
-            .number(Double(matrix.scale.z)),
-            .number(Double(matrix.rotation.imag.x)),
-            .number(Double(matrix.rotation.imag.y)),
-            .number(Double(matrix.rotation.imag.z)),
-            .number(Double(matrix.rotation.real))
+            .number(Double(transform.positionX)),
+            .number(Double(transform.positionY)),
+            .number(Double(transform.positionZ)),
+            .number(Double(transform.scaleX)),
+            .number(Double(transform.scaleY)),
+            .number(Double(transform.scaleZ)),
+            .number(Double(transform.rotationX)),
+            .number(Double(transform.rotationY)),
+            .number(Double(transform.rotationZ))
+            
         )
     } else {
         fatalError("unpack matrix")
         return (
-            .number(.zero),
             .number(.zero),
             .number(.zero),
             .number(.zero),
@@ -301,7 +300,7 @@ func unpackEval(inputs: PortValuesList,
     case .point4D:
         return resultsMaker4(inputs)(point4DUnpackOp)
     case .transform:
-        return outputEvalHelper10(
+        return outputEvalHelper9(
             inputs: inputs,
             outputs: [],
             operation: transformUnpackOp)

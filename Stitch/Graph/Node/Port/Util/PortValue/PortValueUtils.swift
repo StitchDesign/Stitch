@@ -101,13 +101,19 @@ extension PortValue {
         }
     }
 
-    //TODO: Change
-    var getMatrix: StitchMatrix? {
-        switch self {
-        case .transform(let x): return x
-        default: return nil
+    //TODO: NFA Change
+//    var getMatrix: StitchMatrix? {
+//        switch self {
+//        case .transform(let x): return x
+//        default: return nil
+//        }
+//    }
+        var getTransform: StitchTransform? {
+            switch self {
+            case .transform(let x): return x
+            default: return nil
+            }
         }
-    }
 
     var getAlignmentType: Plane? {
         switch self {
