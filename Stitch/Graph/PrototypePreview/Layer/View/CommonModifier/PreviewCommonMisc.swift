@@ -36,7 +36,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     
     let rotationX: CGFloat
     let rotationY: CGFloat
@@ -52,7 +52,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
         if viewModel.isPinned.getBool ?? false,
-           isGeneratedAtTopLevel,
+           isPinnedViewRendering,
            let pinReceiver = pinReceiver {
             
             return getRotationAnchor(lengthA: viewModel.pinnedSize?.width ?? .zero,
@@ -72,7 +72,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     var isPinnedView: Bool {
-        isPinned && isGeneratedAtTopLevel
+        isPinned && isPinnedViewRendering
     }
     
     var receivesPin: Bool {

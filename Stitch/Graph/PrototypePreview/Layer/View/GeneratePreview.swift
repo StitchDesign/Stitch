@@ -273,7 +273,7 @@ struct LayerDataView: View {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
-                                          isGeneratedAtTopLevel: isPinned,
+                                          isPinnedViewRendering: isPinned,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -287,7 +287,7 @@ struct LayerDataView: View {
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
-                                       isGeneratedAtTopLevel: isPinned,
+                                       isPinnedViewRendering: isPinned,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {
@@ -302,7 +302,7 @@ struct NonGroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var layerViewModel: LayerViewModel
 
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -311,7 +311,7 @@ struct NonGroupPreviewLayersView: View {
             PreviewLayerView(graph: graph,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
-                             isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                             isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,
                              parentDisablesPosition: parentDisablesPosition)
         } else {
@@ -325,7 +325,7 @@ struct GroupPreviewLayersView: View {
     @Bindable var layerNode: LayerNodeViewModel
     let layerViewModel: LayerViewModel
     let childrenData: LayerDataList
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -335,7 +335,7 @@ struct GroupPreviewLayersView: View {
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,
-                                   isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                                   isPinnedViewRendering: isPinnedViewRendering,
                                    parentDisablesPosition: parentDisablesPosition)
         } else {
             EmptyView()
