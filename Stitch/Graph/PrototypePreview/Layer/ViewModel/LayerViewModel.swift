@@ -9,13 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-/// "What is View A pinned to?"
-//enum PinToId: Equatable, Hashable, Codable {
-//    case root, // always preview window
-//         parent, // immediate parent; defaults to preview window if pinned layer has no parent
-//         layer(LayerNodeId)
-//}
-
 extension PinToId {
     static let defaultPinToId = Self.root
 
@@ -31,23 +24,6 @@ extension PinToId {
     }
 }
 
-enum PinReceiverDataCase: Equatable, Hashable, Codable {
-    case root(size: PinReceiverSizeData), // never has rotation data
-         // either a parent or a different layer
-         layer(size: PinReceiverSizeData,
-               rotation: PinReceiverRotationData)
-}
-
-struct PinReceiverRotationData: Equatable, Hashable, Codable {
-    // For determining PinnedView's rotation-anchor
-    var center: CGPoint
-
-    // PinReceiver's rotation is applied to the PinnedView
-    var rotationX: CGFloat
-    var rotationY: CGFloat
-    var rotationZ: CGFloat
-}
-
 struct PinReceiverSizeData: Equatable, Hashable, Codable {
     // for anchoring
     var size: CGSize
@@ -56,8 +32,6 @@ struct PinReceiverSizeData: Equatable, Hashable, Codable {
 
 /// the data for "View B", which receives the pinned View A
 struct PinReceiverData: Equatable {
-
-//    let pinTo: PinToId
 
     // for anchoring
     var size: CGSize
@@ -71,25 +45,6 @@ struct PinReceiverData: Equatable {
     var rotationX: CGFloat
     var rotationY: CGFloat
     var rotationZ: CGFloat
-}
-
-/// data for "View A", which is pinned to View B
-struct PinnedData: Equatable {
-
-    // size of the pinned view A, as affected by its parent;
-    // for anchoring;
-    // provided by the "GhostView"
-    var size: CGSize
-
-    // center of the (top level) PinnedView;
-    // for rotation;
-    // provided by the "PinnedView"
-    var center: CGPoint
-}
-
-enum PinData: Equatable {
-    case pinReceiver(PinReceiverData),
-         pinned(PinnedData)
 }
 
 @Observable
@@ -110,10 +65,7 @@ final class LayerViewModel {
 
     // data for pinned view, i.e. View A
     var pinnedSize: CGSize? = nil // parent-affected size etc.; read by a "Ghost View" that sits in normal, expected place in hierarchy
-    var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of GeneratePreview
-    
-    // TODO: use `PortValue.sizingScenario` and retrieve from actual
-//    var sizingScenario: SizingScenario = .constrainHeight
+    var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of
     
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.

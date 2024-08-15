@@ -29,12 +29,12 @@ struct HitAreaLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isGeneratedAtTopLevel: Bool,
+                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewHitAreaLayer(
             graph: graph,
             layerViewModel: viewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             size: viewModel.size.getSize ?? defaultHitAreaSize,

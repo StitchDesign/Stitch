@@ -13,7 +13,7 @@ struct PreviewRealityLayer: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let parentSize: CGSize
     let parentDisablesPosition: Bool
     
@@ -38,7 +38,7 @@ struct PreviewRealityLayer: View {
                                  node: node,
                                  layerViewModel: viewModel,
                                  cameraFeedManager: cameraFeedManager, 
-                                 isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                                 isPinnedViewRendering: isPinnedViewRendering,
                                  interactiveLayer: self.viewModel.interactiveLayer,
                                  allAnchors: viewModel.allAnchors.compactMap { $0.asyncMedia },
                                  position: position,
@@ -98,7 +98,7 @@ struct RealityLayerView: View {
     let layerViewModel: LayerViewModel
     
     let cameraFeedManager: CameraFeedManager
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let allAnchors: [GraphMediaValue]
     let position: CGSize
@@ -152,7 +152,7 @@ struct RealityLayerView: View {
         .modifier(PreviewCommonModifier(
             graph: graph,
             layerViewModel: layerViewModel,
-            isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+            isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,
             position: position,
             rotationX: rotationX,

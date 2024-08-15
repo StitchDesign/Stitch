@@ -14,7 +14,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
     @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
-    let isGeneratedAtTopLevel: Bool
+    let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     
     let position: StitchPosition
@@ -98,7 +98,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
             .modifier(PreviewLayerRotationModifier(
                 graph: graph,
                 viewModel: layerViewModel,
-                isGeneratedAtTopLevel: isGeneratedAtTopLevel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
                 rotationY: rotationY,
                 rotationZ: rotationZ))
