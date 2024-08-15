@@ -71,11 +71,11 @@ struct RectangleLayerNode: LayerNodeDefinition {
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
-                        isPinnedViewRendering: Bool,
+                        isGeneratedAtTopLevel: Bool,
                         parentDisablesPosition: Bool) -> some View {
         ShapeLayerView(graph: graph,
                        viewModel: viewModel,
-                       isPinnedViewRendering: isPinnedViewRendering,
+                       isGeneratedAtTopLevel: isGeneratedAtTopLevel,
                        parentSize: parentSize,
                        parentDisablesPosition: parentDisablesPosition)
     }
