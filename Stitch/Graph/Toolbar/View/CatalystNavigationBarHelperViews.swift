@@ -140,10 +140,12 @@ struct CatalystTopBarGraphButtons: View {
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             
+            #if DEV_DEBUG || DEBUG
             CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
                 dispatch(LLMRecordingToggled())
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
+            #endif
             
             CatalystNavBarButton(.GO_UP_ONE_TRAVERSAL_LEVEL_SF_SYMBOL_NAME) {
                 dispatch(GoUpOneTraversalLevel())

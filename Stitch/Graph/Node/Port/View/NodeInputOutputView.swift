@@ -18,7 +18,7 @@ struct LayerInspectorRowButton: View {
     var canBeAddedToCanvas: Bool {
         switch layerProperty {
         case .layerInput(let layerInputType):
-            return !layerInputType.usesFlyout
+            return !layerInputType.layerInput.usesFlyout
         case .layerOutput(let int):
             return true
         }
@@ -194,8 +194,8 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath == .padding
-                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == .padding
+                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
                 if isPaddingLayerInputRow, forPropertySidebar {
                     PaddingReadOnlyView(rowObserver: rowObserver,

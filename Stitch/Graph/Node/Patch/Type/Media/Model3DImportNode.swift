@@ -25,7 +25,7 @@ struct Model3DPatchNode: PatchNodeDefinition {
                     label: "Animating"
                 ),
                 .init(
-                    defaultValues: [.matrixTransform(DEFAULT_TRANSFORM_MATRIX_MODEL.matrix)],
+                    defaultValues: [.matrixTransform(DEFAULT_TRANSFORM_MATRIX.matrix)],
                     label: "Transform"
                 )
             ],

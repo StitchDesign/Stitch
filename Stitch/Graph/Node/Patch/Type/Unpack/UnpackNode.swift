@@ -262,6 +262,7 @@ func matrixUnpackOp(values: PortValues) -> (PortValue, PortValue, PortValue, Por
     }
 }
 
+
 let shapeCommandOp: Operation4 = { (values: PortValues) -> (PortValue, PortValue, PortValue, PortValue) in
     if let shapeCommand = values.first?.shapeCommand {
         return (

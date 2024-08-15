@@ -108,7 +108,8 @@ final class CanvasItemViewModel: Identifiable {
          zIndex: Double,
          parentGroupNodeId: NodeId?,
          inputRowObservers: [InputNodeRowObserver],
-         outputRowObservers: [OutputNodeRowObserver]) {
+         outputRowObservers: [OutputNodeRowObserver],
+         nodeDelegate: NodeDelegate? = nil) {
         self.id = id
         self.position = position
         self.previousPosition = position
@@ -118,6 +119,10 @@ final class CanvasItemViewModel: Identifiable {
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
                                outputRowObservers: outputRowObservers)
+        
+        if let node = nodeDelegate {
+            self.initializeDelegate(node)
+        }
     }
 }
 
@@ -232,7 +237,8 @@ extension InputLayerNodeRowData {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(.rectangle),
                                                userVisibleType: nil,
-                                               id: .init(portType: .keyPath(.position), nodeId: .init()),
+                                               id: .init(portType: .keyPath(layerInputType),
+                                                         nodeId: .init()),
                                                activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,

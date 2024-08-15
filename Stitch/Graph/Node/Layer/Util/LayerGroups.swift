@@ -94,14 +94,14 @@ extension NodeViewModel {
             return
         }
         
-        let inputObserver = layerViewModel.positionPort.rowObserver
-        let updatedPositions: PortValues = inputObserver.allLoopedValues.map { $0.getPoint ?? .zero }
+        let inputPort = layerViewModel.positionPort
+        let updatedPositions: PortValues = inputPort.allLoopedValues.map { $0.getPoint ?? .zero }
             .map {
                 updatePosition(position: $0, offset: offset.toCGPoint)
                     .toCGSize
             }
             .map(PortValue.position)
 
-        inputObserver.updateValues(updatedPositions)
+        inputPort.updatePortValues(updatedPositions)
     }
 }

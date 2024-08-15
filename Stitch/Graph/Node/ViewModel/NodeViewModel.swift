@@ -91,20 +91,26 @@ final class NodeViewModel: Sendable {
     }
 }
 
-extension NodeViewModel: NodeCalculatable {
+extension NodeViewModel: NodeCalculatable {    
     var requiresOutputValuesChange: Bool {
         self.kind.getPatch == .pressInteraction
     }
     
-    @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {        
+    @MainActor func getAllParentInputsObservers() -> [InputNodeRowObserver] {
+        self.getAllInputsObservers()
+    }
+    
+    var inputsValuesList: PortValuesList {
         switch self.nodeType {
         case .patch(let patch):
-            return patch.inputsObservers
+            return patch.inputsObservers.map { $0.allLoopedValues }
         case .layer(let layer):
-            return layer.getSortedInputObservers()
+            return layer.getSortedInputPorts().map { inputPort in
+                inputPort.allLoopedValues
+            }
         case .group(let canvas):
             return canvas.inputViewModels.compactMap {
-                $0.rowDelegate
+                $0.rowDelegate?.allLoopedValues
             }
         }
     }
@@ -270,15 +276,15 @@ extension NodeViewModel {
     
     @MainActor
     func updateInputPortViewModels(activeIndex: ActiveIndex) {
-        zip(self.getAllInputsObservers(), self.inputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+        self.getAllInputsObservers().forEach { rowObserver in
+            rowObserver.updatePortViewModels()
         }
     }
 
     @MainActor
     func updateOutputPortViewModels(activeIndex: ActiveIndex) {
-        zip(self.getAllOutputsObservers(), self.outputs).forEach { rowObserver, values in
-            rowObserver.updatePortViewModels(values: values)
+        self.getAllOutputsObservers().forEach { rowObserver in
+            rowObserver.updatePortViewModels()
         }
     }
     
@@ -325,8 +331,14 @@ extension NodeViewModel {
     }
     
     @MainActor
-    func getInputRowObserver(for layerInputType: LayerInputType) -> InputNodeRowObserver? {
-        self.getInputRowObserver(for: .keyPath(layerInputType))
+    func getInputActivePortValue(for layerInputType: LayerInputPort) -> PortValue? {
+        guard let layerNode = self.layerNode else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
+        return portObserver.activeValue
     }
     
     @MainActor
@@ -464,7 +476,7 @@ extension NodeViewModel: NodeDelegate {
     }
     
     var inputsRowCount: Int {
-        self.getAllInputsObservers().count
+        self.getAllParentInputsObservers().count
     }
     
     var outputsRowCount: Int {
@@ -494,13 +506,15 @@ extension NodeViewModel: NodeDelegate {
             
         case .layer(let layer):
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
-                let inputData = layer[keyPath: $0.layerNodeKeyPath]
+                let inputPort = layer[keyPath: $0.layerNodeKeyPath]
                 
-                if let canvas = inputData.canvasObserver {
-                    return canvas.inputViewModels + [inputData.inspectorRowViewModel]
+                return inputPort.allInputData.flatMap { inputData in
+                    if let canvas = inputData.canvasObserver {
+                        return canvas.inputViewModels + [inputData.inspectorRowViewModel]
+                    }
+                    
+                    return [inputData.inspectorRowViewModel]
                 }
-                
-                return [inputData.inspectorRowViewModel]
             }
         }
     }
