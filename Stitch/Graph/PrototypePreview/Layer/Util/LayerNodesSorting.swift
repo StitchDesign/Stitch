@@ -37,23 +37,17 @@ extension VisibleNodesViewModel {
             handled = handled.union(newLayersUsedAsMaskers)
         }
         
-        // If we're at the root level, we need to also add the LayerTypes for views with `isPinned = true` and `pinToId = .root`, since those views' PinnedViews will not be handled
+        // If we're at the root level, we need to also add the LayerTypes for views with `isPinned = true` and `pinToId = .root`, since those views' PinnedViews will not be handled by
         if isRoot,
            let rootPinnedViews = pinMap.get(nil) {
-            rootPinnedViews.forEach { (pinnedView: LayerNodeId) in
-                let sidebarIndexOfPinnedView = sidebarLayers.getSidebarLayerDataIndex(pinnedView.id) ?? .zero
-                if let layerDataForPinnedView = sidebarLayers.getSidebarLayerData(pinnedView.id) {
-                    
-                    // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
-                    let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
-                        layerDataForPinnedView,
-                        sidebarIndex: sidebarIndexOfPinnedView,
-                        layerNodes: layerNodes,
-                        isPinnedView: true)
-                                        
-                    layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisPinnedView)
-                }
-            } // rootPinnedViews.forEach
+            
+            let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
+                pinnedViews: rootPinnedViews,
+                sidebarLayers: sidebarLayers,
+                layerNodes: self.layerNodes,
+                layerTypesAtThisLevel: layerTypesAtThisLevel)
+            
+            layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
         } // if isRoot
         
         
@@ -301,46 +295,63 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             // i.e. "Is this layer the B to some A and C?"
             if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
                 
-                // ... if so, iterate through A and C:
-                pinnedViews.forEach { (pinnedView: LayerNodeId) in
-                    
-                    // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
-                    
-                    let sidebarIndexOfPinnedView = sidebarLayers.getSidebarLayerDataIndex(pinnedView.id) ?? .zero
-                    
-                    if let layerDataForPinnedView = sidebarLayers.getSidebarLayerData(pinnedView.id) {
-                        
-                        // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
-                        let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
-                            
-                            // use the layer data for the pinned view A, not the pin-receiving view B
-                            layerDataForPinnedView,
-                            
-                            /*
-                             Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
-                             
-                             Group 1
-                             - B
-                             Group 2
-                             - C
-                             - Q
-                             A
-                             
-                             Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
-                             */
-                            sidebarIndex: sidebarIndexOfPinnedView,
-                            
-                            layerNodes: layerNodes,
-                            isPinnedView: true)
-                        
-                        layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisPinnedView)
-                    }
-                } // pinnedViews.forEach
+                let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
+                    pinnedViews: pinnedViews, 
+                    sidebarLayers: sidebarLayers,
+                    layerNodes: layerNodes,
+                    layerTypesAtThisLevel: layerTypesAtThisLevel)
+                
+                layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromPinnedViews)
             }
         }
     } // else
     
     return (layerTypesAtThisLevel, handled)
+}
+
+func getLayerTypesForPinnedViews(pinnedViews: LayerIdSet, // views pinned to this layer
+                                 sidebarLayers: SidebarLayerList,
+                                 layerNodes: NodesViewModelDict,
+                                 layerTypesAtThisLevel: LayerTypeSet) -> LayerTypeSet {
+    
+    var layerTypesAtThisLevel = layerTypesAtThisLevel
+    
+    pinnedViews.forEach { (pinnedView: LayerNodeId) in
+        
+        // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
+        
+        let sidebarIndexOfPinnedView = sidebarLayers.getSidebarLayerDataIndex(pinnedView.id) ?? .zero
+        
+        if let layerDataForPinnedView = sidebarLayers.getSidebarLayerData(pinnedView.id) {
+            
+            // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
+            let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
+                
+                // use the layer data for the pinned view A, not the pin-receiving view B
+                layerDataForPinnedView,
+                
+                /*
+                 Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
+                 
+                 Group 1
+                 - B
+                 Group 2
+                 - C
+                 - Q
+                 A
+                 
+                 Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
+                 */
+                sidebarIndex: sidebarIndexOfPinnedView,
+                
+                layerNodes: layerNodes,
+                isPinnedView: true)
+            
+            layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromThisPinnedView)
+        }
+    } // pinnedViews.forEach
+    
+    return layerTypesAtThisLevel
 }
 
 extension SidebarLayerList {
