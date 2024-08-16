@@ -30,8 +30,6 @@ struct TransformUnpackPatchNode: PatchNodeDefinition {
                         .init(label: "Rotation Y",
                               type: .number),
                         .init(label: "Rotation Z",
-                              type: .number),
-                        .init(label: "Rotation Real",
                               type: .number)])
     }
 }
