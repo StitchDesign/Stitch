@@ -22,24 +22,14 @@ struct LayerInspectorInputPortView: View {
             case .packed(let inputLayerNodeRowData):
                 let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
                 
-                HStack {
-                    // MARK: debugging unpack feature
-                    if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                        Button {
-                            // TODO: canvas item creation only used for debugging
-                            self.debug__createUnpackedCanvasItems()
-                        } label: {
-                            Text("Unpack")
-                        }
-                    }
-                    
-                    LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
-                                           rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
-                                           rowObserver: inputLayerNodeRowData.rowObserver,
-                                           node: node,
-                                           layerNode: layerNode,
-                                           graph: graph,
-                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
+                LayerInspectorPortView(
+                    layerProperty: .layerInput(inputLayerNodeRowData.id),
+                    rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
+                    rowObserver: inputLayerNodeRowData.rowObserver,
+                    node: node,
+                    layerNode: layerNode,
+                    graph: graph,
+                    canvasItemId: canvasItemId) { propertyRowIsSelected in
                         NodeInputView(graph: graph,
                                       rowObserver: inputLayerNodeRowData.rowObserver,
                                       rowData: inputLayerNodeRowData.inspectorRowViewModel,
@@ -48,28 +38,38 @@ struct LayerInspectorInputPortView: View {
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                       isCanvasItemSelected: false)
                     }
-                }
+                // NOTE: attaching even a ZStack around LayerInspectorPortView causes the row's background color to expand to fill whole list row
+                // TODO: finalize UI for pack, unpack
+                    .overlay(alignment: .topLeading) {
+                        // MARK: debugging unpack feature
+                        if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                            Button {
+                                // TODO: canvas item creation only used for debugging
+                                self.debug__createUnpackedCanvasItems()
+                            } label: {
+                                Text("Unpack")
+                            }
+                        }
+                    }
                 
             case .unpacked(let unpackedPortObserver):
-                HStack {
-                    ForEach(unpackedPortObserver.allPorts) { unpackedPort in
-                        let canvasItemId = unpackedPort.canvasObserver?.id
-    
-                        LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
-                                               rowViewModel: unpackedPort.inspectorRowViewModel,
-                                               rowObserver: unpackedPort.rowObserver,
-                                               node: node,
-                                               layerNode: layerNode,
-                                               graph: graph,
-                                               canvasItemId: canvasItemId) { propertyRowIsSelected in
-                            NodeInputView(graph: graph,
-                                          rowObserver: unpackedPort.rowObserver,
-                                          rowData: unpackedPort.inspectorRowViewModel,
-                                          forPropertySidebar: true,
-                                          propertyIsSelected: propertyRowIsSelected,
-                                          propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                                          isCanvasItemSelected: false)
-                        }
+                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+                    let canvasItemId = unpackedPort.canvasObserver?.id
+                    
+                    LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
+                                           rowViewModel: unpackedPort.inspectorRowViewModel,
+                                           rowObserver: unpackedPort.rowObserver,
+                                           node: node,
+                                           layerNode: layerNode,
+                                           graph: graph,
+                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
+                        NodeInputView(graph: graph,
+                                      rowObserver: unpackedPort.rowObserver,
+                                      rowData: unpackedPort.inspectorRowViewModel,
+                                      forPropertySidebar: true,
+                                      propertyIsSelected: propertyRowIsSelected,
+                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                                      isCanvasItemSelected: false)
                     }
                 }
             }
