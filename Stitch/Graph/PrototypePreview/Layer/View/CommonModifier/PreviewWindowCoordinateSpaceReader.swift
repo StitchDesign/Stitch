@@ -14,8 +14,10 @@ let PREVIEW_WINDOW_COORDINATE_SPACE = "previewWindow"
 struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-
+    
     let isPinnedViewRendering: Bool
+    
+    let pinMap: PinMap
     
     var isPinned: Bool {
         viewModel.isPinned.getBool ?? false
@@ -36,14 +38,25 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
             .opacity(isGhostView ? 0 : 1)
             .background {
                 GeometryReader { geometry in
+                    // Note: this is the size of the view within the whole preview window coordinate space;
+                    // compare vs. LayerSizeReader which is the size of the view within the .local coordinate space.
                     Color.clear.onChange(of: geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)),
                                          initial: true) { oldValue, newValue in
                         
                         // log("PreviewWindowCoordinateSpaceReader: viewModel.layer: \(viewModel.layer)")
                         
                         // log("PreviewWindowCoordinateSpaceReader: key: \(key), size: \(newValue.size), origin: \(newValue.origin), mid: \(newValue.mid)")
-                        
+                                                
                         //viewModel.previewWindowRect = newValue
+                        
+                        // If this layer *receives* a pin, populate its pin-receiver data fields:
+                        if pinMap.get(viewModel.id.layerNodeId).isDefined,
+                           // TODO: how or why can newValue
+                           (!newValue.width.isNaN && !newValue.height.isNaN) {
+                                viewModel.pinReceiverSize = newValue.size
+                                viewModel.pinReceiverOrigin = newValue.origin
+                                viewModel.pinReceiverCenter = newValue.mid
+                            }
                         
                         if isPinned {
                             // If this view is for a pinned layer view model,
@@ -65,16 +78,6 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
                                 
                                 viewModel.pinnedSize = newValue.size
                             }
-                        }
-                        
-                        // If we're not a view for a pinned layer view model,
-                        // we could be a view for a pin-receiving layer view model, or not be related to pinning at all.
-                        // In either case, we always read the pin-receiveing relevant data.
-                        else {
-                            // log("PreviewWindowCoordinateSpaceReader: either pin-receiving or not at all pin-related")
-                            viewModel.pinReceiverSize = newValue.size
-                            viewModel.pinReceiverOrigin = newValue.origin
-                            viewModel.pinReceiverCenter = newValue.mid
                         }
                     } // .onChange
                 } // GeometryReader
