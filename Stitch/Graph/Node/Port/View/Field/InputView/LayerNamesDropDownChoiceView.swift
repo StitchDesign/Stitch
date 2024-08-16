@@ -66,7 +66,6 @@ extension GraphState {
             .getIds()
             .compactMap { layerId in
                 // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
-                // Also want to exl
                 if isForPinTo, 
                     // Exclude the node itself, i.e. A cannot choose A as its pinToId
                     (layerId == isForNode
