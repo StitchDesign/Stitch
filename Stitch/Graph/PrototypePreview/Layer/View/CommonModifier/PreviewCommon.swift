@@ -61,6 +61,7 @@ struct PreviewCommonModifier: ViewModifier {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
+                pinMap: graph.graphUI.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,

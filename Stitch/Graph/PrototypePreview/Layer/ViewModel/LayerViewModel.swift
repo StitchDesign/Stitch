@@ -54,7 +54,7 @@ final class LayerViewModel {
     let interactiveLayer: InteractiveLayer
     weak var nodeDelegate: NodeDelegate?
     
-    // PINNING
+    // PINNING: "View A is pinned to View B"
 
     // TODO: wrap these up into pinned- vs pinReceiving-data structures as seen above?
 
@@ -64,8 +64,8 @@ final class LayerViewModel {
     var pinReceiverCenter: CGPoint? = nil // rotation
 
     // data for pinned view, i.e. View A
-    var pinnedSize: CGSize? = nil // parent-affected size etc.; read by a "Ghost View" that sits in normal, expected place in hierarchy
-    var pinnedCenter: CGPoint? = nil // not affected by parent's scale etc.; read by a "Pinned View" that sits at top of
+    var pinnedSize: CGSize? = nil // parent-affected size (e.g. parent scaled 2x); read by a "Ghost View" that sits in view's normal, expected place in hierarchy.
+    var pinnedCenter: CGPoint? = nil // not affected by parent's scale, position etc.; read by a "Pinned View" that sits in same hierarchy level as the view it is pinned to.
     
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.

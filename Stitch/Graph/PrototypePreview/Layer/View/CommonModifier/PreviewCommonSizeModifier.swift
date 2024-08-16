@@ -35,6 +35,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     
+    let pinMap: PinMap
+    
     let aspectRatio: AspectRatioData
     let size: LayerSize
     
@@ -126,7 +128,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
             // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
+                    isPinnedViewRendering: isPinnedViewRendering,
+                    pinMap: pinMap))
             
         case .constrainHeight:
             // logInView("case .constrainHeight")
@@ -149,7 +152,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(LayerSizeReader(viewModel: viewModel))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
+                    isPinnedViewRendering: isPinnedViewRendering,
+                    pinMap: pinMap))
                         
         case .constrainWidth:
             // logInView("case .constrainWidth")
@@ -172,7 +176,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                 .modifier(LayerSizeReader(viewModel: viewModel))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
-                    isPinnedViewRendering: isPinnedViewRendering))
+                    isPinnedViewRendering: isPinnedViewRendering,
+                    pinMap: pinMap))
         }
     }
 }
