@@ -136,13 +136,14 @@ struct OutputValueView: View {
                        alignment: .leading)
 
         case .layerDropdown(let layerId):
-                   //            // TODO: disable or use read-only view if this is an output ?
+            // TODO: use read-only view if this is an output ?
                    LayerNamesDropDownChoiceView(graph: graph,
                                                 id: coordinate,
                                                 value: .assignedLayer(layerId),
                                                 isForPinTo: false,
                                                 choices: graph.layerDropdownChoices(
                                                    isForNode: coordinate.nodeId,
+                                                   isForLayerGroup: false,
                                                    isForPinTo: false))
                    .disabled(true)
 
@@ -153,6 +154,7 @@ struct OutputValueView: View {
                                                 isForPinTo: true,
                                                 choices: graph.layerDropdownChoices(
                                                    isForNode: coordinate.nodeId,
+                                                   isForLayerGroup: false,
                                                    isForPinTo: true))
                    .disabled(true)
 

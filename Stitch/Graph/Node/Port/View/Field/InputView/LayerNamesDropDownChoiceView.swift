@@ -54,11 +54,16 @@ extension NodeViewModel {
 extension GraphState {
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
+                              isForLayerGroup: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
         let pinMap = self.graphUI.pinMap
         let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
+        
+        // includes self?
+        var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
+        descendants.remove(isForNode.asLayerNodeId)
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
                 
@@ -70,7 +75,11 @@ extension GraphState {
                     // Exclude the node itself, i.e. A cannot choose A as its pinToId
                     (layerId == isForNode
                    // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
-                     || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)) {
+                     || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)
+                     
+                     // Exclude this layer group's descendants of from choices
+                     || descendants.contains(layerId.asLayerNodeId)
+                    ) {
                     return nil
                 }
 
@@ -79,7 +88,15 @@ extension GraphState {
         
         return initialChoices + layers
     }
+    
+    func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+        getDescendantsIds(id: layer,
+                          groups: self.getSidebarGroupsDict(),
+                          acc: .init())
+    }
 }
+
+
 
 // Note:
 struct LayerNamesDropDownChoiceView: View {
