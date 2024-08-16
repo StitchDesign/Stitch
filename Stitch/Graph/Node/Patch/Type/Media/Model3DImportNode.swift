@@ -25,8 +25,6 @@ struct Model3DPatchNode: PatchNodeDefinition {
                     label: "Animating"
                 ),
                 .init(
-                    //MARK: TODO: NFA FIX
-//                    defaultValues: [.transform(DEFAULT_TRANSFORM_MATRIX.matrix)],
                     defaultValues: [.transform(DEFAULT_STITCH_TRANSFORM)],
                     label: "Transform"
                 )
@@ -59,9 +57,9 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         
         let animating = values[Model3DImportNodeIndices.animating].getBool ?? false
         
-//        let matrix = values[Model3DImportNodeIndices.matrix].getMatrix ?? StitchMatrix()
-        //MARK: NFA TODO FIX THIS
-        let matrix = StitchMatrix()
+        let transform = values[Model3DImportNodeIndices.matrix].getTransform ?? StitchTransform()
+        let matrix: StitchMatrix = StitchMatrix(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
+        
         let model3DEntity = media.mediaObject.model3DEntity
         
         // Update transform
