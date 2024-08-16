@@ -114,35 +114,36 @@ struct PreviewSwitchLayer: View {
             .toggleStyle(.switch)
             .labelsHidden()
 
-        return view.modifier(PreviewCommonModifierWithoutFrame(
-            graph: graph,
-            layerViewModel: viewModel,
-            isPinnedViewRendering: isPinnedViewRendering,
-            interactiveLayer: interactiveLayer,
-            position: position,
-            rotationX: rotationX,
-            rotationY: rotationY,
-            rotationZ: rotationZ,
-//            size: Self.ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE, 
-            size: .init(Self.ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE),
-            minimumDragDistance: SWITCH_NODE_MINIMUM_DRAG_DISTANCE,
-            scale: 1, // Always 1, since "no real size"
-            anchoring: anchoring,
-            blurRadius: blurRadius,
-            blendMode: blendMode,
-            brightness: brightness,
-            colorInvert: colorInvert,
-            contrast: contrast,
-            hueRotation: hueRotation,
-            saturation: saturation, 
-            pivot: .defaultPivot,
-            shadowColor: .defaultShadowColor,
-            shadowOpacity: .defaultShadowOpacity,
-            shadowRadius: .defaultShadowRadius,
-            shadowOffset: .defaultShadowOffset,
-            parentSize: parentSize,
-            parentDisablesPosition: parentDisablesPosition
-        ))
+        return view
+            .modifier(PreviewCommonModifier(
+                graph: graph,
+                layerViewModel: viewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
+                interactiveLayer: interactiveLayer,
+                position: position,
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ,
+                //            size: Self.ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE,
+                size: .init(Self.ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE),
+                minimumDragDistance: SWITCH_NODE_MINIMUM_DRAG_DISTANCE,
+                scale: 1, // Always 1, since "no real size"
+                anchoring: anchoring,
+                blurRadius: blurRadius,
+                blendMode: blendMode,
+                brightness: brightness,
+                colorInvert: colorInvert,
+                contrast: contrast,
+                hueRotation: hueRotation,
+                saturation: saturation,
+                pivot: .defaultPivot,
+                shadowColor: .defaultShadowColor,
+                shadowOpacity: .defaultShadowOpacity,
+                shadowRadius: .defaultShadowRadius,
+                shadowOffset: .defaultShadowOffset,
+                parentSize: parentSize,
+                parentDisablesPosition: parentDisablesPosition
+            ))
         .onChange(of: self.viewModel.isUIToggled) {
             dispatch(SwitchLayerToggled(id: id))
         }
