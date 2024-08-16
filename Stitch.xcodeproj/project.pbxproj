@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -250,6 +250,7 @@
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
 		E449EA5B28ADA89C0005EC15 /* Model3DImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449EA5A28ADA89C0005EC15 /* Model3DImportNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
+		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
@@ -1811,6 +1812,7 @@
 				20578DA7259EAF6400DACCA8 /* BrightFutures in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
 				E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */,
+				E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4321,6 +4323,7 @@
 				E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */,
 				E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */,
 				E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */,
+				E463E7EE2C6FC7090008E318 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4406,7 +4409,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */,
-				E4CB840E2C6E8FED000D6D31 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */,
+				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5968,13 +5971,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		E4CB840E2C6E8FED000D6D31 /* XCLocalSwiftPackageReference "../StitchSchemaKit" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../StitchSchemaKit;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -6030,6 +6026,14 @@
 			requirement = {
 				kind = revision;
 				revision = 0fab4991b68d3850ffe67fded9d248111015a054;
+			};
+		};
+		E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
+			requirement = {
+				branch = transforms;
+				kind = branch;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
@@ -6140,6 +6144,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
 			productName = DirectoryWatcher;
+		};
+		E463E7EE2C6FC7090008E318 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
 		};
 		E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;
