@@ -15,7 +15,7 @@ struct LayerSizeReader: ViewModifier {
             GeometryReader { proxy in
                 Color.clear
                     .onChange(of: proxy.frame(in: .local).size, initial: true) { _, newSize in
-                        // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
+                         log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
                         if viewModel.readSize != newSize {
                             viewModel.readSize = newSize
                         }

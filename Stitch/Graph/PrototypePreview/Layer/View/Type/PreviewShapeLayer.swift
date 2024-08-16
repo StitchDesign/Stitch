@@ -42,7 +42,7 @@ struct PreviewShapeLayer: View {
     let shadowOpacity: CGFloat
     let shadowRadius: CGFloat
     let shadowOffset: StitchPosition
-
+    
     let previewShapeKind: PreviewShapeLayerKind
     
     let parentSize: CGSize
@@ -68,70 +68,75 @@ struct PreviewShapeLayer: View {
         
         let shape = builtShape(layerNodeSize: layerNodeSize)
         
-        // After we've applied Shape- and InsettableShape-based SwiftUI modifiers,
-        // we apply the common modifiers:
-        if usesAbsoluteCoordinates {
-            shape
-                .opacity(opacity)
-                .modifier(PreviewSidebarHighlightModifier(
-                    nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
-                    scale: scale))
-            // order of .blur vs other modiifers doesn't matter?
-                .blur(radius: blurRadius)
-                .blendMode(blendMode.toBlendMode)
-            
-            // TODO: revisit this
-                .modifier(PreviewAbsoluteShapeLayerModifier(
-                    graph: graph, 
-                    viewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    interactiveLayer: interactiveLayer,
-                    position: position.toCGPoint,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ,
-                    scale: scale,
-                    blurRadius: blurRadius,
-                    blendMode: blendMode,
-                    brightness: brightness,
-                    colorInvert: colorInvert,
-                    contrast: contrast,
-                    hueRotation: hueRotation,
-                    saturation: saturation,
-                    pivot: pivot,
-                    previewWindowSize: parentSize))
-        } else {
-            shape
-                .opacity(opacity)
-                .modifier(PreviewCommonModifier(
-                    graph: graph,
-                    layerViewModel: layerViewModel,
-                    isPinnedViewRendering: isPinnedViewRendering,
-                    interactiveLayer: interactiveLayer,
-                    position: position,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    rotationZ: rotationZ,
-                    size: size,
-                    scale: scale,
-                    anchoring: anchoring,
-                    blurRadius: blurRadius,
-                    blendMode: blendMode,
-                    brightness: brightness,
-                    colorInvert: colorInvert,
-                    contrast: contrast,
-                    hueRotation: hueRotation,
-                    saturation: saturation,
-                    pivot: pivot,
-                    shadowColor: shadowColor,
-                    shadowOpacity: shadowOpacity,
-                    shadowRadius: shadowRadius,
-                    shadowOffset: shadowOffset,
-                    isForShapeLayer: true,
-                    parentSize: parentSize,
-                    parentDisablesPosition: parentDisablesPosition))
-        }
+        //        return Ellipse().fill(.red)
+        //            .frame(width: 100, height: 100)
+        //            .border(.green)
+        
+        //
+        //        // After we've applied Shape- and InsettableShape-based SwiftUI modifiers,
+        //        // we apply the common modifiers:
+        //        if usesAbsoluteCoordinates {
+        //            shape
+        //                .opacity(opacity)
+        //                .modifier(PreviewSidebarHighlightModifier(
+        //                    nodeId: interactiveLayer.id.layerNodeId,
+        //                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+        //                    scale: scale))
+        //            // order of .blur vs other modiifers doesn't matter?
+        //                .blur(radius: blurRadius)
+        //                .blendMode(blendMode.toBlendMode)
+        //
+        //            // TODO: revisit this
+        //                .modifier(PreviewAbsoluteShapeLayerModifier(
+        //                    graph: graph,
+        //                    viewModel: layerViewModel,
+        //                    isPinnedViewRendering: isPinnedViewRendering,
+        //                    interactiveLayer: interactiveLayer,
+        //                    position: position.toCGPoint,
+        //                    rotationX: rotationX,
+        //                    rotationY: rotationY,
+        //                    rotationZ: rotationZ,
+        //                    scale: scale,
+        //                    blurRadius: blurRadius,
+        //                    blendMode: blendMode,
+        //                    brightness: brightness,
+        //                    colorInvert: colorInvert,
+        //                    contrast: contrast,
+        //                    hueRotation: hueRotation,
+        //                    saturation: saturation,
+        //                    pivot: pivot,
+        //                    previewWindowSize: parentSize))
+        //        } else {
+        shape
+            .opacity(opacity)
+            .modifier(PreviewCommonModifier(
+                graph: graph,
+                layerViewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
+                interactiveLayer: interactiveLayer,
+                position: position,
+                rotationX: rotationX,
+                rotationY: rotationY,
+                rotationZ: rotationZ,
+                size: size,
+                scale: scale,
+                anchoring: anchoring,
+                blurRadius: blurRadius,
+                blendMode: blendMode,
+                brightness: brightness,
+                colorInvert: colorInvert,
+                contrast: contrast,
+                hueRotation: hueRotation,
+                saturation: saturation,
+                pivot: pivot,
+                shadowColor: shadowColor,
+                shadowOpacity: shadowOpacity,
+                shadowRadius: shadowRadius,
+                shadowOffset: shadowOffset,
+                isForShapeLayer: true,
+                parentSize: parentSize,
+                parentDisablesPosition: parentDisablesPosition))
+        //    }
     }
     
     @ViewBuilder

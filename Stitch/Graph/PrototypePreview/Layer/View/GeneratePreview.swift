@@ -23,9 +23,26 @@ struct GeneratePreview: View {
         self.graph.cachedOrderedPreviewLayers
     }
     
+//    var pseudoLayersAsViews
+    
     var body: some View {
-        ZStack {
-            // Regular rendering of views in their proper place in the hierarchy
+        
+        // expected behavior
+//        ZStack {
+//            Rectangle().fill(.red).frame(width: 100, height: 100)
+//            Rectangle().fill(.green).frame(width: 50, height: 50)
+//        }
+//        .background {
+//            GeometryReader(content: { geometry in
+//                Color.clear
+//            })
+//        }
+//        .background(.purple)
+        
+//        
+//        
+////        ZStack {
+//            // Regular rendering of views in their proper place in the hierarchy
             PreviewLayersView(graph: graph,
                               layers: sortedLayerDataList,
                               parentSize: graph.previewWindowSize,
@@ -36,12 +53,12 @@ struct GeneratePreview: View {
                               parentCornerRadius: 0,
                               parentUsesHug: false,
                               parentGridData: nil)
-        }
-        // Top-level coordinate space of preview window; for pinning
-        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
-        
-        .modifier(HoverGestureModifier(graph: graph,
-                                       previewWindowSize: graph.previewWindowSize))
+//        }
+//        // Top-level coordinate space of preview window; for pinning
+////        .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
+//        
+////        .modifier(HoverGestureModifier(graph: graph,
+////                                       previewWindowSize: graph.previewWindowSize))
     }
 }
 
@@ -101,24 +118,30 @@ struct PreviewLayersView: View {
         // `spacing: .evenly` = one spacer before and after each element
         // `spacing: .between` = one spacer between elements
         
-        if spacing.isEvenly {
-            Spacer()
-        }
+//        if spacing.isEvenly {
+//            Spacer()
+//        }
                         
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
+            
             
             LayerDataView(graph: graph,
                           layerData: layerData,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
+            .border(layerData.layer.layer == .group ? Color.black : Color.purple, width: 4)
             
-            if spacing.isEvenly {
-                Spacer()
-            } else if spacing.isBetween,
-               layerData.id != layersInProperOrder.last?.id {
-                Spacer()
-            }
+            
+//            Rectangle().fill(.red.opacity(0.2))
+//                .frame(width: 100, height: 100)
+            
+//            if spacing.isEvenly {
+//                Spacer()
+//            } else if spacing.isBetween,
+//               layerData.id != layersInProperOrder.last?.id {
+//                Spacer()
+//            }
             
         } // ForEach
     }
@@ -126,31 +149,31 @@ struct PreviewLayersView: View {
     var body: some View {
         Group {
             
-            // If no layers, provide a fake SwiftUI view to allow .onContinuousHover for mouse patch nodes
-            if layers.isEmpty {
-                Rectangle().fill(.clear)
-            }
-            
+//            // If no layers, provide a fake SwiftUI view to allow .onContinuousHover for mouse patch nodes
+//            if layers.isEmpty {
+//                Rectangle().fill(.clear)
+//            }
+//            
             // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
             orientationFromParent
-                .padding(.top, parentPadding.top)
-                .padding(.bottom, parentPadding.bottom)
-                .padding(.leading, parentPadding.left)
-                .padding(.trailing, parentPadding.right)
+//                .padding(.top, parentPadding.top)
+//                .padding(.bottom, parentPadding.bottom)
+//                .padding(.leading, parentPadding.left)
+//                .padding(.trailing, parentPadding.right)
             
         } // Group
-        .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: graph.hasInteraction(parentId),
-            cornerRadius: parentCornerRadius))
+//        .modifier(LayerGroupInteractableViewModifier(
+//            hasLayerInteraction: graph.hasInteraction(parentId),
+//            cornerRadius: parentCornerRadius))
     }
     
     @MainActor @ViewBuilder
     var orientationFromParent: some View {
         switch parentOrientation {
         case .none:
-            ZStack {
+//            ZStack {
                 layersAsViews(parentSpacing)
-            }
+//            }
         case .horizontal:
             HStack(spacing: parentSpacing.asPointSpacing) {
                 layersAsViews(parentSpacing)

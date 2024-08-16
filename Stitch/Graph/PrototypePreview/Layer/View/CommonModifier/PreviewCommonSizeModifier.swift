@@ -105,9 +105,11 @@ struct PreviewCommonSizeModifier: ViewModifier {
     
     
     func body(content: Content) -> some View {
+        logInView("PreviewCommonSizeModifier: viewModel.id.layerNodeId: \(viewModel.id.layerNodeId)")
+        
         switch sizingScenario {
         case .auto:
-            // logInView("case .auto")
+            logInView("case .auto")
             content
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
@@ -132,7 +134,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     pinMap: pinMap))
             
         case .constrainHeight:
-            // logInView("case .constrainHeight")
+            logInView("case .constrainHeight")
             content
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
@@ -156,7 +158,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     pinMap: pinMap))
                         
         case .constrainWidth:
-            // logInView("case .constrainWidth")
+            logInView("case .constrainWidth")
             content
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))

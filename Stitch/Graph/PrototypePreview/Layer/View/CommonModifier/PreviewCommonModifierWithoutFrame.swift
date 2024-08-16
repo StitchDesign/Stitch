@@ -71,56 +71,56 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
         return content
 
-            .modifier(ApplyStroke(stroke: stroke))
+//            .modifier(ApplyStroke(stroke: stroke))
         
-            .modifier(PreviewLayerEffectsModifier(
-                blurRadius: blurRadius,
-                blendMode: blendMode,
-                brightness: brightness,
-                colorInvert: colorInvert,
-                contrast: contrast,
-                hueRotation: hueRotation,
-                saturation: saturation))
-        
-        // Doesn't matter whether SwiftUI .shadow modifier comes before or after .scaleEffect, .position, etc. ?
-            .modifier(PreviewShadowModifier(
-                shadowColor: shadowColor,
-                shadowOpacity: shadowOpacity,
-                shadowRadius: shadowRadius,
-                shadowOffset: shadowOffset))
+//            .modifier(PreviewLayerEffectsModifier(
+//                blurRadius: blurRadius,
+//                blendMode: blendMode,
+//                brightness: brightness,
+//                colorInvert: colorInvert,
+//                contrast: contrast,
+//                hueRotation: hueRotation,
+//                saturation: saturation))
+//        
+//        // Doesn't matter whether SwiftUI .shadow modifier comes before or after .scaleEffect, .position, etc. ?
+//            .modifier(PreviewShadowModifier(
+//                shadowColor: shadowColor,
+//                shadowOpacity: shadowOpacity,
+//                shadowRadius: shadowRadius,
+//                shadowOffset: shadowOffset))
         
         // should be BEFORE .scale, .position, .offset and .rotation, so that border can be affected by those changes; but AFTER layer-effects, so that e.g. masking or blur does
-            .modifier(PreviewSidebarHighlightModifier(
-                nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
-                scale: scale))
-
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
+//            .modifier(PreviewSidebarHighlightModifier(
+//                nodeId: interactiveLayer.id.layerNodeId,
+//                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+//                scale: scale))
+//
+//            .modifier(PreviewLayerRotationModifier(
+//                graph: graph,
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                rotationX: rotationX,
+//                rotationY: rotationY,
+//                rotationZ: rotationZ))
         
-            .scaleEffect(CGFloat(scale),
-                         anchor: pivot.toPivot)
-                
+//            .scaleEffect(CGFloat(scale),
+//                         anchor: pivot.toPivot)
+//                
             .modifier(PreviewCommonPositionModifier(
                 graph: graph,
                 viewModel: layerViewModel,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
                 
-        //  SwiftUI gestures must come AFTER the .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                position: position.toCGPoint,
-                pos: pos,
-                size: sizeForAnchoringAndGestures,
-                parentSize: parentSize,
-                minimumDragDistance: minimumDragDistance))
+//        //  SwiftUI gestures must come AFTER the .position modifier
+//            .modifier(PreviewWindowElementSwiftUIGestures(
+//                graph: graph,
+//                interactiveLayer: interactiveLayer,
+//                position: position.toCGPoint,
+//                pos: pos,
+//                size: sizeForAnchoringAndGestures,
+//                parentSize: parentSize,
+//                minimumDragDistance: minimumDragDistance))
     }
 }
 

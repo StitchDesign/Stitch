@@ -108,69 +108,71 @@ struct PreviewGroupLayer: View {
         
         // TODO: add "child alignment" input on Group Layer node? or find some other solution for how a group with an orientation can position children that have static sizes
         // TODO: don't need this if we're using the "hug" case in `LayerGroupPositionModifier` ?
+//            .background(Color.black.opacity(0.3))
+//            .border(.black, width: 8)
         
-            .modifier(PreviewCommonSizeModifier(
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.graphUI.pinMap,
-                aspectRatio: layerViewModel.getAspectRatioData(),
-                size: size,
-                minWidth: layerViewModel.getMinWidth,
-                maxWidth: layerViewModel.getMaxWidth,
-                minHeight: layerViewModel.getMinHeight,
-                maxHeight: layerViewModel.getMaxHeight,
-                parentSize: parentSize,
-                sizingScenario: layerViewModel.getSizingScenario,
-                frameAlignment: anchoring.toAlignment))
+//            .modifier(PreviewCommonSizeModifier(
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                pinMap: graph.graphUI.pinMap,
+//                aspectRatio: layerViewModel.getAspectRatioData(),
+//                size: size,
+//                minWidth: layerViewModel.getMinWidth,
+//                maxWidth: layerViewModel.getMaxWidth,
+//                minHeight: layerViewModel.getMinHeight,
+//                maxHeight: layerViewModel.getMaxHeight,
+//                parentSize: parentSize,
+//                sizingScenario: layerViewModel.getSizingScenario,
+//                frameAlignment: anchoring.toAlignment))
 
             .background(backgroundColor)
         
         //            // DEBUG ONLY
         //        #if DEV_DEBUG
-        //            .border(.red)
+//            .border(.red, width: 4)
         //        #endif
         
-            .modifier(PreviewSidebarHighlightModifier(
-                nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
-                scale: scale))
-                
-            .modifier(PreviewLayerRotationModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                isPinnedViewRendering: isPinnedViewRendering,
-                rotationX: rotationX,
-                rotationY: rotationY,
-                rotationZ: rotationZ))
-        
-        // .clipped modifier should come before the offset/position modifier,
-        // so that it's affected by the offset/position modifier
-            .modifier(ClippedModifier(isClipped: isClipped,
-                                     cornerRadius: cornerRadius))
-        
-        // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
-            .modifier(ApplyStroke(stroke: stroke))
-
-            .opacity(opacity) // opacity on group and all its contents
-        
-            .scaleEffect(CGFloat(scale),
-                         anchor: pivot.toPivot)
-                
-            .modifier(PreviewCommonPositionModifier(
-                graph: graph,
-                viewModel: layerViewModel,
-                parentDisablesPosition: parentDisablesPosition,
-                pos: pos))
-        
-        // SwiftUI gestures must be applied after .position modifier
-            .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
-                interactiveLayer: interactiveLayer,
-                position: position.toCGPoint,
-                pos: pos,
-                size: _size,
-                parentSize: parentSize,
-                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
+//            .modifier(PreviewSidebarHighlightModifier(
+//                nodeId: interactiveLayer.id.layerNodeId,
+//                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+//                scale: scale))
+//                
+//            .modifier(PreviewLayerRotationModifier(
+//                graph: graph,
+//                viewModel: layerViewModel,
+//                isPinnedViewRendering: isPinnedViewRendering,
+//                rotationX: rotationX,
+//                rotationY: rotationY,
+//                rotationZ: rotationZ))
+//        
+//        // .clipped modifier should come before the offset/position modifier,
+//        // so that it's affected by the offset/position modifier
+//            .modifier(ClippedModifier(isClipped: isClipped,
+//                                     cornerRadius: cornerRadius))
+//        
+//        // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
+//            .modifier(ApplyStroke(stroke: stroke))
+//
+//            .opacity(opacity) // opacity on group and all its contents
+//        
+//            .scaleEffect(CGFloat(scale),
+//                         anchor: pivot.toPivot)
+//                
+//            .modifier(PreviewCommonPositionModifier(
+//                graph: graph,
+//                viewModel: layerViewModel,
+//                parentDisablesPosition: parentDisablesPosition,
+//                pos: pos))
+//        
+//        // SwiftUI gestures must be applied after .position modifier
+//            .modifier(PreviewWindowElementSwiftUIGestures(
+//                graph: graph,
+//                interactiveLayer: interactiveLayer,
+//                position: position.toCGPoint,
+//                pos: pos,
+//                size: _size,
+//                parentSize: parentSize,
+//                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))
     }
 
     @ViewBuilder
