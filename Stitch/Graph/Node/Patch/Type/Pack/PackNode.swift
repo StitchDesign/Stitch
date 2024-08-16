@@ -116,9 +116,6 @@ struct PackPatchNode: PatchNodeDefinition {
                       isTypeStatic: true),
                 .init(defaultValues: [.number(Double(inputMatrix.rotation.imag.z))],
                       label: "Rotation Z",
-                      isTypeStatic: true),
-                .init(defaultValues: [.number(Double(inputMatrix.rotation.real))],
-                      label: "Rotation Real",
                       isTypeStatic: true)
             ]
 
@@ -182,24 +179,6 @@ struct PackPatchNode: PatchNodeDefinition {
             return []
         }
     }
-}
-
-func packMatrixTransformInputs(id: NodeId,
-                               inputMatrix: Transform) -> Inputs {
-    toInputs(
-        id: id,
-        values:
-            ("Position X", [.number(Double(inputMatrix.position.x))]),
-        ("Position Y", [.number(Double(inputMatrix.position.y))]),
-        ("Position Z", [.number(Double(inputMatrix.position.z))]),
-        ("Scale X", [.number(Double(inputMatrix.scale.x))]),
-        ("Scale Y", [.number(Double(inputMatrix.scale.y))]),
-        ("Scale Z", [.number(Double(inputMatrix.scale.z))]),
-        ("Rotation X", [.number(Double(inputMatrix.rotation.imag.x))]),
-        ("Rotation Y", [.number(Double(inputMatrix.rotation.imag.y))]),
-        ("Rotation Z", [.number(Double(inputMatrix.rotation.imag.z))]),
-        ("Rotation Real", [.number(Double(inputMatrix.rotation.real))])
-    )
 }
 
 func sizePackOp(values: PortValues) -> PortValue {

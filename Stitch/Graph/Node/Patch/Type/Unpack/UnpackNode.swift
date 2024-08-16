@@ -22,7 +22,7 @@ import RealityKit
 
  - .point4D: Point4D input -> (x: CGFloat, y: CGFloat, z: CGFloat, w: CGFloat) outputs
 
- - .matrix_float4x4: matrix_float4x4 input -> (Position X: Double, Position Y: Double, Position Z: Double, Scale X: Double, Scale Y: Double, Rotation X: Double, Rotation Y: Double, Rotation Z: Double, Rotation Real: Double) outputs
+ - .matrix_float4x4: matrix_float4x4 input -> (Position X: Double, Position Y: Double, Position Z: Double, Scale X: Double, Scale Y: Double, Rotation X: Double, Rotation Y: Double, Rotation Z: Double) outputs
 
  */
 
@@ -144,8 +144,6 @@ struct UnpackPatchNode: PatchNodeDefinition {
                 .init(label: "Rotation Y",
                       type: .number),
                 .init(label: "Rotation Z",
-                      type: .number),
-                .init(label: "Rotation Real",
                       type: .number)
             ]
 
