@@ -61,10 +61,11 @@ func arAnchorEval(node: PatchNode) -> EvalResult {
             return values.prevOutputs(node: node)
         }
         
-        //MARK: TODO NFA FIX
-        let transformMatrix = StitchMatrix()
-
-//        let transformMatrix = values[safe: 1]?.getMatrix ?? DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix
+        let transform = values[safe: 1]?.getTransform
+        let position = SIMD3(x: Float(transform!.positionX), y: Float(transform!.positionY), z: Float(transform!.positionZ))
+        let scale = SIMD3(x: Float(transform!.scaleX), y: Float(transform!.scaleY), z: Float(transform!.scaleZ))
+        let rotationXYZ = SIMD3(x: Float(transform!.rotationX), y: Float(transform!.rotationY), z: Float(transform!.rotationZ))
+        let transformMatrix = StitchMatrix(position: position, scale: scale, rotationZYX: rotationXYZ)
         
         if let anchorEntity = mediaObserver.arAnchor {
             let anchorId = mediaObserver.anchorMediaId
