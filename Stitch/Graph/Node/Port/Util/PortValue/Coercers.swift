@@ -389,8 +389,7 @@ func transformCoercer(_ values: PortValues) -> PortValues {
         case .transform(let x):
             return .transform(x)
         default:
-            //TODO: Replace
-            return defaultTransformAnchor
+            return defaultTransform
         }
     }
 }
