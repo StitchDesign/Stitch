@@ -41,9 +41,6 @@ struct TransformPackPatchNode: PatchNodeDefinition {
                   isTypeStatic: true),
             .init(defaultValues: [.number(Double(inputTransform.rotation.imag.z))],
                   label: "Rotation Z",
-                  isTypeStatic: true),
-            .init(defaultValues: [.number(Double(inputTransform.rotation.real))],
-                  label: "Rotation Real",
                   isTypeStatic: true)
         ],
         outputs: [
