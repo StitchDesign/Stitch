@@ -279,6 +279,10 @@ struct PreviewImageLayer: View {
                          fitStyle: fitStyle,
                          isClipped: isClipped)
         .modifier(LayerSizeReader(viewModel: layerViewModel))
+        .modifier(PreviewWindowCoordinateSpaceReader(
+            viewModel: layerViewModel,
+            isPinnedViewRendering: isPinnedViewRendering,
+            pinMap: graph.graphUI.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: layerViewModel,
