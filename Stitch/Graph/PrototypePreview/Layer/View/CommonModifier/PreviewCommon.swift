@@ -25,7 +25,10 @@ struct PreviewCommonModifier: ViewModifier {
     
     // should receive LayerSize, so can use `nil` for a .frame dimension when we have LayerDimension.fill/grow
     let size: LayerSize
-        
+    
+    // Overidden in a handful of cases, e.g. the PreviewSwitchLayer
+    var minimumDragDistance: Double = DEFAULT_MINIMUM_DRAG_DISTANCE
+    
     let scale: Double
     let anchoring: Anchoring
     let blurRadius: CGFloat
@@ -89,7 +92,7 @@ struct PreviewCommonModifier: ViewModifier {
                 rotationZ: rotationZ,
                 // actual calculated size at which we're displaying the image
                 size: size,
-                minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE,
+                minimumDragDistance: minimumDragDistance,
                 scale: scale,
                 anchoring: anchoring,
                 blurRadius: blurRadius,
