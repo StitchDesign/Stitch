@@ -52,20 +52,30 @@ extension NodeViewModel {
 }
 
 extension GraphState {
+    @MainActor
     func layerDropdownChoices(isForNode: NodeId,
+                              // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
+        
+        let pinMap = self.graphUI.pinMap
+        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
                 
         let layers: LayerDropdownChoices = self.orderedSidebarLayers
             .getIds()
-            .compactMap {
-                //
-                if isForPinTo, $0 == isForNode {
+            .compactMap { layerId in
+                // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
+                // Also want to exl
+                if isForPinTo, 
+                    // Exclude the node itself, i.e. A cannot choose A as its pinToId
+                    (layerId == isForNode
+                   // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
+                     || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)) {
                     return nil
                 }
-                return self.getNodeViewModel($0)?.asLayerDropdownChoice
-                
+
+                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }
         
         return initialChoices + layers
