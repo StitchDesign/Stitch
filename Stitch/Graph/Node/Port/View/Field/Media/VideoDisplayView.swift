@@ -61,8 +61,9 @@ struct VideoDisplayView: View {
         }
         .opacity(opacity)
         .modifier(PreviewCommonSizeModifier(
-            viewModel: layerViewModel, 
+            viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
+            pinMap: graph.graphUI.pinMap,
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,
