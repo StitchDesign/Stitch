@@ -193,8 +193,8 @@ struct InputValueView: View {
                 value: .assignedLayer(layerId),
                 isForPinTo: false,
                 choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                    isForPinTo: false)
-            )
+                                                    isForLayerGroup: false, // not relevant
+                                                    isForPinTo: false))
             
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
@@ -203,6 +203,7 @@ struct InputValueView: View {
                            value: .pinTo(pinToId),
                            isForPinTo: true,
                            choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
+                                                               isForLayerGroup: rowViewModel.nodeKind == .layer(.group),
                                                                isForPinTo: true))
 
         case .anchorPopover(let anchor):
