@@ -1,5 +1,4 @@
 {
-  "originHash" : "9af5e97c17eff18b893115fd9072799d02b1bfb54f13474cb13eb1cf8a41bf59",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -60,14 +59,6 @@
       "location" : "https://github.com/StitchDesign/StitchEngine.git",
       "state" : {
         "revision" : "922d3e6ad379c0025205984fc7f5a013bfba61a1"
-      }
-    },
-    {
-      "identity" : "stitchschemakit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/StitchSchemaKit.git",
-      "state" : {
-        "revision" : "be4ac70b5e02d3ec9c473a9a9f5389bd19ca3804"
       }
     },
     {
@@ -142,5 +133,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
