@@ -101,7 +101,7 @@ struct RealityLayerView: View {
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let allAnchors: [GraphMediaValue]
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

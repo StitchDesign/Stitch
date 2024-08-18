@@ -176,7 +176,7 @@ extension StitchDocument: Transferable, Sendable {
         }
 
         // Migrate document content given some URL
-        guard var codableDoc = try StitchDocumentVersion.migrate(versionedCodableUrl: graphDataUrl) else {
+        guard var codableDoc: StitchDocument = try StitchDocumentVersion.migrate(versionedCodableUrl: graphDataUrl) else {
             //                #if DEBUG
             //                fatalError()
             //                #endif

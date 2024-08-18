@@ -116,7 +116,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
             .modifier(PreviewWindowElementSwiftUIGestures(
                 graph: graph,
                 interactiveLayer: interactiveLayer,
-                position: position.toCGPoint,
+                position: position,
                 pos: pos,
                 size: sizeForAnchoringAndGestures,
                 parentSize: parentSize,

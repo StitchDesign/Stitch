@@ -21,7 +21,7 @@ func jsonToShapeNode(id: NodeId,
         id: id,
         values:
             ("JSON", [.json(startingJson)]),
-        ("Coordinate Space", [.position(defaultJsonToShapeCoordinateSpace.toCGSize)])
+        ("Coordinate Space", [.position(defaultJsonToShapeCoordinateSpace)])
     )
 
     //    let asCommands = startingJson.parseAsJSONShapeCommands().getCommands!

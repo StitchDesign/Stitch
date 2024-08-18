@@ -57,7 +57,7 @@ func subtractEval(inputs: PortValuesList,
         }
         let tail: PortValues = values.tail
 
-        return .position(tail.reduce(head) { (acc: CGSize, value: PortValue) -> CGSize in
+        return .position(tail.reduce(head) { (acc: CGPoint, value: PortValue) -> CGPoint in
             acc - (value.getPosition ?? .additionIdentity)
         })
     }

@@ -62,7 +62,7 @@ func numberCoercer(_ values: PortValues,
         case .size(let x):
             return .number(x.width.asNumber)
         case .position(let x):
-            return .number(x.width)
+            return .number(x.x)
         case .point3D(let x):
             return .number(x.x)
         case .point4D(let x):
@@ -212,7 +212,7 @@ extension PortValue {
         case .size(let n):
             return .fromGrayscaleNumber(n.asAlgebraicCGSize.width)
         case .position(let n):
-            return .fromGrayscaleNumber(n.width)
+            return .fromGrayscaleNumber(n.x)
         case .point3D(let n):
             return .fromGrayscaleNumber(n.x)
         case .point4D(let n):
@@ -263,8 +263,8 @@ func sizeCoercer(_ values: PortValues,
             return .size(CGSize(width: x,
                                 height: x).toLayerSize)
         case .position(let x):
-            return .size(LayerSize(width: x.width,
-                                   height: x.height))
+            return .size(LayerSize(width: x.x,
+                                   height: x.y))
         case .layerDimension(let x):
             return .size(LayerSize(width: x.asNumber,
                                    height: x.asNumber))
@@ -299,11 +299,11 @@ func positionCoercer(_ values: PortValues,
         case .number(let x):
             return .position(x.toStitchPosition)
         case .size(let x):
-            return .position(x.asAlgebraicCGSize)
+            return .position(x.asAlgebraicCGSize.toCGPoint)
         case .layerDimension(let x):
             return .position(StitchPosition(
-                                width: x.asNumber,
-                                height: x.asNumber))
+                                x: x.asNumber,
+                                y: x.asNumber))
         case .int(let x):
             return .position(x.toStitchPosition)
         case .point3D(let x):

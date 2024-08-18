@@ -19,8 +19,8 @@ func updateMouseNodesPosition(mouseNodeIds: NodeIdSet,
                               graphTime: TimeInterval) {
 
     let position: StitchPosition = gestureLocation.map {
-        .init(width: $0.x - previewWindowSize.width/2,
-              height: $0.y - previewWindowSize.height/2)
+        .init(x: $0.x - previewWindowSize.width/2,
+              y: $0.y - previewWindowSize.height/2)
     }
     // `gestureLocation: nil` = hoverEnded
     ?? .zero
@@ -73,7 +73,7 @@ struct LayerHovered: ProjectEnvironmentEvent {
 
         updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
                                  gestureLocation: location,
-                                 velocity: velocity.toCGSize,
+                                 velocity: velocity,
                                  previewWindowSize: graphState.previewWindowSize,
                                  graphState: graphState,
                                  graphTime: graphState.graphStepState.graphTime)

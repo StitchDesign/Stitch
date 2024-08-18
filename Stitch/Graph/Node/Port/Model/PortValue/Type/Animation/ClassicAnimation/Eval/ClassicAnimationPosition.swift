@@ -37,11 +37,11 @@ func classicAnimationEvalOpPosition(values: PortValues,
     let currentOutput: StitchPosition = values.last?.getPosition ?? .zero
     log("\n \n classicAnimationEvalOpPosition: TOP: currentOutput: \(currentOutput)")
 
-    let equivalentX = areEquivalent(n: currentOutput.width,
-                                    n2: toValue.width)
+    let equivalentX = areEquivalent(n: currentOutput.x,
+                                    n2: toValue.x)
 
-    let equivalentY = areEquivalent(n: currentOutput.height,
-                                    n2: toValue.height)
+    let equivalentY = areEquivalent(n: currentOutput.y,
+                                    n2: toValue.y)
 
     let equivalentPositions = equivalentX && equivalentY
 
@@ -55,25 +55,25 @@ func classicAnimationEvalOpPosition(values: PortValues,
 
     var animationState = computedState.classicAnimationState?.asDoubleState ?? .init()
 
-    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX?.goal != toValue.width
+    let shouldSetIntialX = !animationState.initialValuesX.isDefined || animationState.initialValuesX?.goal != toValue.x
 
-    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY?.goal != toValue.height
+    let shouldSetIntialY = !animationState.initialValuesY.isDefined || animationState.initialValuesY?.goal != toValue.y
 
     // Initialize each field separately
     if shouldSetIntialX {
         log("defining initial x values...")
         animationState.frameCountX = 0
         animationState.initialValuesX = InitialAnimationValue(
-            start: currentOutput.width,
-            goal: toValue.width)
+            start: currentOutput.x,
+            goal: toValue.x)
     }
 
     if shouldSetIntialY {
         log("defining initial y values...")
         animationState.frameCountY = 0
         animationState.initialValuesY = InitialAnimationValue(
-            start: currentOutput.height,
-            goal: toValue.height)
+            start: currentOutput.y,
+            goal: toValue.y)
     }
 
     // Increment each field separately
@@ -87,7 +87,7 @@ func classicAnimationEvalOpPosition(values: PortValues,
     let curve = values[2].getAnimationCurve!
 
     let (newValueX, shouldRunAgainX) = runAnimation(
-        toValue: toValue.width,
+        toValue: toValue.x,
         duration: duration,
         difference: animationState.initialValuesX?.difference ?? .zero,
         startValue: animationState.initialValuesX?.start ?? .zero,
@@ -96,7 +96,7 @@ func classicAnimationEvalOpPosition(values: PortValues,
         fps: fps)
 
     let (newValueY, shouldRunAgainY) = runAnimation(
-        toValue: toValue.height,
+        toValue: toValue.y,
         duration: duration,
         difference: animationState.initialValuesY?.difference ?? .zero,
         startValue: animationState.initialValuesY?.start ?? .zero,
@@ -112,8 +112,8 @@ func classicAnimationEvalOpPosition(values: PortValues,
 
     computedState.classicAnimationState = .twoField(animationState)
     return .init(
-        outputs: [.position(StitchPosition(width: newValueX,
-                                 height: newValueY))],
+        outputs: [.position(StitchPosition(x: newValueX,
+                                           y: newValueY))],
         willRunAgain: shouldRunAgain
     )
 }
