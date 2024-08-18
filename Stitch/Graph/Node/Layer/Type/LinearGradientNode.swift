@@ -85,7 +85,7 @@ struct PreviewLinearGradientLayer: View {
     let secondColor: Color
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-    let position: CGSize = .zero
+    let position: CGPoint = .zero
 
     var size: LayerSize {
         parentSize.toLayerSize

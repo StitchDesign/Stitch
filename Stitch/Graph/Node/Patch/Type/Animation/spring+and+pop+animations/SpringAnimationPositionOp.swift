@@ -27,16 +27,16 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
     
     // the goal number
     let toValue: StitchPosition = values.first?.getPosition ?? .zero
-    let toValueX = toValue.width
-    let toValueY = toValue.height
+    let toValueX = toValue.x
+    let toValueY = toValue.y
     
     // Pop node has 3 inputs, so the current output will be the 4th value, i.e. index = 3
     // Spring node has 4 inputs, so current output will be 5th value, i.e. index = 4
     let currentOutputIndex = isPopAnimation ? 3 : 4
     
     let currentOutput: StitchPosition = values[safe: currentOutputIndex]?.getPosition ?? toValue
-    let currentOutputX = currentOutput.width
-    let currentOutputY = currentOutput.height
+    let currentOutputX = currentOutput.x
+    let currentOutputY = currentOutput.y
     
     let velocityX = doubleAnimationState.valuesX.springValues?.currentVelocity ?? .zero
     let velocityY = doubleAnimationState.valuesY.springValues?.currentVelocity ?? .zero
@@ -177,7 +177,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
         doubleAnimationState.valuesX.springValues?.currentVelocity = newVelocity
         
         let newPositionX = progressX
-        newPosition.width = newPositionX
+        newPosition.x = newPositionX
     }
     
     if !doneY {
@@ -200,7 +200,7 @@ func springAnimationPositionOp(values: PortValues, // ie inputs and outputs
         doubleAnimationState.valuesY.springValues?.currentVelocity = newVelocity
         
         let newPositionY = progressY
-        newPosition.height = newPositionY
+        newPosition.y = newPositionY
     }
     
     // log("springAnimationPositionOp: newPosition \(newPosition); will run again")

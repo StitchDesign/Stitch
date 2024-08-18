@@ -21,7 +21,7 @@ extension Point3D {
 extension Point3D {
 
     var toStitchPosition: StitchPosition {
-        .init(width: self.x, height: self.y)
+        .init(x: self.x, y: self.y)
     }
 
     var toPoint4D: Point4D {

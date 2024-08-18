@@ -218,7 +218,7 @@ func scrollInteractionEval(node: NodeViewModel,
 
             scrollState.lastDragStartingPoint = interactiveLayer.dragStartingPoint
             
-            return .init(outputs: [.position(newPosition.toCGSize)])
+            return .init(outputs: [.position(newPosition)])
         }
     }
                     .toImpureEvalResult() //defaultOutputs: ScrollInteractionNode.defaultScrollInteractionNodeOutputs)
@@ -401,13 +401,13 @@ func totalScrollInteractionEvalOp(values: PortValues,
     if !shouldRunXAgain && !shouldRunYAgain {
         //        log("totalScrollInteractionEvalOp: both should run x and should run y were false, so will end entire animation")
         scrollState.reset()
-        return .init(outputs: [.position(currentPosition.toCGSize)],
+        return .init(outputs: [.position(currentPosition)],
                      willRunAgain: false)
     } else {
         //        #if DEV_DEBUG
         //        log("totalScrollInteractionEvalOp: WILL RUN ENTIRE ANIMATION AGAIN")
         //        #endif
-        return .init(outputs: [.position(currentPosition.toCGSize)],
+        return .init(outputs: [.position(currentPosition)],
                      willRunAgain: true)
     }
 }

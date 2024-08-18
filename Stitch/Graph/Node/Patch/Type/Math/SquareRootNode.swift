@@ -61,8 +61,8 @@ func squareRootEval(inputs: PortValuesList,
         //        log("squareRootEval: values: \(values)")
         let n = values[0].getPosition!
         return .position(.init(
-                            width: sqrt(n.width),
-                            height: sqrt(n.height)))
+                            x: sqrt(n.x),
+                            y: sqrt(n.y)))
     }
 
     let point3DOp: Operation = { (values: PortValues) -> PortValue in

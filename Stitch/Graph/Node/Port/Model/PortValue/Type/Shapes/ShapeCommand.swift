@@ -135,6 +135,6 @@ extension ShapeCommand {
 
 extension PathPoint {
     var stitchPosition: StitchPosition {
-        .init(width: self.x, height: self.y)
+        .init(x: self.x, y: self.y)
     }
 }

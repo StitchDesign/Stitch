@@ -166,7 +166,7 @@ func dragInteractionEvalOp(values: PortValues,
     // ALWAYS "CAP" position, regardless
     let capOpOnlyValues: PortValues = [
         // basically our no-op
-        PortValue.position(cap(newOutput).toCGSize),
+        PortValue.position(cap(newOutput)),
         .size(interactiveLayer.dragVelocity.toLayerSize),
         .size(interactiveLayer.dragTranslation.toLayerSize)
     ]
@@ -203,7 +203,7 @@ func dragInteractionEvalOp(values: PortValues,
             
             return .init(
                 // go immediately back to start position
-                outputs: [.position(resetInputValue.toCGSize),
+                outputs: [.position(resetInputValue),
                           .size(interactiveLayer.dragVelocity.toLayerSize),
                           .size(interactiveLayer.dragTranslation.toLayerSize)],
                 willRunAgain: false // don't need to run again
@@ -233,7 +233,7 @@ func dragInteractionEvalOp(values: PortValues,
         let resetOutputValue = cap(newOutput)
         
         return .init(
-            outputs: [PortValue.position(resetOutputValue.toCGSize),
+            outputs: [PortValue.position(resetOutputValue),
                       .size(interactiveLayer.dragVelocity.toLayerSize),
                       .size(interactiveLayer.dragTranslation.toLayerSize)],
             willRunAgain: true
@@ -277,7 +277,7 @@ func dragInteractionEvalOp(values: PortValues,
         if shouldRunX || shouldRunY {
             // log("had reset or start input animation in progress: need to run again")
             return .init(
-                outputs: [PortValue.position(cap(newOutput).toCGSize),
+                outputs: [PortValue.position(cap(newOutput)),
                 .size(interactiveLayer.dragVelocity.toLayerSize),
                 .size(interactiveLayer.dragTranslation.toLayerSize)],
                 willRunAgain: true
@@ -289,7 +289,7 @@ func dragInteractionEvalOp(values: PortValues,
             // and reset the sate
             state.reset = ScrollAnimationState()
             return .init(
-                outputs: [PortValue.position(cap(newOutput).toCGSize),
+                outputs: [PortValue.position(cap(newOutput)),
                 .size(interactiveLayer.dragVelocity.toLayerSize),
                 .size(interactiveLayer.dragTranslation.toLayerSize)],
                 willRunAgain: false
@@ -348,7 +348,7 @@ func dragInteractionEvalOp(values: PortValues,
         // If we're done running momentum,
         // we should also update the drag starting point.
         return .init(
-            outputs: [.position(cap(newOutput).toCGSize),
+            outputs: [.position(cap(newOutput)),
                       .size(interactiveLayer.dragVelocity.toLayerSize),
                       .size(interactiveLayer.dragTranslation.toLayerSize)],
             willRunAgain: false
@@ -358,7 +358,7 @@ func dragInteractionEvalOp(values: PortValues,
     else {
         // log("dragInteractionEvalOp: will run again: animationState is now: \(animationState)")
         return .init(
-            outputs: [.position(cap(newOutput).toCGSize),
+            outputs: [.position(cap(newOutput)),
                       .size(interactiveLayer.dragVelocity.toLayerSize),
                       .size(interactiveLayer.dragTranslation.toLayerSize)],
             willRunAgain: true

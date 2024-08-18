@@ -48,12 +48,12 @@ extension StitchPosition {
 
         if let x = values.first!.getNumber,
            let y = values[1].getNumber {
-            return StitchPosition(width: x,
-                                  height: y)
+            return StitchPosition(x: x,
+                                  y: y)
         } else if let x = values.first!.getLayerDimension,
                   let y = values[1].getLayerDimension {
-            return StitchPosition(width: x.asNumber,
-                                  height: y.asNumber)
+            return StitchPosition(x: x.asNumber,
+                                  y: y.asNumber)
         } else {
             fatalErrorIfDebug("StitchPosition.fromSizeNodeInputs: incorrect inputs")
             return .zero

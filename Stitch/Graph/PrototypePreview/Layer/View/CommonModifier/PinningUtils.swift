@@ -189,7 +189,7 @@ func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> StitchPosition {
     
     adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
-                   position: pinReceiverData.origin.toCGSize,
+                   position: pinReceiverData.origin,
                    anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
                    parentSize: pinReceiverData.size)
 }

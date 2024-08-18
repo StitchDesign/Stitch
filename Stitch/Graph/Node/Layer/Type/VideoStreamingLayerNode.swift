@@ -57,7 +57,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
                 set: { viewModel.videoURL = .string(.init($0)) }
             ),
             volume: viewModel.volume.getNumber ?? DEFAULT_VIDEO_VOLUME,
-            position: viewModel.position.getPosition ?? CGSize.zero,
+            position: viewModel.position.getPosition ?? .zero,
             rotationX: viewModel.rotationX.asCGFloat,
             rotationY: viewModel.rotationY.asCGFloat,
             rotationZ: viewModel.rotationZ.asCGFloat,

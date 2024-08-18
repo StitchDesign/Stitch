@@ -19,7 +19,7 @@ func ovalShapeNode(id: NodeId,
     let inputs = toInputs(
         id: id,
         values:
-            ("Position", [.position(oval.origin.toCGSize)]),
+            ("Position", [.position(oval.origin)]),
         ("Size", [.size(oval.size.toLayerSize)])
     )
 
@@ -49,7 +49,7 @@ func ovalShapeEval(inputs: PortValuesList,
         // Should `size` be a LayerSize here?
         // Actually no -- `Rounded Rectangle` shape patch node's input fields
         // coerce `"auto"` to 0 and `100%` to 100.
-        return .shape(CustomShape(.oval(.init(origin: position.toCGPoint,
+        return .shape(CustomShape(.oval(.init(origin: position,
                                               size: size.asAlgebraicCGSize))))
     }
 

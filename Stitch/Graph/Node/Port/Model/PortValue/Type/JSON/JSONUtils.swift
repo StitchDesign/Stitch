@@ -542,7 +542,7 @@ extension JSON {
     var toStitchPosition: StitchPosition? {
         if let x = self.caseInsensitiveX,
            let y = self.caseInsensitiveY {
-            return .init(width: x, height: y)
+            return .init(x: x, y: y)
         }
         return nil
     }

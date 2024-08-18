@@ -17,7 +17,7 @@ extension [PortValue] {
             return .position(.zero)
         }
         
-        return .position(.init(width: self[0].getNumber ?? .zero,
-                               height: self[1].getNumber ?? .zero))
+        return .position(.init(x: self[0].getNumber ?? .zero,
+                               y: self[1].getNumber ?? .zero))
     }
 }

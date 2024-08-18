@@ -34,6 +34,15 @@ extension LayerSize {
     }
 }
 
+extension CGPoint {
+    var asDictionary: [String: Double] {
+        [
+            X: self.x,
+            Y: self.y
+        ]
+    }
+}
+
 extension CGSize {
     var asDictionary: [String: Double] {
         [

@@ -98,7 +98,6 @@ extension NodeViewModel {
         let updatedPositions: PortValues = inputPort.allLoopedValues.map { $0.getPoint ?? .zero }
             .map {
                 updatePosition(position: $0, offset: offset.toCGPoint)
-                    .toCGSize
             }
             .map(PortValue.position)
 
