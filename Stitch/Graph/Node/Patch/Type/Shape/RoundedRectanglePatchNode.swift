@@ -19,7 +19,7 @@ func roundedRectangleShapeNode(id: NodeId,
     let inputs = toInputs(
         id: id,
         values:
-            ("Position", [.position(rect.rect.origin.toCGSize)]),
+            ("Position", [.position(rect.rect.origin)]),
         ("Size", [.size(rect.rect.size.toLayerSize)]),
         ("Radius", [.number(rect.cornerRadius)])
     )
@@ -49,7 +49,7 @@ func roundedRectangleShapeEval(inputs: PortValuesList,
         let cornerRadius: Double = values[2].getNumber ?? 4
 
         let rect = RoundedRectangleData(
-            rect: .init(origin: position.toCGPoint,
+            rect: .init(origin: position,
                         size: size.asAlgebraicCGSize),
             cornerRadius: cornerRadius)
 

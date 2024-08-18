@@ -20,7 +20,7 @@ struct PreviewShadowModifier: ViewModifier {
         content
             .shadow(color: shadowColor.opacity(shadowOpacity),
                     radius: shadowRadius,
-                    x: shadowOffset.width,
-                    y: shadowOffset.height)
+                    x: shadowOffset.x,
+                    y: shadowOffset.y)
     }
 }

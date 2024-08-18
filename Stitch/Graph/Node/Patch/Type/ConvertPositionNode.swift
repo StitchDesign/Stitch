@@ -64,7 +64,7 @@ func convertPositionEval(node: PatchNode,
 
         let fromAnchorPosition = getAnchorPoint(
             size: fromLayerCGSize,
-            anchor: fromAnchor).toCGSize
+            anchor: fromAnchor)
 
         // Point
         let fromLayerPoint = values[safe: 2]?.getPosition ?? .zero
@@ -86,7 +86,7 @@ func convertPositionEval(node: PatchNode,
 
         let toAnchorPosition = getAnchorPoint(
             size: toLayerCGSize,
-            anchor: toAnchor).toCGSize
+            anchor: toAnchor)
 
         let result: StitchPosition = (fromAnchorPosition + fromLayerPoint) - toAnchorPosition
         return .position(result)

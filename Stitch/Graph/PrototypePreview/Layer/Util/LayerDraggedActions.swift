@@ -44,7 +44,7 @@ extension GraphState {
 
         updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
                                  gestureLocation: location,
-                                 velocity: velocity,
+                                 velocity: velocity.toCGPoint,
                                  leftClick: true,
                                  previewWindowSize: self.previewWindowSize,
                                  graphState: self,

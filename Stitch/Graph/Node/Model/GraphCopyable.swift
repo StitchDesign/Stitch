@@ -12,14 +12,6 @@ import SwiftUI
 // TODO: Move and version this
 typealias NodeEntities = [NodeEntity]
 
-struct StitchComponent: Codable {
-    var id = UUID()
-    //    let type: StitchComponentType
-    var nodes: [NodeEntity]
-    let orderedSidebarLayers: SidebarLayerList
-    // TODO: comment boxes
-}
-
 protocol GraphCopyable {
     func createCopy(newId: NodeId,
                     mappableData: [NodeId: NodeId],

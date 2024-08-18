@@ -89,9 +89,9 @@ extension GraphState {
         
         // Group position and adjustment are non-zero only when
         // some child is north and/or west (ie -y and/or -x positions).
-        let groupPosition = CGSize(
-            width: westAdjustment.map(\.flipSign) ?? .zero,
-            height: northAdjustment.map(\.flipSign) ?? .zero)
+        let groupPosition = CGPoint(
+            x: westAdjustment.map(\.flipSign) ?? .zero,
+            y: northAdjustment.map(\.flipSign) ?? .zero)
         
         // Always either .zero or positive
         let adjustment = CGSize(width: westAdjustment ?? .zero,

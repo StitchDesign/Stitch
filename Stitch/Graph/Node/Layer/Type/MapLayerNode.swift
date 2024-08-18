@@ -11,8 +11,8 @@ import SwiftUI
 import MapKit
 
 //Lat/Long value for San Francisco, California, USA
-let DEFAULT_MAP_LAT_LONG_POSITION = StitchPosition(width: 38, height: -122.5)
-let DEFAULT_MAP_LAT_LONG_SPAN = StitchPosition(width: 1, height: 1)
+let DEFAULT_MAP_LAT_LONG_POSITION = StitchPosition(x: 38, y: -122.5)
+let DEFAULT_MAP_LAT_LONG_SPAN = StitchPosition(x: 1, y: 1)
 
 extension LayerSize {
     static let DEFAULT_MAP_SIZE: Self = .init(width: 200, height: 500)
@@ -95,7 +95,7 @@ let interactiveLayer: InteractiveLayer
     let mapType: StitchMapType
     let latLong: CGSize // "Position"
     let span: CGSize // lat-long delta
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

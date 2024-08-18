@@ -100,3 +100,4 @@ public typealias LayerInputPort = CurrentLayerInputPort.LayerInputPort
 public typealias LayerInputKeyPathType = CurrentLayerInputKeyPathType.LayerInputKeyPathType
 public typealias UnpackedPortType = CurrentUnpackedPortType.UnpackedPortType
 public typealias StitchTransform = CurrentStitchTransform.StitchTransform
+public typealias StitchComponent = CurrentStitchComponent.StitchComponent

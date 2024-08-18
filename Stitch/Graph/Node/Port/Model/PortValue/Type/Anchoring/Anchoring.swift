@@ -134,7 +134,7 @@ func adjustPosition(size: CGSize, // child's size
                     anchor: Anchoring, // child's anchor
                     parentSize: CGSize) -> StitchPosition {
 
-    let width = position.width
+    let x = position.x
         + (parentSize.width * anchor.x)
     
     // works for left, i.e. when we need to move half of child's length away from left edge;
@@ -149,11 +149,11 @@ func adjustPosition(size: CGSize, // child's size
         // Perfect
         - (size.width * (anchor.x - 0.5))
          
-    let height = position.height
+    let y = position.y
         + (parentSize.height * anchor.y)
         - (size.height * (anchor.y - 0.5))
     
-    return StitchPosition(width: width, height: height)
+    return StitchPosition(x: x, y: y)
     
 }
 
@@ -163,14 +163,13 @@ struct Anchoring_REPL_View: View {
     let parentLength = 400.0
     
 //     let childPosition: CGSize = .init(x: 50, y: 50)
-    let childPosition: CGSize = .zero
+    let childPosition: CGPoint = .zero
         
     func getPos(_ anchor: Anchoring) -> CGPoint {
         adjustPosition(size: .init(width: childLength, height: childLength),
                        position: childPosition,
                        anchor: anchor,
                        parentSize: .init(width: parentLength, height: parentLength))
-        .toCGPoint
     }
     
     

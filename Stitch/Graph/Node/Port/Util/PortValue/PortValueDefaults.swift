@@ -35,13 +35,13 @@ let colorDefaultTrue = PortValue.color(trueColor)
 let colorDefaultFalse = PortValue.color(falseColor)
 
 let defaultOpacityValue: PortValue = .number(1)
-let defaultLightPositionValue: PortValue = .position(CGSize(width: 0, height: 10))
+let defaultLightPositionValue: PortValue = .position(CGPoint(x: 0, y: 10))
 
 let pulseDefaultFalse = PortValue.pulse(.zero)
 
 let defaultSizeFalse: PortValue = .size(CGSize(width: 0, height: 0).toLayerSize)
 
-let defaultPositionTrue: PortValue = .position(.init(width: 1, height: 1))
+let defaultPositionTrue: PortValue = .position(.init(x: 1, y: 1))
 let defaultPositionFalse: PortValue = .position(.zero)
 
 let point3DDefaultTrue: PortValue = .point3D(Point3D.nonZero)
