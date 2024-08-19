@@ -53,7 +53,6 @@
 		B50C897B2864E2750032E95D /* DelayedEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50C897A2864E2750032E95D /* DelayedEffect.swift */; };
 		B50CE3082908D0C40065378E /* StitchTextEditingField.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50CE3072908D0C40065378E /* StitchTextEditingField.swift */; };
 		B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */ = {isa = PBXBuildFile; productRef = B50F41672C1EB4320082262F /* StitchViewKit */; };
-		B50F416B2C1EB45B0082262F /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = B50F416A2C1EB45B0082262F /* StitchSchemaKit */; };
 		B50F41712C1F52C00082262F /* LayerInspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B50F41702C1F52C00082262F /* LayerInspectorView.swift */; };
 		B51523BA2B8C2F7A000042CF /* ProjectLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523B92B8C2F79000042CF /* ProjectLoader.swift */; };
 		B51523BC2B8C2FB1000042CF /* DocumentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51523BB2B8C2FB1000042CF /* DocumentLoader.swift */; };
@@ -251,9 +250,13 @@
 		E43CA3BF29832FEC007BFE1B /* ARRaycastingNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E43CA3BE29832FEC007BFE1B /* ARRaycastingNode.swift */; };
 		E449EA5B28ADA89C0005EC15 /* Model3DImportNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E449EA5A28ADA89C0005EC15 /* Model3DImportNode.swift */; };
 		E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */ = {isa = PBXBuildFile; fileRef = E457441C2BC0548300B1642E /* QRCodeDetection.swift */; };
+		E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E463E7EE2C6FC7090008E318 /* StitchSchemaKit */; };
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
+		E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */; };
+		E4CB84102C6E8FED000D6D31 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */; };
+		E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */; };
 		E4CC7D0D28F48EF6008EA1C0 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4CC7D0C28F48EF6008EA1C0 /* QuickLook.framework */; };
 		E4CC7D1028F48EF6008EA1C0 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D0F28F48EF6008EA1C0 /* PreviewViewController.swift */; };
 		E4CC7D1228F48EF6008EA1C0 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D1128F48EF6008EA1C0 /* PreviewProvider.swift */; };
@@ -358,7 +361,7 @@
 		EC2614452B89605700BEB066 /* PositionPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614442B89605700BEB066 /* PositionPackNode.swift */; };
 		EC2614472B89607300BEB066 /* Point3DPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614462B89607300BEB066 /* Point3DPackNode.swift */; };
 		EC2614492B8960B800BEB066 /* Point4DPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614482B8960B800BEB066 /* Point4DPackNode.swift */; };
-		EC26144B2B8960CC00BEB066 /* MatrixPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC26144A2B8960CC00BEB066 /* MatrixPackNode.swift */; };
+		EC26144B2B8960CC00BEB066 /* TransformPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC26144A2B8960CC00BEB066 /* TransformPackNode.swift */; };
 		EC26144D2B89611E00BEB066 /* SizeUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC26144C2B89611E00BEB066 /* SizeUnpackNode.swift */; };
 		EC26144F2B897BD800BEB066 /* PositionUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC26144E2B897BD800BEB066 /* PositionUnpackNode.swift */; };
 		EC2614512B897BFA00BEB066 /* Point3DUnpackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2614502B897BFA00BEB066 /* Point3DUnpackNode.swift */; };
@@ -1269,7 +1272,7 @@
 		EC2614442B89605700BEB066 /* PositionPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionPackNode.swift; sourceTree = "<group>"; };
 		EC2614462B89607300BEB066 /* Point3DPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point3DPackNode.swift; sourceTree = "<group>"; };
 		EC2614482B8960B800BEB066 /* Point4DPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point4DPackNode.swift; sourceTree = "<group>"; };
-		EC26144A2B8960CC00BEB066 /* MatrixPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatrixPackNode.swift; sourceTree = "<group>"; };
+		EC26144A2B8960CC00BEB066 /* TransformPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformPackNode.swift; sourceTree = "<group>"; };
 		EC26144C2B89611E00BEB066 /* SizeUnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeUnpackNode.swift; sourceTree = "<group>"; };
 		EC26144E2B897BD800BEB066 /* PositionUnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionUnpackNode.swift; sourceTree = "<group>"; };
 		EC2614502B897BFA00BEB066 /* Point3DUnpackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point3DUnpackNode.swift; sourceTree = "<group>"; };
@@ -1792,8 +1795,9 @@
 				B5EB3F072C165FE900879947 /* (null) in Frameworks */,
 				B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */,
 				20D1601925A802FF005AEB72 /* NonEmpty in Frameworks */,
-				B50F416B2C1EB45B0082262F /* StitchSchemaKit in Frameworks */,
 				B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */,
+				E4CB84102C6E8FED000D6D31 /* StitchSchemaKit in Frameworks */,
+				E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */,
 				B58612AF2C68681600C64313 /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
@@ -1809,6 +1813,8 @@
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
 				20578DA7259EAF6400DACCA8 /* BrightFutures in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
+				E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */,
+				E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4047,7 +4053,7 @@
 				EC2614442B89605700BEB066 /* PositionPackNode.swift */,
 				EC2614462B89607300BEB066 /* Point3DPackNode.swift */,
 				EC2614482B8960B800BEB066 /* Point4DPackNode.swift */,
-				EC26144A2B8960CC00BEB066 /* MatrixPackNode.swift */,
+				EC26144A2B8960CC00BEB066 /* TransformPackNode.swift */,
 			);
 			path = Pack;
 			sourceTree = "<group>";
@@ -4316,11 +4322,11 @@
 				EC91034929109DF3007C548E /* SoulverCore */,
 				ECD5438D29A003F8009D0A30 /* DisplayLink */,
 				B50F41672C1EB4320082262F /* StitchViewKit */,
-				B50F416A2C1EB45B0082262F /* StitchSchemaKit */,
 				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
-				B5DB632D2C61A8C900B78B68 /* StitchEngine */,
-				B58612AE2C68681600C64313 /* StitchEngine */,
-				B501920B2C6D144D00A048ED /* StitchEngine */,
+				E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */,
+				E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */,
+				E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */,
+				E463E7EE2C6FC7090008E318 /* StitchSchemaKit */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4404,9 +4410,9 @@
 				EC91034829109DF3007C548E /* XCRemoteSwiftPackageReference "SoulverCore" */,
 				ECD5438C29A003F8009D0A30 /* XCRemoteSwiftPackageReference "DisplayLink" */,
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
-				B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
-				B501920A2C6D144D00A048ED /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */,
+				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5093,7 +5099,7 @@
 				EC8DE63C2637689600A22587 /* NodeRowType.swift in Sources */,
 				EC609DBE2935311900BF60A5 /* UIKitExtensionUtils.swift in Sources */,
 				B530D5032C18AB390005C6A9 /* AppThemeActions.swift in Sources */,
-				EC26144B2B8960CC00BEB066 /* MatrixPackNode.swift in Sources */,
+				EC26144B2B8960CC00BEB066 /* TransformPackNode.swift in Sources */,
 				ECA92A10260A69B000281B52 /* MultiplyNode.swift in Sources */,
 				EC53F3BA287E25D60021095B /* SineNode.swift in Sources */,
 				ECA4FCCA28EB41E4006B4F23 /* NetworkRequestHandleResponse.swift in Sources */,
@@ -6010,12 +6016,12 @@
 				revision = 82404015aa4c9eded51a9c189d317238b6bc5b87;
 			};
 		};
-		B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+		B5BBA0262C50616E0099C8C0 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit.git";
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine.git";
 			requirement = {
 				kind = revision;
-				revision = be4ac70b5e02d3ec9c473a9a9f5389bd19ca3804;
+				revision = 922d3e6ad379c0025205984fc7f5a013bfba61a1;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
@@ -6024,6 +6030,14 @@
 			requirement = {
 				kind = revision;
 				revision = 0fab4991b68d3850ffe67fded9d248111015a054;
+			};
+		};
+		E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
+			requirement = {
+				kind = revision;
+				revision = c67e5e8dada5fa6b36b551b9959154ef296598ab;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
@@ -6118,11 +6132,6 @@
 			package = B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */;
 			productName = StitchViewKit;
 		};
-		B50F416A2C1EB45B0082262F /* StitchSchemaKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B50F41692C1EB45B0082262F /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
-			productName = StitchSchemaKit;
-		};
 		B56EA8A52C409898003D39E2 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = StitchEngine;
@@ -6139,6 +6148,23 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
 			productName = DirectoryWatcher;
+		};
+		E463E7EE2C6FC7090008E318 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
+			productName = StitchSchemaKit;
+		};
+		E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchSchemaKit;
+		};
+		E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchSchemaKit;
+		};
+		E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = StitchSchemaKit;
 		};
 		EC1137372719F9B400ADCA72 /* OrderedCollections */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -311,10 +311,10 @@ extension Patch {
             return Point4DPackPatchNode.self
         case .point4DUnpack:
             return Point4DUnpackPatchNode.self
-        case .matrixTransformPack:
-            return MatrixPackPatchNode.self
-        case .matrixTransformUnpack:
-            return MatrixUnpackPatchNode.self
+        case .transformPack:
+            return TransformPackPatchNode.self
+        case .transformUnpack:
+            return TransformUnpackPatchNode.self
         case .closePath:
             return ClosePathPatchNode.self
         case .moveToPack:

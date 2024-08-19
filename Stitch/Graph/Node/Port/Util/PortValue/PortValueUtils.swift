@@ -101,9 +101,9 @@ extension PortValue {
         }
     }
 
-    var getMatrix: StitchMatrix? {
+    var getTransform: StitchTransform? {
         switch self {
-        case .matrixTransform(let x): return x
+        case .transform(let x): return x
         default: return nil
         }
     }
