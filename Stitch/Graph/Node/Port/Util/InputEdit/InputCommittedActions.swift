@@ -117,27 +117,27 @@ extension GraphState {
             nodeViewModel.blockOrUnblockFields(
                 newValue: value,
                 layerInput: layerInputType.layerInput)
-            
-            let newCommandType = value.shapeCommandType
-            
-            // If we changed the command type on a ShapeCommand input,
-            // then we may need to change the ShapeCommand case
-            // (e.g. from .moveTo -> .curveTo).
-            
-            if let shapeCommand = valueAtIndex.shapeCommand,
-               let newCommandType = newCommandType {
-                value = .shapeCommand(shapeCommand.convert(to: newCommandType))
-                log("GraphState.inputEditCommitted: value is now: \(value)")
-            }
-            
-            // Only change the input if valued actually changed.
-            input.setValuesInInput([value])
-            
-            self.maybeCreateLLMSetInput(node: nodeViewModel,
-                                        input: input.id,
-                                        value: value)
-            
-            self.calculate(nodeId)
         }
+        
+        let newCommandType = value.shapeCommandType
+        
+        // If we changed the command type on a ShapeCommand input,
+        // then we may need to change the ShapeCommand case
+        // (e.g. from .moveTo -> .curveTo).
+        
+        if let shapeCommand = valueAtIndex.shapeCommand,
+           let newCommandType = newCommandType {
+            value = .shapeCommand(shapeCommand.convert(to: newCommandType))
+            log("GraphState.inputEditCommitted: value is now: \(value)")
+        }
+        
+        // Only change the input if valued actually changed.
+        input.setValuesInInput([value])
+        
+        self.maybeCreateLLMSetInput(node: nodeViewModel,
+                                    input: input.id,
+                                    value: value)
+        
+        self.calculate(nodeId)
     }
 }
