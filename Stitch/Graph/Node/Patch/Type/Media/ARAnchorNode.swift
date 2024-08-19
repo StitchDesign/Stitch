@@ -8,7 +8,6 @@
 import Foundation
 import StitchSchemaKit
 import RealityKit
-
 struct ArAnchorNode: PatchNodeDefinition {
     static let patch = Patch.arAnchor
 
@@ -20,7 +19,7 @@ struct ArAnchorNode: PatchNodeDefinition {
                     label: "3D Model"
                 ),
                 .init(
-                    defaultValues: [.matrixTransform(DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix)],
+                    defaultValues: [.transform(DEFAULT_STITCH_TRANSFORM)],
                     label: "Transform"
                 )
             ],
@@ -57,12 +56,16 @@ final class ARAnchorObserver: MediaEvalOpObservable {
 @MainActor
 func arAnchorEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ARAnchorObserver.self) { values, mediaObserver, loopIndex in
-        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first) else {
+        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first),
+              let transform = values[safe: 1]?.getTransform else {
             mediaObserver.arAnchor = nil
             return values.prevOutputs(node: node)
         }
         
-        let transformMatrix = values[safe: 1]?.getMatrix ?? DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix
+        let position = SIMD3(x: Float(transform.positionX), y: Float(transform.positionY), z: Float(transform.positionZ))
+        let scale = SIMD3(x: Float(transform.scaleX), y: Float(transform.scaleY), z: Float(transform.scaleZ))
+        let rotationXYZ = SIMD3(x: Float(transform.rotationX), y: Float(transform.rotationY), z: Float(transform.rotationZ))
+        let transformMatrix = StitchMatrix(position: position, scale: scale, rotationZYX: rotationXYZ)
         
         if let anchorEntity = mediaObserver.arAnchor {
             let anchorId = mediaObserver.anchorMediaId

@@ -108,8 +108,8 @@ extension PortValue {
             return x.asDictionary.description
         case let .point4D(x):
             return x.asDictionary.description
-        case .matrixTransform:
-            return "AR Transform"
+        case .transform:
+            return "Transform"
         case .plane(let plane):
             return plane.display
         case .pulse(let time):

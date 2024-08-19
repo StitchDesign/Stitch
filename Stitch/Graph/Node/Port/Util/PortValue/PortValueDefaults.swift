@@ -50,8 +50,12 @@ let point3DDefaultFalse: PortValue = .point3D(Point3D.zero)
 let point4DDefaultTrue: PortValue = .point4D(Point4D.nonZero)
 let point4DDefaultFalse: PortValue = .point4D(Point4D.zero)
 
-let defaultTransformEntity: PortValue = .matrixTransform(DEFAULT_TRANSFORM_MATRIX.matrix)
-let defaultTransformAnchor: PortValue = .matrixTransform(DEFAULT_TRANSFORM_MATRIX_ANCHOR.matrix)
+let defaultTransformEntity: PortValue = .transform(DEFAULT_STITCH_TRANSFORM)
+let defaultTransformAnchor: PortValue = .transform(DEFAULT_STITCH_TRANSFORM)
+
+
+let defaultTransform: PortValue = .transform(DEFAULT_STITCH_TRANSFORM)
+
 
 let planeDefault: PortValue = .plane(.any)
 
@@ -108,7 +112,7 @@ extension PortValue {
             return point3DDefaultFalse
         case .point4D:
             return point4DDefaultFalse
-        case .matrixTransform:
+        case .transform:
             return defaultTransformAnchor
         case .plane:
             return planeDefault
