@@ -43,15 +43,15 @@ extension StitchStore {
         guard let graphState = self.currentGraph else {
             return
         }
-
+        
         let oldDocument = graphState.createSchema()
         graphState
             .inputEditCommitted(input: input,
                                 value: value,
                                 wasAdjustmentBarSelection: wasAdjustmentBarSelection)
-
+        
         let newDocument = graphState.createSchema()
-
+        
         self.saveUndoHistory(oldState: oldDocument,
                              newState: newDocument)
     }
@@ -81,9 +81,40 @@ extension GraphState {
             return
         }
         
-        self.inputEditCommitted(input: input,
-                                value: value,
-                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+        // If we're editing a layer input,
+        if let layerInput = input.id.keyPath?.layerInput,
+           // and we have multiselect-layer state
+           let multiselectObserver = self.graphUI.propertySidebar.layerMultiselectObserver,
+           // and we're editing the
+           let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
+           
+//           layerMultiselectInput.id == self.id {
+           // Always test against first observer
+//           layerMultiselectInput.observers.first?.rowObserver.id == self.id {
+            layerMultiselectInput.observers.first?.rowObserver.id == input.id {
+//            layerMultiselectInput.observers.contains(where: { $0 }) {
+        
+            // Note: heterogenous values doesn't matter; only the multiselect does
+
+            log("inputEditCommitted: will update \(layerMultiselectInput.observers.count) observers")
+            
+            layerMultiselectInput.observers.forEach { observer in
+                self.inputEditCommitted(input: observer.rowObserver,
+                                        value: value,
+                                        wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+            }
+        } 
+        
+        // just editing a single
+        else {
+            log("inputEditCommitted: NORMAL EDIT")
+            self.inputEditCommitted(input: input,
+                                    value: value,
+                                    wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+        }
+        
+        
+        
     }
     
     @MainActor
@@ -117,27 +148,27 @@ extension GraphState {
             nodeViewModel.blockOrUnblockFields(
                 newValue: value,
                 layerInput: layerInputType.layerInput)
-            
-            let newCommandType = value.shapeCommandType
-            
-            // If we changed the command type on a ShapeCommand input,
-            // then we may need to change the ShapeCommand case
-            // (e.g. from .moveTo -> .curveTo).
-            
-            if let shapeCommand = valueAtIndex.shapeCommand,
-               let newCommandType = newCommandType {
-                value = .shapeCommand(shapeCommand.convert(to: newCommandType))
-                log("GraphState.inputEditCommitted: value is now: \(value)")
-            }
-            
-            // Only change the input if valued actually changed.
-            input.setValuesInInput([value])
-            
-            self.maybeCreateLLMSetInput(node: nodeViewModel,
-                                        input: input.id,
-                                        value: value)
-            
-            self.calculate(nodeId)
         }
+        
+        let newCommandType = value.shapeCommandType
+        
+        // If we changed the command type on a ShapeCommand input,
+        // then we may need to change the ShapeCommand case
+        // (e.g. from .moveTo -> .curveTo).
+        
+        if let shapeCommand = valueAtIndex.shapeCommand,
+           let newCommandType = newCommandType {
+            value = .shapeCommand(shapeCommand.convert(to: newCommandType))
+            log("GraphState.inputEditCommitted: value is now: \(value)")
+        }
+        
+        // Only change the input if valued actually changed.
+        input.setValuesInInput([value])
+        
+        self.maybeCreateLLMSetInput(node: nodeViewModel,
+                                    input: input.id,
+                                    value: value)
+        
+        self.calculate(nodeId)
     }
 }

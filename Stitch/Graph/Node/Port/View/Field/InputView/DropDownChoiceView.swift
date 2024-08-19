@@ -12,16 +12,53 @@ import StitchSchemaKit
 struct DropDownChoiceView: View {
 
     let id: InputCoordinate
+    
+    @Bindable var graph: GraphState
+    
     let choiceDisplay: String
     let choices: PortValues
+    
+    // TODO: if this is a dropdown for a multiselect layer, then use "Multi" instead of `choiceDisplay`
+    // TODO: handle properly by field, not whole input
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        /*
+         Only relevant when this field is:
+         - for a layer
+         - in the layer inspector
+         - and we have multiple layers selected
+         */
+//        let isLayer = inputField.rowViewModelDelegate?.id.portType.keyPath.isDefined ?? false
+        
+        guard let layerInput = id.keyPath?.layerInput, // inputField.rowViewModelDelegate?.id.portType.keyPath?.layerInput,
+              let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
+              let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
+            log("DropDownChoiceView: hasHeterogenousValues: guard")
+            return false
+        }
+        
+        if layerMultiselectInput.hasHeterogenousValue {
+            log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for \(layerInput)")
+            return true
+        }
+        
+        return layerMultiselectInput.hasHeterogenousValue
+    }
 
+    @MainActor
+    var finalChoiceDisplay: String {
+        self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.choiceDisplay
+    }
+    
     var body: some View {
         Menu {
             StitchPickerView(input: id,
                              choices: choices,
-                             choiceDisplay: choiceDisplay)
+//                             choiceDisplay: choiceDisplay)
+                             choiceDisplay: finalChoiceDisplay)
         } label: {
-            StitchTextView(string: choiceDisplay)
+//            StitchTextView(string: choiceDisplay)
+            StitchTextView(string: finalChoiceDisplay)
         }
         #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator

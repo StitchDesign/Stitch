@@ -175,6 +175,7 @@ struct InputValueView: View {
 
         case .dropdown(let choiceDisplay, let choices):
             DropDownChoiceView(id: rowObserverId,
+                               graph: graph,
                                choiceDisplay: choiceDisplay,
                                choices: choices)
 
