@@ -121,11 +121,15 @@ final class LayerMultiselectInput {
         
         return !allObserversHaveSameValue
     }
-    
+        
     init(input: LayerInputPort, observers: [LayerInputObserver]) {
         self.input = input
         self.observers = observers
     }
+}
+
+extension String {
+    static let HETEROGENOUS_VALUES = "Multi"
 }
 
 
