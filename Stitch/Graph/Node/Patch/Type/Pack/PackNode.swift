@@ -87,7 +87,7 @@ struct PackPatchNode: PatchNodeDefinition {
                       staticType: .number)
             ]
 
-        case .matrixTransform:
+        case .transform:
             let inputMatrix = DEFAULT_TRANSFORM_MATRIX
             return [
                 .init(defaultValues: [.number(Double(inputMatrix.position.x))],
@@ -116,9 +116,6 @@ struct PackPatchNode: PatchNodeDefinition {
                       isTypeStatic: true),
                 .init(defaultValues: [.number(Double(inputMatrix.rotation.imag.z))],
                       label: "Rotation Z",
-                      isTypeStatic: true),
-                .init(defaultValues: [.number(Double(inputMatrix.rotation.real))],
-                      label: "Rotation Real",
                       isTypeStatic: true)
             ]
 
@@ -184,24 +181,6 @@ struct PackPatchNode: PatchNodeDefinition {
     }
 }
 
-func packMatrixTransformInputs(id: NodeId,
-                               inputMatrix: Transform) -> Inputs {
-    toInputs(
-        id: id,
-        values:
-            ("Position X", [.number(Double(inputMatrix.position.x))]),
-        ("Position Y", [.number(Double(inputMatrix.position.y))]),
-        ("Position Z", [.number(Double(inputMatrix.position.z))]),
-        ("Scale X", [.number(Double(inputMatrix.scale.x))]),
-        ("Scale Y", [.number(Double(inputMatrix.scale.y))]),
-        ("Scale Z", [.number(Double(inputMatrix.scale.z))]),
-        ("Rotation X", [.number(Double(inputMatrix.rotation.imag.x))]),
-        ("Rotation Y", [.number(Double(inputMatrix.rotation.imag.y))]),
-        ("Rotation Z", [.number(Double(inputMatrix.rotation.imag.z))]),
-        ("Rotation Real", [.number(Double(inputMatrix.rotation.real))])
-    )
-}
-
 func sizePackOp(values: PortValues) -> PortValue {
     .size(LayerSize.fromSizeNodeInputs(values))
 }
@@ -239,23 +218,22 @@ func point4DPackOp(values: PortValues) -> PortValue {
     }
 }
 
-func matrixPackOp(values: PortValues) -> PortValue {
+func transformPackOp(values: PortValues) -> PortValue {
     if let x = values[safe: PackNodeMatrixLocations.x]?.getNumber,
        let y = values[safe: PackNodeMatrixLocations.y]?.getNumber,
        let z = values[safe: PackNodeMatrixLocations.z]?.getNumber,
        let scaleX = values[safe: PackNodeMatrixLocations.scaleX]?.getNumber,
        let scaleY = values[safe: PackNodeMatrixLocations.scaleY]?.getNumber,
        let scaleZ = values[safe: PackNodeMatrixLocations.scaleZ]?.getNumber,
-       let quatX = values[safe: PackNodeMatrixLocations.rotationX]?.getNumber,
-       let quatY = values[safe: PackNodeMatrixLocations.rotationY]?.getNumber,
-       let quatZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber,
-       let quatW = values[safe: PackNodeMatrixLocations.rotationReal]?.getNumber {
-        return .matrixTransform(Transform.createMatrix(positionX: Float(x), positionY: Float(y), positionZ: Float(z), scaleX: Float(scaleX), scaleY: Float(scaleY), scaleZ: Float(scaleZ), rotationX: Float(quatX), rotationY: Float(quatY), rotationZ: Float(quatZ), rotationReal: Float(quatW)).matrix)
+       let rotationX = values[safe: PackNodeMatrixLocations.rotationX]?.getNumber,
+       let rotationY = values[safe: PackNodeMatrixLocations.rotationY]?.getNumber,
+       let rotationZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber {
+        return .transform(StitchTransform.init(positionX: x, positionY: y, positionZ: z, scaleX: scaleX, scaleY: scaleY, scaleZ: scaleZ, rotationX: rotationX, rotationY: rotationY, rotationZ: rotationZ))
     } else {
         #if DEV_DEBUG
         fatalError("matrixEvaluation")
         #endif
-        return defaultTransformAnchor
+        return defaultTransform
     }
 }
 
@@ -317,8 +295,8 @@ func packEval(inputs: PortValuesList,
         return result(point3DPackOp)
     case (.number, 4):
         return result(point4DPackOp)
-    case (.number, 10):
-        return result(matrixPackOp)
+    case (.number, 9):
+        return result(transformPackOp)
     case (.shapeCommandType, _):
         return result(shapeCommandOp)
     default:

@@ -383,13 +383,13 @@ func point4DCoercer(_ values: PortValues,
     }
 }
 
-func matrixCoercer(_ values: PortValues) -> PortValues {
+func transformCoercer(_ values: PortValues) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
         switch value {
-        case .matrixTransform(let x):
-            return .matrixTransform(x)
+        case .transform(let x):
+            return .transform(x)
         default:
-            return defaultTransformAnchor
+            return defaultTransform
         }
     }
 }

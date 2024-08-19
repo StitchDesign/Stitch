@@ -315,10 +315,10 @@ extension Patch {
             return point4DPackDescription
         case .point4DUnpack:
             return point4DUnpackDescription
-        case .matrixTransformPack:
-            return matrixTransformPackDescription
-        case .matrixTransformUnpack:
-            return matrixTransformUnpackDescription
+        case .transformPack:
+            return transformPackDescription
+        case .transformUnpack:
+            return transformUnpackDescription
         case .closePath:
             return closePathDescription
         case .moveToPack:

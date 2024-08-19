@@ -179,12 +179,12 @@ enum AnimationNodeType: PatchNodeTypeSet, CaseIterable {
 
 struct PackUVT: NodeTypeEnummable {
     typealias NT = PackNodeType
-    static let value = UVTSet([.position, .size, .point3D, .point4D, .matrixTransform, .shapeCommand])
+    static let value = UVTSet([.position, .size, .point3D, .point4D, .transform, .shapeCommand])
 }
 
 enum PackNodeType: PatchNodeTypeSet {
 
-    case size, position, point3D, point4D, matrixTransform, shapeCommand
+    case size, position, point3D, point4D, transform, shapeCommand
 
     static func fromNodeType(_ nodeType: UserVisibleType) -> PackNodeType {
         switch nodeType {
@@ -196,8 +196,8 @@ enum PackNodeType: PatchNodeTypeSet {
             return .point3D
         case .point4D:
             return .point4D
-        case .matrixTransform:
-            return .matrixTransform
+        case .transform:
+            return .transform
         case .shapeCommand:
             return shapeCommand
         default:
