@@ -89,10 +89,8 @@ extension GraphState {
            let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
            
 //           layerMultiselectInput.id == self.id {
-           // Always test against first observer
-//           layerMultiselectInput.observers.first?.rowObserver.id == self.id {
+           // Always test against first observer ?
             layerMultiselectInput.observers.first?.rowObserver.id == input.id {
-//            layerMultiselectInput.observers.contains(where: { $0 }) {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
 
