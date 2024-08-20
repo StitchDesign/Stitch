@@ -24,6 +24,8 @@ struct PreviewCommonPositionModifier: ViewModifier {
      */
     @Bindable var viewModel: LayerViewModel
     
+    let isPinnedViewRendering: Bool
+    
     // Is this view a child of a group that uses HStack, VStack or Grid? If so, we ignore this view's position.
     // TODO: use .offset instead of .position when layer is a child
     let parentDisablesPosition: Bool
@@ -33,22 +35,34 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-            
+      
+    var isPinned: Bool {
+        viewModel.isPinned.getBool ?? false
+    }
+    
+    var isGhostView: Bool {
+        isPinned && !isPinnedViewRendering
+    }
+    
+    var isPinnedView: Bool {
+        isPinned && isPinnedViewRendering
+    }
 
     func body(content: Content) -> some View {
         
-        if viewModel.isPinned.getBool ?? false,
+        // The PinnedView rendering of a layer relies on information about the layer it is pinned to.
+        if isPinnedView,
            let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
             
-            // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) is pinned and had pin receiver")
+             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
             
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
-            // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
-            // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
             content
                 .position(x: pinPos.width, y: pinPos.height)
@@ -56,10 +70,11 @@ struct PreviewCommonPositionModifier: ViewModifier {
             
         } else {
             // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
-            // Ghost views do not use .position modifier, but it doesn't matter;
-            // we only read a Ghost View's size
-            //        if parentDisablesPosition || isGhostView {
-            if parentDisablesPosition {
+            
+            // A non-PinnedView rendering of a layer uses .position unless:
+            // 1. the layer is a child inside a group that uses a VStack or HStack, or
+            // 2. it is a GhostView rendering
+            if parentDisablesPosition || isGhostView {
                 content
             } else {
                 content

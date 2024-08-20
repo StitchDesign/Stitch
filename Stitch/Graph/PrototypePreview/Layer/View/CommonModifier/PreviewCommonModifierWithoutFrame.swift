@@ -108,7 +108,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 
             .modifier(PreviewCommonPositionModifier(
                 graph: graph,
-                viewModel: layerViewModel,
+                viewModel: layerViewModel, 
+                isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
                 

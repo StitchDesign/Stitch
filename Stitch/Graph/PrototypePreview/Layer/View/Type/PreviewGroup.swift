@@ -159,6 +159,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonPositionModifier(
                 graph: graph,
                 viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
         
