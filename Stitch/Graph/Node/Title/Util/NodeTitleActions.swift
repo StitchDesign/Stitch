@@ -10,12 +10,12 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodeTitleEdited: GraphEventWithResponse {
-    let id: NodeId
+    let id: CanvasItemId
     let edit: String
     let isCommitting: Bool
 
     func handle(state: GraphState) -> GraphResponse {
-        guard let node = state.getNodeViewModel(id) else {
+        guard let node = state.getNode(id.associatedNodeId) else {
             log("NodeTitleEdited: could not retrieve node \(id)...")
             return .noChange
         }
@@ -33,6 +33,18 @@ extension CanvasItemId {
             return true
         default:
             return false
+        }
+    }
+    
+    // Every canvas item belongs to same node.
+    var associatedNodeId: NodeId {
+        switch self {
+        case .node(let x):
+            return x
+        case .layerInput(let x):
+            return x.node
+        case .layerOutput(let x):
+            return x.node
         }
     }
 }
