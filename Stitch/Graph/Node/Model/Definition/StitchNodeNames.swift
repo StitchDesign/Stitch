@@ -1255,7 +1255,7 @@ Unpacks a single Point4D input to four Number outputs.
 """
 
 let transformPackDescription = """
-Creates a Transform out of the following values:
+Packs a Transform ouptut out of the following Number values:
 
 • Position X
 • Position Y
@@ -1269,7 +1269,7 @@ Creates a Transform out of the following values:
 """
 
 let transformUnpackDescription = """
-Unpacks a Transform into the following constituent values:
+Unpacks a Transform into the following constituent Number values:
 
 • Position X
 • Position Y
