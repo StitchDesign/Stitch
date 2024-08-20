@@ -1,1 +1,6 @@
-1.5 introduces a new layer inspector sidebar, overhauling the layer node user experience. The new right-hand sidebar becomes a dedicated workspace for improving layer customization and also helps reduce graph clutter.
+Introducing layer pinning: a new way to easily “pin” one layer to another in a prototype. Layer pinning enables precise layer placement regardless of layer group context.
+
+Other improvements:
+* Fixed performance regression caused by updates to node ports
+* 3D model entity transforms simplified to no longer include “Rotation Real”
+* Transform pack + unpack fixed to produce consistent results
