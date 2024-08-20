@@ -80,8 +80,6 @@ struct LayerInspectorView: View {
                              name: "LayerInspectorView") {
                     selectedLayerView(node, layerNode)
                 }
-                             // TODO: Why subtract only half?
-                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
                             // TODO: why is this inaccurate?
