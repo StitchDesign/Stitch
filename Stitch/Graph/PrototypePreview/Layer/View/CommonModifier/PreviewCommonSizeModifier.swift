@@ -9,10 +9,22 @@ import SwiftUI
 import StitchSchemaKit
  
 extension LayerDimension {
-    func asFrameDimension(_ parentLength: CGFloat) -> CGFloat? {
+    /*
+     Note: `nil` means setting no .frame along that dimension; but the result differs for a shape vs stack:
+     - a shape (e.g. `Ellipse`) without a .frame *grows* to take up as much space as possible inside its parent.
+     - a stack (e.g. `ZStack`) without a .frame *shrinks* to take up only as much space as required by the stack's contents.
+     */
+    func asFrameDimension(_ parentLength: CGFloat, isStack: Bool) -> CGFloat? {
            switch self {
-               // fill or hug = no set value along this dimension
-           case .fill, .hug,
+               
+           case .fill:
+               if isStack { // a stack like ZStack, VStack
+                   return parentLength // 100% of parent length
+               } else { // e.g. a shpe
+                   return nil
+               }
+            
+           case .hug,
                // auto on shapes = fill
                // auto on text, textfield = hug
                // auto on media = see either image or video display views
@@ -71,27 +83,31 @@ struct PreviewCommonSizeModifier: ViewModifier {
         height.isParentPercentage
     }
     
+    var isStack: Bool {
+        viewModel.layer == .group
+    }
+    
     var finalMinWidth: CGFloat? {
-        minWidth?.asFrameDimension(parentSize.width)
+        minWidth?.asFrameDimension(parentSize.width, isStack: isStack)
     }
     
     var finalMaxWidth: CGFloat? {
-        maxWidth?.asFrameDimension(parentSize.width)
+        maxWidth?.asFrameDimension(parentSize.width, isStack: isStack)
     }
     
     var finalMinHeight: CGFloat? {
-        minHeight?.asFrameDimension(parentSize.height)
+        minHeight?.asFrameDimension(parentSize.height, isStack: isStack)
     }
     
     var finalMaxHeight: CGFloat? {
-        maxHeight?.asFrameDimension(parentSize.height)
+        maxHeight?.asFrameDimension(parentSize.height, isStack: isStack)
     }
     
     var finalWidth: CGFloat? {
         if usesParentPercentForWidth && (finalMinWidth.isDefined || finalMaxWidth.isDefined) {
             return nil
         } else {
-            return width.asFrameDimension(parentSize.width)
+            return width.asFrameDimension(parentSize.width, isStack: isStack)
         }
     }
     
@@ -99,7 +115,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
         if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
             return nil
         } else {
-            return height.asFrameDimension(parentSize.height)
+            return height.asFrameDimension(parentSize.height, isStack: isStack)
         }
     }
     
