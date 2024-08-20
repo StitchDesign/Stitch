@@ -39,13 +39,13 @@ extension Transform {
     }
 }
 
-extension StitchMatrix: Hashable {
+extension matrix_float4x4: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(self.hashValue)
     }
 }
 
-//extension StitchMatrix {
+//extension matrix_float4x4 {
 //    var position: SCNVector3 {
 //        SCNVector3(columns.3.x, columns.3.y, columns.3.z)
 //    }
@@ -101,7 +101,7 @@ extension ARFrame {
 
 extension Entity {
     // MARK: eval logic for model 3D patch node
-    func applyMatrix(newMatrix: StitchMatrix) {
+    func applyMatrix(newMatrix: matrix_float4x4) {
         // Set translation
         let position = newMatrix.position
         let translation = SIMD3([position.x, position.y, position.z])
@@ -128,7 +128,7 @@ extension Entity {
 extension Transform: Codable {
     public init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
-        try self.init(matrix: container.decode(StitchMatrix.self))
+        try self.init(matrix: container.decode(matrix_float4x4.self))
     }
 
     public func encode(to encoder: Encoder) throws {
