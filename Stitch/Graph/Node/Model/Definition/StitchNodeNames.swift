@@ -1255,11 +1255,31 @@ Unpacks a single Point4D input to four Number outputs.
 """
 
 let transformPackDescription = """
-Packs several Number inputs to a single Transform output.
+Creates a Transform out of the following values:
+
+• Position X
+• Position Y
+• Position Z
+• Scale X
+• Scale Y
+• Scale Z
+• Rotation X
+• Rotation Y
+• Rotation Z
 """
 
 let transformUnpackDescription = """
-Unpacks a single Transform input to several Number outputs.
+Unpacks a Transform into the following constituent values:
+
+• Position X
+• Position Y
+• Position Z
+• Scale X
+• Scale Y
+• Scale Z
+• Rotation X
+• Rotation Y
+• Rotation Z
 """
 
 let closePathDescription = """
