@@ -30,7 +30,7 @@ final class StitchEntity: NSObject, Sendable {
         }
     }
     
-    var transform: StitchMatrix?
+    var transform: matrix_float4x4?
     var entityStatus: LoadingStatus<Entity> = .loading
     
     private var cancellables = Set<AnyCancellable>()
@@ -101,7 +101,7 @@ final class StitchEntity: NSObject, Sendable {
             .store(in: &self.cancellables)
     }
     
-    @MainActor func applyMatrix(newMatrix: StitchMatrix) {
+    @MainActor func applyMatrix(newMatrix: matrix_float4x4) {
         // Update publisher, ensuring 3D model layer gets updated
         self.transform = newMatrix
         
