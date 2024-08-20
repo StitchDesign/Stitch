@@ -436,7 +436,6 @@
 		EC46AC0926CEE3820062CB26 /* DeviceMotionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */; };
 		EC46AC0B26CEE3B80062CB26 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC46AC0A26CEE3B80062CB26 /* AppState.swift */; };
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
-		EC48F02F2C657A3B00DB3ACB /* StitchSchemaKit in Resources */ = {isa = PBXBuildFile; fileRef = EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */; };
 		EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0302C65975200DB3ACB /* PinningUtils.swift */; };
 		EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */; };
 		EC49148C29357DF400D74344 /* GreaterThanNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148B29357DF400D74344 /* GreaterThanNode.swift */; };
@@ -1346,7 +1345,6 @@
 		EC46AC0826CEE3820062CB26 /* DeviceMotionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceMotionHelpers.swift; sourceTree = "<group>"; };
 		EC46AC0A26CEE3B80062CB26 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
-		EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../../../StitchSchemaKit; sourceTree = "<group>"; };
 		EC48F0302C65975200DB3ACB /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
 		EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
 		EC49148B29357DF400D74344 /* GreaterThanNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreaterThanNode.swift; sourceTree = "<group>"; };
@@ -1862,7 +1860,6 @@
 			isa = PBXGroup;
 			children = (
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
-				EC48F02E2C657A3B00DB3ACB /* StitchSchemaKit */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
 				ECB33C5926F12F5E0069885B /* Home */,
@@ -4433,7 +4430,6 @@
 				200BD85F254F66EE00692903 /* Assets.xcassets in Resources */,
 				ECB15BA72695FCC700A1E1DA /* pj_eating.mov in Resources */,
 				EC7ADBFE2683EC9D00A8B318 /* fur_elise.mp3 in Resources */,
-				EC48F02F2C657A3B00DB3ACB /* StitchSchemaKit in Resources */,
 				E416861228A3FC9600731889 /* Vintage Toy Robot.usdz in Resources */,
 				EC7ADBFF2683EC9D00A8B318 /* fur_elise.m4a in Resources */,
 				ECB15BA52695F8D100A1E1DA /* gracie_short.mov in Resources */,
@@ -5486,7 +5482,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5519,7 +5515,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5656,7 +5652,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5773,7 +5769,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 1.5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -6036,8 +6032,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				kind = revision;
-				revision = c67e5e8dada5fa6b36b551b9959154ef296598ab;
+				kind = exactVersion;
+				version = 23.0.0;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
