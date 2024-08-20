@@ -111,8 +111,8 @@ struct LayerInspectorView: View {
             HStack {
                 StitchTitleTextField(graph: graph,
                                      titleEditType: .layerInspector(node.id),
-                                     label: node.displayTitle)
-//                    .font(.title2)
+                                     label: node.displayTitle,
+                                     font: .title2)
                 Spacer()
             }
                 .padding()

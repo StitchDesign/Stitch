@@ -12,11 +12,13 @@ struct NodeTitleTextField: View {
     @Bindable var graph: GraphState
     let id: CanvasItemId
     let label: String
+    var font: Font = STITCH_FONT
 
     var body: some View {
         StitchTitleTextField(graph: graph,
                              titleEditType: .canvas(id),
-                             label: label)
+                             label: label,
+                             font: font)
     }
 }
     /// A wrapper view for `TextField` which renders a read-only view when the input isn't in focus. This fixes a performance
@@ -26,6 +28,7 @@ struct StitchTitleTextField: View {
     @Bindable var graph: GraphState
     let titleEditType: StitchTitleEdit
     let label: String
+    var font: Font = STITCH_FONT
     
     @MainActor
     var isFocused: Bool {
@@ -40,6 +43,7 @@ struct StitchTitleTextField: View {
                     fieldType: .nodeTitle(titleEditType),
                     shouldFocus: false,
                     isForNodeTitle: true,
+                    font: font,
                     fontColor: Color(.nodeTitleFont)) { newEdit, isCommitting in
                         dispatch(NodeTitleEdited(titleEditType: titleEditType,
                                                  edit: newEdit,
@@ -54,7 +58,8 @@ struct StitchTitleTextField: View {
 #endif
 //                    .border(.green)
             } else {
-                StitchTextView(string: label)
+                StitchTextView(string: label,
+                               font: font)
                     .frame(height: NODE_TITLE_HEIGHT,
                            alignment: .center)
                    //  .border(.blue)
