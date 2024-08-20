@@ -158,7 +158,7 @@ struct CommonEditingView: View {
         
         // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
         .onChange(of: self.currentEdit) { oldValue, newValue in
-            if let x = self.choices?.first(where: { $0 == self.currentEdit }) {
+            if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
                 log("found choice \(x)")
                 self.choice = x
             }
