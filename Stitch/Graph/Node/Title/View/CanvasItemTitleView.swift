@@ -75,7 +75,7 @@ struct CanvasItemTitleView: View {
             VStack(alignment: .leading) {
                 // Always shows node title
                 NodeTitleTextField(graph: graph,
-                                   id: canvasId,
+                                   id: node.id,
                                    label: label)
                 
                 // Always needs some math expression;
@@ -103,7 +103,7 @@ struct CanvasItemTitleView: View {
                             .foregroundColor(Color(.nodeTitleFont))
                     }
                     NodeTitleTextField(graph: graph,
-                                       id: canvasId,
+                                       id: node.id,
                                        label: label)
                 }
                 
