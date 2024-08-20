@@ -67,7 +67,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit",
       "state" : {
-        "revision" : "e3a79672f295068462ac96513bef1c26d482ffca"
+        "revision" : "0091c451dc2b783b2451d3be39b23d900f40a9ff",
+        "version" : "23.0.0"
       }
     },
     {
