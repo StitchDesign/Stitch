@@ -80,8 +80,6 @@ struct LayerInspectorView: View {
                              name: "LayerInspectorView") {
                     selectedLayerView(node, layerNode)
                 }
-                             // TODO: Why subtract only half?
-                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
                             // TODO: why is this inaccurate?
@@ -111,8 +109,10 @@ struct LayerInspectorView: View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                // TODO: should be editable, to rename the layer?
-                Text(node.displayTitle).font(.title2)
+                StitchTitleTextField(graph: graph,
+                                     titleEditType: .layerInspector(node.id),
+                                     label: node.displayTitle,
+                                     font: .title2)
                 Spacer()
             }
                 .padding()

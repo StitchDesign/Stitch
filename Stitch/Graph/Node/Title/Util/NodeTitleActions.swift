@@ -10,16 +10,26 @@ import SwiftUI
 import StitchSchemaKit
 
 struct NodeTitleEdited: GraphEventWithResponse {
-    let id: CanvasItemId
+    let titleEditType: StitchTitleEdit
     let edit: String
     let isCommitting: Bool
 
     func handle(state: GraphState) -> GraphResponse {
-        guard let node = state.getNode(id.associatedNodeId) else {
-            log("NodeTitleEdited: could not retrieve node \(id)...")
-            return .noChange
+        switch titleEditType {
+        case .canvas(let id):
+            guard let node = state.getNode(id.associatedNodeId) else {
+                log("NodeTitleEdited: could not retrieve node \(id)...")
+                return .noChange
+            }
+            node.title = edit
+
+        case .layerInspector(let id):
+            guard let node = state.getNodeViewModel(id) else {
+                return .noChange
+            }
+            
+            node.title = edit
         }
-        node.title = edit
         
         return .init(willPersist: isCommitting)
     }
