@@ -1398,7 +1398,7 @@ extension LayerInputPort {
 
     var shouldResetGraphPreviews: Bool {
         switch self {
-        case .zIndex, .masks, .isPinned:
+        case .zIndex, .masks, .isPinned, .pinTo:
             return true
         default:
             return false
