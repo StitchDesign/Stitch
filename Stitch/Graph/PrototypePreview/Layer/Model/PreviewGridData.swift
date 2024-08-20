@@ -34,7 +34,7 @@ extension NodeViewModel {
             newValue.getSize.map(self.layerSizeUpdated)
             
         case .sizingScenario:
-            newValue.getSize.map(self.layerSizeUpdated)
+            newValue.getSizingScenario.map(self.sizingScenarioUpdated)
             
         case .isPinned:
             newValue.getBool.map(self.isPinnedUpdated)

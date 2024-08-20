@@ -341,6 +341,29 @@ func getLayerTypesForPinnedViews(pinnedViews: LayerIdSet, // views pinned to thi
                  A
                  
                  Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
+                 
+                 
+                 
+                 Another tricky case:
+                 
+                 Group
+                 - Blue
+                 - Red
+                 
+                 Blue is pinned to Group; but, if we just go by list-item-index in each layer's respective hierarchy level (without any pinning changes),
+                 *both* Blue and Group have the same index: 0
+                 And so our comparator logic is indeterminate.
+                 
+                 
+                 A possible solution?: flatten the hierarchy so that each layer has unique index; e.g.:
+                 
+                 Group 1
+                 - Blue
+                 - Red
+                 - Group 2
+                    - Yellow
+                 
+                 ... becomes: [Group 1, Blue, Red, Group 2, Yellow]
                  */
                 sidebarIndex: sidebarIndexOfPinnedView,
                 
