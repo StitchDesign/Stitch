@@ -111,8 +111,10 @@ struct LayerInspectorView: View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                // TODO: should be editable, to rename the layer?
-                Text(node.displayTitle).font(.title2)
+                StitchTitleTextField(graph: graph,
+                                     titleEditType: .layerInspector(node.id),
+                                     label: node.displayTitle)
+//                    .font(.title2)
                 Spacer()
             }
                 .padding()
