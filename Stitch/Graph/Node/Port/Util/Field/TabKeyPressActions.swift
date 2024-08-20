@@ -18,10 +18,12 @@ extension GraphState {
     func tabPressed(focusedField: FieldCoordinate,
                     node: NodeViewModel) {
             
-        let layerInput = focusedField.rowId.portType.keyPath?.layerInput
+        
+        let isCanvas = !focusedField.rowId.graphItemType.isLayerInspector
+        let layerInputOnCanvas = isCanvas ? focusedField.rowId.portType.keyPath?.layerInput : nil
         
         let newFocusedField = node.nextInput(focusedField,
-                                             layerInput: layerInput,
+                                             layerInput: layerInputOnCanvas,
                                              propertySidebarState: self.graphUI.propertySidebar)
 
         log("tabPressed: newFocusedField: \(newFocusedField)")
@@ -32,10 +34,11 @@ extension GraphState {
     func shiftTabPressed(focusedField: FieldCoordinate,
                          node: NodeViewModel) {
         
-        let layerInput = focusedField.rowId.portType.keyPath?.layerInput
+        let isCanvas = !focusedField.rowId.graphItemType.isLayerInspector
+        let layerInputOnCanvas = isCanvas ? focusedField.rowId.portType.keyPath?.layerInput : nil
         
         let newFocusedField = node.previousInput(focusedField,
-                                                 layerInput: layerInput,
+                                                 layerInputOnCanvas: layerInputOnCanvas,
                                                  propertySidebarState: self.graphUI.propertySidebar)
         
         log("shiftTabPressed: newFocusedField: \(newFocusedField)")
@@ -154,7 +157,7 @@ extension NodeViewModel {
             // then we should only have two eligible fields.
             let eligibleFields = getTabEligibleFields(
                 layerNode: layerNode,
-                layerInput: layerInput,
+                layerInputOnCanvas: layerInput,
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {
@@ -240,11 +243,11 @@ typealias LayerInputEligibleFields = OrderedSet<LayerInputEligibleField>
 
 @MainActor
 func getTabEligibleFields(layerNode: LayerNodeViewModel,
-                          layerInput: LayerInputPort? = nil,
+                          layerInputOnCanvas: LayerInputPort? = nil,
                           collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
     
     
-    if let layerInput = layerInput {
+    if let layerInput = layerInputOnCanvas {
         let fields = layerNode.getLayerInspectorInputFields(layerInput).map({ field in
             LayerInputEligibleField(input: layerInput, fieldIndex: field.fieldIndex)
         })
@@ -294,7 +297,7 @@ extension NodeViewModel {
     @MainActor
     func previousInput(_ currentFocusedField: FieldCoordinate,
                        // non-nil = we're tabbing through this layer input on the canvas
-                       layerInput: LayerInputPort? = nil,
+                       layerInputOnCanvas: LayerInputPort? = nil,
                        propertySidebarState: PropertySidebarObserver) -> FieldCoordinate {
         
         let currentInputCoordinate = currentFocusedField.rowId
@@ -345,7 +348,7 @@ extension NodeViewModel {
 
             let eligibleFields = getTabEligibleFields(
                 layerNode: layerNode,
-                layerInput: layerInput,
+                layerInputOnCanvas: layerInputOnCanvas,
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {
