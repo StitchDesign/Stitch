@@ -74,6 +74,8 @@ struct PreviewShapeLayer: View {
             shape
                 .opacity(opacity)
                 .modifier(PreviewSidebarHighlightModifier(
+                    viewModel: layerViewModel,
+                    isPinnedViewRendering: isPinnedViewRendering,
                     nodeId: interactiveLayer.id.layerNodeId,
                     highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                     scale: scale))

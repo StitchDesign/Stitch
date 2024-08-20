@@ -11,11 +11,25 @@ import StitchSchemaKit
 
 // Note: highlight border must be placed before `.position` .offset and
 struct PreviewSidebarHighlightModifier: ViewModifier {
+    @Bindable var viewModel: LayerViewModel
+    
+    let isPinnedViewRendering: Bool
+    
     let nodeId: LayerNodeId
     let highlightedSidebarLayers: LayerIdSet
     let scale: CGFloat
     
     static let baseBorderWidth = 2.0
+    
+    var isPinned: Bool {
+        viewModel.isPinned.getBool ?? false
+    }
+    
+    // ALSO: if this is View A and it is not being generated at the top level,
+    // then we should hide the view
+    var isGhostView: Bool {
+        isPinned && !isPinnedViewRendering
+    }
     
     var isHighlighted: Bool {
         highlightedSidebarLayers.contains(nodeId)
@@ -32,9 +46,13 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
         }
     }
     
+    var borderOpacity: CGFloat {
+        (isHighlighted && !isGhostView) ? 1 : 0
+    }
+    
     func body(content: Content) -> some View {
         content
-            .border(.blue.opacity(isHighlighted ? 1 : 0),
+            .border(.blue.opacity(borderOpacity),
                     width: borderWidth)
     }
 }

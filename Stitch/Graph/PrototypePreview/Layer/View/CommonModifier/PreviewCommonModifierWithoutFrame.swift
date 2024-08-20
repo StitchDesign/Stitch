@@ -91,6 +91,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
         
         // should be BEFORE .scale, .position, .offset and .rotation, so that border can be affected by those changes; but AFTER layer-effects, so that e.g. masking or blur does
             .modifier(PreviewSidebarHighlightModifier(
+                viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
                 highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                 scale: scale))

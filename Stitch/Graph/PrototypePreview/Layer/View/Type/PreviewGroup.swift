@@ -131,6 +131,8 @@ struct PreviewGroupLayer: View {
         //        #endif
         
             .modifier(PreviewSidebarHighlightModifier(
+                viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
                 highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                 scale: scale))
