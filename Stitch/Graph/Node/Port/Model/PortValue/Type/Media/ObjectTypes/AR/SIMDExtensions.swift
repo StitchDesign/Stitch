@@ -150,6 +150,13 @@ extension simd_float4x4 {
             angles.z = atan2(-rotMatrix[1, 0], rotMatrix[1, 1])
         }
         
+        // Ensure we never return -0
+        angles = SIMD3<Float>(
+            angles.x == -0 ? 0 : angles.x,
+            angles.y == -0 ? 0 : angles.y,
+            angles.z == -0 ? 0 : angles.z
+        )
+        
         return angles
     }
 
