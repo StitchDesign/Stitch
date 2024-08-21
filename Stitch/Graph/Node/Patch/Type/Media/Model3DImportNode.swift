@@ -69,7 +69,7 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
             
             let position = model3DEntity?.originalTransformMatrix?.position
             let scale = model3DEntity?.originalTransformMatrix?.scale
-//            let rotation = model3DEntity?.originalTransformMatrix?.rotationInRadians
+            let rotation = model3DEntity?.originalTransformMatrix?.rotationInRadians
 
 //            transform = StitchTransform(positionX: position?.x, positionY: position?.y, positionZ: position?.z, scaleX: scale?.x, scaleY: scale?.y, scaleZ: scale?.z, rotationX: rotation.x, rotationY: rotation?.y, rotationZ: rotation.z)
         }
