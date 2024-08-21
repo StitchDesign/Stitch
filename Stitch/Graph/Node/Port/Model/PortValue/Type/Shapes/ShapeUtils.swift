@@ -13,19 +13,37 @@ import StitchSchemaKit
 // Intended for strokes on non-Shape layers.
 struct ApplyStroke: ViewModifier {
     
+    @Bindable var viewModel: LayerViewModel
+    
+    let isPinnedViewRendering: Bool
+    
     let stroke: LayerStrokeData
+    
+    var isPinned: Bool {
+        viewModel.isPinned.getBool ?? false
+    }
+    
+    // ALSO: if this is View A and it is not being generated at the top level,
+    // then we should hide the view
+    var isGhostView: Bool {
+        isPinned && !isPinnedViewRendering
+    }
     
     @ViewBuilder
     func body(content: Content) -> some View {
         
-        switch stroke.stroke {
-                        
-        case .none:
+        if isGhostView {
             content
-            
-        case .inside, .outside:
-            content.overlay {
-                Rectangle().stitchStroke(stroke)
+        } else {
+            switch stroke.stroke {
+                            
+            case .none:
+                content
+                
+            case .inside, .outside:
+                content.overlay {
+                    Rectangle().stitchStroke(stroke)
+                }
             }
         }
     }

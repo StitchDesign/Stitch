@@ -151,7 +151,9 @@ struct PreviewGroupLayer: View {
                                      cornerRadius: cornerRadius))
         
         // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
-            .modifier(ApplyStroke(stroke: stroke))
+            .modifier(ApplyStroke(viewModel: layerViewModel,
+                                  isPinnedViewRendering: isPinnedViewRendering,
+                                  stroke: stroke))
 
             .opacity(opacity) // opacity on group and all its contents
         
