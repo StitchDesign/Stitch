@@ -102,6 +102,10 @@ struct InputValueView: View {
         self.graph.graphUI.adjustmentBarSessionId
     }
 
+    var isFieldInsideLayerInspector: Bool {
+        viewModel.isFieldInsideLayerInspector
+    }
+    
     // Which part of the port-value this value is for.
     // eg for a `.position3D` port-value:
     // field index 0 = x
@@ -172,19 +176,19 @@ struct InputValueView: View {
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId,
                              value: bool,
-                             isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
+                             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
 
         case .dropdown(let choiceDisplay, let choices):
             DropDownChoiceView(id: rowObserverId,
                                graph: graph,
                                choiceDisplay: choiceDisplay,
                                choices: choices,
-                               isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
+                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: rowObserverId,
                                stitchFont: stitchFont,
-                               isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
+                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
                        alignment: .leading)
@@ -198,25 +202,26 @@ struct InputValueView: View {
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                    isForLayerGroup: false, // not relevant
-                                                    isForPinTo: false)
-            )
+                                                    isForLayerGroup: false, 
+                                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                                    isForPinTo: false))
             
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
                            graph: graph,
                            id: rowObserverId,
                            value: .pinTo(pinToId),
-                           isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
+                           isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                                isForLayerGroup: rowViewModel.nodeKind == .layer(.group),
+                                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                                isForPinTo: true))
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
                               selection: anchor, 
-                              isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
+                              isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
@@ -231,7 +236,7 @@ struct InputValueView: View {
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
                                 hasIncomingEdge: hasIncomingEdge,
-                                isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
+                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                 graph: graph)
 
         case .color(let color):

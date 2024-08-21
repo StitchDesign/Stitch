@@ -148,6 +148,7 @@ struct OutputValueView: View {
                                          choices: graph.layerDropdownChoices(
                                             isForNode: coordinate.nodeId,
                                             isForLayerGroup: false,
+                                            isFieldInsideLayerInspector: false,
                                             isForPinTo: false))
             .disabled(true)
             
@@ -160,6 +161,7 @@ struct OutputValueView: View {
                                          choices: graph.layerDropdownChoices(
                                             isForNode: coordinate.nodeId,
                                             isForLayerGroup: false,
+                                            isFieldInsideLayerInspector: false,
                                             isForPinTo: false))
 
                    .disabled(true)

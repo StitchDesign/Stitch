@@ -65,7 +65,6 @@ final class LayerMultiSelectObserver {
     var asLayerInputObserverDict: LayerInputObserverDict {
         self.inputs.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
             // not quite accurate; just need to grab the first observer?
-            //
             if let firstObserver = layerInput.value.observers.first {
                 partialResult.updateValue(firstObserver,
                                           forKey: layerInput.key)
@@ -120,8 +119,6 @@ final class LayerMultiselectInput {
     // TODO: think about perf implications here
     // Expectation is that whenever any of the LayerInputObservers' activeValue changes, we re-run this
     @MainActor
-//    var hasHeterogenousValue: Bool {
-//    var hasHeterogenousValue: Set<FieldCoordinate> {
     // set of field index
     var hasHeterogenousValue: Set<Int> {
         

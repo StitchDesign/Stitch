@@ -20,7 +20,7 @@ struct MediaFieldValueView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let isFieldInsideLayerInspector: Bool
-    let graph: GraphState
+    @Bindable var graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -39,6 +39,20 @@ struct MediaFieldValueView: View {
         }
     }
 
+    @MainActor
+    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
+        if isFieldInsideLayerInspector,
+           let layerInput = inputCoordinate.layerInput {
+        return graph.graphUI
+                .propertySidebar
+                .layerMultiselectObserver?
+                .inputs.get(layerInput.layerInput)?
+                .hasHeterogenousValue.contains(fieldIndex) ?? false
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         HStack {
             if isInput && canUseMediaPicker {
@@ -56,7 +70,8 @@ struct MediaFieldValueView: View {
                                     isInput: isInput,
                                     fieldIndex: fieldIndex,
                                     isNodeSelected: isNodeSelected,
-                                    hasIncomingEdge: hasIncomingEdge)
+                                    hasIncomingEdge: hasIncomingEdge,
+                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
             } else {
                 EmptyView()
             }
@@ -72,19 +87,26 @@ struct MediaFieldLabelView: View {
     let fieldIndex: Int
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     var body: some View {
-        // For image and video media pickers,
-        // show both dropdown and thumbnail
-        switch mediaObject {
-        case .image(let image):
-            ValueStitchImageView(image: image)
-        case .video(let video):
-            ValueStitchVideoView(thumbnail: video.thumbnail)
+        
+        if isMultiselectInspectorInputWithHeterogenousValues {
+            NilImageView()
+        } else {
+            // For image and video media pickers,
+            // show both dropdown and thumbnail
+            switch mediaObject {
+            case .image(let image):
+                ValueStitchImageView(image: image)
+            case .video(let video):
+                ValueStitchVideoView(thumbnail: video.thumbnail)
 
-        // Other media types: don't show label.
-        default:
-            EmptyView()
+            // Other media types: don't show label.
+            default:
+                EmptyView()
+            }
         }
+      
     }
 }
