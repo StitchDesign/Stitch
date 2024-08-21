@@ -62,8 +62,11 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         
         let model3DEntity = media.mediaObject.model3DEntity
         
+        print(model3DEntity?.transform)
+        
+        
         // Update transform
-        model3DEntity?.applyMatrix(newMatrix: matrix)
+//        model3DEntity?.applyMatrix(newMatrix: matrix)
         
         switch model3DEntity?.entityStatus {
         case .loaded(let entity):

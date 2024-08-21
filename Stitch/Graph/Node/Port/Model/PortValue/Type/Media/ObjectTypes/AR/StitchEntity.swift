@@ -31,6 +31,8 @@ final class StitchEntity: NSObject, Sendable {
     }
     
     var transform: matrix_float4x4?
+    var originalTransform: matrix_float4x4?
+    
     var entityStatus: LoadingStatus<Entity> = .loading
     
     private var cancellables = Set<AnyCancellable>()
@@ -63,7 +65,8 @@ final class StitchEntity: NSObject, Sendable {
                 }
             }, receiveValue: { [weak self] entity in
                 self?.entityStatus = .loaded(entity)
-                
+                self?.originalTransform = entity.transform.matrix
+
                 // Start animations if enabled. Because async we need to set the property
                 // to keep it in sync.
                 self?.isAnimating = isAnimating
