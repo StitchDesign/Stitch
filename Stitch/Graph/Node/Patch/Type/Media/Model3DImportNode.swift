@@ -66,13 +66,18 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         
         //transform is empty, so use the original transform value
         if transform == StitchTransform() {
-            transform = model3DEntity?.originalTransform
+            
+            let position = model3DEntity?.originalTransformMatrix?.position
+            let scale = model3DEntity?.originalTransformMatrix?.scale
+//            let rotation = model3DEntity?.originalTransformMatrix?.rotationInRadians
+
+//            transform = StitchTransform(positionX: position?.x, positionY: position?.y, positionZ: position?.z, scaleX: scale?.x, scaleY: scale?.y, scaleZ: scale?.z, rotationX: rotation.x, rotationY: rotation?.y, rotationZ: rotation.z)
         }
         
         let matrix: matrix_float4x4 = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
 
         
-//        model3DEntity?.applyMatrix(newMatrix: matrix)
+        model3DEntity?.applyMatrix(newMatrix: matrix)
         
         switch model3DEntity?.entityStatus {
         case .loaded(let entity):
