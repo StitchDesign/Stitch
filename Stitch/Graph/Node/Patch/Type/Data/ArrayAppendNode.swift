@@ -13,7 +13,7 @@ import SwiftyJSON
 struct ArrayAppendNode: PatchNodeDefinition {
     static let patch: Patch = .arrayAppend
     
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(inputs: [
             .init(label: "Array", defaultType: .json),
             .init(label: "Item", defaultType: .json),

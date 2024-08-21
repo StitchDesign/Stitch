@@ -11,7 +11,7 @@ import SwiftUI
 import NonEmpty
 import SwiftyJSON
 
-extension ShapeDataArray {
+extension [ShapeAndRect] {
 
     // TODO: implement for all ShapeAndRect enum cases,
     // and thus return `[ShapeCommand]` instead of `[ShapeCommand]?`

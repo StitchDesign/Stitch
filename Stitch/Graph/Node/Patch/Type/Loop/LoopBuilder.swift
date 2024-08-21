@@ -14,7 +14,7 @@ struct LoopBuilderNode: PatchNodeDefinition {
     
     static let defaultUserVisibleType: UserVisibleType? = .number
 
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(inputs: [
             .init(label: "", defaultType: .number),
             .init(label: "", defaultType: .number),
