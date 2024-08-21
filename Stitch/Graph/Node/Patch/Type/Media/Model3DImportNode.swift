@@ -63,13 +63,15 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         let model3DEntity = media.mediaObject.model3DEntity
                 
         // Update transform
-        let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
-        let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
-        let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
-
+        
+        var matrix: matrix_float4x4
         
         //transform is empty, so use the original transform value
         if transform == DEFAULT_STITCH_TRANSFORM {
+            
+            guard let originalTransformMatrix = model3DEntity?.originalTransformMatrix else {
+                return node.defaultOutputs
+            }
             
             guard let position = model3DEntity?.originalTransformMatrix?.position else {
                 return node.defaultOutputs
@@ -79,20 +81,20 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
             let positionZ: Double = Double(position.z)
 
             let scale = model3DEntity?.originalTransformMatrix?.scale
-            let scaleX: Double = Double(scale!.x)
-            let scaleY: Double = Double(scale!.y)
-            let scaleZ: Double = Double(scale!.z)
+            let scaleX = roundToDecimalPlaces(Double(scale!.x), places: 2)
+            let scaleY = roundToDecimalPlaces(Double(scale!.y), places: 2)
+            let scaleZ = roundToDecimalPlaces(Double(scale!.z), places: 2)
 
-            
             let rotationX: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.x)!)
             let rotationY: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.y)!)
             let rotationZ: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.z)!)
 
             transform = StitchTransform(positionX: positionX, positionY: positionY, positionZ: positionZ, scaleX: scaleX, scaleY: scaleY, scaleZ: scaleZ, rotationX: rotationX, rotationY: rotationY, rotationZ: rotationZ)
+            
+            matrix = originalTransformMatrix
+        } else {
+            matrix = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
         }
-        
-        let matrix: matrix_float4x4 = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
-
         
         model3DEntity?.applyMatrix(newMatrix: matrix)
         
@@ -107,6 +109,12 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
             return [.asyncMedia(nil)]
         }
     }
+   
+}
+
+func roundToDecimalPlaces(_ value: Double, places: Int) -> Double {
+    let multiplier = pow(10.0, Double(places))
+    return (value * multiplier).rounded() / multiplier
 }
 
 struct Model3DImportNodeIndices {
