@@ -20,6 +20,7 @@ struct MediaFieldValueView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let isFieldInsideLayerInspector: Bool
+    let graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -45,7 +46,8 @@ struct MediaFieldValueView: View {
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
                                       nodeKind: nodeKind,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                      graph: graph)
             }
 
             if let mediaObject = mediaObject {
@@ -62,6 +64,7 @@ struct MediaFieldValueView: View {
     }
 }
 
+// TODO: udpate with `fieldHasHeterogenousValues` logic
 struct MediaFieldLabelView: View {
     let mediaObject: StitchMediaObject
     let inputCoordinate: InputCoordinate

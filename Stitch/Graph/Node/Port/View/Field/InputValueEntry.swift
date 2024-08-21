@@ -231,7 +231,8 @@ struct InputValueView: View {
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
                                 hasIncomingEdge: hasIncomingEdge,
-                                isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
+                                isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
+                                graph: graph)
 
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel,

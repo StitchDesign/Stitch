@@ -109,16 +109,33 @@ extension InputNodeRowObserver {
         if isFieldInsideLayerInspector,
            // and we're editing a layer input,
            let layerInput = self.id.portType.keyPath?.layerInput,
+//           getLayerMultiselectInput
+            
            // and we have multiselect-layer state
-           let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
+//           let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
            // and we're editing the
-           let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
+//           let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput)
+        
+            let layerMultiselectInput: LayerMultiselectInput = graph.getLayerMultiselectInput(for: layerInput) {
            
             //           layerMultiselectInput.id == self.id {
            // Always test against first observer
-            layerMultiselectInput.observers.first?.rowObserver.id == self.id {
             
-            // Note: heterogenous values doesn't matter; only the multiselect does
+            // what is this test really doing here?
+            // - want to make sure that the input we edited was the
+//            layerMultiselectInput.observers.first?.rowObserver.id == self.id {
+                        
+            
+        
+            /*
+             ^^ doesn't seem necessary?
+             because ...
+             
+             if we're in the layer inspector and we have multiselect going on,
+             then editing a given input/input-field is always going to be editing more than one
+             
+             and we're editing a specific field
+             */
             
             log("handleInputEdited: will update \(layerMultiselectInput.observers.count) observers")
             
@@ -138,5 +155,18 @@ extension InputNodeRowObserver {
                              fieldIndex: fieldIndex,
                              isCommitting: isCommitting)
         }
+    }
+}
+
+extension NodeIOCoordinate {
+    var layerInput: LayerInputType? {
+        self.portType.keyPath
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func getLayerMultiselectInput(for layerInput: LayerInputPort) -> LayerMultiselectInput? {
+        self.graphUI.propertySidebar.layerMultiselectObserver?.inputs.get(layerInput)
     }
 }

@@ -66,15 +66,29 @@ extension FieldValueMedia {
     @MainActor
     func handleSelection(inputCoordinate: InputCoordinate,
                          mediaType: SupportedMediaFormat,
-                         isFieldInsideLayerInspector: Bool) {
+                         isFieldInsideLayerInspector: Bool,
+                         graph: GraphState) {
         switch self {
         case .none:
             dispatch(MediaPickerNoneChanged(input: inputCoordinate,
                                             isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         
         case .importButton:
+            
+            var destinationInputs = [inputCoordinate]
+            
+            if isFieldInsideLayerInspector,
+               let layerInput = inputCoordinate.layerInput,
+               let multiselectInput = graph.getLayerMultiselectInput(for: layerInput.layerInput) {
+                
+                destinationInputs = multiselectInput.observers.map({ (observer: LayerInputObserver) in
+                    InputCoordinate(portType: .keyPath(layerInput),
+                                    nodeId: observer.rowObserver.id.nodeId)
+                })
+            }
+            
             let payload = NodeMediaImportPayload(
-                destinationInput: inputCoordinate,
+                destinationInputs: destinationInputs, // inputCoordinate,
                 mediaFormat: mediaType)
 
             dispatch(ShowFileImportModal(nodeImportPayload: payload))

@@ -182,7 +182,8 @@ struct OutputValueView: View {
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
                                 hasIncomingEdge: false,
-                                isFieldInsideLayerInspector: false)
+                                isFieldInsideLayerInspector: false,
+                                graph: graph)
 
         case .color(let color):
             StitchColorPickerOrb(chosenColor: color)
