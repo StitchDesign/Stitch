@@ -30,8 +30,8 @@ final class StitchEntity: NSObject, Sendable {
         }
     }
     
-    var transform: matrix_float4x4?
-    var originalTransform: matrix_float4x4?
+    var transformMatrix: matrix_float4x4?
+    var originalTransformMatrix: matrix_float4x4?
     
     var entityStatus: LoadingStatus<Entity> = .loading
     
@@ -50,7 +50,7 @@ final class StitchEntity: NSObject, Sendable {
         self.isAnimating = isAnimating
         
         // For usage with anchor node
-        self.transform = initialTransform
+        self.transformMatrix = initialTransform
         self.anchor = anchor
         
         super.init()
@@ -65,7 +65,7 @@ final class StitchEntity: NSObject, Sendable {
                 }
             }, receiveValue: { [weak self] entity in
                 self?.entityStatus = .loaded(entity)
-                self?.originalTransform = entity.transform.matrix
+                self?.originalTransformMatrix = entity.transform.matrix
 
                 // Start animations if enabled. Because async we need to set the property
                 // to keep it in sync.
@@ -79,7 +79,7 @@ final class StitchEntity: NSObject, Sendable {
                 if let stitchModelEntity = self {
                     if let anchor = self?.anchor {
                         // Set anchor transform
-                        if let transform = self?.transform {
+                        if let transform = self?.originalTransformMatrix {
                             anchor.transform.matrix = transform
                         }
                         
@@ -106,13 +106,13 @@ final class StitchEntity: NSObject, Sendable {
     
     @MainActor func applyMatrix(newMatrix: matrix_float4x4) {
         // Update publisher, ensuring 3D model layer gets updated
-        self.transform = newMatrix
+        self.transformMatrix = newMatrix
         
         switch self.entityStatus {
         case .failed:
             return
         case .loading:
-            self.transform = newMatrix
+            self.transformMatrix = newMatrix
         case .loaded(let t):
             t.applyMatrix(newMatrix: newMatrix)
         }

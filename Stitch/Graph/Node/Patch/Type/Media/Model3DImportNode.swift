@@ -61,11 +61,17 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         let matrix: matrix_float4x4 = matrix_float4x4(from: transform)
         
         let model3DEntity = media.mediaObject.model3DEntity
-        
-        print(model3DEntity?.transform)
-        
-        
+                
         // Update transform
+        
+        //transform is empty, so use the original transform value
+        if transform == StitchTransform() {
+            transform = model3DEntity?.originalTransform
+        }
+        
+        let matrix: matrix_float4x4 = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
+
+        
 //        model3DEntity?.applyMatrix(newMatrix: matrix)
         
         switch model3DEntity?.entityStatus {

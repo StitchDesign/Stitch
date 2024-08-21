@@ -158,7 +158,7 @@ struct Model3DView: UIViewRepresentable {
         modelNode.opacity = modelOpacity
         modelNode.isPaused = !isAnimating
         
-        if let transform = entity.transform {
+        if let transform = entity.transformMatrix {
             modelNode.simdTransform = transform
         }
     }
