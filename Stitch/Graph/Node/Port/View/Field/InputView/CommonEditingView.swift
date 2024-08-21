@@ -82,18 +82,18 @@ struct CommonEditingView: View {
     }
     
     var isFieldInsideLayerInspector: Bool {
-        inputField.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
+        inputField.isFieldInsideLayerInspector
     }
 
     var layerInput: LayerInputPort? {
-        inputField.rowViewModelDelegate?.id.portType.keyPath?.layerInput
+        inputField.layerInput
     }
     
     @MainActor
     var multiselectObserver: LayerMultiSelectObserver? {
         graph.graphUI.propertySidebar.layerMultiselectObserver
     }
-    
+        
     // TODO: handle properly by field, not whole input
     @MainActor
     var fieldHasHeterogenousValues: Bool {
@@ -336,7 +336,8 @@ struct CommonEditingView: View {
             self.graph.inputEdited(
                 fieldValue: .string(.init(newEdit)),
                 fieldIndex: fieldIndex,
-                coordinate: coordinate,
+                coordinate: coordinate, 
+                isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
                 isCommitting: isCommitting)
         }
     }

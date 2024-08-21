@@ -24,6 +24,7 @@ struct AnchorPopoverView: View {
 
     let input: InputCoordinate
     let selection: Anchoring
+    let isFieldInsideLayerInspector: Bool
 
     @State private var isOpen = false
 
@@ -47,7 +48,8 @@ struct AnchorPopoverView: View {
 
             dispatch(PickerOptionSelected(
                         input: input,
-                        choice: .anchoring(option),
+                        choice: .anchoring(option), 
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         isPersistence: true))
 
         } label: {

@@ -16,6 +16,18 @@ enum LayerInspectorRowId: Equatable, Hashable {
 
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
+
+extension InputFieldViewModel {
+    var isFieldInsideLayerInspector: Bool {
+        self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
+    }
+    
+    // Is this input-field for a layer input, and if so, which one?
+    var layerInput: LayerInputPort? {
+        self.rowViewModelDelegate?.id.portType.keyPath?.layerInput
+    }
+}
+
 /*
  Suppose:
  

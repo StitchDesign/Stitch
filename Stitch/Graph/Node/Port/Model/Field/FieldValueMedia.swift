@@ -65,10 +65,12 @@ extension FieldValueMedia {
 
     @MainActor
     func handleSelection(inputCoordinate: InputCoordinate,
-                         mediaType: SupportedMediaFormat) {
+                         mediaType: SupportedMediaFormat,
+                         isFieldInsideLayerInspector: Bool) {
         switch self {
         case .none:
-            dispatch(MediaPickerNoneChanged(input: inputCoordinate))
+            dispatch(MediaPickerNoneChanged(input: inputCoordinate,
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         
         case .importButton:
             let payload = NodeMediaImportPayload(
@@ -80,7 +82,8 @@ extension FieldValueMedia {
         case .media(let mediaValue):
             dispatch(MediaPickerChanged(selectedValue: mediaValue.portValue,
                                         mediaType: mediaType,
-                                        input: inputCoordinate))
+                                        input: inputCoordinate,
+                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
             
         case .defaultMedia(let defaultMedia):
             let mediaValue = AsyncMediaValue(id: .init(),
@@ -90,7 +93,8 @@ extension FieldValueMedia {
             
             dispatch(MediaPickerChanged(selectedValue: portValue,
                                         mediaType: mediaType,
-                                        input: inputCoordinate))
+                                        input: inputCoordinate,
+                                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
 }

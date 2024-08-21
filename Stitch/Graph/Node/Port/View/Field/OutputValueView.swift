@@ -120,9 +120,10 @@ struct OutputValueView: View {
 
         case .bool(let bool):
             BoolCheckboxView(id: nil,
-                             value: bool)
+                             value: bool, 
+                             isFieldInsideLayerInspector: false)
 
-        case .dropdown(let choiceDisplay, let _):
+        case .dropdown(let choiceDisplay, _):
             // Values that use dropdowns for their inputs use instead a display-only view for their outputs
             ReadOnlyValueEntry(value: choiceDisplay,
                                alignment: outputAlignment,
@@ -130,16 +131,19 @@ struct OutputValueView: View {
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
-                               stitchFont: stitchFont)
+                               stitchFont: stitchFont,
+                               isFieldInsideLayerInspector: false)
                 // need enough width for font design + font weight name
                 .frame(minWidth: 200,
                        alignment: .leading)
+                .disabled(true)
 
         case .layerDropdown(let layerId):
                    //            // TODO: disable or use read-only view if this is an output ?
                    LayerNamesDropDownChoiceView(graph: graph,
                                                 id: coordinate,
-                                                value: .assignedLayer(layerId),
+                                                value: .assignedLayer(layerId), 
+                                                isFieldInsideLayerInspector: false,
                                                 isForPinTo: false,
                                                 choices: graph.layerDropdownChoices(
                                                    isForNode: coordinate.nodeId,
@@ -149,7 +153,8 @@ struct OutputValueView: View {
                case .pinTo(let pinToId):
                    LayerNamesDropDownChoiceView(graph: graph,
                                                 id: coordinate,
-                                                value: .pinTo(pinToId),
+                                                value: .pinTo(pinToId), 
+                                                isFieldInsideLayerInspector: false,
                                                 isForPinTo: true,
                                                 choices: graph.layerDropdownChoices(
                                                    isForNode: coordinate.nodeId,
@@ -158,7 +163,8 @@ struct OutputValueView: View {
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
-                              selection: anchor)
+                              selection: anchor,
+                              isFieldInsideLayerInspector: false)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
@@ -172,7 +178,8 @@ struct OutputValueView: View {
                                 isInput: false,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
-                                hasIncomingEdge: false)
+                                hasIncomingEdge: false,
+                                isFieldInsideLayerInspector: false)
 
         case .color(let color):
             StitchColorPickerOrb(chosenColor: color)

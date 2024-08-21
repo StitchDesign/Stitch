@@ -15,6 +15,7 @@ extension GraphState {
                      // Single-fields always 0, multi-fields are like size or position inputs
                      fieldIndex: Int,
                      coordinate: NodeIOCoordinate,
+                     isFieldInsideLayerInspector: Bool,
                      isCommitting: Bool = true) {
         
         //        #if DEV_DEBUG
@@ -33,9 +34,11 @@ extension GraphState {
         //                                fieldIndex: fieldIndex,
         //                                isCommitting: isCommitting)
         
+        // TODO: only persist once, don't
         rowObserver.handleInputEdited(graph: self,
                                       fieldValue: fieldValue,
                                       fieldIndex: fieldIndex,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       isCommitting: isCommitting)
     }
 }
@@ -95,25 +98,28 @@ extension InputNodeRowObserver {
                            fieldValue: FieldValue,
                            // Single-fields always 0, multi-fields are like size or position inputs
                            fieldIndex: Int,
+                           isFieldInsideLayerInspector: Bool,
                            isCommitting: Bool = true) {
 
         // Check if this was an edit for a multiselect-layer field; if so, we need to modify ALL the input observers that were implicitly edited
         
         log("handleInputEdited: called for input node row observer \(self.id)")
         
-        // If we're editing a layer input,
-        if let layerInput = self.id.portType.keyPath?.layerInput,
+        // If we're in the layer inspector
+        if isFieldInsideLayerInspector,
+           // and we're editing a layer input,
+           let layerInput = self.id.portType.keyPath?.layerInput,
            // and we have multiselect-layer state
            let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
            // and we're editing the
            let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
            
-//           layerMultiselectInput.id == self.id {
+            //           layerMultiselectInput.id == self.id {
            // Always test against first observer
-           layerMultiselectInput.observers.first?.rowObserver.id == self.id {
-        
+            layerMultiselectInput.observers.first?.rowObserver.id == self.id {
+            
             // Note: heterogenous values doesn't matter; only the multiselect does
-
+            
             log("handleInputEdited: will update \(layerMultiselectInput.observers.count) observers")
             
             layerMultiselectInput.observers.forEach { observer in
@@ -133,6 +139,4 @@ extension InputNodeRowObserver {
                              isCommitting: isCommitting)
         }
     }
-
 }
-

@@ -13,6 +13,7 @@ struct MediaPickerValueEntry: View {
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
     let nodeKind: NodeKind
+    let isFieldInsideLayerInspector: Bool
 
     var mediaType: SupportedMediaFormat {
         nodeKind.mediaType
@@ -31,13 +32,15 @@ struct MediaPickerValueEntry: View {
                     // Import button and any default media
             MediaPickerButtons(inputCoordinate: coordinate,
                                mediaType: mediaType,
-                               choices: [.importButton])
+                               choices: [.importButton],
+                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
 
                     // Only show the incoming value as an option if there's an incoming edge
                     if isUpstreamValue {
                         MediaPickerButtons(inputCoordinate: coordinate,
                                            mediaType: mediaType,
-                                           choices: [])
+                                           choices: [],
+                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector)
 
                     }
 
@@ -45,18 +48,21 @@ struct MediaPickerValueEntry: View {
                     else if mediaValue != .none {
                         MediaPickerButtons(inputCoordinate: coordinate,
                                            mediaType: mediaType,
-                                           choices: [mediaValue])
+                                           choices: [mediaValue],
+                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                     }
 
                     Divider()
                     MediaPickerButtons(inputCoordinate: coordinate,
                                        mediaType: mediaType,
-                                       choices: defaultOptions)
+                                       choices: defaultOptions,
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                    },
 
                    contentIPad: {
                     Picker("", selection: createBinding(mediaValue, { $0.handleSelection(inputCoordinate: coordinate,
-                                                                                         mediaType: mediaType) })) {
+                                                                                         mediaType: mediaType, 
+                                                                                         isFieldInsideLayerInspector: isFieldInsideLayerInspector) })) {
                         // Import button and any default media
                         MediaPickerChoicesView(choices: [.importButton])
 

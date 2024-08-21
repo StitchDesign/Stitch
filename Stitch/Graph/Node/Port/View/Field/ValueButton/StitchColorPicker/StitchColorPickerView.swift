@@ -41,6 +41,7 @@ struct StitchColorPickerView: View {
 
     let rowId: NodeIOCoordinate?
     let fieldCoordinate: FieldCoordinate
+    let isFieldInsideLayerInspector: Bool
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false
 
@@ -222,7 +223,8 @@ struct StitchColorPickerView: View {
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
                     dispatch(PickerOptionSelected(
                         input: inputId,
-                        choice: .color(color),
+                        choice: .color(color), 
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // Lots of small changes so don't persist everything
                         isPersistence: true))
                 }

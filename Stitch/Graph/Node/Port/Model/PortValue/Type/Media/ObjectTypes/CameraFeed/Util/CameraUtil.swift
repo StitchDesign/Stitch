@@ -32,10 +32,11 @@ extension GraphState {
         // Update all camera nodes
         cameraFeedNodes.forEach { node in
             let coordinate = InputCoordinate(portId: inputIndex, nodeId: node.id)
-
-            self.inputEditCommitted(
+            self.handleInputEditCommitted(
                 input: coordinate,
-                value: value)
+                value: value,
+                // TODO: is this accurate? Can we change camera direction via any of the layers (i.e. via layer inspector)?
+                isFieldInsideLayerInspector: false)
         }
     }
 }

@@ -81,6 +81,8 @@ struct LayerNamesDropDownChoiceView: View {
     let id: InputCoordinate
     let value: PortValue
     
+    let isFieldInsideLayerInspector: Bool
+    
     let isForPinTo: Bool
 
     @MainActor
@@ -91,11 +93,13 @@ struct LayerNamesDropDownChoiceView: View {
         if isForPinTo {
             // TODO: add PortValue.pinTo case
             dispatch(PickerOptionSelected(input: self.id,
-                                          choice: .pinTo(choice.asPinToId)))
+                                          choice: .pinTo(choice.asPinToId),
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         } else {
             dispatch(InteractionPickerOptionSelected(
                         interactionPatchNodeInput: self.id,
-                        layerNodeIdSelection: selectedLayerId))
+                        layerNodeIdSelection: selectedLayerId, 
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
 

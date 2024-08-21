@@ -367,13 +367,15 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
     let selectedValue: PortValue
     let mediaType: SupportedMediaFormat
     let input: InputCoordinate
+    let isFieldInsideLayerInspector: Bool
 
     func handle(graphState: GraphState,
                 computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // Commit the new media to the selector input
-        graphState.inputEditCommitted(input: input,
-                                      value: selectedValue)
+        graphState.handleInputEditCommitted(input: input,
+                                            value: selectedValue,
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         return .persistenceResponse
     }
@@ -381,13 +383,15 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
 
 struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
     let input: InputCoordinate
-
+    let isFieldInsideLayerInspector: Bool
+    
     func handle(graphState: GraphState,
                 computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         let emptyPortValue = PortValue.asyncMedia(nil)
-        graphState.inputEditCommitted(input: input,
-                                      value: emptyPortValue)
+        graphState.handleInputEditCommitted(input: input,
+                                            value: emptyPortValue,
+                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         
         return .persistenceResponse
     }

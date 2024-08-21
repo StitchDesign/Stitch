@@ -13,11 +13,12 @@ import SwiftyJSON
 extension GraphState {
     @MainActor
     func jsonEditCommitted(input: NodeIOCoordinate,
-                           json: JSON) {
-        self.inputEditCommitted(
+                           json: JSON,
+                           isFieldInsideLayerInspector: Bool) {
+        self.handleInputEditCommitted(
             input: input,
-            value: .json(json.toStitchJSON)
-        )
+            value: .json(json.toStitchJSON),
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
 }
 
@@ -72,17 +73,20 @@ extension GraphState {
      
      */
     @MainActor
-    func inputEditCommitted(input: NodeIOCoordinate,
-                            value: PortValue?,
-                            wasAdjustmentBarSelection: Bool = false) {
+    func handleInputEditCommitted(input: NodeIOCoordinate,
+                                  value: PortValue?,
+                                  isFieldInsideLayerInspector: Bool,
+                                  wasAdjustmentBarSelection: Bool = false) {
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
             return
         }
         
-        // If we're editing a layer input,
-        if let layerInput = input.id.keyPath?.layerInput,
+        // If we're inside the layer inspector,
+        if isFieldInsideLayerInspector,
+           // and editing a layer input,
+           let layerInput = input.id.keyPath?.layerInput,
            // and we have multiselect-layer state
            let multiselectObserver = self.graphUI.propertySidebar.layerMultiselectObserver,
            // and we're editing the

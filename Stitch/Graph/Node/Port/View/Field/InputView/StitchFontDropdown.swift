@@ -12,6 +12,7 @@ struct StitchFontDropdown: View {
 
     let input: InputCoordinate
     let stitchFont: StitchFont
+    let isFieldInsideLayerInspector: Bool
 
     var body: some View {
         Menu {
@@ -49,7 +50,8 @@ struct StitchFontDropdown: View {
                                            fontWeight: $0)
 
             pickerOptionSelected(input: input,
-                                 choice: PortValue.textFont(newStitchFont))
+                                 choice: PortValue.textFont(newStitchFont),
+                                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }
 }

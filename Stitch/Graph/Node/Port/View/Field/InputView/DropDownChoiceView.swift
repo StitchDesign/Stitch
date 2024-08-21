@@ -17,6 +17,7 @@ struct DropDownChoiceView: View {
     
     let choiceDisplay: String
     let choices: PortValues
+    let isFieldInsideLayerInspector: Bool
     
     // TODO: if this is a dropdown for a multiselect layer, then use "Multi" instead of `choiceDisplay`
     // TODO: handle properly by field, not whole input
@@ -28,9 +29,8 @@ struct DropDownChoiceView: View {
          - in the layer inspector
          - and we have multiple layers selected
          */
-//        let isLayer = inputField.rowViewModelDelegate?.id.portType.keyPath.isDefined ?? false
-        
-        guard let layerInput = id.keyPath?.layerInput, // inputField.rowViewModelDelegate?.id.portType.keyPath?.layerInput,
+        guard isFieldInsideLayerInspector,
+              let layerInput = id.keyPath?.layerInput,
               let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
               let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
             log("DropDownChoiceView: hasHeterogenousValues: guard")
@@ -64,7 +64,8 @@ struct DropDownChoiceView: View {
             StitchPickerView(input: id,
                              choices: choices,
 //                             choiceDisplay: choiceDisplay)
-                             choiceDisplay: finalChoiceDisplay)
+                             choiceDisplay: finalChoiceDisplay,
+                             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } label: {
 //            StitchTextView(string: choiceDisplay)
             StitchTextView(string: finalChoiceDisplay)
@@ -88,6 +89,7 @@ struct StitchPickerView: View {
     let input: InputCoordinate
     let choices: PortValues
     let choiceDisplay: String // current choice
+    let isFieldInsideLayerInspector: Bool
 
     var pickerLabel: String {
         // slightly different Picker label logic for Catalyst vs iPad
@@ -110,7 +112,9 @@ struct StitchPickerView: View {
             let _selection = choices.first(where: { $0.display == selection })
 
             if let _selection = _selection {
-                pickerOptionSelected(input: input, choice: _selection)
+                pickerOptionSelected(input: input, 
+                                     choice: _selection,
+                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             } else {
                 log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
             }
@@ -127,7 +131,10 @@ struct StitchPickerView: View {
 }
 
 @MainActor
-func pickerOptionSelected(input: InputCoordinate, choice: PortValue) {
+func pickerOptionSelected(input: InputCoordinate, 
+                          choice: PortValue,
+                          isFieldInsideLayerInspector: Bool) {
     dispatch(PickerOptionSelected(input: input,
-                                  choice: choice))
+                                  choice: choice,
+                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector))
 }

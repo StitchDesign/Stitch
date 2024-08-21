@@ -42,13 +42,15 @@ struct ColorOrbValueButtonView: View {
                 dispatch(PickerOptionSelected(
                             input: id,
                             choice: .color(newColor),
+                            isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
                             // Lots of small changes so don't persist everything
                             isPersistence: false))
             }
         }
 
         StitchColorPickerView(rowId: id,
-                              fieldCoordinate: fieldViewModel.id,
+                              fieldCoordinate: fieldViewModel.id, 
+                              isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
                               chosenColor: binding,
                               graph: graph)
         .onAppear {

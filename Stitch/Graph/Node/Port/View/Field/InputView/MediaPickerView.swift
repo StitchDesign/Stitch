@@ -19,6 +19,7 @@ struct MediaFieldValueView: View {
     let fieldIndex: Int
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
+    let isFieldInsideLayerInspector: Bool
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -43,7 +44,8 @@ struct MediaFieldValueView: View {
                 MediaPickerValueEntry(coordinate: inputCoordinate,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
-                                      nodeKind: nodeKind)
+                                      nodeKind: nodeKind,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             }
 
             if let mediaObject = mediaObject {

@@ -171,17 +171,20 @@ struct InputValueView: View {
 
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId,
-                             value: bool)
+                             value: bool,
+                             isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
 
         case .dropdown(let choiceDisplay, let choices):
             DropDownChoiceView(id: rowObserverId,
                                graph: graph,
                                choiceDisplay: choiceDisplay,
-                               choices: choices)
+                               choices: choices,
+                               isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: rowObserverId,
-                               stitchFont: stitchFont)
+                               stitchFont: stitchFont,
+                               isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
                        alignment: .leading)
@@ -192,6 +195,7 @@ struct InputValueView: View {
                 graph: graph,
                 id: rowObserverId,
                 value: .assignedLayer(layerId),
+                isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                     isForPinTo: false)
@@ -202,13 +206,15 @@ struct InputValueView: View {
                            graph: graph,
                            id: rowObserverId,
                            value: .pinTo(pinToId),
+                           isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                            isForPinTo: true,
                            choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                                isForPinTo: true))
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
-                              selection: anchor)
+                              selection: anchor, 
+                              isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
@@ -222,7 +228,8 @@ struct InputValueView: View {
                                 isInput: true,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
-                                hasIncomingEdge: hasIncomingEdge)
+                                hasIncomingEdge: hasIncomingEdge,
+                                isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector)
 
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel,

@@ -11,6 +11,7 @@ import StitchSchemaKit
 struct BoolCheckboxView: View {
     let id: InputCoordinate? // nil = used in output
     let value: Bool
+    let isFieldInsideLayerInspector: Bool
 
     var body: some View {
 
@@ -22,7 +23,8 @@ struct BoolCheckboxView: View {
                     let toggled = toggleBool(value)
                     dispatch(PickerOptionSelected(
                                 input: id,
-                                choice: .bool(toggled)))
+                                choice: .bool(toggled),
+                                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
                 }
             }
     }

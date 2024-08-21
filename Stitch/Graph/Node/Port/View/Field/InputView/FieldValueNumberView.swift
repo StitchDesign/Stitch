@@ -40,6 +40,7 @@ struct FieldValueNumberView: View {
                 rowObserverCoordinate: rowObserverCoordinate,
                 fieldValueNumberType: fieldValueNumberType,
                 adjustmentBarSessionId: adjustmentBarSessionId,
+                isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
                 isPressed: $isButtonPressed)
             
             CommonEditingView(inputField: fieldViewModel,
