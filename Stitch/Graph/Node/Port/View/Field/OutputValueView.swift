@@ -188,7 +188,8 @@ struct OutputValueView: View {
                                 graph: graph)
 
         case .color(let color):
-            StitchColorPickerOrb(chosenColor: color)
+            StitchColorPickerOrb(chosenColor: color, 
+                                 isMultiselectInspectorInputWithHeterogenousValues: false)
 
         case .pulse(let pulseTime):
             PulseValueButtonView(

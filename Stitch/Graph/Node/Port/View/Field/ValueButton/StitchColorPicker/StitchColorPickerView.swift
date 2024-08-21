@@ -25,12 +25,27 @@ struct ColorOrbWrapperModifier: ViewModifier {
 struct StitchColorPickerOrb: View {
 
     let chosenColor: Color
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
 
     var body: some View {
-        Circle().fill(chosenColor)
-            .frame(width: NODE_ROW_HEIGHT, // req'd for e.g. ports that have labels
-                   height: NODE_ROW_HEIGHT)
-            .modifier(ColorOrbWrapperModifier())
+        Group {
+            if isMultiselectInspectorInputWithHeterogenousValues {
+                Ellipse()
+                    .fill(AngularGradient(
+                        gradient: Gradient(colors: [
+                            Color.blue,
+                            Color.pink,
+                            Color.yellow,
+                            Color.green
+                        ]),
+                        center: .center))
+            } else {
+                Circle().fill(chosenColor)
+            }
+        }
+        .frame(width: NODE_ROW_HEIGHT, // req'd for e.g. ports that have labels
+               height: NODE_ROW_HEIGHT)
+        .modifier(ColorOrbWrapperModifier())
     }
 }
 
@@ -49,14 +64,30 @@ struct StitchColorPickerView: View {
     //    @State var chosenColor: Color = .red
     @Binding var chosenColor: Color
     let graph: GraphState
-
+        
+    @MainActor
+    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
+        if isFieldInsideLayerInspector,
+           let layerInput = fieldCoordinate.rowId.portType.keyPath {
+        return graph.graphUI
+                .propertySidebar
+                .layerMultiselectObserver?
+                .inputs.get(layerInput.layerInput)?
+                .hasHeterogenousValue.contains(fieldCoordinate.fieldIndex) ?? false
+        } else {
+            return false
+        }
+    }
+    
+    
     var body: some View {
 
         ZStack {
             // DEBUG:
             //            colorPopover.padding()
 
-            StitchColorPickerOrb(chosenColor: chosenColor)
+            StitchColorPickerOrb(chosenColor: chosenColor,
+                                 isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
                 .popover(isPresented: $show, content: {
                     colorPopover.padding()
                 })
