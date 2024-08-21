@@ -108,18 +108,70 @@ final class LayerMultiselectInput {
     // TODO: think about perf implications here
     // Expectation is that whenever any of the LayerInputObservers' activeValue changes, we re-run this
     @MainActor
-    var hasHeterogenousValue: Bool {
-        // TODO: go by individual field, not entire input
-        guard let value = observers.first?.activeValue else {
-            fatalErrorIfDebug() // when can this happen?
-            return false
+//    var hasHeterogenousValue: Bool {
+//    var hasHeterogenousValue: Set<FieldCoordinate> {
+    // set of field index
+    var hasHeterogenousValue: Set<Int> {
+        
+//        var d = [FieldCoordinate: [FieldValue]]()
+        
+        // field index -> values in that field
+        var d = [Int: [FieldValue]]()
+        
+//        var acc = Set<FieldCoordinate>()
+        var acc = Set<Int>()
+        
+        // I would go by input, actually.
+        // every observer in `observers` is for that specific `input: LayerInputPort`
+        
+        // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
+        
+        observers.forEach { (observer: LayerInputObserver) in
+            observer
+            
+            // ignore packed vs unpacked for now? assume everything is packed?
+                ._packedData
+            
+            // pulling field view models from inspector row VM is guaranteed; whereas canvas row VM might be missing;
+            // alternatively, compare against row observer
+                .inspectorRowViewModel
+            
+            // .first = ignore the shape command case
+                .fieldValueTypes.first?
+            
+            // careful: NOT "does every field in this input have the same value?";
+            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
+                .fieldObservers.forEach({ (field: InputFieldViewModel) in
+                
+                    var existing = d.get(field.fieldIndex) ?? []
+                    existing.append(field.fieldValue)
+                    d.updateValue(existing, forKey: field.fieldIndex)
+            })
         }
         
-        let allObserversHaveSameValue = observers.allSatisfy { observer in
-            observer.activeValue == value
+        log("hasHeterogenousValue: d: \(d)")
+                
+        d.forEach { (key: Int, values: [FieldValue]) in
+            if let someValue = values.first,
+                !values.allSatisfy({ $0 == someValue }) {
+                acc.insert(key)
+            }
         }
         
-        return !allObserversHaveSameValue
+        return acc
+        
+        
+//        // TODO: go by individual field, not entire input
+//        guard let firstValue = observers.first?.activeValue else {
+//            fatalErrorIfDebug() // when can this happen?
+//            return false
+//        }
+//        
+//        let allObserversHaveSameValue = observers.allSatisfy { observer in
+//            observer.activeValue == firstValue
+//        }
+//        
+//        return !allObserversHaveSameValue
     }
         
     init(input: LayerInputPort, observers: [LayerInputObserver]) {

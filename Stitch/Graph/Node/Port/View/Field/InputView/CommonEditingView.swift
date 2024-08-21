@@ -90,13 +90,13 @@ struct CommonEditingView: View {
     }
     
     @MainActor
-    var multiselectObserver:  LayerMultiSelectObserver? {
+    var multiselectObserver: LayerMultiSelectObserver? {
         graph.graphUI.propertySidebar.layerMultiselectObserver
     }
     
     // TODO: handle properly by field, not whole input
     @MainActor
-    var hasHeterogenousValues: Bool {
+    var fieldHasHeterogenousValues: Bool {
         /*
          Only relevant when this field is:
          - for a layer
@@ -111,12 +111,21 @@ struct CommonEditingView: View {
             return false
         }
         
-        if inputObserver.hasHeterogenousValue {
-            log("CommonEditingView: hasHeterogenousValues: heterogenous values for \(layerInput)")
+        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
+        
+        if indicesWithHeterogenousValues.contains(fieldIndex) {
+            log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
             return true
+        } else {
+            return false
         }
         
-        return inputObserver.hasHeterogenousValue
+//        if inputObserver.hasHeterogenousValue {
+//            log("CommonEditingView: hasHeterogenousValues: heterogenous values for \(layerInput)")
+//            return true
+//        }
+//        
+//        return inputObserver.hasHeterogenousValue
     }
     
     var body: some View {
@@ -157,7 +166,7 @@ struct CommonEditingView: View {
                 self.isHovering = isHovering
             }
         }
-        .onChange(of: self.hasHeterogenousValues, initial: true) { oldValue, newValue in
+        .onChange(of: self.fieldHasHeterogenousValues, initial: true) { oldValue, newValue in
             log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
             log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
             log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
@@ -274,7 +283,7 @@ struct CommonEditingView: View {
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
 //        StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
-        StitchTextView(string: self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
+        StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)
         .modifier(InputViewBackground(
@@ -305,7 +314,7 @@ struct CommonEditingView: View {
     @MainActor
     func updateCurrentEdit(message: String? = nil) {
         
-        if self.hasHeterogenousValues {
+        if self.fieldHasHeterogenousValues {
             self.currentEdit = .HETEROGENOUS_VALUES
         } else {
             self.currentEdit = isLargeString ? "" : self.inputString
