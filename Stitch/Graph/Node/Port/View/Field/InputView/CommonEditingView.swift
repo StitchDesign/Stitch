@@ -80,7 +80,20 @@ struct CommonEditingView: View {
             return false
         }
     }
+    
+    var isFieldInsideLayerInspector: Bool {
+        inputField.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
+    }
 
+    var layerInput: LayerInputPort? {
+        inputField.rowViewModelDelegate?.id.portType.keyPath?.layerInput
+    }
+    
+    @MainActor
+    var multiselectObserver:  LayerMultiSelectObserver? {
+        graph.graphUI.propertySidebar.layerMultiselectObserver
+    }
+    
     // TODO: handle properly by field, not whole input
     @MainActor
     var hasHeterogenousValues: Bool {
@@ -90,10 +103,9 @@ struct CommonEditingView: View {
          - in the layer inspector
          - and we have multiple layers selected
          */
-//        let isLayer = inputField.rowViewModelDelegate?.id.portType.keyPath.isDefined ?? false
-        
-        guard let layerInput = inputField.rowViewModelDelegate?.id.portType.keyPath?.layerInput,
-              let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
+        guard let layerInput = self.layerInput, // for a layer
+              self.isFieldInsideLayerInspector, // in the layer inspector
+              let multiselectObserver = multiselectObserver, // we have multiple layers selected
               let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
             log("CommonEditingView: hasHeterogenousValues: guard")
             return false
