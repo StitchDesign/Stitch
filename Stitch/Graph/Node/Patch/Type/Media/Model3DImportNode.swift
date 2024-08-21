@@ -63,23 +63,32 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         let model3DEntity = media.mediaObject.model3DEntity
                 
         // Update transform
-//        let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
-//        let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
-//        let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
+        let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
+        let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
+        let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
 
         
         //transform is empty, so use the original transform value
         if transform == DEFAULT_STITCH_TRANSFORM {
             
-            let position = model3DEntity?.originalTransformMatrix?.position
-            let scale = model3DEntity?.originalTransformMatrix?.scale
+            guard let position = model3DEntity?.originalTransformMatrix?.position else {
+                return node.defaultOutputs
+            }
+            let positionX: Double = Double(position.x)
+            let positionY: Double = Double(position.y)
+            let positionZ: Double = Double(position.z)
 
-                    let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
-                    let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
-                    let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
+            let scale = model3DEntity?.originalTransformMatrix?.scale
+            let scaleX: Double = Double(scale!.x)
+            let scaleY: Double = Double(scale!.y)
+            let scaleZ: Double = Double(scale!.z)
 
             
-//            transform = StitchTransform(positionX: position?.x, positionY: position?.y, positionZ: position?.z, scaleX: scale?.x, scaleY: scale?.y, scaleZ: scale?.z, rotationX: 0, rotationY: 0, rotationZ: 0)
+            let rotationX: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.x)!)
+            let rotationY: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.y)!)
+            let rotationZ: Double = Double((model3DEntity?.originalTransformMatrix?.rotationInRadians.z)!)
+
+            transform = StitchTransform(positionX: positionX, positionY: positionY, positionZ: positionZ, scaleX: scaleX, scaleY: scaleY, scaleZ: scaleZ, rotationX: rotationX, rotationY: rotationY, rotationZ: rotationZ)
         }
         
         let matrix: matrix_float4x4 = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
