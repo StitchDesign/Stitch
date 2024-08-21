@@ -124,7 +124,7 @@ extension PortValue {
             return .assignedLayer
         case .anchoring:
             return .anchoring
-        case .matrixTransform, .none,
+        case .transform, .none,
             // TODO: should be able to tap a Shape input/output to see the constituent JSON ?
                 .shape:
             return .readOnly

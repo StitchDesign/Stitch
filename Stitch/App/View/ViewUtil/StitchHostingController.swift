@@ -31,6 +31,13 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    /// Hides the navigation bar UI, which is needed in the layer inspector view, where an invisible view
+    /// blocks UI interactions.
+    /// Source: https://stackoverflow.com/a/71131226/7396787
+    override var navigationController: UINavigationController? {
+        nil
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

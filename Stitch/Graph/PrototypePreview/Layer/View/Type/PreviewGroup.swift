@@ -112,6 +112,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
+                pinMap: graph.graphUI.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -130,6 +131,8 @@ struct PreviewGroupLayer: View {
         //        #endif
         
             .modifier(PreviewSidebarHighlightModifier(
+                viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
                 highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
                 scale: scale))
@@ -158,6 +161,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonPositionModifier(
                 graph: graph,
                 viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
         

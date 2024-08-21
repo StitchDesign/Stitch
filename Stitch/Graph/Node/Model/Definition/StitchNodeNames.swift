@@ -1254,12 +1254,32 @@ let point4DUnpackDescription = """
 Unpacks a single Point4D input to four Number outputs.
 """
 
-let matrixTransformPackDescription = """
-Packs several Number inputs to a single Matrix Transform output.
+let transformPackDescription = """
+Packs a Transform ouptut out of the following Number values:
+
+• Position X
+• Position Y
+• Position Z
+• Scale X
+• Scale Y
+• Scale Z
+• Rotation X
+• Rotation Y
+• Rotation Z
 """
 
-let matrixTransformUnpackDescription = """
-Unpacks a single Matrix Transform input to several Number outputs.
+let transformUnpackDescription = """
+Unpacks a Transform into the following constituent Number values:
+
+• Position X
+• Position Y
+• Position Z
+• Scale X
+• Scale Y
+• Scale Z
+• Rotation X
+• Rotation Y
+• Rotation Z
 """
 
 let closePathDescription = """

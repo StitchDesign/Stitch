@@ -41,15 +41,16 @@ extension VisibleNodesViewModel {
                                 
                 // have to check whether the viewModel is actually pinned as well
                 if (viewModel.isPinned.getBool ?? false),
-                   let pinToId = viewModel.pinTo.getPinToId {
+                   var pinToId = viewModel.pinTo.getPinToId {
                     
                     // `PinToId.root` case does not have a corresponding layer node,
                     //
                    let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
                     
                     if pinReceivingLayer == nil && pinToId != .root {
-                        fatalErrorIfDebug("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'")
-                        return
+                        log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
+                        // e.g. The layer referred to by `pinReceivingLayer` was deleted
+                        pinToId = .root
                     }
                     
                     let pinnedLayer = nodeId.asLayerNodeId
@@ -135,6 +136,11 @@ extension PinToId {
         case .root:
             return nil // root has no associated layer node id
         case .layer(let x):
+            // Confirm that the layer exists; else return `nil`
+            guard (graph.getNode(x.asNodeId)?.layerNode.isDefined ?? false) else {
+                log("PinToId.asLayerNodeId: did not have layer node for pinToId.layer \(x)")
+                return nil
+            }
             return x
         case .parent:
             return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId

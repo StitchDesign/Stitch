@@ -316,10 +316,10 @@ extension Patch {
             return .pure(.node(outputsOnlyEval(point4DPackEval)))
         case .point4DUnpack:
             return .pure(.node(outputsOnlyEval(point4DUnpackEval)))
-        case .matrixTransformPack:
-            return .pure(.node(outputsOnlyEval(matrixTransformPackEval)))
-        case .matrixTransformUnpack:
-            return .pure(.node(outputsOnlyEval(matrixTransformUnpackEval)))
+        case .transformPack:
+            return .pure(.node(outputsOnlyEval(transformPackEval)))
+        case .transformUnpack:
+            return .pure(.node(outputsOnlyEval(transformUnpackEval)))
         case .closePath:
             return .pure(.node(outputsOnlyEval(identityEvaluation)))
         case .moveToPack:

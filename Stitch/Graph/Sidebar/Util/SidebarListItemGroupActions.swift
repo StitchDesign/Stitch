@@ -35,8 +35,8 @@ extension GraphState {
         let closedParent = retrieveItem(closedParentId.asItemId,
                                         self.sidebarListState.masterList.items)
         
-        let descendants = getDescendants(closedParent,
-                                         self.sidebarListState.masterList.items)
+        let descendants = Stitch.getDescendants(closedParent,
+                                                self.sidebarListState.masterList.items)
         
         for childen in descendants {
             self.sidebarSelectionState.nonEditModeSelections.remove(childen.id.asLayerNodeId)

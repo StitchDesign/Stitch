@@ -10,10 +10,8 @@ import StitchSchemaKit
 
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
-//    @Bindable var node: NodeViewModel
-//    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-        
+    
     var body: some View {
         let observerMode = portObserver.observerMode
         
@@ -22,24 +20,13 @@ struct LayerInspectorInputPortView: View {
             case .packed(let inputLayerNodeRowData):
                 let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
                 
-                HStack {
-                    // MARK: debugging unpack feature
-                    if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                        Button {
-                            // TODO: canvas item creation only used for debugging
-                            self.debug__createUnpackedCanvasItems()
-                        } label: {
-                            Text("Unpack")
-                        }
-                    }
-                    
-                    LayerInspectorPortView(layerProperty: .layerInput(inputLayerNodeRowData.id),
-                                           rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
-                                           rowObserver: inputLayerNodeRowData.rowObserver,
-//                                           node: node,
-//                                           layerNode: layerNode,
-                                           graph: graph,
-                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
+                LayerInspectorPortView(
+                    layerProperty: .layerInput(inputLayerNodeRowData.id),
+                    rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
+                    rowObserver: inputLayerNodeRowData.rowObserver,
+                    graph: graph,
+                    canvasItemId: canvasItemId) { propertyRowIsSelected in
+                        
                         NodeInputView(graph: graph,
                                       rowObserver: inputLayerNodeRowData.rowObserver,
                                       rowData: inputLayerNodeRowData.inspectorRowViewModel,
@@ -48,32 +35,42 @@ struct LayerInspectorInputPortView: View {
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                       isCanvasItemSelected: false)
                     }
-                }
-                
-            case .unpacked(let unpackedPortObserver):
-                HStack {
-                    ForEach(unpackedPortObserver.allPorts) { unpackedPort in
-                        let canvasItemId = unpackedPort.canvasObserver?.id
-    
-                        LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
-                                               rowViewModel: unpackedPort.inspectorRowViewModel,
-                                               rowObserver: unpackedPort.rowObserver,
-//                                               node: node,
-//                                               layerNode: layerNode,
-                                               graph: graph,
-                                               canvasItemId: canvasItemId) { propertyRowIsSelected in
-                            NodeInputView(graph: graph,
-                                          rowObserver: unpackedPort.rowObserver,
-                                          rowData: unpackedPort.inspectorRowViewModel,
-                                          forPropertySidebar: true,
-                                          propertyIsSelected: propertyRowIsSelected,
-                                          propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                                          isCanvasItemSelected: false)
+                // NOTE: attaching even a ZStack around LayerInspectorPortView causes the row's background color to expand to fill whole list row
+                // TODO: finalize UI for pack, unpack
+                    .overlay(alignment: .topLeading) {
+                        // MARK: debugging unpack feature
+                        if FeatureFlags.SUPPORTS_LAYER_UNPACK {
+                            Button {
+                                // TODO: canvas item creation only used for debugging
+                                self.debug__createUnpackedCanvasItems()
+                            } label: {
+                                Text("Unpack")
+                            }
                         }
                     }
+                
+                
+            case .unpacked(let unpackedPortObserver):
+                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+                    let canvasItemId = unpackedPort.canvasObserver?.id
+                    
+                    LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
+                                           rowViewModel: unpackedPort.inspectorRowViewModel,
+                                           rowObserver: unpackedPort.rowObserver,
+                                           graph: graph,
+                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
+                        NodeInputView(graph: graph,
+                                      rowObserver: unpackedPort.rowObserver,
+                                      rowData: unpackedPort.inspectorRowViewModel,
+                                      forPropertySidebar: true,
+                                      propertyIsSelected: propertyRowIsSelected,
+                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                                      isCanvasItemSelected: false)
+                    }
                 }
-            }
-        }
+                
+            } // observerMode
+        } // Group
         .onChange(of: portObserver.mode) {
             self.portObserver.wasPackModeToggled()
         }
@@ -84,30 +81,32 @@ struct LayerInspectorInputPortView: View {
         // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); creation of unpacked canvas items should be handled outside of the view, and maybe not be allowed for layer multiselect?
         fatalErrorIfDebug()
         
-//        let nodeId = portObserver._packedData.rowObserver.id.nodeId
-//        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-//        
-//        portObserver._unpackedData.allPorts.forEach { unpackedPort in
-//            var unpackSchema = unpackedPort.createSchema()
-//            unpackSchema.canvasItem = .init(position: .zero,
-//                                            zIndex: .zero,
-//                                            parentGroupNodeId: parentGroupNodeId)
-//            unpackedPort.update(from: unpackSchema,
-//                                layerInputType: unpackedPort.id,
-//                                layerNode: layerNode,
-//                                nodeId: nodeId,
-//                                nodeDelegate: node)
-//        }
+        //        let nodeId = portObserver._packedData.rowObserver.id.nodeId
+        //        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        //
+        //        portObserver._unpackedData.allPorts.forEach { unpackedPort in
+        //            var unpackSchema = unpackedPort.createSchema()
+        //            unpackSchema.canvasItem = .init(position: .zero,
+        //                                            zIndex: .zero,
+        //                                            parentGroupNodeId: parentGroupNodeId)
+        //            unpackedPort.update(from: unpackSchema,
+        //                                layerInputType: unpackedPort.id,
+        //                                layerNode: layerNode,
+        //                                nodeId: nodeId,
+        //                                nodeDelegate: node)
+        //        }
     }
 }
+
+
 
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
     
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
-//    @Bindable var node: NodeViewModel
-//    @Bindable var layerNode: LayerNodeViewModel
+    //    @Bindable var node: NodeViewModel
+    //    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     let canvasItemId: CanvasItemId?
@@ -116,8 +115,8 @@ struct LayerInspectorOutputPortView: View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
-//                               node: node,
-//                               layerNode: layerNode,
+                               //                               node: node,
+                               //                               layerNode: layerNode,
                                graph: graph,
                                canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeOutputView(graph: graph,
@@ -144,10 +143,10 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     @Bindable var rowViewModel: RowObserver.RowViewModelType
     @Bindable var rowObserver: RowObserver
-//    @Bindable var node: NodeViewModel
-//    @Bindable var layerNode: LayerNodeViewModel
+    //    @Bindable var node: NodeViewModel
+    //    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-        
+    
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
     let canvasItemId: CanvasItemId?
@@ -173,14 +172,14 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             return true
         }
     }
-        
+    
     var body: some View {
         HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
             LayerInspectorRowButton(layerProperty: layerProperty,
                                     coordinate: rowObserver.id,
                                     canvasItemId: canvasItemId,
                                     isRowSelected: propertyRowIsSelected)
-                        
+            
             HStack {
                 rowView(propertyRowIsSelected)
                 Spacer()

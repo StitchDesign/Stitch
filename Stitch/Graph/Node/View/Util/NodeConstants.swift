@@ -7,6 +7,7 @@
 
 import SwiftUI
 import RealityKit
+import StitchSchemaKit
 
 // fka `NODE_CORNER_RADIUS`
 let CANVAS_ITEM_CORNER_RADIUS: CGFloat = 12
@@ -67,3 +68,14 @@ let DEFAULT_TRANSFORM_MATRIX_ANCHOR = Transform.createMatrix(
     rotationY: 0,
     rotationZ: 0,
     rotationReal: 1)
+
+
+let DEFAULT_STITCH_TRANSFORM: StitchTransform = StitchTransform.init(positionX: 0,
+                                                                     positionY: 0,
+                                                                     positionZ: 0,
+                                                                     scaleX: 1,
+                                                                     scaleY: 1, 
+                                                                     scaleZ: 1,
+                                                                     rotationX: 0,
+                                                                     rotationY: 0,
+                                                                     rotationZ: 0)

@@ -32,7 +32,7 @@ extension LayerDropdownChoice {
             return .layer(selectedLayerId)
         }
     }
-
+    
     // Only for non-PinTo
     static let NilLayerDropDownChoice: Self = .init(id: "NIL_LAYER_DROPDOWN_CHOICE_ID",
                                                     name: "None")
@@ -52,39 +52,59 @@ extension NodeViewModel {
 }
 
 extension GraphState {
+    @MainActor
     func layerDropdownChoices(isForNode: NodeId,
+                              isForLayerGroup: Bool,
+                              // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
+        let pinMap = self.graphUI.pinMap
+        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
+        
+        // includes self?
+        var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
+        descendants.remove(isForNode.asLayerNodeId)
+        
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
-                
+        
         let layers: LayerDropdownChoices = self.orderedSidebarLayers
             .getIds()
-            .compactMap {
-                //
-                if isForPinTo, $0 == isForNode {
+            .compactMap { layerId in
+                // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
+                if isForPinTo,
+                    // Exclude the node itself, i.e. A cannot choose A as its pinToId
+                   (layerId == isForNode
+                    // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
+                    || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)
+                    
+                    // Exclude this layer group's descendants of from choices
+                    || descendants.contains(layerId.asLayerNodeId)) {
                     return nil
                 }
-                return self.getNodeViewModel($0)?.asLayerDropdownChoice
                 
+                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }
         
         return initialChoices + layers
     }
+    
+    func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+        getDescendantsIds(id: layer,
+                          groups: self.getSidebarGroupsDict(),
+                          acc: .init())
+    }
 }
 
-// Note:
 struct LayerNamesDropDownChoiceView: View {
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
-
+    
     @Bindable var graph: GraphState
-
+    
     let id: InputCoordinate
     let value: PortValue
-    
     let isFieldInsideLayerInspector: Bool
-    
     let isForPinTo: Bool
-
+    
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
         
@@ -97,23 +117,23 @@ struct LayerNamesDropDownChoiceView: View {
                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         } else {
             dispatch(InteractionPickerOptionSelected(
-                        interactionPatchNodeInput: self.id,
-                        layerNodeIdSelection: selectedLayerId, 
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+                interactionPatchNodeInput: self.id,
+                layerNodeIdSelection: selectedLayerId,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
-
+    
     var choices: LayerDropdownChoices
     
     @MainActor
     var selectionTitle: String {
-//        #if DEV_DEBUG
-//        self.selection.name + " " + self.selection.id.description.dropLast(24)
-//        #else
+        //        #if DEV_DEBUG
+        //        self.selection.name + " " + self.selection.id.description.dropLast(24)
+        //        #else
         self.selection.name
-//        #endif
+        //        #endif
     }
-
+    
     var body: some View {
         
         Menu {
@@ -121,11 +141,11 @@ struct LayerNamesDropDownChoiceView: View {
                 StitchButton {
                     self.onSet(choice)
                 } label: {
-//#if DEV_DEBUG
-//                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
-//#else
+                    //#if DEV_DEBUG
+                    //                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
+                    //#else
                     StitchTextView(string: choice.name)
-//#endif
+                    //#endif
                 }
             }
         } label: {

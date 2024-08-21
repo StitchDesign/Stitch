@@ -139,26 +139,29 @@ struct OutputValueView: View {
                 .disabled(true)
 
         case .layerDropdown(let layerId):
-                   //            // TODO: disable or use read-only view if this is an output ?
-                   LayerNamesDropDownChoiceView(graph: graph,
-                                                id: coordinate,
-                                                value: .assignedLayer(layerId), 
-                                                isFieldInsideLayerInspector: false,
-                                                isForPinTo: false,
-                                                choices: graph.layerDropdownChoices(
-                                                   isForNode: coordinate.nodeId,
-                                                   isForPinTo: false))
-                   .disabled(true)
+            // TODO: use read-only view if this is an output ?
+            LayerNamesDropDownChoiceView(graph: graph,
+                                         id: coordinate,
+                                         value: .assignedLayer(layerId),
+                                         isFieldInsideLayerInspector: false,
+                                         isForPinTo: false,
+                                         choices: graph.layerDropdownChoices(
+                                            isForNode: coordinate.nodeId,
+                                            isForLayerGroup: false,
+                                            isForPinTo: false))
+            .disabled(true)
+            
+        case .pinTo(let pinToId):
+            LayerNamesDropDownChoiceView(graph: graph,
+                                         id: coordinate,
+                                         value: .pinTo(pinToId),
+                                         isFieldInsideLayerInspector: false,
+                                         isForPinTo: true,
+                                         choices: graph.layerDropdownChoices(
+                                            isForNode: coordinate.nodeId,
+                                            isForLayerGroup: false,
+                                            isForPinTo: false))
 
-               case .pinTo(let pinToId):
-                   LayerNamesDropDownChoiceView(graph: graph,
-                                                id: coordinate,
-                                                value: .pinTo(pinToId), 
-                                                isFieldInsideLayerInspector: false,
-                                                isForPinTo: true,
-                                                choices: graph.layerDropdownChoices(
-                                                   isForNode: coordinate.nodeId,
-                                                   isForPinTo: true))
                    .disabled(true)
 
         case .anchorPopover(let anchor):

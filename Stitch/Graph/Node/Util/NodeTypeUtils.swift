@@ -38,8 +38,8 @@ extension UserVisibleType {
             return "3D Point"
         case .point4D:
             return "4D Point"
-        case .matrixTransform:
-            return "Matrix Transform"
+        case .transform:
+            return "Transform"
         case .plane:
             return "Plane"
         case .pulse:
@@ -151,8 +151,8 @@ func portValueToNodeType(_ value: PortValue) -> UserVisibleType {
         return .point3D
     case .point4D:
         return .point4D
-    case .matrixTransform:
-        return .matrixTransform
+    case .transform:
+        return .transform
     case .plane:
         return .plane
     case .pulse:
@@ -287,7 +287,8 @@ extension UserVisibleType {
             return point3DDefaultFalse
         case .point4D:
             return point4DDefaultFalse
-        case .matrixTransform:
+            //TODO: Change
+        case .transform:
             return defaultTransformAnchor
         case .pulse:
             return pulseDefaultFalse

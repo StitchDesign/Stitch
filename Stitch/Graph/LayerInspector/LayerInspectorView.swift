@@ -67,6 +67,7 @@ struct LayerInspectorView: View {
     
     @MainActor
     var layerInspectorData: (header: String,
+                             node: NodeId?,
                              inputs: LayerInputObserverDict,
                              outputs: [OutputLayerNodeRowData])? {
         
@@ -81,7 +82,6 @@ struct LayerInspectorView: View {
         // multiselect
         if selectedLayers.count > 1 {
             guard let multiselectState = graph.graphUI.propertySidebar.layerMultiselectObserver else {
-//                fatalErrorIfDebug("Had multiple selected layers but no multiselect state")
                 log("Had multiple selected layers but no multiselect state")
                 return nil
             }
@@ -89,6 +89,7 @@ struct LayerInspectorView: View {
             let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict
             
             return (header: "Multiselect",
+                    node: nil,
                     inputs: inputs,
                     outputs: []) // TODO: multiselect: implement these
             
@@ -100,7 +101,6 @@ struct LayerInspectorView: View {
             guard let inspectedLayerId = inspectedLayer,
                   let node = graph.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
-                // isn't this really bad? shouldn't we crash?
                 log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
                 return nil
             }
@@ -108,6 +108,7 @@ struct LayerInspectorView: View {
             let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
             
             return (header: node.displayTitle,
+                    node: node.id,
                     inputs: inputs,
                     outputs: layerNode.outputPorts)
         }
@@ -140,18 +141,12 @@ struct LayerInspectorView: View {
                     
                     selectedLayerView(
                         layerInspectorHeader: layerInspectorData.header,
+                        node: layerInspectorData.node,
                         layerInputObserverDict: layerInspectorData.inputs,
                         layerOutputs: layerInspectorData.outputs)
-                    
-//                    selectedLayerView(
-//                        layerInspectorHeader: node.displayTitle,
-//                        //                                      layerInputObserverDict: layerNode.unfilteredLayerInputObserverDict,
-//                        layerInputObserverDict: layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions),
-//                        layerOutputs: layerNode.outputPorts)
-                    
                 }
-                // TODO: Why subtract only half?
-                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
+//                // TODO: Why subtract only half?
+//                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
                 // TODO: why is this inaccurate?
@@ -175,15 +170,25 @@ struct LayerInspectorView: View {
  
     @MainActor @ViewBuilder
     func selectedLayerView(layerInspectorHeader: String,
+                           node: NodeId?,
                            // Represents the already-filtered layer input+observer for this specific layer
                            layerInputObserverDict: LayerInputObserverDict,
-//                           layerInputsAndObservers: [LayerInputAndObserver],
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                // TODO: should be editable, to rename the layer?
-                Text(layerInspectorHeader).font(.title2)
+                // Only show editable layer node title if this isn't a multiselect case
+                if let node = node {
+                    StitchTitleTextField(graph: graph,
+                                         titleEditType: .layerInspector(node),
+                                         label: layerInspectorHeader,
+                                         font: .title2)
+                } else {
+                    StitchTextView(string: layerInspectorHeader,
+                                   font: .title2)
+                }
+                
+                
                 Spacer()
             }
                 .padding()
