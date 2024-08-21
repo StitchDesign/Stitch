@@ -71,7 +71,10 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
         return content
 
-            .modifier(ApplyStroke(stroke: stroke))
+            .modifier(ApplyStroke(
+                viewModel: layerViewModel,
+                isPinnedViewRendering: isPinnedViewRendering,
+                stroke: stroke))
         
             .modifier(PreviewLayerEffectsModifier(
                 blurRadius: blurRadius,
