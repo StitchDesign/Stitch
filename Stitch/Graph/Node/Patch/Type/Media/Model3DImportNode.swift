@@ -63,15 +63,23 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         let model3DEntity = media.mediaObject.model3DEntity
                 
         // Update transform
+//        let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
+//        let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
+//        let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
+
         
         //transform is empty, so use the original transform value
-        if transform == StitchTransform() {
+        if transform == DEFAULT_STITCH_TRANSFORM {
             
             let position = model3DEntity?.originalTransformMatrix?.position
             let scale = model3DEntity?.originalTransformMatrix?.scale
-            let rotation = model3DEntity?.originalTransformMatrix?.rotationInRadians
 
-//            transform = StitchTransform(positionX: position?.x, positionY: position?.y, positionZ: position?.z, scaleX: scale?.x, scaleY: scale?.y, scaleZ: scale?.z, rotationX: rotation.x, rotationY: rotation?.y, rotationZ: rotation.z)
+                    let rotationX = model3DEntity?.originalTransformMatrix?.rotationInRadians.x
+                    let rotationY = model3DEntity?.originalTransformMatrix?.rotationInRadians.y
+                    let rotationZ = model3DEntity?.originalTransformMatrix?.rotationInRadians.z
+
+            
+//            transform = StitchTransform(positionX: position?.x, positionY: position?.y, positionZ: position?.z, scaleX: scale?.x, scaleY: scale?.y, scaleZ: scale?.z, rotationX: 0, rotationY: 0, rotationZ: 0)
         }
         
         let matrix: matrix_float4x4 = matrix_float4x4(position: simd_float3(Float(transform.positionX), Float(transform.positionY), Float(transform.positionZ)), scale: simd_float3(Float(transform.scaleX), Float(transform.scaleY), Float(transform.scaleZ)), rotationZYX: simd_float3(Float(transform.rotationX), Float(transform.rotationY), Float(transform.rotationZ)))
