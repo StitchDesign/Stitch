@@ -57,15 +57,13 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
         
         let animating = values[Model3DImportNodeIndices.animating].getBool ?? false
         
-        let transform = values[Model3DImportNodeIndices.matrix].getTransform ?? StitchTransform()
-        let matrix: matrix_float4x4 = matrix_float4x4(from: transform)
+        var transform = values[Model3DImportNodeIndices.matrix].getTransform ?? StitchTransform()
+        var matrix: matrix_float4x4 = matrix_float4x4(from: transform)
         
         let model3DEntity = media.mediaObject.model3DEntity
                 
         // Update transform
-        
-        var matrix: matrix_float4x4
-        
+                
         //transform is empty, so use the original transform value
         if transform == DEFAULT_STITCH_TRANSFORM {
             
