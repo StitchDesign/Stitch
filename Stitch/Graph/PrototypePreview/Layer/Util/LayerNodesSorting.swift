@@ -14,9 +14,8 @@ extension VisibleNodesViewModel {
     /// Recursively creates a sorted list of layers.
     @MainActor
     func recursivePreviewLayers(sidebarLayers: SidebarLayerList,
-                                isRoot: Bool) -> (LayerDataList, PinMap) {
-        
-        let pinMap: PinMap = self.getPinMap()
+                                pinMap: PinMap,
+                                isRoot: Bool) -> LayerDataList {
         
         var layerTypesAtThisLevel = LayerTypeSet()
         var handled = LayerIdSet()
@@ -83,23 +82,30 @@ extension VisibleNodesViewModel {
         let sortedLayerTypes = layerTypesAtThisLevel.sorted(by: comparator)
         
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
-            self.getLayerDataFromLayerType(layerType, layerNodes: self.layerNodes)
+            self.getLayerDataFromLayerType(layerType,
+                                           pinMap: pinMap,
+                                           layerNodes: self.layerNodes)
         }
         
         log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
-        return (sortedLayerDataList, pinMap)
+        return sortedLayerDataList
     }
     
     @MainActor
     func getLayerDataFromLayerType(_ layerType: LayerType,
+                                   pinMap: PinMap,
                                    layerNodes: NodesViewModelDict) -> LayerData? {
         
         switch layerType {
             
         case .mask(masked: let masked, masker: let masker):
-            let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0, layerNodes: layerNodes) }
-            let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0, layerNodes: layerNodes) }
+            let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0,
+                                                                                pinMap: pinMap,
+                                                                                layerNodes: layerNodes) }
+            let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0,
+                                                                                pinMap: pinMap,
+                                                                                layerNodes: layerNodes) }
             
             guard !maskedLayerData.isEmpty,
                   !maskerLayerData.isEmpty else {
@@ -135,8 +141,9 @@ extension VisibleNodesViewModel {
             
             // Recursively call on group data
             // TODO: we start the recursion all over again here? do we need to pass on the same pinMap?
-            let (childrenData, _) = self.recursivePreviewLayers(
+            let childrenData = self.recursivePreviewLayers(
                 sidebarLayers: layerGroupData.childrenSidebarLayers,
+                pinMap: pinMap,
                 isRoot: false)
             
             return .group(previewLayer,
