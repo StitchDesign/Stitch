@@ -77,10 +77,9 @@ actor PressInteractionActor {
                   createNewValues: @escaping (TimeInterval) -> PortValues) async throws {
         let delayInNanoseconds = delayValue * Double(nanoSecondsInSecond)
         try await Task.sleep(nanoseconds: UInt64(delayInNanoseconds))
-        DispatchQueue.main.async { [weak graph, weak pressNode, weak evalObserver] in
+        DispatchQueue.main.async { [weak graph, weak pressNode] in
             guard let graph = graph,
-                  let pressNode = pressNode,
-                  let evalObserver = evalObserver else {
+                  let pressNode = pressNode else {
                       return
                   }
             
