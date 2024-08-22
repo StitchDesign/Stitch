@@ -127,7 +127,7 @@ struct PreviewGroupLayer: View {
         
         //            // DEBUG ONLY
         //        #if DEV_DEBUG
-        //            .border(.red)
+                    .border(.red)
         //        #endif
         
             .modifier(PreviewSidebarHighlightModifier(

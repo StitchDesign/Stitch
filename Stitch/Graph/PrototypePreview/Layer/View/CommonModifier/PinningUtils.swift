@@ -168,7 +168,8 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
     }
     
     guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
-          let pinReceiverOrigin = pinReceiverLayerViewModel.position.getPoint,
+//          let pinReceiverOrigin = pinReceiverLayerViewModel.position.getPoint,
+          let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
           let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter,
           let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
           let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,

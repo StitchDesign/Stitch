@@ -101,9 +101,9 @@ struct PreviewLayersView: View {
         // `spacing: .evenly` = one spacer before and after each element
         // `spacing: .between` = one spacer between elements
         
-        if spacing.isEvenly {
-            Spacer()
-        }
+//        if spacing.isEvenly {
+//            Spacer()
+//        }
                         
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
@@ -113,12 +113,12 @@ struct PreviewLayersView: View {
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition)
             
-            if spacing.isEvenly {
-                Spacer()
-            } else if spacing.isBetween,
-               layerData.id != layersInProperOrder.last?.id {
-                Spacer()
-            }
+//            if spacing.isEvenly {
+//                Spacer()
+//            } else if spacing.isBetween,
+//               layerData.id != layersInProperOrder.last?.id {
+//                Spacer()
+//            }
             
         } // ForEach
     }
@@ -152,11 +152,11 @@ struct PreviewLayersView: View {
                 layersAsViews(parentSpacing)
             }
         case .horizontal:
-            HStack(spacing: parentSpacing.asPointSpacing) {
+            HStack(spacing: .zero) {
                 layersAsViews(parentSpacing)
             }
         case .vertical:
-            VStack(spacing: parentSpacing.asPointSpacing) {
+            VStack(spacing: .zero) {
                 layersAsViews(parentSpacing)
             }
         case .grid:

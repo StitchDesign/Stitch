@@ -54,22 +54,24 @@ struct PreviewCommonPositionModifier: ViewModifier {
         if isPinnedView,
            let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
             
-             // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
+            logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
+            
+            logInView("PreviewCommonPositionModifier: pinReceiverData: \(pinReceiverData)")
             
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
-             // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
-             // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
+            logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
+            logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
             content
                 .position(x: pinPos.width, y: pinPos.height)
                 .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
-            // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+            logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
             
             // A non-PinnedView rendering of a layer uses .position unless:
             // 1. the layer is a child inside a group that uses a VStack or HStack, or
