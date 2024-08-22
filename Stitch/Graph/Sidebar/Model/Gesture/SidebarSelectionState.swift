@@ -16,8 +16,13 @@ typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 // if a group is selected,
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
+    var isEditMode: Bool = false
+    
     // For inspector, not layer-group creation etc.
-    var nonEditModeSelections = OrderedLayerNodeIdSet()
+//    var inpsectorFocusedLayers = OrderedLayerNodeIdSet()
+    
+    // Layers focused in the inspector
+    var inspectorFocusedLayers = LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()

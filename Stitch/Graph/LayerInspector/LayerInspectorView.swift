@@ -76,7 +76,7 @@ struct LayerInspectorView: View {
             return nil
         }
 
-        let selectedLayers = graph.sidebarSelectionState.nonEditModeSelections
+        let selectedLayers = graph.sidebarSelectionState.inspectorFocusedLayers
         
         
         // multiselect
@@ -97,11 +97,10 @@ struct LayerInspectorView: View {
         
         // else had 0 or 1 layers selected:
         else {
-            let inspectedLayer = graph.layerFocusedInPropertyInspector
-            guard let inspectedLayerId = inspectedLayer,
+            guard let inspectedLayerId = graph.sidebarSelectionState.inspectorFocusedLayers.first?.id,
                   let node = graph.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
-                log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
+                log("LayerInspectorView: No inspector-focused layers?:  \(graph.sidebarSelectionState.inspectorFocusedLayers)")
                 return nil
             }
             

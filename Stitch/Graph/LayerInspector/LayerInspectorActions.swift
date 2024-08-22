@@ -14,7 +14,7 @@ extension GraphDelegate {
     // TODO: cache these for perf
     @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.nonEditModeSelections.last?.id
+        self.sidebarSelectionState.inspectorFocusedLayers.first?.id
     }
     
     // TODO: cache these for perf
@@ -50,11 +50,6 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             fatalErrorIfDebug()
             return .noChange
         }
-
-//        let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-//        state.layerInputAddedToGraph(node: node,
-//                                     input: layerInputData,
-//                                     coordinate: coordinate)
         
         handleLayerInputAddedToGraph(state: state, nodeId: nodeId, coordinate: coordinate)
         
