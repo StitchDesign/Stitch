@@ -47,7 +47,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     
-    let pinMap: PinMap
+    let pinMap: RootPinMap
     
     let aspectRatio: AspectRatioData
     let size: LayerSize
@@ -141,7 +141,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: finalMinHeight,
                     maxHeight: finalMaxHeight
                 ))
-                .modifier(LayerSizeReader(viewModel: viewModel))
+                .modifier(LayerSizeReader(viewModel: viewModel,
+                                          isPinnedViewRendering: isPinnedViewRendering))
             
             // Note: the pinned view ("View A"), the ghost view AND the pin-receiver ("View B") need to read their preview-window-relative size and/or center
             // Does it matter whether this is applied before or after the other GR in LayerSizeReader?
@@ -170,7 +171,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: nil,
                     maxHeight: nil
                 ))
-                .modifier(LayerSizeReader(viewModel: viewModel))
+                .modifier(LayerSizeReader(viewModel: viewModel,
+                                          isPinnedViewRendering: isPinnedViewRendering))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
@@ -196,7 +198,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     minHeight: finalMinHeight,
                     maxHeight: finalMaxHeight
                 ))
-                .modifier(LayerSizeReader(viewModel: viewModel))
+                .modifier(LayerSizeReader(viewModel: viewModel,
+                                          isPinnedViewRendering: isPinnedViewRendering))
                 .modifier(PreviewWindowCoordinateSpaceReader(
                     viewModel: viewModel,
                     isPinnedViewRendering: isPinnedViewRendering,

@@ -112,7 +112,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.graphUI.pinMap,
+                pinMap: graph.visibleNodesViewModel.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -192,7 +192,8 @@ struct PreviewGroupLayer: View {
                           parentCornerRadius: cornerRadius,
                           // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
                           parentUsesHug: usesHug,
-                          parentGridData: gridData)
+                          parentGridData: gridData,
+                          isGhostView: !isPinnedViewRendering)
     }
 }
 

@@ -70,6 +70,7 @@ final class LayerViewModel {
     // Size of the layer as read by layer's background GeometryReader,
     // see `LayerSizeReader`.
     var readSize: CGSize = .zero
+    var readMidPosition: CGPoint = .zero
 
     // Ports
     var position: PortValue
@@ -333,6 +334,10 @@ extension LayerViewModel: InteractiveLayerDelegate {
 }
 
 extension LayerViewModel {
+    var isPinnedView: Bool {
+        isPinned.getBool ?? false
+    }
+    
     @MainActor
     func updatePreviewLayer(from lengthenedValuesList: PortValuesList,
                             changedPortId: Int) {
