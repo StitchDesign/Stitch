@@ -268,9 +268,8 @@ extension GraphState: SchemaObserver {
         
         let pinMap = self.visibleNodesViewModel.getPinMap()
         let previewLayers = self.visibleNodesViewModel
-            .recursivePreviewLayers(sidebarLayers: self.orderedSidebarLayers,
-                                    pinMap: pinMap,
-                                    isRoot: true)
+            .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
+                                    pinMap: pinMap)
         self.cachedOrderedPreviewLayers = previewLayers
         self.graphUI.pinMap = pinMap
     }
