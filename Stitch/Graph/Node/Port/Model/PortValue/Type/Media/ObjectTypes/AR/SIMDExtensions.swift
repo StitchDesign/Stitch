@@ -32,6 +32,20 @@ extension simd_quatf {
 
 // Extension to create a 4x4 rotation matrix from Euler angles
 extension simd_float4x4 {
+    init(from transform: StitchTransform) {
+        self.init(position: simd_float3(Float(transform.positionX),
+                                        Float(transform.positionY),
+                                        Float(transform.positionZ)),
+                  scale: simd_float3(Float(transform.scaleX),
+                                     Float(transform.scaleY),
+                                     Float(transform.scaleZ)),
+                  
+                  // MARK: swap x and y to mimic expected behavior
+                  rotationZYX: simd_float3(Float(transform.rotationY),
+                                           Float(transform.rotationX),
+                                           Float(transform.rotationZ)))
+    }
+    
     var upperLeft3x3: simd_float3x3 {
         return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
     }
