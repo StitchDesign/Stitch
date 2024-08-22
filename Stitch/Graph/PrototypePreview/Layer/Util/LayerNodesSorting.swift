@@ -13,14 +13,16 @@ extension VisibleNodesViewModel {
     
     /// Recursively creates a sorted list of layers.
     @MainActor
-    func recursivePreviewLayers(sidebarLayers: SidebarLayerList,
-                                pinMap: PinMap,
-                                isRoot: Bool) -> LayerDataList {
+    func recursivePreviewLayers(sidebarLayersAtHierarchy: SidebarLayerList? = nil,
+                                sidebarLayersGlobal: SidebarLayerList,
+                                pinMap: PinMap) -> LayerDataList {
         
+        let isRoot = sidebarLayersAtHierarchy == nil
+        let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
         var layerTypesAtThisLevel = LayerTypeSet()
         var handled = LayerIdSet()
         
-        sidebarLayers.enumerated().forEach {
+        sidebarLayersAtHierarchy.enumerated().forEach {
             
             let (newLayerTypesAtThisLevel,
                  newLayersUsedAsMaskers) = handleRawSidebarLayer(
@@ -28,7 +30,8 @@ extension VisibleNodesViewModel {
                     layerData: $0.element,
                     layerTypesAtThisLevel: layerTypesAtThisLevel,
                     handled: handled,
-                    sidebarLayers: sidebarLayers,
+                    sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
+                    sidebarLayersGlobal: sidebarLayersGlobal,
                     layerNodes: self.layerNodes,
                     pinMap: pinMap)
             
@@ -42,7 +45,7 @@ extension VisibleNodesViewModel {
             
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
                 pinnedViews: rootPinnedViews,
-                sidebarLayers: sidebarLayers,
+                sidebarLayers: sidebarLayersGlobal,
                 layerNodes: self.layerNodes,
                 layerTypesAtThisLevel: layerTypesAtThisLevel)
             
@@ -84,6 +87,7 @@ extension VisibleNodesViewModel {
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
             self.getLayerDataFromLayerType(layerType,
                                            pinMap: pinMap,
+                                           sidebarLayersGlobal: sidebarLayersGlobal,
                                            layerNodes: self.layerNodes)
         }
         
@@ -95,16 +99,19 @@ extension VisibleNodesViewModel {
     @MainActor
     func getLayerDataFromLayerType(_ layerType: LayerType,
                                    pinMap: PinMap,
+                                   sidebarLayersGlobal: SidebarLayerList,
                                    layerNodes: NodesViewModelDict) -> LayerData? {
         
         switch layerType {
             
         case .mask(masked: let masked, masker: let masker):
             let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0,
-                                                                                pinMap: pinMap,
+                                                                                pinMap: pinMap, 
+                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
                                                                                 layerNodes: layerNodes) }
             let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0,
                                                                                 pinMap: pinMap,
+                                                                                sidebarLayersGlobal: sidebarLayersGlobal,
                                                                                 layerNodes: layerNodes) }
             
             guard !maskedLayerData.isEmpty,
@@ -142,9 +149,9 @@ extension VisibleNodesViewModel {
             // Recursively call on group data
             // TODO: we start the recursion all over again here? do we need to pass on the same pinMap?
             let childrenData = self.recursivePreviewLayers(
-                sidebarLayers: layerGroupData.childrenSidebarLayers,
-                pinMap: pinMap,
-                isRoot: false)
+                sidebarLayersAtHierarchy: layerGroupData.childrenSidebarLayers,
+                sidebarLayersGlobal: sidebarLayersGlobal,
+                pinMap: pinMap)
             
             return .group(previewLayer,
                           childrenData,
@@ -205,7 +212,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            layerData: SidebarLayerData,
                            layerTypesAtThisLevel: LayerTypeSet, // i.e. acc
                            handled: LayerIdSet, // i.e. acc2
-                           sidebarLayers: SidebarLayerList, // raw sidebar layers
+                           sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
+                           sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
                            layerNodes: NodesViewModelDict,
                            pinMap: PinMap) -> (LayerTypeSet,
                                                // layers used as masks
@@ -222,7 +230,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
     
     // if this sidebar layer has a masker, the masker's index will be *immediately* below
     let maskerSidebarIndex = sidebarIndex + 1
-    let maskerLayerData: SidebarLayerData? = sidebarLayers[safe: maskerSidebarIndex]
+    let maskerLayerData: SidebarLayerData? = sidebarLayersAtHierarchy[safe: maskerSidebarIndex]
     
     /*
      TODO: need to iterate through each preview layer view model on layer node and check, *at that particular index*, whether the `mask input = true`; rather than checking just at top level.
@@ -262,7 +270,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             layerData: maskerLayerData,
             layerTypesAtThisLevel: .init(), // each mask-recur-level has own layer types
             handled: handled, // ... but a given layer can only appear at a single mask-recur-level
-            sidebarLayers: sidebarLayers,
+            sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
+            sidebarLayersGlobal: sidebarLayersGlobal,
             layerNodes: layerNodes,
             pinMap: pinMap)
         
@@ -304,7 +313,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                 
                 let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
                     pinnedViews: pinnedViews, 
-                    sidebarLayers: sidebarLayers,
+                    sidebarLayers: sidebarLayersGlobal,
                     layerNodes: layerNodes,
                     layerTypesAtThisLevel: layerTypesAtThisLevel)
                 
