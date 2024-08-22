@@ -62,6 +62,7 @@
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
+		B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */; };
 		B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */; };
 		B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B530494627A0CBF500D970BB /* ViewUtils.swift */; };
 		B5305CE7285150E2008F11F4 /* beach.png in Resources */ = {isa = PBXBuildFile; fileRef = B5305CE6285150E2008F11F4 /* beach.png */; };
@@ -966,6 +967,7 @@
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
+		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
 		B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCopyable.swift; sourceTree = "<group>"; };
 		B530494627A0CBF500D970BB /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		B5305CE6285150E2008F11F4 /* beach.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = beach.png; sourceTree = "<group>"; };
@@ -3165,6 +3167,7 @@
 				ECCE40E227E29B5D0068484B /* ICloudSyncStatus.swift */,
 				EC89F7E027602C0700C4447A /* ExpansionBox.swift */,
 				ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */,
+				B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4540,6 +4543,7 @@
 				EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,
+				B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */,
 				EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */,
 				EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */,
 				ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */,
@@ -6032,8 +6036,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				kind = exactVersion;
-				version = 23.0.0;
+				kind = revision;
+				revision = 3f35df2c0dce994d2d252e2e9080c374b188096b;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {

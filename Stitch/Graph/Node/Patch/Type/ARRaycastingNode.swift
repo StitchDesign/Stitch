@@ -42,7 +42,7 @@ extension Plane: PortValueEnum {
 struct ARRaycastingNode: PatchNodeDefinition {
     static let patch = Patch.arRaycasting
     
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         return .init(
             inputs: [
                 .init(label: "Request", staticType: .pulse),
