@@ -65,7 +65,10 @@ final class StitchEntity: NSObject, Sendable {
                 }
             }, receiveValue: { [weak self] entity in
                 self?.entityStatus = .loaded(entity)
-                self?.originalTransformMatrix = entity.transform.matrix
+                print("entity.transform.matrix \(entity.transform.scale)")
+                print("entity.transform.matrix.scale \(entity.transform.matrix.scale)")
+
+//                self?.originalTransformMatrix = entity.transform.sca
 
                 // Start animations if enabled. Because async we need to set the property
                 // to keep it in sync.
