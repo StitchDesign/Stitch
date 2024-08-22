@@ -267,6 +267,7 @@ extension GraphState: SchemaObserver {
         // so instead we should be smart about only calling this when layer nodes actually change.
         let (previewLayers, pinMap) = self.visibleNodesViewModel
             .recursivePreviewLayers(sidebarLayers: self.orderedSidebarLayers,
+                                    entireSidebarList: self.orderedSidebarLayers,
                                     isRoot: true)
         self.cachedOrderedPreviewLayers = previewLayers
         self.graphUI.pinMap = pinMap

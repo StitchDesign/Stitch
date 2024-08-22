@@ -35,7 +35,8 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .opacity(isGhostView ? 0 : 1)
+//            .opacity(isGhostView ? 0 : 1)
+            .opacity(isGhostView ? 0.5 : 1)
             .background {
                 GeometryReader { geometry in
                     // Note: this is the size of the view within the whole preview window coordinate space;

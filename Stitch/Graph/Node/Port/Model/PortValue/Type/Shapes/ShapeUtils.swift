@@ -32,20 +32,22 @@ struct ApplyStroke: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         
-        if isGhostView {
-            content
-        } else {
-            switch stroke.stroke {
-                            
-            case .none:
-                content
-                
-            case .inside, .outside:
-                content.overlay {
-                    Rectangle().stitchStroke(stroke)
-                }
-            }
-        }
+        return content
+        
+//        if isGhostView {
+//            content
+//        } else {
+//            switch stroke.stroke {
+//                            
+//            case .none:
+//                content
+//                
+//            case .inside, .outside:
+//                content.overlay {
+//                    Rectangle().stitchStroke(stroke)
+//                }
+//            }
+//        }
     }
 }
 
