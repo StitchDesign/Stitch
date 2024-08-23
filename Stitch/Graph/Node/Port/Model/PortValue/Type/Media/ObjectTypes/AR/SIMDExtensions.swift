@@ -40,9 +40,8 @@ extension simd_float4x4 {
                                      Float(transform.scaleY),
                                      Float(transform.scaleZ)),
                   
-                  // MARK: swap x and y to mimic expected behavior
-                  rotationZYX: simd_float3(Float(transform.rotationY),
-                                           Float(transform.rotationX),
+                  rotationZYX: simd_float3(Float(transform.rotationX),
+                                           Float(transform.rotationY),
                                            Float(transform.rotationZ)))
     }
     
@@ -50,7 +49,7 @@ extension simd_float4x4 {
         return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
     }
     
-    // Create a 4x4 rotation matrix from Euler angles (in radians)
+    // Create a 4x4 rotation matrix from Euler angles (in radians) || TODO: This is fine, but, one layer beneath UI, convert from degrees to radians for a much smoother expereince 
     init(rotationZYX eulerAngles: SIMD3<Float>) {
         let cx = cos(eulerAngles.x), sx = sin(eulerAngles.x)
         let cy = cos(eulerAngles.y), sy = sin(eulerAngles.y)
