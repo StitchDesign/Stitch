@@ -183,6 +183,7 @@ final class LayerViewModel {
     // TODO: source these from LayerNodeViewModel after SSK update
     var layerPadding: StitchPadding = .zero // .demoPadding // PortValue
     var layerMargin: StitchPadding = .zero // .demoPadding // PortValue
+    var offsetInGroup: CGSize = .zero // .init(width: 50, height: 100)
     
     // Ephemeral state on the layer view model
     
