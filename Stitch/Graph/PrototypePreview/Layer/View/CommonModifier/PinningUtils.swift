@@ -198,11 +198,6 @@ func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
 
     log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
                 
-    
-    
-    
-    
-    // TODO HERE
     guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
         log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
         return graph.rootPinReceiverData
