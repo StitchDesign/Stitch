@@ -17,10 +17,7 @@ typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
     var isEditMode: Bool = false
-    
-    // For inspector, not layer-group creation etc.
-//    var inpsectorFocusedLayers = OrderedLayerNodeIdSet()
-    
+        
     // Layers focused in the inspector
     var inspectorFocusedLayers = LayerIdSet()
     

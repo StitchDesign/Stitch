@@ -122,12 +122,8 @@ final class LayerMultiselectInput {
     // set of field index
     var hasHeterogenousValue: Set<Int> {
         
-//        var d = [FieldCoordinate: [FieldValue]]()
-        
         // field index -> values in that field
         var d = [Int: [FieldValue]]()
-        
-//        var acc = Set<FieldCoordinate>()
         var acc = Set<Int>()
         
         // I would go by input, actually.
@@ -168,19 +164,6 @@ final class LayerMultiselectInput {
         }
         
         return acc
-        
-        
-//        // TODO: go by individual field, not entire input
-//        guard let firstValue = observers.first?.activeValue else {
-//            fatalErrorIfDebug() // when can this happen?
-//            return false
-//        }
-//        
-//        let allObserversHaveSameValue = observers.allSatisfy { observer in
-//            observer.activeValue == firstValue
-//        }
-//        
-//        return !allObserversHaveSameValue
     }
         
     init(input: LayerInputPort, observers: [LayerInputObserver]) {
@@ -192,7 +175,6 @@ final class LayerMultiselectInput {
 extension String {
     static let HETEROGENOUS_VALUES = "Multi"
 }
-
 
 @Observable
 final class PropertySidebarObserver {

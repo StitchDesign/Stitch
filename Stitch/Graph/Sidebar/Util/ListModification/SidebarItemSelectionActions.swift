@@ -17,40 +17,31 @@ struct SidebarItemTapped: GraphEvent {
     
     func handle(state: GraphState) {
         let alreadySelected = state.sidebarSelectionState.inspectorFocusedLayers.contains(id)
-
-        // TODO: better: allow multiple selections via cmd+click, not single click
         
-        //
-        if alreadySelected {
-//            state.sidebarSelectionState.nonEditModeSelections.remove(id)
-            state.sidebarSelectionState.inspectorFocusedLayers = .init()
+        // TODO: why does shift-key seem to be interrupted so often?
+//        if state.keypressState.isCommandPressed ||  state.keypressState.isShiftPressed {
+        if state.keypressState.isCommandPressed {
+            
+            if alreadySelected {
+                state.sidebarSelectionState.inspectorFocusedLayers.remove(id)
+            } else {
+                state.sidebarSelectionState.inspectorFocusedLayers.insert(id)
+            }
+            
         } else {
-//            state.sidebarSelectionState.nonEditModeSelections.append(id)
-            state.sidebarSelectionState.inspectorFocusedLayers = .init([id])
+            if alreadySelected {
+                state.sidebarSelectionState.inspectorFocusedLayers = .init()
+            } else {
+                state.sidebarSelectionState.inspectorFocusedLayers = .init([id])
+            }
         }
         
         state.updateInspectorFocusedLayers()
-        
-//
-//        if state.sidebarSelectionState.inpsectorFocusedLayers.count > 1 {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = state.multipleSidebarLayersSelected()
-//        } else {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = nil
-//        }
-        
-        // TODO: support multiple selections and filter property inspector appropriately
-//        if alreadySelected {
-//            state.sidebarSelectionState.nonEditModeSelections = .init()
-//        } else {
-////            state.sidebarSelectionState.nonEditModeSelections = .init([id])
-//            state.sidebarSelectionState.nonEditModeSelections.append(id)
-//        }
-        
+                
         // Reset selected row in property sidebar when focused-layers changes
         state.graphUI.propertySidebar.selectedProperty = nil
     }
 }
-
 
 
 extension GraphState {
@@ -212,18 +203,7 @@ struct SidebarItemSelected: GraphEvent {
         
         log("SidebarItemSelected: state.sidebarSelectionState.secondary is now: \(state.sidebarSelectionState.secondary)")
         
-
         state.updateInspectorFocusedLayers()
-        
-//        // Edit mode selections count as "non-edit-mode selections"
-//        state.sidebarSelectionState.inpsectorFocusedLayers = .init(Array(state.sidebarSelectionState.primary))
-//        
-//        if state.sidebarSelectionState.primary.count > 1 {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = state.multipleSidebarLayersSelected()
-//        } else {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = nil
-//        }
-        
     }
 }
 

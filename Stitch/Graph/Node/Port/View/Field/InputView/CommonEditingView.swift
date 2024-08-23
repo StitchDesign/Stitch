@@ -114,7 +114,7 @@ struct CommonEditingView: View {
         let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
         
         if indicesWithHeterogenousValues.contains(fieldIndex) {
-            log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
+            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
             return true
         } else {
             return false
@@ -167,11 +167,11 @@ struct CommonEditingView: View {
             }
         }
         .onChange(of: self.fieldHasHeterogenousValues, initial: true) { oldValue, newValue in
-            log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
-            log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
-            log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
+            // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
             if newValue {
-                log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
+                // log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
                 self.updateCurrentEdit()
             }
         }
@@ -207,15 +207,15 @@ struct CommonEditingView: View {
         // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want;
         // When dropdown item selected, update text-field's string
         .onChange(of: self.choice, initial: false) { oldValue, newValue in
-            log("on change of choice: oldValue: \(oldValue)")
-            log("on change of choice: newValue: \(newValue)")
+            // log("on change of choice: oldValue: \(oldValue)")
+            // log("on change of choice: newValue: \(newValue)")
             // `choice` always start out as an empty string, so somewhere in onAppear or some initialization logic,
             // we update `choice` which triggers this closure which updates the view etc.
             
             // solution?: initialize choice properly?
             
             if let newChoice = self.choices?.first(where: { $0 == newValue }) {
-                log("on change of choice: valid new choice")
+                // log("on change of choice: valid new choice")
                 self.currentEdit = newValue
                 self.inputEdited(newEdit: newValue,
                                  isCommitting: true)
@@ -229,7 +229,7 @@ struct CommonEditingView: View {
         // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
         .onChange(of: self.currentEdit) { oldValue, newValue in
             if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
-                log("found choice \(x)")
+                // log("found choice \(x)")
                 self.choice = x
             }
         }
