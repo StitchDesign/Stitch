@@ -135,7 +135,7 @@ let LAYER_INSPECTOR_ROW_SPACING = 8.0
 let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 
 struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
-    
+        
     // input or output
     let layerProperty: LayerInspectorRowId
     
@@ -151,6 +151,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     // Arguments: 1. is row selected
     @ViewBuilder var rowView: (Bool) -> RowView
+    
+    @State private var isHovered: Bool = false
     
     // Is this property-row selected?
     @MainActor
@@ -176,7 +178,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             LayerInspectorRowButton(layerProperty: layerProperty,
                                     coordinate: rowObserver.id,
                                     canvasItemId: canvasItemId,
-                                    isRowSelected: propertyRowIsSelected)
+                                    isRowSelected: propertyRowIsSelected,
+                                    isHovered: isHovered)
                         
             HStack {
                 rowView(propertyRowIsSelected)
@@ -209,6 +212,9 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             leading: 0,
             bottom: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET,
             trailing: 0))
+        .onHover(perform: { isHovering in
+            self.isHovered = isHovering
+        })
         .gesture(
             TapGesture().onEnded({ _ in
                 // log("LayerInspectorPortView tapped")
