@@ -180,6 +180,10 @@ final class LayerViewModel {
     var pinAnchor: PortValue
     var pinOffset: PortValue
     
+    // TODO: source these from LayerNodeViewModel after SSK update
+    var layerPadding: StitchPadding = .zero // .demoPadding // PortValue
+    var layerMargin: StitchPadding = .zero // .demoPadding // PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties

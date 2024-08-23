@@ -70,7 +70,12 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
     func body(content: Content) -> some View {
 
         return content
-
+        
+        // Margin input comes *after* `.frame`
+        // Should be applied before layer-effects, rotation etc.?
+            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin))
+        
+        // TODO: How do layer-padding and layer-margin inputs affect stroke ?
             .modifier(ApplyStroke(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
