@@ -47,7 +47,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
         .union(.strokeInputs)
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
 
         static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()

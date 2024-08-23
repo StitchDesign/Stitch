@@ -6040,8 +6040,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				kind = exactVersion;
-				version = 23.1.0;
+				branch = "releases/v24.0.0-introduce-padding-margin-and-childOffset-inputs";
+				kind = branch;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
