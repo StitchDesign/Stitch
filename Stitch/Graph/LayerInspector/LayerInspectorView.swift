@@ -138,6 +138,8 @@ struct LayerInspectorView: View {
                                                  layerNode: layerNode,
                                                  graph: graph)
             } // List
+            .listSectionSpacing(.compact) // reduce spacing between sections
+            
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
                         
@@ -248,7 +250,7 @@ struct LayerInspectorInputsSectionView: View {
                                       axis: (x: 0, y: 0, z: rotationZ))
                     .animation(.linear(duration: 0.2), value: rotationZ)
                 
-                StitchTextView(string: sectionName.rawValue)
+                StitchTextView(string: sectionName.rawValue).textCase(nil)
             }
             // Note: list row insets appear to be the only way to control padding on a list's section headers
             // TODO: how much spacing do we want between first section and very top of inspector?
@@ -312,7 +314,7 @@ struct LayerInspectorOutputsSectionView: View {
                         .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                                height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
 //                    
-                    StitchTextView(string: "Outputs")
+                    StitchTextView(string: "Outputs").textCase(nil)
                 }
                 .listRowInsets(EdgeInsets(top: 0,
                                           leading: 0,
