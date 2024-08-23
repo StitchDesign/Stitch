@@ -46,8 +46,8 @@ struct LayerInspectorRowButton: View {
             JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
         } else {
             AddLayerPropertyToGraphButton(coordinate: coordinate)
-//                .opacity((canBeAddedToCanvas && isRowSelected) ? 1.0 : 0.0)
                 .opacity(showAddLayerPropertyButton ? 1 : 0)
+                .animation(.default, value: showAddLayerPropertyButton)
         }
     }
 }
