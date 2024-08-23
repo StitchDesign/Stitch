@@ -58,7 +58,7 @@ extension GraphState {
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
-        let pinMap = self.graphUI.pinMap
+        let pinMap = self.visibleNodesViewModel.flattenedPinMap
         let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
         
         // includes self?

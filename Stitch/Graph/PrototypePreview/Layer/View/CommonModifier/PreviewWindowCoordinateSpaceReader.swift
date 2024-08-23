@@ -17,7 +17,7 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     let isPinnedViewRendering: Bool
     
-    let pinMap: PinMap
+    let pinMap: RootPinMap
     
     var isPinned: Bool {
         viewModel.isPinned.getBool ?? false

@@ -15,7 +15,7 @@ extension VisibleNodesViewModel {
     @MainActor
     func recursivePreviewLayers(sidebarLayersAtHierarchy: SidebarLayerList? = nil,
                                 sidebarLayersGlobal: SidebarLayerList,
-                                pinMap: PinMap) -> LayerDataList {
+                                pinMap: RootPinMap) -> LayerDataList {
         
         let isRoot = sidebarLayersAtHierarchy == nil
         let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
@@ -41,10 +41,10 @@ extension VisibleNodesViewModel {
         
         // If we're at the root level, we need to also add the LayerTypes for views with `isPinned = true` and `pinToId = .root`, since those views' PinnedViews will not be handled by
         if isRoot,
-           let rootPinnedViews = pinMap.get(nil) {
+           let pinnedData = pinMap.get(nil) {
             
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
-                pinnedViews: rootPinnedViews,
+                pinnedData: pinnedData,
                 sidebarLayers: sidebarLayersGlobal,
                 layerNodes: self.layerNodes,
                 layerTypesAtThisLevel: layerTypesAtThisLevel)
@@ -98,7 +98,7 @@ extension VisibleNodesViewModel {
     
     @MainActor
     func getLayerDataFromLayerType(_ layerType: LayerType,
-                                   pinMap: PinMap,
+                                   pinMap: RootPinMap,
                                    sidebarLayersGlobal: SidebarLayerList,
                                    layerNodes: NodesViewModelDict) -> LayerData? {
         
@@ -215,7 +215,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
                            sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
                            layerNodes: NodesViewModelDict,
-                           pinMap: PinMap) -> (LayerTypeSet,
+                           pinMap: RootPinMap) -> (LayerTypeSet,
                                                // layers used as masks
                                                // TODO: not needed anymore?
                                                LayerIdSet) {
@@ -312,7 +312,7 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
                 
                 let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
-                    pinnedViews: pinnedViews, 
+                    pinnedData: pinnedViews,
                     sidebarLayers: sidebarLayersGlobal,
                     layerNodes: layerNodes,
                     layerTypesAtThisLevel: layerTypesAtThisLevel)
@@ -325,14 +325,19 @@ func handleRawSidebarLayer(sidebarIndex: Int,
     return (layerTypesAtThisLevel, handled)
 }
 
-func getLayerTypesForPinnedViews(pinnedViews: LayerIdSet, // views pinned to this layer
+func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to this layer
                                  sidebarLayers: SidebarLayerList,
                                  layerNodes: NodesViewModelDict,
                                  layerTypesAtThisLevel: LayerTypeSet) -> LayerTypeSet {
     
     var layerTypesAtThisLevel = layerTypesAtThisLevel
     
-    pinnedViews.forEach { (pinnedView: LayerNodeId) in
+    pinnedData
+        .pins?
+        .flatMap { $0.getAllPins() }
+        .toSet
+        .compactMap { $0 }
+        .forEach { (pinnedView: LayerNodeId) in
         
         // Note: we do NOT add the pinned-view A to `handled`; another copy/version of A must be handled separately and 'normally' so that its ghost view can live at its proper hierarchy level to be affected by parent scale etc.
         

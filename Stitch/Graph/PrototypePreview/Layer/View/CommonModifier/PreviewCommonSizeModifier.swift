@@ -47,7 +47,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     
-    let pinMap: PinMap
+    let pinMap: RootPinMap
     
     let aspectRatio: AspectRatioData
     let size: LayerSize

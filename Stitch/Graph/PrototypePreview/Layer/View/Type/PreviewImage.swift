@@ -282,7 +282,7 @@ struct PreviewImageLayer: View {
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.graphUI.pinMap))
+            pinMap: graph.visibleNodesViewModel.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: layerViewModel,
