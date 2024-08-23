@@ -74,8 +74,12 @@ struct PreviewCommonPositionModifier: ViewModifier {
             // A non-PinnedView rendering of a layer uses .position unless:
             // 1. the layer is a child inside a group that uses a VStack or HStack, or
             // 2. it is a GhostView rendering
-            if parentDisablesPosition || isGhostView {
+            if isGhostView {
                 content
+            } else if parentDisablesPosition {
+                content
+                    .offset(x: viewModel.offsetInGroup.width,
+                            y: viewModel.offsetInGroup.height)
             } else {
                 content
                     .position(x: pos.width, y: pos.height)
