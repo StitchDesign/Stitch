@@ -73,7 +73,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
         
         // Margin input comes *after* `.frame`
         // Should be applied before layer-effects, rotation etc.?
-            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin))
+            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin.getPadding ?? .defaultPadding))
         
         // TODO: How do layer-padding and layer-margin inputs affect stroke ?
             .modifier(ApplyStroke(
@@ -120,7 +120,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 graph: graph,
                 viewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition,
+                parentDisablesPosition: parentDisablesPosition, 
+                parentSize: parentSize,
                 pos: pos))
                 
         //  SwiftUI gestures must come AFTER the .position modifier

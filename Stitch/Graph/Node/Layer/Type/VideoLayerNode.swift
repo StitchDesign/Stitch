@@ -33,7 +33,7 @@ struct VideoLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
