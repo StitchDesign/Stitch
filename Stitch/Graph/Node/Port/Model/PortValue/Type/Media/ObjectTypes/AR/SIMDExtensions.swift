@@ -51,9 +51,14 @@ extension simd_float4x4 {
     
     // Create a 4x4 rotation matrix from Euler angles (in radians) || TODO: This is fine, but, one layer beneath UI, convert from degrees to radians for a much smoother expereince 
     init(rotationZYX eulerAngles: SIMD3<Float>) {
-        let cx = cos(eulerAngles.x), sx = sin(eulerAngles.x)
-        let cy = cos(eulerAngles.y), sy = sin(eulerAngles.y)
-        let cz = cos(eulerAngles.z), sz = sin(eulerAngles.z)
+        // Convert degrees to radians
+        let radiansX = eulerAngles.x * Float.pi / 180
+        let radiansY = eulerAngles.y * Float.pi / 180
+        let radiansZ = eulerAngles.z * Float.pi / 180
+
+        let cx = cos(radiansX), sx = sin(radiansX)
+        let cy = cos(radiansY), sy = sin(radiansY)
+        let cz = cos(radiansZ), sz = sin(radiansZ)
 
         let rotationMatrix = simd_float3x3(
             SIMD3<Float>(cy * cz, cy * sz, -sy),
