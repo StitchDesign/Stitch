@@ -67,8 +67,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit",
       "state" : {
-        "branch" : "releases/v24.0.0-introduce-padding-margin-and-childOffset-inputs",
-        "revision" : "7518124ba067c3e359882bd087298acca3f65cae"
+        "revision" : "2e43778ca86f550618ae1d91bb6837b80f5f0c4c"
       }
     },
     {
