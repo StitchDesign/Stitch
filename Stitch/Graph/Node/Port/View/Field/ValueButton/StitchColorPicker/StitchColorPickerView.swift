@@ -67,16 +67,18 @@ struct StitchColorPickerView: View {
         
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if isFieldInsideLayerInspector,
-           let layerInput = fieldCoordinate.rowId.portType.keyPath {
-        return graph.graphUI
-                .propertySidebar
-                .layerMultiselectObserver?
-                .inputs.get(layerInput.layerInput)?
-                .hasHeterogenousValue.contains(fieldCoordinate.fieldIndex) ?? false
-        } else {
-            return false
-        }
+        return false
+        
+//        if isFieldInsideLayerInspector,
+//           let layerInput = fieldCoordinate.rowId.portType.keyPath {
+//        return graph.graphUI
+//                .propertySidebar
+//                .layerMultiselectObserver?
+//                .inputs.get(layerInput.layerInput)?
+//                .hasHeterogenousValue.contains(fieldCoordinate.fieldIndex) ?? false
+//        } else {
+//            return false
+//        }
     }
     
     

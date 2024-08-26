@@ -18,9 +18,9 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 
 extension InputFieldViewModel {
-    var isFieldInsideLayerInspector: Bool {
-        self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
-    }
+//    var isFieldInsideLayerInspector: Bool {
+//        self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
+//    }
     
     // Is this input-field for a layer input, and if so, which one?
     var layerInput: LayerInputPort? {
@@ -60,6 +60,8 @@ final class LayerMultiSelectObserver {
     init(inputs: LayerMultiselectInputDict) {
         self.inputs = inputs
     }
+    
+    var fieldHasHeterogenousValues: Bool = false
     
     // Note: this loses information about the heterogenous values etc.
     var asLayerInputObserverDict: LayerInputObserverDict {
@@ -114,56 +116,55 @@ final class LayerMultiselectInput {
     // ... but what does the UI expect? what do we need to pass down to the node UI fields etc.?
     let observers: [LayerInputObserver]
         
-    // TODO: needs to be by field-level, not whole input; so i.e. would return Set<FieldCoordinate>
-    // TODO: are you handling packed vs unpacked properly here?
     // TODO: think about perf implications here
     // Expectation is that whenever any of the LayerInputObservers' activeValue changes, we re-run this
     @MainActor
     // set of field index
     var hasHeterogenousValue: Set<Int> {
         
-        // field index -> values in that field
-        var d = [Int: [FieldValue]]()
-        var acc = Set<Int>()
+        return .init()
+//
+//        // field index -> values in that field
+//        var d = [Int: [FieldValue]]()
+//        var acc = Set<Int>()
+//        
+//        // I would go by input, actually.
+//        // every observer in `observers` is for that specific `input: LayerInputPort`
+//        
+//        // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
+//        
+//        self.observers.forEach { (observer: LayerInputObserver) in
+//            observer
+//            
+//            // ignore packed vs unpacked for now? assume everything is packed?
+//                ._packedData
+//            
+//            // we're only interested in the inspector
+//                .inspectorRowViewModel
+//            
+//            // .first = ignore the shape command case
+//                .fieldValueTypes.first?
+//            
+//            // careful: NOT "does every field in this input have the same value?";
+//            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
+//                .fieldObservers.forEach({ (field: InputFieldViewModel) in
+//                    var existing = d.get(field.fieldIndex) ?? []
+//                    existing.append(field.fieldValue)
+//                    d.updateValue(existing, forKey: field.fieldIndex)
+//            })
+//        }
+//        
+//        log("hasHeterogenousValue: d: \(d)")
+//                
+//        d.forEach { (key: Int, values: [FieldValue]) in
+//            if let someValue = values.first,
+//                !values.allSatisfy({ $0 == someValue }) {
+//                acc.insert(key)
+//            }
+//        }
+//        
+//        return acc
         
-        // I would go by input, actually.
-        // every observer in `observers` is for that specific `input: LayerInputPort`
-        
-        // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
-        
-        observers.forEach { (observer: LayerInputObserver) in
-            observer
-            
-            // ignore packed vs unpacked for now? assume everything is packed?
-                ._packedData
-            
-            // pulling field view models from inspector row VM is guaranteed; whereas canvas row VM might be missing;
-            // alternatively, compare against row observer
-                .inspectorRowViewModel
-            
-            // .first = ignore the shape command case
-                .fieldValueTypes.first?
-            
-            // careful: NOT "does every field in this input have the same value?";
-            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
-                .fieldObservers.forEach({ (field: InputFieldViewModel) in
-                
-                    var existing = d.get(field.fieldIndex) ?? []
-                    existing.append(field.fieldValue)
-                    d.updateValue(existing, forKey: field.fieldIndex)
-            })
-        }
-        
-        log("hasHeterogenousValue: d: \(d)")
-                
-        d.forEach { (key: Int, values: [FieldValue]) in
-            if let someValue = values.first,
-                !values.allSatisfy({ $0 == someValue }) {
-                acc.insert(key)
-            }
-        }
-        
-        return acc
     }
         
     init(input: LayerInputPort, observers: [LayerInputObserver]) {

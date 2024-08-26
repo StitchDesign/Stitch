@@ -41,16 +41,17 @@ struct MediaFieldValueView: View {
 
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if isFieldInsideLayerInspector,
-           let layerInput = inputCoordinate.layerInput {
-        return graph.graphUI
-                .propertySidebar
-                .layerMultiselectObserver?
-                .inputs.get(layerInput.layerInput)?
-                .hasHeterogenousValue.contains(fieldIndex) ?? false
-        } else {
-            return false
-        }
+        return false
+//        if isFieldInsideLayerInspector,
+//           let layerInput = inputCoordinate.layerInput {
+//        return graph.graphUI
+//                .propertySidebar
+//                .layerMultiselectObserver?
+//                .inputs.get(layerInput.layerInput)?
+//                .hasHeterogenousValue.contains(fieldIndex) ?? false
+//        } else {
+//            return false
+//        }
     }
     
     var body: some View {

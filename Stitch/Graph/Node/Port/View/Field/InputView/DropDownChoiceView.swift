@@ -23,28 +23,31 @@ struct DropDownChoiceView: View {
     // TODO: handle properly by field, not whole input
     @MainActor
     var hasHeterogenousValues: Bool {
-        /*
-         Only relevant when this field is:
-         - for a layer
-         - in the layer inspector
-         - and we have multiple layers selected
-         */
-        guard isFieldInsideLayerInspector,
-              let layerInput = id.keyPath?.layerInput,
-              let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
-              let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
-            // log("DropDownChoiceView: hasHeterogenousValues: guard")
-            return false
-        }
         
-        let fieldsWithHeterogenousValues = layerMultiselectInput.hasHeterogenousValue
-        
-        if fieldsWithHeterogenousValues.contains(0) {
-            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
-            return true
-        } else {
-            return false
-        }
+        return false
+//
+//        /*
+//         Only relevant when this field is:
+//         - for a layer
+//         - in the layer inspector
+//         - and we have multiple layers selected
+//         */
+//        guard isFieldInsideLayerInspector,
+//              let layerInput = id.keyPath?.layerInput,
+//              let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
+//              let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
+//            // log("DropDownChoiceView: hasHeterogenousValues: guard")
+//            return false
+//        }
+//        
+//        let fieldsWithHeterogenousValues = layerMultiselectInput.hasHeterogenousValue
+//        
+//        if fieldsWithHeterogenousValues.contains(0) {
+//            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
+//            return true
+//        } else {
+//            return false
+//        }
             
 //        if layerMultiselectInput.hasHeterogenousValue {
 //            log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for \(layerInput)")

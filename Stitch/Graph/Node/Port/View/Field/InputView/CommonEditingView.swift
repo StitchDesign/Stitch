@@ -83,6 +83,7 @@ struct CommonEditingView: View {
     
     var isFieldInsideLayerInspector: Bool {
         inputField.isFieldInsideLayerInspector
+//        false
     }
 
     var layerInput: LayerInputPort? {
@@ -97,28 +98,32 @@ struct CommonEditingView: View {
     // TODO: handle properly by field, not whole input
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        /*
-         Only relevant when this field is:
-         - for a layer
-         - in the layer inspector
-         - and we have multiple layers selected
-         */
-        guard let layerInput = self.layerInput, // for a layer
-              self.isFieldInsideLayerInspector, // in the layer inspector
-              let multiselectObserver = multiselectObserver, // we have multiple layers selected
-              let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
-//            log("CommonEditingView: hasHeterogenousValues: guard")
-            return false
-        }
+        multiselectObserver?.fieldHasHeterogenousValues ?? false
         
-        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
-        
-        if indicesWithHeterogenousValues.contains(fieldIndex) {
-            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
-            return true
-        } else {
-            return false
-        }
+//        return false
+//
+//        /*
+//         Only relevant when this field is:
+//         - for a layer
+//         - in the layer inspector
+//         - and we have multiple layers selected
+//         */
+//        guard let layerInput = self.layerInput, // for a layer
+//              self.isFieldInsideLayerInspector, // in the layer inspector
+//              let multiselectObserver = multiselectObserver, // we have multiple layers selected
+//              let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
+////            log("CommonEditingView: hasHeterogenousValues: guard")
+//            return false
+//        }
+//        
+//        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
+//        
+//        if indicesWithHeterogenousValues.contains(fieldIndex) {
+//            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
+//            return true
+//        } else {
+//            return false
+//        }
         
 //        if inputObserver.hasHeterogenousValue {
 //            log("CommonEditingView: hasHeterogenousValues: heterogenous values for \(layerInput)")

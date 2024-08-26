@@ -42,6 +42,8 @@ final class InputFieldViewModel: FieldViewModel {
     var fieldLabel: String
     var isBlockedOut: Bool = false
 
+    var isFieldInsideLayerInspector: Bool = false 
+    
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
