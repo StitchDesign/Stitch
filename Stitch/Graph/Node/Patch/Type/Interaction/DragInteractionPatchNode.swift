@@ -133,11 +133,12 @@ func dragInteractionEvalOp(values: PortValues,
                            graphTime: TimeInterval,
                            fps: StitchFPS) -> ImpureEvalOpResult {
     
-    // log("dragInteractionEvalOp called: values: \(values)")
+     log("dragInteractionEvalOp called: values: \(values)")
     
+//    let currentOutput = interactiveLayer.layerPosition
     let currentOutput = interactiveLayer.layerPosition
     
-    // log("dragInteractionEvalOp: currentOutput at start: \(currentOutput)")
+     log("dragInteractionEvalOp: currentOutput at start: \(currentOutput)")
     
     let dragEnabled: Bool = values[safeIndex: DragNodeInputLocations.isEnabled]?.getBool ?? false
     let momentumEnabled: Bool = values[safeIndex: DragNodeInputLocations.isMomentumEnabled]?.getBool ?? false
@@ -150,11 +151,10 @@ func dragInteractionEvalOp(values: PortValues,
     
     let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? .zero
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
-    let shouldMomentumStart = momentumEnabled &&
-        interactiveLayer.dragStartingPoint == nil &&
-    state.wasDragging
+    let shouldMomentumStart = momentumEnabled && interactiveLayer.dragStartingPoint == nil && state.wasDragging
     
     let dragStartingPoint = interactiveLayer.dragStartingPoint ?? previousStartingPoint
+//    let dragStartingPoint = previousStartingPoint
     
     var newOutput = interactiveLayer.getDraggedPosition(startingPoint: dragStartingPoint)
     

@@ -328,7 +328,9 @@ final class LayerViewModel {
 
 extension LayerViewModel: InteractiveLayerDelegate {
     func getPosition() -> CGPoint {
-        self.position.getPoint ?? .zero
+        let k = self.position.getPoint ?? .zero
+        log("LayerViewModel: getPosition: \(k)")
+        return k
     }
 }
 
