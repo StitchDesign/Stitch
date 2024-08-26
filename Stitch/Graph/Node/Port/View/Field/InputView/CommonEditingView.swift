@@ -90,47 +90,42 @@ struct CommonEditingView: View {
         inputField.layerInput
     }
     
+    // THIS SEEMS TO BE GETTING HIT TOO OFTEN, EVEN WHEN E.G. GUARD STATEMENTS ARE ALSO HIT,
+    // Is something with
     @MainActor
     var multiselectObserver: LayerMultiSelectObserver? {
         graph.graphUI.propertySidebar.layerMultiselectObserver
     }
         
-    // TODO: handle properly by field, not whole input
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        multiselectObserver?.fieldHasHeterogenousValues ?? false
-        
+//        multiselectObserver?.fieldHasHeterogenousValues ?? false
 //        return false
 //
-//        /*
-//         Only relevant when this field is:
-//         - for a layer
-//         - in the layer inspector
-//         - and we have multiple layers selected
-//         */
-//        guard let layerInput = self.layerInput, // for a layer
-//              self.isFieldInsideLayerInspector, // in the layer inspector
-//              let multiselectObserver = multiselectObserver, // we have multiple layers selected
-//              let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
-////            log("CommonEditingView: hasHeterogenousValues: guard")
-//            return false
-//        }
-//        
-//        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
-//        
-//        if indicesWithHeterogenousValues.contains(fieldIndex) {
-//            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
-//            return true
-//        } else {
-//            return false
-//        }
+        /*
+         Only relevant when this field is:
+         - for a layer
+         - in the layer inspector
+         - and we have multiple layers selected
+         */
         
-//        if inputObserver.hasHeterogenousValue {
-//            log("CommonEditingView: hasHeterogenousValues: heterogenous values for \(layerInput)")
-//            return true
-//        }
-//        
-//        return inputObserver.hasHeterogenousValue
+        guard let multiselectObserver = multiselectObserver, // we have multiple layers selected,
+              let layerInput = self.layerInput, // for a layer
+              self.isFieldInsideLayerInspector, // in the layer inspector
+              let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
+//            log("CommonEditingView: hasHeterogenousValues: guard")
+            return false
+        }
+        
+        // PERF INTENSIVE ?
+        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
+        
+        if indicesWithHeterogenousValues.contains(fieldIndex) {
+            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
+            return true
+        } else {
+            return false
+        }
     }
     
     var body: some View {

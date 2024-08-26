@@ -114,6 +114,18 @@ final class LayerMultiselectInput {
     // ... you probably need to use the row observer, since otherwise you'd be managing two different data structures?
     // actually, those data structures would just be updated when node row observer is updated...
     // ... but what does the UI expect? what do we need to pass down to the node UI fields etc.?
+    
+    /*
+     Elliot's thoughts:
+     - retain cycle possible: since we mad
+     - we have multiple owners; but ideally want ONE;
+     
+     Make these computed instead?
+     Add a new (UI-only) property to layer node view model? or just use SidebarSelectionState;
+     
+     */
+    
+    // MAKE THIS DERIVED
     let observers: [LayerInputObserver]
         
     // TODO: think about perf implications here
@@ -122,48 +134,48 @@ final class LayerMultiselectInput {
     // set of field index
     var hasHeterogenousValue: Set<Int> {
         
-        return .init()
+//        return .init()
 //
 //        // field index -> values in that field
-//        var d = [Int: [FieldValue]]()
-//        var acc = Set<Int>()
-//        
-//        // I would go by input, actually.
-//        // every observer in `observers` is for that specific `input: LayerInputPort`
-//        
-//        // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
-//        
-//        self.observers.forEach { (observer: LayerInputObserver) in
-//            observer
-//            
-//            // ignore packed vs unpacked for now? assume everything is packed?
-//                ._packedData
-//            
-//            // we're only interested in the inspector
-//                .inspectorRowViewModel
-//            
-//            // .first = ignore the shape command case
-//                .fieldValueTypes.first?
-//            
-//            // careful: NOT "does every field in this input have the same value?";
-//            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
-//                .fieldObservers.forEach({ (field: InputFieldViewModel) in
-//                    var existing = d.get(field.fieldIndex) ?? []
-//                    existing.append(field.fieldValue)
-//                    d.updateValue(existing, forKey: field.fieldIndex)
-//            })
-//        }
-//        
-//        log("hasHeterogenousValue: d: \(d)")
-//                
-//        d.forEach { (key: Int, values: [FieldValue]) in
-//            if let someValue = values.first,
-//                !values.allSatisfy({ $0 == someValue }) {
-//                acc.insert(key)
-//            }
-//        }
-//        
-//        return acc
+        var d = [Int: [FieldValue]]()
+        var acc = Set<Int>()
+        
+        // I would go by input, actually.
+        // every observer in `observers` is for that specific `input: LayerInputPort`
+        
+        // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
+        
+        self.observers.forEach { (observer: LayerInputObserver) in
+            observer
+            
+            // ignore packed vs unpacked for now? assume everything is packed?
+                ._packedData
+            
+            // we're only interested in the inspector
+                .inspectorRowViewModel
+            
+            // .first = ignore the shape command case
+                .fieldValueTypes.first?
+            
+            // careful: NOT "does every field in this input have the same value?";
+            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
+                .fieldObservers.forEach({ (field: InputFieldViewModel) in
+                    var existing = d.get(field.fieldIndex) ?? []
+                    existing.append(field.fieldValue)
+                    d.updateValue(existing, forKey: field.fieldIndex)
+                })
+        }
+        
+        log("hasHeterogenousValue: d: \(d)")
+        
+        d.forEach { (key: Int, values: [FieldValue]) in
+            if let someValue = values.first,
+               !values.allSatisfy({ $0 == someValue }) {
+                acc.insert(key)
+            }
+        }
+        
+        return acc
         
     }
         
