@@ -106,17 +106,11 @@ extension LayerNodeViewModel {
 final class LayerMultiselectInput {
     let input: LayerInputPort // will need to be Input OR Output
     
-    // will need to be LayerInputObserver OR OutputLayerNodeRowData
-    // maybe better to just use the row observer here? don't need the inspector row view model per se?
-    // or just use the inspector row view model?
-    // ... you probably need to use the row observer, since otherwise you'd be managing two different data structures?
-    // actually, those data structures would just be updated when node row observer is updated...
-    // ... but what does the UI expect? what do we need to pass down to the node UI fields etc.?
+    // Should be a function of (graph + select
+    // You've already done the hardwork of determining which are the common, overlapping inputs
     let observers: [LayerInputObserver]
         
-    // TODO: needs to be by field-level, not whole input; so i.e. would return Set<FieldCoordinate>
-    // TODO: are you handling packed vs unpacked properly here?
-    // TODO: think about perf implications here
+    
     // Expectation is that whenever any of the LayerInputObservers' activeValue changes, we re-run this
     @MainActor
     // set of field index
@@ -166,7 +160,8 @@ final class LayerMultiselectInput {
         return acc
     }
         
-    init(input: LayerInputPort, observers: [LayerInputObserver]) {
+    init(input: LayerInputPort, 
+         observers: [LayerInputObserver]) {
         self.input = input
         self.observers = observers
     }

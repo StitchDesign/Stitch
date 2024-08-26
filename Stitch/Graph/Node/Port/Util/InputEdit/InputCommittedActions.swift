@@ -83,23 +83,14 @@ extension GraphState {
             return
         }
         
-        // If we're inside the layer inspector,
         if isFieldInsideLayerInspector,
-           // and editing a layer input,
            let layerInput = input.id.keyPath?.layerInput,
-           // and we have multiselect-layer state
            let multiselectObserver = self.graphUI.propertySidebar.layerMultiselectObserver,
-           // and we're editing the
            let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
-           
-//           layerMultiselectInput.id == self.id {
-           // Always test against first observer ?
+           // This check isn't needed?
             layerMultiselectInput.observers.first?.rowObserver.id == input.id {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
-
-            log("inputEditCommitted: will update \(layerMultiselectInput.observers.count) observers")
-            
             layerMultiselectInput.observers.forEach { observer in
                 self.inputEditCommitted(input: observer.rowObserver,
                                         value: value,
@@ -109,7 +100,6 @@ extension GraphState {
         
         // just editing a single
         else {
-            log("inputEditCommitted: NORMAL EDIT")
             self.inputEditCommitted(input: input,
                                     value: value,
                                     wasAdjustmentBarSelection: wasAdjustmentBarSelection)
