@@ -9,6 +9,8 @@ import Foundation
 import StitchSchemaKit
 import SwiftyJSON
 
+typealias PortValues = [PortValue]
+
 // the values of several Inputs and/or Outputs
 typealias PortValuesList = [PortValues]
 

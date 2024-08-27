@@ -15,7 +15,7 @@ struct JSONObjectNode: PatchNodeDefinition {
     
     static let defaultUserVisibleType: UserVisibleType? = .number
     
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(inputs: [
             .init(label: "Key", staticType: .string),
             .init(label: "Value", defaultType: .number)

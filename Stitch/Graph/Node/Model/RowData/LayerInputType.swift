@@ -256,6 +256,12 @@ extension LayerInputPort {
             return .anchoring(.defaultAnchoring)
         case .pinOffset:
             return .size(.zero)
+        case .layerPadding:
+            return .padding(.zero)
+        case .layerMargin:
+            return .padding(.zero)
+        case .offsetInGroup:
+            return .size(.zero)
         }
     }
     
@@ -462,6 +468,12 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
+        case .layerPadding:
+            return \.layerPaddingPort
+        case .layerMargin:
+            return \.layerMarginPort
+        case .offsetInGroup:
+            return \.offsetInGroupPort
         }
     }
     
@@ -701,6 +713,12 @@ extension LayerViewModel {
             return self.pinAnchor
         case .pinOffset:
             return self.pinOffset
+        case .layerPadding:
+            return self.layerPadding
+        case .layerMargin:
+            return self.layerMargin
+        case .offsetInGroup:
+            return self.offsetInGroup
         }
     }
     
@@ -903,6 +921,12 @@ extension LayerViewModel {
             self.pinAnchor = value
         case .pinOffset:
             self.pinOffset = value
+        case .layerPadding:
+            self.layerPadding = value
+        case .layerMargin:
+            self.layerMargin = value
+        case .offsetInGroup:
+            self.offsetInGroup = value
         }
     }
 }
@@ -1099,6 +1123,12 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
+        case .layerPadding:
+            return \.layerPaddingPort
+        case .layerMargin:
+            return \.layerMarginPort
+        case .offsetInGroup:
+            return \.offsetInGroupPort
         }
     }
     
@@ -1390,8 +1420,14 @@ extension LayerInputPort {
         case .pinTo:
             return "Pin To"
         case .pinAnchor:
-            return "Anchor"
+            return "Pin Anchor"
         case .pinOffset:
+            return "Pin Offset"
+        case .layerPadding:
+            return "Layer Padding"
+        case .layerMargin:
+            return "Layer Margin"
+        case .offsetInGroup:
             return "Offset"
         }
     }

@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct WhenPrototypeStartsNode: PatchNodeDefinition {
     static let patch: Patch = .whenPrototypeStarts
     
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
                 .fakeInput

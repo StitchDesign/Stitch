@@ -130,6 +130,10 @@ extension PreviewWindowDevice {
     }
 }
 
+extension PreviewSize {
+    public static let defaultOption = Self.iPhone14
+}
+
 func checkDimensionsMatchDevice(size: CGSize) -> PreviewWindowDevice {
     for previewSize in PreviewWindowDevice.allCases {
         if previewSize.previewWindowDimensions == size {

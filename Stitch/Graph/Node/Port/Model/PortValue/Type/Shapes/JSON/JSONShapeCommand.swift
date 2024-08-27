@@ -10,6 +10,8 @@ import StitchSchemaKit
 import SwiftUI
 import SwiftyJSON
 
+typealias JSONShapeCommands = [JSONShapeCommand]
+
 extension JSONShapeCommand {
     // turn an individual shape command into a json object
     var toJSON: Result<JSON, Error> {

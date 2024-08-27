@@ -123,6 +123,9 @@ struct PreviewCommonSizeModifier: ViewModifier {
         case .auto:
             // logInView("case .auto")
             content
+                // padding input must be applied *before* .frame
+                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+            
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
@@ -148,6 +151,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
         case .constrainHeight:
             // logInView("case .constrainHeight")
             content
+            // padding input must be applied *before* .frame
+                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(
@@ -172,6 +177,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
         case .constrainWidth:
             // logInView("case .constrainWidth")
             content
+            // padding input must be applied *before* .frame
+                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(

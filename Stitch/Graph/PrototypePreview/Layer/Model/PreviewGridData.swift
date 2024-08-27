@@ -441,6 +441,8 @@ extension StitchPadding {
                                            left: .zero)
     
     static let defaultPadding = Self.zero
+    
+    static let demoPadding = Self.init(top: 8, right: 8, bottom: 8, left: 8)
 }
 
 extension Point4D {

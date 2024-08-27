@@ -85,7 +85,7 @@ extension LayerInspectorView {
             .init(.positioning, Self.positioning),
             .init(.common, Self.common),
             .init(.group, layer.supportsGroupInputs ? Self.groupLayer : []),
-            .init(.pinning, layer.supportsPinningInputs ? Self.pinning : []),
+            .init(.pinning, Self.pinning),
             .init(.typography, layer.supportsTypographyInputs ? Self.text : []),
             .init(.stroke, layer.supportsStrokeInputs ? Self.stroke : []),
             .init(.rotation, layer.supportsRotationInputs ? Self.rotation : []),
@@ -119,7 +119,7 @@ extension LayerInspectorView {
         .position,
         .anchoring,
         .zIndex,
-        // .offset // TO BE ADED
+        .offsetInGroup
     ]
     
     @MainActor
@@ -217,7 +217,11 @@ extension LayerInspectorView {
         .allAnchors,
         .cameraDirection,
         .isCameraEnabled,
-        .isShadowsEnabled
+        .isShadowsEnabled,
+        
+        // Layer padding, margin
+        .layerMargin,
+        .layerPadding
     ]
     
     @MainActor
@@ -299,13 +303,7 @@ extension Layer {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.groupLayer).isEmpty
     }
-    
-    @MainActor
-    var supportsPinningInputs: Bool {
-        let layerInputs = self.layerGraphNode.inputDefinitions
-        return !layerInputs.intersection(LayerInputTypeSet.pinning).isEmpty
-    }
-    
+        
     @MainActor
     var supportsTypographyInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
@@ -318,18 +316,21 @@ extension Layer {
         return !layerInputs.intersection(LayerInspectorView.stroke).isEmpty
     }
 
+    // TODO: don't *all* layers support x-y-z rotation?
     @MainActor
     var supportsRotationInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.rotation).isEmpty
     }
     
+    // TODO: don't *all* layers support shadows?
     @MainActor
     var supportsShadowInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions
         return !layerInputs.intersection(LayerInspectorView.shadow).isEmpty
     }
     
+    // TODO: don't *all* layers support layer-effects? (Not HitArea ?)
     @MainActor
     var supportsLayerEffectInputs: Bool {
         let layerInputs = self.layerGraphNode.inputDefinitions

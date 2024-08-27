@@ -62,6 +62,7 @@
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
+		B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */; };
 		B52A3E632B7F337400B4F1DA /* GraphCopyable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */; };
 		B530494727A0CBF500D970BB /* ViewUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B530494627A0CBF500D970BB /* ViewUtils.swift */; };
 		B5305CE7285150E2008F11F4 /* beach.png in Resources */ = {isa = PBXBuildFile; fileRef = B5305CE6285150E2008F11F4 /* beach.png */; };
@@ -749,6 +750,7 @@
 		ECCEB26C2963B0FD007E35D1 /* TriangleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */; };
 		ECCEB26E2963B10F007E35D1 /* CustomShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEB26D2963B10F007E35D1 /* CustomShape.swift */; };
 		ECCEDA822B5715B50000333B /* iPadFloatingWindowHandleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */; };
+		ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */; };
 		ECCFB3622C35DFCB00E94D60 /* NumericalLayerDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */; };
 		ECCFB3662C35E09400E94D60 /* LengthDimension.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3652C35E09400E94D60 /* LengthDimension.swift */; };
 		ECCFB3682C35E0FD00E94D60 /* AspectRatioData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */; };
@@ -968,6 +970,7 @@
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
+		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
 		B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphCopyable.swift; sourceTree = "<group>"; };
 		B530494627A0CBF500D970BB /* ViewUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewUtils.swift; sourceTree = "<group>"; };
 		B5305CE6285150E2008F11F4 /* beach.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = beach.png; sourceTree = "<group>"; };
@@ -1656,6 +1659,7 @@
 		ECCEB26B2963B0FD007E35D1 /* TriangleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangleData.swift; sourceTree = "<group>"; };
 		ECCEB26D2963B10F007E35D1 /* CustomShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomShape.swift; sourceTree = "<group>"; };
 		ECCEDA812B5715B50000333B /* iPadFloatingWindowHandleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadFloatingWindowHandleView.swift; sourceTree = "<group>"; };
+		ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerPaddingModifier.swift; sourceTree = "<group>"; };
 		ECCFB3612C35DFCB00E94D60 /* NumericalLayerDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericalLayerDimension.swift; sourceTree = "<group>"; };
 		ECCFB3652C35E09400E94D60 /* LengthDimension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LengthDimension.swift; sourceTree = "<group>"; };
 		ECCFB3672C35E0FD00E94D60 /* AspectRatioData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AspectRatioData.swift; sourceTree = "<group>"; };
@@ -2311,6 +2315,7 @@
 				ECCFB36B2C35E16300E94D60 /* PreviewLayerSizeModifier.swift */,
 				ECCFB36D2C35E18800E94D60 /* PreviewCommonSizeModifier.swift */,
 				EC226C682BD8862900411EB7 /* PreviewShadowModifier.swift */,
+				ECCF930C2C7908F7002786D5 /* LayerPaddingModifier.swift */,
 				B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */,
 				ECEF8D0C2BFD4460004FABCD /* LayerSizeReader.swift */,
 				EC9486A32AE2007800B51AB1 /* HoverGestureModifier.swift */,
@@ -3170,6 +3175,7 @@
 				ECCE40E227E29B5D0068484B /* ICloudSyncStatus.swift */,
 				EC89F7E027602C0700C4447A /* ExpansionBox.swift */,
 				ECEACE8B2A8587C3007ACDE2 /* StitchFPS.swift */,
+				B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4546,6 +4552,7 @@
 				EC2614552B897C4200BEB066 /* MatrixUnpackNode.swift in Sources */,
 				B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */,
 				B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */,
+				B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */,
 				EC6C68D02937CA800023B700 /* ReverseProgressNode.swift in Sources */,
 				EC067CE82BAB6C2500F8EB82 /* ClassicAnimationPoint4D.swift in Sources */,
 				ECEAFE61270E1E0D007DF78D /* OperationEvaluationHelpers.swift in Sources */,
@@ -5026,6 +5033,7 @@
 				ECDFF6302A0E994700729D2A /* ShapeToCommandsNode.swift in Sources */,
 				ECE2AFEA2C0A43D200F5FE87 /* InsertNodeMenuActions.swift in Sources */,
 				EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */,
+				ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */,
 				ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */,
 				EC1DE588260AADD7009497CF /* OrNode.swift in Sources */,
 				EC5043A32874C8E000590D07 /* RGBANode.swift in Sources */,
