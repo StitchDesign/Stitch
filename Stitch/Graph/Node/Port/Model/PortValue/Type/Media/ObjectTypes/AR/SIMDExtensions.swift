@@ -49,7 +49,7 @@ extension simd_float4x4 {
         return simd_float3x3(columns.0.xyz, columns.1.xyz, columns.2.xyz)
     }
     
-    // Create a 4x4 rotation matrix from Euler angles (in radians) || TODO: This is fine, but, one layer beneath UI, convert from degrees to radians for a much smoother expereince 
+    // Create a 4x4 rotation matrix from Euler angles (in degrees) 
     init(rotationZYX eulerAngles: SIMD3<Float>) {
         // Convert degrees to radians
         let radiansX = eulerAngles.x * Float.pi / 180
