@@ -78,22 +78,11 @@ extension GraphState {
                               isFieldInsideLayerInspector: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
-                
-//        let pinMap = self.graphUI.pinMap
-//        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
-//                
-//        // includes self?
-//        var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
-//        descendants.remove(isForNode.asLayerNodeId)
-
         let multiselectNodes = self
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
-        
-//        var idsToExclude = des
     
         // TODO: cache these? update the cache whenever selected layer(s) change(s)?
-        
         var layersToExclude: LayerIdSet = isForPinTo
         ? self.layerChoicesToExcludeFromPinTo(nodeId: isForNode.asLayerNodeId,
                                               isForLayerGroup: isForLayerGroup)
@@ -119,18 +108,6 @@ extension GraphState {
                 if layersToExclude.contains(layerId.asLayerNodeId) {
                     return nil
                 }
-                
-//                // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
-//                if isForPinTo,
-//                    // Exclude the node itself, i.e. A cannot choose A as its pinToId
-//                   (layerId == isForNode
-//                    // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
-//                    || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)
-//                    
-//                    // Exclude this layer group's descendants of from choices
-//                    || descendants.contains(layerId.asLayerNodeId)) {
-//                    return nil
-//                }
                 
                 return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }

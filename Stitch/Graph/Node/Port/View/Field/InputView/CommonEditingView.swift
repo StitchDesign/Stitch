@@ -197,26 +197,15 @@ struct CommonEditingView: View {
         .pickerStyle(.inline) // avoids unnecessary middle label
 #endif
 
-        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want;
+        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want.
         // When dropdown item selected, update text-field's string
         .onChange(of: self.choice, initial: false) { oldValue, newValue in
-            // log("on change of choice: oldValue: \(oldValue)")
-            // log("on change of choice: newValue: \(newValue)")
-            // `choice` always start out as an empty string, so somewhere in onAppear or some initialization logic,
-            // we update `choice` which triggers this closure which updates the view etc.
-            
-            // solution?: initialize choice properly?
-            
-            if let newChoice = self.choices?.first(where: { $0 == newValue }) {
+            if let _ = self.choices?.first(where: { $0 == newValue }) {
                 // log("on change of choice: valid new choice")
                 self.currentEdit = newValue
                 self.inputEdited(newEdit: newValue,
                                  isCommitting: true)
             }
-            
-//            self.currentEdit = newValue
-//            self.inputEdited(newEdit: newValue,
-//                             isCommitting: true)
         }
         
         // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
@@ -275,7 +264,6 @@ struct CommonEditingView: View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
-//        StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
         StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)

@@ -121,12 +121,6 @@ extension Set {
         set.insert(item)
         return set
     }
-    
-    func pureRemove(_ item: Element) -> Self {
-        var set = self
-        set.remove(item)
-        return set
-    }
 }
 
 extension Collection where Element: Hashable {

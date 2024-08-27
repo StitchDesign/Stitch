@@ -177,8 +177,6 @@ struct LayerInspectorView: View {
                             portObserver: observer)
                     }
                     
-                    // TODO: when can this ever really be empty?
-//                    if !sectionInputs.isEmpty {
                     if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
@@ -353,7 +351,7 @@ struct LayerInspectorOutputsSectionView: View {
                     Rectangle().fill(.clear)
                         .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                                height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-//                    
+                    
                     StitchTextView(string: "Outputs").textCase(nil)
                 }
                 .listRowInsets(EdgeInsets(top: 0,

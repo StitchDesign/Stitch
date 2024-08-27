@@ -78,7 +78,7 @@ struct LayerInspectorInputPortView: View {
     
     // TODO: canvas item creation only used for debugging
     @MainActor func debug__createUnpackedCanvasItems() {
-        // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); creation of unpacked canvas items should be handled outside of the view, and maybe not be allowed for layer multiselect?
+        // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); handle the creation of unpacked canvas items should outside of the view and disallow for layer multiselect?
         fatalErrorIfDebug()
         
         //        let nodeId = portObserver._packedData.rowObserver.id.nodeId
@@ -105,8 +105,6 @@ struct LayerInspectorOutputPortView: View {
     
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
-    //    @Bindable var node: NodeViewModel
-    //    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     let canvasItemId: CanvasItemId?
@@ -115,8 +113,6 @@ struct LayerInspectorOutputPortView: View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
-                               //                               node: node,
-                               //                               layerNode: layerNode,
                                graph: graph,
                                canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeOutputView(graph: graph,
@@ -143,8 +139,6 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     @Bindable var rowViewModel: RowObserver.RowViewModelType
     @Bindable var rowObserver: RowObserver
-    //    @Bindable var node: NodeViewModel
-    //    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     // non-nil = this row is present on canvas

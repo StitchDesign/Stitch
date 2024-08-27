@@ -89,7 +89,6 @@ struct ProjectSidebarView: View {
     }
 }
 
-// TODO: don't
 struct SidebarEditModeToggled: GraphEvent {
     let isEditing: Bool
     

@@ -120,13 +120,8 @@ struct SidebarItemSelected: GraphEvent {
     let id: LayerNodeId
     
     func handle(state: GraphState) {
-
-        log("SidebarItemSelected: id: \(id)")
         
         let sidebarGroups = state.getSidebarGroupsDict()
-
-        log("SidebarItemSelected: sidebarGroups: \(sidebarGroups)")
-        log("SidebarItemSelected: state.sidebarSelectionState was: \(state.sidebarSelectionState)")
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
@@ -186,16 +181,10 @@ struct SidebarItemDeselected: GraphEvent {
 
     func handle(state: GraphState) {
 
-        log("SidebarItemDeselected: id: \(id)")
-        
-        
         // if we deselected a group,
         // then we should also deselect all its children.
         let groups = state.getSidebarGroupsDict()
         
-        log("SidebarItemDeselected: groups: \(groups)")
-        log("SidebarItemDeselected: state.sidebarSelectionState was: \(state.sidebarSelectionState)")
-
         var idsToDeselect = LayerIdSet([id])
 
         groups[id]?.forEach({ (childId: LayerNodeId) in
@@ -219,14 +208,5 @@ struct SidebarItemDeselected: GraphEvent {
         }
         
         state.updateInspectorFocusedLayers()
-        
-//        // Edit mode selections count as "non-edit-mode selections"
-//        state.sidebarSelectionState.inpsectorFocusedLayers = .init(Array(state.sidebarSelectionState.primary))
-//        
-//        if state.sidebarSelectionState.primary.count > 1 {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = state.multipleSidebarLayersSelected()
-//        } else {
-//            state.graphUI.propertySidebar.layerMultiselectObserver = nil
-//        }
     }
 }

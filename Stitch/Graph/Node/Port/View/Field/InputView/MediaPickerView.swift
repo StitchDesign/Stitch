@@ -62,7 +62,8 @@ struct MediaFieldValueView: View {
                                       mediaValue: media,
                                       nodeKind: nodeKind,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      graph: graph)
+                                      graph: graph,
+                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
             }
 
             if let mediaObject = mediaObject {
@@ -80,7 +81,6 @@ struct MediaFieldValueView: View {
     }
 }
 
-// TODO: udpate with `fieldHasHeterogenousValues` logic
 struct MediaFieldLabelView: View {
     let mediaObject: StitchMediaObject
     let inputCoordinate: InputCoordinate

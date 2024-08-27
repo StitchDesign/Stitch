@@ -45,13 +45,6 @@ struct DropDownChoiceView: View {
         } else {
             return false
         }
-            
-//        if layerMultiselectInput.hasHeterogenousValue {
-//            log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for \(layerInput)")
-//            return true
-//        }
-//        
-//        return layerMultiselectInput.hasHeterogenousValue
     }
 
     @MainActor
@@ -63,11 +56,9 @@ struct DropDownChoiceView: View {
         Menu {
             StitchPickerView(input: id,
                              choices: choices,
-//                             choiceDisplay: choiceDisplay)
                              choiceDisplay: finalChoiceDisplay,
                              isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } label: {
-//            StitchTextView(string: choiceDisplay)
             StitchTextView(string: finalChoiceDisplay)
         }
         #if targetEnvironment(macCatalyst)

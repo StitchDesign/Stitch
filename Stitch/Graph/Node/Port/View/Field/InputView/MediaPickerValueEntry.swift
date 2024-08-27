@@ -15,7 +15,8 @@ struct MediaPickerValueEntry: View {
     let mediaValue: FieldValueMedia
     let nodeKind: NodeKind
     let isFieldInsideLayerInspector: Bool
-    let graph: GraphState // Doesn't need to be @Bindable, since only relied on
+    let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     var mediaType: SupportedMediaFormat {
         nodeKind.mediaType
@@ -27,7 +28,7 @@ struct MediaPickerValueEntry: View {
                                isMediaCurrentlySelected: mediaValue.hasMediaSelected)
         
         let label = mediaValue.getName()
-        
+                
         StitchMenu(id: coordinate.nodeId,
                    selection: label,
                    contentCatalyst: {
@@ -85,7 +86,8 @@ struct MediaPickerValueEntry: View {
         }, label: {
             // We add a value for truncating text here to ensure that the selection items view in the picker does not stretch too long when importing a file with a long title
             
-            TruncatedTextView(label, truncateAt: 30)
+            TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
+                              truncateAt: 30)
         })
     }
 }

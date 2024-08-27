@@ -108,12 +108,7 @@ extension LayerInspectorView {
 //            .init(.shadow, Self.shadow),
             .init(.layerEffects, Self.effects)
         ]
-    
-    @MainActor
-    static func firstSectionName(_ layer: Layer) -> LayerInspectorSectionName? {
-        Self.layerInspectorRowsInOrder(layer).first?.name
-    }
-        
+            
     @MainActor
     static let positioning: LayerInputTypeSet = [
         .position,
