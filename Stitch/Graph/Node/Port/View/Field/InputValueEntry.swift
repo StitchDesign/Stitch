@@ -179,7 +179,8 @@ struct InputValueView: View {
 //            .frame(minWidth: SPACING_FIELD_WIDTH) // min width for "Between" dropdown of LayerGroup spacing
 
         case .bool(let bool):
-            BoolCheckboxView(id: rowObserverId,
+            BoolCheckboxView(id: rowObserverId, 
+                             inputLayerNodeRowData: inputLayerNodeRowData,
                              value: bool,
                              isFieldInsideLayerInspector: isFieldInsideLayerInspector)
 
@@ -193,7 +194,8 @@ struct InputValueView: View {
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: rowObserverId,
-                               stitchFont: stitchFont,
+                               stitchFont: stitchFont, 
+                               inputLayerNodeRowData: inputLayerNodeRowData,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 // need enough width for font design + font weight name
                 .frame(minWidth: TEXT_FONT_DROPDOWN_WIDTH,
@@ -204,7 +206,8 @@ struct InputValueView: View {
             LayerNamesDropDownChoiceView(
                 graph: graph,
                 id: rowObserverId,
-                value: .assignedLayer(layerId),
+                value: .assignedLayer(layerId), 
+                inputLayerNodeRowData: inputLayerNodeRowData,
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
@@ -217,6 +220,7 @@ struct InputValueView: View {
                            graph: graph,
                            id: rowObserverId,
                            value: .pinTo(pinToId),
+                           inputLayerNodeRowData: inputLayerNodeRowData,
                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
@@ -226,7 +230,8 @@ struct InputValueView: View {
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
-                              selection: anchor, 
+                              selection: anchor,
+                              inputLayerNodeRowData: inputLayerNodeRowData,
                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
@@ -234,7 +239,8 @@ struct InputValueView: View {
                    alignment: .trailing)
 
         case .media(let media):
-            MediaFieldValueView(inputCoordinate: rowObserverId,
+            MediaFieldValueView(inputCoordinate: rowObserverId, 
+                                inputLayerNodeRowData: inputLayerNodeRowData,
                                 isUpstreamValue: rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
                                 media: media,
                                 nodeKind: nodeKind,
@@ -246,7 +252,8 @@ struct InputValueView: View {
                                 graph: graph)
 
         case .color(let color):
-            ColorOrbValueButtonView(fieldViewModel: viewModel,
+            ColorOrbValueButtonView(fieldViewModel: viewModel, 
+                                    inputLayerNodeRowData: inputLayerNodeRowData,
                                     nodeId: rowObserverId.nodeId,
                                     id: rowObserverId,
                                     currentColor: color,

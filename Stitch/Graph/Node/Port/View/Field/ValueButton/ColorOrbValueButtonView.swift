@@ -18,6 +18,7 @@ struct ColorOrbValueButtonView: View {
     @State private var show = false
 
     let fieldViewModel: InputFieldViewModel
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let nodeId: NodeId
     let id: InputCoordinate
     let currentColor: Color // the current color, from input
@@ -48,8 +49,9 @@ struct ColorOrbValueButtonView: View {
             }
         }
 
-        StitchColorPickerView(rowId: id,
-                              fieldCoordinate: fieldViewModel.id, 
+        StitchColorPickerView(rowId: id, 
+                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              fieldCoordinate: fieldViewModel.id,
                               isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
                               chosenColor: binding,
                               graph: graph)

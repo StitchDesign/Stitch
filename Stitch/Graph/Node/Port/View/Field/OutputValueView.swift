@@ -119,8 +119,9 @@ struct OutputValueView: View {
                                fontColor: STITCH_FONT_GRAY_COLOR)
 
         case .bool(let bool):
-            BoolCheckboxView(id: nil,
-                             value: bool, 
+            BoolCheckboxView(id: nil, 
+                             inputLayerNodeRowData: nil,
+                             value: bool,
                              isFieldInsideLayerInspector: false)
 
         case .dropdown(let choiceDisplay, _):
@@ -131,7 +132,8 @@ struct OutputValueView: View {
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
-                               stitchFont: stitchFont,
+                               stitchFont: stitchFont, 
+                               inputLayerNodeRowData: nil,
                                isFieldInsideLayerInspector: false)
                 // need enough width for font design + font weight name
                 .frame(minWidth: 200,
@@ -142,7 +144,8 @@ struct OutputValueView: View {
             // TODO: use read-only view if this is an output ?
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
-                                         value: .assignedLayer(layerId),
+                                         value: .assignedLayer(layerId), 
+                                         inputLayerNodeRowData: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: false,
                                          choices: graph.layerDropdownChoices(
@@ -156,6 +159,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .pinTo(pinToId),
+                                         inputLayerNodeRowData: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: true,
                                          choices: graph.layerDropdownChoices(
@@ -168,7 +172,8 @@ struct OutputValueView: View {
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
-                              selection: anchor,
+                              selection: anchor, 
+                              inputLayerNodeRowData: nil,
                               isFieldInsideLayerInspector: false)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
@@ -176,7 +181,8 @@ struct OutputValueView: View {
                    alignment: .leading)
 
         case .media(let media):
-            MediaFieldValueView(inputCoordinate: coordinate,
+            MediaFieldValueView(inputCoordinate: coordinate, 
+                                inputLayerNodeRowData: nil,
                                 isUpstreamValue: false,     // only valid for inputs
                                 media: media,
                                 nodeKind: nodeKind,

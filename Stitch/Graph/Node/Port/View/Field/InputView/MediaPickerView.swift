@@ -31,6 +31,7 @@ extension GraphState {
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView: View {
     let inputCoordinate: InputCoordinate
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let nodeKind: NodeKind
@@ -60,16 +61,26 @@ struct MediaFieldValueView: View {
 
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if isFieldInsideLayerInspector,
-           let layerInput = inputCoordinate.layerInput {
-        return graph.graphUI
-                .propertySidebar
-                .inputsCommonToSelectedLayers?
-                .first(where: { $0 == layerInput.layerInput })?
-                .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldIndex) ?? false
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                fieldIndex,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
             return false
         }
+        
+//
+//        if isFieldInsideLayerInspector,
+//           let layerInput = inputCoordinate.layerInput {
+//        return graph.graphUI
+//                .propertySidebar
+//                .inputsCommonToSelectedLayers?
+//                .first(where: { $0 == layerInput.layerInput })?
+//                .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldIndex) ?? false
+//        } else {
+//            return false
+//        }
     }
     
     var body: some View {

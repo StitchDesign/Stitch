@@ -129,6 +129,7 @@ struct LayerNamesDropDownChoiceView: View {
     
     let id: InputCoordinate
     let value: PortValue
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
     
@@ -157,8 +158,20 @@ struct LayerNamesDropDownChoiceView: View {
         //        #if DEV_DEBUG
         //        self.selection.name + " " + self.selection.id.description.dropLast(24)
         //        #else
-        self.selection.name
+        self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.selection.name
         //        #endif
+    }
+    
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                0,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
     }
     
     var body: some View {
