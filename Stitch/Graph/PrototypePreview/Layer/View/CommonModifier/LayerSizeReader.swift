@@ -26,8 +26,7 @@ struct LayerSizeReader: ViewModifier {
                 Color.clear
                     .onChange(of: frameData.size, initial: true) { _, newSize in
                         // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
-                        if !isGhostLayer,
-                           viewModel.readSize != newSize {
+                        if viewModel.readSize != newSize {
                             viewModel.readSize = newSize
                         }
                     }

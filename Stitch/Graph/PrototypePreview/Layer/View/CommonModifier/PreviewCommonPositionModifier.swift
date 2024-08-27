@@ -69,9 +69,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
             content
             // TODO: fix position and offset
 //                .position(x: pinPos.x, y: pinPos.y)
-            // TODO: uncomment
-            
-//                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
+                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
 //                .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
@@ -80,9 +78,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
             // A non-PinnedView rendering of a layer uses .position unless:
             // 1. the layer is a child inside a group that uses a VStack or HStack, or
             // 2. it is a GhostView rendering
-            if isGhostView {
-                content
-            } else if parentDisablesPosition {
+//            if isGhostView {
+//                content
+            if parentDisablesPosition {
                 content
                     .offset(x: viewModel.offsetInGroup.width,
                             y: viewModel.offsetInGroup.height)

@@ -25,8 +25,10 @@ extension VisibleNodesViewModel {
         var handled = LayerIdSet()
         
         // Filter out pinned views for visible layers, they'll be re-inserted in handleRawSidebarLayer
-        sidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
-            !pinnedLayerIds.contains($0.id)
+        if !isGhost {
+            sidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
+                !pinnedLayerIds.contains($0.id)
+            }            
         }
         
         sidebarLayersAtHierarchy.enumerated().forEach {
