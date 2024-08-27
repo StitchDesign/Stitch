@@ -16,18 +16,24 @@ struct GeneratePreview: View {
     var visibleNodes: VisibleNodesViewModel {
         graph.visibleNodesViewModel
     }
-
-    @MainActor
-    var sortedLayerDataList: LayerDataList {
-        // see `GraphState.updateOrderedPreviewLayers()`
-        self.graph.cachedOrderedPreviewLayers
-    }
     
     var body: some View {
-        ZStack {
-            // Regular rendering of views in their proper place in the hierarchy
+        // Regular rendering of views in their proper place in the hierarchy
+        PreviewLayersView(graph: graph,
+                          layers: self.graph.cachedOrderedPreviewLayersVisible,
+                          parentSize: graph.previewWindowSize,
+                          parentId: nil,
+                          parentOrientation: .none,
+                          parentPadding: .zero,
+                          parentSpacing: .zero,
+                          parentCornerRadius: 0,
+                          parentUsesHug: false,
+                          parentGridData: nil,
+                          isGhostView: false)
+        .background {
+            // Invisible views used for reporting pinning position data
             PreviewLayersView(graph: graph,
-                              layers: sortedLayerDataList,
+                              layers: self.graph.cachedOrderedPreviewLayersGhosted,
                               parentSize: graph.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
@@ -35,7 +41,11 @@ struct GeneratePreview: View {
                               parentSpacing: .zero,
                               parentCornerRadius: 0,
                               parentUsesHug: false,
-                              parentGridData: nil)
+                              parentGridData: nil,
+                              isGhostView: true)
+            .offset(x: 10, y: 10)
+            .opacity(0.4)
+            .disabled(true)
         }
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
@@ -74,6 +84,7 @@ struct PreviewLayersView: View {
     let parentCornerRadius: CGFloat
     let parentUsesHug: Bool
     let parentGridData: PreviewGridData?
+    let isGhostView: Bool
     
      /*
       Note: [.red, .yellow, .black] in a ZStack places black "on top" (i.e. highest z-index), in a VStack places black "last"; i.e. ZStack and VStack/HStack have opposite expectations about ordering.
@@ -106,12 +117,13 @@ struct PreviewLayersView: View {
         }
                         
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-        ForEach(layersInProperOrder, id: \.layerDataId) { layerData in
+        ForEach(layersInProperOrder) { layerData in
             
             LayerDataView(graph: graph,
                           layerData: layerData,
                           parentSize: parentSize,
-                          parentDisablesPosition: parentDisablesPosition)
+                          parentDisablesPosition: parentDisablesPosition,
+                          isGhostView: isGhostView)
             
             if spacing.isEvenly {
                 Spacer()
@@ -222,6 +234,7 @@ struct LayerDataView: View {
     let layerData: LayerData
     let parentSize: CGSize
     let parentDisablesPosition: Bool
+    let isGhostView: Bool
     
     var body: some View {
         
@@ -244,14 +257,16 @@ struct LayerDataView: View {
                         graph: graph,
                         layerData: maskedLayerData,
                         parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition)
+                        parentDisablesPosition: parentDisablesPosition,
+                        isGhostView: isGhostView)
                     
                     // Turn masker LayerData into a single view
                     let masker: some View = LayerDataView(
                         graph: graph,
                         layerData: maskerLayerData,
                         parentSize: parentSize,
-                        parentDisablesPosition: parentDisablesPosition)
+                        parentDisablesPosition: parentDisablesPosition,
+                        isGhostView: isGhostView)
                     
                     // Return
                     masked.mask(masker)
@@ -260,27 +275,27 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel, let isPinned):
+        case .nongroup(let layerViewModel):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(graph: graph,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
-                                          isPinnedViewRendering: isPinned,
+                                          isPinnedViewRendering: !isGhostView,
                                           parentSize: parentSize,
                                           parentDisablesPosition: parentDisablesPosition)
             } else {
                 EmptyView()
             }
                         
-        case .group(let layerViewModel, let childrenData, let isPinned):
+        case .group(let layerViewModel, let childrenData):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 GroupPreviewLayersView(graph: graph,
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
-                                       isPinnedViewRendering: isPinned,
+                                       isPinnedViewRendering: !isGhostView,
                                        parentSize: parentSize,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {

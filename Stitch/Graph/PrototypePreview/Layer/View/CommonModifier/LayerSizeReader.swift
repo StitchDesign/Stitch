@@ -15,7 +15,7 @@ struct LayerSizeReader: ViewModifier {
     let isPinnedViewRendering: Bool
     
     var isGhostLayer: Bool {
-        viewModel.isPinnedView && !isPinnedViewRendering
+        !isPinnedViewRendering
     }
     
     func body(content: Content) -> some View {
@@ -26,7 +26,8 @@ struct LayerSizeReader: ViewModifier {
                 Color.clear
                     .onChange(of: frameData.size, initial: true) { _, newSize in
                         // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
-                        if viewModel.readSize != newSize {
+                        if !isGhostLayer,
+                           viewModel.readSize != newSize {
                             viewModel.readSize = newSize
                         }
                     }

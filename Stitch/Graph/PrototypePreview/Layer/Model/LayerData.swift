@@ -25,8 +25,8 @@ indirect enum LayerType: Equatable, Hashable {
 
 /// Data type used for getting sorted data in views.
 indirect enum LayerData {
-    case nongroup(LayerViewModel, isPinnedView: Bool)
-    case group(LayerViewModel, LayerDataList, isPinnedView: Bool)
+    case nongroup(LayerViewModel)
+    case group(LayerViewModel, LayerDataList)
     case mask(masked: LayerDataList, masker: LayerDataList)
 }
 
@@ -35,7 +35,6 @@ struct LayerNonGroupData: Equatable, Hashable {
     let zIndex: CGFloat
     let sidebarIndex: Int
     let layer: Layer // debug
-    let pinnedViewType: PinnedViewType?
 }
 
 struct LayerGroupData: Equatable, Hashable {
@@ -44,20 +43,19 @@ struct LayerGroupData: Equatable, Hashable {
     let sidebarIndex: Int
     let childrenSidebarLayers: SidebarLayerList
     let layer: Layer // debug
-    let pinnedViewType: PinnedViewType?
 }
 
 // "A is pinned to B" = A is a pinned view;
 // but a given pinned view is rendered TWICE in the preview window:
 // 1. `PinnedViewA` is the view that user sees, is pinned to some anchor of B, is rendered at same hierarchy level as B etc.
 // 2. `GhostViewA` is the view the user DOES NOT see, is rendered at A's normal hierarchy level and is used simply to read how A's parents may have affected A's size etc. (e.g. A's parent layer group is scaled 2x etc.)
-enum PinnedViewType {
-    // visible to user, seen in pin-anchor; lives at same hierarchy level as B etc.
-    case pinnedView
-    
-    // inivislbe to user but still rendered in preview window; used to read how A's size is modified by parent
-    case ghostView
-}
+//enum PinnedViewType {
+//    // visible to user, seen in pin-anchor; lives at same hierarchy level as B etc.
+//    case pinnedView
+//
+//    // inivislbe to user but still rendered in preview window; used to read how A's size is modified by parent
+//    case ghostView
+//}
 
 extension LayerType {
     var id: PreviewCoordinate {
@@ -96,18 +94,18 @@ extension LayerType {
         }
     }
     
-    var pinnedViewType: PinnedViewType? {
-        switch self {
-        case .nongroup(let x):
-            return x.pinnedViewType
-        case .group(let x):
-            // "Is group layer itself pinned?"
-            return x.pinnedViewType
-        case .mask(masked: let x, masker: _):
-            // "Is first masked view pinned?" (is this correct?)
-            return x.first?.pinnedViewType
-        }
-    }
+//    var isPinnedView: Bool {
+//        switch self {
+//        case .nongroup(let x):
+//            return x.isPinnedView
+//        case .group(let x):
+//            // "Is group layer itself pinned?"
+//            return x.isPinnedView
+//        case .mask(masked: let x, masker: _):
+//            // "Is first masked view pinned?" (is this correct?)
+//            return x.first?.isPinnedView ?? false
+//        }
+//    }
     
     var sidebarIndex: Int {
         switch self {
@@ -143,10 +141,9 @@ extension LayerType {
 
 // If pinned, the same layer view model is rendered in PreviewLayers twice (GhostView, PinnedView),
 // so we need an id that distinguishes
-struct LayerDataId: Equatable, Hashable, Codable {
-    let coordinate: PreviewCoordinate
-    let isPinned: Bool
-}
+//struct LayerDataId: Equatable, Hashable, Codable {
+//    let coordinate: PreviewCoordinate
+//}
 
 extension LayerData: Identifiable {
     var id: PreviewCoordinate {
@@ -154,36 +151,35 @@ extension LayerData: Identifiable {
     }
 
     // Perf cost?
-    var layerDataId: LayerDataId {
-        LayerDataId(coordinate: self.layer.id,
-                    isPinned: self.isPinned)
-    }
+//    var layerDataId: LayerDataId {
+//        LayerDataId(coordinate: self.layer.id)
+//    }
 
     var groupDataList: LayerDataList? {
         switch self {
         case .nongroup, .mask:
             return nil
-        case .group(_, let layerDataList, _):
+        case .group(_, let layerDataList):
             return layerDataList
         }
     }
 
-    var isPinned: Bool {
-        switch self {
-        case .nongroup(_, let isPinned):
-            return isPinned
-        case .group(_, _, let isPinned):
-            return isPinned
-        case .mask:
-            return false
-        }
-    }
+//    var isPinned: Bool {
+//        switch self {
+//        case .nongroup(_, let isPinned):
+//            return isPinned
+//        case .group(_, _, let isPinned):
+//            return isPinned
+//        case .mask:
+//            return false
+//        }
+//    }
         
     var layer: LayerViewModel {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(let layer):
             return layer
-        case .group(let layer, _, _):
+        case .group(let layer, _):
             return layer
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
@@ -193,9 +189,9 @@ extension LayerData: Identifiable {
     
     var zIndex: CGFloat {
         switch self {
-        case .nongroup(let layer, _):
+        case .nongroup(let layer):
             return layer.zIndex.getNumber ?? .zero
-        case .group(let layer, _, _):
+        case .group(let layer, _):
             return layer.zIndex.getNumber ?? .zero
         case .mask(masked: let masked, masker: _):
             // TODO: is z-index for a LayerData really the first

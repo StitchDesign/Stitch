@@ -62,6 +62,17 @@ extension LayerPinData {
 }
 
 extension RootPinMap {
+    /// Getter which ignores layers receiving pins.
+    var allPinnedLayerIds: Set<LayerNodeId> {
+        let pinDataList: [LayerPinData] = self.values.flatMap { $0.pins ?? [] }
+        
+        return pinDataList.flatMap {
+            $0.getAllPins()
+        }
+        .compactMap { $0 }
+        .toSet
+    }
+    
     /// Recursively checks most upstream parent ID for pinning data.
     func findRootPinReceiver(from id: LayerNodeId) -> LayerNodeId? {
         for pinData in self.values {

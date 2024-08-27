@@ -15,12 +15,19 @@ extension VisibleNodesViewModel {
     @MainActor
     func recursivePreviewLayers(sidebarLayersAtHierarchy: SidebarLayerList? = nil,
                                 sidebarLayersGlobal: SidebarLayerList,
-                                pinMap: RootPinMap) -> LayerDataList {
+                                pinMap: RootPinMap,
+                                isGhost: Bool) -> LayerDataList {
         
         let isRoot = sidebarLayersAtHierarchy == nil
-        let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
+        var sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
+        let pinnedLayerIds = pinMap.allPinnedLayerIds.map { $0.id }
         var layerTypesAtThisLevel = LayerTypeSet()
         var handled = LayerIdSet()
+        
+        // Filter out pinned views for visible layers, they'll be re-inserted in handleRawSidebarLayer
+        sidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
+            !pinnedLayerIds.contains($0.id)
+        }
         
         sidebarLayersAtHierarchy.enumerated().forEach {
             
@@ -33,14 +40,15 @@ extension VisibleNodesViewModel {
                     sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
                     layerNodes: self.layerNodes,
-                    pinMap: pinMap)
+                    pinMap: pinMap,
+                    isGhost: isGhost)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(newLayerTypesAtThisLevel)
             handled = handled.union(newLayersUsedAsMaskers)
         }
         
         // If we're at the root level, we need to also add the LayerTypes for views with `isPinned = true` and `pinToId = .root`, since those views' PinnedViews will not be handled by
-        if isRoot,
+        if isRoot && !isGhost,
            let pinnedData = pinMap.get(nil) {
             
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
@@ -88,7 +96,8 @@ extension VisibleNodesViewModel {
             self.getLayerDataFromLayerType(layerType,
                                            pinMap: pinMap,
                                            sidebarLayersGlobal: sidebarLayersGlobal,
-                                           layerNodes: self.layerNodes)
+                                           layerNodes: self.layerNodes, 
+                                           isGhost: isGhost)
         }
         
         log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
@@ -100,7 +109,8 @@ extension VisibleNodesViewModel {
     func getLayerDataFromLayerType(_ layerType: LayerType,
                                    pinMap: RootPinMap,
                                    sidebarLayersGlobal: SidebarLayerList,
-                                   layerNodes: NodesViewModelDict) -> LayerData? {
+                                   layerNodes: NodesViewModelDict,
+                                   isGhost: Bool) -> LayerData? {
         
         switch layerType {
             
@@ -108,11 +118,13 @@ extension VisibleNodesViewModel {
             let maskedLayerData = masked.compactMap { getLayerDataFromLayerType($0,
                                                                                 pinMap: pinMap, 
                                                                                 sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
+                                                                                layerNodes: layerNodes,
+                                                                                isGhost: isGhost) }
             let maskerLayerData = masker.compactMap { getLayerDataFromLayerType($0,
                                                                                 pinMap: pinMap,
                                                                                 sidebarLayersGlobal: sidebarLayersGlobal,
-                                                                                layerNodes: layerNodes) }
+                                                                                layerNodes: layerNodes,
+                                                                                isGhost: isGhost) }
             
             guard !maskedLayerData.isEmpty,
                   !maskerLayerData.isEmpty else {
@@ -131,8 +143,7 @@ extension VisibleNodesViewModel {
                 return nil
             }
             
-            return .nongroup(previewLayer,
-                             isPinnedView: layerType.pinnedViewType == .pinnedView)
+            return .nongroup(previewLayer)
             
         case .group(let layerGroupData): // LayerGroupData
             guard let previewLayer: LayerViewModel = layerNodes
@@ -151,11 +162,11 @@ extension VisibleNodesViewModel {
             let childrenData = self.recursivePreviewLayers(
                 sidebarLayersAtHierarchy: layerGroupData.childrenSidebarLayers,
                 sidebarLayersGlobal: sidebarLayersGlobal,
-                pinMap: pinMap)
+                pinMap: pinMap,
+                isGhost: isGhost)
             
             return .group(previewLayer,
-                          childrenData,
-                          isPinnedView: layerType.pinnedViewType == .pinnedView)
+                          childrenData)
         }
     }
 }
@@ -180,8 +191,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                  zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                  sidebarIndex: sidebarIndex,
                                  childrenSidebarLayers: children,
-                                 layer: layerNode.layer,
-                                 pinnedViewType: isPinnedView ? .pinnedView : nil))
+                                 layer: layerNode.layer))
             }
             .toOrderedSet
         
@@ -196,8 +206,7 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                     .nongroup(.init(id: layerViewModel.id,
                                     zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                     sidebarIndex: sidebarIndex,
-                                    layer: layerNode.layer,
-                                    pinnedViewType: isPinnedView ? .pinnedView : nil))
+                                    layer: layerNode.layer))
             }
             .toOrderedSet
         
@@ -215,7 +224,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
                            sidebarLayersAtHierarchy: SidebarLayerList, // raw sidebar layers
                            sidebarLayersGlobal: SidebarLayerList, // all sidebar layers, needed for pinning
                            layerNodes: NodesViewModelDict,
-                           pinMap: RootPinMap) -> (LayerTypeSet,
+                           pinMap: RootPinMap,
+                           isGhost: Bool) -> (LayerTypeSet,
                                                // layers used as masks
                                                // TODO: not needed anymore?
                                                LayerIdSet) {
@@ -273,7 +283,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
             sidebarLayersGlobal: sidebarLayersGlobal,
             layerNodes: layerNodes,
-            pinMap: pinMap)
+            pinMap: pinMap,
+            isGhost: isGhost)
         
         handled = handled.union(acc2)
         
@@ -309,7 +320,8 @@ func handleRawSidebarLayer(sidebarIndex: Int,
             
             // "Does this layer have other views pinned to it?"
             // i.e. "Is this layer the B to some A and C?"
-            if let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
+            if !isGhost,
+               let pinnedViews = pinMap.get(layerData.id.asLayerNodeId) {
                 
                 let layerTypesFromPinnedViews = getLayerTypesForPinnedViews(
                     pinnedData: pinnedViews,
@@ -325,6 +337,41 @@ func handleRawSidebarLayer(sidebarIndex: Int,
     return (layerTypesAtThisLevel, handled)
 }
 
+/*
+ Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
+ 
+ Group 1
+ - B
+ Group 2
+ - C
+ - Q
+ A
+ 
+ Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
+ 
+ 
+ 
+ Another tricky case:
+ 
+ Group
+ - Blue
+ - Red
+ 
+ Blue is pinned to Group; but, if we just go by list-item-index in each layer's respective hierarchy level (without any pinning changes),
+ *both* Blue and Group have the same index: 0
+ And so our comparator logic is indeterminate.
+ 
+ 
+ A possible solution?: flatten the hierarchy so that each layer has unique index; e.g.:
+ 
+ Group 1
+ - Blue
+ - Red
+ - Group 2
+    - Yellow
+ 
+ ... becomes: [Group 1, Blue, Red, Group 2, Yellow]
+ */
 func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to this layer
                                  sidebarLayers: SidebarLayerList,
                                  layerNodes: NodesViewModelDict,
@@ -347,47 +394,9 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
             
             // the pinned view A could have a loop, so we get back multiple `LayerType`s, not just one.
             let layerTypesFromThisPinnedView = getLayerTypesFromSidebarLayerData(
-                
                 // use the layer data for the pinned view A, not the pin-receiving view B
                 layerDataForPinnedView,
-                
-                /*
-                 Tricky -- sidebar index is for comparing z-ordering, but pinned views could live at different hierarchy levels:
-                 
-                 Group 1
-                 - B
-                 Group 2
-                 - C
-                 - Q
-                 A
-                 
-                 Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
-                 
-                 
-                 
-                 Another tricky case:
-                 
-                 Group
-                 - Blue
-                 - Red
-                 
-                 Blue is pinned to Group; but, if we just go by list-item-index in each layer's respective hierarchy level (without any pinning changes),
-                 *both* Blue and Group have the same index: 0
-                 And so our comparator logic is indeterminate.
-                 
-                 
-                 A possible solution?: flatten the hierarchy so that each layer has unique index; e.g.:
-                 
-                 Group 1
-                 - Blue
-                 - Red
-                 - Group 2
-                    - Yellow
-                 
-                 ... becomes: [Group 1, Blue, Red, Group 2, Yellow]
-                 */
                 sidebarIndex: sidebarIndexOfPinnedView,
-                
                 layerNodes: layerNodes,
                 isPinnedView: true)
             

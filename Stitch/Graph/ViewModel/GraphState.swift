@@ -89,7 +89,8 @@ final class GraphState: Sendable {
     
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
-    var cachedOrderedPreviewLayers: LayerDataList = .init()
+    var cachedOrderedPreviewLayersGhosted: LayerDataList = .init()
+    var cachedOrderedPreviewLayersVisible: LayerDataList = .init()
     
     // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
     // Checked at the end of graph calc for efficient updating
@@ -269,10 +270,20 @@ extension GraphState: SchemaObserver {
         let flattenedPinMap = self.visibleNodesViewModel.getFlattenedPinMap()
         let rootPinMap = self.visibleNodesViewModel.getRootPinMap(pinMap: flattenedPinMap)
         
-        let previewLayers = self.visibleNodesViewModel
+        // Ignores pins to report positional data
+        let ghostedPreviewLayers = self.visibleNodesViewModel
             .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
-                                    pinMap: rootPinMap)
-        self.cachedOrderedPreviewLayers = previewLayers
+                                    pinMap: rootPinMap,
+                                    isGhost: true)
+        
+        // Visible layers including pinned data
+        let visiblePreviewLayers = self.visibleNodesViewModel
+            .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
+                                    pinMap: rootPinMap,
+                                    isGhost: false)
+        
+        self.cachedOrderedPreviewLayersGhosted = ghostedPreviewLayers
+        self.cachedOrderedPreviewLayersVisible = visiblePreviewLayers
         
         self.visibleNodesViewModel.flattenedPinMap = flattenedPinMap
         self.visibleNodesViewModel.pinMap = rootPinMap

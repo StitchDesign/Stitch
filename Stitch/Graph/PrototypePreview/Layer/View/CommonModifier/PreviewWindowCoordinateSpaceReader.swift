@@ -23,19 +23,12 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
         viewModel.isPinned.getBool ?? false
     }
     
-    // ALSO: if this is View A and it is not being generated at the top level,
-    // then we should hide the view
-    var isGhostView: Bool {
-        isPinned && !isPinnedViewRendering
-    }
-    
     var key: PreviewCoordinate {
         viewModel.id
     }
     
     func body(content: Content) -> some View {
         content
-            .opacity(isGhostView ? 0 : 1)
             .background {
                 GeometryReader { geometry in
                     // Note: this is the size of the view within the whole preview window coordinate space;

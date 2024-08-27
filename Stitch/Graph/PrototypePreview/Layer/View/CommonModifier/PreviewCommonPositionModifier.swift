@@ -69,7 +69,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
             content
             // TODO: fix position and offset
 //                .position(x: pinPos.x, y: pinPos.y)
-                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
+            // TODO: uncomment
+            
+//                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
 //                .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
