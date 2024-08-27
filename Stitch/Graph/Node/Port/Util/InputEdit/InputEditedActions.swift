@@ -100,7 +100,7 @@ extension InputNodeRowObserver {
            let layerInput = self.id.portType.keyPath?.layerInput,
             let layerMultiselectInput: LayerMultiselectInput = graph.getLayerMultiselectInput(for: layerInput) {
             
-            layerMultiselectInput.observers.forEach { observer in
+            layerMultiselectInput.multiselectObservers(graph).forEach { observer in
                 observer.rowObserver.inputEdited(graph: graph,
                                                  fieldValue: fieldValue,
                                                  fieldIndex: fieldIndex,

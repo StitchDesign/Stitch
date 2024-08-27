@@ -65,13 +65,10 @@ func handleLayerInputAddedToGraph(state: GraphState,
     let layerInput: LayerInputPort = coordinate.layerInput
     
     if let multiselectObserver = state.graphUI.propertySidebar.layerMultiselectObserver,
-       let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput),
+       let layerMultiselectInput: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) {
         
-        layerMultiselectInput.observers.first?.rowObserver.id.nodeId == nodeId {
         
-        log("inputEditCommitted: will update \(layerMultiselectInput.observers.count) observers")
-        
-        layerMultiselectInput.observers.forEach { observer in
+        layerMultiselectInput.multiselectObservers(state).forEach { observer in
             addLayerInputToGraph(state: state,
                                  nodeId: observer.rowObserver.id.nodeId,
                                  coordinate: coordinate)

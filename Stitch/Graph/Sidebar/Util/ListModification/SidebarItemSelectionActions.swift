@@ -114,19 +114,17 @@ extension GraphState {
         
         // Turn the common layer inputs into the `LayerMultiselectInput`s
         commonLayerInputs.forEach { (commonLayerInput: LayerInputPort) in
+//            
+//            let observers: [LayerInputObserver] = selectedNodes.compactMap { (selectedNode: NodeViewModel) in
+//                
+//                if let layerNode = selectedNode.layerNode {
+//                    let observer: LayerInputObserver = layerNode[keyPath: commonLayerInput.layerNodeKeyPath]
+//                    return observer
+//                }
+//                return nil
+//            }
             
-            let observers: [LayerInputObserver] = selectedNodes.compactMap { (selectedNode: NodeViewModel) in
-                
-                if let layerNode = selectedNode.layerNode {
-                    let observer: LayerInputObserver = layerNode[keyPath: commonLayerInput.layerNodeKeyPath]
-                    return observer
-                }
-                return nil
-            }
-            
-            let multiselectInput: LayerMultiselectInput = .init(
-                input: commonLayerInput,
-                observers: observers)
+            let multiselectInput = LayerMultiselectInput(input: commonLayerInput)
             
             // order doesn't matter
             multiselectInputs.updateValue(multiselectInput,

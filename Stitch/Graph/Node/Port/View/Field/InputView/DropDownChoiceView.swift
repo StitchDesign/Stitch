@@ -37,7 +37,7 @@ struct DropDownChoiceView: View {
             return false
         }
         
-        let fieldsWithHeterogenousValues = layerMultiselectInput.hasHeterogenousValue
+        let fieldsWithHeterogenousValues = layerMultiselectInput.fieldsInMultiselectInputWithHeterogenousValues(graph)
         
         if fieldsWithHeterogenousValues.contains(0) {
             // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")

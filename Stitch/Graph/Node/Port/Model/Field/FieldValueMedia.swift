@@ -81,7 +81,7 @@ extension FieldValueMedia {
                let layerInput = inputCoordinate.layerInput,
                let multiselectInput = graph.getLayerMultiselectInput(for: layerInput.layerInput) {
                 
-                destinationInputs = multiselectInput.observers.map({ (observer: LayerInputObserver) in
+                destinationInputs = multiselectInput.multiselectObservers(graph).map({ (observer: LayerInputObserver) in
                     InputCoordinate(portType: .keyPath(layerInput),
                                     nodeId: observer.rowObserver.id.nodeId)
                 })

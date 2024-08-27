@@ -73,7 +73,7 @@ struct StitchColorPickerView: View {
                 .propertySidebar
                 .layerMultiselectObserver?
                 .inputs.get(layerInput.layerInput)?
-                .hasHeterogenousValue.contains(fieldCoordinate.fieldIndex) ?? false
+                .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldCoordinate.fieldIndex) ?? false
         } else {
             return false
         }

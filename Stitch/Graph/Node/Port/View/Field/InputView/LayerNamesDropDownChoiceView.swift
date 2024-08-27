@@ -103,7 +103,7 @@ extension GraphState {
            isFieldInsideLayerInspector,
            let multiselectInput = self.getLayerMultiselectInput(for: .pinTo) {
             
-            let excludedPerMultiselect: LayerIdSet = multiselectInput.observers
+            let excludedPerMultiselect: LayerIdSet = multiselectInput.multiselectObservers(self)
                 .reduce(LayerIdSet()) { partialResult, observer in
                     partialResult.union(self.layerChoicesToExcludeFromPinTo(
                         nodeId: observer.rowObserver.id.nodeId.asLayerNodeId,

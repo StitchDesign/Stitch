@@ -16,7 +16,6 @@ enum LayerInspectorRowId: Equatable, Hashable {
 
 typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
-
 extension InputFieldViewModel {
     var isFieldInsideLayerInspector: Bool {
         self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
@@ -39,33 +38,30 @@ extension InputFieldViewModel {
  * P and Q's scale input = 1
  * P and Q's size input = { width: 100, height: 100 }
  * P's position input = { x: 0, y: 0 }
- * Q's position input = { x: 50, y: 50 }
+ * Q's position input = { x: 50, y: 0 }
  
- The resulting LayerMultiSelectObserver will look like:
- * 
- * fieldsWithSameValue { }
- 
- 
- Suppose:
- P and Q's scale input = 1, P and Q
+ The inspector's inputs/fields will display:
+ * scale = 1
+ * size = { 100, 100 }
+ * position = { "Multi", 0 }
  */
-
 typealias LayerMultiselectInputDict = [LayerInputPort: LayerMultiselectInput]
 
 @Observable
 final class LayerMultiSelectObserver {
+    // TODO: Don't need the dictionary now? Just set of "inputs common to all currently-selected layers" and have GraphState methods for retrieving `observers`, `hasHeterogenousValue` etc.
     // inputs that are common across all the selected layers
-    var inputs: LayerMultiselectInputDict // order doesn't matter?
+    var inputs: LayerMultiselectInputDict
     
     init(inputs: LayerMultiselectInputDict) {
         self.inputs = inputs
     }
     
     // Note: this loses information about the heterogenous values etc.
-    var asLayerInputObserverDict: LayerInputObserverDict {
+    @MainActor
+    func asLayerInputObserverDict(_ graph: GraphState) -> LayerInputObserverDict {
         self.inputs.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
-            // not quite accurate; just need to grab the first observer?
-            if let firstObserver = layerInput.value.observers.first {
+            if let firstObserver = layerInput.value.multiselectObservers(graph).first {
                 partialResult.updateValue(firstObserver,
                                           forKey: layerInput.key)
             }
@@ -78,27 +74,37 @@ typealias LayerInputObserverDict = [LayerInputPort: LayerInputObserver]
 
 extension LayerNodeViewModel {
     
-    @MainActor
-    var unfilteredLayerInputObserverDict: LayerInputObserverDict {
-        LayerInputPort.allCases.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
-            partialResult.updateValue(self[keyPath: layerInput.layerNodeKeyPath],
-                                      forKey: layerInput)
-        }
-    }
+//    @MainActor
+//    var unfilteredLayerInputObserverDict: LayerInputObserverDict {
+//        LayerInputPort.allCases.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+//            partialResult.updateValue(self[keyPath: layerInput.layerNodeKeyPath],
+//                                      forKey: layerInput)
+//        }
+//    }
     
-    // Coin
     @MainActor
     func filteredLayerInputObserverDict(supportedInputs: LayerInputTypeSet) -> LayerInputObserverDict {
         
-        self.unfilteredLayerInputObserverDict
-            .reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
-                
-                if supportedInputs.contains(layerInput.key) {
-                    partialResult.updateValue(layerInput.value,
-                                              forKey: layerInput.key)
-                }
+        LayerInputPort.allCases.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+            if supportedInputs.contains(layerInput) {
+                partialResult.updateValue(self[keyPath: layerInput.layerNodeKeyPath],
+                                          forKey: layerInput)
             }
+        }
+        
+        
+//        self.unfilteredLayerInputObserverDict
+//            .reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+//                
+//                if supportedInputs.contains(layerInput.key) {
+//                    partialResult.updateValue(layerInput.value,
+//                                              forKey: layerInput.key)
+//                }
+//            }
     }
+}
+
+extension GraphState {
 }
 
 // `input` but actually could be input OR output
@@ -106,53 +112,48 @@ extension LayerNodeViewModel {
 final class LayerMultiselectInput {
     let input: LayerInputPort // will need to be Input OR Output
     
-    // Should be a function of (graph + select
-    // You've already done the hardwork of determining which are the common, overlapping inputs
-    let observers: [LayerInputObserver]
-        
-    
-    // Expectation is that whenever any of the LayerInputObservers' activeValue changes, we re-run this
     @MainActor
-    // set of field index
-    var hasHeterogenousValue: Set<Int> {
+    func multiselectObservers(_ graph: GraphState) -> [LayerInputObserver] {
+                
+        let selectedLayers = graph.sidebarSelectionState.inspectorFocusedLayers
+        
+        let observers: [LayerInputObserver] = selectedLayers.compactMap {
+                if let layerNode = graph.getNode($0.id)?.layerNode {
+                    let observer: LayerInputObserver = layerNode[keyPath: input.layerNodeKeyPath]
+                    return observer
+                }
+                return nil
+            }
+        
+        return observers
+    }
+
+    @MainActor
+    func fieldsInMultiselectInputWithHeterogenousValues(_ graph: GraphState) -> Set<Int> {
         
         // field index -> values in that field
-        var d = [Int: [FieldValue]]()
+        var fieldIndexToFieldValues = [Int: [FieldValue]]()
         var acc = Set<Int>()
         
-        // I would go by input, actually.
-        // every observer in `observers` is for that specific `input: LayerInputPort`
-        
         // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
-        
-        observers.forEach { (observer: LayerInputObserver) in
+        self.multiselectObservers(graph).forEach { (observer: LayerInputObserver) in
             observer
+                ._packedData // TODO: do not assume packed
+                .inspectorRowViewModel // Only interested in inspector view models
+                .fieldValueTypes.first? // .first = ignore the shape command case
             
-            // ignore packed vs unpacked for now? assume everything is packed?
-                ._packedData
-            
-            // pulling field view models from inspector row VM is guaranteed; whereas canvas row VM might be missing;
-            // alternatively, compare against row observer
-                .inspectorRowViewModel
-            
-            // .first = ignore the shape command case
-                .fieldValueTypes.first?
-            
-            // careful: NOT "does every field in this input have the same value?";
-            // but rather "does this specific field, across *all* multiselect-inputs, have the same value?"
+            // "Does every multi-selected layer have the same value at this input-field?"
+            // (Note: NOT "Does every field in this input have same value?")
                 .fieldObservers.forEach({ (field: InputFieldViewModel) in
-                
-                    var existing = d.get(field.fieldIndex) ?? []
+                    var existing = fieldIndexToFieldValues.get(field.fieldIndex) ?? []
                     existing.append(field.fieldValue)
-                    d.updateValue(existing, forKey: field.fieldIndex)
-            })
+                    fieldIndexToFieldValues.updateValue(existing, forKey: field.fieldIndex)
+                })
         }
         
-        log("hasHeterogenousValue: d: \(d)")
-                
-        d.forEach { (key: Int, values: [FieldValue]) in
+        fieldIndexToFieldValues.forEach { (key: Int, values: [FieldValue]) in
             if let someValue = values.first,
-                !values.allSatisfy({ $0 == someValue }) {
+               !values.allSatisfy({ $0 == someValue }) {
                 acc.insert(key)
             }
         }
@@ -160,10 +161,8 @@ final class LayerMultiselectInput {
         return acc
     }
         
-    init(input: LayerInputPort, 
-         observers: [LayerInputObserver]) {
+    init(input: LayerInputPort) {
         self.input = input
-        self.observers = observers
     }
 }
 

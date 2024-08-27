@@ -110,7 +110,7 @@ struct CommonEditingView: View {
             return false
         }
         
-        let indicesWithHeterogenousValues = inputObserver.hasHeterogenousValue
+        let indicesWithHeterogenousValues = inputObserver.fieldsInMultiselectInputWithHeterogenousValues(graph)
         
         if indicesWithHeterogenousValues.contains(fieldIndex) {
             // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")

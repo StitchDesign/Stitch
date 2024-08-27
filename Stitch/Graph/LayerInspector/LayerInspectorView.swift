@@ -43,28 +43,8 @@ struct LayerInspectorView: View {
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     static let LAYER_INSPECTOR_WIDTH = 360.0
     
-    @Bindable var graph: GraphState // should be Bindable?
-    
-//    // TODO: property sidebar changes when multiple sidebar layers are selected
-//    @MainActor
-//    var selectedLayerNode: NodeViewModel? {
-//        
-//        guard !graph.orderedSidebarLayers.isEmpty else {
-//            return nil
-//        }
-//        
-//        // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
-//        let inspectedLayer = graph.layerFocusedInPropertyInspector
-//        guard let inspectedLayerId = inspectedLayer,
-//              let node = graph.getNodeViewModel(inspectedLayerId),
-//              node.layerNode.isDefined else {
-//            log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
-//            return nil
-//        }
-//        
-//        return node
-//    }
-    
+    @Bindable var graph: GraphState
+        
     @MainActor
     var layerInspectorData: (header: String,
                              node: NodeId?,
@@ -78,7 +58,6 @@ struct LayerInspectorView: View {
 
         let selectedLayers = graph.sidebarSelectionState.inspectorFocusedLayers
         
-        
         // multiselect
         if selectedLayers.count > 1 {
             guard let multiselectState = graph.graphUI.propertySidebar.layerMultiselectObserver else {
@@ -86,12 +65,12 @@ struct LayerInspectorView: View {
                 return nil
             }
             
-            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict
+            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict(graph)
             
             return (header: "Multiselect",
                     node: nil,
                     inputs: inputs,
-                    outputs: []) // TODO: multiselect: implement these
+                    outputs: []) // TODO: multiselect for outputs
             
         }
         
@@ -111,26 +90,11 @@ struct LayerInspectorView: View {
                     inputs: inputs,
                     outputs: layerNode.outputPorts)
         }
-        
-//        // If no layers selected, then return last/first layer
-//        if selectedLayers.isEmpty {
-//            return nil
-//        } else if selectedLayers.count == 1,
-//                  let selectedLayer = selectedLayers.first {
-//            
-//        } else
-    
     }
     
-    // TODO: why can't we use
     @State var safeAreaInsets: EdgeInsets = .init()
     
     var body: some View {
-//        if let node = selectedLayerNode,
-//           let layerNode = node.layerNode {
-//            @Bindable var node = node
-//            @Bindable var layerNode = layerNode
-        
         if let layerInspectorData = layerInspectorData {
             
             // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
@@ -196,16 +160,10 @@ struct LayerInspectorView: View {
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
                     
-//                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
-                    
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
-                    // (layer input + observer) for each layer input in this section that is actually supported by this specific layer
-//                    let supportedInputsForThisLayer = layerNode.layer.inputDefinitions
-                    
                     let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
-//                        guard supportedInputsForThisLayer.contains(sectionInput),
                         
                         let isSupported = layerInputObserverDict.get(sectionInput).isDefined
                         
@@ -216,7 +174,6 @@ struct LayerInspectorView: View {
                         
                         return LayerInputAndObserver(
                             layerInput: sectionInput,
-//                            portObserver: layerNode[keyPath: sectionInput.layerNodeKeyPath])
                             portObserver: observer)
                     }
                     
@@ -367,16 +324,10 @@ struct LayerInspectorInputsSectionView: View {
 
 struct LayerInspectorOutputsSectionView: View {
     
-//    @Bindable var node: NodeViewModel
-//    @Bindable var layerNode: LayerNodeViewModel
-    
     var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
     
     var body: some View {
-        
-//        let outputs = layerNode.outputPorts
-        
         if outputs.isEmpty {
             EmptyView()
         } else {
@@ -387,9 +338,7 @@ struct LayerInspectorOutputsSectionView: View {
                             outputPortId: portId,
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
-//                            node: node,
-//                            layerNode: layerNode,
-                            graph: graph, 
+                            graph: graph,
                             canvasItemId: output.canvasObserver?.id)
                     } else {
                         Color.clear.onAppear {

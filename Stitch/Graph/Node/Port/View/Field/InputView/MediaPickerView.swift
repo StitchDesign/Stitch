@@ -47,7 +47,7 @@ struct MediaFieldValueView: View {
                 .propertySidebar
                 .layerMultiselectObserver?
                 .inputs.get(layerInput.layerInput)?
-                .hasHeterogenousValue.contains(fieldIndex) ?? false
+                .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldIndex) ?? false
         } else {
             return false
         }
