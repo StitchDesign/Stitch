@@ -35,17 +35,13 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-      
-    var isPinned: Bool {
-        viewModel.isPinned.getBool ?? false
-    }
     
     var isGhostView: Bool {
-        isPinned && !isPinnedViewRendering
+        viewModel.isPinnedView && !isPinnedViewRendering
     }
     
     var isPinnedView: Bool {
-        isPinned && isPinnedViewRendering
+        viewModel.isPinnedView && isPinnedViewRendering
     }
 
     func body(content: Content) -> some View {
@@ -59,14 +55,22 @@ struct PreviewCommonPositionModifier: ViewModifier {
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
+            // Ghost view equivalent of pin view passes position info for calculating
+            // final position location
+            let ghostViewPosition = self.viewModel.readPosition
+            let pinPositionOffset = ghostViewPosition - pinPos
+            
+            // Input value of pin offset
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
              // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
              // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
             content
-                .position(x: pinPos.width, y: pinPos.height)
-                .offset(x: pinOffset.width, y: pinOffset.height)
+            // TODO: fix position and offset
+//                .position(x: pinPos.x, y: pinPos.y)
+                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
+//                .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
             // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")

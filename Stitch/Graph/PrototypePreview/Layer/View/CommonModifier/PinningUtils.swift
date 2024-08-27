@@ -196,7 +196,7 @@ extension GraphState {
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
-    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+//    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
                 
     guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
         log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
@@ -292,12 +292,13 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
 
 
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
-                           pinReceiverData: PinReceiverData) -> StitchPosition {
+                           pinReceiverData: PinReceiverData) -> CGPoint {
     
     adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
                    position: pinReceiverData.origin.toCGSize,
                    anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
                    parentSize: pinReceiverData.size)
+    .toCGPoint
 }
 
 
