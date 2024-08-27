@@ -691,6 +691,7 @@
 		ECB7C72228A56C4B00252DE7 /* ClassicAnimationNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */; };
 		ECB801DB26405E1100C93449 /* ImageNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB801DA26405E1100C93449 /* ImageNode.swift */; };
 		ECB801E12640892F00C93449 /* FileImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB801E02640892F00C93449 /* FileImportView.swift */; };
+		ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */; };
 		ECB8D58728B851E800D993CF /* DeviceInfoNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB8D58628B851E800D993CF /* DeviceInfoNode.swift */; };
 		ECB90B7629689A8300CF2F45 /* BouncyConverterUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB90B7529689A8300CF2F45 /* BouncyConverterUtils.swift */; };
 		ECB9812626A73BDD002ED9A5 /* ClipNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECB9812526A73BDD002ED9A5 /* ClipNode.swift */; };
@@ -1597,6 +1598,7 @@
 		ECB7C72128A56C4B00252DE7 /* ClassicAnimationNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassicAnimationNumber.swift; sourceTree = "<group>"; };
 		ECB801DA26405E1100C93449 /* ImageNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageNode.swift; sourceTree = "<group>"; };
 		ECB801E02640892F00C93449 /* FileImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileImportView.swift; sourceTree = "<group>"; };
+		ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerMultiselect.swift; sourceTree = "<group>"; };
 		ECB8D58628B851E800D993CF /* DeviceInfoNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceInfoNode.swift; sourceTree = "<group>"; };
 		ECB90B7529689A8300CF2F45 /* BouncyConverterUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncyConverterUtils.swift; sourceTree = "<group>"; };
 		ECB9812526A73BDD002ED9A5 /* ClipNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipNode.swift; sourceTree = "<group>"; };
@@ -1949,6 +1951,7 @@
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
 				EC5F642E2C29E6A900A9E52F /* LayerInspectorState.swift */,
+				ECB8778B2C7D56D0004ACF60 /* LayerMultiselect.swift */,
 			);
 			path = LayerInspector;
 			sourceTree = "<group>";
@@ -4559,6 +4562,7 @@
 				ECE35EF227CEE9AE00CB8F5C /* InputCommittedActions.swift in Sources */,
 				B55500C02C1B9D890081C3F1 /* FieldGroupTypeViewModel.swift in Sources */,
 				EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */,
+				ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */,
 				EC991F6B2937D55600AE0A45 /* ArrayJoinNode.swift in Sources */,
 				B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */,
 				ECF387D3280B600A0075F0E5 /* ReadOnlyEntry.swift in Sources */,
