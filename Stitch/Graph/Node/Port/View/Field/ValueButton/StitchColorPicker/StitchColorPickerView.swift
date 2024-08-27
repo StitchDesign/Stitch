@@ -25,12 +25,27 @@ struct ColorOrbWrapperModifier: ViewModifier {
 struct StitchColorPickerOrb: View {
 
     let chosenColor: Color
+    let isMultiselectInspectorInputWithHeterogenousValues: Bool
 
     var body: some View {
-        Circle().fill(chosenColor)
-            .frame(width: NODE_ROW_HEIGHT, // req'd for e.g. ports that have labels
-                   height: NODE_ROW_HEIGHT)
-            .modifier(ColorOrbWrapperModifier())
+        Group {
+            if isMultiselectInspectorInputWithHeterogenousValues {
+                Ellipse()
+                    .fill(AngularGradient(
+                        gradient: Gradient(colors: [
+                            Color.blue,
+                            Color.pink,
+                            Color.yellow,
+                            Color.green
+                        ]),
+                        center: .center))
+            } else {
+                Circle().fill(chosenColor)
+            }
+        }
+        .frame(width: NODE_ROW_HEIGHT, // req'd for e.g. ports that have labels
+               height: NODE_ROW_HEIGHT)
+        .modifier(ColorOrbWrapperModifier())
     }
 }
 
@@ -40,7 +55,9 @@ struct StitchColorPickerView: View {
     @State private var show: Bool = false
 
     let rowId: NodeIOCoordinate?
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let fieldCoordinate: FieldCoordinate
+    let isFieldInsideLayerInspector: Bool
     var isForPreviewWindowBackgroundPicker: Bool = false
     var isForIPhone: Bool = false
 
@@ -48,14 +65,27 @@ struct StitchColorPickerView: View {
     //    @State var chosenColor: Color = .red
     @Binding var chosenColor: Color
     let graph: GraphState
-
+        
+    @MainActor
+    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                fieldCoordinate.fieldIndex,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
 
         ZStack {
             // DEBUG:
             //            colorPopover.padding()
 
-            StitchColorPickerOrb(chosenColor: chosenColor)
+            StitchColorPickerOrb(chosenColor: chosenColor,
+                                 isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
                 .popover(isPresented: $show, content: {
                     colorPopover.padding()
                 })
@@ -222,7 +252,8 @@ struct StitchColorPickerView: View {
                    self.chosenColor.asHexDisplay != color.asHexDisplay {
                     dispatch(PickerOptionSelected(
                         input: inputId,
-                        choice: .color(color),
+                        choice: .color(color), 
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         // Lots of small changes so don't persist everything
                         isPersistence: true))
                 }

@@ -14,7 +14,9 @@ struct AnchoringGridIconView: View {
     private let squareLength = 25.0 + 4 // +4 because of padding?
     private let color: Color = .THEMED_TITLE_FONT_COLOR // Color(.titleFont)
     
-    let anchor: Anchoring
+    // nil when multiselect
+    let anchor: Anchoring?
+    
     //    let anchor: Anchoring = .init(y: 0.2, x: 0.7)
     //    let anchor: Anchoring = .topLeft
     //    let anchor: Anchoring = .bottomCenter
@@ -28,12 +30,14 @@ struct AnchoringGridIconView: View {
                 .foregroundColor(color)
         }
         .overlay {
-            currentAnchor
+            if let anchor = anchor {
+                currentAnchor(anchor)
+            }
         }
     }
     
     @ViewBuilder
-    var currentAnchor: some View {
+    func currentAnchor(_ anchor: Anchoring) -> some View {
         
         /*
          Based off of `adjustPosition`:

@@ -10,10 +10,8 @@ import StitchSchemaKit
 
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-        
+    
     var body: some View {
         let observerMode = portObserver.observerMode
         
@@ -26,13 +24,13 @@ struct LayerInspectorInputPortView: View {
                     layerProperty: .layerInput(inputLayerNodeRowData.id),
                     rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
                     rowObserver: inputLayerNodeRowData.rowObserver,
-                    node: node,
-                    layerNode: layerNode,
                     graph: graph,
                     canvasItemId: canvasItemId) { propertyRowIsSelected in
+                        
                         NodeInputView(graph: graph,
                                       rowObserver: inputLayerNodeRowData.rowObserver,
                                       rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                                      inputLayerNodeRowData: inputLayerNodeRowData,
                                       forPropertySidebar: true,
                                       propertyIsSelected: propertyRowIsSelected,
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
@@ -52,6 +50,7 @@ struct LayerInspectorInputPortView: View {
                         }
                     }
                 
+                
             case .unpacked(let unpackedPortObserver):
                 ForEach(unpackedPortObserver.allPorts) { unpackedPort in
                     let canvasItemId = unpackedPort.canvasObserver?.id
@@ -59,21 +58,21 @@ struct LayerInspectorInputPortView: View {
                     LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
                                            rowViewModel: unpackedPort.inspectorRowViewModel,
                                            rowObserver: unpackedPort.rowObserver,
-                                           node: node,
-                                           layerNode: layerNode,
                                            graph: graph,
                                            canvasItemId: canvasItemId) { propertyRowIsSelected in
                         NodeInputView(graph: graph,
                                       rowObserver: unpackedPort.rowObserver,
                                       rowData: unpackedPort.inspectorRowViewModel,
+                                      inputLayerNodeRowData: nil, // TODO: handle properly
                                       forPropertySidebar: true,
                                       propertyIsSelected: propertyRowIsSelected,
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                       isCanvasItemSelected: false)
                     }
                 }
-            }
-        }
+                
+            } // observerMode
+        } // Group
         .onChange(of: portObserver.mode) {
             self.portObserver.wasPackModeToggled()
         }
@@ -81,30 +80,33 @@ struct LayerInspectorInputPortView: View {
     
     // TODO: canvas item creation only used for debugging
     @MainActor func debug__createUnpackedCanvasItems() {
-        let nodeId = portObserver._packedData.rowObserver.id.nodeId
-        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); handle the creation of unpacked canvas items should outside of the view and disallow for layer multiselect?
+        fatalErrorIfDebug()
         
-        portObserver._unpackedData.allPorts.forEach { unpackedPort in
-            var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: .zero,
-                                            zIndex: .zero,
-                                            parentGroupNodeId: parentGroupNodeId)
-            unpackedPort.update(from: unpackSchema,
-                                layerInputType: unpackedPort.id,
-                                layerNode: layerNode,
-                                nodeId: nodeId,
-                                nodeDelegate: node)
-        }
+        //        let nodeId = portObserver._packedData.rowObserver.id.nodeId
+        //        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        //
+        //        portObserver._unpackedData.allPorts.forEach { unpackedPort in
+        //            var unpackSchema = unpackedPort.createSchema()
+        //            unpackSchema.canvasItem = .init(position: .zero,
+        //                                            zIndex: .zero,
+        //                                            parentGroupNodeId: parentGroupNodeId)
+        //            unpackedPort.update(from: unpackSchema,
+        //                                layerInputType: unpackedPort.id,
+        //                                layerNode: layerNode,
+        //                                nodeId: nodeId,
+        //                                nodeDelegate: node)
+        //        }
     }
 }
+
+
 
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
     
     @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var rowObserver: OutputNodeRowObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
     
     let canvasItemId: CanvasItemId?
@@ -113,8 +115,6 @@ struct LayerInspectorOutputPortView: View {
         LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
                                rowViewModel: rowViewModel,
                                rowObserver: rowObserver,
-                               node: node,
-                               layerNode: layerNode,
                                graph: graph,
                                canvasItemId: canvasItemId) { propertyRowIsSelected in
             NodeOutputView(graph: graph,
@@ -141,10 +141,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     
     @Bindable var rowViewModel: RowObserver.RowViewModelType
     @Bindable var rowObserver: RowObserver
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
     @Bindable var graph: GraphState
-        
+    
     // non-nil = this row is present on canvas
     // NOTE: apparently, the destruction of a weak var reference does NOT trigger a SwiftUI view update; so, avoid using delegates in the UI body.
     let canvasItemId: CanvasItemId?
@@ -168,11 +166,11 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         switch layerProperty {
         case .layerInput(let layerInputType):
             return !layerInputType.layerInput.usesFlyout
-        case .layerOutput(let int):
+        case .layerOutput:
             return true
         }
     }
-        
+    
     var body: some View {
         HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
             LayerInspectorRowButton(layerProperty: layerProperty,
@@ -180,7 +178,7 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
                                     canvasItemId: canvasItemId,
                                     isRowSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
-                        
+
             HStack {
                 rowView(propertyRowIsSelected)
                 Spacer()

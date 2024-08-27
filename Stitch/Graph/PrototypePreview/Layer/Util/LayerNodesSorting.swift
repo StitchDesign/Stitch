@@ -341,8 +341,7 @@ func getLayerTypesForPinnedViews(pinnedViews: LayerIdSet, // views pinned to thi
                  A
                  
                  Supposed A and Q are both pinned to B. Is Q's sidebar-index higher?
-                 
-                 
+
                  
                  Another tricky case:
                  

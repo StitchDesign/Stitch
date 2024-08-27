@@ -37,7 +37,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-      
+                  
     var isPinned: Bool {
         viewModel.isPinned.getBool ?? false
     }

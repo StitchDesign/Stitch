@@ -26,8 +26,7 @@ extension KeyPressState {
     }
 
     var isCommandPressed: Bool {
-        // TODO: Should just be `self.modifiers.contains(.cmd)` ?
-        self.modifiers == Set([.cmd])
+        self.modifiers.contains(.cmd)
     }
     
     var isShiftPressed: Bool {

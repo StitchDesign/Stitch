@@ -83,6 +83,7 @@ struct ShadowFlyoutView: View {
                 NodeInputView(graph: graph,
                               rowObserver: layerInputData.rowObserver,
                               rowData: layerInputData.inspectorRowViewModel,
+                              inputLayerNodeRowData: layerInputData,
                               forPropertySidebar: true,
                               propertyIsSelected: false, // NA
                               // TODO: applicable or not?

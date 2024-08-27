@@ -32,7 +32,7 @@ extension LayerDropdownChoice {
             return .layer(selectedLayerId)
         }
     }
-
+    
     // Only for non-PinTo
     static let NilLayerDropDownChoice: Self = .init(id: "NIL_LAYER_DROPDOWN_CHOICE_ID",
                                                     name: "None")
@@ -52,37 +52,63 @@ extension NodeViewModel {
 }
 
 extension GraphState {
+    
+    /*
+     For a give layer-node whose input we are on, the pinTo dropdown should exclude:
+     - the layer-node itself
+     - any of the layer-node's descendants (parent can never be pinned to child)
+     - any other layer-nodes that are already pinned to this given layer-node
+     */
+    @MainActor
+    func layerChoicesToExcludeFromPinTo(nodeId: LayerNodeId, 
+                                        isForLayerGroup: Bool) -> LayerIdSet {
+        
+        let viewsPinnedToThisLayerId = self.graphUI.pinMap.get(nodeId) ?? .init()
+        
+        let thisLayersDescendants = (isForLayerGroup ? self.getDescendants(for: nodeId) : .init())
+        
+        return .init([nodeId])
+            .union(viewsPinnedToThisLayerId)
+            .union(thisLayersDescendants)
+    }
+    
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
                               isForLayerGroup: Bool,
+                              isFieldInsideLayerInspector: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
-        
-        let pinMap = self.graphUI.pinMap
-        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
-        
-        // includes self?
-        var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
-        descendants.remove(isForNode.asLayerNodeId)
+        let multiselectNodes = self
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
-                
+    
+        // TODO: cache these? update the cache whenever selected layer(s) change(s)?
+        var layersToExclude: LayerIdSet = isForPinTo
+        ? self.layerChoicesToExcludeFromPinTo(nodeId: isForNode.asLayerNodeId,
+                                              isForLayerGroup: isForLayerGroup)
+        : .init()
+    
+        if isForPinTo,
+           isFieldInsideLayerInspector,
+           let multiselectInput = self.getLayerMultiselectInput(for: .pinTo) {
+            
+            let excludedPerMultiselect: LayerIdSet = multiselectInput.multiselectObservers(self)
+                .reduce(LayerIdSet()) { partialResult, observer in
+                    partialResult.union(self.layerChoicesToExcludeFromPinTo(
+                        nodeId: observer.rowObserver.id.nodeId.asLayerNodeId,
+                        isForLayerGroup: isForLayerGroup))
+                }
+            
+            layersToExclude = layersToExclude.union(excludedPerMultiselect)
+        }
+        
         let layers: LayerDropdownChoices = self.orderedSidebarLayers
             .getIds()
             .compactMap { layerId in
-                // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
-                if isForPinTo, 
-                    // Exclude the node itself, i.e. A cannot choose A as its pinToId
-                    (layerId == isForNode
-                   // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
-                     || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)
-                     
-                     // Exclude this layer group's descendants of from choices
-                     || descendants.contains(layerId.asLayerNodeId)
-                    ) {
+                if layersToExclude.contains(layerId.asLayerNodeId) {
                     return nil
                 }
-
+                
                 return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }
         
@@ -96,19 +122,17 @@ extension GraphState {
     }
 }
 
-
-
-// Note:
 struct LayerNamesDropDownChoiceView: View {
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
-
+    
     @Bindable var graph: GraphState
-
+    
     let id: InputCoordinate
     let value: PortValue
-    
+    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
-
+    
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
         
@@ -117,25 +141,39 @@ struct LayerNamesDropDownChoiceView: View {
         if isForPinTo {
             // TODO: add PortValue.pinTo case
             dispatch(PickerOptionSelected(input: self.id,
-                                          choice: .pinTo(choice.asPinToId)))
+                                          choice: .pinTo(choice.asPinToId),
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         } else {
             dispatch(InteractionPickerOptionSelected(
-                        interactionPatchNodeInput: self.id,
-                        layerNodeIdSelection: selectedLayerId))
+                interactionPatchNodeInput: self.id,
+                layerNodeIdSelection: selectedLayerId,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
         }
     }
-
+    
     var choices: LayerDropdownChoices
     
     @MainActor
     var selectionTitle: String {
-//        #if DEV_DEBUG
-//        self.selection.name + " " + self.selection.id.description.dropLast(24)
-//        #else
-        self.selection.name
-//        #endif
+        //        #if DEV_DEBUG
+        //        self.selection.name + " " + self.selection.id.description.dropLast(24)
+        //        #else
+        self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.selection.name
+        //        #endif
     }
-
+    
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                0,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
         
         Menu {
@@ -143,11 +181,11 @@ struct LayerNamesDropDownChoiceView: View {
                 StitchButton {
                     self.onSet(choice)
                 } label: {
-//#if DEV_DEBUG
-//                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
-//#else
+                    //#if DEV_DEBUG
+                    //                    StitchTextView(string: "\(choice.name) \(choice.id.description.dropLast(24))")
+                    //#else
                     StitchTextView(string: choice.name)
-//#endif
+                    //#endif
                 }
             }
         } label: {

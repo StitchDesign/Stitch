@@ -12,7 +12,27 @@ struct StitchFontDropdown: View {
 
     let input: InputCoordinate
     let stitchFont: StitchFont
+    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let isFieldInsideLayerInspector: Bool
 
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                0,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
+    }
+    
+    @MainActor
+    var finalChoiceDisplay: String {
+        self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.stitchFont.display
+    }
+    
     var body: some View {
         Menu {
             subMenu(fontChoice: .sf,
@@ -28,7 +48,7 @@ struct StitchFontDropdown: View {
                     fontWeights: StitchFontWeight.allCases.filter(\.isForNewYorkSerif))
         } label: {
             Button { } label: {
-                StitchTextView(string: self.stitchFont.display)
+                StitchTextView(string: finalChoiceDisplay)
             }
         }
         .menuIndicator(.hidden) // hide caret indicator
@@ -49,7 +69,8 @@ struct StitchFontDropdown: View {
                                            fontWeight: $0)
 
             pickerOptionSelected(input: input,
-                                 choice: PortValue.textFont(newStitchFont))
+                                 choice: PortValue.textFont(newStitchFont),
+                                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         }
     }
 }

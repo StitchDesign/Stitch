@@ -18,6 +18,10 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 @Observable
 final class PropertySidebarObserver {
+        
+    // Non-nil just if we have multiple layers selected
+    var inputsCommonToSelectedLayers: LayerInputTypeSet?
+    
     var selectedProperty: LayerInspectorRowId?
     
     // Used for positioning flyouts; read and populated by every row,
@@ -92,10 +96,20 @@ extension LayerInspectorView {
     }
     
     @MainActor
-    static func firstSectionName(_ layer: Layer) -> LayerInspectorSectionName? {
-        Self.layerInspectorRowsInOrder(layer).first?.name
-    }
-        
+    static let unfilteredLayerInspectorRowsInOrder: [LayerInspectorSectionData] =
+        [
+            .init(.sizing, Self.sizing),
+            .init(.positioning, Self.positioning),
+            .init(.common, Self.common),
+            .init(.group, Self.groupLayer),
+            .init(.pinning, Self.pinning),
+            .init(.typography, Self.text),
+            .init(.stroke, Self.stroke),
+            .init(.rotation, Self.rotation),
+//            .init(.shadow, Self.shadow),
+            .init(.layerEffects, Self.effects)
+        ]
+            
     @MainActor
     static let positioning: LayerInputTypeSet = [
         .position,

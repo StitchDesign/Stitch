@@ -14,7 +14,6 @@ let PREVIEW_WINDOW_COORDINATE_SPACE = "previewWindow"
 struct PreviewWindowCoordinateSpaceReader: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
-    
     let isPinnedViewRendering: Bool
     
     let pinMap: PinMap

@@ -21,6 +21,7 @@ struct PaddingFlyoutView: View {
     
     @Bindable var graph: GraphState
     let rowViewModel: InputNodeRowViewModel
+    let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     let hasIncomingEdge: Bool
     
@@ -71,7 +72,8 @@ struct PaddingFlyoutView: View {
             if let coordinate = rowViewModel.rowDelegate?.id {
                 InputValueEntry(graph: graph,
                                 rowViewModel: rowViewModel,
-                                viewModel: portViewModel,
+                                viewModel: portViewModel, 
+                                inputLayerNodeRowData: inputLayerNodeRowData,
                                 rowObserverId: coordinate,
                                 nodeKind: .layer(layer),
                                 isCanvasItemSelected: false,
