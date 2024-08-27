@@ -55,9 +55,9 @@ extension GraphState {
         }
         
         if self.sidebarSelectionState.inspectorFocusedLayers.count > 1 {
-            self.graphUI.propertySidebar.layerMultiselectObserver = self.multipleSidebarLayersSelected()
+            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
         } else {
-            self.graphUI.propertySidebar.layerMultiselectObserver = nil
+            self.graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
         }
         
         // Reset selected-inspector-row whenever inspector-focused layers change
@@ -65,7 +65,7 @@ extension GraphState {
     }
     
     @MainActor
-    func multipleSidebarLayersSelected() -> LayerMultiSelectObserver? {
+    func multipleSidebarLayersSelected() -> LayerInputTypeSet? {
         
         let selectedSidebarLayers = self.sidebarSelectionState.inspectorFocusedLayers
                 
@@ -110,7 +110,7 @@ extension GraphState {
         log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
         // Doesn't need to be ordered?
-        return .init(inputs: .init(commonLayerInputs))
+        return .init(commonLayerInputs)
     }
 }
 

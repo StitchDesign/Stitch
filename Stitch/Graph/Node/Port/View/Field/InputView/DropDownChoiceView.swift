@@ -31,8 +31,8 @@ struct DropDownChoiceView: View {
          */
         guard isFieldInsideLayerInspector,
               let layerInput = id.keyPath?.layerInput,
-              let multiselectObserver = graph.graphUI.propertySidebar.layerMultiselectObserver,
-              let layerMultiselectInput = multiselectObserver.inputs.first(where: { $0 == layerInput }) else {
+              let multiselectInputs = graph.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+              let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput }) else {
             // log("DropDownChoiceView: hasHeterogenousValues: guard")
             return false
         }

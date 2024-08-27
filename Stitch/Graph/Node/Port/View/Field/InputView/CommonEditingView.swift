@@ -90,8 +90,8 @@ struct CommonEditingView: View {
     }
     
     @MainActor
-    var multiselectObserver: LayerMultiSelectObserver? {
-        graph.graphUI.propertySidebar.layerMultiselectObserver
+    var multiselectInputs: LayerInputTypeSet? {
+        graph.graphUI.propertySidebar.inputsCommonToSelectedLayers
     }
         
     @MainActor
@@ -102,10 +102,10 @@ struct CommonEditingView: View {
          - in the layer inspector
          - and we have multiple layers selected
          */
-        guard let multiselectObserver = multiselectObserver, // we have multiple layers selected,
+        guard let multiselectInputs = multiselectInputs, // we have multiple layers selected,
               let layerInput = self.layerInput, // for a layer
               self.isFieldInsideLayerInspector, // in the layer inspector
-              let inputObserver = multiselectObserver.inputs.first(where: { $0 == layerInput
+              let inputObserver = multiselectInputs.first(where: { $0 == layerInput
               }) else {
 //            log("CommonEditingView: hasHeterogenousValues: guard")
             return false

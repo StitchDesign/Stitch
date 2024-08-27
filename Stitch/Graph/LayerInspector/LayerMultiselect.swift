@@ -42,21 +42,11 @@ extension InputFieldViewModel {
  * size = { 100, 100 }
  * position = { "Multi", 0 }
  */
-//typealias LayerMultiselectInputDict = [LayerInputPort: LayerMultiselectInput]
-
-@Observable
-final class LayerMultiSelectObserver {
-    // inputs that are common across all the selected layers
-    var inputs: LayerInputTypeSet // Doesn't need to be ordered?
-    
-    init(inputs: LayerInputTypeSet) {
-        self.inputs = inputs
-    }
-    
+extension LayerInputTypeSet {
     // Note: this loses information about the heterogenous values etc.
     @MainActor
     func asLayerInputObserverDict(_ graph: GraphState) -> LayerInputObserverDict {
-        self.inputs.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
+        self.reduce(into: LayerInputObserverDict()) { partialResult, layerInput in
             if let firstObserver = layerInput.multiselectObservers(graph).first {
                 partialResult.updateValue(firstObserver,
                                           forKey: layerInput)

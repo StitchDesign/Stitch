@@ -85,8 +85,8 @@ extension GraphState {
         
         if isFieldInsideLayerInspector,
            let layerInput = input.id.keyPath?.layerInput,
-           let multiselectObserver = self.graphUI.propertySidebar.layerMultiselectObserver,
-           let layerMultiselectInput = multiselectObserver.inputs.first(where: { $0 == layerInput}) {
+           let multiselectInputs = self.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
         
             // Note: heterogenous values doesn't matter; only the multiselect does
             layerMultiselectInput.multiselectObservers(self).forEach { observer in

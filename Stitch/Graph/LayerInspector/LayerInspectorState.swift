@@ -18,8 +18,9 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 @Observable
 final class PropertySidebarObserver {
-    
-    var layerMultiselectObserver: LayerMultiSelectObserver?
+        
+    // Non-nil just if we have multiple layers selected
+    var inputsCommonToSelectedLayers: LayerInputTypeSet?
     
     var selectedProperty: LayerInspectorRowId?
     

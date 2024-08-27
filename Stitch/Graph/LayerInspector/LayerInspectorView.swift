@@ -60,7 +60,7 @@ struct LayerInspectorView: View {
         
         // multiselect
         if selectedLayers.count > 1 {
-            guard let multiselectState = graph.graphUI.propertySidebar.layerMultiselectObserver else {
+            guard let multiselectState = graph.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
                 log("Had multiple selected layers but no multiselect state")
                 return nil
             }
