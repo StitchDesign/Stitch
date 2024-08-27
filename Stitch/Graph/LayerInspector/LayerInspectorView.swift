@@ -44,58 +44,20 @@ struct LayerInspectorView: View {
     static let LAYER_INSPECTOR_WIDTH = 360.0
     
     @Bindable var graph: GraphState
-        
-    @MainActor
-    var layerInspectorData: (header: String,
-                             node: NodeId?,
-                             inputs: LayerInputObserverDict,
-                             outputs: [OutputLayerNodeRowData])? {
-        
-        
-        guard !graph.orderedSidebarLayers.isEmpty else {
-            return nil
-        }
 
-        let selectedLayers = graph.sidebarSelectionState.inspectorFocusedLayers
-        
-        // multiselect
-        if selectedLayers.count > 1 {
-            guard let multiselectState = graph.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
-                log("Had multiple selected layers but no multiselect state")
-                return nil
-            }
-            
-            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict(graph)
-            
-            return (header: "Multiselect",
-                    node: nil,
-                    inputs: inputs,
-                    outputs: []) // TODO: multiselect for outputs
-            
-        }
-        
-        // else had 0 or 1 layers selected:
-        else {
-            guard let inspectedLayerId = graph.sidebarSelectionState.inspectorFocusedLayers.first?.id,
-                  let node = graph.getNodeViewModel(inspectedLayerId),
-                  let layerNode = node.layerNode else {
-                log("LayerInspectorView: No inspector-focused layers?:  \(graph.sidebarSelectionState.inspectorFocusedLayers)")
-                return nil
-            }
-            
-            let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
-            
-            return (header: node.displayTitle,
-                    node: node.id,
-                    inputs: inputs,
-                    outputs: layerNode.outputPorts)
-        }
+    var areMultipleLayersSelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.count > 1
     }
     
+    var noLayersInspected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.isEmpty
+    }
+        
     @State var safeAreaInsets: EdgeInsets = .init()
-    
+        
     var body: some View {
-        if let layerInspectorData = layerInspectorData {
+        
+        if let layerInspectorData = graph.getLayerInspectorData() {
             
             // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
             GeometryReader { geometry in
@@ -108,8 +70,8 @@ struct LayerInspectorView: View {
                         layerInputObserverDict: layerInspectorData.inputs,
                         layerOutputs: layerInspectorData.outputs)
                 }
-//                // TODO: Why subtract only half?
-//                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
+                //                // TODO: Why subtract only half?
+                //                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
                 // TODO: why is this inaccurate?
@@ -130,7 +92,7 @@ struct LayerInspectorView: View {
             List { }
         }
     }
- 
+    
     @MainActor @ViewBuilder
     func selectedLayerView(layerInspectorHeader: String,
                            node: NodeId?,
@@ -362,6 +324,56 @@ struct LayerInspectorOutputsSectionView: View {
         }
     }
 }
+
+extension GraphState {
+    
+    @MainActor
+    func getLayerInspectorData() -> (header: String,
+                                     node: NodeId?,
+                                     inputs: LayerInputObserverDict,
+                                     outputs: [OutputLayerNodeRowData])? {
+        
+        guard !self.orderedSidebarLayers.isEmpty else {
+            return nil
+        }
+
+        let selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        
+        // multiselect
+        if selectedLayers.count > 1 {
+            guard let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
+                log("Had multiple selected layers but no multiselect state")
+                return nil
+            }
+            
+            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict(self)
+            
+            return (header: "Multiselect",
+                    node: nil,
+                    inputs: inputs,
+                    outputs: []) // TODO: multiselect for outputs
+            
+        }
+        
+        // else had 0 or 1 layers selected:
+        else {
+            guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.first?.id,
+                  let node = self.getNodeViewModel(inspectedLayerId),
+                  let layerNode = node.layerNode else {
+                log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
+                return nil
+            }
+            
+            let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
+            
+            return (header: node.displayTitle,
+                    node: node.id,
+                    inputs: inputs,
+                    outputs: layerNode.outputPorts)
+        }
+    }
+}
+
 
 //#Preview {
 //    let graph = GraphState(from: .init(), store: nil)

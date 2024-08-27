@@ -107,7 +107,7 @@ extension GraphState {
             }
         }
         
-        log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
+        // log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
         // Doesn't need to be ordered?
         return .init(commonLayerInputs)
