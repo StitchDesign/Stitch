@@ -189,7 +189,6 @@ extension GraphState {
                                    newURL: URL,
                                    store: StitchStore) {
         let mediaKey = newURL.mediaKey
-//        let destinationInput = nodeImportPayload.destinationInput
         let destinationInputs = nodeImportPayload.destinationInputs
         
         for destinationInput in destinationInputs {
@@ -243,9 +242,7 @@ extension GraphState {
             store.inputEditCommitted(input: destinationInput,
                                      value: portValue)
             
-        } // for destinationInput in ...
-        
-        
+        } // for destinationInput in ...        
     }
 }
 
