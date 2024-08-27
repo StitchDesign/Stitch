@@ -86,7 +86,6 @@ extension GraphState {
             return nil
         }
       
-        
         var commonLayerInputs = Set<LayerInputPort>()
                 
         LayerInputPort.allCases.forEach { layerInputPort in
@@ -110,31 +109,8 @@ extension GraphState {
         
         log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
         
-        var multiselectInputs = [LayerInputPort: LayerMultiselectInput]()
-        
-        // Turn the common layer inputs into the `LayerMultiselectInput`s
-        commonLayerInputs.forEach { (commonLayerInput: LayerInputPort) in
-//            
-//            let observers: [LayerInputObserver] = selectedNodes.compactMap { (selectedNode: NodeViewModel) in
-//                
-//                if let layerNode = selectedNode.layerNode {
-//                    let observer: LayerInputObserver = layerNode[keyPath: commonLayerInput.layerNodeKeyPath]
-//                    return observer
-//                }
-//                return nil
-//            }
-            
-            let multiselectInput = LayerMultiselectInput(input: commonLayerInput)
-            
-            // order doesn't matter
-            multiselectInputs.updateValue(multiselectInput,
-                                          forKey: commonLayerInput)
-            
-        } // commonLayerInputs.forEach
-        
-        log("multipleSidebarLayersSelected: commonLayerInputs: \(commonLayerInputs)")
-        
-        return .init(inputs: multiselectInputs)
+        // Doesn't need to be ordered?
+        return .init(inputs: .init(commonLayerInputs))
     }
 }
 

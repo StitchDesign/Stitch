@@ -105,7 +105,8 @@ struct CommonEditingView: View {
         guard let multiselectObserver = multiselectObserver, // we have multiple layers selected,
               let layerInput = self.layerInput, // for a layer
               self.isFieldInsideLayerInspector, // in the layer inspector
-              let inputObserver: LayerMultiselectInput = multiselectObserver.inputs.get(layerInput) else {
+              let inputObserver = multiselectObserver.inputs.first(where: { $0 == layerInput
+              }) else {
 //            log("CommonEditingView: hasHeterogenousValues: guard")
             return false
         }

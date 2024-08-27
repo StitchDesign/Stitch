@@ -46,7 +46,8 @@ struct MediaFieldValueView: View {
         return graph.graphUI
                 .propertySidebar
                 .layerMultiselectObserver?
-                .inputs.get(layerInput.layerInput)?
+                .inputs
+                .first(where: { $0 == layerInput.layerInput })?
                 .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldIndex) ?? false
         } else {
             return false

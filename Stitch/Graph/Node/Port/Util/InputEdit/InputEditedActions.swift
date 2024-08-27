@@ -98,7 +98,7 @@ extension InputNodeRowObserver {
         // we'll actually update more than one input.
         if isFieldInsideLayerInspector,
            let layerInput = self.id.portType.keyPath?.layerInput,
-            let layerMultiselectInput: LayerMultiselectInput = graph.getLayerMultiselectInput(for: layerInput) {
+            let layerMultiselectInput = graph.getLayerMultiselectInput(for: layerInput) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
                 observer.rowObserver.inputEdited(graph: graph,
@@ -128,8 +128,12 @@ extension NodeIOCoordinate {
 }
 
 extension GraphState {
+
     @MainActor
-    func getLayerMultiselectInput(for layerInput: LayerInputPort) -> LayerMultiselectInput? {
-        self.graphUI.propertySidebar.layerMultiselectObserver?.inputs.get(layerInput)
+    func getLayerMultiselectInput(for layerInput: LayerInputPort) -> LayerInputPort? {
+        
+        self.graphUI.propertySidebar
+            .layerMultiselectObserver?.inputs
+            .first(where: { $0 == layerInput })
     }
 }
