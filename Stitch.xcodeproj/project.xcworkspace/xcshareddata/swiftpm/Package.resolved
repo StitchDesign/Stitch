@@ -77,12 +77,17 @@
       "location" : "https://github.com/StitchDesign/StitchSchemaKit",
       "state" : {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "branch" : "u/ellbosch/2408/inspector-unpacked",
         "revision" : "49af8af25e933d97c959df304a84b44cf73e4f84"
 =======
         "revision" : "0091c451dc2b783b2451d3be39b23d900f40a9ff",
         "version" : "23.0.0"
 >>>>>>> main
+=======
+        "revision" : "80c59373a31f125c34b45058719bc600914fb412",
+        "version" : "23.1.0"
+>>>>>>> releases/1.5.3
       }
     },
     {

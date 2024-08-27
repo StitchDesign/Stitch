@@ -230,4 +230,11 @@ extension StitchDocument {
 
         return projectFile
     }
+    
+    public static let defaultName = "Untitled"
+    
+    /// Matches iPHone 12, 13, 14 etc
+    public static let defaultPreviewWindowSize = CGSize(width: 390, height: 844)
+    
+    public static let defaultBackgroundColor = Color.white
 }

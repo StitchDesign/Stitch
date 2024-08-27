@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct KeyboardNode: PatchNodeDefinition {
     static let patch: Patch = .keyboard
 
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
                 .init(defaultValues: [.string(.init("a"))], label: "Key")

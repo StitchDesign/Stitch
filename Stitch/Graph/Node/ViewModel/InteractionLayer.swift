@@ -40,6 +40,12 @@ extension InteractiveLayer {
     var layerPosition: CGPoint {
         self.delegate?.getPosition() ?? .zero
     }
+    
+    func onPrototypeRestart() {
+        self.firstPressEnded = nil
+        self.secondPressEnded = nil
+        self.lastTappedLocation = nil
+    }
 }
 
 protocol InteractiveLayerDelegate: AnyObject {

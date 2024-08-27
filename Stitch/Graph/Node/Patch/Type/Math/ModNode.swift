@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct ModNode: PatchNodeDefinition {
     static let patch: Patch = .mod
     
-    static func rowDefinitions(for type: StitchSchemaKit.UserVisibleType?) -> NodeRowDefinitions {
+    static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
                 .init(defaultValues: [.number(1)], label: ""),

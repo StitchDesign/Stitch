@@ -14,6 +14,7 @@ struct LayerInspectorRowButton: View {
     let coordinate: NodeIOCoordinate
     let canvasItemId: CanvasItemId?
     let isRowSelected: Bool
+    let isHovered: Bool
     
     var canBeAddedToCanvas: Bool {
         switch layerProperty {
@@ -24,12 +25,29 @@ struct LayerInspectorRowButton: View {
         }
     }
     
+    var showAddLayerPropertyButton: Bool {
+        if canvasItemId.isDefined {
+            return false
+        }
+        
+        if isHovered {
+            return true
+        }
+        
+        if canBeAddedToCanvas, isRowSelected {
+            return true
+        }
+        
+        return false
+    }
+    
     var body: some View {
         if let canvasItemId = canvasItemId {
             JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
         } else {
             AddLayerPropertyToGraphButton(coordinate: coordinate)
-                .opacity((canBeAddedToCanvas && isRowSelected) ? 1.0 : 0.0)
+                .opacity(showAddLayerPropertyButton ? 1 : 0)
+                .animation(.default, value: showAddLayerPropertyButton)
         }
     }
 }

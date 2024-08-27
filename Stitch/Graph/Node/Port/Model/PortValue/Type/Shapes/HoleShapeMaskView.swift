@@ -11,7 +11,7 @@ import SwiftUI
 import NonEmpty
 
 // https://stackoverflow.com/a/59659733/7170123
-func holeShapeMask(shapes: ShapeDataArray,
+func holeShapeMask(shapes: [ShapeAndRect],
                    smallestShape: CGSize) -> Path {
 
     guard let shape1 = shapes.first else {

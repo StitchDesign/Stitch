@@ -616,6 +616,11 @@ extension NodeViewModel: SchemaObserver {
         if patchNode?.patch.isInteractionPatchNode ?? false {
             self.flattenOutputs()
         }
+        
+        self.layerNode?.previewLayerViewModels.forEach {
+            // Rest interaction state values
+            $0.interactiveLayer.onPrototypeRestart()
+        }
     }
 }
 

@@ -53,6 +53,15 @@ final class StitchEntity: NSObject, Sendable {
         
         super.init()
         
+        //This is what we want to apply the transform to
+        //so that we don't have to keep track of the asset's root transform and a user transform separately
+        //when we import a model, the units will often be in meters or centimeters
+        //the engine (reality kit or scenekit) has logic that says "hey I don't deal with MM or CM, so I'm going to set the model's transform to be 0.01 so that the model matches my coordinate space"...so the engine will add a root transform to the model so that it can work with the engine's coordinate space
+        //so, if we were to apply a transform on just Stitch Entity, we would be applying it to root transform of the model
+        //however, if we put the entity that loads the model inside of a container entity, and apply our transform to THAT container entity, it preserves whatever root transform was applied by the modelling package or engine that created the 3D asset
+        let containerEntity = Entity()
+        
+        
         // Loads entity asynchronously. Using the normal loading is NOT efficient
         // even when called on an async thread.
         Entity.loadAsync(contentsOf: sourceURL)
@@ -62,8 +71,11 @@ final class StitchEntity: NSObject, Sendable {
                     self?.entityStatus = .failed
                 }
             }, receiveValue: { [weak self] entity in
-                self?.entityStatus = .loaded(entity)
+                self?.entityStatus = .loaded(containerEntity)
                 
+                containerEntity.addChild(entity)
+                
+
                 // Start animations if enabled. Because async we need to set the property
                 // to keep it in sync.
                 self?.isAnimating = isAnimating
@@ -84,6 +96,10 @@ final class StitchEntity: NSObject, Sendable {
                         // Adds entity to anchor
                         DispatchQueue.main.async { [weak entity, weak anchor] in
                             if let entity = entity {
+                                //here we are adding the entity as a child of the anchor
+                                //anchor.addChild.containerEntity
+                                //any transform edits will be directed to the container
+                                //the container will sit between the anchor and the model
                                 anchor?.addChild(entity)
                             }
                         }
