@@ -165,13 +165,7 @@ struct SidebarItemSelected: GraphEvent {
         else {
             state.sidebarSelectionState = addExclusivelyToPrimary(id, state.sidebarSelectionState)
         }
-        
-         log("SidebarItemSelected: state.sidebarSelectionState is now: \(state.sidebarSelectionState)")
-        
-        log("SidebarItemSelected: state.sidebarSelectionState.primary is now: \(state.sidebarSelectionState.primary)")
-        
-        log("SidebarItemSelected: state.sidebarSelectionState.secondary is now: \(state.sidebarSelectionState.secondary)")
-        
+                
         state.updateInspectorFocusedLayers()
     }
 }
