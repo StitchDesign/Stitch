@@ -19,21 +19,11 @@ struct DropDownChoiceView: View {
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
     
-    // TODO: if this is a dropdown for a multiselect layer, then use "Multi" instead of `choiceDisplay`
-    // TODO: handle properly by field, not whole input
     @MainActor
     var hasHeterogenousValues: Bool {
-        /*
-         Only relevant when this field is:
-         - for a layer
-         - in the layer inspector
-         - and we have multiple layers selected
-         */
-        guard isFieldInsideLayerInspector,
-              let layerInput = id.keyPath?.layerInput,
-              let multiselectInputs = graph.graphUI.propertySidebar.inputsCommonToSelectedLayers,
-              let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput }) else {
-            // log("DropDownChoiceView: hasHeterogenousValues: guard")
+        guard let layerMultiselectInput = graph.getLayerMultiselectInput(
+            layerInput: id.keyPath?.layerInput,
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector) else {
             return false
         }
         

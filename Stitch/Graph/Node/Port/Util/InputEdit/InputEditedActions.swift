@@ -96,9 +96,9 @@ extension InputNodeRowObserver {
                 
         // If we're in the layer inspector and have selected multiple layers,
         // we'll actually update more than one input.
-        if isFieldInsideLayerInspector,
-           let layerInput = self.id.portType.keyPath?.layerInput,
-            let layerMultiselectInput = graph.getLayerMultiselectInput(for: layerInput) {
+        if let layerMultiselectInput = graph.getLayerMultiselectInput(
+            layerInput: self.id.portType.keyPath?.layerInput,
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
             
             layerMultiselectInput.multiselectObservers(graph).forEach { observer in
                 observer.rowObserver.inputEdited(graph: graph,
@@ -131,7 +131,6 @@ extension GraphState {
 
     @MainActor
     func getLayerMultiselectInput(for layerInput: LayerInputPort) -> LayerInputPort? {
-        
         self.graphUI.propertySidebar
             .inputsCommonToSelectedLayers?
             .first(where: { $0 == layerInput })

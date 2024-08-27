@@ -9,6 +9,25 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension GraphState {
+    /*
+     Non-nil just when:
+     - we have a layer input
+     - in the layer inspector
+     - and multiple layers are selected
+     */
+    @MainActor
+    func getLayerMultiselectInput(layerInput: LayerInputPort?,
+                                  isFieldInsideLayerInspector: Bool) -> LayerInputPort? {
+        if isFieldInsideLayerInspector,
+           let layerInput = layerInput {
+            return self.getLayerMultiselectInput(for: layerInput)
+        } else {
+            return nil
+        }
+    }
+}
+
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView: View {
     let inputCoordinate: InputCoordinate

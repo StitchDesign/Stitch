@@ -77,10 +77,11 @@ extension FieldValueMedia {
             
             var destinationInputs = [inputCoordinate]
             
-            if isFieldInsideLayerInspector,
-               let layerInput = inputCoordinate.layerInput,
-               let multiselectInput = graph.getLayerMultiselectInput(for: layerInput.layerInput) {
-                
+            if let layerInput = inputCoordinate.layerInput,
+               let multiselectInput = graph.getLayerMultiselectInput(
+                layerInput: layerInput.layerInput,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector) {
+            
                 destinationInputs = multiselectInput.multiselectObservers(graph).map({ (observer: LayerInputObserver) in
                     InputCoordinate(portType: .keyPath(layerInput),
                                     nodeId: observer.rowObserver.id.nodeId)
