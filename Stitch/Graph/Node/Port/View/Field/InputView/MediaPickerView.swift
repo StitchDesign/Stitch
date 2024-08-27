@@ -69,18 +69,6 @@ struct MediaFieldValueView: View {
         } else {
             return false
         }
-        
-//
-//        if isFieldInsideLayerInspector,
-//           let layerInput = inputCoordinate.layerInput {
-//        return graph.graphUI
-//                .propertySidebar
-//                .inputsCommonToSelectedLayers?
-//                .first(where: { $0 == layerInput.layerInput })?
-//                .fieldsInMultiselectInputWithHeterogenousValues(graph).contains(fieldIndex) ?? false
-//        } else {
-//            return false
-//        }
     }
     
     var body: some View {

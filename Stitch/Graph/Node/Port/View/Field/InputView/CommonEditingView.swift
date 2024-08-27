@@ -106,31 +106,6 @@ struct CommonEditingView: View {
         } else {
             return false
         }
-        
-//        // Suppose `fieldHasHeterogenousValues` lives on `InputLayerNodeRowData`; how do I get access to that `InputLayerNodeRowData` ?
-//        
-//        /*
-//         Only relevant when this field is:
-//         - for a layer
-//         - in the layer inspector
-//         - and we have multiple layers selected
-//         */
-//        guard let multiselectInputs = multiselectInputs, // we have multiple layers selected,
-//              let layerInput = self.layerInput, // for a layer
-//              self.isFieldInsideLayerInspector, // in the layer inspector
-//              let inputObserver = multiselectInputs.first(where: { $0 == layerInput }) else {
-////            log("CommonEditingView: hasHeterogenousValues: guard")
-//            return false
-//        }
-//        
-//        let indicesWithHeterogenousValues = inputObserver.fieldsInMultiselectInputWithHeterogenousValues(graph)
-//        
-//        if indicesWithHeterogenousValues.contains(fieldIndex) {
-//            // log("CommonEditingView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput) field index \(fieldIndex)")
-//            return true
-//        } else {
-//            return false
-//        }
     }
     
     var body: some View {
