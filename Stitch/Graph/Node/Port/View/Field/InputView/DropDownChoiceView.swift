@@ -13,6 +13,8 @@ struct DropDownChoiceView: View {
 
     let id: InputCoordinate
     
+    let inputLayerNodeRowData: InputLayerNodeRowData?
+    
     @Bindable var graph: GraphState
     
     let choiceDisplay: String
@@ -21,20 +23,31 @@ struct DropDownChoiceView: View {
     
     @MainActor
     var hasHeterogenousValues: Bool {
-        guard let layerMultiselectInput = graph.getLayerMultiselectInput(
-            layerInput: id.keyPath?.layerInput,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector) else {
-            return false
-        }
         
-        let fieldsWithHeterogenousValues = layerMultiselectInput.fieldsInMultiselectInputWithHeterogenousValues(graph)
-        
-        if fieldsWithHeterogenousValues.contains(0) {
-            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
-            return true
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                0,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
             return false
         }
+//        
+//        
+//        guard let layerMultiselectInput = graph.getLayerMultiselectInput(
+//            layerInput: id.keyPath?.layerInput,
+//            isFieldInsideLayerInspector: isFieldInsideLayerInspector) else {
+//            return false
+//        }
+//        
+//        let fieldsWithHeterogenousValues = layerMultiselectInput.fieldsInMultiselectInputWithHeterogenousValues(graph)
+//        
+//        if fieldsWithHeterogenousValues.contains(0) {
+//            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
+//            return true
+//        } else {
+//            return false
+//        }
     }
 
     @MainActor

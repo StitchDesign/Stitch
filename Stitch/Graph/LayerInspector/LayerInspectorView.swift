@@ -45,16 +45,8 @@ struct LayerInspectorView: View {
     
     @Bindable var graph: GraphState
 
-    var areMultipleLayersSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.count > 1
-    }
-    
-    var noLayersInspected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.isEmpty
-    }
-        
     @State var safeAreaInsets: EdgeInsets = .init()
-        
+            
     var body: some View {
         
         if let layerInspectorData = graph.getLayerInspectorData() {
@@ -125,6 +117,8 @@ struct LayerInspectorView: View {
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
+                    // Move this filtering to an onChange, and store the `filteredInputs` locally
+                    // Or should live at
                     let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
                         
                         let isSupported = layerInputObserverDict.get(sectionInput).isDefined
@@ -327,12 +321,14 @@ struct LayerInspectorOutputsSectionView: View {
 
 extension GraphState {
     
+    // Note: just used for `LayerInspectorView`
     @MainActor
     func getLayerInspectorData() -> (header: String,
                                      node: NodeId?,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
         
+        // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
             return nil
         }
@@ -373,6 +369,8 @@ extension GraphState {
         }
     }
 }
+
+
 
 
 //#Preview {

@@ -30,6 +30,7 @@ struct LayerInspectorInputPortView: View {
                         NodeInputView(graph: graph,
                                       rowObserver: inputLayerNodeRowData.rowObserver,
                                       rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                                      inputLayerNodeRowData: inputLayerNodeRowData,
                                       forPropertySidebar: true,
                                       propertyIsSelected: propertyRowIsSelected,
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
@@ -62,6 +63,7 @@ struct LayerInspectorInputPortView: View {
                         NodeInputView(graph: graph,
                                       rowObserver: unpackedPort.rowObserver,
                                       rowData: unpackedPort.inspectorRowViewModel,
+                                      inputLayerNodeRowData: nil, // TODO: handle properly
                                       forPropertySidebar: true,
                                       propertyIsSelected: propertyRowIsSelected,
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,

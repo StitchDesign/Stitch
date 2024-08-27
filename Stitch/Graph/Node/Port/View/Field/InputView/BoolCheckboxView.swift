@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+// TODO: what "multi" value should we show for a checkbox?
 struct BoolCheckboxView: View {
     let id: InputCoordinate? // nil = used in output
     let value: Bool

@@ -13,7 +13,7 @@ struct InputValueEntry: View {
     @Bindable var graph: GraphState
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
-
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
@@ -42,6 +42,7 @@ struct InputValueEntry: View {
         InputValueView(graph: graph,
                        rowViewModel: rowViewModel,
                        viewModel: viewModel,
+                       inputLayerNodeRowData: inputLayerNodeRowData,
                        rowObserverId: rowObserverId,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
@@ -77,7 +78,7 @@ struct InputValueView: View {
     @Bindable var graph: GraphState
     @Bindable var rowViewModel: InputNodeRowViewModel
     @Bindable var viewModel: InputFieldViewModel
-    
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
@@ -119,6 +120,7 @@ struct InputValueView: View {
         switch fieldValue {
         case .string(let string):
             CommonEditingView(inputField: viewModel,
+                              inputLayerNodeRowData: inputLayerNodeRowData,
                               inputString: string.string,
                               graph: graph,
                               fieldIndex: fieldIndex,
@@ -131,7 +133,8 @@ struct InputValueView: View {
 
         case .number:
             FieldValueNumberView(graph: graph,
-                                 fieldViewModel: viewModel,
+                                 fieldViewModel: viewModel, 
+                                 inputLayerNodeRowData: inputLayerNodeRowData,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
@@ -146,6 +149,7 @@ struct InputValueView: View {
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
+                                 inputLayerNodeRowData: inputLayerNodeRowData,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
@@ -157,9 +161,10 @@ struct InputValueView: View {
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
             
-        case .spacing(let spacing):
+        case .spacing:
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
+                                 inputLayerNodeRowData: inputLayerNodeRowData,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
@@ -180,6 +185,7 @@ struct InputValueView: View {
 
         case .dropdown(let choiceDisplay, let choices):
             DropDownChoiceView(id: rowObserverId,
+                               inputLayerNodeRowData: inputLayerNodeRowData,
                                graph: graph,
                                choiceDisplay: choiceDisplay,
                                choices: choices,
@@ -262,6 +268,7 @@ struct InputValueView: View {
                           json: isButtonPressed ? json : nil,
                           isPressed: $isButtonPressed)
 
+        // TODO: is this relevant for multiselect?
         case .readOnly(let string):
             ReadOnlyValueEntry(value: string,
                                alignment: .leading,

@@ -160,6 +160,7 @@ struct NodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -186,7 +187,8 @@ struct NodeInputView: View {
                         isMultiField: Bool) -> some View {
         InputValueEntry(graph: graph,
                         rowViewModel: rowData,
-                        viewModel: portViewModel,
+                        viewModel: portViewModel, 
+                        inputLayerNodeRowData: inputLayerNodeRowData,
                         rowObserverId: rowObserver.id,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,

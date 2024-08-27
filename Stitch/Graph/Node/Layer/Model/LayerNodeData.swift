@@ -29,6 +29,28 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
     
+    // Better to keep it here, outside of the view?
+    // - Consolidate in a single place
+    
+    // Called from various UI, e.g. `CommonEditingView`,
+    // which could be for a field on the canvas or in the layer inspector
+    @MainActor
+    func fieldHasHeterogenousValues(_ fieldIndex: Int,
+                                    isFieldInsideLayerInspector: Bool) -> Bool {
+                
+
+        // Only relevant when this layer-input field is in the layer inspector and multiple layers are selected
+        guard isFieldInsideLayerInspector,
+              let graphDelegate = self.inspectorRowViewModel.graphDelegate,
+              graphDelegate.multiselectInputs.isDefined else {
+            return false
+        }
+    
+         return self.id.layerInput
+            .fieldsInMultiselectInputWithHeterogenousValues(graphDelegate)
+            .contains(fieldIndex)
+    }
+    
     @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
