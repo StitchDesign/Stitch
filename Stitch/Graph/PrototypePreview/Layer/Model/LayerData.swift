@@ -15,8 +15,8 @@ typealias LayerDataList = [LayerData]
 
 /// Data type used for getting sorted data.
 indirect enum LayerType: Equatable, Hashable {
-    case nongroup(LayerNonGroupData)
-    case group(LayerGroupData)
+    case nongroup(LayerNonGroupData, Bool)
+    case group(LayerGroupData, Bool)
     
     // TODO: theoretically could just use `[LayerType]` but need to update recursion logic
     // TODO: should be also NonEmpty, i.e. guaranteed to have at least one masked view and one masker view
@@ -60,9 +60,9 @@ struct LayerGroupData: Equatable, Hashable {
 extension LayerType {
     var id: PreviewCoordinate {
         switch self {
-        case .nongroup(let data):
+        case .nongroup(let data, _):
             return data.id
-        case .group(let data):
+        case .group(let data, _):
             return data.id
         case .mask(masked: let masked, masker: _):
             // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
@@ -74,9 +74,9 @@ extension LayerType {
     // DEBUG ONLY?
     var layer: Layer {
         switch self {
-        case .nongroup(let data):
+        case .nongroup(let data, _):
             return data.layer
-        case .group(let data):
+        case .group(let data, _):
             return data.layer
         case .mask(masked: let masked, masker: _):
             // TODO: what is the the layer-node-id of a LayerType in a masking situation? Really, it's nil, there's no single LayerNode
@@ -94,24 +94,24 @@ extension LayerType {
         }
     }
     
-//    var isPinnedView: Bool {
-//        switch self {
-//        case .nongroup(let x):
-//            return x.isPinnedView
-//        case .group(let x):
-//            // "Is group layer itself pinned?"
-//            return x.isPinnedView
-//        case .mask(masked: let x, masker: _):
-//            // "Is first masked view pinned?" (is this correct?)
-//            return x.first?.isPinnedView ?? false
-//        }
-//    }
+    var isPinnedView: Bool {
+        switch self {
+        case .nongroup(_, let isPinned):
+            return isPinned
+        case .group(_, let isPinned):
+            // "Is group layer itself pinned?"
+            return isPinned
+        case .mask(masked: let x, masker: _):
+            // "Is first masked view pinned?" (is this correct?)
+            return x.first?.isPinnedView ?? false
+        }
+    }
     
     var sidebarIndex: Int {
         switch self {
-        case .nongroup(let nongroup):
+        case .nongroup(let nongroup, _):
             return nongroup.sidebarIndex
-        case .group(let group):
+        case .group(let group, _):
             return group.sidebarIndex
         case .mask(masked: let masked, masker: _):
 #if DEV_DEBUG || DEBUG
@@ -124,9 +124,9 @@ extension LayerType {
 
     var zIndex: CGFloat {
         switch self {
-        case .nongroup(let nongroup):
+        case .nongroup(let nongroup, _):
             return nongroup.zIndex
-        case .group(let group):
+        case .group(let group, _):
             return group.zIndex
         case .mask(masked: let maskedLayerTypes, masker: _):
 //            return masked.zIndex

@@ -28,7 +28,7 @@ extension VisibleNodesViewModel {
         if !isGhost {
             sidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
                 !pinnedLayerIds.contains($0.id)
-            }            
+            }
         }
         
         sidebarLayersAtHierarchy.enumerated().forEach {
@@ -65,34 +65,7 @@ extension VisibleNodesViewModel {
         
         // log("recursivePreviewLayers: DONE GETTING ALL LAYER TYPES: \(layerTypesAtThisLevel)")
         
-        // Sorting comparator
-        let comparator = { (lhs: LayerType, rhs: LayerType) in
-            // Variables for sorting
-            let lhsZIndex = lhs.zIndex
-            let rhsZIndex = rhs.zIndex
-            let lhsSidebarIndex = lhs.sidebarIndex
-            let rhsSidebarIndex = rhs.sidebarIndex
-            
-            // Sorting tiebreaker:
-            // 1. Z-index input
-            // 2. Sidebar order
-            
-            guard lhsZIndex != rhsZIndex else {
-                /*
-                 Larger sidebar indices should be higher in stack
-                 
-                 ... actually, depends on stack-type:
-                 - ZStack: smallest index = bottom of stack, largest index = top of stack
-                 - VStack: smallest index = top of column, largest index = bottom of column
-                 - HStack: smallest index = far left of row, largest index = far right of row
-                 */
-                return lhsSidebarIndex > rhsSidebarIndex
-            }
-            
-            return lhsZIndex < rhsZIndex
-        }
-        
-        let sortedLayerTypes = layerTypesAtThisLevel.sorted(by: comparator)
+        let sortedLayerTypes = layerTypesAtThisLevel.sorted(by: Self.layerSortingComparator)
         
         let sortedLayerDataList: LayerDataList = sortedLayerTypes.compactMap { (layerType: LayerType) -> LayerData? in
             self.getLayerDataFromLayerType(layerType,
@@ -105,6 +78,40 @@ extension VisibleNodesViewModel {
         log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
         return sortedLayerDataList
+    }
+    
+    /// Sorting comparator for layer data, which drives z-index order.
+    static func layerSortingComparator(lhs: LayerType, rhs: LayerType) -> Bool {
+        // Variables for sorting
+        let lhsZIndex = lhs.zIndex
+        let rhsZIndex = rhs.zIndex
+        let lhsSidebarIndex = lhs.sidebarIndex
+        let rhsSidebarIndex = rhs.sidebarIndex
+        let lhsIsPinned = lhs.isPinnedView
+        let rhsIsPinned = rhs.isPinnedView
+        
+        // Sorting tiebreaker:
+        // 1. Pinning
+        // 2. Z-index input
+        // 3. Sidebar order
+        
+        if lhsIsPinned != rhsIsPinned {
+            return rhsIsPinned
+        }
+        
+        guard lhsZIndex != rhsZIndex else {
+            /*
+             Larger sidebar indices should be higher in stack
+             
+             ... actually, depends on stack-type:
+             - ZStack: smallest index = bottom of stack, largest index = top of stack
+             - VStack: smallest index = top of column, largest index = bottom of column
+             - HStack: smallest index = far left of row, largest index = far right of row
+             */
+            return lhsSidebarIndex > rhsSidebarIndex
+        }
+        
+        return lhsZIndex < rhsZIndex
     }
     
     @MainActor
@@ -136,7 +143,7 @@ extension VisibleNodesViewModel {
             return .mask(masked: maskedLayerData,
                          masker: maskerLayerData)
             
-        case .nongroup(let data): // LayerData
+        case .nongroup(let data, _): // LayerData
             guard let previewLayer: LayerViewModel = layerNodes
                 .get(data.id.layerNodeId.id)?
                 .layerNode?
@@ -147,7 +154,7 @@ extension VisibleNodesViewModel {
             
             return .nongroup(previewLayer)
             
-        case .group(let layerGroupData): // LayerGroupData
+        case .group(let layerGroupData, _): // LayerGroupData
             guard let previewLayer: LayerViewModel = layerNodes
                 .get(layerGroupData.id.layerNodeId.asNodeId)?
                 .layerNode?
@@ -193,7 +200,8 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                                  zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                  sidebarIndex: sidebarIndex,
                                  childrenSidebarLayers: children,
-                                 layer: layerNode.layer))
+                                 layer: layerNode.layer),
+                           isPinnedView)
             }
             .toOrderedSet
         
@@ -208,7 +216,8 @@ func getLayerTypesFromSidebarLayerData(_ layerData: SidebarLayerData,
                     .nongroup(.init(id: layerViewModel.id,
                                     zIndex: layerViewModel.zIndex.getNumber ?? .zero,
                                     sidebarIndex: sidebarIndex,
-                                    layer: layerNode.layer))
+                                    layer: layerNode.layer),
+                              isPinnedView)
             }
             .toOrderedSet
         
