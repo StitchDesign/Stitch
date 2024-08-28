@@ -24,38 +24,47 @@ struct FieldValueNumberView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isFieldInMultifieldInput: Bool
     var isForSpacingField: Bool = false
-
+    
     @State private var isButtonPressed = false
 
     var body: some View {
+        if isFieldInMultifieldInput, forPropertySidebar {
+            commonEditView
+        } else {
+            HStack {
+                // Default to zero if "auto" currently selected
+                // Limit renders by not passing in number value unless button pressed
+                NumberValueButtonView(graph: graph,
+                                      value: isButtonPressed ? fieldValue.numberValue : .zero,
+                                      fieldCoordinate: fieldCoordinate,
+                                      rowObserverCoordinate: rowObserverCoordinate,
+                                      fieldValueNumberType: fieldValueNumberType,
+                                      adjustmentBarSessionId: adjustmentBarSessionId,
+                                      isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                                      isPressed: $isButtonPressed)
+                
+                commonEditView
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var commonEditView: CommonEditingView {
         let stringValue = fieldValue.stringValue
         
-        HStack {
-            // Default to zero if "auto" currently selected
-            // Limit renders by not passing in number value unless button pressed
-            NumberValueButtonView(
-                graph: graph,
-                value: isButtonPressed ? fieldValue.numberValue : .zero,
-                fieldCoordinate: fieldCoordinate,
-                rowObserverCoordinate: rowObserverCoordinate,
-                fieldValueNumberType: fieldValueNumberType,
-                adjustmentBarSessionId: adjustmentBarSessionId,
-                isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
-                isPressed: $isButtonPressed)
-            
-            CommonEditingView(inputField: fieldViewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
-                              inputString: stringValue,
-                              graph: graph,
-                              fieldIndex: fieldCoordinate.fieldIndex,
-                              isCanvasItemSelected: isCanvasItemSelected,
-                              hasIncomingEdge: hasIncomingEdge,
-                              choices: choices,
-                              isAdjustmentBarInUse: isButtonPressed,
-                              forPropertySidebar: forPropertySidebar,
-                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                              isForSpacingField: isForSpacingField)
-        }
+        CommonEditingView(inputField: fieldViewModel,
+                          inputLayerNodeRowData: inputLayerNodeRowData,
+                          inputString: stringValue,
+                          graph: graph,
+                          fieldIndex: fieldCoordinate.fieldIndex,
+                          isCanvasItemSelected: isCanvasItemSelected,
+                          hasIncomingEdge: hasIncomingEdge,
+                          choices: choices,
+                          isAdjustmentBarInUse: isButtonPressed,
+                          forPropertySidebar: forPropertySidebar,
+                          propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                          isForSpacingField: isForSpacingField)
     }
 }

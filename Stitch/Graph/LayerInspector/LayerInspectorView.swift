@@ -327,13 +327,21 @@ extension GraphState {
                                      node: NodeId?,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
-        
+                
         // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
             return nil
         }
 
-        let selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        var selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        
+        #if DEV_DEBUG
+        // For debug
+        if selectedLayers.isEmpty,
+           let layer = self.layerNodes.keys.first {
+            selectedLayers = .init([.init(layer)])
+        }
+        #endif
         
         // multiselect
         if selectedLayers.count > 1 {

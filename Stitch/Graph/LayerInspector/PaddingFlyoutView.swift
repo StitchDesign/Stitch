@@ -80,7 +80,8 @@ struct PaddingFlyoutView: View {
                                 hasIncomingEdge: hasIncomingEdge,
                                 forPropertySidebar: true,
                                 // TODO: fix
-                                propertyIsAlreadyOnGraph: false)
+                                propertyIsAlreadyOnGraph: false,
+                                isFieldInMultifieldInput: isMultiField)
                 // Each row seems too tall? Probably from a set node row height somewhere?
                 // Uses padding to reduce size
                 .padding([.top, .bottom], 4)

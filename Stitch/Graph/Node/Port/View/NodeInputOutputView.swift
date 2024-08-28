@@ -194,7 +194,8 @@ struct NodeInputView: View {
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph, 
+                        isFieldInMultifieldInput: isMultiField)
     }
     
     var body: some View {
@@ -241,6 +242,12 @@ struct NodeInputView: View {
                     
                 } else {
                     labelView
+                        .border(.orange)
+                    
+                    if forPropertySidebar {
+                        Spacer()
+                            .border(.blue)
+                    }
                     
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
@@ -249,6 +256,7 @@ struct NodeInputView: View {
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
+                    .border(.green)
                 }
             } // HStack
         }
@@ -353,22 +361,17 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     let propertyIsAlreadyOnGraph: Bool
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
-    var isMultiField: Bool {
-        self.rowViewModel.fieldValueTypes.count > 1
-    }
-    
     var body: some View {
         ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-            NodeFieldsView(
-                graph: graph,
-                fieldGroupViewModel: fieldGroupViewModel,
-                nodeId: nodeId,
-                isGroupNodeKind: isGroupNodeKind,
-                isMultiField: isMultiField,
-                forPropertySidebar: forPropertySidebar,
-                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                valueEntryView: valueEntryView
-            )
+            
+            NodeFieldsView(graph: graph,
+                           fieldGroupViewModel: fieldGroupViewModel,
+                           nodeId: nodeId,
+                           isGroupNodeKind: isGroupNodeKind,
+                           isMultiField: fieldGroupViewModel.fieldObservers.count > 1,
+                           forPropertySidebar: forPropertySidebar,
+                           propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                           valueEntryView: valueEntryView)
         }
     }
 }

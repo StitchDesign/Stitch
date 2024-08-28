@@ -8,6 +8,11 @@
 import SwiftUI
 import StitchSchemaKit
 
+extension Color {
+    // TODO: need a dark theme version
+    static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color.black.opacity(0.05)
+}
+
 let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
 let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH - 4.0
 
@@ -240,11 +245,13 @@ struct CommonEditingView: View {
         .offset(y: -0.5) // slight adjustment required
 #endif
         .modifier(InputViewBackground(
-            backgroundColor: Self.editableTextFieldBackgroundColor,
+            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : Self.editableTextFieldBackgroundColor,
             show: true, // always show background for a focused input
             hasDropdown: choices.isDefined,
             width: fieldWidth))
     }
+        
+    
     
     @MainActor
     var readOnlyTextView: some View {
@@ -255,8 +262,8 @@ struct CommonEditingView: View {
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)
         .modifier(InputViewBackground(
-            backgroundColor: Self.readOnlyTextBackgroundColor,
-            show: self.isHovering,
+            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : Self.readOnlyTextBackgroundColor,
+            show: self.isHovering || forPropertySidebar,
             hasDropdown: choices.isDefined,
             width: fieldWidth))
         // Manually focus this field when user taps.
@@ -266,6 +273,7 @@ struct CommonEditingView: View {
         }
     }
     
+    // TODO: can be shorted for a field in a multifield input
     var fieldWidth: CGFloat {
         isForSpacingField ? SPACING_FIELD_WIDTH : NODE_INPUT_OR_OUTPUT_WIDTH
     }
@@ -315,7 +323,7 @@ struct CommonEditingView: View {
 struct InputViewBackground: ViewModifier {
     
     var backgroundColor: Color
-    let show: Bool // if hovering or selected
+    let show: Bool // if hovering, selected or for sidebar
     let hasDropdown: Bool
     var width: CGFloat
     

@@ -20,6 +20,7 @@ struct InputValueEntry: View {
     let hasIncomingEdge: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isFieldInMultifieldInput: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -48,6 +49,7 @@ struct InputValueEntry: View {
                        isCanvasItemSelected: isCanvasItemSelected,
                        forPropertySidebar: forPropertySidebar,
                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                       isFieldInMultifieldInput: isFieldInMultifieldInput,
                        isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -85,8 +87,11 @@ struct InputValueView: View {
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     
+    // Alternatively, access this via some view-model?
+    let isFieldInMultifieldInput: Bool
+    
     @Binding var isButtonPressed: Bool
-
+    
     var fieldCoordinate: FieldCoordinate {
         self.viewModel.id
     }
@@ -144,7 +149,8 @@ struct InputValueView: View {
                                  choices: nil,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
-                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                 isFieldInMultifieldInput: isFieldInMultifieldInput)
                     
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
@@ -159,7 +165,8 @@ struct InputValueView: View {
                                  choices: LayerDimension.choices,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
-                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+                                 propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                 isFieldInMultifieldInput: isFieldInMultifieldInput)
             
         case .spacing:
             FieldValueNumberView(graph: graph,
@@ -175,6 +182,7 @@ struct InputValueView: View {
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                 isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForSpacingField: true)
 //            .frame(minWidth: SPACING_FIELD_WIDTH) // min width for "Between" dropdown of LayerGroup spacing
 
@@ -233,7 +241,8 @@ struct InputValueView: View {
                               selection: anchor,
                               inputLayerNodeRowData: inputLayerNodeRowData,
                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
+            // Don't set specific width ?
+            .frame(width: forPropertySidebar ? nil : NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
                    alignment: .trailing)
