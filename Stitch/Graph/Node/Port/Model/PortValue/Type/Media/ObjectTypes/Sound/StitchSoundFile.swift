@@ -79,39 +79,38 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
 
         self.setPlayerLoop(time: .zero, enableInfiniteLoop: willLoop)
     }
-
+    
     private func setupFFTTap(_ mixer: Mixer) {
-            self.fftTap = FFTTap(mixer, bufferSize: 4096, callbackQueue: .main) { [weak self] fftData in
-                Task { @MainActor [weak self] in
-                    await self?.processFFTDataSafely(fftData)
-                }
-            }
+        self.fftTap = FFTTap(mixer, bufferSize: 4096, callbackQueue: .main) { [weak self] fftData in
+            guard let strongSelf = self else { return }
+            strongSelf.processFFTData(fftData)
         }
+    }
 
-        private func processFFTDataSafely(_ fftData: [Float]) async {
-            let binCount = fftData.count
-            
-            let sampleRate = Settings.sampleRate
-            
-            let nyquistFrequency = sampleRate / 2.0
-            let frequencyPerBin = nyquistFrequency / Double(binCount)
+    private func processFFTData(_ fftData: [Float]) {
+        let binCount = fftData.count
+        
+        let sampleRate = Settings.sampleRate
+        
+        let nyquistFrequency = sampleRate / 2.0
+        let frequencyPerBin = nyquistFrequency / Double(binCount)
 
-            let lowRange = 0..<Int(Double(binCount) * 0.1)  // 0-10% of bins for low frequency
-            let midRange = Int(Double(binCount) * 0.1)..<Int(Double(binCount) * 0.5)  // 10-50% of bins for mid frequency
-            let highRange = Int(Double(binCount) * 0.5)..<binCount  // 50-100% of bins for high frequency
+        let lowRange = 0..<Int(Double(binCount) * 0.1)  // 0-10% of bins for low frequency
+        let midRange = Int(Double(binCount) * 0.1)..<Int(Double(binCount) * 0.5)  // 10-50% of bins for mid frequency
+        let highRange = Int(Double(binCount) * 0.5)..<binCount  // 50-100% of bins for high frequency
 
-            self.lowFrequencyAmplitude = calculateAverageAmplitude(fftData, in: lowRange)
-            self.midFrequencyAmplitude = calculateAverageAmplitude(fftData, in: midRange)
-            self.highFrequencyAmplitude = calculateAverageAmplitude(fftData, in: highRange)
+        self.lowFrequencyAmplitude = calculateAverageAmplitude(fftData, in: lowRange)
+        self.midFrequencyAmplitude = calculateAverageAmplitude(fftData, in: midRange)
+        self.highFrequencyAmplitude = calculateAverageAmplitude(fftData, in: highRange)
 
-            self.lowFrequencyRange = (Double(lowRange.lowerBound) * frequencyPerBin, Double(lowRange.upperBound) * frequencyPerBin)
-            self.midFrequencyRange = (Double(midRange.lowerBound) * frequencyPerBin, Double(midRange.upperBound) * frequencyPerBin)
-            self.highFrequencyRange = (Double(highRange.lowerBound) * frequencyPerBin, Double(highRange.upperBound) * frequencyPerBin)
+        self.lowFrequencyRange = (Double(lowRange.lowerBound) * frequencyPerBin, Double(lowRange.upperBound) * frequencyPerBin)
+        self.midFrequencyRange = (Double(midRange.lowerBound) * frequencyPerBin, Double(midRange.upperBound) * frequencyPerBin)
+        self.highFrequencyRange = (Double(highRange.lowerBound) * frequencyPerBin, Double(highRange.upperBound) * frequencyPerBin)
 
-            print("Low Frequency Range: \(self.lowFrequencyRange.min.rounded()) - \(self.lowFrequencyRange.max.rounded()) Hz, Amplitude: \(self.lowFrequencyAmplitude)")
-            print("Mid Frequency Range: \(self.midFrequencyRange.min.rounded()) - \(self.midFrequencyRange.max.rounded()) Hz, Amplitude: \(self.midFrequencyAmplitude)")
-            print("High Frequency Range: \(self.highFrequencyRange.min.rounded()) - \(self.highFrequencyRange.max.rounded()) Hz, Amplitude: \(self.highFrequencyAmplitude)")
-        }
+        print("Low Frequency Range: \(self.lowFrequencyRange.min.rounded()) - \(self.lowFrequencyRange.max.rounded()) Hz, Amplitude: \(self.lowFrequencyAmplitude)")
+        print("Mid Frequency Range: \(self.midFrequencyRange.min.rounded()) - \(self.midFrequencyRange.max.rounded()) Hz, Amplitude: \(self.midFrequencyAmplitude)")
+        print("High Frequency Range: \(self.highFrequencyRange.min.rounded()) - \(self.highFrequencyRange.max.rounded()) Hz, Amplitude: \(self.highFrequencyAmplitude)")
+    }
 
         private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
             let sum = range.reduce(0.0) { $0 + Double(fftData[$1]) }
