@@ -37,7 +37,7 @@ struct SidebarListItemView: View {
     }
     
     var isNonEditModeSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.contains(layerNodeId)
+        graph.sidebarSelectionState.nonEditModeSelections.contains(layerNodeId)
     }
         
     var body: some View {

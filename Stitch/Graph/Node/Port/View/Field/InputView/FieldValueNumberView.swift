@@ -13,7 +13,6 @@ struct FieldValueNumberView: View {
 
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
@@ -41,11 +40,9 @@ struct FieldValueNumberView: View {
                 rowObserverCoordinate: rowObserverCoordinate,
                 fieldValueNumberType: fieldValueNumberType,
                 adjustmentBarSessionId: adjustmentBarSessionId,
-                isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
                 isPressed: $isButtonPressed)
             
             CommonEditingView(inputField: fieldViewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
                               inputString: stringValue,
                               graph: graph,
                               fieldIndex: fieldCoordinate.fieldIndex,

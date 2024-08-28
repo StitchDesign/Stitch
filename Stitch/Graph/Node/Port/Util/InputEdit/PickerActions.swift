@@ -15,15 +15,13 @@ struct PickerOptionSelected: GraphEventWithResponse {
 
     let input: InputCoordinate
     let choice: PortValue
-    let isFieldInsideLayerInspector: Bool
     var isPersistence = true
 
     func handle(state: GraphState) -> GraphResponse {
         //        log("PickerOptionSelected: input: \(input)")`
         //        log("PickerOptionSelected: choice: \(choice)")
-        state.handleInputEditCommitted(input: input,
-                                       value: choice,
-                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        state.inputEditCommitted(input: input,
+                                 value: choice)
         return .init(willPersist: isPersistence)
     }
 }
@@ -36,17 +34,14 @@ struct InteractionPickerOptionSelected: GraphEventWithResponse {
 
     // the new choice for assigned layer
     let layerNodeIdSelection: LayerNodeId?
-    
-    let isFieldInsideLayerInspector: Bool
 
     func handle(state: GraphState) -> GraphResponse {
         // log("InteractionPickerOptionSelected: input: \(interactionPatchNodeInput)")
         // log("InteractionPickerOptionSelected: layerNodeIdSelection: \(layerNodeIdSelection)")
 
-        state.handleInputEditCommitted(
+        state.inputEditCommitted(
             input: interactionPatchNodeInput,
-            value: .assignedLayer(layerNodeIdSelection),
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            value: .assignedLayer(layerNodeIdSelection))
         
         return .persistenceResponse
     }

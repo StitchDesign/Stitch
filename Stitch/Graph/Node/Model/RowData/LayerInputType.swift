@@ -256,12 +256,6 @@ extension LayerInputPort {
             return .anchoring(.defaultAnchoring)
         case .pinOffset:
             return .size(.zero)
-        case .layerPadding:
-            return .padding(.zero)
-        case .layerMargin:
-            return .padding(.zero)
-        case .offsetInGroup:
-            return .size(.zero)
         }
     }
     
@@ -468,12 +462,6 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
-        case .layerPadding:
-            return \.layerPaddingPort
-        case .layerMargin:
-            return \.layerMarginPort
-        case .offsetInGroup:
-            return \.offsetInGroupPort
         }
     }
     
@@ -713,12 +701,6 @@ extension LayerViewModel {
             return self.pinAnchor
         case .pinOffset:
             return self.pinOffset
-        case .layerPadding:
-            return self.layerPadding
-        case .layerMargin:
-            return self.layerMargin
-        case .offsetInGroup:
-            return self.offsetInGroup
         }
     }
     
@@ -921,12 +903,6 @@ extension LayerViewModel {
             self.pinAnchor = value
         case .pinOffset:
             self.pinOffset = value
-        case .layerPadding:
-            self.layerPadding = value
-        case .layerMargin:
-            self.layerMargin = value
-        case .offsetInGroup:
-            self.offsetInGroup = value
         }
     }
 }
@@ -1123,12 +1099,6 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
-        case .layerPadding:
-            return \.layerPaddingPort
-        case .layerMargin:
-            return \.layerMarginPort
-        case .offsetInGroup:
-            return \.offsetInGroupPort
         }
     }
     
@@ -1334,13 +1304,13 @@ extension LayerInputPort {
         case .fontSize:
             return "Font Size"
         case .textAlignment:
-            return useShortLabel ? "Alignment" : "Text Alignment"
+            return "Text Alignment"
         case .verticalAlignment:
             return "Vertical Alignment"
         case .textDecoration:
-            return useShortLabel ? "Decoration" : "Text Decoration"
+            return "Text Decoration"
         case .textFont:
-            return useShortLabel ? "Font" : "Text Font"
+            return "Text Font"
         case .image:
             return "Image"
         case .video:
@@ -1414,24 +1384,15 @@ extension LayerInputPort {
         case .spacing:
             return "Spacing"
         case .sizingScenario:
-//            return "Sizing Scenario"
-            return "Sizing"
-        
+            return "Sizing Scenario"
         case .isPinned:
             return "Pinned"
         case .pinTo:
             return "Pin To"
         case .pinAnchor:
-            return useShortLabel ? "Anchor" : "Pin Anchor"
+            return "Anchor"
         case .pinOffset:
-            return useShortLabel ? "Offset" : "Pin Offset"
-        
-        case .layerPadding:
-            return useShortLabel ? "Padding" : "Layer Padding"
-        case .layerMargin:
-            return useShortLabel ? "Margin" : "Layer Margin"
-        case .offsetInGroup:
-            return useShortLabel ? "Offset" : "Offset in Group"
+            return "Offset"
         }
     }
 

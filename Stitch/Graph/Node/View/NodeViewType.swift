@@ -124,7 +124,6 @@ struct DefaultNodeInputView: View {
             NodeInputView(graph: graph,
                           rowObserver: rowObserver,
                           rowData: rowViewModel,
-                          inputLayerNodeRowData: nil,
                           forPropertySidebar: false,
                           propertyIsSelected: false,
                           propertyIsAlreadyOnGraph: true,

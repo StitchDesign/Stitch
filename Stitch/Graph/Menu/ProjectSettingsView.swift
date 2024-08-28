@@ -117,10 +117,8 @@ struct ProjectSettingsView: View {
         }
 
         return StitchColorPickerView(
-            rowId: nil, 
-            inputLayerNodeRowData: nil,
+            rowId: nil,
             fieldCoordinate: .fakeFieldCoordinate,
-            isFieldInsideLayerInspector: false,
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
             chosenColor: binding, 

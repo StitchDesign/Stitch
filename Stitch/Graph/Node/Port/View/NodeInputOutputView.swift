@@ -160,7 +160,6 @@ struct NodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
-    let inputLayerNodeRowData: InputLayerNodeRowData?
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -177,7 +176,6 @@ struct NodeInputView: View {
         self.rowObserver.id.nodeId
     }
     
-    // pass in instead of accessing via nodeDelegate
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
@@ -187,18 +185,13 @@ struct NodeInputView: View {
                         isMultiField: Bool) -> some View {
         InputValueEntry(graph: graph,
                         rowViewModel: rowData,
-                        viewModel: portViewModel, 
-                        inputLayerNodeRowData: inputLayerNodeRowData,
+                        viewModel: portViewModel,
                         rowObserverId: rowObserver.id,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
-    }
-    
-    var layerInput: LayerInputPort? {
-        rowData.rowDelegate?.id.keyPath?.layerInput
     }
     
     var body: some View {
@@ -219,23 +212,15 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                // Alternatively, look at input's values instead of the `LayerInputPort` ?
-                // let isPaddingInput = rowObserver.values.first?.getPadding
-                let usesPaddingFlyout = self.layerInput?.usesPaddingFlyout ?? false
+                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == .padding
+                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
-                let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-                
-                if usesPaddingFlyout,
-                   forPropertySidebar,
-                   let paddingLayerInput = self.layerInput {
+                if isPaddingLayerInputRow, forPropertySidebar {
                     PaddingReadOnlyView(rowObserver: rowObserver,
                                         rowData: rowData,
-                                        labelView: labelView,
-                                        paddingLayerInput: paddingLayerInput)
+                                        labelView: labelView)
                     
-                } else if isShadowLayerInputRow,
-                          forPropertySidebar,
-                          !forFlyout {
+                } else if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
                                        fontColor: STITCH_FONT_GRAY_COLOR)

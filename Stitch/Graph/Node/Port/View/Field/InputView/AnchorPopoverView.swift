@@ -24,25 +24,11 @@ struct AnchorPopoverView: View {
 
     let input: InputCoordinate
     let selection: Anchoring
-    let inputLayerNodeRowData: InputLayerNodeRowData?
-    let isFieldInsideLayerInspector: Bool
 
     @State private var isOpen = false
 
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
-    
     var body: some View {
-        AnchoringGridIconView(anchor: self.hasHeterogenousValues ? nil : selection)
+        AnchoringGridIconView(anchor: selection)
             .onTapGesture {
                 self.isOpen.toggle()
             }
@@ -61,12 +47,11 @@ struct AnchorPopoverView: View {
 
             dispatch(PickerOptionSelected(
                         input: input,
-                        choice: .anchoring(option), 
-                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                        choice: .anchoring(option),
                         isPersistence: true))
 
         } label: {
-            Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
+            Image(systemName: option == selection ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
         }
         #if targetEnvironment(macCatalyst)
         .buttonStyle(.borderless)

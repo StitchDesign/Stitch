@@ -32,8 +32,6 @@ struct AdjustmentBarPopoverView: View {
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
-    let isFieldInsideLayerInspector: Bool
-    
     @Binding var isPopoverOpen: Bool
 
     @State private var currentStepScale: AdjustmentBarStepScale = .normal
@@ -86,7 +84,6 @@ struct AdjustmentBarPopoverView: View {
                 graph.inputEdited(fieldValue: fieldValue,
                                   fieldIndex: fieldCoordinate.fieldIndex,
                                   coordinate: rowObserverCoordinate,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                   isCommitting: true)
             }
 
@@ -117,7 +114,6 @@ struct AdjustmentBarPopoverView: View {
                 graph.inputEdited(fieldValue: .layerDimension(.auto),
                                   fieldIndex: fieldCoordinate.fieldIndex,
                                   coordinate: rowObserverCoordinate,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                   isCommitting: false)
             } label: {
                 Image(systemName: "bolt.badge.a.fill")
@@ -217,7 +213,6 @@ struct AdjustmentBarPopoverView: View {
             centerSelectionDisabled: centerSelectionDisabled,
             fieldCoordinate: fieldCoordinate,
             rowObserverCoordinate: rowObserverCoordinate,
-            isFieldInsideLayerInspector: isFieldInsideLayerInspector, 
             currentlySelectedNumber: barNumber,
             numberLineMiddle: barNumber)
     }

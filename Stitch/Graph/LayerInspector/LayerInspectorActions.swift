@@ -14,7 +14,7 @@ extension GraphDelegate {
     // TODO: cache these for perf
     @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.inspectorFocusedLayers.first?.id
+        self.sidebarSelectionState.nonEditModeSelections.last?.id
     }
     
     // TODO: cache these for perf
@@ -50,55 +50,14 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             fatalErrorIfDebug()
             return .noChange
         }
-        
-        handleLayerInputAddedToGraph(state: state, nodeId: nodeId, coordinate: coordinate)
+
+        let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
+        state.layerInputAddedToGraph(node: node,
+                                     input: layerInputData,
+                                     coordinate: coordinate)
         
         return .shouldPersist
     }
-}
-
-@MainActor
-func handleLayerInputAddedToGraph(state: GraphState,
-                                  nodeId: NodeId,
-                                  coordinate: LayerInputType) {
-    
-    let layerInput: LayerInputPort = coordinate.layerInput
-    
-    if let multiselectInputs = state.graphUI.propertySidebar.inputsCommonToSelectedLayers,
-       let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
-        
-        
-        layerMultiselectInput.multiselectObservers(state).forEach { observer in
-            addLayerInputToGraph(state: state,
-                                 nodeId: observer.rowObserver.id.nodeId,
-                                 coordinate: coordinate)
-        }
-    }
-    
-    else {
-        addLayerInputToGraph(state: state,
-                             nodeId: nodeId,
-                             coordinate: coordinate)
-    }
-}
-
-
-@MainActor
-func addLayerInputToGraph(state: GraphState,
-                          nodeId: NodeId,
-                          coordinate: LayerInputType) {
-    
-    guard let node = state.getNodeViewModel(nodeId),
-          let layerNode = node.layerNode else {
-        log("LayerInputAddedToGraph: could not add Layer Input to graph")
-        fatalErrorIfDebug()
-        return
-    }
-
-    let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-    state.layerInputAddedToGraph(node: node,
-                                 input: layerInputData,
-                                 coordinate: coordinate)
 }
 
 extension GraphState {
