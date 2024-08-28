@@ -47,10 +47,12 @@ struct ProjectsHomeView: View {
     var body: some View {
         VStack {
             // Search Bar
+#if DEV_DEBUG
             TextField("Search Projects...", text: $searchQuery)
                 .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
+#endif
 
             // Undo button for debugging
             #if DEV_DEBUG
