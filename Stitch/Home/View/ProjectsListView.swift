@@ -38,7 +38,9 @@ struct ProjectsListView: View {
 
             ProjectsScrollView {
                 ForEach(projects) { projectLoader in
-                    ProjectsListItemView(projectLoader: projectLoader, documentLoader: store.documentLoader, namespace: namespace)
+                    ProjectsListItemView(projectLoader: projectLoader, 
+                                         documentLoader: store.documentLoader,
+                                         namespace: namespace)
                 }
             } // ProjectsScrollView
         }
