@@ -198,6 +198,10 @@ struct NodeInputView: View {
                         isFieldInMultifieldInput: isMultiField)
     }
     
+    var layerInput: LayerInputPort? {
+        rowData.rowDelegate?.id.keyPath?.layerInput
+    }
+    
     var body: some View {
         NodeInputOutputView(graph: graph,
                             rowObserver: rowObserver,
@@ -216,15 +220,23 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == .padding
-                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                // Alternatively, look at input's values instead of the `LayerInputPort` ?
+                // let isPaddingInput = rowObserver.values.first?.getPadding
+                let usesPaddingFlyout = self.layerInput?.usesPaddingFlyout ?? false
                 
-                if isPaddingLayerInputRow, forPropertySidebar {
+                let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                
+                if usesPaddingFlyout,
+                   forPropertySidebar,
+                   let paddingLayerInput = self.layerInput {
                     PaddingReadOnlyView(rowObserver: rowObserver,
                                         rowData: rowData,
-                                        labelView: labelView)
+                                        labelView: labelView,
+                                        paddingLayerInput: paddingLayerInput)
                     
-                } else if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
+                } else if isShadowLayerInputRow,
+                          forPropertySidebar,
+                          !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
                                        fontColor: STITCH_FONT_GRAY_COLOR)
