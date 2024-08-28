@@ -27,14 +27,19 @@ struct PreviewWindowCoordinateSpaceReader: ViewModifier {
         viewModel.id
     }
     
+    /// Important to only report pin data from ghost view.
+    func getFrame(geometry: GeometryProxy) -> CGRect {
+        !isPinnedViewRendering ? geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)) : .zero
+    }
+    
     func body(content: Content) -> some View {
         content
             .background {
                 GeometryReader { geometry in
                     // Note: this is the size of the view within the whole preview window coordinate space;
                     // compare vs. LayerSizeReader which is the size of the view within the .local coordinate space.
-                    Color.clear.onChange(of: geometry.frame(in: .named(PREVIEW_WINDOW_COORDINATE_SPACE)),
-                                         initial: true) { oldValue, newValue in
+                    Color.clear.onChange(of: self.getFrame(geometry: geometry),
+                                         initial: !isPinnedViewRendering) { oldValue, newValue in
                         
                         // log("PreviewWindowCoordinateSpaceReader: viewModel.layer: \(viewModel.layer)")
                         

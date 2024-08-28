@@ -43,8 +43,7 @@ struct GeneratePreview: View {
                               parentUsesHug: false,
                               parentGridData: nil,
                               isGhostView: true)
-            .offset(x: 10, y: 10)
-            .opacity(0.4)
+            .opacity(0.2)
             .disabled(true)
         }
         // Top-level coordinate space of preview window; for pinning

@@ -14,27 +14,28 @@ struct LayerSizeReader: ViewModifier {
     // for calculating the offset of its pinned layer equivalent
     let isPinnedViewRendering: Bool
     
-    var isGhostLayer: Bool {
-        !isPinnedViewRendering
+    /// Important to only report data from ghost view
+    
+    func getFrame(geometry: GeometryProxy) -> CGRect {
+        !isPinnedViewRendering ? geometry.frame(in: .named(PreviewContent.prototypeCoordinateSpace)) : .zero
     }
     
     func body(content: Content) -> some View {
         content.background {
             GeometryReader { proxy in
-                let frameData = proxy.frame(in: .named(PreviewContent.prototypeCoordinateSpace))
+                let frameData = self.getFrame(geometry: proxy)
                 
                 Color.clear
-                    .onChange(of: frameData.size, initial: true) { _, newSize in
+                    .onChange(of: frameData.size, initial: !isPinnedViewRendering) { _, newSize in
                         // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
                         if viewModel.readSize != newSize {
                             viewModel.readSize = newSize
                         }
                     }
-                    .onChange(of: frameData.origin, initial: true) { _, newPosition in
+                    .onChange(of: frameData.mid, initial: !isPinnedViewRendering) { _, newPosition in
                         // log("LayerSizeReader: \(viewModel.layer), new pos: \(newPosition)")
-                        if isGhostLayer,
-                           viewModel.readPosition != newPosition {
-                            viewModel.readPosition = newPosition
+                        if viewModel.readMidPosition != newPosition {
+                            viewModel.readMidPosition = newPosition
                         }
                     }
             }

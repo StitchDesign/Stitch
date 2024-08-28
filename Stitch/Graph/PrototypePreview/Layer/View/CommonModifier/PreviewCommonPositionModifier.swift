@@ -52,13 +52,15 @@ struct PreviewCommonPositionModifier: ViewModifier {
             
              // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
             
-            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
-                                               pinReceiverData: pinReceiverData)
+            // TODO: consider anchoring impact
+//            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
+//                                               pinReceiverData: pinReceiverData)
+            let pinPos = pinReceiverData.center
             
             // Ghost view equivalent of pin view passes position info for calculating
             // final position location
-            let ghostViewPosition = self.viewModel.readPosition
-            let pinPositionOffset = ghostViewPosition - pinPos
+            let ghostViewPosition = self.viewModel.readMidPosition
+            let pinPositionOffset = pinPos - ghostViewPosition
             
             // Input value of pin offset
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
@@ -68,9 +70,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
             
             content
             // TODO: fix position and offset
-//                .position(x: pinPos.x, y: pinPos.y)
-                .offset(x: -pinPositionOffset.x, y: -pinPositionOffset.y)
-//                .offset(x: pinOffset.width, y: pinOffset.height)
+                .position(x: pos.width, y: pos.height)   // this position is super off and no longer relevant
+                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
+                .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
             // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
