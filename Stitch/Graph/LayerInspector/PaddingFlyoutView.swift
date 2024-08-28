@@ -44,7 +44,7 @@ struct PaddingFlyoutView: View {
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.PADDING_FLYOUT_WIDTH, 
+        .frame(width: Self.PADDING_FLYOUT_WIDTH,
                height: Self.PADDING_FLYOUT_HEIGHT)
         .background {
             GeometryReader { geometry in
@@ -72,7 +72,7 @@ struct PaddingFlyoutView: View {
             if let coordinate = rowViewModel.rowDelegate?.id {
                 InputValueEntry(graph: graph,
                                 rowViewModel: rowViewModel,
-                                viewModel: portViewModel, 
+                                viewModel: portViewModel,
                                 inputLayerNodeRowData: inputLayerNodeRowData,
                                 rowObserverId: coordinate,
                                 nodeKind: .layer(layer),
@@ -100,15 +100,12 @@ struct PaddingFlyoutView: View {
     }
 }
 
-//#Preview {
-//    PaddingFlyoutView()
-//}
-
 struct PaddingReadOnlyView: View {
     
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     let labelView: LabelDisplayView
+    let paddingLayerInput: LayerInputPort
     
     @State var hoveredFieldIndex: Int? = nil
     
@@ -149,16 +146,15 @@ struct PaddingReadOnlyView: View {
                                 self.hoveredFieldIndex = nil
                             }
                         }
-                    }
+                    } // .onHover
                 } // ForEach
-                
-            } // Group
-            
-            // Tap on the read-only fields to open padding flyout
-            .onTapGesture {
-                dispatch(FlyoutToggled(flyoutInput: .padding,
-                                       flyoutNodeId: nodeId))
-            }
+            } // ForEach
+        } // Group
+        
+        // Tap on the read-only fields to open padding flyout
+        .onTapGesture {
+            dispatch(FlyoutToggled(flyoutInput: paddingLayerInput,
+                                   flyoutNodeId: nodeId))
         }
     }
 }

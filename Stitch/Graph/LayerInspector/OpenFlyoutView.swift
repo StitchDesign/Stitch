@@ -66,7 +66,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
             HStack {
                 Spacer()
                 Group {
-                    if flyoutState.flyoutInput == .padding {
+                    if flyoutState.flyoutInput.usesPaddingFlyout {
                         PaddingFlyoutView(graph: graph,
                                           rowViewModel: inputData.inspectorRowViewModel, 
                                           inputLayerNodeRowData: inputData,
