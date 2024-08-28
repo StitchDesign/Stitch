@@ -149,8 +149,28 @@ func searchForNodes(by query: String,
     var filtered = titleMatches + descriptionMatches
 
     // Also check for:
+    // Sort to prioritize exact matches first
+    filtered.sort { first, second in
+        let firstTitle = first.data.displayTitle.lowercased()
+        let secondTitle = second.data.displayTitle.lowercased()
+
+        // Check if either title starts with the query
+        let firstStartsWithQuery = firstTitle.hasPrefix(trimmedQuery.lowercased())
+        let secondStartsWithQuery = secondTitle.hasPrefix(trimmedQuery.lowercased())
+
+        // Sort by whether they start with the query
+        if firstStartsWithQuery && !secondStartsWithQuery {
+            return true
+        } else if !firstStartsWithQuery && secondStartsWithQuery {
+            return false
+        }
+
+        // If both or neither start with the query, sort alphabetically
+        return firstTitle < secondTitle
+    }
 
     // math symbols
+    // Also check for math symbols and logical operators
     if trimmedQuery == "+" {
         filtered.append(.init(data: .patch(.add)))
     }
