@@ -22,6 +22,8 @@ let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
 let SPACING_FIELD_WIDTH: CGFloat = 72
 
+//let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat =
+
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
 // Only used directly by input fields, not NodeTitleView etc.
@@ -51,6 +53,7 @@ struct CommonEditingView: View {
     
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isFieldInMultifieldInput: Bool
     let isForSpacingField: Bool
     
     var id: FieldCoordinate {
@@ -113,9 +116,14 @@ struct CommonEditingView: View {
         }
     }
     
+    var isIndividualFieldInAMultifieldInputInInspector: Bool {
+        isFieldInMultifieldInput && forPropertySidebar
+    }
+    
     var body: some View {
         Group {
-            if let choices = choices {
+            // Show dropdown
+            if let choices = choices, !isIndividualFieldInAMultifieldInputInInspector {
                 
                 HStack(spacing: 0) {
                     
@@ -274,8 +282,18 @@ struct CommonEditingView: View {
     }
     
     // TODO: can be shorted for a field in a multifield input
-    var fieldWidth: CGFloat {
-        isForSpacingField ? SPACING_FIELD_WIDTH : NODE_INPUT_OR_OUTPUT_WIDTH
+    var fieldWidth: CGFloat? {
+        
+        // Do not set widths on
+        if isFieldInMultifieldInput, forPropertySidebar {
+            return nil
+        }
+        
+        if isForSpacingField {
+            return SPACING_FIELD_WIDTH
+        }
+        
+        return NODE_INPUT_OR_OUTPUT_WIDTH
     }
     
     #if DEV_DEBUG
@@ -325,7 +343,14 @@ struct InputViewBackground: ViewModifier {
     var backgroundColor: Color
     let show: Bool // if hovering, selected or for sidebar
     let hasDropdown: Bool
-    var width: CGFloat
+    var width: CGFloat? // nil for a field inside a multifield input in the inspector
+    
+    var finalWidth: CGFloat? {
+        if let width = width {
+            return width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
+        }
+        return nil
+    }
     
     func body(content: Content) -> some View {
         content
@@ -333,11 +358,11 @@ struct InputViewBackground: ViewModifier {
         // When this field uses a dropdown,
         // we shrink the "typeable" area of the input,
         // so that typing never touches the dropdown's menu indicator.
-            .frame(width: width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0),
+            .frame(width: finalWidth,
                    alignment: .leading)
         
         // ... But we always use a full-width background for the focus/hover effect.
-            .frame(width: width,
+            .frame(width: finalWidth,
                    alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {

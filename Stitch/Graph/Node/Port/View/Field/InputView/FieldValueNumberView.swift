@@ -65,6 +65,7 @@ struct FieldValueNumberView: View {
                           isAdjustmentBarInUse: isButtonPressed,
                           forPropertySidebar: forPropertySidebar,
                           propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                          isFieldInMultifieldInput: isFieldInMultifieldInput,
                           isForSpacingField: isForSpacingField)
     }
 }

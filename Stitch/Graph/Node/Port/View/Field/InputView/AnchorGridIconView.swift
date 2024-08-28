@@ -12,7 +12,7 @@ struct AnchoringGridIconView: View {
 
     private let iconLength = 100.0
     private let squareLength = 25.0 + 4 // +4 because of padding?
-    private let color: Color = .THEMED_TITLE_FONT_COLOR // Color(.titleFont)
+    private let color: Color = .THEMED_TITLE_FONT_COLOR
     
     // nil when multiselect
     let anchor: Anchoring?

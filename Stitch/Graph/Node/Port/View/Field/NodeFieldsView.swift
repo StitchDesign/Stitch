@@ -59,13 +59,15 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     
     @ViewBuilder
     var fieldsStack: some View {
-        if forPropertySidebar {
-            VStack {
-                fields
-            }
-        } else {
-            fields
-        }
+        fields
+        
+//        if forPropertySidebar {
+//            VStack {
+//                fields
+//            }
+//        } else {
+//            fields
+//        }
     }
     
     var allFieldsBlockedOut: Bool {

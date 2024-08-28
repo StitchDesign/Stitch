@@ -86,8 +86,6 @@ struct InputValueView: View {
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
-    
-    // Alternatively, access this via some view-model?
     let isFieldInMultifieldInput: Bool
     
     @Binding var isButtonPressed: Bool
@@ -134,6 +132,7 @@ struct InputValueView: View {
                               isLargeString: string.isLargeString,
                               forPropertySidebar: forPropertySidebar,
                               propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph, 
+                              isFieldInMultifieldInput: isFieldInMultifieldInput,
                               isForSpacingField: false)
 
         case .number:
@@ -241,11 +240,12 @@ struct InputValueView: View {
                               selection: anchor,
                               inputLayerNodeRowData: inputLayerNodeRowData,
                               isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            // Don't set specific width ?
-            .frame(width: forPropertySidebar ? nil : NODE_INPUT_OR_OUTPUT_WIDTH,
+            .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
-                   alignment: .trailing)
+                   alignment: forPropertySidebar ? .leading : .trailing)
+            .offset(x: forPropertySidebar ? -4 : 4)
+                
 
         case .media(let media):
             MediaFieldValueView(inputCoordinate: rowObserverId, 
