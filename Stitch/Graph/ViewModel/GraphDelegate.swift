@@ -71,8 +71,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
         
     @MainActor func getCanvasItem(_ id: CanvasItemId) -> CanvasItemViewModel?
     
-    @MainActor var multiselectInputs: LayerInputTypeSet? { get }
-    
 //    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
 //    
 //    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool

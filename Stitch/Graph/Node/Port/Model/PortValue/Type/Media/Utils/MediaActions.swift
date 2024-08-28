@@ -189,60 +189,55 @@ extension GraphState {
                                    newURL: URL,
                                    store: StitchStore) {
         let mediaKey = newURL.mediaKey
-        let destinationInputs = nodeImportPayload.destinationInputs
+        let destinationInput = nodeImportPayload.destinationInput
+        let nodeId = destinationInput.nodeId
+
+        // Add media key to computed node state
+        self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
+
+        // Can now be patch- OR layer-node
+        guard let existingNode = self.getNodeViewModel(nodeId),
+              let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+            dispatch(DisplayError(error: .mediaCopiedFailed))
+            return
+        }
+
+        existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
+            // If existing node already contains imported media, then we need to delete the old media
+            if mediaLibrary.get(mediaKey) != newURL {
+                self.mediaLibrary.removeValue(forKey: mediaKey)
+
+                Task { [weak self] in
+                    await self?.documentEncoder.deleteMediaFromNode(mediaKey: mediaKey)
+                }
+            }
+        }
         
-        for destinationInput in destinationInputs {
-            
-            let nodeId = destinationInput.nodeId
-
-            // Add media key to computed node state
-            self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
-
-            // Can now be patch- OR layer-node
-            guard let existingNode = self.getNodeViewModel(nodeId),
-                  let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
-                dispatch(DisplayError(error: .mediaCopiedFailed))
+        // Create async task to load media
+        Task { [weak self, weak store] in
+            guard let graph = self,
+                  let store = store,
+                  let newMedia = await MediaEvalOpCoordinator
+                .createMediaValue(from: mediaKey,
+                                  isComputedCopy: false,
+                                  mediaId: .init(),
+                                  graphDelegate: graph,
+                                  nodeId: nodeId) else {
                 return
             }
-
-            existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
-                // If existing node already contains imported media, then we need to delete the old media
-                if mediaLibrary.get(mediaKey) != newURL {
-                    self.mediaLibrary.removeValue(forKey: mediaKey)
-
-                    Task { [weak self] in
-                        await self?.documentEncoder.deleteMediaFromNode(mediaKey: mediaKey)
-                    }
-                }
-            }
             
-            // Create async task to load media
-            Task { [weak self, weak store] in
-                guard let graph = self,
-                      let store = store,
-                      let newMedia = await MediaEvalOpCoordinator
-                    .createMediaValue(from: mediaKey,
-                                      isComputedCopy: false,
-                                      mediaId: .init(),
-                                      graphDelegate: graph,
-                                      nodeId: nodeId) else {
-                    return
-                }
-                
-                store.inputEditCommitted(input: destinationInput,
-                                         value: newMedia.portValue)
-                
-                // Persist project once media has loaded
-                store.encodeCurrentProject()
-            }
-
-            // Nil value for now while media loads
-            let portValue = PortValue.asyncMedia(nil)
-
             store.inputEditCommitted(input: destinationInput,
-                                     value: portValue)
+                                     value: newMedia.portValue)
             
-        } // for destinationInput in ...        
+            // Persist project once media has loaded
+            store.encodeCurrentProject()
+        }
+
+        // Nil value for now while media loads
+        let portValue = PortValue.asyncMedia(nil)
+
+        store.inputEditCommitted(input: destinationInput,
+                                 value: portValue)
     }
 }
 
@@ -372,15 +367,13 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
     let selectedValue: PortValue
     let mediaType: SupportedMediaFormat
     let input: InputCoordinate
-    let isFieldInsideLayerInspector: Bool
 
     func handle(graphState: GraphState,
                 computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // Commit the new media to the selector input
-        graphState.handleInputEditCommitted(input: input,
-                                            value: selectedValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        graphState.inputEditCommitted(input: input,
+                                      value: selectedValue)
         
         return .persistenceResponse
     }
@@ -388,15 +381,13 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
 
 struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
     let input: InputCoordinate
-    let isFieldInsideLayerInspector: Bool
-    
+
     func handle(graphState: GraphState,
                 computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         let emptyPortValue = PortValue.asyncMedia(nil)
-        graphState.handleInputEditCommitted(input: input,
-                                            value: emptyPortValue,
-                                            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        graphState.inputEditCommitted(input: input,
+                                      value: emptyPortValue)
         
         return .persistenceResponse
     }

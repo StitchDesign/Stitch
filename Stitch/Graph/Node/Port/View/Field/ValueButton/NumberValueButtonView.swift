@@ -32,7 +32,6 @@ struct NumberValueButtonView: View {
     let rowObserverCoordinate: NodeIOCoordinate
     let fieldValueNumberType: FieldValueNumberType
     let adjustmentBarSessionId: AdjustmentBarSessionId
-    let isFieldInsideLayerInspector: Bool
     @Binding var isPressed: Bool
 
     var body: some View {
@@ -53,8 +52,7 @@ struct NumberValueButtonView: View {
                 fieldCoordinate: fieldCoordinate,
                 rowObserverCoordinate: rowObserverCoordinate,
                 isPressed: $isPressed,
-                fieldValueNumberType: fieldValueNumberType,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+                fieldValueNumberType: fieldValueNumberType))
     }
 }
 
@@ -65,7 +63,6 @@ struct AdjustmentBarViewModifier: ViewModifier {
     let rowObserverCoordinate: NodeIOCoordinate
     @Binding var isPressed: Bool
     let fieldValueNumberType: FieldValueNumberType
-    let isFieldInsideLayerInspector: Bool
 
     func body(content: Content) -> some View {
         return content
@@ -78,8 +75,7 @@ struct AdjustmentBarViewModifier: ViewModifier {
                     stateNumber: numberValue,
                     fieldValueNumberType: fieldValueNumberType,
                     fieldCoordinate: fieldCoordinate,
-                    rowObserverCoordinate: rowObserverCoordinate, 
-                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                    rowObserverCoordinate: rowObserverCoordinate,
                     isPopoverOpen: self.$isPressed
                 )
                 #if !targetEnvironment(macCatalyst)

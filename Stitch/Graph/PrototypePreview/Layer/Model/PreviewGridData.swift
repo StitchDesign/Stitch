@@ -444,7 +444,16 @@ extension StitchPadding {
     
     static let demoPadding = Self.init(top: 8, right: 8, bottom: 8, left: 8)
 }
-                       
+
+extension Point4D {
+    var toStitchPadding: StitchPadding {
+        .init(top: self.x,
+              right: self.y,
+              bottom: self.z,
+              left: self.w)
+    }
+}
+                            
 struct PreviewGridData: Equatable {
     var horizontalSpacingBetweenColumns: StitchSpacing = .defaultStitchSpacing
     var verticalSpacingBetweenRows: StitchSpacing = .defaultStitchSpacing

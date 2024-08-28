@@ -30,7 +30,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing).union(.pinning)
     
     
     static func content(graph: GraphState,

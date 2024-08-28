@@ -111,9 +111,6 @@ extension LayerNodeEntity {
          pinToPort: LayerInputEntity = .empty,
          pinAnchorPort: LayerInputEntity = .empty,
          pinOffsetPort: LayerInputEntity = .empty,
-         layerMarginPort: LayerInputEntity = .empty,
-         layerPaddingPort: LayerInputEntity = .empty,
-         offsetInGroupPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
          layerGroupId: NodeId?,
          isExpandedInSidebar: Bool?) {
@@ -229,10 +226,6 @@ extension LayerNodeEntity {
             pinToPort: pinToPort,
             pinAnchorPort: pinAnchorPort,
             pinOffsetPort: pinOffsetPort,
-            
-            layerPaddingPort: layerPaddingPort, 
-            layerMarginPort: layerMarginPort,
-            offsetInGroupPort: offsetInGroupPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
             layerGroupId: layerGroupId,

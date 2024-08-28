@@ -70,17 +70,6 @@ extension LayerInputTypeSet {
         .pinAnchor,
         .pinOffset
     ]
-    
-    @MainActor
-    static let layerPaddingAndMargin: LayerInputTypeSet = [
-        .layerPadding,
-        .layerMargin
-    ]
-    
-    @MainActor
-    static let offsetInGroup: LayerInputTypeSet = [
-        .offsetInGroup // belongs with "positioning" section
-    ]
 }
 
 extension StrokeLineCap: PortValueEnum {
@@ -194,7 +183,7 @@ struct ShapeLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing).union(.pinning)
     
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,

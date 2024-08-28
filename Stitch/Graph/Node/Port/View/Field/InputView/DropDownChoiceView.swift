@@ -12,57 +12,16 @@ import StitchSchemaKit
 struct DropDownChoiceView: View {
 
     let id: InputCoordinate
-    
-    let inputLayerNodeRowData: InputLayerNodeRowData?
-    
-    @Bindable var graph: GraphState
-    
     let choiceDisplay: String
     let choices: PortValues
-    let isFieldInsideLayerInspector: Bool
-    
-    @MainActor
-    var hasHeterogenousValues: Bool {
-        
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
-                0,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-//        
-//        
-//        guard let layerMultiselectInput = graph.getLayerMultiselectInput(
-//            layerInput: id.keyPath?.layerInput,
-//            isFieldInsideLayerInspector: isFieldInsideLayerInspector) else {
-//            return false
-//        }
-//        
-//        let fieldsWithHeterogenousValues = layerMultiselectInput.fieldsInMultiselectInputWithHeterogenousValues(graph)
-//        
-//        if fieldsWithHeterogenousValues.contains(0) {
-//            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
-//            return true
-//        } else {
-//            return false
-//        }
-    }
 
-    @MainActor
-    var finalChoiceDisplay: String {
-        self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.choiceDisplay
-    }
-    
     var body: some View {
         Menu {
             StitchPickerView(input: id,
                              choices: choices,
-                             choiceDisplay: finalChoiceDisplay,
-                             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                             choiceDisplay: choiceDisplay)
         } label: {
-            StitchTextView(string: finalChoiceDisplay)
+            StitchTextView(string: choiceDisplay)
         }
         #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator
@@ -83,7 +42,6 @@ struct StitchPickerView: View {
     let input: InputCoordinate
     let choices: PortValues
     let choiceDisplay: String // current choice
-    let isFieldInsideLayerInspector: Bool
 
     var pickerLabel: String {
         // slightly different Picker label logic for Catalyst vs iPad
@@ -106,9 +64,7 @@ struct StitchPickerView: View {
             let _selection = choices.first(where: { $0.display == selection })
 
             if let _selection = _selection {
-                pickerOptionSelected(input: input, 
-                                     choice: _selection,
-                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                pickerOptionSelected(input: input, choice: _selection)
             } else {
                 log("StitchPickerView: could not create PortValue from string: \(selection) ... in choices: \(choices)")
             }
@@ -125,10 +81,7 @@ struct StitchPickerView: View {
 }
 
 @MainActor
-func pickerOptionSelected(input: InputCoordinate, 
-                          choice: PortValue,
-                          isFieldInsideLayerInspector: Bool) {
+func pickerOptionSelected(input: InputCoordinate, choice: PortValue) {
     dispatch(PickerOptionSelected(input: input,
-                                  choice: choice,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector))
+                                  choice: choice))
 }

@@ -52,18 +52,15 @@ class StitchHostingController<T: View>: UIHostingController<T> {
     //        //        super.pressesChanged(presses, with: event)
     //    }
 
-     // TODO: this seems to be too aggressive -- often seems to change when we're tapping in the left sidebar
-    
-    //    #if targetEnvironment(macCatalyst)
-    //    /// Fixes issue where keypresses can be stuck to toggled on Mac (repro with CMD + SHIFT + 5 screen sharing)
-    //    @MainActor
-    //    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-    //        if previousTraitCollection?.activeAppearance == .active {
-    //            log("stitch hosting controller will fire KeyModifierReset")
-    //            dispatch(KeyModifierReset())
-    //        }
-    //    }
-    //    #endif
+    #if targetEnvironment(macCatalyst)
+    /// Fixes issue where keypresses can be stuck to toggled on Mac (repro with CMD + SHIFT + 5 screen sharing)
+    @MainActor
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if previousTraitCollection?.activeAppearance == .active {
+            dispatch(KeyModifierReset())
+        }
+    }
+    #endif
 
     override func pressesBegan(_ presses: Set<UIPress>,
                                with event: UIPressesEvent?) {

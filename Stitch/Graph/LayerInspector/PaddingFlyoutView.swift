@@ -21,7 +21,6 @@ struct PaddingFlyoutView: View {
     
     @Bindable var graph: GraphState
     let rowViewModel: InputNodeRowViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     let hasIncomingEdge: Bool
     
@@ -44,7 +43,7 @@ struct PaddingFlyoutView: View {
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.PADDING_FLYOUT_WIDTH,
+        .frame(width: Self.PADDING_FLYOUT_WIDTH, 
                height: Self.PADDING_FLYOUT_HEIGHT)
         .background {
             GeometryReader { geometry in
@@ -73,7 +72,6 @@ struct PaddingFlyoutView: View {
                 InputValueEntry(graph: graph,
                                 rowViewModel: rowViewModel,
                                 viewModel: portViewModel,
-                                inputLayerNodeRowData: inputLayerNodeRowData,
                                 rowObserverId: coordinate,
                                 nodeKind: .layer(layer),
                                 isCanvasItemSelected: false,
@@ -100,12 +98,15 @@ struct PaddingFlyoutView: View {
     }
 }
 
+//#Preview {
+//    PaddingFlyoutView()
+//}
+
 struct PaddingReadOnlyView: View {
     
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     let labelView: LabelDisplayView
-    let paddingLayerInput: LayerInputPort
     
     @State var hoveredFieldIndex: Int? = nil
     
@@ -146,15 +147,16 @@ struct PaddingReadOnlyView: View {
                                 self.hoveredFieldIndex = nil
                             }
                         }
-                    } // .onHover
+                    }
                 } // ForEach
-            } // ForEach
-        } // Group
-        
-        // Tap on the read-only fields to open padding flyout
-        .onTapGesture {
-            dispatch(FlyoutToggled(flyoutInput: paddingLayerInput,
-                                   flyoutNodeId: nodeId))
+                
+            } // Group
+            
+            // Tap on the read-only fields to open padding flyout
+            .onTapGesture {
+                dispatch(FlyoutToggled(flyoutInput: .padding,
+                                       flyoutNodeId: nodeId))
+            }
         }
     }
 }

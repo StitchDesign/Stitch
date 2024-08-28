@@ -61,11 +61,8 @@ struct EditJSONEntry: View {
                         if let json = json?.value,
                            let edit = getCleanedJSON(internalEditString),
                            !areEqualJsons(edit, json) {
-                            graph.jsonEditCommitted(
-                                input: rowObserverCoordinate,
-                                json: edit,
-                                // TODO: currently we never use json input for a layer input; but should pass down proper values here
-                                isFieldInsideLayerInspector: false)
+                            graph.jsonEditCommitted(input: rowObserverCoordinate,
+                                                    json: edit)
                         }
                     }
                     .onChange(of: internalEditString) { newValue in

@@ -52,7 +52,7 @@ struct OvalLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing).union(.pinning)
     
     
     static func content(graph: GraphState,

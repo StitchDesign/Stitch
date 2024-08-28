@@ -9,29 +9,9 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
-    /*
-     Non-nil just when:
-     - we have a layer input
-     - in the layer inspector
-     - and multiple layers are selected
-     */
-    @MainActor
-    func getLayerMultiselectInput(layerInput: LayerInputPort?,
-                                  isFieldInsideLayerInspector: Bool) -> LayerInputPort? {
-        if isFieldInsideLayerInspector,
-           let layerInput = layerInput {
-            return self.getLayerMultiselectInput(for: layerInput)
-        } else {
-            return nil
-        }
-    }
-}
-
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView: View {
     let inputCoordinate: InputCoordinate
-    let inputLayerNodeRowData: InputLayerNodeRowData?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let nodeKind: NodeKind
@@ -39,8 +19,6 @@ struct MediaFieldValueView: View {
     let fieldIndex: Int
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
-    let isFieldInsideLayerInspector: Bool
-    @Bindable var graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
     
@@ -59,28 +37,13 @@ struct MediaFieldValueView: View {
         }
     }
 
-    @MainActor
-    var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
-    
     var body: some View {
         HStack {
             if isInput && canUseMediaPicker {
                 MediaPickerValueEntry(coordinate: inputCoordinate,
                                       isUpstreamValue: isUpstreamValue,
                                       mediaValue: media,
-                                      nodeKind: nodeKind,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      graph: graph,
-                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+                                      nodeKind: nodeKind)
             }
 
             if let mediaObject = mediaObject {
@@ -89,8 +52,7 @@ struct MediaFieldValueView: View {
                                     isInput: isInput,
                                     fieldIndex: fieldIndex,
                                     isNodeSelected: isNodeSelected,
-                                    hasIncomingEdge: hasIncomingEdge,
-                                    isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+                                    hasIncomingEdge: hasIncomingEdge)
             } else {
                 EmptyView()
             }
@@ -105,26 +67,19 @@ struct MediaFieldLabelView: View {
     let fieldIndex: Int
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
-    let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     var body: some View {
-        
-        if isMultiselectInspectorInputWithHeterogenousValues {
-            NilImageView()
-        } else {
-            // For image and video media pickers,
-            // show both dropdown and thumbnail
-            switch mediaObject {
-            case .image(let image):
-                ValueStitchImageView(image: image)
-            case .video(let video):
-                ValueStitchVideoView(thumbnail: video.thumbnail)
+        // For image and video media pickers,
+        // show both dropdown and thumbnail
+        switch mediaObject {
+        case .image(let image):
+            ValueStitchImageView(image: image)
+        case .video(let video):
+            ValueStitchVideoView(thumbnail: video.thumbnail)
 
-            // Other media types: don't show label.
-            default:
-                EmptyView()
-            }
+        // Other media types: don't show label.
+        default:
+            EmptyView()
         }
-      
     }
 }

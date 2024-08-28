@@ -164,8 +164,7 @@ struct PreviewGroupLayer: View {
                 graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition, 
-                parentSize: parentSize,
+                parentDisablesPosition: parentDisablesPosition,
                 pos: pos))
         
         // SwiftUI gestures must be applied after .position modifier

@@ -22,17 +22,13 @@ let SPACING_FIELD_WIDTH: CGFloat = 72
 // Only used directly by input fields, not NodeTitleView etc.
 struct CommonEditingView: View {
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
-    
+        
     @State private var currentEdit = ""
     @State private var isBase64 = false
     
     @Bindable var inputField: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
-    
-    let inputString: String // from redux
-    
+    let inputString: String
     @Bindable var graph: GraphState
-    
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
@@ -81,32 +77,9 @@ struct CommonEditingView: View {
             return false
         }
     }
-    
-    var isFieldInsideLayerInspector: Bool {
-        inputField.isFieldInsideLayerInspector
-    }
 
-    var layerInput: LayerInputPort? {
-        inputField.layerInput
-    }
-    
-    @MainActor
-    var multiselectInputs: LayerInputTypeSet? {
-        graph.graphUI.propertySidebar.inputsCommonToSelectedLayers
-    }
-            
-    @MainActor
-    var fieldHasHeterogenousValues: Bool {
-        
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
-                fieldIndex,
-                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-        } else {
-            return false
-        }
-    }
+//    let choices: [String]? = ["auto", "fill", "hug"]
+//    let choices: [String]? = nil
     
     var body: some View {
         Group {
@@ -146,15 +119,6 @@ struct CommonEditingView: View {
                 self.isHovering = isHovering
             }
         }
-        .onChange(of: self.fieldHasHeterogenousValues, initial: true) { oldValue, newValue in
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: id: \(id)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: oldValue: \(oldValue)")
-            // log("CommonEditingView: on change of: self.hasHeterogenousValues: newValue: \(newValue)")
-            if newValue {
-                // log("CommonEditingView: on change of: self.hasHeterogenousValues: had multi")
-                self.updateCurrentEdit()
-            }
-        }
     }
     
     @State var choice: String = ""
@@ -184,21 +148,18 @@ struct CommonEditingView: View {
         .pickerStyle(.inline) // avoids unnecessary middle label
 #endif
 
-        // TODO: this fires as soon as the READ-ONLY view is rendered, which we don't want.
         // When dropdown item selected, update text-field's string
-        .onChange(of: self.choice, initial: false) { oldValue, newValue in
-            if let _ = self.choices?.first(where: { $0 == newValue }) {
-                // log("on change of choice: valid new choice")
-                self.currentEdit = newValue
-                self.inputEdited(newEdit: newValue,
-                                 isCommitting: true)
-            }
+        .onChange(of: self.choice) { oldValue, newValue in
+            log("new choice \(newValue)")
+            self.currentEdit = newValue
+            self.inputEdited(newEdit: newValue,
+                             isCommitting: true)
         }
         
         // When text-field's string edited to be an exact match for a dropdown item, update the dropdown's selection.
         .onChange(of: self.currentEdit) { oldValue, newValue in
             if let x = self.choices?.first(where: { $0.lowercased() == self.currentEdit.lowercased() }) {
-                // log("found choice \(x)")
+                log("found choice \(x)")
                 self.choice = x
             }
         }
@@ -251,7 +212,7 @@ struct CommonEditingView: View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
-        StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
+        StitchTextView(string: self.inputString, // pointing to currentEdit fixes jittery updates
                        font: STITCH_FONT,
                        fontColor: STITCH_FONT_GRAY_COLOR)
         .modifier(InputViewBackground(
@@ -279,21 +240,12 @@ struct CommonEditingView: View {
     #endif
     
     // Currently only used when we focus or de-focus
-    @MainActor
-    func updateCurrentEdit(message: String? = nil) {
-        
-        if self.fieldHasHeterogenousValues {
-            self.currentEdit = .HETEROGENOUS_VALUES
-        } else {
-            self.currentEdit = isLargeString ? "" : self.inputString
-        }
-            
+    func updateCurrentEdit() {
+        self.currentEdit = isLargeString ? "" : self.inputString
         self.isBase64 = isLargeString
         
         // update the picker choice as user types?
         // so that e.g. if they type away from "auto", the picker will be blank / none / de-selected option
-        
-        // TODO: how to handle this dropdown when we have multiple layers selected?
         self.choice = isLargeString ? "" : self.inputString
     }
 
@@ -304,8 +256,7 @@ struct CommonEditingView: View {
             self.graph.inputEdited(
                 fieldValue: .string(.init(newEdit)),
                 fieldIndex: fieldIndex,
-                coordinate: coordinate, 
-                isFieldInsideLayerInspector: self.isFieldInsideLayerInspector,
+                coordinate: coordinate,
                 isCommitting: isCommitting)
         }
     }
