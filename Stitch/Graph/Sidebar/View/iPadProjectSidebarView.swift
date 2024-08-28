@@ -76,7 +76,7 @@ struct ProjectSidebarView: View {
         }
         .toolbarBackground(.visible, for: .automatic)
 #endif
-        .onChange(of: self.isEditing) { _, newValue in
+        .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))
         }
     }
@@ -93,12 +93,12 @@ struct SidebarEditModeToggled: GraphEvent {
     let isEditing: Bool
     
     func handle(state: GraphState) {
-        if isEditing {
-            state.sidebarSelectionState.nonEditModeSelections = .init()
-        }
+        // Reset selection-state, but preserve inspector's focused layers
+        let inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers
+        state.sidebarSelectionState = .init()
+        state.sidebarSelectionState.inspectorFocusedLayers = inspectorFocusedLayers
         
-        if !isEditing {
-            state.sidebarSelectionState = .init()
-        }
+        // Do not set until the end; otherwise selection-state resets loses the change.
+        state.sidebarSelectionState.isEditMode = isEditing
     }
 }

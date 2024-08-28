@@ -29,13 +29,15 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // Is this view a child of a group that uses HStack, VStack or Grid? If so, we ignore this view's position.
     // TODO: use .offset instead of .position when layer is a child
     let parentDisablesPosition: Bool
+    
+    let parentSize: CGSize
 
     // Position already adjusted by anchoring
     
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-      
+                  
     var isPinned: Bool {
         viewModel.isPinned.getBool ?? false
     }
@@ -77,9 +79,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
             if isGhostView {
                 content
             } else if parentDisablesPosition {
+                let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
                 content
-                    .offset(x: viewModel.offsetInGroup.width,
-                            y: viewModel.offsetInGroup.height)
+                    .offset(x: offset.width, y: offset.height)
             } else {
                 content
                     .position(x: pos.width, y: pos.height)

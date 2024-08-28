@@ -12,14 +12,31 @@ import SwiftUI
 
 extension LayerInputPort {
     var usesFlyout: Bool {
+                
+        if self.usesPaddingFlyout {
+            return true
+        }
+        
         switch self {
-        case .padding, .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
+        case .padding, .layerMargin, .layerPadding,
+                .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
             return true
         default:
             return false
         }
     }
-    
+        
+    // TODO: better?: compare against the actual value in the input, rather than on the input's keyword
+    // But in some contexts we don't have access to the input? 
+    var usesPaddingFlyout: Bool {
+        switch self {
+        case .padding, .layerPadding, .layerMargin:
+            return true
+        default:
+            return false
+        }
+    }
+        
     func usesTextFields(_ layer: Layer) -> Bool {
         self.getDefaultValue(for: layer)
             .getNodeRowType(nodeIO: .input)

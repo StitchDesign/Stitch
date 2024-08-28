@@ -42,6 +42,7 @@ struct WideAdjustmentBarView: View {
     let centerSelectionDisabled: Bool
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
+    let isFieldInsideLayerInspector: Bool
 
     @State var scrollCenter: CGPoint?
     @State var isScrollingFromTap = false // replace with just `manuallyClickedNumber`?
@@ -148,6 +149,7 @@ struct WideAdjustmentBarView: View {
                                 graph.inputEdited(fieldValue: fieldValueNumberType.createFieldValueForAdjustmentBar(from: n.number),
                                                   fieldIndex: self.fieldCoordinate.fieldIndex,
                                                   coordinate: rowObserverCoordinate,
+                                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                   isCommitting: false)
                             }
                     } // ForEach
@@ -367,6 +369,7 @@ struct WideAdjustmentBarView: View {
                     graph.inputEdited(fieldValue: fieldValue,
                                       fieldIndex: pref.field.fieldIndex,
                                       coordinate: rowObserverCoordinate,
+                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       // We don't persist changes from auto-selectiong the center value during scroll
                                       isCommitting: false)
                 }

@@ -43,100 +43,108 @@ struct LayerInspectorView: View {
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     static let LAYER_INSPECTOR_WIDTH = 360.0
     
-    @Bindable var graph: GraphState // should be Bindable?
-    
-    // TODO: property sidebar changes when multiple sidebar layers are selected
-    @MainActor
-    var selectedLayerNode: NodeViewModel? {
-        
-        guard !graph.orderedSidebarLayers.isEmpty else {
-            return nil
-        }
-        
-        // Take the last (most-recently) tapped sidebar layer; or the first non-selected layer.
-        let inspectedLayer = graph.layerFocusedInPropertyInspector
-        guard let inspectedLayerId = inspectedLayer,
-              let node = graph.getNodeViewModel(inspectedLayerId),
-              node.layerNode.isDefined else {
-            log("LayerInspectorView: No node for sidebar layer \(inspectedLayer)")
-            return nil
-        }
-        
-        return node
-    }
-    
-    // TODO: why can't we use
+    @Bindable var graph: GraphState
+
     @State var safeAreaInsets: EdgeInsets = .init()
-    
+            
     var body: some View {
-        if let node = selectedLayerNode,
-           let layerNode = node.layerNode {
-            @Bindable var node = node
-            @Bindable var layerNode = layerNode
+        
+        if let layerInspectorData = graph.getLayerInspectorData() {
             
             // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
             GeometryReader { geometry in
                 UIKitWrapper(ignoresKeyCommands: false,
                              name: "LayerInspectorView") {
-                    selectedLayerView(node, layerNode)
+                    
+                    selectedLayerView(
+                        layerInspectorHeader: layerInspectorData.header,
+                        node: layerInspectorData.node,
+                        layerInputObserverDict: layerInspectorData.inputs,
+                        layerOutputs: layerInspectorData.outputs)
                 }
+                //                // TODO: Why subtract only half?
+                //                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
                              .padding(.bottom, (-self.safeAreaInsets.bottom))
                 
-                            // TODO: why is this inaccurate?
-//                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
-//                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
+                // TODO: why is this inaccurate?
+                //                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
+                //                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
                 
                              .onChange(of: geometry.safeAreaInsets, initial: true) { oldValue, newValue in
-//                                 log("safeAreaInsets: oldValue: \(oldValue)")
-//                                 log("safeAreaInsets: newValue: \(newValue)")
+                                 //                                 log("safeAreaInsets: oldValue: \(oldValue)")
+                                 //                                 log("safeAreaInsets: newValue: \(newValue)")
                                  self.safeAreaInsets = newValue
                                  graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
-//                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
+                                 //                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
                              }
             }
-            
-//            selectedLayerView(node, layerNode)
             
         } else {
             // Empty List, so have same background
             List { }
         }
     }
- 
+    
     @MainActor @ViewBuilder
-    func selectedLayerView(_ node: NodeViewModel,
-                           _ layerNode: LayerNodeViewModel) -> some View {
+    func selectedLayerView(layerInspectorHeader: String,
+                           node: NodeId?,
+                           // Represents the already-filtered layer input+observer for this specific layer
+                           layerInputObserverDict: LayerInputObserverDict,
+                           layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                StitchTitleTextField(graph: graph,
-                                     titleEditType: .layerInspector(node.id),
-                                     label: node.displayTitle,
-                                     font: .title2)
+                // Only show editable layer node title if this isn't a multiselect case
+                if let node = node {
+                    StitchTitleTextField(graph: graph,
+                                         titleEditType: .layerInspector(node),
+                                         label: layerInspectorHeader,
+                                         font: .title2)
+                } else {
+                    StitchTextView(string: layerInspectorHeader,
+                                   font: .title2)
+                }
+                
+                
                 Spacer()
             }
                 .padding()
                 .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
             
             List {
-                ForEach(Self.layerInspectorRowsInOrder(layerNode.layer), id: \.name) { sectionNameAndInputs in
+                ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
                     
                     let sectionName = sectionNameAndInputs.name
                     let sectionInputs = sectionNameAndInputs.inputs
                     
-                    if !sectionInputs.isEmpty {
+                    // Move this filtering to an onChange, and store the `filteredInputs` locally
+                    // Or should live at
+                    let filteredInputs: [LayerInputAndObserver] = sectionInputs.compactMap { sectionInput in
+                        
+                        let isSupported = layerInputObserverDict.get(sectionInput).isDefined
+                        
+                        guard isSupported,
+                              let observer = layerInputObserverDict[sectionInput] else {
+                            return nil
+                        }
+                        
+                        return LayerInputAndObserver(
+                            layerInput: sectionInput,
+                            portObserver: observer)
+                    }
+                    
+                    if !filteredInputs.isEmpty {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
-                            layerInputs: sectionInputs,
-                            node: node,
-                            layerNode: layerNode,
-                            graph: graph)
+                            layerInputs: filteredInputs,
+                            graph: graph
+                        )
                     }
                 } // ForEach
                 
-                LayerInspectorOutputsSectionView(node: node,
-                                                 layerNode: layerNode,
-                                                 graph: graph)
+                LayerInspectorOutputsSectionView(
+                    outputs: layerOutputs,
+                    graph: graph)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             
@@ -201,41 +209,36 @@ enum LayerInspectorSectionName: String, Equatable, Hashable {
          layerEffects = "Layer Effects"
 }
 
+// Named Tuple
+typealias LayerInputAndObserver = (layerInput: LayerInputPort,
+                                   portObserver: LayerInputObserver)
+
+// This view now needs to receive the inputs it will be listing,
+// rather than receiving the entire layer node.
 struct LayerInspectorInputsSectionView: View {
     
     let sectionName: LayerInspectorSectionName
-    let layerInputs: LayerInputTypeSet
     
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+    // This section's layer inputs, filtered to excluded any not supported by this specific layer.
+    let layerInputs: [LayerInputAndObserver]
     @Bindable var graph: GraphState
+
     
     @State private var expanded = true
-  
-    @MainActor
-    var isFirstSection: Bool {
-        LayerInspectorView.firstSectionName(layerNode.layer) == sectionName
-    }
-    
+      
     var body: some View {
-        let inputsList = layerNode.layer.layerGraphNode.inputDefinitions
-        
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs) { layerInput in
-                let inputListContainsInput = inputsList.contains(layerInput)
-                let layerPort = layerNode[keyPath: layerInput.layerNodeKeyPath]
+            ForEach(layerInputs, id: \.layerInput) { layerInput in
+                let layerPort: LayerInputObserver = layerInput.portObserver
                 
                 // TODO: only using packed data here
                 let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
-                if inputListContainsInput && !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(
-                        portObserver: layerPort,
-                        node: node,
-                        layerNode: layerNode,
-                        graph: graph)
+                if !allFieldsBlockedOut {
+                    LayerInspectorInputPortView(portObserver: layerPort,
+                                                graph: graph)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
-                                                           layerInput: layerInput))
+                                                           layerInput: layerInput.layerInput))
                 }
             }
             .transition(.slideInAndOut(edge: .top))
@@ -253,13 +256,10 @@ struct LayerInspectorInputsSectionView: View {
                 StitchTextView(string: sectionName.rawValue).textCase(nil)
             }
             // Note: list row insets appear to be the only way to control padding on a list's section headers
-            // TODO: how much spacing do we want between first section and very top of inspector?
-//            .listRowInsets(EdgeInsets(top: isFirstSection ? 20 : 0,
             .listRowInsets(EdgeInsets(top: 0,
                                       leading: 0,
                                       bottom: 0,
                                       trailing: 0))
-//            .padding(.bottom, isFirstSection ? 6 : 0)
             .contentShape(Rectangle())
             .onTapGesture {
                 withAnimation {
@@ -268,7 +268,7 @@ struct LayerInspectorInputsSectionView: View {
                     
                     layerInputs.forEach { layerInput in
                         if case let .layerInput(x) = graph.graphUI.propertySidebar.selectedProperty,
-                           x.layerInput == layerInput {
+                           x.layerInput == layerInput.layerInput {
                             graph.graphUI.propertySidebar.selectedProperty = nil
                         }
                     }
@@ -280,14 +280,10 @@ struct LayerInspectorInputsSectionView: View {
 
 struct LayerInspectorOutputsSectionView: View {
     
-    @Bindable var node: NodeViewModel
-    @Bindable var layerNode: LayerNodeViewModel
+    var outputs: [OutputLayerNodeRowData] // layerNode.outputPorts
     @Bindable var graph: GraphState
     
     var body: some View {
-        
-        let outputs = layerNode.outputPorts
-        
         if outputs.isEmpty {
             EmptyView()
         } else {
@@ -298,9 +294,7 @@ struct LayerInspectorOutputsSectionView: View {
                             outputPortId: portId,
                             rowViewModel: output.inspectorRowViewModel,
                             rowObserver: output.rowObserver,
-                            node: node,
-                            layerNode: layerNode,
-                            graph: graph, 
+                            graph: graph,
                             canvasItemId: output.canvasObserver?.id)
                     } else {
                         Color.clear.onAppear {
@@ -313,7 +307,7 @@ struct LayerInspectorOutputsSectionView: View {
                     Rectangle().fill(.clear)
                         .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                                height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-//                    
+                    
                     StitchTextView(string: "Outputs").textCase(nil)
                 }
                 .listRowInsets(EdgeInsets(top: 0,
@@ -324,6 +318,60 @@ struct LayerInspectorOutputsSectionView: View {
         }
     }
 }
+
+extension GraphState {
+    
+    // Note: just used for `LayerInspectorView`
+    @MainActor
+    func getLayerInspectorData() -> (header: String,
+                                     node: NodeId?,
+                                     inputs: LayerInputObserverDict,
+                                     outputs: [OutputLayerNodeRowData])? {
+        
+        // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
+        guard !self.orderedSidebarLayers.isEmpty else {
+            return nil
+        }
+
+        let selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        
+        // multiselect
+        if selectedLayers.count > 1 {
+            guard let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
+                log("Had multiple selected layers but no multiselect state")
+                return nil
+            }
+            
+            let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict(self)
+            
+            return (header: "Multiselect",
+                    node: nil,
+                    inputs: inputs,
+                    outputs: []) // TODO: multiselect for outputs
+            
+        }
+        
+        // else had 0 or 1 layers selected:
+        else {
+            guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.first?.id,
+                  let node = self.getNodeViewModel(inspectedLayerId),
+                  let layerNode = node.layerNode else {
+                log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
+                return nil
+            }
+            
+            let inputs = layerNode.filteredLayerInputObserverDict(supportedInputs: layerNode.layer.inputDefinitions)
+            
+            return (header: node.displayTitle,
+                    node: node.id,
+                    inputs: inputs,
+                    outputs: layerNode.outputPorts)
+        }
+    }
+}
+
+
+
 
 //#Preview {
 //    let graph = GraphState(from: .init(), store: nil)
