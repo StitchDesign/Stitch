@@ -17,7 +17,7 @@ struct LayerPaddingModifier: ViewModifier {
         content
             .padding(.init(top: padding.top,
                            leading: padding.left,
-                           bottom: padding.right,
-                           trailing: padding.bottom))
+                           bottom: padding.bottom,
+                           trailing: padding.right))
     }
 }
