@@ -19,7 +19,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     // mixers don't need to be long lived, just the taps?
     private var ampTap: AmplitudeTap
     private var peakAmpTap: AmplitudeTap
-    private var fftTap: FFTTap!
+    private var fftTap: FFTTap?
     private var variSpeed: VariSpeed
 
     private var lowFrequencyAmplitude: Double = 0
@@ -195,20 +195,20 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.player.play()
         self.ampTap.start()
         self.peakAmpTap.start()
-        self.fftTap.start()
+        self.fftTap?.start()
     }
 
     func pause() {
         self.player.pause()
         self.ampTap.stop()
         self.peakAmpTap.stop()
-        self.fftTap.stop()
+        self.fftTap?.stop()
     }
 
     func stop() {
         self.player.stop()
         self.ampTap.stop()
         self.peakAmpTap.stop()
-        self.fftTap.stop()
+        self.fftTap?.stop()
     }
 }
