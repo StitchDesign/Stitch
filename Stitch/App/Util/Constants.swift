@@ -60,6 +60,8 @@ let NEW_PROJECT_ICON_NAME: IconName = .sfSymbol(.NEW_PROJECT_SF_SYMBOL_NAME)
 
 let EXPORT_LOGS_ICON_NAME: IconName = .sfSymbol("scroll")
 
+let PROJECT_SEARCH_ICON_NAME: IconName = .sfSymbol("magnifyingglass")
+
 @MainActor
 let SHOW_APP_SETTINGS = { dispatch(ShowAppSettingsSheet()) }
 let APP_SETTINGS_ICON_NAME: IconName = PROJECT_SETTINGS_ICON_NAME
