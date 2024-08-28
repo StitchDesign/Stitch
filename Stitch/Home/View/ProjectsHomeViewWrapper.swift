@@ -15,6 +15,8 @@ struct ProjectsHomeViewWrapper: View {
     // TODO: remove for Catalyst
     @Namespace var routerNamespace
 
+    @State private var showSearchPopover: Bool = false
+
     var body: some View {
         ProjectsHomeView(store: store,
                          namespace: routerNamespace)
@@ -47,9 +49,13 @@ struct ProjectsHomeViewWrapper: View {
                             iconName: EXPORT_LOGS_ICON_NAME)
                         
                         iPadTopBarButton(
-                            action: { 
+                            action: {
+                                showSearchPopover.toggle()
                             },
                             iconName: PROJECT_SEARCH_ICON_NAME)
+                            .popover(isPresented: $showSearchPopover) {
+                                SearchPopoverContentView()
+                            }
                     } else {
                         #if targetEnvironment(macCatalyst)
                         CatalystHomescreenNavBarButton(
@@ -58,8 +64,12 @@ struct ProjectsHomeViewWrapper: View {
                             },
                             iconName: NEW_PROJECT_ICON_NAME)
 
-                        CatalystHomescreenNavBarButton(action: EXPORT_LOGS_ACTION,
+                        CatalystHomescreenNavBarButton(action: {showSearchPopover.toggle()},
                                                        iconName: PROJECT_SEARCH_ICON_NAME)
+                        .popover(isPresented: $showSearchPopover) {
+                            SearchPopoverContentView()
+                        }
+
                         CatalystHomescreenNavBarButton(action: EXPORT_LOGS_ACTION,
                                                        iconName: EXPORT_LOGS_ICON_NAME)
                         CatalystHomescreenNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
@@ -72,8 +82,12 @@ struct ProjectsHomeViewWrapper: View {
                         
                         iPadTopBarButton(
                             action: {
+                                showSearchPopover.toggle()
                             },
                             iconName: PROJECT_SEARCH_ICON_NAME)
+                            .popover(isPresented: $showSearchPopover) {
+                                SearchPopoverContentView()
+                            }
                         iPadNavBarButton(action: EXPORT_LOGS_ACTION,
                                          iconName: EXPORT_LOGS_ICON_NAME)
                         iPadNavBarButton(action: SHOW_APP_SETTINGS_ACTION,
@@ -86,7 +100,6 @@ struct ProjectsHomeViewWrapper: View {
     }
 }
 
-// Note: the UIKitTap modifier messes up ONLY the homescreen catalyst buttons ?
 struct CatalystHomescreenNavBarButton: View {
     let action: () -> Void
     let iconName: IconName
@@ -101,8 +114,9 @@ struct CatalystHomescreenNavBarButton: View {
     }
 }
 
-// struct CatalystProjectsView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        CatalystProjectsListView()
-//    }
-// }
+struct SearchPopoverContentView: View {
+    var body: some View {
+        Text("Search content here")
+            .padding()
+    }
+}
