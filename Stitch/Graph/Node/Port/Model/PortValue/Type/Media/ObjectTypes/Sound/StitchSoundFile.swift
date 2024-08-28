@@ -19,6 +19,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     // mixers don't need to be long lived, just the taps?
     private var ampTap: AmplitudeTap
     private var peakAmpTap: AmplitudeTap
+    private var fftTap: FFTTap
     private var variSpeed: VariSpeed
 
     @MainActor
@@ -46,8 +47,13 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         peakAmpTap.analysisMode = .peak
         self.peakAmpTap = peakAmpTap
 
-        let variSpeed = VariSpeed(mixer2)
-        self.variSpeed = variSpeed
+        self.variSpeed = VariSpeed(mixer2)
+
+        self.fftTap = FFTTap(mixer2, bufferSize: 4096, callbackQueue: .main) { fftData in
+            let maxMagnitude = fftData.max() ?? 0
+            let maxIndex = fftData.firstIndex(of: maxMagnitude) ?? 0
+            print("Max magnitude: \(maxMagnitude) at index \(maxIndex)")
+        }
 
         // Note--this call from video init has some errors
         self.engine.output = variSpeed
@@ -75,7 +81,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         get {
             self.player.isLooping
         }
-        
+
         @MainActor
         set(newValue) {
             self.player.isLooping = newValue
@@ -133,17 +139,20 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.player.play()
         self.ampTap.start()
         self.peakAmpTap.start()
+        self.fftTap.start()
     }
 
     func pause() {
         self.player.pause()
         self.ampTap.stop()
         self.peakAmpTap.stop()
+        self.fftTap.stop()
     }
 
     func stop() {
         self.player.stop()
         self.ampTap.stop()
         self.peakAmpTap.stop()
+        self.fftTap.stop()
     }
 }
