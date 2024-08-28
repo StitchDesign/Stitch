@@ -19,8 +19,16 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     // mixers don't need to be long lived, just the taps?
     private var ampTap: AmplitudeTap
     private var peakAmpTap: AmplitudeTap
-    private var fftTap: FFTTap
+    private var fftTap: FFTTap!
     private var variSpeed: VariSpeed
+
+    private var lowFrequencyAmplitude: Double = 0
+    private var midFrequencyAmplitude: Double = 0
+    private var highFrequencyAmplitude: Double = 0
+
+    private var lowFrequencyRange: (min: Double, max: Double) = (0, 0)
+    private var midFrequencyRange: (min: Double, max: Double) = (0, 0)
+    private var highFrequencyRange: (min: Double, max: Double) = (0, 0)
 
     @MainActor
     init(url: URL,
@@ -49,16 +57,17 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
 
         self.variSpeed = VariSpeed(mixer2)
 
-        self.fftTap = FFTTap(mixer2, bufferSize: 4096, callbackQueue: .main) { fftData in
-            let maxMagnitude = fftData.max() ?? 0
-            let maxIndex = fftData.firstIndex(of: maxMagnitude) ?? 0
-            print("Max magnitude: \(maxMagnitude) at index \(maxIndex)")
-        }
-
-        // Note--this call from video init has some errors
         self.engine.output = variSpeed
 
         super.init()
+
+        do {
+            try engine.start()
+        } catch {
+            print("Failed to start audio engine: \(error)")
+        }
+
+        setupFFTTap(mixer2)
 
         if let rate = rate {
             self.rate = rate
@@ -68,11 +77,47 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
             self.setJumpTime(jumpTime)
         }
 
-        // Ensures the player always resets at 0 seconds. Calls using "seek" (on pulses)
-        // may change this behavior otherwise.
         self.setPlayerLoop(time: .zero, enableInfiniteLoop: willLoop)
     }
 
+    private func setupFFTTap(_ mixer: Mixer) {
+            self.fftTap = FFTTap(mixer, bufferSize: 4096, callbackQueue: .main) { [weak self] fftData in
+                Task { @MainActor [weak self] in
+                    await self?.processFFTDataSafely(fftData)
+                }
+            }
+        }
+
+        private func processFFTDataSafely(_ fftData: [Float]) async {
+            let binCount = fftData.count
+            
+            let sampleRate = Settings.sampleRate
+            
+            let nyquistFrequency = sampleRate / 2.0
+            let frequencyPerBin = nyquistFrequency / Double(binCount)
+
+            let lowRange = 0..<Int(Double(binCount) * 0.1)  // 0-10% of bins for low frequency
+            let midRange = Int(Double(binCount) * 0.1)..<Int(Double(binCount) * 0.5)  // 10-50% of bins for mid frequency
+            let highRange = Int(Double(binCount) * 0.5)..<binCount  // 50-100% of bins for high frequency
+
+            self.lowFrequencyAmplitude = calculateAverageAmplitude(fftData, in: lowRange)
+            self.midFrequencyAmplitude = calculateAverageAmplitude(fftData, in: midRange)
+            self.highFrequencyAmplitude = calculateAverageAmplitude(fftData, in: highRange)
+
+            self.lowFrequencyRange = (Double(lowRange.lowerBound) * frequencyPerBin, Double(lowRange.upperBound) * frequencyPerBin)
+            self.midFrequencyRange = (Double(midRange.lowerBound) * frequencyPerBin, Double(midRange.upperBound) * frequencyPerBin)
+            self.highFrequencyRange = (Double(highRange.lowerBound) * frequencyPerBin, Double(highRange.upperBound) * frequencyPerBin)
+
+            print("Low Frequency Range: \(self.lowFrequencyRange.min.rounded()) - \(self.lowFrequencyRange.max.rounded()) Hz, Amplitude: \(self.lowFrequencyAmplitude)")
+            print("Mid Frequency Range: \(self.midFrequencyRange.min.rounded()) - \(self.midFrequencyRange.max.rounded()) Hz, Amplitude: \(self.midFrequencyAmplitude)")
+            print("High Frequency Range: \(self.highFrequencyRange.min.rounded()) - \(self.highFrequencyRange.max.rounded()) Hz, Amplitude: \(self.highFrequencyAmplitude)")
+        }
+
+        private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
+            let sum = range.reduce(0.0) { $0 + Double(fftData[$1]) }
+            return sum / Double(range.count)
+        }
+    
     var isRunning: Bool {
         self.player.isStarted
     }
@@ -133,6 +178,18 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
 
     var peakVolume: Double {
         Double(self.peakAmpTap.amplitude)
+    }
+
+    var lowFrequencyInfo: (range: (min: Double, max: Double), amplitude: Double) {
+        return (self.lowFrequencyRange, self.lowFrequencyAmplitude)
+    }
+
+    var midFrequencyInfo: (range: (min: Double, max: Double), amplitude: Double) {
+        return (self.midFrequencyRange, self.midFrequencyAmplitude)
+    }
+
+    var highFrequencyInfo: (range: (min: Double, max: Double), amplitude: Double) {
+        return (self.highFrequencyRange, self.highFrequencyAmplitude)
     }
 
     func play() {
