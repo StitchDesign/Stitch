@@ -63,7 +63,45 @@ struct SoundImportNode: PatchNodeDefinition {
                 .init(
                     label: "Duration",
                     type: .number
+                ),
+                .init(
+                    label: "Low F Start",
+                    type: .number
+                ),
+                .init(
+                    label: "Low F End",
+                    type: .number
+                ),
+                .init(
+                    label: "Low F Amplitude",
+                    type: .number
+                ),
+                .init(
+                    label: "Mid F Start",
+                    type: .number
+                ),
+                .init(
+                    label: "Mid F End",
+                    type: .number
+                ),
+                .init(
+                    label: "Mid F Amplitude",
+                    type: .number
                 )
+                ,
+                .init(
+                    label: "High F Start",
+                    type: .number
+                ),
+                .init(
+                    label: "High F End",
+                    type: .number
+                ),
+                .init(
+                    label: "High F Amplitude",
+                    type: .number
+                )
+                
             ]
         )
     }
@@ -89,6 +127,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         let playing: Bool = values[safe: 3]?.getBool ?? true
         let isLooped: Bool = values[safe: 4]?.getBool ?? true
         let playRate: Double = values[safe: 5]?.getNumber ?? 1
+        
 
         // Get previously saved playback time in case video is paused
         var currentPlaybackTime = values[9].getNumber ?? .zero
@@ -102,7 +141,19 @@ func soundImportEval(node: PatchNode) -> EvalResult {
             .number(delegate.volume),
             .number(delegate.peakVolume),
             .number(currentPlaybackTime),
-            .number(soundPlayer.delegate.duration)
+            .number(soundPlayer.delegate.duration),
+
+            .number(soundPlayer.delegate.lowFrequencyRange.min),
+            .number(soundPlayer.delegate.lowFrequencyRange.max),
+            .number(soundPlayer.delegate.lowFrequencyAmplitude),
+
+            .number(soundPlayer.delegate.midFrequencyRange.min),
+            .number(soundPlayer.delegate.midFrequencyRange.max),
+            .number(soundPlayer.delegate.midFrequencyAmplitude),
+
+            .number(soundPlayer.delegate.highFrequencyRange.min),
+            .number(soundPlayer.delegate.highFrequencyRange.max),
+            .number(soundPlayer.delegate.highFrequencyAmplitude)
         ]
         
         // Update player in media manager

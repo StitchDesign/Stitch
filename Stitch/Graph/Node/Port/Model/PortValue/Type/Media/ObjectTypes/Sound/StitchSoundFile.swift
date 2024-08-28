@@ -22,13 +22,13 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     private var fftTap: FFTTap?
     private var variSpeed: VariSpeed
 
-    private var lowFrequencyAmplitude: Double = 0
-    private var midFrequencyAmplitude: Double = 0
-    private var highFrequencyAmplitude: Double = 0
+    var lowFrequencyAmplitude: Double = 0
+    var midFrequencyAmplitude: Double = 0
+    var highFrequencyAmplitude: Double = 0
 
-    private var lowFrequencyRange: (min: Double, max: Double) = (0, 0)
-    private var midFrequencyRange: (min: Double, max: Double) = (0, 0)
-    private var highFrequencyRange: (min: Double, max: Double) = (0, 0)
+    var lowFrequencyRange: (min: Double, max: Double) = (0, 0)
+    var midFrequencyRange: (min: Double, max: Double) = (0, 0)
+    var highFrequencyRange: (min: Double, max: Double) = (0, 0)
 
     @MainActor
     init(url: URL,
