@@ -1334,13 +1334,13 @@ extension LayerInputPort {
         case .fontSize:
             return "Font Size"
         case .textAlignment:
-            return "Text Alignment"
+            return useShortLabel ? "Alignment" : "Text Alignment"
         case .verticalAlignment:
             return "Vertical Alignment"
         case .textDecoration:
-            return "Text Decoration"
+            return useShortLabel ? "Decoration" : "Text Decoration"
         case .textFont:
-            return "Text Font"
+            return useShortLabel ? "Font" : "Text Font"
         case .image:
             return "Image"
         case .video:
@@ -1414,21 +1414,24 @@ extension LayerInputPort {
         case .spacing:
             return "Spacing"
         case .sizingScenario:
-            return "Sizing Scenario"
+//            return "Sizing Scenario"
+            return "Sizing"
+        
         case .isPinned:
             return "Pinned"
         case .pinTo:
             return "Pin To"
         case .pinAnchor:
-            return "Pin Anchor"
+            return useShortLabel ? "Anchor" : "Pin Anchor"
         case .pinOffset:
-            return "Pin Offset"
+            return useShortLabel ? "Offset" : "Pin Offset"
+        
         case .layerPadding:
-            return "Layer Padding"
+            return useShortLabel ? "Padding" : "Layer Padding"
         case .layerMargin:
-            return "Layer Margin"
+            return useShortLabel ? "Margin" : "Layer Margin"
         case .offsetInGroup:
-            return "Offset"
+            return useShortLabel ? "Offset" : "Offset in Group"
         }
     }
 
