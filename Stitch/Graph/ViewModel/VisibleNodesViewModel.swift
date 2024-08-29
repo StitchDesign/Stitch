@@ -11,12 +11,17 @@ import StitchSchemaKit
 typealias NodeEntityDict = [NodeId: NodeEntity]
 
 @Observable
-class VisibleNodesViewModel {
+final class VisibleNodesViewModel {
     // Storage for view models
     var nodes = NodesViewModelDict()
 
     // Saves location and zoom-specific data for groups
     var nodesByPage: NodesPagingDict = [.root: .init(zoomData: .init())]
+    
+    /// Used in rotation modifier to know whether view receives a pin;
+    /// updated whenever preview layers cache is updated.
+    var pinMap = RootPinMap()
+    var flattenedPinMap = PinMap()
 }
 
 extension VisibleNodesViewModel {

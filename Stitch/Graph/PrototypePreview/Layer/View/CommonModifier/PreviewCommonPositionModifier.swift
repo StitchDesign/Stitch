@@ -35,17 +35,13 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-      
-    var isPinned: Bool {
-        viewModel.isPinned.getBool ?? false
-    }
     
     var isGhostView: Bool {
-        isPinned && !isPinnedViewRendering
+        viewModel.isPinnedView && !isPinnedViewRendering
     }
     
     var isPinnedView: Bool {
-        isPinned && isPinnedViewRendering
+        viewModel.isPinnedView && isPinnedViewRendering
     }
 
     func body(content: Content) -> some View {
@@ -59,31 +55,36 @@ struct PreviewCommonPositionModifier: ViewModifier {
             let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
                                                pinReceiverData: pinReceiverData)
             
+            // Ghost view equivalent of pin view passes position info for calculating
+            // final position location
+            let ghostViewPosition = self.viewModel.readMidPosition
+            let pinPositionOffset = pinPos - ghostViewPosition
+            
+            // Input value of pin offset
             let pinOffset: CGSize = viewModel.pinOffset.getSize?.asCGSize ?? .zero
             
              // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
              // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
-            content
-                .position(x: pinPos.width, y: pinPos.height)
+            positioningView(content)
+                .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
                 .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
-            // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
-            
-            // A non-PinnedView rendering of a layer uses .position unless:
-            // 1. the layer is a child inside a group that uses a VStack or HStack, or
-            // 2. it is a GhostView rendering
-            if isGhostView {
-                content
-            } else if parentDisablesPosition {
-                content
-                    .offset(x: viewModel.offsetInGroup.width,
-                            y: viewModel.offsetInGroup.height)
-            } else {
-                content
-                    .position(x: pos.width, y: pos.height)
-            }
+            positioningView(content)
+        }
+    }
+    
+    @ViewBuilder func positioningView(_ content: Content) -> some View {
+        // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+        
+        if parentDisablesPosition {
+            content
+                .offset(x: viewModel.offsetInGroup.width,
+                        y: viewModel.offsetInGroup.height)
+        } else {
+            content
+                .position(x: pos.width, y: pos.height)
         }
     }
 }

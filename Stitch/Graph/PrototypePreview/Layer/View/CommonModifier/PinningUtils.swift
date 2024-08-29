@@ -23,29 +23,133 @@ import SwiftUI
      C: { A, D },
  ]
  */
+
 typealias PinMap = [LayerNodeId?: LayerIdSet]
 
-extension VisibleNodesViewModel {
+/// Key: root hierarchy group layer ID
+/// Value: all possibled nested key-value pairs of pinning views
+/// Problem to solve: we need to find chain of connected layers say if there's a pinning relationship like A -> B -> C,
+/// at which point we need to pin views at the group context of C.
+typealias RootPinMap = [LayerNodeId?: LayerPinData]
+
+struct LayerPinData {
+    let id: LayerNodeId?
+    var pins: [Self]?
+}
+
+extension LayerPinData {
+    func getAllPins() -> Set<LayerNodeId?> {
+        var set = Set<LayerNodeId?>([self.id])
+        
+        self.pins?.forEach { pin in
+            set = set.union(pin.getAllPins())
+        }
+        
+        return set
+    }
     
+    func recursiveContains(id: LayerNodeId) -> Bool {
+        if self.id == id {
+            return true
+        }
+        
+        guard let pins = self.pins else {
+            return false
+        }
+        
+        return pins.contains { $0.recursiveContains(id: id) }
+    }
+    
+    /// Calculates nested level of some pin given its ID. A value of 0 means no match was found.
+    func getPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        if self.id == id {
+            return 1
+        }
+        
+        guard let pins = self.pins else {
+            return 0
+        }
+        
+        let maxCountInChildren = pins.getMaxPinnedNestedLayerCount(id: id)
+        
+        return 1 + maxCountInChildren
+    }
+}
+
+extension RootPinMap {
+    /// Getter which ignores layers receiving pins.
+    var allPinnedLayerIds: Set<LayerNodeId> {
+        let pinDataList: [LayerPinData] = self.values.flatMap { $0.pins ?? [] }
+        
+        return pinDataList.flatMap {
+            $0.getAllPins()
+        }
+        .compactMap { $0 }
+        .toSet
+    }
+    
+    /// Recursively checks most upstream parent ID for pinning data.
+    func findRootPinReceiver(from id: LayerNodeId) -> LayerNodeId? {
+        for pinData in self.values {
+            if pinData.recursiveContains(id: id) {
+                return pinData.id
+            }
+        }
+        
+        // No match
+        return nil
+    }
+    
+    func getPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        Array(self.values).getMaxPinnedNestedLayerCount(id: id)
+    }
+    
+    /// Given some layer ID set, checks if each member of the set is located in the same pinning linked list.
+    func areLayersInSamePinFamily(idSet: LayerIdSet) -> Bool {
+        for pinData in self.values {
+            let allPins = pinData.getAllPins()
+            
+            if allPins.intersection(idSet) == idSet {
+                // If pins contains each member in ID set, exit and return true
+                return true
+            }
+        }
+        
+        // No matches
+        return false
+    }
+}
+
+extension [LayerPinData] {
+    func getMaxPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        self.reduce(0) { currentMaxCount, pin in
+            let pinNestedCount = pin.getPinnedNestedLayerCount(id: id)
+            return Swift.max(pinNestedCount, currentMaxCount)
+        }
+    }
+}
+
+extension VisibleNodesViewModel {
     // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
     @MainActor
-    func getPinMap() -> PinMap {
-        
-        var pinMap = PinMap()
-        
+    func getFlattenedPinMap() -> PinMap {
         // Iterate through all layer nodes, checking each layer node's pinTo input loop; turn that loop into entries in the PinMap
-        self.layerNodes.forEach { (nodeId: NodeId, node: NodeViewModel) in
+        self.nodes.values.reduce(into: PinMap()) { pinMap, node in
+            guard let layerNode = node.layerNode else {
+                return
+            }
+            
+            let nodeId = node.id
             
             // Iterate th
-            node.layerNode?.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
-                                
+            layerNode.previewLayerViewModels.forEach({ (viewModel: LayerViewModel) in
                 // have to check whether the viewModel is actually pinned as well
                 if (viewModel.isPinned.getBool ?? false),
                    var pinToId = viewModel.pinTo.getPinToId {
                     
                     // `PinToId.root` case does not have a corresponding layer node,
                     //
-                   let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
+                    let pinReceivingLayer = pinToId.asLayerNodeId(viewModel.id.layerNodeId, from: self)
                     
                     if pinReceivingLayer == nil && pinToId != .root {
                         log("getPinMap: had nil pin-receiving-layer but PinToId was not 'root'; will default to 'root'")
@@ -66,15 +170,64 @@ extension VisibleNodesViewModel {
                     
                     pinMap.updateValue(current, forKey: pinReceivingLayer)
                     log("getPinMap: pinMap is now: \(pinMap)")
-            
+                    
                 }
             })
         } // self.layerNodes.forEach
+    }
+    
+    func getRootPinMap(pinMap: PinMap) -> RootPinMap {
+        // 1. Identify root pairs
+        // 2. For each pin via root, check list for chains
+        // 3. Assert keys count == root pairs count from 1
         
-        return pinMap
+        let allValues = pinMap.values.flatMap { $0 }
+        let rootNodes = pinMap.keys
+            .filter { key in
+                guard let key = key else {
+                    // nil = root, which counts
+                    return true
+                }
+                
+                return !allValues.contains(key)
+            }
+        
+        let rootPinMap = rootNodes.reduce(into: RootPinMap()) { result, rootNode in
+            let pinData = pinMap.getRecursiveData(from: rootNode)
+            result.updateValue(pinData, forKey: rootNode)
+        }
+        
+        return rootPinMap
     }
 }
 
+extension PinMap {
+    func getRecursiveData(from layerNodeId: LayerNodeId?,
+                          visitedSet: Set<LayerNodeId?> = .init()) -> LayerPinData {
+        var pinData = LayerPinData(id: layerNodeId)
+        
+        guard let values = self.get(layerNodeId) else {
+            return pinData
+        }
+        
+        // Prevents cycle
+        if let layerNodeId = layerNodeId,
+           visitedSet.contains(layerNodeId) {
+            log("PinMap.getRecursive pairs: cycle detected for \(layerNodeId)")
+            return pinData
+        }
+        
+        var visitedSet = visitedSet
+        visitedSet.insert(layerNodeId)
+        
+        pinData.pins = values.map { layerNodePinId in
+            self.getRecursiveData(from: layerNodePinId,
+                                  visitedSet: visitedSet)
+        }
+        
+        return pinData
+    }
+}
 
 // MARK: POSITIONING
 
@@ -97,7 +250,7 @@ extension GraphState {
 func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
-    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+//    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
                 
     guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
         log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
@@ -152,7 +305,8 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
                         for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
     
-    guard let pinReceiver = graph.layerNodes.get(pinReceiverId.id) else {
+    guard let rootPinReceiverId = graph.visibleNodesViewModel.pinMap.findRootPinReceiver(from: pinReceiverId),
+          let pinReceiver = graph.layerNodes.get(rootPinReceiverId.id) else {
         log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
         return graph.rootPinReceiverData
     }
@@ -192,12 +346,13 @@ func getPinReceiverData(pinReceiverId: LayerNodeId,
 
 
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
-                           pinReceiverData: PinReceiverData) -> StitchPosition {
+                           pinReceiverData: PinReceiverData) -> CGPoint {
     
     adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
                    position: pinReceiverData.origin.toCGSize,
                    anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
                    parentSize: pinReceiverData.size)
+    .toCGPoint
 }
 
 
