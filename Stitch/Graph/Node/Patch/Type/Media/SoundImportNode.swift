@@ -141,20 +141,8 @@ func soundImportEval(node: PatchNode) -> EvalResult {
             .number(delegate.volume),
             .number(delegate.peakVolume),
             .number(currentPlaybackTime),
-            .number(soundPlayer.delegate.duration),
-
-            .number(soundPlayer.delegate.lowFrequencyRange.min),
-            .number(soundPlayer.delegate.lowFrequencyRange.max),
-            .number(soundPlayer.delegate.lowFrequencyAmplitude),
-
-            .number(soundPlayer.delegate.midFrequencyRange.min),
-            .number(soundPlayer.delegate.midFrequencyRange.max),
-            .number(soundPlayer.delegate.midFrequencyAmplitude),
-
-            .number(soundPlayer.delegate.highFrequencyRange.min),
-            .number(soundPlayer.delegate.highFrequencyRange.max),
-            .number(soundPlayer.delegate.highFrequencyAmplitude)
-        ]
+            .number(soundPlayer.delegate.duration)
+        ] + soundPlayer.delegate.frequencyAmplitudes.map { .number($0) }
         
         // Update player in media manager
         soundPlayer.isEnabled = playing
