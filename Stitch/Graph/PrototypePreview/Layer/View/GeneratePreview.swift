@@ -17,10 +17,16 @@ struct GeneratePreview: View {
         graph.visibleNodesViewModel
     }
     
+    @MainActor
+    var sortedLayerDataList: LayerDataList {
+        // see `GraphState.updateOrderedPreviewLayers()`
+        self.graph.cachedOrderedPreviewLayers
+    }
+    
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
         PreviewLayersView(graph: graph,
-                          layers: self.graph.cachedOrderedPreviewLayersVisible,
+                          layers: sortedLayerDataList,
                           parentSize: graph.previewWindowSize,
                           parentId: nil,
                           parentOrientation: .none,
@@ -33,7 +39,7 @@ struct GeneratePreview: View {
         .background {
             // Invisible views used for reporting pinning position data
             PreviewLayersView(graph: graph,
-                              layers: self.graph.cachedOrderedPreviewLayersGhosted,
+                              layers: sortedLayerDataList,
                               parentSize: graph.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
