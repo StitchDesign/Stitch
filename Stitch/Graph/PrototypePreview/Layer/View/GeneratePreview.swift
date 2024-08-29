@@ -43,7 +43,7 @@ struct GeneratePreview: View {
                               parentUsesHug: false,
                               parentGridData: nil,
                               isGhostView: true)
-            .opacity(0.2)
+            .hidden()
             .disabled(true)
         }
         // Top-level coordinate space of preview window; for pinning
@@ -93,7 +93,7 @@ struct PreviewLayersView: View {
       TODO: what is perf impact of doing `.reversed()` in a computed var on a view?; alternatively, for pass: (1) pass `parentOrientation` during the sorting in `.recursivePreviewLayers`, or (2) step through the collection background in `ForEach(layers)`
       (1) seems best?
      */
-    var layersInProperOrder: LayerDataList {
+    var presentedLayers: LayerDataList {
         if parentOrientation == .none {
             return layers
         } else {
@@ -101,7 +101,6 @@ struct PreviewLayersView: View {
                 .filter {
                     !$0.isPinned
                 }
-                .reversed()
         }
     }
     
@@ -129,41 +128,24 @@ struct PreviewLayersView: View {
         if spacing.isEvenly {
             Spacer()
         }
-         
-        ZStack {
-            // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-            ForEach(layersInProperOrder) { layerData in
-                
-                LayerDataView(graph: graph,
-                              layerData: layerData,
-                              parentSize: parentSize,
-                              parentDisablesPosition: parentDisablesPosition,
-                              isGhostView: isGhostView)
-                
-                if spacing.isEvenly {
-                    Spacer()
-                } else if spacing.isBetween,
-                          layerData.id != layersInProperOrder.last?.id {
-                    Spacer()
-                }
-                
-            } // ForEach
+        
+        // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
+        ForEach(presentedLayers) { layerData in
             
-            ForEach(pinsInOrientationView) { layerData in
-                LayerDataView(graph: graph,
-                              layerData: layerData,
-                              parentSize: parentSize,
-                              parentDisablesPosition: parentDisablesPosition,
-                              isGhostView: isGhostView)
-                
-                if spacing.isEvenly {
-                    Spacer()
-                } else if spacing.isBetween,
-                          layerData.id != layersInProperOrder.last?.id {
-                    Spacer()
-                }
+            LayerDataView(graph: graph,
+                          layerData: layerData,
+                          parentSize: parentSize,
+                          parentDisablesPosition: parentDisablesPosition,
+                          isGhostView: isGhostView)
+            
+            if spacing.isEvenly {
+                Spacer()
+            } else if spacing.isBetween,
+                      layerData.id != presentedLayers.last?.id {
+                Spacer()
             }
-        }
+            
+        } // ForEach
     }
     
     var body: some View {
@@ -174,12 +156,24 @@ struct PreviewLayersView: View {
                 Rectangle().fill(.clear)
             }
             
-            // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
-            orientationFromParent
-                .padding(.top, parentPadding.top)
-                .padding(.bottom, parentPadding.bottom)
-                .padding(.leading, parentPadding.left)
-                .padding(.trailing, parentPadding.right)
+            ZStack {
+                // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
+                orientationFromParent
+                    .padding(.top, parentPadding.top)
+                    .padding(.bottom, parentPadding.bottom)
+                    .padding(.leading, parentPadding.left)
+                    .padding(.trailing, parentPadding.right)
+
+                ForEach(pinsInOrientationView) { layerData in
+                    LayerDataView(graph: graph,
+                                  layerData: layerData,
+                                  parentSize: parentSize,
+                                  parentDisablesPosition: parentDisablesPosition,
+                                  isGhostView: isGhostView)
+                    .border(.green)
+                }
+                .border(.red)
+            }
             
         } // Group
         .modifier(LayerGroupInteractableViewModifier(
@@ -215,7 +209,7 @@ struct PreviewLayersView: View {
             // We *must* provide a "minimum cell space" for an .adaptive LazyVGrid.
             // So we use the largest width.
             // TODO: perf implications of iterating through e.g. 900 views?
-            let longestReadWidth = layersInProperOrder.max { d1, d2 in
+            let longestReadWidth = presentedLayers.max { d1, d2 in
                 d1.layer.readSize.width < d2.layer.readSize.width
             }?.layer.readSize.width ?? .zero
             

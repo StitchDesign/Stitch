@@ -273,14 +273,10 @@ extension GraphState: SchemaObserver {
         // Ignores pins to report positional data
         let ghostedPreviewLayers = self.visibleNodesViewModel
             .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
-                                    pinMap: rootPinMap,
-                                    isGhost: true)
+                                    pinMap: rootPinMap)
         
         // Visible layers including pinned data
-        let visiblePreviewLayers = self.visibleNodesViewModel
-            .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
-                                    pinMap: rootPinMap,
-                                    isGhost: false)
+        let visiblePreviewLayers = ghostedPreviewLayers
         
         self.cachedOrderedPreviewLayersGhosted = ghostedPreviewLayers
         self.cachedOrderedPreviewLayersVisible = visiblePreviewLayers
