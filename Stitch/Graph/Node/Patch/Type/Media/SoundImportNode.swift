@@ -63,43 +63,6 @@ struct SoundImportNode: PatchNodeDefinition {
                 .init(
                     label: "Duration",
                     type: .number
-                ),
-                .init(
-                    label: "Low F Start",
-                    type: .number
-                ),
-                .init(
-                    label: "Low F End",
-                    type: .number
-                ),
-                .init(
-                    label: "Low F Amplitude",
-                    type: .number
-                ),
-                .init(
-                    label: "Mid F Start",
-                    type: .number
-                ),
-                .init(
-                    label: "Mid F End",
-                    type: .number
-                ),
-                .init(
-                    label: "Mid F Amplitude",
-                    type: .number
-                )
-                ,
-                .init(
-                    label: "High F Start",
-                    type: .number
-                ),
-                .init(
-                    label: "High F End",
-                    type: .number
-                ),
-                .init(
-                    label: "High F Amplitude",
-                    type: .number
                 )
                 
             ]
@@ -142,7 +105,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
             .number(delegate.peakVolume),
             .number(currentPlaybackTime),
             .number(soundPlayer.delegate.duration)
-        ] + soundPlayer.delegate.frequencyAmplitudes.map { .number($0) }
+        ] 
         
         // Update player in media manager
         soundPlayer.isEnabled = playing
