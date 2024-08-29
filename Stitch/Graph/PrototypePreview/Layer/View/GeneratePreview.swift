@@ -97,8 +97,23 @@ struct PreviewLayersView: View {
         if parentOrientation == .none {
             return layers
         } else {
-            return layers.reversed()
+            return layers
+                .filter {
+                    !$0.isPinned
+                }
+                .reversed()
         }
+    }
+    
+    var pinsInOrientationView: LayerDataList {
+        guard parentOrientation != .none else {
+            return []
+        }
+        
+        return layers
+            .filter {
+                $0.isPinned
+            }
     }
     
     var parentDisablesPosition: Bool {
@@ -114,24 +129,41 @@ struct PreviewLayersView: View {
         if spacing.isEvenly {
             Spacer()
         }
-                        
-        // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
-        ForEach(layersInProperOrder) { layerData in
+         
+        ZStack {
+            // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
+            ForEach(layersInProperOrder) { layerData in
+                
+                LayerDataView(graph: graph,
+                              layerData: layerData,
+                              parentSize: parentSize,
+                              parentDisablesPosition: parentDisablesPosition,
+                              isGhostView: isGhostView)
+                
+                if spacing.isEvenly {
+                    Spacer()
+                } else if spacing.isBetween,
+                          layerData.id != layersInProperOrder.last?.id {
+                    Spacer()
+                }
+                
+            } // ForEach
             
-            LayerDataView(graph: graph,
-                          layerData: layerData,
-                          parentSize: parentSize,
-                          parentDisablesPosition: parentDisablesPosition,
-                          isGhostView: isGhostView)
-            
-            if spacing.isEvenly {
-                Spacer()
-            } else if spacing.isBetween,
-               layerData.id != layersInProperOrder.last?.id {
-                Spacer()
+            ForEach(pinsInOrientationView) { layerData in
+                LayerDataView(graph: graph,
+                              layerData: layerData,
+                              parentSize: parentSize,
+                              parentDisablesPosition: parentDisablesPosition,
+                              isGhostView: isGhostView)
+                
+                if spacing.isEvenly {
+                    Spacer()
+                } else if spacing.isBetween,
+                          layerData.id != layersInProperOrder.last?.id {
+                    Spacer()
+                }
             }
-            
-        } // ForEach
+        }
     }
     
     var body: some View {
@@ -274,7 +306,7 @@ struct LayerDataView: View {
                 }
             }
             
-        case .nongroup(let layerViewModel):
+        case .nongroup(let layerViewModel, _):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 NonGroupPreviewLayersView(graph: graph,
@@ -287,7 +319,7 @@ struct LayerDataView: View {
                 EmptyView()
             }
                         
-        case .group(let layerViewModel, let childrenData):
+        case .group(let layerViewModel, let childrenData, _):
             if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
                 GroupPreviewLayersView(graph: graph,

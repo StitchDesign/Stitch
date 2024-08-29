@@ -81,7 +81,8 @@ extension VisibleNodesViewModel {
     }
     
     /// Sorting comparator for layer data, which drives z-index order.
-    static func layerSortingComparator(lhs: LayerType, rhs: LayerType) -> Bool {
+    static func layerSortingComparator(lhs: LayerType, 
+                                       rhs: LayerType) -> Bool {
         // Variables for sorting
         let lhsZIndex = lhs.zIndex
         let rhsZIndex = rhs.zIndex
@@ -99,19 +100,19 @@ extension VisibleNodesViewModel {
             return rhsIsPinned
         }
         
-        guard lhsZIndex != rhsZIndex else {
-            /*
-             Larger sidebar indices should be higher in stack
-             
-             ... actually, depends on stack-type:
-             - ZStack: smallest index = bottom of stack, largest index = top of stack
-             - VStack: smallest index = top of column, largest index = bottom of column
-             - HStack: smallest index = far left of row, largest index = far right of row
-             */
-            return lhsSidebarIndex > rhsSidebarIndex
+        if lhsZIndex != rhsZIndex {
+            return lhsZIndex < rhsZIndex
         }
         
-        return lhsZIndex < rhsZIndex
+        /*
+         Larger sidebar indices should be higher in stack
+         
+         ... actually, depends on stack-type:
+         - ZStack: smallest index = bottom of stack, largest index = top of stack
+         - VStack: smallest index = top of column, largest index = bottom of column
+         - HStack: smallest index = far left of row, largest index = far right of row
+         */
+        return lhsSidebarIndex > rhsSidebarIndex
     }
     
     @MainActor
@@ -143,7 +144,7 @@ extension VisibleNodesViewModel {
             return .mask(masked: maskedLayerData,
                          masker: maskerLayerData)
             
-        case .nongroup(let data, _): // LayerData
+        case .nongroup(let data, let isPinned): // LayerData
             guard let previewLayer: LayerViewModel = layerNodes
                 .get(data.id.layerNodeId.id)?
                 .layerNode?
@@ -152,9 +153,9 @@ extension VisibleNodesViewModel {
                 return nil
             }
             
-            return .nongroup(previewLayer)
+            return .nongroup(previewLayer, isPinned)
             
-        case .group(let layerGroupData, _): // LayerGroupData
+        case .group(let layerGroupData, let isPinned): // LayerGroupData
             guard let previewLayer: LayerViewModel = layerNodes
                 .get(layerGroupData.id.layerNodeId.asNodeId)?
                 .layerNode?
@@ -162,6 +163,8 @@ extension VisibleNodesViewModel {
                 
                 return nil
             }
+            
+            let isInGroupOrientation = previewLayer.orientation.getOrientation?.isOrientated ?? false
             
             // Pass the pinned-view-type from the LayerType to the LayerViewModel
             //            previewLayer.pinnedViewType = layerType.pinnedViewType
@@ -175,7 +178,8 @@ extension VisibleNodesViewModel {
                 isGhost: isGhost)
             
             return .group(previewLayer,
-                          childrenData)
+                          childrenData,
+                          isPinned)
         }
     }
 }

@@ -25,8 +25,8 @@ indirect enum LayerType: Equatable, Hashable {
 
 /// Data type used for getting sorted data in views.
 indirect enum LayerData {
-    case nongroup(LayerViewModel)
-    case group(LayerViewModel, LayerDataList)
+    case nongroup(LayerViewModel, Bool)
+    case group(LayerViewModel, LayerDataList, Bool)
     case mask(masked: LayerDataList, masker: LayerDataList)
 }
 
@@ -159,27 +159,27 @@ extension LayerData: Identifiable {
         switch self {
         case .nongroup, .mask:
             return nil
-        case .group(_, let layerDataList):
+        case .group(_, let layerDataList, _):
             return layerDataList
         }
     }
 
-//    var isPinned: Bool {
-//        switch self {
-//        case .nongroup(_, let isPinned):
-//            return isPinned
-//        case .group(_, _, let isPinned):
-//            return isPinned
-//        case .mask:
-//            return false
-//        }
-//    }
+    var isPinned: Bool {
+        switch self {
+        case .nongroup(_, let isPinned):
+            return isPinned
+        case .group(_, _, let isPinned):
+            return isPinned
+        case .mask:
+            return false
+        }
+    }
         
     var layer: LayerViewModel {
         switch self {
-        case .nongroup(let layer):
+        case .nongroup(let layer, _):
             return layer
-        case .group(let layer, _):
+        case .group(let layer, _, _):
             return layer
         case .mask(masked: let layerDataList, masker: _):
             // TODO: `layerDataList` should be NonEmpty; there's no way to gracefully fail here
@@ -189,9 +189,9 @@ extension LayerData: Identifiable {
     
     var zIndex: CGFloat {
         switch self {
-        case .nongroup(let layer):
+        case .nongroup(let layer, _):
             return layer.zIndex.getNumber ?? .zero
-        case .group(let layer, _):
+        case .group(let layer, _, _):
             return layer.zIndex.getNumber ?? .zero
         case .mask(masked: let masked, masker: _):
             // TODO: is z-index for a LayerData really the first

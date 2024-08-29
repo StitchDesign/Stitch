@@ -52,8 +52,8 @@ struct PreviewCommonPositionModifier: ViewModifier {
             
              // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
             
-           let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
-                                              pinReceiverData: pinReceiverData)
+            let pinPos = getPinnedViewPosition(pinnedLayerViewModel: viewModel,
+                                               pinReceiverData: pinReceiverData)
             
             // Ghost view equivalent of pin view passes position info for calculating
             // final position location
@@ -66,27 +66,30 @@ struct PreviewCommonPositionModifier: ViewModifier {
              // logInView("PreviewCommonPositionModifier: pinPos: \(pinPos)")
              // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
-            content
-                .position(x: pos.width, y: pos.height)
+            positioningView(content)
                 .offset(x: pinPositionOffset.x, y: pinPositionOffset.y)
                 .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
-            // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
-            
-            // A non-PinnedView rendering of a layer uses .position unless:
-            // 1. the layer is a child inside a group that uses a VStack or HStack, or
-            // 2. it is a GhostView rendering
+            positioningView(content)
+        }
+    }
+    
+    @ViewBuilder func positioningView(_ content: Content) -> some View {
+        // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
+        
+        // A non-PinnedView rendering of a layer uses .position unless:
+        // 1. the layer is a child inside a group that uses a VStack or HStack, or
+        // 2. it is a GhostView rendering
 //            if isGhostView {
 //                content
-            if parentDisablesPosition {
-                content
-                    .offset(x: viewModel.offsetInGroup.width,
-                            y: viewModel.offsetInGroup.height)
-            } else {
-                content
-                    .position(x: pos.width, y: pos.height)
-            }
+        if parentDisablesPosition {
+            content
+                .offset(x: viewModel.offsetInGroup.width,
+                        y: viewModel.offsetInGroup.height)
+        } else {
+            content
+                .position(x: pos.width, y: pos.height)
         }
     }
 }
