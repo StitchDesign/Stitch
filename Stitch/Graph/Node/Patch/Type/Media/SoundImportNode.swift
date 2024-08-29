@@ -14,7 +14,8 @@ let defaultAudioPlayRate = 1.0
 
 struct SoundImportNode: PatchNodeDefinition {
     static let patch = Patch.soundImport
-    
+    static let defaultFrequencyAmplitudes: [Double] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
@@ -110,8 +111,11 @@ func soundImportEval(node: PatchNode) -> EvalResult {
             .number(delegate.volume),
             .number(delegate.peakVolume),
             .number(currentPlaybackTime),
-            .number(delegate.duration)
+            .number(delegate.duration),
+            //Fake value for output; will override below...
+            .number(0)
         ]
+        
         
         // Update player in media manager
         soundPlayer.isEnabled = playing
@@ -127,18 +131,22 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         return values
     }
     
-    let defaultFrequencyAmplitudes: [Double] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     var frequencyAmplitudes: [Double] = []
     var frequencyAmplitudesValues: PortValues = []
     
     if let soundPlayer = soundPlayer {
         frequencyAmplitudes = soundPlayer.delegate.frequencyAmplitudes
     } else {
-        frequencyAmplitudes = defaultFrequencyAmplitudes
+        frequencyAmplitudes = SoundImportNode.defaultFrequencyAmplitudes
     }
     
     frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
-    result.outputsValues.append(frequencyAmplitudesValues)
+    
+    if result.outputsValues[safe: 5] != nil {
+        result.outputsValues[5] = frequencyAmplitudesValues
+    } else {
+        result.outputsValues.append(frequencyAmplitudesValues)
+    }
     
     return result
     

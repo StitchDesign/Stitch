@@ -23,7 +23,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     private var variSpeed: VariSpeed
     private var FFT_TAP_SIZE: UInt32 = 4096
 
-    var frequencyAmplitudes: [Double] = []
+    var frequencyAmplitudes: [Double] = SoundImportNode.defaultFrequencyAmplitudes
 
     @MainActor
     init(url: URL,
