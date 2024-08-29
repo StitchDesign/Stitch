@@ -84,7 +84,11 @@ extension VisibleNodesViewModel {
     }
     
     /// Sorting comparator for layer data, which drives z-index order.
-    static func layerSortingComparator(lhs: LayerType, 
+    /// Sorting tiebreaker:
+    ///   1. Pinning
+    ///   2. Z-index input
+    ///   3. Sidebar order
+    static func layerSortingComparator(lhs: LayerType,
                                        rhs: LayerType,
                                        pinMap: RootPinMap) -> Bool {
         // Variables for sorting
@@ -93,17 +97,17 @@ extension VisibleNodesViewModel {
         let lhsSidebarIndex = lhs.sidebarIndex
         let rhsSidebarIndex = rhs.sidebarIndex
         
+        // If both layers are in same pinning linked list, prioritize the lower-level pin over a receiver
+        let isPinningScenario = pinMap.areLayersInSamePinFamily(idSet: .init([lhs.id.layerNodeId, rhs.id.layerNodeId]))
+        
         // Determines if a view is pinned and if so, how nested that pin is (higher value = more nesting)
-        let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
-        let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
-        
-        // Sorting tiebreaker:
-        // 1. Pinning
-        // 2. Z-index input
-        // 3. Sidebar order
-        
-        if lhsPinNestedCount != rhsPinNestedCount {
-            return rhsPinNestedCount > lhsPinNestedCount
+        if isPinningScenario {
+            let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
+            let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
+            
+            if lhsPinNestedCount != rhsPinNestedCount {
+                return rhsPinNestedCount > lhsPinNestedCount
+            }
         }
         
         if lhsZIndex != rhsZIndex {

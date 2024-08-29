@@ -103,6 +103,21 @@ extension RootPinMap {
     func getPinnedNestedLayerCount(id: LayerNodeId) -> Int {
         Array(self.values).getMaxPinnedNestedLayerCount(id: id)
     }
+    
+    /// Given some layer ID set, checks if each member of the set is located in the same pinning linked list.
+    func areLayersInSamePinFamily(idSet: LayerIdSet) -> Bool {
+        for pinData in self.values {
+            let allPins = pinData.getAllPins()
+            
+            if allPins.intersection(idSet) == idSet {
+                // If pins contains each member in ID set, exit and return true
+                return true
+            }
+        }
+        
+        // No matches
+        return false
+    }
 }
 
 extension [LayerPinData] {
