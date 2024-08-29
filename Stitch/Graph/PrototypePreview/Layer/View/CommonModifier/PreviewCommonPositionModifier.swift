@@ -78,11 +78,6 @@ struct PreviewCommonPositionModifier: ViewModifier {
     @ViewBuilder func positioningView(_ content: Content) -> some View {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
         
-        // A non-PinnedView rendering of a layer uses .position unless:
-        // 1. the layer is a child inside a group that uses a VStack or HStack, or
-        // 2. it is a GhostView rendering
-//            if isGhostView {
-//                content
         if parentDisablesPosition {
             content
                 .offset(x: viewModel.offsetInGroup.width,

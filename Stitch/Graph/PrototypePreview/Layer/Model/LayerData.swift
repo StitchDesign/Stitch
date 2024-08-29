@@ -45,18 +45,6 @@ struct LayerGroupData: Equatable, Hashable {
     let layer: Layer // debug
 }
 
-// "A is pinned to B" = A is a pinned view;
-// but a given pinned view is rendered TWICE in the preview window:
-// 1. `PinnedViewA` is the view that user sees, is pinned to some anchor of B, is rendered at same hierarchy level as B etc.
-// 2. `GhostViewA` is the view the user DOES NOT see, is rendered at A's normal hierarchy level and is used simply to read how A's parents may have affected A's size etc. (e.g. A's parent layer group is scaled 2x etc.)
-//enum PinnedViewType {
-//    // visible to user, seen in pin-anchor; lives at same hierarchy level as B etc.
-//    case pinnedView
-//
-//    // inivislbe to user but still rendered in preview window; used to read how A's size is modified by parent
-//    case ghostView
-//}
-
 extension LayerType {
     var id: PreviewCoordinate {
         switch self {
@@ -139,21 +127,10 @@ extension LayerType {
     }
 }
 
-// If pinned, the same layer view model is rendered in PreviewLayers twice (GhostView, PinnedView),
-// so we need an id that distinguishes
-//struct LayerDataId: Equatable, Hashable, Codable {
-//    let coordinate: PreviewCoordinate
-//}
-
 extension LayerData: Identifiable {
     var id: PreviewCoordinate {
         self.layer.id
     }
-
-    // Perf cost?
-//    var layerDataId: LayerDataId {
-//        LayerDataId(coordinate: self.layer.id)
-//    }
 
     var groupDataList: LayerDataList? {
         switch self {
