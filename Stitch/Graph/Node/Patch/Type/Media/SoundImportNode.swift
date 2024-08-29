@@ -137,6 +137,7 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         frequencyAmplitudes = defaultFrequencyAmplitudes
     }
     
+    frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
     result.outputsValues.append(frequencyAmplitudesValues)
     
     return result
