@@ -14,7 +14,7 @@ let defaultAudioPlayRate = 1.0
 
 struct SoundImportNode: PatchNodeDefinition {
     static let patch = Patch.soundImport
-
+    
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions {
         .init(
             inputs: [
@@ -63,13 +63,15 @@ struct SoundImportNode: PatchNodeDefinition {
                 .init(
                     label: "Duration",
                     type: .number
+                ),
+                .init(
+                    label: "Hz Amplitudes",
+                    type: .number
                 )
-                
             ]
         )
     }
-
-        static func createEphemeralObserver() -> NodeEphemeralObservable? {
+    static func createEphemeralObserver() -> NodeEphemeralObservable? {
         MediaEvalOpObserver()
     }
 }
@@ -77,13 +79,18 @@ struct SoundImportNode: PatchNodeDefinition {
 @MainActor
 func soundImportEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
+    var soundPlayer: StitchSoundPlayer<StitchSoundFilePlayer>?
     
-    return node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, _ in
-        guard let media = mediaObserver.getUniqueMedia(from: values.first),
-              let soundPlayer = media.mediaObject.soundFilePlayer else {
+    var result: EvalResult = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, _ in
+        guard let media = mediaObserver.getUniqueMedia(from: values.first) else {
             return node.defaultOutputs
         }
-
+        soundPlayer = media.mediaObject.soundFilePlayer
+        
+        guard let soundPlayer = soundPlayer else {
+            return node.defaultOutputs
+        }
+        
         let delegate = soundPlayer.delegate
         let jumpTime = values[safe: 1]?.getNumber ?? .zero
         let jumpPulse = values[safe: 2]?.getPulse ?? .zero
@@ -91,12 +98,11 @@ func soundImportEval(node: PatchNode) -> EvalResult {
         let isLooped: Bool = values[safe: 4]?.getBool ?? true
         let playRate: Double = values[safe: 5]?.getNumber ?? 1
         
-
         // Get previously saved playback time in case video is paused
         var currentPlaybackTime = values[9].getNumber ?? .zero
 
         if playing {
-            currentPlaybackTime = soundPlayer.delegate.getCurrentPlaybackTime()
+            currentPlaybackTime = delegate.getCurrentPlaybackTime()
         }
 
         let values: PortValues = [
@@ -104,8 +110,8 @@ func soundImportEval(node: PatchNode) -> EvalResult {
             .number(delegate.volume),
             .number(delegate.peakVolume),
             .number(currentPlaybackTime),
-            .number(soundPlayer.delegate.duration)
-        ] 
+            .number(delegate.duration)
+        ]
         
         // Update player in media manager
         soundPlayer.isEnabled = playing
@@ -115,9 +121,22 @@ func soundImportEval(node: PatchNode) -> EvalResult {
 
         // Seek player if jump pulse triggered
         if graphTime == jumpPulse {
-            soundPlayer.delegate.setJumpTime(jumpTime)
+            delegate.setJumpTime(jumpTime)
         }
         
         return values
     }
+    
+    let defaultFrequencyAmplitudes: [Double] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+    if let soundPlayer = soundPlayer {
+        
+    } else {
+        
+    }
+    
+    
+    
+    return result
+    
 }
