@@ -140,21 +140,28 @@ struct PaddingReadOnlyView: View {
                     // Monospacing prevents jittery node widths if values change on graphstep
                     .monospacedDigit()
                     // TODO: what is best width? Needs to be large enough for 3-digit values?
-                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+//                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
+//                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 24)
+//                    .frame(width: 44)
+//                    .frame(width: 24)
+                    .frame(width: 36, height: NODE_ROW_HEIGHT)
+                    .padding([.top, .bottom], 4)
                     .background {
-                        if self.hoveredFieldIndex == fieldViewModel.fieldIndex {
-                            INPUT_FIELD_BACKGROUND.cornerRadius(4)
-                        }
+                        Color.INSPECTOR_FIELD_BACKGROUND_COLOR
+                            .cornerRadius(4)
+//                        if self.hoveredFieldIndex == fieldViewModel.fieldIndex {
+//                            INPUT_FIELD_BACKGROUND.cornerRadius(4)
+//                        }
                     }
-                    .onHover { hovering in
-                        withAnimation {
-                            if hovering {
-                                self.hoveredFieldIndex = fieldIndex
-                            } else if self.hoveredFieldIndex == fieldIndex {
-                                self.hoveredFieldIndex = nil
-                            }
-                        }
-                    } // .onHover
+//                    .onHover { hovering in
+//                        withAnimation {
+//                            if hovering {
+//                                self.hoveredFieldIndex = fieldIndex
+//                            } else if self.hoveredFieldIndex == fieldIndex {
+//                                self.hoveredFieldIndex = nil
+//                            }
+//                        }
+//                    } // .onHover
                 } // ForEach
             } // ForEach
         } // Group

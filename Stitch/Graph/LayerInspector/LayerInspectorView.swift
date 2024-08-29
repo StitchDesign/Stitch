@@ -42,7 +42,11 @@ struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
     // Figma design is actually ~277
-    static let LAYER_INSPECTOR_WIDTH = 360.0
+//    static let LAYER_INSPECTOR_WIDTH = 360.0
+//    static let LAYER_INSPECTOR_WIDTH = 277.0 // Figma
+    
+    // A little wider
+    static let LAYER_INSPECTOR_WIDTH = 300.0
     
     @Bindable var graph: GraphState
 
