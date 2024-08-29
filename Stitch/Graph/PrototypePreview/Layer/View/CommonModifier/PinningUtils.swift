@@ -59,6 +59,21 @@ extension LayerPinData {
         
         return pins.contains { $0.recursiveContains(id: id) }
     }
+    
+    /// Calculates nested level of some pin given its ID. A value of 0 means no match was found.
+    func getPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        if self.id == id {
+            return 1
+        }
+        
+        guard let pins = self.pins else {
+            return 0
+        }
+        
+        let maxCountInChildren = pins.getMaxPinnedNestedLayerCount(id: id)
+        
+        return 1 + maxCountInChildren
+    }
 }
 
 extension RootPinMap {
@@ -83,6 +98,19 @@ extension RootPinMap {
         
         // No match
         return nil
+    }
+    
+    func getPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        Array(self.values).getMaxPinnedNestedLayerCount(id: id)
+    }
+}
+
+extension [LayerPinData] {
+    func getMaxPinnedNestedLayerCount(id: LayerNodeId) -> Int {
+        self.reduce(0) { currentMaxCount, pin in
+            let pinNestedCount = pin.getPinnedNestedLayerCount(id: id)
+            return Swift.max(pinNestedCount, currentMaxCount)
+        }
     }
 }
 

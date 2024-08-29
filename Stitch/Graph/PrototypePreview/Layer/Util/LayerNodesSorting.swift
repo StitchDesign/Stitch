@@ -61,7 +61,11 @@ extension VisibleNodesViewModel {
         
         // log("recursivePreviewLayers: DONE GETTING ALL LAYER TYPES: \(layerTypesAtThisLevel)")
         
-        var sortedLayerTypes = layerTypesAtThisLevel.sorted(by: Self.layerSortingComparator)
+        var sortedLayerTypes = layerTypesAtThisLevel.sorted(by: { lhs, rhs in
+            Self.layerSortingComparator(lhs: lhs,
+                                        rhs: rhs,
+                                        pinMap: pinMap)
+        })
         
         if isInGroupOrientation {
             sortedLayerTypes = sortedLayerTypes.reversed()
@@ -81,22 +85,25 @@ extension VisibleNodesViewModel {
     
     /// Sorting comparator for layer data, which drives z-index order.
     static func layerSortingComparator(lhs: LayerType, 
-                                       rhs: LayerType) -> Bool {
+                                       rhs: LayerType,
+                                       pinMap: RootPinMap) -> Bool {
         // Variables for sorting
         let lhsZIndex = lhs.zIndex
         let rhsZIndex = rhs.zIndex
         let lhsSidebarIndex = lhs.sidebarIndex
         let rhsSidebarIndex = rhs.sidebarIndex
-        let lhsIsPinned = lhs.isPinnedView
-        let rhsIsPinned = rhs.isPinnedView
+        
+        // Determines if a view is pinned and if so, how nested that pin is (higher value = more nesting)
+        let lhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: lhs.id.layerNodeId)
+        let rhsPinNestedCount = pinMap.getPinnedNestedLayerCount(id: rhs.id.layerNodeId)
         
         // Sorting tiebreaker:
         // 1. Pinning
         // 2. Z-index input
         // 3. Sidebar order
         
-        if lhsIsPinned != rhsIsPinned {
-            return rhsIsPinned
+        if lhsPinNestedCount != rhsPinNestedCount {
+            return rhsPinNestedCount > lhsPinNestedCount
         }
         
         if lhsZIndex != rhsZIndex {
