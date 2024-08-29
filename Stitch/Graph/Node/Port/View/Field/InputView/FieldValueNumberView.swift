@@ -31,8 +31,20 @@ struct FieldValueNumberView: View {
     @State private var isButtonPressed = false
 
     var body: some View {
-        if isFieldInMultifieldInput, forPropertySidebar, !isForFlyout {
-            commonEditView
+        if isFieldInMultifieldInput, 
+            forPropertySidebar,
+            !isForFlyout,
+           let layerInput = fieldViewModel.layerInput {
+            
+//            commonEditView
+            
+            let stringValue = fieldValue.stringValue
+            StitchTextView(string: stringValue)
+                .onTapGesture {
+                    dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                           flyoutNodeId: fieldViewModel.id.rowId.nodeId))
+                }
+                .border(.cyan)
         } else {
             HStack {
                 // Default to zero if "auto" currently selected
