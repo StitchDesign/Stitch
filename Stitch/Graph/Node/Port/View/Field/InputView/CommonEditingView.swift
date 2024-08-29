@@ -54,10 +54,15 @@ struct CommonEditingView: View {
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
+    let isForFlyout: Bool
     let isForSpacingField: Bool
     
     var id: FieldCoordinate {
         self.inputField.id
+    }
+    
+    var nodeId: NodeId {
+        self.id.rowId.nodeId
     }
 
     @State var isHovering: Bool = false
@@ -71,7 +76,7 @@ struct CommonEditingView: View {
         }
         
         if forPropertySidebar {
-           return thisFieldIsFocused
+            return thisFieldIsFocused
         } else {
             return thisFieldIsFocused && isCanvasItemSelected && !isSelectionBoxInUse
         }
@@ -82,6 +87,10 @@ struct CommonEditingView: View {
         switch graph.graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
+            if inputField.layerInput == .position,
+                isForFlyout {
+                log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(id)")
+            }
 //             log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
             return k
         default:
@@ -260,7 +269,6 @@ struct CommonEditingView: View {
     }
         
     
-    
     @MainActor
     var readOnlyTextView: some View {
         // If can tap to edit, and this is a number field,
@@ -274,19 +282,35 @@ struct CommonEditingView: View {
             show: self.isHovering || forPropertySidebar,
             hasDropdown: choices.isDefined,
             width: fieldWidth))
+        
         // Manually focus this field when user taps.
         // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
         .onTapGesture {
-            dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+            
+            // Every multifield input in the inspector uses a flyout
+            if isFieldInMultfieldInspectorInput,
+               let layerInput = inputField.layerInput,
+               !isForFlyout {
+                
+                dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                       flyoutNodeId: self.nodeId))
+            } else {
+                dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+            }
+            
         }
     }
     
-    // TODO: can be shorted for a field in a multifield input
+    var isFieldInMultfieldInspectorInput: Bool {
+        isFieldInMultifieldInput && forPropertySidebar
+    }
+    
     var fieldWidth: CGFloat? {
         
         // Do not set widths on
-        if isFieldInMultifieldInput, forPropertySidebar {
-            return nil
+        if isFieldInMultfieldInspectorInput {
+//            return nil
+            return 44
         }
         
         if isForSpacingField {

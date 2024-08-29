@@ -12,24 +12,27 @@ extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
-struct PaddingFlyoutView: View {
+struct GenericFlyoutView: View {
     
     static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
     
     // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace
-    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
+//    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
+    @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
     let rowViewModel: InputNodeRowViewModel
     let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     let hasIncomingEdge: Bool
+    let layerInput: LayerInputPort
     
     var body: some View {
         
         VStack(alignment: .leading) {
             // TODO: need better padding here; but confounding factor is UIKitWrapper
-            FlyoutHeader(flyoutTitle: "Padding")
+//            FlyoutHeader(flyoutTitle: "Padding")
+            FlyoutHeader(flyoutTitle: layerInput.label(true))
             
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
@@ -38,14 +41,15 @@ struct PaddingFlyoutView: View {
             //            UIKitWrapper(ignoresKeyCommands: false,
             //                         name: "PaddingFlyout") {
             // TODO: finalize this logic once fields are in?
-            inputOutputRow
+            flyoutRows
             //            }
         }
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
         .frame(width: Self.PADDING_FLYOUT_WIDTH,
-               height: Self.PADDING_FLYOUT_HEIGHT)
+//               height: Self.PADDING_FLYOUT_HEIGHT)
+               height: self.height)
         .background {
             GeometryReader { geometry in
                 Color.clear
@@ -60,7 +64,7 @@ struct PaddingFlyoutView: View {
     
     // TODO: why not just use `NodeInputView` here ?
     @ViewBuilder @MainActor
-    var inputOutputRow: some View {
+    var flyoutRows: some View {
         FieldsListView(graph: graph,
                        rowViewModel: rowViewModel,
                        nodeId: rowViewModel.id.nodeId,
@@ -77,11 +81,14 @@ struct PaddingFlyoutView: View {
                                 rowObserverId: coordinate,
                                 nodeKind: .layer(layer),
                                 isCanvasItemSelected: false,
-                                hasIncomingEdge: hasIncomingEdge,
+                                hasIncomingEdge: hasIncomingEdge, // always false?
                                 forPropertySidebar: true,
-                                // TODO: fix
-                                propertyIsAlreadyOnGraph: false,
-                                isFieldInMultifieldInput: isMultiField)
+                                // TODO: applicable or not?
+                                // i.e. if this is input/field is already present on the canvas,
+                                propertyIsAlreadyOnGraph: false, // Not relevant?
+                                isFieldInMultifieldInput: isMultiField,
+                                isForFlyout: true)
+                
                 // Each row seems too tall? Probably from a set node row height somewhere?
                 // Uses padding to reduce size
                 .padding([.top, .bottom], 4)

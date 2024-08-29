@@ -194,8 +194,9 @@ struct NodeInputView: View {
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph, 
-                        isFieldInMultifieldInput: isMultiField)
+                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: forFlyout)
     }
     
     var layerInput: LayerInputPort? {
@@ -254,11 +255,9 @@ struct NodeInputView: View {
                     
                 } else {
                     labelView
-                        .border(.orange)
                     
                     if forPropertySidebar {
                         Spacer()
-                            .border(.blue)
                     }
                     
                     FieldsListView(graph: graph,
@@ -268,7 +267,6 @@ struct NodeInputView: View {
                                    forPropertySidebar: forPropertySidebar,
                                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                    valueEntryView: valueEntryView)
-                    .border(.green)
                 }
             } // HStack
         }

@@ -41,6 +41,7 @@ let FLYOUT_SAFE_AREA_BOTTOM_PADDING = 24.0
 struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
+    // Figma design is actually ~277
     static let LAYER_INSPECTOR_WIDTH = 360.0
     
     @Bindable var graph: GraphState

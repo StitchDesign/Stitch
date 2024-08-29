@@ -25,12 +25,13 @@ struct FieldValueNumberView: View {
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
+    let isForFlyout: Bool
     var isForSpacingField: Bool = false
     
     @State private var isButtonPressed = false
 
     var body: some View {
-        if isFieldInMultifieldInput, forPropertySidebar {
+        if isFieldInMultifieldInput, forPropertySidebar, !isForFlyout {
             commonEditView
         } else {
             HStack {
@@ -66,6 +67,7 @@ struct FieldValueNumberView: View {
                           forPropertySidebar: forPropertySidebar,
                           propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                           isFieldInMultifieldInput: isFieldInMultifieldInput,
+                          isForFlyout: isForFlyout,
                           isForSpacingField: isForSpacingField)
     }
 }

@@ -63,16 +63,19 @@ struct OpenFlyoutView: View, KeyboardReadable {
             - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
             - keyboardAdjustment // move flyout up a bit more if keyboard is open and we're near bottom
             
+            let flyoutInput = flyoutState.flyoutInput
+            
             HStack {
                 Spacer()
                 Group {
-                    if flyoutState.flyoutInput.usesPaddingFlyout {
-                        PaddingFlyoutView(graph: graph,
+                    if flyoutInput.usesPaddingFlyout || flyoutInput.usesTwoFieldFlyout {
+                        GenericFlyoutView(graph: graph,
                                           rowViewModel: inputData.inspectorRowViewModel, 
                                           inputLayerNodeRowData: inputData,
                                           layer: layerNode.layer,
-                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
-                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection,
+                                          layerInput: flyoutInput)
+                    } else if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
                         ShadowFlyoutView(node: node,
                                          layerNode: layerNode,
                                          graph: graph)

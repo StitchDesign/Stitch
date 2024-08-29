@@ -17,6 +17,10 @@ extension LayerInputPort {
             return true
         }
         
+        if self.usesTwoFieldFlyout {
+            return true
+        }
+        
         switch self {
         case .padding, .layerMargin, .layerPadding,
                 .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
@@ -26,6 +30,16 @@ extension LayerInputPort {
         }
     }
         
+    // TODO: COMPARE INPUT'S VALUES, NOT INPUT TYPE
+    var usesTwoFieldFlyout: Bool {
+        switch self {
+        case .size, .position, .offsetInGroup, .maxSize, .minSize:
+            return true
+        default:
+            return false
+        }
+    }
+    
     // TODO: better?: compare against the actual value in the input, rather than on the input's keyword
     // But in some contexts we don't have access to the input? 
     var usesPaddingFlyout: Bool {
