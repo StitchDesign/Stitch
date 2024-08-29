@@ -19,24 +19,27 @@ extension VisibleNodesViewModel {
                                 isInGroupOrientation: Bool = false) -> LayerDataList {
         
         let isRoot = sidebarLayersAtHierarchy == nil
-        var sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
+        let sidebarLayersAtHierarchy = sidebarLayersAtHierarchy ?? sidebarLayersGlobal
         let pinnedLayerIds = pinMap.allPinnedLayerIds.map { $0.id }
         var layerTypesAtThisLevel = LayerTypeSet()
         var handled = LayerIdSet()
         
         // Filter out pinned views for visible layers, they'll be re-inserted in handleRawSidebarLayer
-        sidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
+        let filteredSidebarLayersAtHierarchy = sidebarLayersAtHierarchy.filter {
             !pinnedLayerIds.contains($0.id)
         }
         
-        sidebarLayersAtHierarchy.enumerated().forEach {
+        filteredSidebarLayersAtHierarchy.forEach { sidebarItem in
+            let sidebarIndex = sidebarLayersAtHierarchy.firstIndex { $0.id == sidebarItem.id }
+            assertInDebug(sidebarIndex.isDefined)
+            
             let (newLayerTypesAtThisLevel,
                  newLayersUsedAsMaskers) = handleRawSidebarLayer(
-                    sidebarIndex: $0.offset,
-                    layerData: $0.element,
+                    sidebarIndex: sidebarIndex ?? .zero,
+                    layerData: sidebarItem,
                     layerTypesAtThisLevel: layerTypesAtThisLevel,
                     handled: handled,
-                    sidebarLayersAtHierarchy: sidebarLayersAtHierarchy,
+                    sidebarLayersAtHierarchy: filteredSidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
                     layerNodes: self.layerNodes,
                     pinMap: pinMap)
