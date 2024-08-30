@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+// For an individual field
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
@@ -29,6 +30,21 @@ struct InputValueEntry: View {
     
     var label: String {
         self.viewModel.fieldLabel
+
+    }
+    
+    // TODO: support derived field-labels
+    // TODO: perf-impact? is this running all the time?
+    var useIndividualFieldLabel: Bool {
+        if forPropertySidebar,
+            isFieldInMultifieldInput,
+            !isForFlyout,
+           // Do not use labels on the fields of a padding-type input
+            (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false) {
+            return false
+        }
+        
+        return true
     }
     
     var labelDisplay: some View {
@@ -61,12 +77,17 @@ struct InputValueEntry: View {
 
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
-            labelDisplay
+            if self.useIndividualFieldLabel {
+                labelDisplay
+            }
+            
             //                .border(.blue)
             
             if forPropertySidebar,
                isForFlyout,
-               (rowViewModel.rowDelegate?.id.portType.keyPath?.layerInput.usesFlyout ?? false) {
+               isFieldInMultifieldInput
+//               (rowViewModel.rowDelegate?.id.portType.keyPath?.layerInput.usesFlyout ?? false)
+            {
                 Spacer()
             }
             

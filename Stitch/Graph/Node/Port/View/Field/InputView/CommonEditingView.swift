@@ -30,6 +30,7 @@ let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
 let SPACING_FIELD_WIDTH: CGFloat = 72
+let PADDING_FIELD_WDITH: CGFloat = 36
 
 // TODO: alternatively, allow these fields to size themselves?
 let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44

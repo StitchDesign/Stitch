@@ -34,13 +34,14 @@ struct FieldValueNumberView: View {
         self.fieldViewModel.fieldIndex
     }
     
+    // Bad: do not want this running constantly when we're not inside a
     @MainActor
     var fieldHasHeterogenousValues: Bool {
         if let inputLayerNodeRowData = inputLayerNodeRowData {
             @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
             return inputLayerNodeRowData.fieldHasHeterogenousValues(
                 fieldIndex,
-//                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+                //                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 // should be same as `forPropertySidebar`
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {
@@ -48,45 +49,18 @@ struct FieldValueNumberView: View {
         }
     }
     
-    var isFieldInMultfieldInspectorInput: Bool {
+    var isFieldInMultifieldInputInInspector: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
     
-    var fieldWidth: CGFloat {
-        if isFieldInMultfieldInspectorInput {
-            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
-        }  else if isForSpacingField {
-            return SPACING_FIELD_WIDTH
-        } else {
-            return NODE_INPUT_OR_OUTPUT_WIDTH
-        }
-    }
-    
     var body: some View {
-        let stringValue = fieldValue.stringValue
         
-        if isFieldInMultifieldInput,
-           forPropertySidebar,
-           !isForFlyout,
-           let layerInput = fieldViewModel.layerInput {
+        HStack {
             
-            CommonEditingViewReadOnly(inputField: fieldViewModel,
-                                      inputString: stringValue,
-                                      forPropertySidebar: forPropertySidebar,
-                                      isHovering: false, // Always false
-                                      choices: choices,
-                                      fieldWidth: fieldWidth,
-                                      fieldHasHeterogenousValues: fieldHasHeterogenousValues,
-                                      onTap: {
-                if !isForFlyout {
-                    dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: fieldCoordinate.rowId.nodeId))
-                }
-            })
-            .border(.cyan)
-            
-        } else {
-            HStack {
+            // Do not show number adjustment bar if field is part of a multifield input, is inside the layer inspector
+//            if !isFieldInMultifieldInput, !forPropertySidebar {
+            if !isFieldInMultifieldInputInInspector {
+                
                 // Default to zero if "auto" currently selected
                 // Limit renders by not passing in number value unless button pressed
                 NumberValueButtonView(graph: graph,
@@ -97,22 +71,22 @@ struct FieldValueNumberView: View {
                                       adjustmentBarSessionId: adjustmentBarSessionId,
                                       isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
                                       isPressed: $isButtonPressed)
-                
-                CommonEditingViewWrapper(graph: graph,
-                                         fieldViewModel: fieldViewModel,
-                                         inputLayerNodeRowData: inputLayerNodeRowData,
-                                         fieldValue: fieldValue,
-                                         fieldCoordinate: fieldCoordinate,
-                                         rowObserverCoordinate: rowObserverCoordinate,
-                                         isCanvasItemSelected: isCanvasItemSelected,
-                                         hasIncomingEdge: hasIncomingEdge,
-                                         choices: nil,
-                                         adjustmentBarSessionId: adjustmentBarSessionId,
-                                         forPropertySidebar: forPropertySidebar,
-                                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                         isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                         isForFlyout: isForFlyout)
             }
+            
+            CommonEditingViewWrapper(graph: graph,
+                                     fieldViewModel: fieldViewModel,
+                                     inputLayerNodeRowData: inputLayerNodeRowData,
+                                     fieldValue: fieldValue,
+                                     fieldCoordinate: fieldCoordinate,
+                                     rowObserverCoordinate: rowObserverCoordinate,
+                                     isCanvasItemSelected: isCanvasItemSelected,
+                                     hasIncomingEdge: hasIncomingEdge,
+                                     choices: nil,
+                                     adjustmentBarSessionId: adjustmentBarSessionId,
+                                     forPropertySidebar: forPropertySidebar,
+                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isFieldInMultifieldInput: isFieldInMultifieldInput,
+                                     isForFlyout: isForFlyout)
         }
     }
 }

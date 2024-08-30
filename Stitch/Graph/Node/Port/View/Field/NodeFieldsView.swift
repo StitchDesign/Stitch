@@ -53,23 +53,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 StitchTextView(string: groupLabel)
             }
             
-            fieldsStack
+            fields
         }
     }
-    
-    @ViewBuilder
-    var fieldsStack: some View {
-        fields
         
-//        if forPropertySidebar {
-//            VStack {
-//                fields
-//            }
-//        } else {
-//            fields
-//        }
-    }
-    
     var allFieldsBlockedOut: Bool {
         fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
     }

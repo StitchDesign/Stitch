@@ -16,11 +16,7 @@ struct CommonEditingViewReadOnly: View {
     let isHovering: Bool
     let choices: [String]?
     let fieldWidth: CGFloat
-    
-//    let isFieldInMultfieldInspectorInput: Bool
     let fieldHasHeterogenousValues: Bool
-//    let isForFlyout: Bool
-//    let nodeId: NodeId
     
     let onTap: () -> Void
     

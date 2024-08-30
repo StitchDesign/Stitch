@@ -50,10 +50,20 @@ struct CommonEditingViewWrapper: View {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
     
+    var isPaddingFieldInsideInspector: Bool {
+        isFieldInMultfieldInspectorInput
+        && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
+    }
+    
     var fieldWidth: CGFloat {
-        if isFieldInMultfieldInspectorInput {
+        
+        if isPaddingFieldInsideInspector {
+            return PADDING_FIELD_WDITH
+        } else if isFieldInMultfieldInspectorInput {
+            // is this accurate for a spacing-field in the inspector?
+            // ah but spacing is a dropdown
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
-        }  else if isForSpacingField {
+        } else if isForSpacingField {
             return SPACING_FIELD_WIDTH
         } else {
             return NODE_INPUT_OR_OUTPUT_WIDTH
