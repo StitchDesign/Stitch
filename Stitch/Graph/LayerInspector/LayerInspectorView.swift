@@ -87,6 +87,10 @@ struct LayerInspectorView: View {
         } else {
             // Empty List, so have same background
             List { }
+                .scrollContentBackground(.hidden)
+//                .background {
+//                    BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE
+//                }
         }
     }
     
@@ -152,6 +156,7 @@ struct LayerInspectorView: View {
                     graph: graph)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
+            .scrollContentBackground(.hidden)
             
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)

@@ -83,22 +83,21 @@ struct GenericFlyoutView: View {
                 let fieldIndex = inputFieldViewModel.fieldIndex
                 let isSelectedRow = self.selectedFlyoutRow == fieldIndex
                 
-                
                 HStack {
                     // TODO: consolidate with `LayerInspectorRowButton`
                     // TODO: Figma UI: field on canvas
-                    Button {
-                        log("will add field to canvas")
-                        dispatch(LayerInputFieldAddedToGraph(
-                            layerInput: layerInput, 
-                            nodeId: nodeId,
-                            fieldIndex: fieldIndex))
-                    } label: {
-                        Image(systemName: "plus.circle")
-                            .resizable()
-                            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    }
+//                    Image(systemName: "plus.circle")
+//                        .resizable()
+//                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+//                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+//                        .onTapGesture {
+//                            log("will add field to canvas")
+//                            dispatch(LayerInputFieldAddedToGraph(
+//                                layerInput: layerInput,
+//                                nodeId: nodeId,
+//                                fieldIndex: fieldIndex))
+//                        }
+//                        .opacity(isSelectedRow ? 1 : 0)
                     
                     // For a single field
                     InputValueEntry(graph: graph,
@@ -119,7 +118,7 @@ struct GenericFlyoutView: View {
                     // Uses padding to reduce size
                     .padding(LAYER_INSPECTOR_ROW_SPACING)
                     .background {
-                        (isSelectedRow ? .red.opacity(0.5) : WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+                        WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
                             .cornerRadius(6)
                             .onTapGesture {
                                 log("flyout: tapped field row \(fieldIndex)")

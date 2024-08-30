@@ -9,8 +9,11 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Color {
+    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.editButton)
+    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.insertNodeMenuBackground)
+    
     // TODO: need a dark theme version
-    static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color.black.opacity(0.05)
+    static let INSPECTOR_FIELD_BACKGROUND_COLOR = BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE.opacity(0.05)
     
 #if DEV_DEBUG
     static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = .blue.opacity(0.5)
@@ -19,7 +22,6 @@ extension Color {
     static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
     static let COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
 #endif
-
 }
 
 let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
