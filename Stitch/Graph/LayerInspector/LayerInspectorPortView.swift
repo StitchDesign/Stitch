@@ -162,15 +162,6 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         canvasItemId.isDefined
     }
     
-    var canBeAddedToCanvas: Bool {
-        switch layerProperty {
-        case .layerInput(let layerInputType):
-            return !layerInputType.layerInput.usesFlyout
-        case .layerOutput:
-            return true
-        }
-    }
-    
     var body: some View {
         HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
             LayerInspectorRowButton(layerProperty: layerProperty,

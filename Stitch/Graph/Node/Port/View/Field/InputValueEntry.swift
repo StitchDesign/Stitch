@@ -126,30 +126,31 @@ struct InputValueView: View {
     var body: some View {
         switch fieldValue {
         case .string(let string):
-            CommonEditingView(inputField: viewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
-                              inputString: string.string,
-                              graph: graph,
-                              fieldIndex: fieldIndex,
-                              isCanvasItemSelected: isCanvasItemSelected,
-                              hasIncomingEdge: hasIncomingEdge,
-                              isLargeString: string.isLargeString,
-                              forPropertySidebar: forPropertySidebar,
-                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph, 
-                              isFieldInMultifieldInput: isFieldInMultifieldInput,
-                              isForFlyout: isForFlyout,
-                              isForSpacingField: false)
+            CommonEditingViewWrapper(graph: graph,
+                                     fieldViewModel: viewModel,
+                                     inputLayerNodeRowData: inputLayerNodeRowData,
+                                     fieldValue: fieldValue,
+                                     fieldCoordinate: fieldCoordinate,
+                                     rowObserverCoordinate: rowObserverId,
+                                     isCanvasItemSelected: isCanvasItemSelected,
+                                     hasIncomingEdge: hasIncomingEdge,
+                                     choices: nil,
+                                     adjustmentBarSessionId: adjustmentBarSessionId,
+                                     forPropertySidebar: forPropertySidebar,
+                                     propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                     isFieldInMultifieldInput: isFieldInMultifieldInput,
+                                     isForFlyout: isForFlyout)
 
         case .number:
             FieldValueNumberView(graph: graph,
-                                 fieldViewModel: viewModel, 
+                                 fieldViewModel: viewModel,
                                  inputLayerNodeRowData: inputLayerNodeRowData,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
                                  rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 hasIncomingEdge: hasIncomingEdge, 
+                                 hasIncomingEdge: hasIncomingEdge,
                                  choices: nil,
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
@@ -191,7 +192,6 @@ struct InputValueView: View {
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
                                  isForSpacingField: true)
-//            .frame(minWidth: SPACING_FIELD_WIDTH) // min width for "Between" dropdown of LayerGroup spacing
 
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId, 
@@ -229,7 +229,7 @@ struct InputValueView: View {
                                                     isForLayerGroup: false, 
                                                     isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                     isForPinTo: false))
-            
+        
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
                            graph: graph,

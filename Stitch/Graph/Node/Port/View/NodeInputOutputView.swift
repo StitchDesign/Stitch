@@ -223,26 +223,24 @@ struct NodeInputView: View {
                 
                 // Alternatively, look at input's values instead of the `LayerInputPort` ?
                 // let isPaddingInput = rowObserver.values.first?.getPadding
-                let usesPaddingFlyout = self.layerInput?.usesPaddingFlyout ?? false
+//                let usesPaddingFlyout = self.layerInput?.usesPaddingFlyout ?? false
                 
                 let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
-                if usesPaddingFlyout,
-                   forPropertySidebar,
-                   let paddingLayerInput = self.layerInput {
-                    PaddingReadOnlyView(rowObserver: rowObserver,
-                                        rowData: rowData,
-                                        labelView: labelView,
-                                        paddingLayerInput: paddingLayerInput)
-                    
-                } else if isShadowLayerInputRow,
-                          forPropertySidebar,
-                          !forFlyout {
+//                if usesPaddingFlyout,
+//                   forPropertySidebar,
+//                   let paddingLayerInput = self.layerInput {
+//                    PaddingReadOnlyView(rowObserver: rowObserver,
+//                                        rowData: rowData,
+//                                        labelView: labelView,
+//                                        paddingLayerInput: paddingLayerInput)
+//                    
+//                } else 
+                if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
                                        fontColor: STITCH_FONT_GRAY_COLOR)
                         Spacer()
-                        
                     }
                     .overlay {
                         Color.white.opacity(0.001)

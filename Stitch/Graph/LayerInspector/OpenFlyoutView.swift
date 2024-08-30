@@ -68,17 +68,20 @@ struct OpenFlyoutView: View, KeyboardReadable {
             HStack {
                 Spacer()
                 Group {
-                    if flyoutInput.usesPaddingFlyout || flyoutInput.usesTwoFieldFlyout {
+                    // Multiple single-field inputs presented in one flyout
+                    if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+                       ShadowFlyoutView(node: node,
+                                        layerNode: layerNode,
+                                        graph: graph)
+                    } 
+                    // One multifield input presented in separate rows in the flyout
+                    else {
                         GenericFlyoutView(graph: graph,
-                                          rowViewModel: inputData.inspectorRowViewModel, 
+                                          rowViewModel: inputData.inspectorRowViewModel,
                                           inputLayerNodeRowData: inputData,
                                           layer: layerNode.layer,
                                           hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection,
                                           layerInput: flyoutInput)
-                    } else if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-                        ShadowFlyoutView(node: node,
-                                         layerNode: layerNode,
-                                         graph: graph)
                     }
                 }
                 .offset(

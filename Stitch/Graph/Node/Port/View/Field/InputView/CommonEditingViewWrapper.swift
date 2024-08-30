@@ -1,21 +1,19 @@
 //
-//  FieldValueNumberView.swift
+//  CommonEditingViewWrapper.swift
 //  Stitch
 //
-//  Created by Elliot Boschwitz on 7/30/23.
+//  Created by Christian J Clampitt on 8/30/24.
 //
 
-import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct FieldValueNumberView: View {
+struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let fieldValue: FieldValue
-    let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
@@ -69,6 +67,13 @@ struct FieldValueNumberView: View {
            forPropertySidebar,
            !isForFlyout,
            let layerInput = fieldViewModel.layerInput {
+                        
+            let onTap: () -> Void = {
+                if !isForFlyout {
+                    dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                           flyoutNodeId: fieldCoordinate.rowId.nodeId))
+                }
+            }
             
             CommonEditingViewReadOnly(inputField: fieldViewModel,
                                       inputString: stringValue,
@@ -77,42 +82,32 @@ struct FieldValueNumberView: View {
                                       choices: choices,
                                       fieldWidth: fieldWidth,
                                       fieldHasHeterogenousValues: fieldHasHeterogenousValues,
-                                      onTap: {
-                if !isForFlyout {
-                    dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: fieldCoordinate.rowId.nodeId))
-                }
-            })
+                                      onTap: onTap)
             .border(.cyan)
             
-        } else {
-            HStack {
-                // Default to zero if "auto" currently selected
-                // Limit renders by not passing in number value unless button pressed
-                NumberValueButtonView(graph: graph,
-                                      value: isButtonPressed ? fieldValue.numberValue : .zero,
-                                      fieldCoordinate: fieldCoordinate,
-                                      rowObserverCoordinate: rowObserverCoordinate,
-                                      fieldValueNumberType: fieldValueNumberType,
-                                      adjustmentBarSessionId: adjustmentBarSessionId,
-                                      isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
-                                      isPressed: $isButtonPressed)
+//            .onTapGesture {
+//                dispatch(FlyoutToggled(flyoutInput: layerInput,
+//                                       flyoutNodeId: fieldViewModel.id.rowId.nodeId))
+//            }
                 
-                CommonEditingViewWrapper(graph: graph,
-                                         fieldViewModel: fieldViewModel,
-                                         inputLayerNodeRowData: inputLayerNodeRowData,
-                                         fieldValue: fieldValue,
-                                         fieldCoordinate: fieldCoordinate,
-                                         rowObserverCoordinate: rowObserverCoordinate,
-                                         isCanvasItemSelected: isCanvasItemSelected,
-                                         hasIncomingEdge: hasIncomingEdge,
-                                         choices: nil,
-                                         adjustmentBarSessionId: adjustmentBarSessionId,
-                                         forPropertySidebar: forPropertySidebar,
-                                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                         isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                         isForFlyout: isForFlyout)
-            }
+        } else {
+           
+                CommonEditingView(inputField: fieldViewModel,
+                                  inputLayerNodeRowData: inputLayerNodeRowData,
+                                  inputString: stringValue,
+                                  graph: graph,
+                                  fieldIndex: fieldCoordinate.fieldIndex,
+                                  isCanvasItemSelected: isCanvasItemSelected,
+                                  hasIncomingEdge: hasIncomingEdge,
+                                  choices: choices,
+                                  isAdjustmentBarInUse: isButtonPressed,
+                                  forPropertySidebar: forPropertySidebar,
+                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
+                                  isForFlyout: isForFlyout,
+                                  isForSpacingField: isForSpacingField,
+                                  isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
+                                  fieldWidth: fieldWidth)
         }
     }
 }

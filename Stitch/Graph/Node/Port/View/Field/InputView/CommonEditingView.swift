@@ -11,6 +11,15 @@ import StitchSchemaKit
 extension Color {
     // TODO: need a dark theme version
     static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color.black.opacity(0.05)
+    
+#if DEV_DEBUG
+    static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = .blue.opacity(0.5)
+    static let COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR: Color = .green.opacity(0.5)
+#else
+    static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
+    static let COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR: Color = INPUT_FIELD_BACKGROUND
+#endif
+
 }
 
 let COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH = 12.0
@@ -22,7 +31,8 @@ let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
 let SPACING_FIELD_WIDTH: CGFloat = 72
 
-//let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat =
+// TODO: alternatively, allow these fields to size themselves?
+let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44
 
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
@@ -57,6 +67,9 @@ struct CommonEditingView: View {
     let isForFlyout: Bool
     let isForSpacingField: Bool
     
+    let isFieldInMultfieldInspectorInput: Bool
+    let fieldWidth: CGFloat
+    
     var id: FieldCoordinate {
         self.inputField.id
     }
@@ -65,6 +78,7 @@ struct CommonEditingView: View {
         self.id.rowId.nodeId
     }
 
+    // Only relevant for fields on canvas
     @State var isHovering: Bool = false
     
     // Important perf check to prevent instantiations of editing view
@@ -87,11 +101,7 @@ struct CommonEditingView: View {
         switch graph.graphUI.reduxFocusedField {
         case .textInput(let focusedFieldCoordinate):
             let k = focusedFieldCoordinate == id
-            if inputField.layerInput == .position,
-                isForFlyout {
-                log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(id)")
-            }
-//             log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
+            // log("CommonEditingView: thisFieldIsFocused: k: \(k) for \(fieldCoordinate)")
             return k
         default:
             // log("CommonEditingView: thisFieldIsFocused: false")
@@ -114,7 +124,6 @@ struct CommonEditingView: View {
             
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        
         if let inputLayerNodeRowData = inputLayerNodeRowData {
             @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
             return inputLayerNodeRowData.fieldHasHeterogenousValues(
@@ -125,14 +134,10 @@ struct CommonEditingView: View {
         }
     }
     
-    var isIndividualFieldInAMultifieldInputInInspector: Bool {
-        isFieldInMultifieldInput && forPropertySidebar
-    }
-    
     var body: some View {
         Group {
             // Show dropdown
-            if let choices = choices, !isIndividualFieldInAMultifieldInputInInspector {
+            if let choices = choices, !isFieldInMultfieldInspectorInput {
                 
                 HStack(spacing: 0) {
                     
@@ -262,72 +267,87 @@ struct CommonEditingView: View {
         .offset(y: -0.5) // slight adjustment required
 #endif
         .modifier(InputViewBackground(
-            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : Self.editableTextFieldBackgroundColor,
+            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR,
             show: true, // always show background for a focused input
             hasDropdown: choices.isDefined,
             width: fieldWidth))
     }
         
-    
+        
     @MainActor
     var readOnlyTextView: some View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
-        StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
-                       font: STITCH_FONT,
-                       fontColor: STITCH_FONT_GRAY_COLOR)
-        .modifier(InputViewBackground(
-            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : Self.readOnlyTextBackgroundColor,
-            show: self.isHovering || forPropertySidebar,
-            hasDropdown: choices.isDefined,
-            width: fieldWidth))
-        
-        // Manually focus this field when user taps.
-        // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
-        .onTapGesture {
-            
-            // Every multifield input in the inspector uses a flyout
-            if isFieldInMultfieldInspectorInput,
-               let layerInput = inputField.layerInput,
-               !isForFlyout {
+        CommonEditingViewReadOnly(
+            inputField: inputField,
+            inputString: inputString,
+            forPropertySidebar: forPropertySidebar,
+            isHovering: isHovering,
+            choices: choices,
+            fieldWidth: fieldWidth,
+            fieldHasHeterogenousValues: fieldHasHeterogenousValues,
+            onTap: {
+                // Every multifield input in the inspector uses a flyout
+                if isFieldInMultfieldInspectorInput,
+                   let layerInput = inputField.layerInput,
+                   !isForFlyout {
+                    dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                           flyoutNodeId: nodeId))
+                } else {
+                    dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+                }
                 
-                dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                       flyoutNodeId: self.nodeId))
-            } else {
-                dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
-            }
-            
-        }
+            })
+        
+        
+//        StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
+//                       font: STITCH_FONT,
+//                       fontColor: STITCH_FONT_GRAY_COLOR)
+//        .modifier(InputViewBackground(
+//            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR,
+//            show: self.isHovering || forPropertySidebar,
+//            hasDropdown: choices.isDefined,
+//            width: fieldWidth))
+//        
+//        // Manually focus this field when user taps.
+//        // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
+//        .onTapGesture {
+//            // Every multifield input in the inspector uses a flyout
+//            if isFieldInMultfieldInspectorInput,
+//               let layerInput = inputField.layerInput,
+//               !isForFlyout {
+//                
+//                dispatch(FlyoutToggled(flyoutInput: layerInput,
+//                                       flyoutNodeId: self.nodeId))
+//            } else {
+//                dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
+//            }
+//        }
+        
     }
     
-    var isFieldInMultfieldInspectorInput: Bool {
-        isFieldInMultifieldInput && forPropertySidebar
-    }
+//    var isFieldInMultfieldInspectorInput: Bool {
+////        isFieldInMultifieldInput && forPropertySidebar
+//        isFieldInMultifieldInput
+//        && forPropertySidebar
+//        && !isForFlyout
+//        
+//    }
     
-    var fieldWidth: CGFloat? {
-        
-        // Do not set widths on
-        if isFieldInMultfieldInspectorInput {
-//            return nil
-            return 44
-        }
-        
-        if isForSpacingField {
-            return SPACING_FIELD_WIDTH
-        }
-        
-        return NODE_INPUT_OR_OUTPUT_WIDTH
-    }
-    
-    #if DEV_DEBUG
-    static let readOnlyTextBackgroundColor: Color = .blue.opacity(0.5)
-    static let editableTextFieldBackgroundColor: Color = .green.opacity(0.5)
-    #else
-    static let readOnlyTextBackgroundColor: Color = INPUT_FIELD_BACKGROUND
-    static let editableTextFieldBackgroundColor: Color = INPUT_FIELD_BACKGROUND
-    #endif
-    
+//    var fieldWidth: CGFloat {
+//        
+//        if isFieldInMultfieldInspectorInput {
+//            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
+//        }
+//        
+//        if isForSpacingField {
+//            return SPACING_FIELD_WIDTH
+//        }
+//        
+//        return NODE_INPUT_OR_OUTPUT_WIDTH
+//    }
+
     // Currently only used when we focus or de-focus
     @MainActor
     func updateCurrentEdit(message: String? = nil) {
@@ -396,3 +416,5 @@ struct InputViewBackground: ViewModifier {
             .contentShape(Rectangle())
     }
 }
+
+
