@@ -1,6 +1,14 @@
 Introducing layer pinning: a new way to easily “pin” one layer to another in a prototype. Layer pinning enables precise layer placement regardless of layer group context.
 
+3D model improvements:
+- Custom 3D transforms no longer cause objects to disappear in 3D Model layer node
+- 3D transforms simplified to no longer include “Rotation Real”
+- Transform rotation values use degrees instead of radians
+- Transform pack + unpack fixed to produce consistent results
+
 Other improvements:
-* Fixed performance regression caused by updates to node ports
-* 3D model entity transforms simplified to no longer include “Rotation Real”
-* Transform pack + unpack fixed to produce consistent results
+- Fixed performance regression caused by updates to node ports
+- Added sound metering for Sound Import node
+- Layer inspector ports fixed to show “Add Node” button on hover
+- Small improvements to node searches in Insert Node menu
+- Layer padding and marge edits use “flyout” menu
