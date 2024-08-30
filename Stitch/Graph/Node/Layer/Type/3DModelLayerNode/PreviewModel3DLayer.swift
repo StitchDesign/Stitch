@@ -18,7 +18,7 @@ struct Preview3DModelLayer: View {
     
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let position: CGSize
+    let position: CGPoint
     let rotationX: Double
     let rotationY: Double
     let rotationZ: Double

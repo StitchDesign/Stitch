@@ -149,15 +149,15 @@ struct TransitionEvalOps {
         }
 
         let width = transition(progress,
-                               start: start.width,
-                               end: end.width)
+                               start: start.x,
+                               end: end.x)
 
         let height = transition(progress,
-                                start: start.height,
-                                end: end.height)
+                                start: start.y,
+                                end: end.y)
 
-        return .position(StitchPosition(width: width,
-                                        height: height))
+        return .position(StitchPosition(x: width,
+                                        y: height))
     }
     
     static let sizeOp: Operation = { (values: PortValues) -> PortValue in

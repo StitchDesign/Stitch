@@ -42,7 +42,7 @@ func multiplyEval(inputs: PortValuesList,
     }
 
     let positionOperation: Operation = { (values: PortValues) -> PortValue in
-        .position(values.reduce(.multiplicationIdentity) { (acc: CGSize, value: PortValue) -> CGSize in
+        .position(values.reduce(.multiplicationIdentity) { (acc: CGPoint, value: PortValue) -> CGPoint in
             acc * (value.getPosition ?? .multiplicationIdentity)
         })
     }

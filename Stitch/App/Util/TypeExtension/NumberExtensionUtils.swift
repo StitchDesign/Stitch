@@ -31,7 +31,7 @@ extension Double {
     static let additionIdentity: Self = 0.0
 
     var toStitchPosition: StitchPosition {
-        .init(width: CGFloat(self), height: CGFloat(self))
+        .init(x: CGFloat(self), y: CGFloat(self))
     }
 
     var toPoint3D: Point3D {
@@ -61,7 +61,7 @@ extension Double {
 extension BinaryInteger {
 
     var toStitchPosition: StitchPosition {
-        .init(width: CGFloat(self), height: CGFloat(self))
+        .init(x: CGFloat(self), y: CGFloat(self))
     }
 
     var toPoint3D: Point3D {

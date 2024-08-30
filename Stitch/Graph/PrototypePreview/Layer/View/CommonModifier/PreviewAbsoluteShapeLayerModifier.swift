@@ -91,7 +91,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
                 position: position,
                 // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?
                 // Normally we subtract the anchoring-adjusted position (i.e. `pos`), but that assumes using a .position, not .offset, modifier
-                pos: position.toCGSize, // TOOD: anchoring and size
+                pos: position, // TOOD: anchoring and size
                 size: size,
                 parentSize: parentSize,
                 minimumDragDistance: DEFAULT_MINIMUM_DRAG_DISTANCE))

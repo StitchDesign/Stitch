@@ -90,7 +90,7 @@ func cubicBezierCurveEval(inputs: PortValuesList,
 
         return (
             .number(progressAsNumber),
-            .position(progressAsPoint.toCGSize)
+            .position(progressAsPoint)
         )
     }
 

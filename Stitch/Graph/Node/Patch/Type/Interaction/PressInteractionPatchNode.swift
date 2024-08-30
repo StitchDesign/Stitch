@@ -146,7 +146,7 @@ func pressInteractionOp(pressNode: NodeViewModel,
             .bool(isDown), // Down
             .pulse(_tapTimeToDisplay), // Tapped
             .pulse(newDoubleTapTime), // Doubled Tapped
-            .position(tapPosition.toCGSize), // Position
+            .position(tapPosition), // Position
             .size(dragVelocity), // Velocity
             .size(dragTranslation) // Translation
         ]

@@ -18,9 +18,9 @@ func triangleShapeNode(id: NodeId,
     let inputs = toInputs(
         id: id,
         values:
-            ("First Point", [.position(TriangleData.defaultTriangleP1.toCGSize)]),
-        ("Second Point", [.position(TriangleData.defaultTriangleP2.toCGSize)]),
-        ("Third Point", [.position(TriangleData.defaultTriangleP3.toCGSize)])
+            ("First Point", [.position(TriangleData.defaultTriangleP1)]),
+        ("Second Point", [.position(TriangleData.defaultTriangleP2)]),
+        ("Third Point", [.position(TriangleData.defaultTriangleP3)])
     )
 
     let outputs = toOutputs(
@@ -47,9 +47,9 @@ func triangleShapeEval(inputs: PortValuesList,
            let p2: StitchPosition = values[1].getPosition,
            let p3: StitchPosition = values[2].getPosition {
 
-            let triangle = TriangleData(p1: p1.toCGPoint,
-                                        p2: p2.toCGPoint,
-                                        p3: p3.toCGPoint)
+            let triangle = TriangleData(p1: p1,
+                                        p2: p2,
+                                        p3: p3)
             let customShape = CustomShape(.triangle(triangle))
             return .shape(customShape)
         } else {

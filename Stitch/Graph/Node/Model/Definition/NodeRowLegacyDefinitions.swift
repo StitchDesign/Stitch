@@ -1792,15 +1792,15 @@ extension NodeKind {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.position(TriangleData.defaultTriangleP1.toCGSize)],
+                            defaultValues: [.position(TriangleData.defaultTriangleP1)],
                             label: "First Point"
                         ),
                         .init(
-                            defaultValues: [.position(TriangleData.defaultTriangleP2.toCGSize)],
+                            defaultValues: [.position(TriangleData.defaultTriangleP2)],
                             label: "Second Point"
                         ),
                         .init(
-                            defaultValues: [.position(TriangleData.defaultTriangleP3.toCGSize)],
+                            defaultValues: [.position(TriangleData.defaultTriangleP3)],
                             label: "Third Point"
                         )
                     ],
@@ -1836,7 +1836,7 @@ extension NodeKind {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.position(CGRect.defaultOval.origin.toCGSize)],
+                            defaultValues: [.position(CGRect.defaultOval.origin)],
                             label: LayerInputPort.position.label()
                         ),
                         .init(
@@ -1856,7 +1856,7 @@ extension NodeKind {
                 return .init(
                     inputs: [
                         .init(
-                            defaultValues: [.position(CGRect.defaultRoundedRectangle.rect.origin.toCGSize)],
+                            defaultValues: [.position(CGRect.defaultRoundedRectangle.rect.origin)],
                             label: LayerInputPort.position.label()
                         ),
                         .init(
@@ -1920,7 +1920,7 @@ extension NodeKind {
                             label: "JSON"
                         ),
                         .init(
-                            defaultValues: [.position(defaultJsonToShapeCoordinateSpace.toCGSize)],
+                            defaultValues: [.position(defaultJsonToShapeCoordinateSpace)],
                             label: "Coordinate Space"
                         )
                     ],

@@ -35,7 +35,7 @@ struct PreviewGroupLayer: View {
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     
-    let position: CGSize
+    let position: CGPoint
     let size: LayerSize
 
     // Assumes parentSize has already been scaled, etc.
@@ -172,7 +172,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewWindowElementSwiftUIGestures(
                 graph: graph,
                 interactiveLayer: interactiveLayer,
-                position: position.toCGPoint,
+                position: position,
                 pos: pos,
                 size: _size,
                 parentSize: parentSize,

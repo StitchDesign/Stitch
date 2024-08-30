@@ -1177,7 +1177,7 @@ extension LayerInputPort {
                 return [value]
             }
             
-            return [.number(position.width), .number(position.height)]
+            return [.number(position.x), .number(position.y)]
             
         default:
             // TODO: get to other types

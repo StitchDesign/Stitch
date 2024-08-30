@@ -102,7 +102,7 @@ struct AddEvalOps {
     }
     
     static let positionOperation: Operation = { (values: PortValues) -> PortValue in
-            .position(values.reduce(.additionIdentity) { (acc: CGSize, value: PortValue) -> CGSize in
+            .position(values.reduce(.additionIdentity) { (acc: CGPoint, value: PortValue) -> CGPoint in
                 acc + (value.getPosition ?? .additionIdentity)
             })
     }

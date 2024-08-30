@@ -67,7 +67,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
              // logInView("PreviewCommonPositionModifier: pinOffset: \(pinOffset)")
             
             content
-                .position(x: pinPos.width, y: pinPos.height)
+                .position(x: pinPos.x, y: pinPos.y)
                 .offset(x: pinOffset.width, y: pinOffset.height)
             
         } else {
@@ -84,7 +84,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
                     .offset(x: offset.width, y: offset.height)
             } else {
                 content
-                    .position(x: pos.width, y: pos.height)
+                    .position(x: pos.x, y: pos.y)
             }
         }
     }
