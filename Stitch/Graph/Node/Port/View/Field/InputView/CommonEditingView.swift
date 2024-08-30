@@ -9,10 +9,10 @@ import SwiftUI
 import StitchSchemaKit
 
 extension Color {
-    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.editButton)
-    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.insertNodeMenuBackground)
+    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.lightModeBlackDarkModeWhite)
+//    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.)
+    static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.lightModeWhiteDarkModeBlack)
     
-    // TODO: need a dark theme version
     static let INSPECTOR_FIELD_BACKGROUND_COLOR = BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE.opacity(0.05)
     
 #if DEV_DEBUG
