@@ -132,15 +132,13 @@ func soundImportEval(node: PatchNode) -> EvalResult {
     }
     
     var frequencyAmplitudes: [Double] = []
-    var frequencyAmplitudesValues: PortValues = []
-    
     if let soundPlayer = soundPlayer {
         frequencyAmplitudes = soundPlayer.delegate.frequencyAmplitudes
     } else {
         frequencyAmplitudes = SoundImportNode.defaultFrequencyAmplitudes
     }
     
-    frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
+    let frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
     
     if result.outputsValues[safe: 5] != nil {
         result.outputsValues[5] = frequencyAmplitudesValues
