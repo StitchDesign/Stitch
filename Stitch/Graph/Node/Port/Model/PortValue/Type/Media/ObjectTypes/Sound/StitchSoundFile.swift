@@ -99,10 +99,6 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         }
 
         self.frequencyAmplitudes = amplitudes
-
-        for (index, amplitude) in amplitudes.enumerated() {
-            print("Range \(index + 1) Amplitude: \(amplitude)")
-        }
     }
 
     private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
