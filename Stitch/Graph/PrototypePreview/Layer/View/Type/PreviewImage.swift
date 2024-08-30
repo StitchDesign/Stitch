@@ -278,11 +278,12 @@ struct PreviewImageLayer: View {
                          opacity: opacity,
                          fitStyle: fitStyle,
                          isClipped: isClipped)
-        .modifier(LayerSizeReader(viewModel: layerViewModel))
+        .modifier(LayerSizeReader(viewModel: layerViewModel,
+                                 isPinnedViewRendering: isPinnedViewRendering))
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.graphUI.pinMap))
+            pinMap: graph.visibleNodesViewModel.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
             graph: graph,
             layerViewModel: layerViewModel,
