@@ -63,7 +63,7 @@ extension GraphState {
     func layerChoicesToExcludeFromPinTo(nodeId: LayerNodeId, 
                                         isForLayerGroup: Bool) -> LayerIdSet {
         
-        let viewsPinnedToThisLayerId = self.graphUI.pinMap.get(nodeId) ?? .init()
+        let viewsPinnedToThisLayerId = self.visibleNodesViewModel.pinMap.getLinkedPinnedLayers(from: nodeId)
         
         let thisLayersDescendants = (isForLayerGroup ? self.getDescendants(for: nodeId) : .init())
         

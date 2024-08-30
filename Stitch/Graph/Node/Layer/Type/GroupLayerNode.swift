@@ -32,6 +32,14 @@ extension StitchOrientation: PortValueEnum {
         }
     }
 
+    var isOrientated: Bool {
+        switch self {
+        case .horizontal, .vertical, .grid:
+            return true
+        case .none:
+            return false
+        }
+    }
 }
 
 // Defaults to iPhone 11 preview window size

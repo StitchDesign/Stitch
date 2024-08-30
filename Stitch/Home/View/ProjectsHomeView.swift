@@ -16,6 +16,20 @@ struct ProjectsHomeView: View {
 
     @Bindable var store: StitchStore
     let namespace: Namespace.ID
+    @State private var searchQuery: String = ""
+
+    var filteredProjects: [ProjectLoader] {
+        if searchQuery.isEmpty {
+            return store.allProjectUrls
+        } else {
+            return store.allProjectUrls.filter { projectLoader in
+                if case .loaded(let document) = projectLoader.loadingDocument {
+                    return document.name.localizedCaseInsensitiveContains(searchQuery)
+                }
+                return false
+            }
+        }
+    }
 
     @MainActor
     var alertState: ProjectAlertState {
@@ -32,6 +46,13 @@ struct ProjectsHomeView: View {
 
     var body: some View {
         VStack {
+            // Search Bar
+#if DEV_DEBUG
+            TextField("Search Projects...", text: $searchQuery)
+                .padding()
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+#endif
 
             // Undo button for debugging
             #if DEV_DEBUG
@@ -46,9 +67,7 @@ struct ProjectsHomeView: View {
                 Text("Redo")
             }
             #endif
-
-            ProjectsListView(store: store,
-                             namespace: namespace)
+            ProjectsListView(store: store, namespace: namespace, projects: filteredProjects)
         }
         .modifier(SampleAppsSheet(showSampleAppsSheet: alertState.showSampleAppsSheet,
                                   namespace: namespace))

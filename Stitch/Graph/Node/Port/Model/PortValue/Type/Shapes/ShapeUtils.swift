@@ -31,7 +31,7 @@ struct ApplyStroke: ViewModifier {
     
     @ViewBuilder
     func body(content: Content) -> some View {
-        
+        // TODO: stroke logic
         if isGhostView {
             content
         } else {
