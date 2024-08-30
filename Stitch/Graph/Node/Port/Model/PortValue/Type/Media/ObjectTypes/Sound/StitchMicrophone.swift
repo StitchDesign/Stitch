@@ -18,6 +18,11 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
 
     // Recorder and session are used for the mic patch node
     private var recorder: AVAudioRecorder?
+    
+    // FFT tap related properties
+    private var fftTap: FFTTap?
+    var frequencyAmplitudes: [Double] = []
+    private let FFT_TAP_SIZE: UInt32 = 4096
 
     @MainActor
     init(isEnabled: Bool) {
@@ -48,6 +53,7 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                         self?.engine.output = self?.engine.input
                         
                         if isEnabled {
+                            self?.setupFFTTap()
                             self?.play()
                         }
                     }
@@ -63,6 +69,42 @@ final class StitchMic: NSObject, Sendable, StitchSoundPlayerDelegate {
                 dispatch(ReceivedStitchFileError(error: .recordingPermissionsDisabled))
             }
         }
+    }
+
+    @MainActor private func setupFFTTap() {
+        guard let input = self.engine.input else {
+            log("setupFFTTap: engine.input is nil")
+            return
+        }
+        
+        self.fftTap = FFTTap(input, bufferSize: FFT_TAP_SIZE, callbackQueue: .main) { [weak self] fftData in
+            guard let strongSelf = self else { return }
+            strongSelf.processFFTData(fftData)
+        }
+    }
+
+    private func processFFTData(_ fftData: [Float]) {
+        let binCount = fftData.count
+        let numberOfRanges = 16
+        let binsPerRange = binCount / numberOfRanges
+
+        var amplitudes: [Double] = []
+
+        for i in 0..<numberOfRanges {
+            let startBin = i * binsPerRange
+            let endBin = (i + 1) * binsPerRange
+            let range = startBin..<endBin
+
+            let amplitude = self.calculateAverageAmplitude(fftData, in: range)
+            amplitudes.append(amplitude)
+        }
+
+        self.frequencyAmplitudes = amplitudes
+    }
+
+    private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
+        let sum = range.reduce(0.0) { $0 + Double(fftData[$1]) }
+        return sum / Double(range.count)
     }
 
     var url: URL? { self.recorder?.url }

@@ -32,6 +32,10 @@ struct MicrophoneNode: PatchNodeDefinition {
                 .init(
                     label: "Peak Volume",
                     type: .number
+                ),
+                .init(
+                    label: "Hz Amplitudes",
+                    type: .number
                 )
             ]
         )
@@ -84,11 +88,27 @@ func microphoneEval(node: PatchNode) -> EvalResult {
         let peak = volumeData.1
         previousVolume = Double(average)
         previousPeakVolume = Double(peak)
+    
+        
+        
+        var frequencyAmplitudes: [Double] = []
+            frequencyAmplitudes = mic.delegate.frequencyAmplitudes
+//        } else {
+//            frequencyAmplitudes = SoundImportNode.defaultFrequencyAmplitudes
+//        }
+        
+        let frequencyAmplitudesValues = frequencyAmplitudes.map { PortValue.number($0) }
+//        
+//        if result.outputsValues[safe: 5] != nil {
+//            result.outputsValues[5] = frequencyAmplitudesValues
+//        } else {
+//            result.outputsValues.append(frequencyAmplitudesValues)
+//        }
         
         let mediaValue = GraphMediaValue(computedMedia: .mic(mic))
         return [mediaValue.portValue,
                 .number(previousVolume), // values[2], // volume, unchanged
-                .number(previousPeakVolume)// values[3] // peak volume, unchanged
+                .number(previousPeakVolume) // values[3] // peak volume, unchanged
         ]
     }
 }
