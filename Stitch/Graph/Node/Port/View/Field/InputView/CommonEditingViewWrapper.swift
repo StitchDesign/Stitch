@@ -38,8 +38,6 @@ struct CommonEditingViewWrapper: View {
             @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
             return inputLayerNodeRowData.fieldHasHeterogenousValues(
                 fieldIndex,
-//                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-                // should be same as `forPropertySidebar`
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {
             return false
@@ -56,7 +54,6 @@ struct CommonEditingViewWrapper: View {
     }
     
     var fieldWidth: CGFloat {
-        
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
         } else if isFieldInMultfieldInspectorInput {
@@ -77,47 +74,39 @@ struct CommonEditingViewWrapper: View {
            forPropertySidebar,
            !isForFlyout,
            let layerInput = fieldViewModel.layerInput {
-                        
-            let onTap: () -> Void = {
-                if !isForFlyout {
-                    dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: fieldCoordinate.rowId.nodeId))
-                }
-            }
             
-            CommonEditingViewReadOnly(inputField: fieldViewModel,
-                                      inputString: stringValue,
-                                      forPropertySidebar: forPropertySidebar,
-                                      isHovering: false, // Always false
-                                      choices: choices,
-                                      fieldWidth: fieldWidth,
-                                      fieldHasHeterogenousValues: fieldHasHeterogenousValues,
-                                      onTap: onTap)
-            .border(.cyan)
+            CommonEditingViewReadOnly(
+                inputField: fieldViewModel,
+                inputString: stringValue,
+                forPropertySidebar: forPropertySidebar,
+                isHovering: false, // Always false
+                choices: choices, // Always nil?
+                fieldWidth: fieldWidth,
+                fieldHasHeterogenousValues: fieldHasHeterogenousValues,
+                onTap: {
+                    if !isForFlyout {
+                        dispatch(FlyoutToggled(flyoutInput: layerInput,
+                                               flyoutNodeId: fieldCoordinate.rowId.nodeId))
+                    }
+                })
             
-//            .onTapGesture {
-//                dispatch(FlyoutToggled(flyoutInput: layerInput,
-//                                       flyoutNodeId: fieldViewModel.id.rowId.nodeId))
-//            }
-                
         } else {
-           
-                CommonEditingView(inputField: fieldViewModel,
-                                  inputLayerNodeRowData: inputLayerNodeRowData,
-                                  inputString: stringValue,
-                                  graph: graph,
-                                  fieldIndex: fieldCoordinate.fieldIndex,
-                                  isCanvasItemSelected: isCanvasItemSelected,
-                                  hasIncomingEdge: hasIncomingEdge,
-                                  choices: choices,
-                                  isAdjustmentBarInUse: isButtonPressed,
-                                  forPropertySidebar: forPropertySidebar,
-                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                  isForFlyout: isForFlyout,
-                                  isForSpacingField: isForSpacingField,
-                                  isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
-                                  fieldWidth: fieldWidth)
+            CommonEditingView(inputField: fieldViewModel,
+                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              inputString: stringValue,
+                              graph: graph,
+                              fieldIndex: fieldCoordinate.fieldIndex,
+                              isCanvasItemSelected: isCanvasItemSelected,
+                              hasIncomingEdge: hasIncomingEdge,
+                              choices: choices,
+                              isAdjustmentBarInUse: isButtonPressed,
+                              forPropertySidebar: forPropertySidebar,
+                              propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                              isFieldInMultifieldInput: isFieldInMultifieldInput,
+                              isForFlyout: isForFlyout,
+                              isForSpacingField: isForSpacingField,
+                              isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
+                              fieldWidth: fieldWidth)
         }
     }
 }

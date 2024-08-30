@@ -14,24 +14,27 @@ extension Color {
 
 struct GenericFlyoutView: View {
     
-    static let PADDING_FLYOUT_WIDTH = 256.0 // Per Figma
+    static let DEFAULT_FLYOUT_WIDTH = 256.0 // Per Figma
     
     // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace
 //    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
-    let rowViewModel: InputNodeRowViewModel
+    let inputRowViewModel: InputNodeRowViewModel
     let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     let hasIncomingEdge: Bool
     let layerInput: LayerInputPort
     
+    var nodeId: NodeId {
+        self.inputRowViewModel.id.nodeId
+    }
+    
     var body: some View {
         
         VStack(alignment: .leading) {
             // TODO: need better padding here; but confounding factor is UIKitWrapper
-//            FlyoutHeader(flyoutTitle: "Padding")
             FlyoutHeader(flyoutTitle: layerInput.label(true))
             
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
@@ -47,129 +50,137 @@ struct GenericFlyoutView: View {
         .padding()
         .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
         .cornerRadius(8)
-        .frame(width: Self.PADDING_FLYOUT_WIDTH,
-//               height: Self.PADDING_FLYOUT_HEIGHT)
+        .frame(width: Self.DEFAULT_FLYOUT_WIDTH,
                height: self.height)
         .background {
+            // TODO: this isn't quite accurate; read-height doesn't seem tall enough?
             GeometryReader { geometry in
                 Color.clear
                     .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
                               initial: true) { oldValue, newValue in
-                        log("Padding flyout size: \(newValue.size)")
+                        log("GenericFlyout size: \(newValue.size)")
                         dispatch(UpdateFlyoutSize(size: newValue.size))
                     }
             }
         }
     }
     
-    // TODO: why not just use `NodeInputView` here ?
+    @State var selectedFlyoutRow: Int? = nil
+    
+    // TODO: just use `NodeInputView` here ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         FieldsListView(graph: graph,
-                       rowViewModel: rowViewModel,
-                       nodeId: rowViewModel.id.nodeId,
-                       isGroupNodeKind: rowViewModel.nodeKind.isGroup,
+                       rowViewModel: inputRowViewModel,
+                       nodeId: inputRowViewModel.id.nodeId,
+                       isGroupNodeKind: inputRowViewModel.nodeKind.isGroup,
                        forPropertySidebar: true,
                        // TODO: fix
-                       propertyIsAlreadyOnGraph: false) { portViewModel, isMultiField in
+                       propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultiField in
             
-            if let coordinate = rowViewModel.rowDelegate?.id {
-                InputValueEntry(graph: graph,
-                                rowViewModel: rowViewModel,
-                                viewModel: portViewModel,
-                                inputLayerNodeRowData: inputLayerNodeRowData,
-                                rowObserverId: coordinate,
-                                nodeKind: .layer(layer),
-                                isCanvasItemSelected: false,
-                                hasIncomingEdge: hasIncomingEdge, // always false?
-                                forPropertySidebar: true,
-                                // TODO: applicable or not?
-                                // i.e. if this is input/field is already present on the canvas,
-                                propertyIsAlreadyOnGraph: false, // Not relevant?
-                                isFieldInMultifieldInput: isMultiField,
-                                isForFlyout: true)
+            if let coordinate = inputRowViewModel.rowDelegate?.id {
                 
-                // Each row seems too tall? Probably from a set node row height somewhere?
-                // Uses padding to reduce size
-                .padding([.top, .bottom], 4)
-                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
-                //                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
-                .background {
-                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-                        .cornerRadius(6)
+                let fieldIndex = inputFieldViewModel.fieldIndex
+                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
+                
+                
+                HStack {
+                    // TODO: consolidate with `LayerInspectorRowButton`
+                    // TODO: Figma UI: field on canvas
+                    Button {
+                        log("will add field to canvas")
+                        dispatch(LayerInputFieldAddedToGraph(
+                            layerInput: layerInput, 
+                            nodeId: nodeId,
+                            fieldIndex: fieldIndex))
+                    } label: {
+                        Image(systemName: "plus.circle")
+                            .resizable()
+                            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                    }
+                    
+                    // For a single field
+                    InputValueEntry(graph: graph,
+                                    rowViewModel: inputRowViewModel,
+                                    viewModel: inputFieldViewModel,
+                                    inputLayerNodeRowData: inputLayerNodeRowData,
+                                    rowObserverId: coordinate,
+                                    nodeKind: .layer(layer),
+                                    isCanvasItemSelected: false,
+                                    hasIncomingEdge: hasIncomingEdge, // always false?
+                                    forPropertySidebar: true,
+                                    // TODO: Figma UI: field on canvas
+                                    propertyIsAlreadyOnGraph: false, // Not relevant?
+                                    isFieldInMultifieldInput: isMultiField,
+                                    isForFlyout: true)
+                    
+                    // Each row seems too tall? Probably from a set node row height somewhere?
+                    // Uses padding to reduce size
+                    .padding(LAYER_INSPECTOR_ROW_SPACING)
+                    .background {
+                        (isSelectedRow ? .red.opacity(0.5) : WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+                            .cornerRadius(6)
+                            .onTapGesture {
+                                log("flyout: tapped field row \(fieldIndex)")
+                                self.selectedFlyoutRow = fieldIndex
+                            }
+                    }
                 }
             } else {
-                Color.clear
-                    .onAppear {
-                        fatalErrorIfDebug()
-                    }
+               FatalErrorIfDebugView()
             }
         }
     }
 }
 
-struct PaddingReadOnlyView: View {
-    
-    @Bindable var rowObserver: InputNodeRowObserver
-    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
-    let labelView: LabelDisplayView
-    let paddingLayerInput: LayerInputPort
-    
-    @State var hoveredFieldIndex: Int? = nil
-    
-    var nodeId: NodeId {
-        self.rowObserver.id.nodeId
-    }
-    
+struct FatalErrorIfDebugView: View {
     var body: some View {
-        Group {
-            labelView
-            
-            Spacer()
-            
-            // Want to just display the values; so need a new kind of `display only` view
-            ForEach(rowData.fieldValueTypes) { fieldGroupViewModel in
-                
-                ForEach(fieldGroupViewModel.fieldObservers)  { (fieldViewModel: InputFieldViewModel) in
-                    
-                    let fieldIndex = fieldViewModel.fieldIndex
-                    
-                    StitchTextView(string: fieldViewModel.fieldValue.stringValue,
-                                   fontColor: STITCH_FONT_GRAY_COLOR)
-                    
-                    // Monospacing prevents jittery node widths if values change on graphstep
-                    .monospacedDigit()
-                    // TODO: what is best width? Needs to be large enough for 3-digit values?
-//                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 12)
-//                    .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH - 24)
-//                    .frame(width: 44)
-//                    .frame(width: 24)
-                    .frame(width: 36, height: NODE_ROW_HEIGHT)
-                    .padding([.top, .bottom], 4)
-                    .background {
-                        Color.INSPECTOR_FIELD_BACKGROUND_COLOR
-                            .cornerRadius(4)
-//                        if self.hoveredFieldIndex == fieldViewModel.fieldIndex {
-//                            INPUT_FIELD_BACKGROUND.cornerRadius(4)
-//                        }
-                    }
-//                    .onHover { hovering in
-//                        withAnimation {
-//                            if hovering {
-//                                self.hoveredFieldIndex = fieldIndex
-//                            } else if self.hoveredFieldIndex == fieldIndex {
-//                                self.hoveredFieldIndex = nil
-//                            }
-//                        }
-//                    } // .onHover
-                } // ForEach
-            } // ForEach
-        } // Group
+        Color.clear
+            .onAppear {
+                fatalErrorIfDebug()
+            }
+    }
+}
+
+struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
+    
+    //    let layerInput: LayerInputType
+    let layerInput: LayerInputPort
+    let nodeId: NodeId
+    let fieldIndex: Int
+    
+    func handle(state: GraphState) -> GraphResponse {
         
-        // Tap on the read-only fields to open padding flyout
-        .onTapGesture {
-            dispatch(FlyoutToggled(flyoutInput: paddingLayerInput,
-                                   flyoutNodeId: nodeId))
+        guard let node = state.getNode(nodeId),
+              let layerNode = node.layerNode else {
+            return .noChange
         }
+        
+        fatalErrorIfDebug()
+        return .noChange
+        
+//        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
+//        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
+//        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+//        
+//        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
+////        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
+//        
+//        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+//            
+//            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+//            
+//            var unpackSchema = unpackedPort.createSchema()
+//            unpackSchema.canvasItem = .init(position: .zero,
+//                                            zIndex: .zero,
+//                                            parentGroupNodeId: parentGroupNodeId)
+//            unpackedPort.update(from: unpackSchema,
+//                                layerInputType: unpackedPort.id,
+//                                layerNode: layerNode,
+//                                nodeId: nodeId,
+//                                nodeDelegate: node)
+//        }
+        
     }
 }

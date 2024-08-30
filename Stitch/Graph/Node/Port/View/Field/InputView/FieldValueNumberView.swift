@@ -57,8 +57,7 @@ struct FieldValueNumberView: View {
         
         HStack {
             
-            // Do not show number adjustment bar if field is part of a multifield input, is inside the layer inspector
-//            if !isFieldInMultifieldInput, !forPropertySidebar {
+            // Do not show number adjustment bar if field is part of a multifield input inside the layer inspector
             if !isFieldInMultifieldInputInInspector {
                 
                 // Default to zero if "auto" currently selected

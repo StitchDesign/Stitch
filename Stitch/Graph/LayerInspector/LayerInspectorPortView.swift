@@ -83,20 +83,20 @@ struct LayerInspectorInputPortView: View {
         // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); handle the creation of unpacked canvas items should outside of the view and disallow for layer multiselect?
         fatalErrorIfDebug()
         
-        //        let nodeId = portObserver._packedData.rowObserver.id.nodeId
-        //        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-        //
-        //        portObserver._unpackedData.allPorts.forEach { unpackedPort in
-        //            var unpackSchema = unpackedPort.createSchema()
-        //            unpackSchema.canvasItem = .init(position: .zero,
-        //                                            zIndex: .zero,
-        //                                            parentGroupNodeId: parentGroupNodeId)
-        //            unpackedPort.update(from: unpackSchema,
-        //                                layerInputType: unpackedPort.id,
-        //                                layerNode: layerNode,
-        //                                nodeId: nodeId,
-        //                                nodeDelegate: node)
-        //        }
+//                let nodeId = portObserver._packedData.rowObserver.id.nodeId
+//                let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+//        
+//                portObserver._unpackedData.allPorts.forEach { unpackedPort in
+//                    var unpackSchema = unpackedPort.createSchema()
+//                    unpackSchema.canvasItem = .init(position: .zero,
+//                                                    zIndex: .zero,
+//                                                    parentGroupNodeId: parentGroupNodeId)
+//                    unpackedPort.update(from: unpackSchema,
+//                                        layerInputType: unpackedPort.id,
+//                                        layerNode: layerNode,
+//                                        nodeId: nodeId,
+//                                        nodeDelegate: node)
+//                }
     }
 }
 

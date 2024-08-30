@@ -77,7 +77,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                     // One multifield input presented in separate rows in the flyout
                     else {
                         GenericFlyoutView(graph: graph,
-                                          rowViewModel: inputData.inspectorRowViewModel,
+                                          inputRowViewModel: inputData.inspectorRowViewModel,
                                           inputLayerNodeRowData: inputData,
                                           layer: layerNode.layer,
                                           hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection,
