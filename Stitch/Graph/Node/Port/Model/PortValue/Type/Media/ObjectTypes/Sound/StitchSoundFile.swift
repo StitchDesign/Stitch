@@ -56,12 +56,6 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
 
         super.init()
 
-        do {
-            try engine.start()
-        } catch {
-            print("Failed to start audio engine: \(error)")
-        }
-
         setupFFTTap(mixer2)
 
         if let rate = rate {
