@@ -28,8 +28,6 @@ final class GraphStepManager: MiddlewareService {
 
     /// Assigned to `StitchStore` and processes graph step changes.
     weak var delegate: GraphStepManagerDelegate?
-    
-    init() { }
 
     @MainActor
     var graphTime: TimeInterval {
