@@ -80,8 +80,6 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         let binCount = fftData.count
         let numberOfRanges = 16
 
-        print("FFT Data Range: \(fftData.min() ?? 0) to \(fftData.max() ?? 0)")
-
         var amplitudes: [Double] = []
 
         for i in 0..<numberOfRanges {
@@ -93,8 +91,6 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
             amplitudes.append(amplitude)
         }
 
-        print("Pre-normalized Amplitudes: \(amplitudes)")
-
         // Apply a modified logarithmic scaling
         let logAmplitudes = amplitudes.map { max(-50, 20 * log10(max($0, 1e-5))) }
 
@@ -104,8 +100,6 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.frequencyAmplitudes = logAmplitudes.map {
             max(0, min(1, ($0 - minAmplitude) / (maxAmplitude - minAmplitude)))
         }
-
-        print("Final Amplitudes: \(self.frequencyAmplitudes)")
     }
 
     private func calculateAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
