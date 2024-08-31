@@ -207,9 +207,10 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         .onHover(perform: { isHovering in
             self.isHovered = isHovering
         })
+        .contentShape(Rectangle())
         .gesture(
             TapGesture().onEnded({ _ in
-                 log("LayerInspectorPortView tapped")
+                log("LayerInspectorPortView tapped")
                 if isOnGraphAlready,
                    let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                     dispatch(JumpToCanvasItem(id: canvasItemId))

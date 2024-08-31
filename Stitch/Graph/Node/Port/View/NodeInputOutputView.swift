@@ -19,8 +19,8 @@ struct LayerInspectorRowButton: View {
     var canBeAddedToCanvas: Bool {
         switch layerProperty {
         case .layerInput(let layerInputType):
-            return !layerInputType.layerInput.usesFlyout
-        case .layerOutput(let int):
+            return layerInputType.layerInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY
+        case .layerOutput:
             return true
         }
     }
@@ -41,7 +41,7 @@ struct LayerInspectorRowButton: View {
         return false
     }
     
-    var body: some View {
+    var body: some View {        
         if let canvasItemId = canvasItemId {
             JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
         } else {
