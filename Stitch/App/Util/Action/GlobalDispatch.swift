@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-let dispatch = GlobalDispatch.shared.dispatch
+@MainActor let dispatch = GlobalDispatch.shared.dispatch
 
 @MainActor
-class GlobalDispatch: NSObject {
+final class GlobalDispatch: NSObject {
     static let shared: GlobalDispatch = GlobalDispatch()
     weak var delegate: GlobalDispatchDelegate?
 

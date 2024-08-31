@@ -259,7 +259,7 @@ extension GraphState {
     }
 }
 
-func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
+@MainActor func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
 
 //    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
@@ -313,7 +313,7 @@ extension PinToId {
     }
 }
 
-func getPinReceiverData(pinReceiverId: LayerNodeId,
+@MainActor func getPinReceiverData(pinReceiverId: LayerNodeId,
                         for pinnedLayerViewModel: LayerViewModel,
                         from graph: GraphState) -> PinReceiverData? {
     

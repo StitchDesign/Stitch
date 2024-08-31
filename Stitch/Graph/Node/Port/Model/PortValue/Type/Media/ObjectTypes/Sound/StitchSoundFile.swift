@@ -79,22 +79,34 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     private func processFFTData(_ fftData: [Float]) {
         let binCount = fftData.count
         let numberOfRanges = 16
-        let binsPerRange = binCount / numberOfRanges
 
         var amplitudes: [Double] = []
 
         for i in 0..<numberOfRanges {
-            let startBin = i * binsPerRange
-            let endBin = (i + 1) * binsPerRange
-            let range = startBin..<endBin
+            let startBin = Int(pow(Double(binCount), Double(i) / Double(numberOfRanges)))
+            let endBin = Int(pow(Double(binCount), Double(i + 1) / Double(numberOfRanges)))
+            let range = startBin..<min(endBin, binCount)
 
-            let amplitude = calculateAverageAmplitude(fftData, in: range)
+            let amplitude = calculateAmplitude(fftData, in: range)
             amplitudes.append(amplitude)
         }
 
-        self.frequencyAmplitudes = amplitudes
+        // Apply a modified logarithmic scaling
+        let logAmplitudes = amplitudes.map { max(-50, 20 * log10(max($0, 1e-5))) }
+
+        // Normalize to 0-1 range
+        let minAmplitude = logAmplitudes.min() ?? -50
+        let maxAmplitude = logAmplitudes.max() ?? 0
+        self.frequencyAmplitudes = logAmplitudes.map {
+            max(0, min(1, ($0 - minAmplitude) / (maxAmplitude - minAmplitude)))
+        }
     }
 
+    private func calculateAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
+        let sum = range.reduce(0.0) { $0 + pow(Double(fftData[$1]), 2) }
+        return sqrt(sum / Double(range.count))
+    }
+    
     private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
         let sum = range.reduce(0.0) { $0 + Double(fftData[$1]) }
         return sum / Double(range.count)
