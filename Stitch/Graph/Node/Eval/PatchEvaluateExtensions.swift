@@ -334,6 +334,8 @@ extension Patch {
             return .pure(.node(mathExpressionEval))
         case .qrCodeDetection:
             return .pure(.node(qrCodeDetectionEval))
+        case .delayOne:
+            return .pure(.node(DelayOneNode.eval))
         }
     }
 }

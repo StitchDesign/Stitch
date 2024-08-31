@@ -333,7 +333,8 @@ extension Patch {
             return mathExpressionDescription
         case .qrCodeDetection:
             return qrCodeDetectionDescription
+        case .delayOne:
+            return DelayOneNode.description
         }
-
     }
 }

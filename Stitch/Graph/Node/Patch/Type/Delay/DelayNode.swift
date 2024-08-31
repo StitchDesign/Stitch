@@ -26,7 +26,8 @@ struct DelayPatchNode: PatchNodeDefinition {
             inputs: [
                 .init(
                     defaultValues: [.number(0)],
-                    label: "Value"
+                    label: "Value",
+                    canDirectlyCopyUpstreamValues: true
                 ),
                 .init(
                     defaultValues: [.number(1)],

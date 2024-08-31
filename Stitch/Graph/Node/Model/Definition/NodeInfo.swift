@@ -75,6 +75,11 @@ struct NodeInputDefinition: Encodable {
     
     // Specifically for layers
     var layerInputType: LayerInputPort?
+    
+    
+    /// Favors directly transferring values from an upstream connection in favor of type coercion.
+    /// Used for Delay and Delay 1 nodes.
+    var canDirectlyCopyUpstreamValues: Bool = false
 }
 
 extension NodeInputDefinition {
@@ -84,14 +89,17 @@ extension NodeInputDefinition {
         self.defaultValues = [staticType.defaultPortValue]
         self.label = label
         self.isTypeStatic = true
+        self.canDirectlyCopyUpstreamValues = false
     }
 
-    init(label: String,
+    init(label: String = "",
          defaultType: UserVisibleType,
-         isTypeStatic: Bool = false) {
+         isTypeStatic: Bool = false,
+         canDirectlyCopyUpstreamValues: Bool = false) {
         self.defaultValues = [defaultType.defaultPortValue]
         self.label = label
         self.isTypeStatic = isTypeStatic
+        self.canDirectlyCopyUpstreamValues = canDirectlyCopyUpstreamValues
     }
 }
 
