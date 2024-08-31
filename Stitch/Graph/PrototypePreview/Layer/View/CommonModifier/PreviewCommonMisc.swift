@@ -22,13 +22,13 @@ struct PreviewLayerRotationModifier: ViewModifier {
     let rotationY: CGFloat
     let rotationZ: CGFloat
     
-    var pinReceiver: PinReceiverData? {
+    @MainActor var pinReceiver: PinReceiverData? {
         getPinReceiverData(for: viewModel, from: graph)
     }
     
     static let defaultRotationAnchor = 0.5
     
-    var rotationAnchorX: CGFloat {
+    @MainActor var rotationAnchorX: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor
         if viewModel.isPinned.getBool ?? false,
@@ -66,6 +66,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     }
     
     // PinnedViewA uses rotation value of its pin-receiver View B
+    @MainActor
     var finalRotationX: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
@@ -75,6 +76,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    @MainActor
     var finalRotationY: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
@@ -84,6 +86,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    @MainActor
     var finalRotationZ: CGFloat {
         if isPinnedView,
            let pinReceiver = pinReceiver {
@@ -93,6 +96,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
         }
     }
     
+    @MainActor
     var rotationAnchorY: CGFloat {
         
         // If this is the PinnedViewA, then potentially return a non-default rotation anchor

@@ -176,9 +176,7 @@ struct PreviewLayersView: View {
                                   parentSize: parentSize,
                                   parentDisablesPosition: parentDisablesPosition,
                                   isGhostView: isGhostView)
-                    .border(.green)
                 }
-                .border(.red)
             }
             
         } // Group

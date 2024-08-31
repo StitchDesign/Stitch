@@ -1709,6 +1709,7 @@ A node for importing a sound file.
 • Peak volume of the sound file
 • Current playback position
 • Duration of the sound file
+• A loop of amplitude values for 16 component frequencies of the sound file
 """
 
 let videoImportDescription = """

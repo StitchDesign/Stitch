@@ -49,6 +49,7 @@ extension NodeRowObserver {
         self.postProcessing(oldValues: oldValues, newValues: newValues)
     }
     
+    @MainActor
     var userVisibleType: UserVisibleType? {
         self.nodeDelegate?.userVisibleType
     }

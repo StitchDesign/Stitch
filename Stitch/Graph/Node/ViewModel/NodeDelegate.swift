@@ -22,7 +22,7 @@ protocol NodeDelegate: AnyObject {
     
     var userVisibleType: UserVisibleType? { get }
     
-    var nodeType: NodeViewModelType { get }
+    @MainActor var nodeType: NodeViewModelType { get }
     
     @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
     
@@ -130,7 +130,7 @@ extension NodeDelegate {
             .flatMap { $0.allRowViewModels }
     }
     
-    var patchNodeViewModel: PatchNodeViewModel? {
+    @MainActor var patchNodeViewModel: PatchNodeViewModel? {
         switch self.nodeType {
         case .patch(let patchNode):
             return patchNode
@@ -139,7 +139,7 @@ extension NodeDelegate {
         }
     }
     
-    var layerNodeViewModel: LayerNodeViewModel? {
+    @MainActor var layerNodeViewModel: LayerNodeViewModel? {
         switch self.nodeType {
         case .layer(let layerNode):
             return layerNode
