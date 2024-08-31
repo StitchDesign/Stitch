@@ -329,6 +329,8 @@ extension Patch {
             return MathExpressionPatchNode.self
         case .qrCodeDetection:
             return QRCodeDetectionNode.self
+        case .delayOne:
+            return DelayOneNode.self
         }
     }
 }

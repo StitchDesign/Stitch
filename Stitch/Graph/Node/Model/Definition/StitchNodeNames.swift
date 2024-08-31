@@ -1186,6 +1186,8 @@ Delay a value by a specified number of seconds. The node can be configured to us
 • The delayed value
 """
 
+let delayOneDescription = DelayOneNode.description
+
 let packDescription = """
 Creates a value based on constituent inputs. For example, if you want to create a Size value, you would input two values corresponding to Width and Height.
 

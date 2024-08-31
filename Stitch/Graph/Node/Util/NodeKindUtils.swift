@@ -232,10 +232,11 @@ extension NodeKind {
     
     // Some inputs don't need to coerce PortValues and can instead copy values directly
     func canCopyInputValues(portId: Int?) -> Bool {
-        // Delay node's first first
-        if self.getPatch == .delay && portId == 0 {
-            return true
+        guard let portId = portId else {
+            return false
         }
-        return false
+        
+        return self.graphNode?.rowDefinitions(for: nil)
+            .inputs[safe: portId]?.canDirectlyCopyUpstreamValues ?? false
     }
 }
