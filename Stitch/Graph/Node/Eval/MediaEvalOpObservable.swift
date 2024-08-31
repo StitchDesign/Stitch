@@ -86,7 +86,10 @@ extension MediaEvalOpObservable {
         Task(priority: .high) { [weak self] in
             guard let copy = await mediaObject?.createComputedCopy(nodeId: nodeId) else {
                 fatalErrorIfDebug()
-                self?.currentMedia = nil
+                
+                await MainActor.run { [weak self] in
+                    self?.currentMedia = nil
+                }
                 return
             }
             let newMediaValue = GraphMediaValue(id: inputMedia.id,
@@ -94,7 +97,9 @@ extension MediaEvalOpObservable {
                                                 mediaObject: copy)
             
             // Update current observer to track new value
-            self?.updateInputMedia(newMediaValue)
+            await MainActor.run { [weak self] in
+                self?.updateInputMedia(newMediaValue)
+            }
         }
         
         return nil

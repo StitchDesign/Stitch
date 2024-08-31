@@ -94,6 +94,7 @@ extension LayerInputObserver {
         }
     }
     
+    @MainActor
     var graphDelegate: GraphDelegate? {
         // Hacky solution, just get row observer delegate from packed data
         self._packedData.rowObserver.nodeDelegate?.graphDelegate

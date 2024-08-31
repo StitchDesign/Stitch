@@ -176,6 +176,7 @@ struct NodeInputView: View {
         self.rowObserver.id.nodeId
     }
     
+    @MainActor
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
@@ -281,10 +282,12 @@ struct NodeOutputView: View {
         self.rowObserver.id.nodeId
     }
     
+    @MainActor
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
     }
     
+    @MainActor
     var isSplitter: Bool {
         self.nodeKind == .patch(.splitter)
     }
@@ -385,6 +388,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         NodeRowObserverType.nodeIOType
     }
     
+    @MainActor
     var isGroup: Bool {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false
     }

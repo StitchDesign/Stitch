@@ -57,16 +57,20 @@ func optionPickerEval(inputs: PortValuesList,
                       outputs: PortValuesList) -> PortValuesList {
 
     let op: Operation = { (values: PortValues) -> PortValue in
-
+        guard let defaultFakeValue = values.first?.defaultFalseValue else {
+            fatalErrorIfDebug()
+            return colorDefaultFalse
+        }
+        
         let selection: Int = Int(values.first?.getNumber ?? 0.0)
 
         // + 1 because want to skip the first item in values
         if selection < 0 {
-            return values[1]
+            return values[safe: 1] ?? defaultFakeValue
         } else if selection + 1 >= values.count {
-            return values.last ?? colorDefaultFalse
+            return values.last ?? defaultFakeValue
         } else {
-            return values[selection + 1]
+            return values[safe: selection + 1] ?? defaultFakeValue
         }
     }
 
