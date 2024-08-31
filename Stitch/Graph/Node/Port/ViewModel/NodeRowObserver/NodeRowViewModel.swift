@@ -115,6 +115,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
 
 extension NodeRowViewModel {
     /// Ignores group nodes to ensure computation logic still works.
+    @MainActor
     var computationNode: NodeDelegate? {
         self.rowDelegate?.nodeDelegate
     }

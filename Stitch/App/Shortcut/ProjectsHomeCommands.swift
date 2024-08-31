@@ -36,7 +36,8 @@ struct ProjectsHomeCommands: Commands {
             SwiftUIShortcutView(title: activeProject ? "Restart Prototype" : "Refresh Projects",
                                 key: .init("R")) {
                 if activeProject {
-                    dispatch(PrototypeRestartedAction())
+//                    dispatch(PrototypeRestartedAction())
+                    store.currentGraph?.onPrototypeRestart()
                 } else {
                     store.allProjectUrls = []
                     dispatch(DirectoryUpdated())

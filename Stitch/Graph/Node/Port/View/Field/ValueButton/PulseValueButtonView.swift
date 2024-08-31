@@ -57,12 +57,12 @@ struct PulseValueButtonView: View {
             // Note: `isPulsed` in this UI is different from our `shouldPulse` check in nodes' evals
             self.isPulsed = true
         }
-        .task(id: pulseTime) {
-            try? await Task.sleep(for: .milliseconds(150))
-            await MainActor.run {
-                self.isPulsed = false
-            }
-        }
+//        .task(id: pulseTime) {
+//            try? await Task.sleep(for: .milliseconds(150))
+//            await MainActor.run {
+//                self.isPulsed = false
+//            }
+//        }
     }
 }
 
