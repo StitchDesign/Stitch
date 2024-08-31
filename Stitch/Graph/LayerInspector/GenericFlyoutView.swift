@@ -17,7 +17,7 @@ struct GenericFlyoutView: View {
     static let DEFAULT_FLYOUT_WIDTH = 256.0 // Per Figma
     
     // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace
-//    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
+    //    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
@@ -48,7 +48,7 @@ struct GenericFlyoutView: View {
             //            }
         }
         .padding()
-        .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
         .cornerRadius(8)
         .frame(width: Self.DEFAULT_FLYOUT_WIDTH,
                height: self.height)
@@ -86,18 +86,18 @@ struct GenericFlyoutView: View {
                 HStack {
                     // TODO: consolidate with `LayerInspectorRowButton`
                     // TODO: Figma UI: field on canvas
-//                    Image(systemName: "plus.circle")
-//                        .resizable()
-//                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-//                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-//                        .onTapGesture {
-//                            log("will add field to canvas")
-//                            dispatch(LayerInputFieldAddedToGraph(
-//                                layerInput: layerInput,
-//                                nodeId: nodeId,
-//                                fieldIndex: fieldIndex))
-//                        }
-//                        .opacity(isSelectedRow ? 1 : 0)
+                    //                    Image(systemName: "plus.circle")
+                    //                        .resizable()
+                    //                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                    //                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                    //                        .onTapGesture {
+                    //                            log("will add field to canvas")
+                    //                            dispatch(LayerInputFieldAddedToGraph(
+                    //                                layerInput: layerInput,
+                    //                                nodeId: nodeId,
+                    //                                fieldIndex: fieldIndex))
+                    //                        }
+                    //                        .opacity(isSelectedRow ? 1 : 0)
                     
                     // For a single field
                     InputValueEntry(graph: graph,
@@ -113,21 +113,13 @@ struct GenericFlyoutView: View {
                                     propertyIsAlreadyOnGraph: false, // Not relevant?
                                     isFieldInMultifieldInput: isMultiField,
                                     isForFlyout: true)
-                    
-                    // Each row seems too tall? Probably from a set node row height somewhere?
-                    // Uses padding to reduce size
-                    .padding(LAYER_INSPECTOR_ROW_SPACING)
-                    .background {
-                        WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-                            .cornerRadius(6)
-                            .onTapGesture {
-                                log("flyout: tapped field row \(fieldIndex)")
-                                self.selectedFlyoutRow = fieldIndex
-                            }
+                    .onTapGesture {
+                        log("flyout: tapped field row \(fieldIndex)")
+                        self.selectedFlyoutRow = fieldIndex
                     }
                 }
             } else {
-               FatalErrorIfDebugView()
+                FatalErrorIfDebugView()
             }
         }
     }
@@ -159,27 +151,27 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         fatalErrorIfDebug()
         return .noChange
         
-//        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
-//        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
-//        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-//        
-//        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
-////        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
-//        
-//        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
-//            
-//            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-//            
-//            var unpackSchema = unpackedPort.createSchema()
-//            unpackSchema.canvasItem = .init(position: .zero,
-//                                            zIndex: .zero,
-//                                            parentGroupNodeId: parentGroupNodeId)
-//            unpackedPort.update(from: unpackSchema,
-//                                layerInputType: unpackedPort.id,
-//                                layerNode: layerNode,
-//                                nodeId: nodeId,
-//                                nodeDelegate: node)
-//        }
+        //        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
+        //        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
+        //        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
+        //
+        //        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
+        ////        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
+        //
+        //        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+        //
+        //            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+        //
+        //            var unpackSchema = unpackedPort.createSchema()
+        //            unpackSchema.canvasItem = .init(position: .zero,
+        //                                            zIndex: .zero,
+        //                                            parentGroupNodeId: parentGroupNodeId)
+        //            unpackedPort.update(from: unpackSchema,
+        //                                layerInputType: unpackedPort.id,
+        //                                layerNode: layerNode,
+        //                                nodeId: nodeId,
+        //                                nodeDelegate: node)
+        //        }
         
     }
 }

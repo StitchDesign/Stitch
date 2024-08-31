@@ -20,8 +20,13 @@
         }
       ],
       "color" : {
-        "platform" : "osx",
-        "reference" : "textColor"
+        "color-space" : "srgb",
+        "components" : {
+          "alpha" : "1.000",
+          "blue" : "34",
+          "green" : "34",
+          "red" : "34"
+        }
       },
       "idiom" : "universal"
     },

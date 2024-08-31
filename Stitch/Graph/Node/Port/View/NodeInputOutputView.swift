@@ -41,7 +41,7 @@ struct LayerInspectorRowButton: View {
         return false
     }
     
-    var body: some View {        
+    var body: some View {
         if let canvasItemId = canvasItemId {
             JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
         } else {
