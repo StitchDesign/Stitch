@@ -78,7 +78,13 @@ extension GraphState {
                               isFieldInsideLayerInspector: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
-        let multiselectNodes = self
+        
+        let pinMap = self.visibleNodesViewModel.flattenedPinMap
+        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
+        
+        // includes self?
+        var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
+        descendants.remove(isForNode.asLayerNodeId)
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
     

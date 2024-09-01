@@ -19,7 +19,11 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     // mixers don't need to be long lived, just the taps?
     private var ampTap: AmplitudeTap
     private var peakAmpTap: AmplitudeTap
+    private var fftTap: FFTTap?
     private var variSpeed: VariSpeed
+    private var FFT_TAP_SIZE: UInt32 = 4096
+
+    var frequencyAmplitudes: [Double] = SoundImportNode.defaultFrequencyAmplitudes
 
     @MainActor
     init(url: URL,
@@ -46,13 +50,13 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         peakAmpTap.analysisMode = .peak
         self.peakAmpTap = peakAmpTap
 
-        let variSpeed = VariSpeed(mixer2)
-        self.variSpeed = variSpeed
+        self.variSpeed = VariSpeed(mixer2)
 
-        // Note--this call from video init has some errors
         self.engine.output = variSpeed
 
         super.init()
+
+        setupFFTTap(mixer2)
 
         if let rate = rate {
             self.rate = rate
@@ -62,11 +66,40 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
             self.setJumpTime(jumpTime)
         }
 
-        // Ensures the player always resets at 0 seconds. Calls using "seek" (on pulses)
-        // may change this behavior otherwise.
         self.setPlayerLoop(time: .zero, enableInfiniteLoop: willLoop)
     }
+    
+    private func setupFFTTap(_ mixer: Mixer) {
+        self.fftTap = FFTTap(mixer, bufferSize: FFT_TAP_SIZE, callbackQueue: .main) { [weak self] fftData in
+            guard let strongSelf = self else { return }
+            strongSelf.processFFTData(fftData)
+        }
+    }
 
+    private func processFFTData(_ fftData: [Float]) {
+        let binCount = fftData.count
+        let numberOfRanges = 16
+        let binsPerRange = binCount / numberOfRanges
+
+        var amplitudes: [Double] = []
+
+        for i in 0..<numberOfRanges {
+            let startBin = i * binsPerRange
+            let endBin = (i + 1) * binsPerRange
+            let range = startBin..<endBin
+
+            let amplitude = calculateAverageAmplitude(fftData, in: range)
+            amplitudes.append(amplitude)
+        }
+
+        self.frequencyAmplitudes = amplitudes
+    }
+
+    private func calculateAverageAmplitude(_ fftData: [Float], in range: Range<Int>) -> Double {
+        let sum = range.reduce(0.0) { $0 + Double(fftData[$1]) }
+        return sum / Double(range.count)
+    }
+    
     var isRunning: Bool {
         self.player.isStarted
     }
@@ -75,7 +108,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         get {
             self.player.isLooping
         }
-        
+
         @MainActor
         set(newValue) {
             self.player.isLooping = newValue
@@ -133,17 +166,20 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
         self.player.play()
         self.ampTap.start()
         self.peakAmpTap.start()
+        self.fftTap?.start()
     }
 
     func pause() {
         self.player.pause()
         self.ampTap.stop()
         self.peakAmpTap.stop()
+        self.fftTap?.stop()
     }
 
     func stop() {
         self.player.stop()
         self.ampTap.stop()
         self.peakAmpTap.stop()
+        self.fftTap?.stop()
     }
 }

@@ -29,16 +29,16 @@ struct ProjectsScrollView<T: View>: View {
 
 struct ProjectsListView: View {
     @Bindable var store: StitchStore
-
     let namespace: Namespace.ID
+    let projects: [ProjectLoader]
 
     var body: some View {
         ZStack {
             Stitch.APP_BACKGROUND_COLOR.zIndex(-1).edgesIgnoringSafeArea(.all)
 
             ProjectsScrollView {
-                ForEach(store.allProjectUrls) { projectLoader in
-                    ProjectsListItemView(projectLoader: projectLoader,
+                ForEach(projects) { projectLoader in
+                    ProjectsListItemView(projectLoader: projectLoader, 
                                          documentLoader: store.documentLoader,
                                          namespace: namespace)
                 }

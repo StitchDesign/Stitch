@@ -29,7 +29,8 @@ struct HitAreaLayerNode: LayerNodeDefinition {
     static func content(graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
-                        layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
+                        layersInGroup: LayerDataList,
+                        isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewHitAreaLayer(
             graph: graph,
