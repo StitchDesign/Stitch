@@ -50,8 +50,9 @@ func model3DImportEval(node: PatchNode) -> EvalResult {
     // modify the 3d model
     // return the 3d model in the ouptut port
 
-    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, _ in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first) else {
+    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+        guard let media = asyncObserver.getUniqueMedia(from: values.first,
+                                                       loopIndex: loopIndex) else {
             return node.defaultOutputs
         }
         

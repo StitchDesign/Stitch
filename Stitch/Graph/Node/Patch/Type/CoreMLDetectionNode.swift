@@ -78,7 +78,8 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
     return node.loopedEvalList(MediaEvalOpObserver.self) { values, mediaObserver in
         let defaultOutputs = node.defaultOutputsList
 
-        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first)?.mediaObject,
+        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
+                                                                  loopIndex: 0)?.mediaObject,
               let model = modelMediaObject.coreMLImageModel,
               let cropAndScaleOption = values[safe: 2]?.vnImageCropOption,
               let image = values[safe: 1]?.asyncMedia?.mediaObject.image else {

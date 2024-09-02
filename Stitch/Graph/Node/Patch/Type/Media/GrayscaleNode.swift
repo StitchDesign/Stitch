@@ -38,7 +38,8 @@ struct GrayscaleNode: PatchNodeDefinition {
 @MainActor
 func grayscaleEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, mediaObservable, loopIndex in
-        guard let mediaValue = mediaObservable.getUniqueMedia(from: values.first),
+        guard let mediaValue = mediaObservable.getUniqueMedia(from: values.first,
+                                                              loopIndex: loopIndex),
               let image = mediaValue.mediaObject.image else {
             return values.prevOutputs(node: node)
         }

@@ -56,7 +56,8 @@ final class ARAnchorObserver: MediaEvalOpObservable {
 @MainActor
 func arAnchorEval(node: PatchNode) -> EvalResult {
     node.loopedEval(ARAnchorObserver.self) { values, mediaObserver, loopIndex in
-        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first),
+        guard let inputModel3d = mediaObserver.getUniqueMedia(from: values.first,
+                                                              loopIndex: loopIndex),
               let transform = values[safe: 1]?.getTransform else {
             mediaObserver.arAnchor = nil
             return values.prevOutputs(node: node)
