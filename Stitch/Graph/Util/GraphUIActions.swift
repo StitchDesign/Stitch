@@ -107,7 +107,7 @@ struct ToggleSidebars: GraphEvent {
         let inspectorOpen = state.graphUI.showsLayerInspector
         let layerSidebarOpen = state.graphUI.leftSidebarOpen
         
-        if !inspectorOpen && @layerSidebarOpen {
+        if !inspectorOpen && !layerSidebarOpen {
             state.graphUI.showsLayerInspector = true
             state.graphUI.leftSidebarOpen = true
         } else {

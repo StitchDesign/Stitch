@@ -82,9 +82,11 @@ struct StitchRootView: View {
             // When and how can this case happen?
             case .automatic:
                 fn(false)
+            default:
+                fn(false)
             }
         }
-        .onChange(of: self.store.currentGraph?.graphUI.leftSidebarOpen) { oldValue, newValue in
+        .onChange(of: self.store.currentGraph?.graphUI.leftSidebarOpen ?? false) { oldValue, newValue in
 //            dispatch(LeftSidebarSet(open: true))
             if newValue {
                 self.columnVisibility = .doubleColumn
