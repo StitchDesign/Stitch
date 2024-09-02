@@ -13,8 +13,8 @@ import StitchSchemaKit
 struct StitchTextView: View {
     let string: String
     var font: Font = STITCH_FONT
-//    var fontColor: Color = STITCH_TITLE_FONT_COLOR
-    var fontColor: Color
+    var fontColor: Color = STITCH_TITLE_FONT_COLOR
+//    var fontColor: Color
     var lineLimit: Int?
     var truncationMode: Text.TruncationMode?
 

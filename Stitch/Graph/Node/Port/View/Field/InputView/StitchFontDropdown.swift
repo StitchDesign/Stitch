@@ -14,6 +14,7 @@ struct StitchFontDropdown: View {
     let stitchFont: StitchFont
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let isFieldInsideLayerInspector: Bool
+    let propertyIsSelected: Bool
 
     @MainActor
     var hasHeterogenousValues: Bool {
@@ -51,7 +52,7 @@ struct StitchFontDropdown: View {
         } label: {
             Button { } label: {
                 StitchTextView(string: finalChoiceDisplay,
-                               fontChoice: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
+                               fontColor: propertyIsSelected ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }
         .menuIndicator(.hidden) // hide caret indicator

@@ -26,6 +26,7 @@ struct FieldValueNumberView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
+    let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
     
     @State private var isButtonPressed = false
@@ -68,7 +69,8 @@ struct FieldValueNumberView: View {
                                       rowObserverCoordinate: rowObserverCoordinate,
                                       fieldValueNumberType: fieldValueNumberType,
                                       adjustmentBarSessionId: adjustmentBarSessionId,
-                                      isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                                      isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector, 
+                                      isSelectedInspectorRow: isSelectedInspectorRow,
                                       isPressed: $isButtonPressed)
             }
             
@@ -85,7 +87,8 @@ struct FieldValueNumberView: View {
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
-                                     isForFlyout: isForFlyout)
+                                     isForFlyout: isForFlyout, 
+                                     isSelectedInspectorRow: isSelectedInspectorRow)
         }
     }
 }

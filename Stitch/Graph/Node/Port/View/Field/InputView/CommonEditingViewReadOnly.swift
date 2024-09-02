@@ -36,18 +36,14 @@ struct CommonEditingViewReadOnly: View {
     var backgroundColor: Color {
         forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR
     }
-    
-    var fontColor: Color {
-        isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR
-    }
-    
+        
     var body: some View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
-                       fontColor: isSelectedInspectorRow)
+                       fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
         .modifier(InputViewBackground(
             backgroundColor: backgroundColor,
             show: self.isHovering || self.forPropertySidebar,

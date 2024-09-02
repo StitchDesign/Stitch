@@ -11,6 +11,8 @@ import StitchSchemaKit
 // Picker that chooses between MacOS vs iOS dropdowns
 struct DropDownChoiceView: View {
 
+    @Environment(\.appTheme) var theme
+    
     let id: InputCoordinate
     
     let inputLayerNodeRowData: InputLayerNodeRowData?
@@ -20,6 +22,7 @@ struct DropDownChoiceView: View {
     let choiceDisplay: String
     let choices: PortValues
     let isFieldInsideLayerInspector: Bool
+    let isSelectedInspectorRow: Bool
     
     @MainActor
     var hasHeterogenousValues: Bool {
@@ -32,22 +35,6 @@ struct DropDownChoiceView: View {
         } else {
             return false
         }
-//        
-//        
-//        guard let layerMultiselectInput = graph.getLayerMultiselectInput(
-//            layerInput: id.keyPath?.layerInput,
-//            isFieldInsideLayerInspector: isFieldInsideLayerInspector) else {
-//            return false
-//        }
-//        
-//        let fieldsWithHeterogenousValues = layerMultiselectInput.fieldsInMultiselectInputWithHeterogenousValues(graph)
-//        
-//        if fieldsWithHeterogenousValues.contains(0) {
-//            // log("DropDownChoiceView: hasHeterogenousValues: heterogenous values for layerInput \(layerInput)")
-//            return true
-//        } else {
-//            return false
-//        }
     }
 
     @MainActor

@@ -71,6 +71,7 @@ struct CommonEditingView: View {
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
     let isForSpacingField: Bool
+    let isSelectedInspectorRow: Bool
     
     let isFieldInMultfieldInspectorInput: Bool
     let fieldWidth: CGFloat
@@ -292,6 +293,7 @@ struct CommonEditingView: View {
             choices: choices,
             fieldWidth: fieldWidth,
             fieldHasHeterogenousValues: fieldHasHeterogenousValues,
+            isSelectedInspectorRow: isSelectedInspectorRow, 
             onTap: {
                 // Every multifield input in the inspector uses a flyout
                 if isFieldInMultfieldInspectorInput,

@@ -15,6 +15,7 @@ struct LabelDisplayView: View {
     let label: String
     let isLeftAligned: Bool
     var fontColor: Color = STITCH_FONT_WHITE_COLOR
+    let isSelectedInspectorRow: Bool
 
     var body: some View {
 
@@ -30,8 +31,8 @@ struct LabelDisplayView: View {
     }
 }
 
-struct LabelDisplayView_Previews: PreviewProvider {
-    static var previews: some View {
-        LabelDisplayView(label: "X", isLeftAligned: true)
-    }
-}
+//struct LabelDisplayView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LabelDisplayView(label: "X", isLeftAligned: true)
+//    }
+//}

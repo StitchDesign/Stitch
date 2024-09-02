@@ -24,6 +24,7 @@ struct CommonEditingViewWrapper: View {
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
     let isForFlyout: Bool
+    let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
     
     @State private var isButtonPressed = false
@@ -83,6 +84,7 @@ struct CommonEditingViewWrapper: View {
                 choices: choices, // Always nil?
                 fieldWidth: fieldWidth,
                 fieldHasHeterogenousValues: fieldHasHeterogenousValues,
+                isSelectedInspectorRow: isSelectedInspectorRow,
                 onTap: {
                     if !isForFlyout {
                         dispatch(FlyoutToggled(flyoutInput: layerInput,
@@ -105,6 +107,7 @@ struct CommonEditingViewWrapper: View {
                               isFieldInMultifieldInput: isFieldInMultifieldInput,
                               isForFlyout: isForFlyout,
                               isForSpacingField: isForSpacingField,
+                              isSelectedInspectorRow: isSelectedInspectorRow,
                               isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
                               fieldWidth: fieldWidth)
         }

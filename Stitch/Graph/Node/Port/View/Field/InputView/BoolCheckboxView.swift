@@ -14,7 +14,7 @@ struct BoolCheckboxView: View {
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
-    let isSelectedInInspector: Bool
+    let isSelectedInspectorRow: Bool
 
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
@@ -43,7 +43,7 @@ struct BoolCheckboxView: View {
 
         // TODO: Why does `.animation(value: Bool)` not work for Image changes?
         Image(systemName: iconName)
-            .modifier(SelectedInInspectorColorOverlay(isSelectedInInspector: isSelectedInInspector))
+            .modifier(SelectedInInspectorColorOverlay(isSelectedInspectorRow: isSelectedInspectorRow))
             .onTapGesture {
                 if let id = id {
                     log("BoolCheckboxView: id: \(id)")
@@ -58,12 +58,12 @@ struct BoolCheckboxView: View {
 }
 
 struct SelectedInInspectorColorOverlay: ViewModifier {
-    let isSelectedInInspector: Bool
+    let isSelectedInspectorRow: Bool
     
     @Environment(\.appTheme) var theme
     
     func body(content: Content) -> some View {
-        if isSelectedInInspector {
+        if isSelectedInspectorRow {
             content.overlay {
                 theme.fontColor.opacity(0.2)
             }

@@ -40,6 +40,8 @@ struct MediaFieldValueView: View {
     let isNodeSelected: Bool
     let hasIncomingEdge: Bool
     let isFieldInsideLayerInspector: Bool
+    let isSelectedInspectorRow: Bool
+    
     @Bindable var graph: GraphState
 
     var alignment: Alignment { isInput ? .leading : .trailing }
@@ -80,7 +82,8 @@ struct MediaFieldValueView: View {
                                       nodeKind: nodeKind,
                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                       graph: graph,
-                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
+                                      isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
+                                      isSelectedInspectorRow: isSelectedInspectorRow)
             }
 
             if let mediaObject = mediaObject {

@@ -112,7 +112,9 @@ struct GenericFlyoutView: View {
                                     // TODO: Figma UI: field on canvas
                                     propertyIsAlreadyOnGraph: false, // Not relevant?
                                     isFieldInMultifieldInput: isMultiField,
-                                    isForFlyout: true)
+                                    isForFlyout: true,
+                                    // False for now, until individual fields can be added to the graph
+                                    isSelectedInspectorRow: false)
                     .onTapGesture {
                         log("flyout: tapped field row \(fieldIndex)")
                         self.selectedFlyoutRow = fieldIndex
