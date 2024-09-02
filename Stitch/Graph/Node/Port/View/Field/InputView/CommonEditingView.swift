@@ -10,12 +10,10 @@ import StitchSchemaKit
 
 extension Color {
     static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.lightModeBlackDarkModeWhite)
-//    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.)
+    
     static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.lightModeWhiteDarkModeBlack)
     
-    // Needs to become a function that recevies `isSelectedInInspector: Bool`, which, when true, applies the app-theme color
-    static let INSPECTOR_FIELD_BACKGROUND_COLOR = BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE.opacity(0.05)
-
+    static let INSPECTOR_FIELD_BACKGROUND_COLOR = Color(.inspectorFieldBackground)
     
 #if DEV_DEBUG
     static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = .blue.opacity(0.5)
@@ -273,9 +271,10 @@ struct CommonEditingView: View {
         .offset(y: -0.5) // slight adjustment required
 #endif
         .modifier(InputViewBackground(
-            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_EDITABLE_FIELD_BACKGROUND_COLOR,
             show: true, // always show background for a focused input
             hasDropdown: choices.isDefined,
+            forPropertySidebar: forPropertySidebar,
+            isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth))
     }
         
@@ -391,9 +390,13 @@ struct CommonEditingView: View {
 // TODO: per Elliot, this is actually a perf-expensive view?
 struct InputViewBackground: ViewModifier {
     
-    var backgroundColor: Color
+    @Environment(\.appTheme) var theme
+    
+//    var backgroundColor: Color
     let show: Bool // if hovering, selected or for sidebar
     let hasDropdown: Bool
+    let forPropertySidebar: Bool
+    let isSelectedInspectorRow: Bool
     var width: CGFloat? // nil for a field inside a multifield input in the inspector
     
     var finalWidth: CGFloat? {
@@ -401,6 +404,14 @@ struct InputViewBackground: ViewModifier {
             return width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
         }
         return nil
+    }
+    
+    var backgroundColor: Color {
+        if forPropertySidebar {
+            return Color.INSPECTOR_FIELD_BACKGROUND_COLOR
+        } else {
+            return Color.COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR
+        }
     }
     
     func body(content: Content) -> some View {
@@ -417,8 +428,16 @@ struct InputViewBackground: ViewModifier {
                    alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {
-                let color = show ? backgroundColor : .clear
-                RoundedRectangle(cornerRadius: 4).fill(color)
+                // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?
+                let color = show ? backgroundColor : Color.clear
+                RoundedRectangle(cornerRadius: 4)
+                    .fill(color)
+                    .overlay {
+                        if isSelectedInspectorRow {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(theme.fontColor.opacity(0.3))
+                        }
+                    }
             }
             .contentShape(Rectangle())
     }
