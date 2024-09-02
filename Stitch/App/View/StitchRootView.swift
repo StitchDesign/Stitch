@@ -45,7 +45,7 @@ struct StitchRootView: View {
     }
     
     // "Is NavigationSplitView's sidebar open or not?"
-    // Handled manually by user.
+    // Handled manually by user; but synced with GraphUIState.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
     
     var body: some View {
@@ -69,9 +69,31 @@ struct StitchRootView: View {
             dispatch(AppEdgeStyleChangedEvent(newEdgeStyle: .init(rawValue: savedEdgeStyle) ?? .defaultEdgeStyle))
             
         }
-        .onChange(of: self.columnVisibility,
-                  initial: true) { oldValue, newValue in
-            dispatch(LeftSidebarToggled())
+        .onChange(of: self.columnVisibility, initial: true) { oldValue, newValue in
+            let fn = { (open: Bool) in dispatch(LeftSidebarSet(open: open)) }
+            
+            switch newValue {
+            case .all:
+                fn(true)
+            case .detailOnly:
+                fn(false)
+            case .doubleColumn:
+                fn(true)
+            // When and how can this case happen?
+            case .automatic:
+                fn(false)
+            default:
+                fn(false)
+            }
+        }
+        .onChange(of: self.store.currentGraph?.graphUI.leftSidebarOpen ?? false) { oldValue, newValue in
+//            dispatch(LeftSidebarSet(open: true))
+            if newValue {
+                self.columnVisibility = .doubleColumn
+            } else {
+                self.columnVisibility = .detailOnly
+            }
+                
         }
         .environment(\.appTheme, theme)
         .environment(\.edgeStyle, edgeStyle)

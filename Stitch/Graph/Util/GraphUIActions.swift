@@ -100,6 +100,23 @@ struct TogglePreviewWindow: GraphUIEvent {
     }
 }
 
+struct ToggleSidebars: GraphEvent {
+    func handle(state: GraphState) {
+        // Opens both if both are already closed;
+        // else closes both.
+        let inspectorOpen = state.graphUI.showsLayerInspector
+        let layerSidebarOpen = state.graphUI.leftSidebarOpen
+        
+        if !inspectorOpen && !layerSidebarOpen {
+            state.graphUI.showsLayerInspector = true
+            state.graphUI.leftSidebarOpen = true
+        } else {
+            state.graphUI.showsLayerInspector = false
+            state.graphUI.leftSidebarOpen = false
+        }
+    }
+}
+
 struct InsertNodeSelectionChanged: GraphUIEvent {
     let selection: InsertNodeMenuOptionData
 
