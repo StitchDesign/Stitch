@@ -162,10 +162,20 @@ struct ProjectsHomeCommands: Commands {
         CommandGroup(before: .sidebar) {
             if activeProject {
                 SwiftUIShortcutView(title: "Toggle Preview Window",
-                                    key: ".",
+                                    key: "/",
                                     eventModifiers: .command,
                                     disabled: !activeProject) {
                     PREVIEW_SHOW_TOGGLE_ACTION()
+                }
+                                    
+            }
+            
+            if activeProject {
+                SwiftUIShortcutView(title: "Toggle Sidebars",
+                                    key: ".",
+                                    eventModifiers: .command,
+                                    disabled: !activeProject) {
+                    dispatch(ToggleSidebars())
                 }
                                     
             }

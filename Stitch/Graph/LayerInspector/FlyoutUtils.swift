@@ -131,3 +131,15 @@ struct LeftSidebarToggled: GraphUIEvent {
         state.closeFlyout()
     }
 }
+
+struct LeftSidebarSet: GraphUIEvent {
+    
+    let open: Bool
+    
+    func handle(state: GraphUIState) {
+        // Reset flyout
+        state.closeFlyout()
+        
+        state.leftSidebarOpen = open
+    }
+}
