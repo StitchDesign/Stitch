@@ -24,13 +24,17 @@ struct AnchoringGridIconView: View {
     //    let anchor: Anchoring = .topLeft
     //    let anchor: Anchoring = .bottomCenter
     
+    private var finalColor: Color {
+        isSelectedInspectorRow ? theme.fontColor : color
+    }
+    
     var body: some View {
         ZStack {
             Image(systemName: "square.grid.3x3")
                 .resizable()
                 .frame(width: iconLength,
                        height: iconLength)
-                .foregroundColor(isSelectedInspectorRow ? theme.fontColor : color)
+                .foregroundColor(finalColor)
         }
         .overlay {
             if let anchor = anchor {
@@ -55,7 +59,7 @@ struct AnchoringGridIconView: View {
         let y = (iconLength * anchor.y) - (squareLength * (anchor.y - 0.5))
         
         RoundedRectangle(cornerRadius: 8.0, style: .continuous)
-            .fill(color)
+            .fill(finalColor)
             .frame(width: squareLength, height: squareLength)
             .position(x: x, y: y)
     }
