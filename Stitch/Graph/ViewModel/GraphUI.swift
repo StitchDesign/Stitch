@@ -104,6 +104,8 @@ final class GraphUIState {
     #else
     var showsLayerInspector = false
     #endif
+    
+    var leftSidebarOpen = false 
 
     // Tracks group breadcrumbs when group nodes are visited
     var groupNodeBreadcrumbs: NodeIdList = []
