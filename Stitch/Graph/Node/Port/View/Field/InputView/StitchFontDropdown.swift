@@ -33,6 +33,8 @@ struct StitchFontDropdown: View {
         self.hasHeterogenousValues ? .HETEROGENOUS_VALUES : self.stitchFont.display
     }
     
+    @Environment(\.appTheme) var theme
+    
     var body: some View {
         Menu {
             subMenu(fontChoice: .sf,
@@ -48,7 +50,8 @@ struct StitchFontDropdown: View {
                     fontWeights: StitchFontWeight.allCases.filter(\.isForNewYorkSerif))
         } label: {
             Button { } label: {
-                StitchTextView(string: finalChoiceDisplay)
+                StitchTextView(string: finalChoiceDisplay,
+                               fontChoice: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }
         .menuIndicator(.hidden) // hide caret indicator

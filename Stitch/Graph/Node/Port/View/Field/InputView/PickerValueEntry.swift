@@ -37,7 +37,8 @@ struct MediaPickerButtons: View {
             } label: {
                 // We add a value for truncating text here to ensure that the title view in the picker does not stretch too long when importing a file with a long tiel
                 //                StitchTextView(string: choice.getName(mediaDict: mediaManager.mediaDict), truncateAt: 30)
-                StitchTextView(string: choice.getName())
+                StitchTextView(string: choice.getName(),
+                               fontChoice: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }
     }

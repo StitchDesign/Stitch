@@ -8,7 +8,15 @@
 import SwiftUI
 import StitchSchemaKit
 
+extension StitchTheme {
+    var fontColor: Color {
+        self.themeData.edgeColor
+    }
+}
+
 struct CommonEditingViewReadOnly: View {
+    
+    @Environment(\.appTheme) var theme
     
     @Bindable var inputField: InputFieldViewModel
     let inputString: String
@@ -17,6 +25,7 @@ struct CommonEditingViewReadOnly: View {
     let choices: [String]?
     let fieldWidth: CGFloat
     let fieldHasHeterogenousValues: Bool
+    let isSelectedInspectorRow: Bool
     
     let onTap: () -> Void
     
@@ -28,13 +37,17 @@ struct CommonEditingViewReadOnly: View {
         forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR
     }
     
+    var fontColor: Color {
+        isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR
+    }
+    
     var body: some View {
         // If can tap to edit, and this is a number field,
         // then bring up the number-adjustment-bar first;
         // for multifields now, the editType value is gonna be a parentValue of eg size or position
         StitchTextView(string: displayString,
                        font: STITCH_FONT,
-                       fontColor: STITCH_FONT_GRAY_COLOR)
+                       fontColor: isSelectedInspectorRow)
         .modifier(InputViewBackground(
             backgroundColor: backgroundColor,
             show: self.isHovering || self.forPropertySidebar,

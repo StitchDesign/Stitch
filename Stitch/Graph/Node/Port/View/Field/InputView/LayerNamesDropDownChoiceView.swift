@@ -129,6 +129,9 @@ extension GraphState {
 }
 
 struct LayerNamesDropDownChoiceView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
     
     @Bindable var graph: GraphState
@@ -195,7 +198,8 @@ struct LayerNamesDropDownChoiceView: View {
                 }
             }
         } label: {
-            StitchTextView(string: selectionTitle)
+            StitchTextView(string: selectionTitle,
+                           fontChoice: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
         }
 #if targetEnvironment(macCatalyst)
         .buttonStyle(.plain)

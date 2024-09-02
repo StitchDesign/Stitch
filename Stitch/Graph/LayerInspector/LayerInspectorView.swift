@@ -102,6 +102,9 @@ struct LayerInspectorView: View {
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
+            
+            #if DEV_DEBUG || DEBUG
+            
             HStack {
                 // Only show editable layer node title if this isn't a multiselect case
                 if let node = node {
@@ -119,6 +122,8 @@ struct LayerInspectorView: View {
             }
                 .padding()
                 .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+            
+            #endif
             
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in

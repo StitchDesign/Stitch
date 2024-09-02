@@ -62,7 +62,8 @@ struct DropDownChoiceView: View {
                              choiceDisplay: finalChoiceDisplay,
                              isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } label: {
-            StitchTextView(string: finalChoiceDisplay)
+            StitchTextView(string: finalChoiceDisplay,
+                           fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
         }
         #if targetEnvironment(macCatalyst)
         .menuIndicator(.hidden) // hide caret indicator

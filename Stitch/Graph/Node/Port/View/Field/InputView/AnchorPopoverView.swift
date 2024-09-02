@@ -26,6 +26,7 @@ struct AnchorPopoverView: View {
     let selection: Anchoring
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let isFieldInsideLayerInspector: Bool
+    let isSelectedInInspector: Bool
 
     @State private var isOpen = false
 
@@ -43,6 +44,7 @@ struct AnchorPopoverView: View {
     
     var body: some View {
         AnchoringGridIconView(anchor: self.hasHeterogenousValues ? nil : selection)
+            .modifier(SelectedInInspectorColorOverlay(isSelectedInInspector: isSelectedInInspector))
             .onTapGesture {
                 self.isOpen.toggle()
             }

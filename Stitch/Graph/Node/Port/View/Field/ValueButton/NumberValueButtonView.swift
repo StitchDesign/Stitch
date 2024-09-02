@@ -33,11 +33,14 @@ struct NumberValueButtonView: View {
     let fieldValueNumberType: FieldValueNumberType
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let isFieldInsideLayerInspector: Bool
+    let isSelectedInInspector: Bool
+    
     @Binding var isPressed: Bool
 
     var body: some View {
 
         FieldButtonImage(sfSymbolName: "ellipsis.circle")
+            .modifier(SelectedInInspectorColorOverlay(isSelectedInInspector: isSelectedInInspector))
             .rotationEffect(Angle(degrees: 90))
             .onTapGesture {
                 self.isPressed = true

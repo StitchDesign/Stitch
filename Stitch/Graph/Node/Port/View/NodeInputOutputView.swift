@@ -155,6 +155,9 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
 }
 
 struct NodeInputView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
@@ -227,7 +230,7 @@ struct NodeInputView: View {
                 if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
-                                       fontColor: STITCH_FONT_GRAY_COLOR)
+                                       fontColor: fontChoice: isSelectedInspectorRow ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
                         Spacer()
                     }
                     .overlay {

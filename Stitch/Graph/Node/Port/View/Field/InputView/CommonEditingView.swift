@@ -13,7 +13,9 @@ extension Color {
 //    static let BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE: Color = Color(.)
     static let WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE: Color = Color(.lightModeWhiteDarkModeBlack)
     
+    // Needs to become a function that recevies `isSelectedInInspector: Bool`, which, when true, applies the app-theme color
     static let INSPECTOR_FIELD_BACKGROUND_COLOR = BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE.opacity(0.05)
+
     
 #if DEV_DEBUG
     static let COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR: Color = .blue.opacity(0.5)

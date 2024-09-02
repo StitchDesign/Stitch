@@ -21,7 +21,7 @@ struct ReadOnlyValueEntry: View {
 
     var body: some View {
         StitchTextView(string: value,
-                       fontColor: fontColor)
+                       fontColor: fontChoice: isSelectedInspectorRow ? theme.fontColor : fontColor)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
