@@ -10,6 +10,9 @@ import StitchSchemaKit
 
 // TODO: what "multi" value should we show for a checkbox?
 struct BoolCheckboxView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     let id: InputCoordinate? // nil = used in output
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let value: Bool
@@ -43,7 +46,7 @@ struct BoolCheckboxView: View {
 
         // TODO: Why does `.animation(value: Bool)` not work for Image changes?
         Image(systemName: iconName)
-            .modifier(SelectedInInspectorColorOverlay(isSelectedInspectorRow: isSelectedInspectorRow))
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
             .onTapGesture {
                 if let id = id {
                     log("BoolCheckboxView: id: \(id)")
@@ -54,22 +57,6 @@ struct BoolCheckboxView: View {
                                 isFieldInsideLayerInspector: isFieldInsideLayerInspector))
                 }
             }
-    }
-}
-
-struct SelectedInInspectorColorOverlay: ViewModifier {
-    let isSelectedInspectorRow: Bool
-    
-    @Environment(\.appTheme) var theme
-    
-    func body(content: Content) -> some View {
-        if isSelectedInspectorRow {
-            content.overlay {
-                theme.fontColor.opacity(0.2)
-            }
-        } else {
-            content
-        }
     }
 }
 

@@ -21,6 +21,8 @@ let ANCHOR_OPTION_SPACING: CGFloat = 18
 let ANCHOR_POPOVER_PADDING = ANCHOR_OPTION_SPACING
 
 struct AnchorPopoverView: View {
+    
+    @Environment(\.appTheme) var theme
 
     let input: InputCoordinate
     let selection: Anchoring
@@ -44,7 +46,7 @@ struct AnchorPopoverView: View {
     
     var body: some View {
         AnchoringGridIconView(anchor: self.hasHeterogenousValues ? nil : selection)
-            .modifier(SelectedInInspectorColorOverlay(isSelectedInspectorRow: isSelectedInspectorRow))
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
             .onTapGesture {
                 self.isOpen.toggle()
             }

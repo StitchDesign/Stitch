@@ -26,6 +26,9 @@ struct AdjustmentBarSessionId: Equatable, Identifiable, Hashable {
 }
 
 struct NumberValueButtonView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     @Bindable var graph: GraphState
     let value: Double
     let fieldCoordinate: FieldCoordinate
@@ -40,7 +43,7 @@ struct NumberValueButtonView: View {
     var body: some View {
 
         FieldButtonImage(sfSymbolName: "ellipsis.circle")
-            .modifier(SelectedInInspectorColorOverlay(isSelectedInspectorRow: isSelectedInspectorRow))
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
             .rotationEffect(Angle(degrees: 90))
             .onTapGesture {
                 self.isPressed = true
