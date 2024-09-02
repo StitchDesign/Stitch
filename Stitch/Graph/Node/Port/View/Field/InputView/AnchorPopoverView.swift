@@ -23,7 +23,7 @@ let ANCHOR_POPOVER_PADDING = ANCHOR_OPTION_SPACING
 struct AnchorPopoverView: View {
     
     @Environment(\.appTheme) var theme
-
+    
     let input: InputCoordinate
     let selection: Anchoring
     let inputLayerNodeRowData: InputLayerNodeRowData?
@@ -45,8 +45,9 @@ struct AnchorPopoverView: View {
     }
     
     var body: some View {
-        AnchoringGridIconView(anchor: self.hasHeterogenousValues ? nil : selection)
-            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
+        AnchoringGridIconView(
+            anchor: self.hasHeterogenousValues ? nil : selection,
+            isSelectedInspectorRow: isSelectedInspectorRow)
             .onTapGesture {
                 self.isOpen.toggle()
             }
@@ -71,6 +72,7 @@ struct AnchorPopoverView: View {
 
         } label: {
             Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
+                .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
         }
         #if targetEnvironment(macCatalyst)
         .buttonStyle(.borderless)

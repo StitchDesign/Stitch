@@ -225,6 +225,7 @@ struct OutputValueView: View {
         case .json(let json):
             ValueJSONView(coordinate: coordinate,
                           json: isButtonPressed ? json : nil,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
                           isPressed: $isButtonPressed)
 
         case .readOnly(let string):

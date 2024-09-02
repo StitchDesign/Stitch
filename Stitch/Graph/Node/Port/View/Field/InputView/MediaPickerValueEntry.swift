@@ -10,6 +10,8 @@ import StitchSchemaKit
 
 struct MediaPickerValueEntry: View {
     
+    @Environment(\.appTheme) var theme
+    
     let coordinate: InputCoordinate
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
@@ -92,7 +94,8 @@ struct MediaPickerValueEntry: View {
             // We add a value for truncating text here to ensure that the selection items view in the picker does not stretch too long when importing a file with a long title
             
             TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
-                              truncateAt: 30)
+                              truncateAt: 30,
+                              color: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
         })
     }
 }

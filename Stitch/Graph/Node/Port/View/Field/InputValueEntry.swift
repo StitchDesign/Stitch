@@ -326,6 +326,7 @@ struct InputValueView: View {
                                                       fieldIndex: viewModel.fieldIndex), 
                           rowObserverCoordinate: rowObserverId,
                           json: isButtonPressed ? json : nil,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
                           isPressed: $isButtonPressed)
 
         // TODO: is this relevant for multiselect?

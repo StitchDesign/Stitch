@@ -10,12 +10,15 @@ import StitchSchemaKit
 
 struct AnchoringGridIconView: View {
 
+    @Environment(\.appTheme) var theme
+    
     private let iconLength = 100.0
     private let squareLength = 25.0 + 4 // +4 because of padding?
     private let color: Color = .THEMED_TITLE_FONT_COLOR
     
     // nil when multiselect
     let anchor: Anchoring?
+    let isSelectedInspectorRow: Bool
     
     //    let anchor: Anchoring = .init(y: 0.2, x: 0.7)
     //    let anchor: Anchoring = .topLeft
@@ -27,7 +30,7 @@ struct AnchoringGridIconView: View {
                 .resizable()
                 .frame(width: iconLength,
                        height: iconLength)
-                .foregroundColor(color)
+                .foregroundColor(isSelectedInspectorRow ? theme.fontColor : color)
         }
         .overlay {
             if let anchor = anchor {

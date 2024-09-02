@@ -42,11 +42,26 @@ struct BoolCheckboxView: View {
         }
     }
     
+    var themeColor: Color {
+        theme.fontColor
+    }
+    
     var body: some View {
 
         // TODO: Why does `.animation(value: Bool)` not work for Image changes?
         Image(systemName: iconName)
-            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
+            .foregroundColor(isSelectedInspectorRow ? themeColor : .primary)
+        
+        // TODO: how to "fill" the background of the checkbox symbol?
+//            .background {
+//                if isFieldInsideLayerInspector && isSelectedInspectorRow {
+//                    return themeColor. //.INSPECTOR_FIELD_BACKGROUND_COLOR.overlay(themeColor.opacity(0.5))
+//                } else if isFieldInsideLayerInspector {
+//                    return .INSPECTOR_FIELD_BACKGROUND_COLOR
+//                } else {
+//                    return .clear
+//                }
+//            }
             .onTapGesture {
                 if let id = id {
                     log("BoolCheckboxView: id: \(id)")

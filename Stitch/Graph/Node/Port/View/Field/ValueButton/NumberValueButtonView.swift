@@ -9,15 +9,19 @@ import SwiftUI
 import StitchSchemaKit
 
 struct FieldButtonImage: View {
+    
+    @Environment(\.appTheme) var theme
+    
     let sfSymbolName: String
-
+    let isSelectedInspectorRow: Bool
+    
     var body: some View {
         Image(systemName: sfSymbolName)
             // Do not .scaleToFit (?) the adjustment bar button, since it can become very small on some nodes.
             // Better?: manually set a .frame
             //            .resizable()
             //            .scaledToFit()
-            .foregroundColor(VALUE_FIELD_BODY_COLOR)
+            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : VALUE_FIELD_BODY_COLOR)
     }
 }
 
@@ -26,8 +30,6 @@ struct AdjustmentBarSessionId: Equatable, Identifiable, Hashable {
 }
 
 struct NumberValueButtonView: View {
-    
-    @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
     let value: Double
@@ -42,8 +44,8 @@ struct NumberValueButtonView: View {
 
     var body: some View {
 
-        FieldButtonImage(sfSymbolName: "ellipsis.circle")
-            .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
+        FieldButtonImage(sfSymbolName: "ellipsis.circle",
+                         isSelectedInspectorRow: isSelectedInspectorRow)
             .rotationEffect(Angle(degrees: 90))
             .onTapGesture {
                 self.isPressed = true
