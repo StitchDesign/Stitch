@@ -26,7 +26,8 @@ struct OpenFlyoutView: View, KeyboardReadable {
             // If pseudo-modal-background placed here,
             // then we disable scroll
             #if DEV_DEBUG || DEBUG
-            let pseudoPopoverBackgroundOpacity = 0.1
+//            let pseudoPopoverBackgroundOpacity = 0.1
+            let pseudoPopoverBackgroundOpacity = 0.001
             #else
             let pseudoPopoverBackgroundOpacity = 0.001
             #endif

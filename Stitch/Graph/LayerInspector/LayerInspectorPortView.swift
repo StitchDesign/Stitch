@@ -163,39 +163,14 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     }
     
     var body: some View {
-        HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
+        HStack {
             LayerInspectorRowButton(layerProperty: layerProperty,
                                     coordinate: rowObserver.id,
                                     canvasItemId: canvasItemId,
                                     isRowSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
-
-            HStack {
-                rowView(propertyRowIsSelected)
-                Spacer()
-            }
-            .padding(.leading, LAYER_INSPECTOR_ROW_SPACING) // padding so that text is not flush with capsule background
             
-            // TODO: fully remove this?
-            .background {
-//                WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-                Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE
-                    .cornerRadius(6)
-                // Note: applying the gesture to the background instead of the HStack avoids accidentally selecting the row when using a dropdown, but then the row's overall-label and field-labels are no longer covered; so just add this .gesture to the overall-label and field-label views?
-                //                    .gesture(
-                //                        TapGesture().onEnded({ _ in
-                //                            log("LayerInspectorPortView tapped")
-                //                            if isOnGraphAlready,
-                //                               let canvasItemId = rowViewModel.canvasItemDelegate?.id {
-                //                                dispatch(JumpToCanvasItem(id: canvasItemId))
-                //                            } else {
-                //                                withAnimation {
-                //                                    graph.graphUI.layerPropertyTapped(layerProperty)
-                //                                }
-                //                            }
-                //                        })
-                //                    ) // .gesture
-            }
+            rowView(propertyRowIsSelected)
         }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
