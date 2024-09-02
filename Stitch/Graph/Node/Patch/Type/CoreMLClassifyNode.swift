@@ -47,7 +47,8 @@ struct CoreMLClassifyNode: PatchNodeDefinition {
 @MainActor
 func coreMLClassifyEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
-        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first)?.mediaObject,
+        guard let modelMediaObject = mediaObserver.getUniqueMedia(from: values.first,
+                                                                  loopIndex: loopIndex)?.mediaObject,
               let model = modelMediaObject.coreMLImageModel else {
             return node.defaultOutputs
         }

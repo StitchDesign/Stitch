@@ -82,8 +82,9 @@ func soundImportEval(node: PatchNode) -> EvalResult {
     let graphTime = node.graphDelegate?.graphStepState.graphTime ?? .zero
     var soundPlayer: StitchSoundPlayer<StitchSoundFilePlayer>?
     
-    var result: EvalResult = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, _ in
-        guard let media = mediaObserver.getUniqueMedia(from: values.first) else {
+    var result: EvalResult = node.loopedEval(MediaEvalOpObserver.self) { values, mediaObserver, loopIndex in
+        guard let media = mediaObserver.getUniqueMedia(from: values.first,
+                                                       loopIndex: loopIndex) else {
             return node.defaultOutputs
         }
         soundPlayer = media.mediaObject.soundFilePlayer
