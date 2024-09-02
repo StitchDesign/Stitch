@@ -182,6 +182,10 @@ extension GraphState: GraphDelegate {
     func getMediaUrl(forKey key: MediaKey) -> URL? {
         self.mediaLibrary.get(key)
     }
+    
+    @MainActor var multiselectInputs: LayerInputTypeSet? {
+        self.graphUI.propertySidebar.inputsCommonToSelectedLayers
+    }
 }
 
 extension GraphState: SchemaObserver {

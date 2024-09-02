@@ -12,8 +12,8 @@ struct ReduxFieldFocused: GraphUIEvent {
     let focusedField: FocusedUserEditField
 
     func handle(state: GraphUIState) {
-        //         log("ReduxFieldFocused: focusedField: \(focusedField)")
-        //         log("ReduxFieldFocused: state.reduxFocusedField was: \(state.reduxFocusedField)")
+        log("ReduxFieldFocused: focusedField: \(focusedField)")
+        log("ReduxFieldFocused: state.reduxFocusedField was: \(state.reduxFocusedField)")
         state.reduxFocusedField = focusedField
     }
 }
@@ -22,8 +22,8 @@ struct ReduxFieldDefocused: GraphUIEvent {
     let focusedField: FocusedUserEditField
     
     func handle(state: GraphUIState) {
-        //         log("ReduxFieldDefocused: focusedField: \(focusedField)")
-        //         log("ReduxFieldDefocused: state.reduxFocusedField: \(state.reduxFocusedField)")
+        log("ReduxFieldDefocused: focusedField: \(focusedField)")
+        log("ReduxFieldDefocused: state.reduxFocusedField: \(state.reduxFocusedField)")
         if state.reduxFocusedField == focusedField {
             //             log("ReduxFieldDefocused: will set focused field nil")
             state.reduxFocusedField = nil

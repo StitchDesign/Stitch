@@ -21,14 +21,33 @@ let ANCHOR_OPTION_SPACING: CGFloat = 18
 let ANCHOR_POPOVER_PADDING = ANCHOR_OPTION_SPACING
 
 struct AnchorPopoverView: View {
-
+    
+    @Environment(\.appTheme) var theme
+    
     let input: InputCoordinate
     let selection: Anchoring
+    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let isFieldInsideLayerInspector: Bool
+    let isSelectedInspectorRow: Bool
 
     @State private var isOpen = false
 
+    @MainActor
+    var hasHeterogenousValues: Bool {
+        if let inputLayerNodeRowData = inputLayerNodeRowData {
+            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+                0,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+        } else {
+            return false
+        }
+    }
+    
     var body: some View {
-        AnchoringGridIconView(anchor: selection)
+        AnchoringGridIconView(
+            anchor: self.hasHeterogenousValues ? nil : selection,
+            isSelectedInspectorRow: isSelectedInspectorRow)
             .onTapGesture {
                 self.isOpen.toggle()
             }
@@ -47,11 +66,13 @@ struct AnchorPopoverView: View {
 
             dispatch(PickerOptionSelected(
                         input: input,
-                        choice: .anchoring(option),
+                        choice: .anchoring(option), 
+                        isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                         isPersistence: true))
 
         } label: {
-            Image(systemName: option == selection ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
+            Image(systemName: (!self.hasHeterogenousValues && option == selection) ? ANCHOR_SELECTION_OPTION_ICON : ANCHOR_OPTION_ICON)
+                .foregroundColor(isSelectedInspectorRow ? theme.fontColor : .primary)
         }
         #if targetEnvironment(macCatalyst)
         .buttonStyle(.borderless)

@@ -19,21 +19,30 @@ struct MediaPickerChoicesView: View {
 }
 
 struct MediaPickerButtons: View {
+    
+    @Environment(\.appTheme) var theme
+    
     //    @Binding var selectedValue: FieldValueMedia
     let inputCoordinate: InputCoordinate
     let mediaType: SupportedMediaFormat
     let choices: [FieldValueMedia]
+    let isFieldInsideLayerInspector: Bool
+    let graph: GraphState
+    let isSelectedInspectorRow: Bool
 
     var body: some View {
         ForEach(choices) { choice in
             StitchButton {
                 // Update binding which later gets processed by view model
                 choice.handleSelection(inputCoordinate: inputCoordinate,
-                                       mediaType: mediaType)
+                                       mediaType: mediaType, 
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                       graph: graph)
             } label: {
                 // We add a value for truncating text here to ensure that the title view in the picker does not stretch too long when importing a file with a long tiel
                 //                StitchTextView(string: choice.getName(mediaDict: mediaManager.mediaDict), truncateAt: 30)
-                StitchTextView(string: choice.getName())
+                StitchTextView(string: choice.getName(),
+                               fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
             }
         }
     }

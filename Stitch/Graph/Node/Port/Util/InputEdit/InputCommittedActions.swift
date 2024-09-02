@@ -13,11 +13,12 @@ import SwiftyJSON
 extension GraphState {
     @MainActor
     func jsonEditCommitted(input: NodeIOCoordinate,
-                           json: JSON) {
-        self.inputEditCommitted(
+                           json: JSON,
+                           isFieldInsideLayerInspector: Bool) {
+        self.handleInputEditCommitted(
             input: input,
-            value: .json(json.toStitchJSON)
-        )
+            value: .json(json.toStitchJSON),
+            isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
 }
 
@@ -43,15 +44,15 @@ extension StitchStore {
         guard let graphState = self.currentGraph else {
             return
         }
-
+        
         let oldDocument = graphState.createSchema()
         graphState
             .inputEditCommitted(input: input,
                                 value: value,
                                 wasAdjustmentBarSelection: wasAdjustmentBarSelection)
-
+        
         let newDocument = graphState.createSchema()
-
+        
         self.saveUndoHistory(oldState: oldDocument,
                              newState: newDocument)
     }
@@ -72,18 +73,38 @@ extension GraphState {
      
      */
     @MainActor
-    func inputEditCommitted(input: NodeIOCoordinate,
-                            value: PortValue?,
-                            wasAdjustmentBarSelection: Bool = false) {
+    func handleInputEditCommitted(input: NodeIOCoordinate,
+                                  value: PortValue?,
+                                  isFieldInsideLayerInspector: Bool,
+                                  wasAdjustmentBarSelection: Bool = false) {
         guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             fatalErrorIfDebug()
             return
         }
         
-        self.inputEditCommitted(input: input,
-                                value: value,
-                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+        if isFieldInsideLayerInspector,
+           let layerInput = input.id.keyPath?.layerInput,
+           let multiselectInputs = self.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
+        
+            // Note: heterogenous values doesn't matter; only the multiselect does
+            layerMultiselectInput.multiselectObservers(self).forEach { observer in
+                self.inputEditCommitted(input: observer.rowObserver,
+                                        value: value,
+                                        wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+            }
+        } 
+        
+        // just editing a single
+        else {
+            self.inputEditCommitted(input: input,
+                                    value: value,
+                                    wasAdjustmentBarSelection: wasAdjustmentBarSelection)
+        }
+        
+        
+        
     }
     
     @MainActor

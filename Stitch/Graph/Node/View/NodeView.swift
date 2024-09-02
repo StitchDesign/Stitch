@@ -300,8 +300,8 @@ struct CanvasItemBackground: ViewModifier {
             .background {
                 ZStack {
                     VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                    color.opacity(0.1)
-//                    color.opacity(0.3)
+//                    color.opacity(0.1)
+                    color.opacity(0.3)
                     //                nodeUIColor.body.opacity(0.5)
                     //                nodeUIColor.body.opacity(0.7)
                 }

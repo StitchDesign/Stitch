@@ -26,7 +26,8 @@ struct OpenFlyoutView: View, KeyboardReadable {
             // If pseudo-modal-background placed here,
             // then we disable scroll
             #if DEV_DEBUG || DEBUG
-            let pseudoPopoverBackgroundOpacity = 0.1
+//            let pseudoPopoverBackgroundOpacity = 0.1
+            let pseudoPopoverBackgroundOpacity = 0.001
             #else
             let pseudoPopoverBackgroundOpacity = 0.001
             #endif
@@ -63,18 +64,25 @@ struct OpenFlyoutView: View, KeyboardReadable {
             - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
             - keyboardAdjustment // move flyout up a bit more if keyboard is open and we're near bottom
             
+            let flyoutInput = flyoutState.flyoutInput
+            
             HStack {
                 Spacer()
                 Group {
-                    if flyoutState.flyoutInput == .padding {
-                        PaddingFlyoutView(graph: graph,
-                                          rowViewModel: inputData.inspectorRowViewModel,
+                    // Multiple single-field inputs presented in one flyout
+                    if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+                       ShadowFlyoutView(node: node,
+                                        layerNode: layerNode,
+                                        graph: graph)
+                    } 
+                    // One multifield input presented in separate rows in the flyout
+                    else {
+                        GenericFlyoutView(graph: graph,
+                                          inputRowViewModel: inputData.inspectorRowViewModel,
+                                          inputLayerNodeRowData: inputData,
                                           layer: layerNode.layer,
-                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection)
-                    } else if flyoutState.flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-                        ShadowFlyoutView(node: node,
-                                         layerNode: layerNode,
-                                         graph: graph)
+                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection,
+                                          layerInput: flyoutInput)
                     }
                 }
                 .offset(

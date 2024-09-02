@@ -12,16 +12,20 @@ import StitchSchemaKit
 
 // TODO: remove this in favor of StitchTextView, or is it worthwhile to have a separate view for later potential changes to 'read only' value displays?
 struct ReadOnlyValueEntry: View {
+    
+    @Environment(\.appTheme) var theme
+    
     let value: String
 
     // left alignment for all inputs and multifield outputs
     // right alignment for single-field outputs
     let alignment: Alignment // = .trailing
     var fontColor: Color = STITCH_FONT_GRAY_COLOR
+    let isSelectedInspectorRow: Bool
 
     var body: some View {
         StitchTextView(string: value,
-                       fontColor: fontColor)
+                       fontColor: isSelectedInspectorRow ? theme.fontColor : fontColor)
             // Monospacing prevents jittery node widths if values change on graphstep
             .monospacedDigit()
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,

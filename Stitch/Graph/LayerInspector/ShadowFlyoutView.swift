@@ -54,7 +54,7 @@ struct ShadowFlyoutView: View {
 //                         .border(.red)
         }
         .padding()
-        .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
+        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
         .cornerRadius(8)
         .frame(width: Self.SHADOW_FLYOUT_WIDTH, 
 //               height: Self.SHADOW_FLYOUT_HEIGHT)
@@ -83,6 +83,7 @@ struct ShadowFlyoutView: View {
                 NodeInputView(graph: graph,
                               rowObserver: layerInputData.rowObserver,
                               rowData: layerInputData.inspectorRowViewModel,
+                              inputLayerNodeRowData: layerInputData,
                               forPropertySidebar: true,
                               propertyIsSelected: false, // NA
                               // TODO: applicable or not?
@@ -91,13 +92,13 @@ struct ShadowFlyoutView: View {
                               forFlyout: true)
                 // Each row seems too tall? Probably from a set node row height somewhere?
                 // Uses padding to reduce size
-                .padding([.top, .bottom], -2)
-                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
-//                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
-                .background {
-                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-                        .cornerRadius(6)
-                }
+//                .padding([.top, .bottom], -2)
+//                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
+////                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
+//                .background {
+//                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
+//                        .cornerRadius(6)
+//                }
                 .onChange(of: layerInputPort.mode) {
                     // Unpacked modes not supported here
                     assertInDebug(layerInputPort.mode == .packed)

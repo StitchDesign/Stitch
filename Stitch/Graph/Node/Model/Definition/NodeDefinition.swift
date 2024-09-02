@@ -36,7 +36,11 @@ extension PatchNodeDefinition {
     static var graphKind: NodeDefinitionKind { .patch(Self.self) }
 }
 
-
+extension Layer {
+    var inputDefinitions: LayerInputTypeSet {
+        self.layerGraphNode.inputDefinitions
+    }
+}
 
 // fka `LayerGraphNode`
 protocol LayerNodeDefinition: NodeDefinition {

@@ -21,6 +21,7 @@ struct EditJSONEntry: View {
     let coordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let json: StitchJSON? // nil helps with perf?
+    let isSelectedInspectorRow: Bool
     @Binding var isPressed: Bool
 
 //    var coordinate: NodeRowViewModelId {
@@ -28,7 +29,8 @@ struct EditJSONEntry: View {
 //    }
 
     var body: some View {
-        FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL)
+        FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL,
+                         isSelectedInspectorRow: isSelectedInspectorRow)
             .popover(isPresented: $isOpen) {
                 TextEditor(text: $internalEditString)
                     .focusedValue(\.focusedField, .textInput(coordinate))
@@ -61,8 +63,11 @@ struct EditJSONEntry: View {
                         if let json = json?.value,
                            let edit = getCleanedJSON(internalEditString),
                            !areEqualJsons(edit, json) {
-                            graph.jsonEditCommitted(input: rowObserverCoordinate,
-                                                    json: edit)
+                            graph.jsonEditCommitted(
+                                input: rowObserverCoordinate,
+                                json: edit,
+                                // TODO: currently we never use json input for a layer input; but should pass down proper values here
+                                isFieldInsideLayerInspector: false)
                         }
                     }
                     .onChange(of: internalEditString) { newValue in

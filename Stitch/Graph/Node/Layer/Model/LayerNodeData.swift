@@ -17,12 +17,39 @@ protocol LayerNodeRowData: AnyObject {
     var inspectorRowViewModel: RowObserverable.RowViewModelType { get set }
 }
 
+/*
+ Data for a single "row"; could represent a packed input or a single field of an unpacked input.
+ 
+ So e.g. could be for Size input, or Size input's Width or Height field.
+ */
 @Observable
 final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     let id: LayerInputType
     var rowObserver: InputNodeRowObserver
     var inspectorRowViewModel: InputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
+    
+    // Better to keep it here, outside of the view?
+    // - Consolidate in a single place
+    
+    // Called from various UI, e.g. `CommonEditingView`,
+    // which could be for a field on the canvas or in the layer inspector
+    @MainActor
+    func fieldHasHeterogenousValues(_ fieldIndex: Int,
+                                    isFieldInsideLayerInspector: Bool) -> Bool {
+                
+
+        // Only relevant when this layer-input field is in the layer inspector and multiple layers are selected
+        guard isFieldInsideLayerInspector,
+              let graphDelegate = self.inspectorRowViewModel.graphDelegate,
+              graphDelegate.multiselectInputs.isDefined else {
+            return false
+        }
+    
+         return self.id.layerInput
+            .fieldsInMultiselectInputWithHeterogenousValues(graphDelegate)
+            .contains(fieldIndex)
+    }
     
     @MainActor
     init(rowObserver: InputNodeRowObserver,

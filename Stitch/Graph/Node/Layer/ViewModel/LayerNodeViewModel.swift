@@ -133,6 +133,10 @@ final class LayerNodeViewModel {
     @MainActor var pinAnchorPort: LayerInputObserver
     @MainActor var pinOffsetPort: LayerInputObserver
     
+    @MainActor var layerMarginPort: LayerInputObserver
+    @MainActor var layerPaddingPort: LayerInputObserver
+    @MainActor var offsetInGroupPort: LayerInputObserver
+    
     weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -278,6 +282,10 @@ final class LayerNodeViewModel {
         self.pinToPort = .init(from: schema, port: .pinTo)
         self.pinAnchorPort = .init(from: schema, port: .pinAnchor)
         self.pinOffsetPort = .init(from: schema, port: .pinOffset)
+        
+        self.layerPaddingPort = .init(from: schema, port: .layerPadding)
+        self.layerMarginPort = .init(from: schema, port: .layerMargin)
+        self.offsetInGroupPort = .init(from: schema, port: .offsetInGroup)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

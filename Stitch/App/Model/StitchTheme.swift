@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StitchThemeData: Identifiable, Equatable, Codable, Hashable {
     var id = UUID()
-    let edgeColor: Color
+    let edgeColor: Color // Also used for text now
     let highlightedEdgeColor: Color
 
     // TODO: add associated file for app icon

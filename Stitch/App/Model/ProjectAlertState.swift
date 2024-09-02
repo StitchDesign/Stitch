@@ -48,7 +48,7 @@ enum FileImportState: Codable, Equatable {
 
 /// Payload used for import scenarios where imported media is added to an existing node
 struct NodeMediaImportPayload: Codable, Equatable {
-    let destinationInput: InputCoordinate
+    let destinationInputs: [InputCoordinate] // more than 1 if edited from layer inspector via multiselect
     let mediaFormat: SupportedMediaFormat
 }
 

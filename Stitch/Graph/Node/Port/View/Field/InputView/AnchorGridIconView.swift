@@ -10,14 +10,23 @@ import StitchSchemaKit
 
 struct AnchoringGridIconView: View {
 
+    @Environment(\.appTheme) var theme
+    
     private let iconLength = 100.0
     private let squareLength = 25.0 + 4 // +4 because of padding?
-    private let color: Color = .THEMED_TITLE_FONT_COLOR // Color(.titleFont)
+    private let color: Color = .THEMED_TITLE_FONT_COLOR
     
-    let anchor: Anchoring
+    // nil when multiselect
+    let anchor: Anchoring?
+    let isSelectedInspectorRow: Bool
+    
     //    let anchor: Anchoring = .init(y: 0.2, x: 0.7)
     //    let anchor: Anchoring = .topLeft
     //    let anchor: Anchoring = .bottomCenter
+    
+    private var finalColor: Color {
+        isSelectedInspectorRow ? theme.fontColor : color
+    }
     
     var body: some View {
         ZStack {
@@ -25,15 +34,17 @@ struct AnchoringGridIconView: View {
                 .resizable()
                 .frame(width: iconLength,
                        height: iconLength)
-                .foregroundColor(color)
+                .foregroundColor(finalColor)
         }
         .overlay {
-            currentAnchor
+            if let anchor = anchor {
+                currentAnchor(anchor)
+            }
         }
     }
     
     @ViewBuilder
-    var currentAnchor: some View {
+    func currentAnchor(_ anchor: Anchoring) -> some View {
         
         /*
          Based off of `adjustPosition`:
@@ -48,7 +59,7 @@ struct AnchoringGridIconView: View {
         let y = (iconLength * anchor.y) - (squareLength * (anchor.y - 0.5))
         
         RoundedRectangle(cornerRadius: 8.0, style: .continuous)
-            .fill(color)
+            .fill(finalColor)
             .frame(width: squareLength, height: squareLength)
             .position(x: x, y: y)
     }

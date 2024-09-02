@@ -85,7 +85,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning)
+        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
     static func content(graph: GraphState,

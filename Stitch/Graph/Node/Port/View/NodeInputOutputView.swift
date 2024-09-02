@@ -19,8 +19,8 @@ struct LayerInspectorRowButton: View {
     var canBeAddedToCanvas: Bool {
         switch layerProperty {
         case .layerInput(let layerInputType):
-            return !layerInputType.layerInput.usesFlyout
-        case .layerOutput(let int):
+            return layerInputType.layerInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY
+        case .layerOutput:
             return true
         }
     }
@@ -43,9 +43,11 @@ struct LayerInspectorRowButton: View {
     
     var body: some View {
         if let canvasItemId = canvasItemId {
-            JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId)
+            JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId,
+                                             isRowSelected: isRowSelected)
         } else {
-            AddLayerPropertyToGraphButton(coordinate: coordinate)
+            AddLayerPropertyToGraphButton(coordinate: coordinate,
+                                          isRowSelected: isRowSelected)
                 .opacity(showAddLayerPropertyButton ? 1 : 0)
                 .animation(.default, value: showAddLayerPropertyButton)
         }
@@ -54,7 +56,12 @@ struct LayerInspectorRowButton: View {
 
 // TODO: revisit this when we're able to add LayerNodes with outputs to the graph again
 struct AddLayerPropertyToGraphButton: View {
+    
+    @Environment(\.appTheme) var theme
+        
     let coordinate: NodeIOCoordinate
+    
+    let isRowSelected: Bool
     
     var nodeId: NodeId {
         coordinate.nodeId
@@ -63,7 +70,8 @@ struct AddLayerPropertyToGraphButton: View {
     var body: some View {
         Image(systemName: "plus.circle")
             .resizable()
-            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH, 
+            .foregroundColor(isRowSelected ? theme.fontColor : .primary)
+            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {
                 if let layerInput = coordinate.keyPath {
@@ -79,13 +87,17 @@ struct AddLayerPropertyToGraphButton: View {
 }
 
 struct JumpToLayerPropertyOnGraphButton: View {
+    @Environment(\.appTheme) var theme
+    
     let canvasItemId: CanvasItemId
+    let isRowSelected: Bool
         
     var body: some View {
         // TODO: use a button ?
         Image(systemName: "scope")
             .resizable()
-            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH, 
+            .foregroundColor(isRowSelected ? theme.fontColor : .primary)
+            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
             .onTapGesture {
                 dispatch(JumpToCanvasItem(id: canvasItemId))
@@ -150,16 +162,21 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     var labelView: LabelDisplayView {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
-                         fontColor: STITCH_FONT_GRAY_COLOR)
+                         fontColor: STITCH_FONT_GRAY_COLOR,
+                         isSelectedInspectorRow: propertyIsSelected)
     }
 }
 
 struct NodeInputView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    let inputLayerNodeRowData: InputLayerNodeRowData?
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -176,6 +193,7 @@ struct NodeInputView: View {
         self.rowObserver.id.nodeId
     }
     
+    // pass in instead of accessing via nodeDelegate
     @MainActor
     var nodeKind: NodeKind {
         self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
@@ -186,13 +204,21 @@ struct NodeInputView: View {
                         isMultiField: Bool) -> some View {
         InputValueEntry(graph: graph,
                         rowViewModel: rowData,
-                        viewModel: portViewModel,
+                        viewModel: portViewModel, 
+                        inputLayerNodeRowData: inputLayerNodeRowData,
                         rowObserverId: rowObserver.id,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
                         hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        isFieldInMultifieldInput: isMultiField,
+                        isForFlyout: forFlyout,
+                        isSelectedInspectorRow: propertyIsSelected)
+    }
+    
+    var layerInput: LayerInputPort? {
+        rowData.rowDelegate?.id.keyPath?.layerInput
     }
     
     var body: some View {
@@ -213,20 +239,14 @@ struct NodeInputView: View {
                                     showPopover: $showPopover)
                 }
                 
-                let isPaddingLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == .padding
-                let isShadowLayerInputRow = rowData.rowDelegate?.id.keyPath?.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
-                if isPaddingLayerInputRow, forPropertySidebar {
-                    PaddingReadOnlyView(rowObserver: rowObserver,
-                                        rowData: rowData,
-                                        labelView: labelView)
-                    
-                } else if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
+                let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+                
+                if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
                     HStack {
                         StitchTextView(string: "Shadow",
-                                       fontColor: STITCH_FONT_GRAY_COLOR)
+                                       fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
                         Spacer()
-                        
                     }
                     .overlay {
                         Color.white.opacity(0.001)
@@ -239,6 +259,10 @@ struct NodeInputView: View {
                     
                 } else {
                     labelView
+                    
+                    if forPropertySidebar {
+                        Spacer()
+                    }
                     
                     FieldsListView(graph: graph,
                                    rowViewModel: rowData,
@@ -303,7 +327,8 @@ struct NodeOutputView: View {
                          nodeKind: nodeKind,
                          isCanvasItemSelected: isCanvasItemSelected,
                          forPropertySidebar: forPropertySidebar,
-                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph)
+                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                         isSelectedInspectorRow: propertyIsSelected)
     }
     
     var body: some View {
@@ -353,22 +378,17 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     let propertyIsAlreadyOnGraph: Bool
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
-    var isMultiField: Bool {
-        self.rowViewModel.fieldValueTypes.count > 1
-    }
-    
     var body: some View {
         ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-            NodeFieldsView(
-                graph: graph,
-                fieldGroupViewModel: fieldGroupViewModel,
-                nodeId: nodeId,
-                isGroupNodeKind: isGroupNodeKind,
-                isMultiField: isMultiField,
-                forPropertySidebar: forPropertySidebar,
-                propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                valueEntryView: valueEntryView
-            )
+            
+            NodeFieldsView(graph: graph,
+                           fieldGroupViewModel: fieldGroupViewModel,
+                           nodeId: nodeId,
+                           isGroupNodeKind: isGroupNodeKind,
+                           isMultiField: fieldGroupViewModel.fieldObservers.count > 1,
+                           forPropertySidebar: forPropertySidebar,
+                           propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                           valueEntryView: valueEntryView)
         }
     }
 }
