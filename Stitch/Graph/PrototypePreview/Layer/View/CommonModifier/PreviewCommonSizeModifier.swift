@@ -46,7 +46,9 @@ struct PreviewCommonSizeModifier: ViewModifier {
     
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
+    
     let pinMap: RootPinMap
+    
     let aspectRatio: AspectRatioData
     let size: LayerSize
     
@@ -124,7 +126,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
             // logInView("case .auto")
             content
                 // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding))
             
                 .modifier(LayerSizeModifier(
                     viewModel: viewModel,
@@ -153,7 +155,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
             // logInView("case .constrainHeight")
             content
             // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+            .modifier(LayerPaddingModifier(padding: viewModel.layerPadding))
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(
@@ -180,7 +182,7 @@ struct PreviewCommonSizeModifier: ViewModifier {
             // logInView("case .constrainWidth")
             content
             // padding input must be applied *before* .frame
-                .modifier(LayerPaddingModifier(padding: viewModel.layerPadding.getPadding ?? .defaultPadding))
+            .modifier(LayerPaddingModifier(padding: viewModel.layerPadding))
             // apply `.aspectRatio` separately from `.frame(width:)` and `.frame(height:)`
                 .modifier(PreviewAspectRatioModifier(data: aspectRatio))
                 .modifier(LayerSizeModifier(

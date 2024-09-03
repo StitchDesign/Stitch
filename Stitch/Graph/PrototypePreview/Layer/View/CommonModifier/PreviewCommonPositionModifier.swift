@@ -77,9 +77,11 @@ struct PreviewCommonPositionModifier: ViewModifier {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
         
         if parentDisablesPosition {
-            let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+//            let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
             content
-                .offset(x: offset.width, y: offset.height)
+//                .offset(x: offset.width, y: offset.height)
+                .offset(x: viewModel.offsetInGroup.width,
+                        y: viewModel.offsetInGroup.height)
         } else {
             content
                 .position(x: pos.width, y: pos.height)

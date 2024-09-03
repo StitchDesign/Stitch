@@ -73,13 +73,13 @@ extension LayerInputTypeSet {
     
     @MainActor
     static let layerPaddingAndMargin: LayerInputTypeSet = [
-        .layerPadding,
-        .layerMargin
+//        .layerPadding,
+//        .layerMargin
     ]
     
     @MainActor
     static let offsetInGroup: LayerInputTypeSet = [
-        .offsetInGroup // belongs with "positioning" section
+//        .offsetInGroup // belongs with "positioning" section
     ]
 }
 
