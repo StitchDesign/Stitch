@@ -73,7 +73,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
         
         // Margin input comes *after* `.frame`
         // Should be applied before layer-effects, rotation etc.?
-            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin.getPadding ?? .defaultPadding))
+            .modifier(LayerPaddingModifier(padding: layerViewModel.layerMargin))
         
         // TODO: How do layer-padding and layer-margin inputs affect stroke ?
             .modifier(ApplyStroke(
@@ -118,9 +118,9 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 
             .modifier(PreviewCommonPositionModifier(
                 graph: graph,
-                viewModel: layerViewModel,
+                viewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition, 
+                parentDisablesPosition: parentDisablesPosition,
                 parentSize: parentSize,
                 pos: pos))
                 

@@ -182,13 +182,13 @@ final class LayerViewModel {
     var pinOffset: PortValue
     
     // TODO: source these from LayerNodeViewModel after SSK update
-//    var layerPadding: StitchPadding = .zero // .demoPadding // PortValue
-//    var layerMargin: StitchPadding = .zero // .demoPadding // PortValue
-//    var offsetInGroup: CGSize = .zero // .init(width: 50, height: 100)
+    var layerPadding: StitchPadding = .zero // .demoPadding // PortValue
+    var layerMargin: StitchPadding = .zero // .demoPadding // PortValue
+    var offsetInGroup: CGSize = .zero // .init(width: 50, height: 100)
     
-    var layerPadding: PortValue
-    var layerMargin: PortValue
-    var offsetInGroup: PortValue
+//    var layerPadding: PortValue
+//    var layerMargin: PortValue
+//    var offsetInGroup: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -315,9 +315,9 @@ final class LayerViewModel {
         self.pinTo = LayerInputPort.pinTo.getDefaultValue(for: layer)
         self.pinAnchor = LayerInputPort.pinAnchor.getDefaultValue(for: layer)
         self.pinOffset = LayerInputPort.pinOffset.getDefaultValue(for: layer)
-        self.layerPadding = LayerInputPort.layerPadding.getDefaultValue(for: layer)
-        self.layerMargin = LayerInputPort.layerMargin.getDefaultValue(for: layer)
-        self.offsetInGroup = LayerInputPort.offsetInGroup.getDefaultValue(for: layer)
+//        self.layerPadding = LayerInputPort.layerPadding.getDefaultValue(for: layer)
+//        self.layerMargin = LayerInputPort.layerMargin.getDefaultValue(for: layer)
+//        self.offsetInGroup = LayerInputPort.offsetInGroup.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

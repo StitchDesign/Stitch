@@ -18,7 +18,7 @@ extension LayerInputPort {
             
         case
             // Any input that has multiple fields
-                .position, .size, .padding, .layerMargin, .layerPadding, .minSize, .maxSize, .offsetInGroup, .pinOffset,
+                .position, .size, .padding, .minSize, .maxSize, .pinOffset,
             // Shadow inputs: multiple single-field inputs presented in a flyout
                 .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
             
