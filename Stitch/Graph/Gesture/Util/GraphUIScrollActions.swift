@@ -692,8 +692,11 @@ extension GraphState {
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 
         // start momentum
+        //todo: get rid of double negative
         if !doNotStartMomentum {
             //        log("handleGraphDragEnded: will initialize momentum: momentumOrigin: \(momentumOrigin)")
+
+            print("GESTURE TEST velocity \(velocity)")
 
             graphMovement
                 .momentumState = startMomentum(graphMovement.momentumState,

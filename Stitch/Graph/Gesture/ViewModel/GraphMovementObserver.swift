@@ -140,10 +140,6 @@ extension GraphMovementObserver {
         momentumState.stepX
     }
 
-    var amplitude: CGPoint {
-        momentumState.amplitude
-    }
-
     var delta: CGPoint {
         momentumState.delta
     }

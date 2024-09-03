@@ -44,17 +44,19 @@ func boundVelocity(velocity: CGFloat,
                    minVelocityMagnitude: CGFloat = GRAPH_MOMENTUM_MINIMUM_VELOCITY_MAGNITUDE,
                    maxVelocityMagnitude: CGFloat = GRAPH_MOMENTUM_MAXIMUM_VELOCITY_MAGNITUDE) -> CGFloat {
 
-    var velocity = velocity
+    var velocity = log(max(abs(velocity), 1))
 
-    let sign = { (n: CGFloat) in
-        n * (velocity < 0 ? -1 : 1)
-    }
-
-    if velocity.magnitude < minVelocityMagnitude {
-        velocity = sign(minVelocityMagnitude)
-    } else if velocity.magnitude > maxVelocityMagnitude {
-        velocity = sign(maxVelocityMagnitude)
-    }
+//    let sign = { (n: CGFloat) in
+//        n * (velocity < 0 ? -1 : 1)
+//    }
+//
+//    if velocity.magnitude < minVelocityMagnitude {
+//        velocity = sign(minVelocityMagnitude)
+//    } else if velocity.magnitude > maxVelocityMagnitude {
+//        velocity = sign(maxVelocityMagnitude)
+//    }
+//    
+//    assert(velocity != 0)
     return velocity
 }
 
@@ -94,12 +96,23 @@ func startMomentum(_ state: MomentumAnimationState,
                    threshold: CGFloat = GRAPH_MOMENTUM_VELOCITY_THRESHOLD) -> MomentumAnimationState {
 
     var state = state
+//    print("GESTURE TEST graphMovement.momentumState \(graphMovement.momentumState)")
+//    print("GESTURE TEST graphMovement.zoomData.zoom \(graphMovement.zoomData.zoom)")
 
-    state.shouldRunX = velocity.x.magnitude > threshold
-    state.shouldRunY = velocity.y.magnitude > threshold
+//    state.shouldRunX = velocity.x.magnitude > threshold
+//    state.shouldRunY = velocity.y.magnitude > threshold
+
+        state.shouldRunX = true
+        state.shouldRunY = true
+    
+    //lets assume our velocity data is correct
+    //right now it seems to be firing too much momentum at lower numbers
+
 
     state.amplitude.x = calculateAmplitude(velocity: velocity.x, zoom: zoom)
     state.amplitude.y = calculateAmplitude(velocity: velocity.y, zoom: zoom)
+    
+    print("AMPLITUDE \(state.amplitude)")
 
     //    #if DEV_DEBUG
     //    log("\n startMomentum: zoom: \(zoom)")
