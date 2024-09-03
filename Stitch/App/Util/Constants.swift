@@ -16,7 +16,8 @@ import StitchSchemaKit
 
 let MODAL_BACKGROUND_COLOR = Color.black.opacity(0.4)
 
-let APP_BACKGROUND_COLOR: Color = Color(.appBackground)
+//let APP_BACKGROUND_COLOR: Color = Color(.appBackground)
+let APP_BACKGROUND_COLOR: Color = Color(.graphBackground)
 
 let DEFAULT_FLOATING_WINDOW_COLOR = StitchDocument.defaultBackgroundColor
 

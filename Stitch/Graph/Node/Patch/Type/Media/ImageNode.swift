@@ -38,8 +38,9 @@ struct ImageImportPatchNode: PatchNodeDefinition {
 
 @MainActor
 func imageImportEval(node: PatchNode) -> EvalResult {
-    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, _ in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first),
+    node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
+        guard let media = asyncObserver.getUniqueMedia(from: values.first,
+                                                       loopIndex: loopIndex),
               let image = media.mediaObject.image else {
             return values.prevOutputs(node: node)
         }

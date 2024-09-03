@@ -14,6 +14,7 @@ struct StitchTextView: View {
     let string: String
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
+//    var fontColor: Color
     var lineLimit: Int?
     var truncationMode: Text.TruncationMode?
 
@@ -28,21 +29,26 @@ struct StitchTextView: View {
 
 struct TruncatedTextView: View {
     let string: String
+    let color: Color
 
     // MARK: the string building below has bad perf
-    init(_ string: String, truncateAt: Int) {
+    init(_ string: String, 
+         truncateAt: Int,
+         color: Color) {
         if string.count > truncateAt {
             let endIndex = string.index(string.startIndex, offsetBy: truncateAt)
             self.string = String(string[..<endIndex]) + "…"
         } else {
             self.string = string
         }
+        self.color = color
     }
 
     var body: some View {
         Text(string)
             .font(STITCH_FONT)
-            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+//            .foregroundColor(STITCH_TITLE_FONT_COLOR)
+            .foregroundColor(color)
             .lineLimit(1)
             .truncationMode(.tail)
     }

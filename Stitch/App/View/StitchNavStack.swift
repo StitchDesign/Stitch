@@ -26,6 +26,12 @@ struct StitchNavStack: View {
                         store.environment.undoManager.undoManager.removeAllActions()
                     }
                 }
+            
+            // TODO: change color of top navigation bar; .red only gives a slight tint (and just on homescreen)
+//                .toolbarBackground(Color(.lightModeWhiteDarkModeBlack),
+////                .toolbarBackground(.red,
+//                                   for: .navigationBar, .bottomBar, .tabBar)
+//                .toolbarBackground(.visible, for: .navigationBar, .bottomBar, .tabBar)
         }
     }
 }

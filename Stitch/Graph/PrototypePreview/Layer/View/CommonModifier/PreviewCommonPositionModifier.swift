@@ -37,11 +37,6 @@ struct PreviewCommonPositionModifier: ViewModifier {
     // NOTE: for a pinned view, `pos` will be something adjusted to the pinReceiver's anchoring, size and position
     
     var pos: StitchPosition
-    
-    var isGhostView: Bool {
-        viewModel.isPinnedView && !isPinnedViewRendering
-    }
-    
     var isPinnedView: Bool {
         viewModel.isPinnedView && isPinnedViewRendering
     }
@@ -81,9 +76,9 @@ struct PreviewCommonPositionModifier: ViewModifier {
         // logInView("PreviewCommonPositionModifier: regular: \(viewModel.layer)")
         
         if parentDisablesPosition {
-            let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
-                content
-                    .offset(x: offset.width, y: offset.height)
+           let offset = viewModel.offsetInGroup.getSize?.asCGSize(parentSize) ?? .zero
+            content
+               .offset(x: offset.width, y: offset.height)
         } else {
             content
                 .position(x: pos.x, y: pos.y)

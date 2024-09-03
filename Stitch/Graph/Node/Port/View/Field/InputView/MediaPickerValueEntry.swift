@@ -10,6 +10,8 @@ import StitchSchemaKit
 
 struct MediaPickerValueEntry: View {
     
+    @Environment(\.appTheme) var theme
+    
     let coordinate: InputCoordinate
     let isUpstreamValue: Bool   // is input port connected
     let mediaValue: FieldValueMedia
@@ -17,6 +19,7 @@ struct MediaPickerValueEntry: View {
     let isFieldInsideLayerInspector: Bool
     let graph: GraphState // Doesn't need to be @Bindable, since not directly relied on in the UI for a render-cycle
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
+    let isSelectedInspectorRow: Bool
     
     var mediaType: SupportedMediaFormat {
         nodeKind.mediaType
@@ -37,7 +40,8 @@ struct MediaPickerValueEntry: View {
                                mediaType: mediaType,
                                choices: [.importButton],
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                               graph: graph)
+                               graph: graph,
+                               isSelectedInspectorRow: isSelectedInspectorRow)
             
             // Only show the incoming value as an option if there's an incoming edge
             if isUpstreamValue {
@@ -45,7 +49,8 @@ struct MediaPickerValueEntry: View {
                                    mediaType: mediaType,
                                    choices: [],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                   graph: graph)
+                                   graph: graph,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
                 
             }
             
@@ -55,7 +60,8 @@ struct MediaPickerValueEntry: View {
                                    mediaType: mediaType,
                                    choices: [mediaValue],
                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                   graph: graph)
+                                   graph: graph,
+                                   isSelectedInspectorRow: isSelectedInspectorRow)
             }
             
             Divider()
@@ -63,7 +69,8 @@ struct MediaPickerValueEntry: View {
                                mediaType: mediaType,
                                choices: defaultOptions,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                               graph: graph)
+                               graph: graph,
+                               isSelectedInspectorRow: isSelectedInspectorRow)
         },
                    
                    contentIPad: {
@@ -87,7 +94,8 @@ struct MediaPickerValueEntry: View {
             // We add a value for truncating text here to ensure that the selection items view in the picker does not stretch too long when importing a file with a long title
             
             TruncatedTextView(isMultiselectInspectorInputWithHeterogenousValues ? .HETEROGENOUS_VALUES : label,
-                              truncateAt: 30)
+                              truncateAt: 30,
+                              color: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
         })
     }
 }

@@ -53,25 +53,6 @@ extension NodeViewModel {
 
 extension GraphState {
     
-    /*
-     For a give layer-node whose input we are on, the pinTo dropdown should exclude:
-     - the layer-node itself
-     - any of the layer-node's descendants (parent can never be pinned to child)
-     - any other layer-nodes that are already pinned to this given layer-node
-     */
-    @MainActor
-    func layerChoicesToExcludeFromPinTo(nodeId: LayerNodeId, 
-                                        isForLayerGroup: Bool) -> LayerIdSet {
-        
-        let viewsPinnedToThisLayerId = self.visibleNodesViewModel.pinMap.getLinkedPinnedLayers(from: nodeId)
-        
-        let thisLayersDescendants = (isForLayerGroup ? self.getDescendants(for: nodeId) : .init())
-        
-        return .init([nodeId])
-            .union(viewsPinnedToThisLayerId)
-            .union(thisLayersDescendants)
-    }
-    
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
                               isForLayerGroup: Bool,
@@ -79,39 +60,27 @@ extension GraphState {
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
-        let pinMap = self.visibleNodesViewModel.flattenedPinMap
-        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
+        let viewsPinnedToThisLayerId = self.visibleNodesViewModel.pinMap.getLinkedPinnedLayers(from: isForNode.asLayerNodeId)
         
         // includes self?
         var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
         descendants.remove(isForNode.asLayerNodeId)
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
-    
-        // TODO: cache these? update the cache whenever selected layer(s) change(s)?
-        var layersToExclude: LayerIdSet = isForPinTo
-        ? self.layerChoicesToExcludeFromPinTo(nodeId: isForNode.asLayerNodeId,
-                                              isForLayerGroup: isForLayerGroup)
-        : .init()
-    
-        if isForPinTo,
-           isFieldInsideLayerInspector,
-           let multiselectInput = self.getLayerMultiselectInput(for: .pinTo) {
-            
-            let excludedPerMultiselect: LayerIdSet = multiselectInput.multiselectObservers(self)
-                .reduce(LayerIdSet()) { partialResult, observer in
-                    partialResult.union(self.layerChoicesToExcludeFromPinTo(
-                        nodeId: observer.rowObserver.id.nodeId.asLayerNodeId,
-                        isForLayerGroup: isForLayerGroup))
-                }
-            
-            layersToExclude = layersToExclude.union(excludedPerMultiselect)
-        }
         
         let layers: LayerDropdownChoices = self.orderedSidebarLayers
             .getIds()
             .compactMap { layerId in
-                if layersToExclude.contains(layerId.asLayerNodeId) {
+                // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
+                if isForPinTo,
+                   // Exclude the node itself, i.e. A cannot choose A as its pinToId
+                   (layerId == isForNode
+                    // Exclude A from choices if this is a dropdown for B and A's own pinTo=B
+                    || viewsPinnedToThisLayerId.contains(layerId.asLayerNodeId)
+                    
+                    // Exclude this layer group's descendants of from choices
+                    || descendants.contains(layerId.asLayerNodeId)
+                   ) {
                     return nil
                 }
                 
@@ -129,6 +98,9 @@ extension GraphState {
 }
 
 struct LayerNamesDropDownChoiceView: View {
+    
+    @Environment(\.appTheme) var theme
+    
     @State private var selection: LayerDropdownChoice = .NilLayerDropDownChoice
     
     @Bindable var graph: GraphState
@@ -138,6 +110,7 @@ struct LayerNamesDropDownChoiceView: View {
     let inputLayerNodeRowData: InputLayerNodeRowData?
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
+    let isSelectedInspectorRow: Bool
     
     @MainActor
     func onSet(_ choice: LayerDropdownChoice) {
@@ -195,7 +168,8 @@ struct LayerNamesDropDownChoiceView: View {
                 }
             }
         } label: {
-            StitchTextView(string: selectionTitle)
+            StitchTextView(string: selectionTitle,
+                           fontColor: isSelectedInspectorRow ? theme.fontColor : STITCH_TITLE_FONT_COLOR)
         }
 #if targetEnvironment(macCatalyst)
         .buttonStyle(.plain)

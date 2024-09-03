@@ -232,7 +232,7 @@ let PADDING_LEFT_FIELD_INDEX = 3
 //let PADDING_BOTTOM_FIELD_LABEL = "B"
 //let PADDING_LEFT_FIELD_LABEL = "L"
 
-
+// TODO: support long vs short labels for individual fields in a multifield input
 let PADDING_TOP_FIELD_LABEL = "Top"
 let PADDING_RIGHT_FIELD_LABEL = "Right"
 let PADDING_BOTTOM_FIELD_LABEL = "Bottom"
