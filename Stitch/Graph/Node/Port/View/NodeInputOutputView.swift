@@ -221,10 +221,6 @@ struct NodeInputView: View {
         rowData.rowDelegate?.id.keyPath?.layerInput
     }
     
-    var layerInput: LayerInputPort? {
-        rowData.rowDelegate?.id.keyPath?.layerInput
-    }
-    
     var body: some View {
         NodeInputOutputView(graph: graph,
                             rowObserver: rowObserver,

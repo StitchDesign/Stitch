@@ -364,7 +364,6 @@ func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                    position: pinReceiverData.origin,
                    anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
                    parentSize: pinReceiverData.size)
-    .toCGPoint
 }
 
 

@@ -14,16 +14,11 @@ extension LayerInputPort {
     
     // Note: msot cases are just "is this multifield?", with exception of shadow inputs)
     var usesFlyout: Bool {
-                
-        if self.usesPaddingFlyout {
-            return true
-        }
-        
         switch self {
             
         case
             // Any input that has multiple fields
-                .position, .size, .padding, .minSize, .maxSize, .pinOffset,
+                .position, .size, .padding, .layerMargin, .layerPadding, .minSize, .maxSize, .offsetInGroup, .pinOffset,
             // Shadow inputs: multiple single-field inputs presented in a flyout
                 .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
             

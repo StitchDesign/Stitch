@@ -120,7 +120,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                parentDisablesPosition: parentDisablesPosition,
+                parentDisablesPosition: parentDisablesPosition, 
                 parentSize: parentSize,
                 pos: pos))
                 
