@@ -11,6 +11,8 @@ import SwiftUI
 
 
 extension LayerInputPort {
+    
+    // Note: msot cases are just "is this multifield?", with exception of shadow inputs)
     var usesFlyout: Bool {
                 
         if self.usesPaddingFlyout {
@@ -18,24 +20,62 @@ extension LayerInputPort {
         }
         
         switch self {
-        case .padding, .layerMargin, .layerPadding,
+            
+        case
+            // Any input that has multiple fields
+                .position, .size, .padding, .minSize, .maxSize, .pinOffset,
+            // Shadow inputs: multiple single-field inputs presented in a flyout
                 .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
+            
             return true
-        default:
+            
+            // Everything else
+        case .scale, .anchoring, .opacity, .zIndex, .masks, .color, .rotationX, .rotationY, .rotationZ, .lineColor, .lineWidth, .blur, .blendMode, .brightness, .colorInvert, .contrast, .hueRotation, .saturation, .pivot, .enabled, .blurRadius, .backgroundColor, .isClipped, .orientation, .isAnimating, .allAnchors, .cameraDirection, .isCameraEnabled, .isShadowsEnabled, .shape, .strokePosition, .strokeWidth, .strokeColor, .strokeStart, .strokeEnd, .strokeLineCap, .strokeLineJoin, .coordinateSystem, .cornerRadius, .canvasLineColor, .canvasLineWidth, .text, .placeholderText, .fontSize, .textAlignment, .verticalAlignment, .textDecoration, .textFont, .image, .video, .model3D, .fitStyle, .clipped, .progressIndicatorStyle, .progress, .mapType, .mapLatLong, .mapSpan, .isSwitchToggled, .startColor, .endColor, .startAnchor, .endAnchor, .centerAnchor, .startAngle, .endAngle, .startRadius, .endRadius, .sfSymbol, .videoURL, .volume, .spacingBetweenGridColumns, .spacingBetweenGridRows, .itemAlignmentWithinGridCell, .sizingScenario, .widthAxis, .heightAxis, .contentMode, .spacing, .isPinned, .pinTo, .pinAnchor, .setupMode:
+            
             return false
         }
+
+        
+//        if self.usesPaddingFlyout {
+//            return true
+//        }
+//        
+//        if self.usesTwoFieldFlyout {
+//            return true
+//        }
+//        
+//        switch self {
+//        case .padding, .layerMargin, .layerPadding,
+//                .shadowColor, .shadowOffset, .shadowRadius, .shadowOpacity:
+//            return true
+//        default:
+//            return false
+//        }
+        
+        
     }
         
-    // TODO: better?: compare against the actual value in the input, rather than on the input's keyword
-    // But in some contexts we don't have access to the input? 
-    var usesPaddingFlyout: Bool {
-        switch self {
-        case .padding, .layerPadding, .layerMargin:
-            return true
-        default:
-            return false
-        }
-    }
+//    // TODO: COMPARE INPUT'S VALUES, NOT INPUT TYPE
+//    var usesTwoFieldFlyout: Bool {
+//        switch self {
+//        case .size, .position, .offsetInGroup, .maxSize, .minSize:
+//            return true
+//        default:
+//            return false
+//        }
+//    }
+    
+//    // TODO: better?: compare against the actual value in the input, rather than on the input's keyword
+//    // But in some contexts we don't have access to the input?
+    // TODO: handle padding same as
+//    var usesPaddingFlyout: Bool {
+//        switch self {
+//        case .padding, .layerPadding, .layerMargin:
+//            return true
+//        default:
+//            return false
+//        }
+//    }
         
     func usesTextFields(_ layer: Layer) -> Bool {
         self.getDefaultValue(for: layer)
@@ -94,5 +134,17 @@ struct LeftSidebarToggled: GraphUIEvent {
     func handle(state: GraphUIState) {
         // Reset flyout
         state.closeFlyout()
+    }
+}
+
+struct LeftSidebarSet: GraphUIEvent {
+    
+    let open: Bool
+    
+    func handle(state: GraphUIState) {
+        // Reset flyout
+        state.closeFlyout()
+        
+        state.leftSidebarOpen = open
     }
 }

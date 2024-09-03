@@ -573,6 +573,8 @@
 		EC8605B8269E1A23007B8ED3 /* JSONArrayNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */; };
 		EC8605BA269E1A2B007B8ED3 /* ArrayAppendNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */; };
 		EC865B8429E7584F0030FD89 /* TopBarButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */; };
+		EC8891A32C82387A002390F8 /* CommonEditingViewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */; };
+		EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */; };
 		EC8967002B4E1C8E0066879B /* CurveLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8966FF2B4E1C8E0066879B /* CurveLine.swift */; };
 		EC8967022B4E1D3B0066879B /* EdgeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8967012B4E1D3B0066879B /* EdgeStyle.swift */; };
 		EC8967042B4E230A0066879B /* StraightLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8967032B4E230A0066879B /* StraightLine.swift */; };
@@ -818,7 +820,7 @@
 		ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */; };
 		ECE7443D2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */; };
 		ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */; };
-		ECEA12FC2C45B67D0058CD6A /* PaddingFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */; };
+		ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */; };
 		ECEA4C3B28A32830005C7B49 /* LogHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA4C3A28A32830005C7B49 /* LogHelpers.swift */; };
 		ECEA4C3D28A32836005C7B49 /* LogActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA4C3C28A32836005C7B49 /* LogActions.swift */; };
 		ECEA600A28E610C7002D7F4F /* NodeEphemeralObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */; };
@@ -1483,6 +1485,8 @@
 		EC8605B7269E1A23007B8ED3 /* JSONArrayNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONArrayNode.swift; sourceTree = "<group>"; };
 		EC8605B9269E1A2B007B8ED3 /* ArrayAppendNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayAppendNode.swift; sourceTree = "<group>"; };
 		EC865B8329E7584F0030FD89 /* TopBarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopBarButtonView.swift; sourceTree = "<group>"; };
+		EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewWrapper.swift; sourceTree = "<group>"; };
+		EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonEditingViewReadOnly.swift; sourceTree = "<group>"; };
 		EC8966FF2B4E1C8E0066879B /* CurveLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveLine.swift; sourceTree = "<group>"; };
 		EC8967012B4E1D3B0066879B /* EdgeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeStyle.swift; sourceTree = "<group>"; };
 		EC8967032B4E230A0066879B /* StraightLine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StraightLine.swift; sourceTree = "<group>"; };
@@ -1726,7 +1730,7 @@
 		ECE708692B8D4AF8009F4525 /* CurveToPackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurveToPackNode.swift; sourceTree = "<group>"; };
 		ECE7443C2AB4C3C4006B3EF4 /* ForwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForwardEdgeHelpers.swift; sourceTree = "<group>"; };
 		ECE7443E2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardEdgeHelpers.swift; sourceTree = "<group>"; };
-		ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddingFlyoutView.swift; sourceTree = "<group>"; };
+		ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericFlyoutView.swift; sourceTree = "<group>"; };
 		ECEA4C3A28A32830005C7B49 /* LogHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogHelpers.swift; sourceTree = "<group>"; };
 		ECEA4C3C28A32836005C7B49 /* LogActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogActions.swift; sourceTree = "<group>"; };
 		ECEA600928E610C7002D7F4F /* NodeEphemeralObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEphemeralObservable.swift; sourceTree = "<group>"; };
@@ -1943,7 +1947,7 @@
 			children = (
 				EC1A35792C25CE8100E5A6D8 /* LayerInspectorActions.swift */,
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
-				ECEA12FB2C45B67D0058CD6A /* PaddingFlyoutView.swift */,
+				ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */,
 				EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */,
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
@@ -3791,6 +3795,8 @@
 				ECDC9FB929099E8800E4F7D9 /* iPadDropdownView.swift */,
 				B590041928501E6700EDDDFD /* MediaPickerValueEntry.swift */,
 				B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */,
+				EC8891A22C82387A002390F8 /* CommonEditingViewWrapper.swift */,
+				EC8891A42C82388D002390F8 /* CommonEditingViewReadOnly.swift */,
 				B57E997928FE5EAD00E86891 /* CommonEditingView.swift */,
 				ECF387D2280B600A0075F0E5 /* ReadOnlyEntry.swift */,
 			);
@@ -4561,6 +4567,7 @@
 				B55500C02C1B9D890081C3F1 /* FieldGroupTypeViewModel.swift in Sources */,
 				EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */,
 				ECB8778C2C7D56D0004ACF60 /* LayerMultiselect.swift in Sources */,
+				EC8891A52C82388D002390F8 /* CommonEditingViewReadOnly.swift in Sources */,
 				EC991F6B2937D55600AE0A45 /* ArrayJoinNode.swift in Sources */,
 				B5D689BD275833390086C297 /* ProjectAlertState.swift in Sources */,
 				ECF387D3280B600A0075F0E5 /* ReadOnlyEntry.swift in Sources */,
@@ -4579,7 +4586,7 @@
 				E4F8AABB2BD6ED8500E9BA4D /* RadialGradientNode.swift in Sources */,
 				EC8A48F22710EC39001BB4FC /* NodeTypeChangedActions.swift in Sources */,
 				EC3420D82AF9BA1200EBD896 /* CommentBoxView.swift in Sources */,
-				ECEA12FC2C45B67D0058CD6A /* PaddingFlyoutView.swift in Sources */,
+				ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */,
 				EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */,
 				ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */,
 				EC2942312BA1364600D14CD1 /* UpdateStateAfterListChange.swift in Sources */,
@@ -5100,6 +5107,7 @@
 				EC8DE63C2637689600A22587 /* NodeRowType.swift in Sources */,
 				EC609DBE2935311900BF60A5 /* UIKitExtensionUtils.swift in Sources */,
 				B530D5032C18AB390005C6A9 /* AppThemeActions.swift in Sources */,
+				EC8891A32C82387A002390F8 /* CommonEditingViewWrapper.swift in Sources */,
 				EC26144B2B8960CC00BEB066 /* TransformPackNode.swift in Sources */,
 				ECA92A10260A69B000281B52 /* MultiplyNode.swift in Sources */,
 				EC53F3BA287E25D60021095B /* SineNode.swift in Sources */,

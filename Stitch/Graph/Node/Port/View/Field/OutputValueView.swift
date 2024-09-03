@@ -20,6 +20,7 @@ struct OutputValueEntry: View {
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isSelectedInspectorRow: Bool
 
     // Used by button view to determine if some button has been pressed.
     // Saving this state outside the button context allows us to control renders.
@@ -35,7 +36,8 @@ struct OutputValueEntry: View {
                          // Gray color for multi-field
 //                         fontColor: isMultiField ? STITCH_FONT_GRAY_COLOR : Color(.titleFont))
                          // Seems like every input label is gray now?
-                         fontColor: STITCH_FONT_GRAY_COLOR)
+                         fontColor: STITCH_FONT_GRAY_COLOR,
+                         isSelectedInspectorRow: isSelectedInspectorRow)
     }
 
     var valueDisplay: some View {
@@ -47,6 +49,7 @@ struct OutputValueEntry: View {
                         isCanvasItemSelected: isCanvasItemSelected,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        isSelectedInspectorRow: isSelectedInspectorRow,
                         isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -77,6 +80,7 @@ struct OutputValueView: View {
     let isCanvasItemSelected: Bool
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
+    let isSelectedInspectorRow: Bool
     
     @Binding var isButtonPressed: Bool
 
@@ -111,30 +115,35 @@ struct OutputValueView: View {
             // Leading alignment when multifield
             ReadOnlyValueEntry(value: string.string,
                                alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
+                               fontColor: STITCH_FONT_GRAY_COLOR, 
+                               isSelectedInspectorRow: isSelectedInspectorRow)
 
         case .number, .layerDimension, .spacing:
             ReadOnlyValueEntry(value: fieldValue.stringValue,
                                alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
+                               fontColor: STITCH_FONT_GRAY_COLOR,
+                               isSelectedInspectorRow: isSelectedInspectorRow)
 
         case .bool(let bool):
             BoolCheckboxView(id: nil, 
                              inputLayerNodeRowData: nil,
                              value: bool,
-                             isFieldInsideLayerInspector: false)
+                             isFieldInsideLayerInspector: false,
+                             isSelectedInspectorRow: isSelectedInspectorRow)
 
         case .dropdown(let choiceDisplay, _):
             // Values that use dropdowns for their inputs use instead a display-only view for their outputs
             ReadOnlyValueEntry(value: choiceDisplay,
                                alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
+                               fontColor: STITCH_FONT_GRAY_COLOR,
+                               isSelectedInspectorRow: isSelectedInspectorRow)
 
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
                                stitchFont: stitchFont, 
                                inputLayerNodeRowData: nil,
-                               isFieldInsideLayerInspector: false)
+                               isFieldInsideLayerInspector: false, 
+                               propertyIsSelected: isSelectedInspectorRow)
                 // need enough width for font design + font weight name
                 .frame(minWidth: 200,
                        alignment: .leading)
@@ -148,11 +157,14 @@ struct OutputValueView: View {
                                          inputLayerNodeRowData: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: false,
-                                         choices: graph.layerDropdownChoices(
-                                            isForNode: coordinate.nodeId,
-                                            isForLayerGroup: false,
-                                            isFieldInsideLayerInspector: false,
-                                            isForPinTo: false))
+                                         isSelectedInspectorRow: isSelectedInspectorRow,
+                                         choices: []
+//                                            graph.layerDropdownChoices(
+//                                            isForNode: coordinate.nodeId,
+//                                            isForLayerGroup: false,
+////                                            isFieldInsideLayerInspector: false,
+//                                            isForPinTo: false)
+            )
             .disabled(true)
             
         case .pinTo(let pinToId):
@@ -162,11 +174,14 @@ struct OutputValueView: View {
                                          inputLayerNodeRowData: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: true,
-                                         choices: graph.layerDropdownChoices(
-                                            isForNode: coordinate.nodeId,
-                                            isForLayerGroup: false,
-                                            isFieldInsideLayerInspector: false,
-                                            isForPinTo: false))
+                                         isSelectedInspectorRow: isSelectedInspectorRow,
+                                         choices: [] //[pinToId.asLayerDropdownChoice] //
+//                                            graph.layerDropdownChoices(
+//                                            isForNode: coordinate.nodeId,
+//                                            isForLayerGroup: false,
+////                                            isFieldInsideLayerInspector: false,
+//                                            isForPinTo: false)
+            )
 
                    .disabled(true)
 
@@ -174,7 +189,8 @@ struct OutputValueView: View {
             AnchorPopoverView(input: coordinate,
                               selection: anchor, 
                               inputLayerNodeRowData: nil,
-                              isFieldInsideLayerInspector: false)
+                              isFieldInsideLayerInspector: false, 
+                              isSelectedInspectorRow: isSelectedInspectorRow)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
                    height: NODE_ROW_HEIGHT,
                    // Note: why are these reversed? Because we scaled the view down?
@@ -191,6 +207,7 @@ struct OutputValueView: View {
                                 isNodeSelected: isCanvasItemSelected,
                                 hasIncomingEdge: false,
                                 isFieldInsideLayerInspector: false,
+                                isSelectedInspectorRow: isSelectedInspectorRow,
                                 graph: graph)
 
         case .color(let color):
@@ -208,12 +225,14 @@ struct OutputValueView: View {
         case .json(let json):
             ValueJSONView(coordinate: coordinate,
                           json: isButtonPressed ? json : nil,
+                          isSelectedInspectorRow: isSelectedInspectorRow,
                           isPressed: $isButtonPressed)
 
         case .readOnly(let string):
             ReadOnlyValueEntry(value: string,
                                alignment: outputAlignment,
-                               fontColor: STITCH_FONT_GRAY_COLOR)
+                               fontColor: STITCH_FONT_GRAY_COLOR,
+                               isSelectedInspectorRow: isSelectedInspectorRow)
         }
     }
 }

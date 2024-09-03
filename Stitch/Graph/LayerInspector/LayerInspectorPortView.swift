@@ -83,20 +83,20 @@ struct LayerInspectorInputPortView: View {
         // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); handle the creation of unpacked canvas items should outside of the view and disallow for layer multiselect?
         fatalErrorIfDebug()
         
-        //        let nodeId = portObserver._packedData.rowObserver.id.nodeId
-        //        let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-        //
-        //        portObserver._unpackedData.allPorts.forEach { unpackedPort in
-        //            var unpackSchema = unpackedPort.createSchema()
-        //            unpackSchema.canvasItem = .init(position: .zero,
-        //                                            zIndex: .zero,
-        //                                            parentGroupNodeId: parentGroupNodeId)
-        //            unpackedPort.update(from: unpackSchema,
-        //                                layerInputType: unpackedPort.id,
-        //                                layerNode: layerNode,
-        //                                nodeId: nodeId,
-        //                                nodeDelegate: node)
-        //        }
+//                let nodeId = portObserver._packedData.rowObserver.id.nodeId
+//                let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+//        
+//                portObserver._unpackedData.allPorts.forEach { unpackedPort in
+//                    var unpackSchema = unpackedPort.createSchema()
+//                    unpackSchema.canvasItem = .init(position: .zero,
+//                                                    zIndex: .zero,
+//                                                    parentGroupNodeId: parentGroupNodeId)
+//                    unpackedPort.update(from: unpackSchema,
+//                                        layerInputType: unpackedPort.id,
+//                                        layerNode: layerNode,
+//                                        nodeId: nodeId,
+//                                        nodeDelegate: node)
+//                }
     }
 }
 
@@ -162,46 +162,15 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         canvasItemId.isDefined
     }
     
-    var canBeAddedToCanvas: Bool {
-        switch layerProperty {
-        case .layerInput(let layerInputType):
-            return !layerInputType.layerInput.usesFlyout
-        case .layerOutput:
-            return true
-        }
-    }
-    
     var body: some View {
-        HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) {
+        HStack {
             LayerInspectorRowButton(layerProperty: layerProperty,
                                     coordinate: rowObserver.id,
                                     canvasItemId: canvasItemId,
                                     isRowSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
-
-            HStack {
-                rowView(propertyRowIsSelected)
-                Spacer()
-            }
-            .padding(.leading, LAYER_INSPECTOR_ROW_SPACING) // padding so that text is not flush with capsule background
-            .background {
-                WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-                    .cornerRadius(6)
-                // Note: applying the gesture to the background instead of the HStack avoids accidentally selecting the row when using a dropdown, but then the row's overall-label and field-labels are no longer covered; so just add this .gesture to the overall-label and field-label views?
-                //                    .gesture(
-                //                        TapGesture().onEnded({ _ in
-                //                            log("LayerInspectorPortView tapped")
-                //                            if isOnGraphAlready,
-                //                               let canvasItemId = rowViewModel.canvasItemDelegate?.id {
-                //                                dispatch(JumpToCanvasItem(id: canvasItemId))
-                //                            } else {
-                //                                withAnimation {
-                //                                    graph.graphUI.layerPropertyTapped(layerProperty)
-                //                                }
-                //                            }
-                //                        })
-                //                    ) // .gesture
-            }
+            
+            rowView(propertyRowIsSelected)
         }
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
@@ -213,9 +182,10 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
         .onHover(perform: { isHovering in
             self.isHovered = isHovering
         })
+        .contentShape(Rectangle())
         .gesture(
             TapGesture().onEnded({ _ in
-                // log("LayerInspectorPortView tapped")
+                log("LayerInspectorPortView tapped")
                 if isOnGraphAlready,
                    let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                     dispatch(JumpToCanvasItem(id: canvasItemId))

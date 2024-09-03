@@ -10,9 +10,12 @@ import StitchSchemaKit
 
 struct LabelDisplayView: View {
 
+    @Environment(\.appTheme) var theme
+    
     let label: String
     let isLeftAligned: Bool
     var fontColor: Color = STITCH_FONT_WHITE_COLOR
+    let isSelectedInspectorRow: Bool
 
     var body: some View {
 
@@ -21,15 +24,15 @@ struct LabelDisplayView: View {
             EmptyView()
         } else {
             StitchTextView(string: label,
-                           fontColor: fontColor)
+                           fontColor: isSelectedInspectorRow ? theme.fontColor : fontColor)
                 .frame(alignment: isLeftAligned ? .leading : .trailing)
                 .fixedSize() // Do not let parent shrink this child view
         }
     }
 }
 
-struct LabelDisplayView_Previews: PreviewProvider {
-    static var previews: some View {
-        LabelDisplayView(label: "X", isLeftAligned: true)
-    }
-}
+//struct LabelDisplayView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LabelDisplayView(label: "X", isLeftAligned: true)
+//    }
+//}

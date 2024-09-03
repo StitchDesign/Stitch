@@ -41,7 +41,12 @@ let FLYOUT_SAFE_AREA_BOTTOM_PADDING = 24.0
 struct LayerInspectorView: View {
     
     // TODO: better?: allow user to resize inspector; and we read the width via GeometryReader
-    static let LAYER_INSPECTOR_WIDTH = 360.0
+    // Figma design is actually ~277
+//    static let LAYER_INSPECTOR_WIDTH = 360.0
+//    static let LAYER_INSPECTOR_WIDTH = 277.0 // Figma
+    
+    // A little wider
+    static let LAYER_INSPECTOR_WIDTH = 300.0
     
     @Bindable var graph: GraphState
 
@@ -82,6 +87,10 @@ struct LayerInspectorView: View {
         } else {
             // Empty List, so have same background
             List { }
+                .scrollContentBackground(.hidden)
+//                .background {
+//                    BLACK_IN_LIGHT_MODE_WHITE_IN_DARK_MODE
+//                }
         }
     }
     
@@ -93,6 +102,9 @@ struct LayerInspectorView: View {
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
+            
+            #if DEV_DEBUG || DEBUG
+            
             HStack {
                 // Only show editable layer node title if this isn't a multiselect case
                 if let node = node {
@@ -110,6 +122,8 @@ struct LayerInspectorView: View {
             }
                 .padding()
                 .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+            
+            #endif
             
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
@@ -147,6 +161,7 @@ struct LayerInspectorView: View {
                     graph: graph)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
+            .scrollContentBackground(.hidden)
             
 //            .listStyle(.plain)
 //            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
@@ -327,13 +342,21 @@ extension GraphState {
                                      node: NodeId?,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
-        
+                
         // Any time orderedSidebarLayers changes, that will retrigger LayerInspector
         guard !self.orderedSidebarLayers.isEmpty else {
             return nil
         }
 
-        let selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        var selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        
+        #if DEV_DEBUG
+        // For debug
+        if selectedLayers.isEmpty,
+           let layer = self.layerNodes.keys.first {
+            selectedLayers = .init([.init(layer)])
+        }
+        #endif
         
         // multiselect
         if selectedLayers.count > 1 {

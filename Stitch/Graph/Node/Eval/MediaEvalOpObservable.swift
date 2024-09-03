@@ -29,8 +29,10 @@ final class MediaEvalOpObserver: MediaEvalOpObservable {
 extension MediaEvalOpObservable {
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
-    @MainActor func getUniqueMedia(from value: PortValue?) -> GraphMediaValue? {
-        self.getUniqueMedia(from: value?._asyncMedia)
+    @MainActor func getUniqueMedia(from value: PortValue?,
+                                   loopIndex: Int) -> GraphMediaValue? {
+        self.getUniqueMedia(from: value?._asyncMedia,
+                            loopIndex: loopIndex)
     }
     
     @MainActor func resetMedia() {
@@ -39,7 +41,8 @@ extension MediaEvalOpObservable {
 
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.
-    @MainActor func getUniqueMedia(from inputMedia: AsyncMediaValue?) -> GraphMediaValue? {
+    @MainActor func getUniqueMedia(from inputMedia: AsyncMediaValue?,
+                                   loopIndex: Int) -> GraphMediaValue? {
         guard let inputMedia = inputMedia else {
             self.currentMedia = nil
             return nil
@@ -71,41 +74,48 @@ extension MediaEvalOpObservable {
                 
                 let mediaObject = await MediaEvalOpCoordinator
                     .createMediaValue(from: mediaKey,
-                                      isComputedCopy: true,
+                                      isComputedCopy: false,    // always import scenario here
                                       mediaId: inputMedia.id,
                                       graphDelegate: graphDelegate,
                                       nodeId: nodeId)
                 
-                self?.updateInputMedia(mediaObject)
+                await MainActor.run { [weak self] in
+                    self?.updateInputMedia(mediaObject,
+                                           loopIndex: loopIndex)
+                }
             }
             
             return nil
         }
         
-        // Create computed copy from another computed media object
-        Task(priority: .high) { [weak self] in
-            guard let copy = await mediaObject?.createComputedCopy(nodeId: nodeId) else {
-                fatalErrorIfDebug()
-                
-                await MainActor.run { [weak self] in
-                    self?.currentMedia = nil
+        if let mediaObject = mediaObject {
+            // Create computed copy from another computed media object
+            Task(priority: .high) { [weak self] in
+                guard let copy = await mediaObject.createComputedCopy(nodeId: nodeId) else {
+                    fatalErrorIfDebug()
+                    
+                    await MainActor.run { [weak self] in
+                        self?.currentMedia = nil
+                    }
+                    return
                 }
-                return
-            }
-            let newMediaValue = GraphMediaValue(id: inputMedia.id,
-                                                dataType: .computed, // copies are always computed
-                                                mediaObject: copy)
-            
-            // Update current observer to track new value
-            await MainActor.run { [weak self] in
-                self?.updateInputMedia(newMediaValue)
+                let newMediaValue = GraphMediaValue(id: inputMedia.id,
+                                                    dataType: .computed, // copies are always computed
+                                                    mediaObject: copy)
+                
+                // Update current observer to track new value
+                await MainActor.run { [weak self] in
+                    self?.updateInputMedia(newMediaValue,
+                                           loopIndex: loopIndex)
+                }
             }
         }
         
         return nil
     }
     
-    @MainActor func updateInputMedia(_ newMediaValue: GraphMediaValue?) {
+    @MainActor func updateInputMedia(_ newMediaValue: GraphMediaValue?,
+                                     loopIndex: Int) {
         self.currentMedia = newMediaValue
         
         self.currentLoadingMediaId = nil
@@ -115,6 +125,14 @@ extension MediaEvalOpObservable {
         
         // A bit of a hack to get fields to update with loaded media
         if let mediaPortRow = self.nodeDelegate?.getInputRowObserver(0) {
+            guard mediaPortRow.allLoopedValues.count > loopIndex else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            // Update row values with new struct containing media object
+            let portValue = newMediaValue?.portValue ?? .asyncMedia(nil)
+            mediaPortRow.allLoopedValues[loopIndex] = portValue
             mediaPortRow
                 .updateValues(mediaPortRow.allLoopedValues)
         }

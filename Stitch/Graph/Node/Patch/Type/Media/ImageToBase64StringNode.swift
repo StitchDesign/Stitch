@@ -51,7 +51,8 @@ struct ImageToBase64StringNode: PatchNodeDefinition {
 @MainActor
 func imageToBase64StringEval(node: PatchNode) -> EvalResult {
     node.loopedEval(MediaEvalOpObserver.self) { values, asyncObserver, loopIndex in
-        guard let media = asyncObserver.getUniqueMedia(from: values.first),
+        guard let media = asyncObserver.getUniqueMedia(from: values.first,
+                                                       loopIndex: loopIndex),
               let inputImage = media.mediaObject.image else {
             return values.prevOutputs(node: node)
         }

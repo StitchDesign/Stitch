@@ -53,21 +53,19 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 StitchTextView(string: groupLabel)
             }
             
-            fieldsStack
-        }
-    }
-    
-    @ViewBuilder
-    var fieldsStack: some View {
-        if forPropertySidebar {
-            VStack {
+            // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
+            if isMultiField,
+                forPropertySidebar,
+                fieldGroupViewModel.id.rowId.portType.keyPath?.layerInput == .shadowOffset {
+                VStack {
+                    fields 
+                }
+            } else {
                 fields
             }
-        } else {
-            fields
         }
     }
-    
+        
     var allFieldsBlockedOut: Bool {
         fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
     }

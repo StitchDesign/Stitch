@@ -190,6 +190,10 @@ final class LayerViewModel {
     var layerMargin: PortValue
     var offsetInGroup: PortValue
     
+//    var layerPadding: PortValue
+//    var layerMargin: PortValue
+//    var offsetInGroup: PortValue
+    
     // Ephemeral state on the layer view model
     
     // Canvas Sketch properties
