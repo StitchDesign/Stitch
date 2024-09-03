@@ -96,8 +96,13 @@ extension StitchDocument: Transferable, Sendable {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
         let projectURL = document.getUrl()
+        
+        /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
+         The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
+        let exportedFileName = (document.name + ".stitch").replacingOccurrences(of: "/", with: ":")
+
         let tempURL = StitchFileManager.tempDir
-            .appendingPathComponent(document.name, conformingTo: .stitchDocument)
+            .appendingPathComponent(exportedFileName, conformingTo: .stitchDocument)
 
         log("StitchDocumentWrapper: transferRepresentation: projectURL: \(projectURL)")
         log("StitchDocumentWrapper: transferRepresentation: tempURL: \(tempURL)")
