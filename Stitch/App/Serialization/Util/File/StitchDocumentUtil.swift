@@ -96,8 +96,12 @@ extension StitchDocument: Transferable, Sendable {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
         let projectURL = document.getUrl()
+        
+        let exportedFileName = (document.name + ".stitch").replacingOccurrences(of: "/", with: ":")
+
+        
         let tempURL = StitchFileManager.tempDir
-            .appendingPathComponent(document.name, conformingTo: .stitchDocument)
+            .appendingPathComponent(exportedFileName, conformingTo: .stitchDocument)
 
         log("StitchDocumentWrapper: transferRepresentation: projectURL: \(projectURL)")
         log("StitchDocumentWrapper: transferRepresentation: tempURL: \(tempURL)")
