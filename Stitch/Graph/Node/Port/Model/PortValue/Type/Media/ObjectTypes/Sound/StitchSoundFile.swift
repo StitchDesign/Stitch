@@ -138,7 +138,8 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
     }
 
     func setJumpTime(_ jumpTime: Double) {
-        self.player.seek(time: jumpTime)
+        let time = jumpTime - self.player.currentTime
+        self.player.seek(time: time)
     }
 
     var url: URL? { self.player.file?.url }
