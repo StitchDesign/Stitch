@@ -16,7 +16,7 @@ class JsonTests: XCTestCase {
     func testJSONFriendlyFormatEncoding() throws {
         let values = [
             PortValue.position(.zero),
-            PortValue.position(.init(width: 9, height: 9))
+            PortValue.position(.init(x: 9, y: 9))
             //            PortValue.number(.zero),
             //            PortValue.number(9)
         ]
