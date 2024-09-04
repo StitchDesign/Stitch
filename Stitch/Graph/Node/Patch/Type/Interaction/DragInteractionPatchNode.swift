@@ -152,9 +152,10 @@ func dragInteractionEvalOp(values: PortValues,
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
     let shouldMomentumStart = momentumEnabled &&
         interactiveLayer.dragStartingPoint == nil &&
-    state.wasDragging
+        state.wasDragging
     
     let dragStartingPoint = interactiveLayer.dragStartingPoint ?? previousStartingPoint
+    let isCurrentlyDragged = interactiveLayer.isDown
     
     var newOutput = interactiveLayer.getDraggedPosition(startingPoint: dragStartingPoint)
     
@@ -341,7 +342,9 @@ func dragInteractionEvalOp(values: PortValues,
         state.momentum.shouldRunY = false
     }
     
-    if !state.momentum.shouldRun {
+    // Cancel momentum if momentum state finished or if user initiated a drag
+    let shouldCancelMomentum = !state.momentum.shouldRun || isCurrentlyDragged
+    if shouldCancelMomentum {
         state.momentum = resetMomentum(state.momentum)
         // log("dragInteractionEvalOp: will not run again")
         
