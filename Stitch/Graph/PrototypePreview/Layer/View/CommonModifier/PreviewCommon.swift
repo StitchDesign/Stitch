@@ -15,7 +15,7 @@ struct PreviewCommonModifier: ViewModifier {
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat
@@ -134,7 +134,7 @@ struct PreviewCommonView_REPL: View {
 
     //    var position: StitchPosition = .zero
     //    var position: StitchPosition = .init(width: 0, height: 422)
-    var position: StitchPosition = .init(width: 0, height: -422)
+    var position: StitchPosition = .init(x: 0, y: -422)
 
     // 422 * 0.4
     var scaledPosition: StitchPosition {
@@ -159,7 +159,7 @@ struct PreviewCommonView_REPL: View {
                        // ALWAYS CENTER, regardless of anchoring;
                        alignment: .center)
                 .scaleEffect(CGFloat(scale))
-                .position(x: pos.width, y: pos.height)
+                .position(x: pos.x, y: pos.y)
 
         }
         .frame(windowSize)

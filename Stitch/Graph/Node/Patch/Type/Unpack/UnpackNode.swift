@@ -181,8 +181,8 @@ func sizeUnpackOp(values: PortValues) -> (PortValue, PortValue) {
 func positionUnpackOp(values: PortValues) -> (PortValue, PortValue) {
     if let value = values.first, // only a single input
        let position = value.getPosition {
-        return (.number(Double(position.width)),
-                .number(Double(position.height)))
+        return (.number(Double(position.x)),
+                .number(Double(position.y)))
     } else {
         fatalErrorIfDebug()
         return (.number(.zero),
@@ -264,18 +264,18 @@ let shapeCommandOp: Operation4 = { (values: PortValues) -> (PortValue, PortValue
     if let shapeCommand = values.first?.shapeCommand {
         return (
             .shapeCommandType(shapeCommand.getShapeCommandType),
-            .position(shapeCommand.getPoint?.asCGSize ?? .zero),
-            .position(shapeCommand.getCurveFrom?.asCGSize ?? .zero),
-            .position(shapeCommand.getCurveTo?.asCGSize ?? .zero)
+            .position(shapeCommand.getPoint?.asCGPoint ?? .zero),
+            .position(shapeCommand.getCurveFrom?.asCGPoint ?? .zero),
+            .position(shapeCommand.getCurveTo?.asCGPoint ?? .zero)
         )
     } else {
         fatalErrorIfDebug()
         let shapeCommand: ShapeCommand = .defaultFalseShapeCommand
         return (
             .shapeCommandType(shapeCommand.getShapeCommandType),
-            .position(shapeCommand.getPoint?.asCGSize ?? .zero),
-            .position(shapeCommand.getCurveFrom?.asCGSize ?? .zero),
-            .position(shapeCommand.getCurveTo?.asCGSize ?? .zero)
+            .position(shapeCommand.getPoint?.asCGPoint ?? .zero),
+            .position(shapeCommand.getCurveFrom?.asCGPoint ?? .zero),
+            .position(shapeCommand.getCurveTo?.asCGPoint ?? .zero)
         )
     }
 }

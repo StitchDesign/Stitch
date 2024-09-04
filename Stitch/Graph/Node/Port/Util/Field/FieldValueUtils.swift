@@ -47,14 +47,13 @@ extension PortValue {
                     return [[commandTypeDropdownField]]
 
                 case .lineTo(let point), .moveTo(let point):
-                    let size = point.asCGSize
-                    return [[commandTypeDropdownField], size.fieldValues]
+                    return [[commandTypeDropdownField], point.asCGPoint.fieldValues]
 
                 case .curveTo(let curveFrom, let point, let curveTo):
                     return [[commandTypeDropdownField],
-                            point.asCGSize.fieldValues,
-                            curveFrom.asCGSize.fieldValues,
-                            curveTo.asCGSize.fieldValues]
+                            point.asCGPoint.fieldValues,
+                            curveFrom.asCGPoint.fieldValues,
+                            curveTo.asCGPoint.fieldValues]
                 }
             case .output:
                 return [[.readOnly(shapeCommandValue.display)]]

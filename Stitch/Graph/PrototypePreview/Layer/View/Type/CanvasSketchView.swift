@@ -30,7 +30,7 @@ struct CanvasSketchView: View {
 
     let lineColor: Color
     let lineWidth: CGFloat
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

@@ -30,8 +30,8 @@ struct LayerTest: View {
     let hasDragInteraction: Bool = false
 
     // for local testing will need Stateful position and prevPosition
-    @State private var localPosition: CGSize
-    @State private var localPreviousPosition: CGSize
+    @State private var localPosition: CGPoint
+    @State private var localPreviousPosition: CGPoint
 
     // Don't need to be stored in redux?
     @State private var canScroll: Bool = false
@@ -39,7 +39,7 @@ struct LayerTest: View {
 
     init(id: String,
          size: CGSize,
-         position: CGSize,
+         position: CGPoint,
          color: Color,
          parentSize: CGSize,
          parentPosition: CGSize,
@@ -89,7 +89,7 @@ struct LayerTest: View {
         }
         .frame(size)
         .border(Color.purple)
-        .position(CGPoint(x: pos.width, y: pos.height))
+        .position(CGPoint(x: pos.x, y: pos.y))
         .gesture(DragGesture()
                     .onChanged {
                         log("LayerTest onChanged")
@@ -115,10 +115,10 @@ struct LayerTest: View {
                         if canScroll {
                             self.localPosition = onScroll(
                                 translationSize: $0.translation,
-                                previousPosition: localPreviousPosition.toCGPoint,
-                                position: localPosition.toCGPoint,
+                                previousPosition: localPreviousPosition,
+                                position: localPosition,
                                 size: size,
-                                parentSize: parentSize).toCGSize
+                                parentSize: parentSize)
                         }
                     }
                     .onEnded { _ in
@@ -137,22 +137,22 @@ struct GroupingTest<Content: View>: View {
     var size: CGSize
     let color: Color
     let parentSize: CGSize
-    let parentPosition: CGSize
+    let parentPosition: CGPoint
     let anchor: Anchoring
 
     let hasScrollInteraction: Bool
     let hasDragInteraction: Bool = false
 
     // for local testing will need Stateful position and prevPosition
-    @State private var localPosition: CGSize
-    @State private var localPreviousPosition: CGSize
+    @State private var localPosition: CGPoint
+    @State private var localPreviousPosition: CGPoint
 
     init(content: Content,
          size: CGSize,
-         position: CGSize,
+         position: CGPoint,
          color: Color,
          parentSize: CGSize,
-         parentPosition: CGSize,
+         parentPosition: CGPoint,
          anchor: Anchoring,
          hasScrollInteraction: Bool) {
 
@@ -187,7 +187,7 @@ struct GroupingTest<Content: View>: View {
         .frame(size)
         .border(Color.blue)
         .clipped() // should be controlled by a boolean like Origami
-        .position(CGPoint(x: pos.width, y: pos.height))
+        .position(CGPoint(x: pos.x, y: pos.y))
         .gesture(DragGesture()
                     .onChanged { _ in
                         let _ = logInView("GroupingTest onChanged")

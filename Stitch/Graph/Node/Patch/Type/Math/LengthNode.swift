@@ -55,7 +55,7 @@ func lengthEval(inputs: PortValuesList,
     let positionOp: Operation = { (values: PortValues) -> PortValue in
         // log("lengthEval: values: \(values)")
         let n = values[0].getPosition!
-        let length: Double = hypot(n.width, n.height)
+        let length: Double = hypot(n.x, n.y)
         return .number(length)
     }
 

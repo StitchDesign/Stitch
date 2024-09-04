@@ -79,7 +79,7 @@ struct PreviewProgressIndicatorLayer: View {
     @Binding var animating: Bool
     var style: ProgressIndicatorStyle
     var progress: Double
-    let position: CGSize
+    let position: CGPoint
     let size: LayerSize
     let opacity: Double
     let scale: Double

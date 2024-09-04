@@ -114,8 +114,8 @@ extension LayerInspectorView {
     static let positioning: LayerInputTypeSet = [
         .position,
         .anchoring,
-        .zIndex
-//        .offsetInGroup
+        .zIndex,
+        .offsetInGroup
     ]
     
     @MainActor
@@ -213,11 +213,11 @@ extension LayerInspectorView {
         .allAnchors,
         .cameraDirection,
         .isCameraEnabled,
-        .isShadowsEnabled
+        .isShadowsEnabled,
         
         // Layer padding, margin
-//        .layerMargin,
-//        .layerPadding
+        .layerMargin,
+        .layerPadding
     ]
     
     @MainActor

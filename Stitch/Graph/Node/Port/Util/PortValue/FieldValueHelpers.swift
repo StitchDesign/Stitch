@@ -23,7 +23,7 @@ extension LayerSize {
 
 extension StitchPosition {
     var fieldValues: FieldValues {
-        [.number(Double(self.width)), .number(Double(self.height))]
+        [.number(Double(self.x)), .number(Double(self.y))]
     }
 }
 

@@ -9,6 +9,21 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+typealias StitchPosition = CGPoint
+
+extension CGPoint {
+    var toPoint3D: Point3D {
+        .init(x: self.x, y: self.y, z: .zero)
+    }
+
+    var toPoint4D: Point4D {
+        .init(x: self.x, y: self.y, z: .zero, w: .zero)
+    }
+    
+    static let multiplicationIdentity: Self = .init(x: 1, y: 1)
+    static let additionIdentity: Self = .zero
+}
+
 /* ----------------------------------------------------------------
  CGSize helpers
  ---------------------------------------------------------------- */

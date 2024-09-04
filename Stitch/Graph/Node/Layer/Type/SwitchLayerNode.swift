@@ -93,7 +93,7 @@ struct PreviewSwitchLayer: View {
     let id: PreviewCoordinate
     let isEnabled: Bool
     let togglePulse: TimeInterval
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

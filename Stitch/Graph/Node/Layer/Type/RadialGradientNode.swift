@@ -85,7 +85,7 @@ struct PreviewRadialGradientLayer: View {
     let endRadius: Double
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-    let position: CGSize = .zero
+    let position: CGPoint = .zero
 
     var size: LayerSize {
         parentSize.toLayerSize

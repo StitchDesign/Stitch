@@ -73,7 +73,8 @@ func qrCodeDetectionEval(node: PatchNode) -> EvalResult {
                 let transformedBoundingBox = originalBoundingBox.applying(transform)
                 
                 // Creating output positions, size remains the same
-                let originPosition = StitchPosition(width: transformedBoundingBox.origin.x, height: transformedBoundingBox.origin.y)
+                let originPosition = StitchPosition(x: transformedBoundingBox.origin.x,
+                                                    y: transformedBoundingBox.origin.y)
                 let size = LayerSize(CGSize(width: transformedBoundingBox.size.width, height: transformedBoundingBox.size.height))
                 
                 return [.bool(true),

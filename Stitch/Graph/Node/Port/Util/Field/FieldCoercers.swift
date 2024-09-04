@@ -147,11 +147,11 @@ func positionParent(_ position: StitchPosition,
 
     if let number = number {
         if fieldIndex == 0 {
-            return CGSize(width: number,
-                          height: position.height)
+            return CGPoint(x: number,
+                           y: position.y)
         } else if fieldIndex == 1 {
-            return CGSize(width: position.width,
-                          height: number)
+            return CGPoint(x: position.x,
+                           y: number)
         } else {
             fatalError() // we had valid edit but unexpected field index
         }

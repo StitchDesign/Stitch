@@ -69,7 +69,7 @@ extension PortValue {
         }
     }
 
-    var getPosition: StitchPosition? {
+    var getPosition: CGPoint? {
         switch self {
         case .position(let x): return x
         default: return nil
@@ -77,7 +77,7 @@ extension PortValue {
     }
 
     var getPoint: CGPoint? {
-        self.getPosition?.toCGPoint
+        self.getPosition
     }
 
     var getPoint3D: Point3D? {

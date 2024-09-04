@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct PreviewColorFillLayer: View {
     @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
-    let position: CGSize = .zero
+    let position: CGPoint = .zero
 
     var size: LayerSize {
         parentSize.toLayerSize

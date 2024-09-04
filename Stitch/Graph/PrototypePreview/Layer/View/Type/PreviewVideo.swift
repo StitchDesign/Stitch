@@ -16,7 +16,7 @@ struct PreviewVideoLayer: View {
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
     let videoPlayer: StitchVideoImportPlayer
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

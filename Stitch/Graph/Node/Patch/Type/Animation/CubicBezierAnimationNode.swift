@@ -103,10 +103,10 @@ func cubicBezierAnimationEvalOp(values: PortValues,
     let currentOutput: Double = values[safe: 6]?.getNumber ?? toValue
     let currentOutput2: StitchPosition = values.last?.getPosition ?? .zero
 
-    let equivalentX = areEquivalent(n: currentOutput2.width,
+    let equivalentX = areEquivalent(n: currentOutput2.x,
                                     n2: toValue)
 
-    let equivalentY = areEquivalent(n: currentOutput2.height,
+    let equivalentY = areEquivalent(n: currentOutput2.y,
                                     n2: toValue)
 
     let equivalentZ = areEquivalent(n: currentOutput,
@@ -116,8 +116,8 @@ func cubicBezierAnimationEvalOp(values: PortValues,
 
     let finished = ImpureEvalOpResult(
         outputs: [PortValue.number(currentOutput),
-                  PortValue.position(.init(width: currentOutput,
-                                           height: currentOutput))],
+                  PortValue.position(.init(x: currentOutput,
+                                           y: currentOutput))],
         willRunAgain: false
     )
 
@@ -142,13 +142,13 @@ func cubicBezierAnimationEvalOp(values: PortValues,
     if shouldSetIntialX {
         animationState.frameCountX = 0
         animationState.initialValuesX = InitialAnimationValue(
-            start: currentOutput2.width,
+            start: currentOutput2.x,
             goal: toValue)
     }
     if shouldSetIntialY {
         animationState.frameCountY = 0
         animationState.initialValuesY = InitialAnimationValue(
-            start: currentOutput2.height,
+            start: currentOutput2.y,
             goal: toValue)
     }
 
@@ -206,7 +206,7 @@ func cubicBezierAnimationEvalOp(values: PortValues,
     computedState.classicAnimationState = .threeField(animationState)
     return .init(
         outputs: [.number(newOutput), // first output,
-                  .position(newOutput2.toCGSize)], // second output
+                  .position(newOutput2)], // second output
         willRunAgain: true
     )
 }

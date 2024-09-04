@@ -89,7 +89,7 @@ struct PreviewShapeLayer: View {
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,
-                    position: position.toCGPoint,
+                    position: position,
                     rotationX: rotationX,
                     rotationY: rotationY,
                     rotationZ: rotationZ,

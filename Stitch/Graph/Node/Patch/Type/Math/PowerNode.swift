@@ -57,8 +57,8 @@ func powerEval(inputs: PortValuesList,
         let n = values[0].getPosition ?? .multiplicationIdentity
         let n2 = values[1].getPosition ?? .multiplicationIdentity
         return .position(.init(
-                            width: pow(n.width, n2.width),
-                            height: pow(n.height, n2.height)))
+                            x: pow(n.x, n2.x),
+                            y: pow(n.y, n2.y)))
     }
 
     let sizeOp: Operation = { (values: PortValues) -> PortValue in

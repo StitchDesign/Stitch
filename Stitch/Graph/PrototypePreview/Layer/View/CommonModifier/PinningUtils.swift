@@ -88,6 +88,18 @@ extension RootPinMap {
         .toSet
     }
     
+    /// Returns set of layer IDs which pin to each other given one of its members.
+    func getLinkedPinnedLayers(from id: LayerNodeId) -> LayerIdSet {
+        guard let root = self.findRootPinReceiver(from: id) else {
+            return .init()
+        }
+        
+        return self.get(root)?
+            .getAllPins()
+            .compactMap { $0 }
+            .toSet ?? .init()
+    }
+    
     /// Recursively checks most upstream parent ID for pinning data.
     func findRootPinReceiver(from id: LayerNodeId) -> LayerNodeId? {
         for pinData in self.values {
@@ -349,10 +361,9 @@ func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> CGPoint {
     
     adjustPosition(size: pinnedLayerViewModel.pinnedSize ?? .zero,
-                   position: pinReceiverData.origin.toCGSize,
+                   position: pinReceiverData.origin,
                    anchor: pinnedLayerViewModel.pinAnchor.getAnchoring ?? .topLeft,
                    parentSize: pinReceiverData.size)
-    .toCGPoint
 }
 
 

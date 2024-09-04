@@ -18,7 +18,7 @@ struct PreviewTextFieldLayer: View {
     
     let placeholder: String
     let color: Color
-    let position: CGSize
+    let position: CGPoint
     let rotationX: CGFloat
     let rotationY: CGFloat
     let rotationZ: CGFloat

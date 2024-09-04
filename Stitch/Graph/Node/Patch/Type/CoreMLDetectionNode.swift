@@ -131,8 +131,8 @@ func coreMLDetectionEval(node: PatchNode) -> EvalResult {
                         toViewSize: imageSize)
                     
                     locationOutputLoop.append(
-                        .init(width: rect.minX,
-                              height: rect.minY)
+                        .init(x: rect.minX,
+                              y: rect.minY)
                     )
                     
                     sizeOutputLoop.append(

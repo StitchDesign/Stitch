@@ -68,18 +68,18 @@ func divideEval(inputs: PortValuesList,
 
     let positionOperation: Operation = { (values: PortValues) -> PortValue in
 
-        let head: CGSize = values.first?.getPosition ?? .zero
+        let head = values.first?.getPosition ?? .zero
         let tail: PortValues = Array(values.dropFirst())
 
-        return .position(tail.reduce(head) { (acc: CGSize, value: PortValue) -> CGSize in
+        return .position(tail.reduce(head) { (acc: CGPoint, value: PortValue) -> CGPoint in
             if let x = value.getPosition {
-                return CGSize(
-                    width: zeroCompatibleDivision(
-                        numerator: Double(acc.width),
-                        denominator: Double(x.width)),
-                    height: zeroCompatibleDivision(
-                        numerator: Double(acc.height),
-                        denominator: Double(x.height)))
+                return CGPoint(
+                    x: zeroCompatibleDivision(
+                        numerator: Double(acc.x),
+                        denominator: Double(x.x)),
+                    y: zeroCompatibleDivision(
+                        numerator: Double(acc.y),
+                        denominator: Double(x.y)))
             } else {
                 fatalError("divideEval: position")
             }

@@ -60,6 +60,7 @@
 		B51C3B8C29A9462A00043089 /* ARAnchorNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C3B8B29A9462A00043089 /* ARAnchorNode.swift */; };
 		B51C67512C6441A5002F83D1 /* UnpackedValueCoercer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */; };
 		B51D8809298CA7A000CEBA98 /* AsyncMediaValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */; };
+		B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B52148992C837CA6009AD42C /* DelayOneNode.swift */; };
 		B523698C29F9E5E800240395 /* NodeRowObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = B523698B29F9E5E800240395 /* NodeRowObserver.swift */; };
 		B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */; };
 		B526AFFE2C764E8D00B5971F /* SchemaVersions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */; };
@@ -255,9 +256,6 @@
 		E4AB307A29B4F316000A66B0 /* CoreMLDetectionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307929B4F316000A66B0 /* CoreMLDetectionNode.swift */; };
 		E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4AB307B29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel */; };
 		E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE5B7B28AAFE4A001C823D /* LightType.swift */; };
-		E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */; };
-		E4CB84102C6E8FED000D6D31 /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */; };
-		E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */; };
 		E4CC7D0D28F48EF6008EA1C0 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E4CC7D0C28F48EF6008EA1C0 /* QuickLook.framework */; };
 		E4CC7D1028F48EF6008EA1C0 /* PreviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D0F28F48EF6008EA1C0 /* PreviewViewController.swift */; };
 		E4CC7D1228F48EF6008EA1C0 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4CC7D1128F48EF6008EA1C0 /* PreviewProvider.swift */; };
@@ -969,6 +967,7 @@
 		B51C3B8B29A9462A00043089 /* ARAnchorNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARAnchorNode.swift; sourceTree = "<group>"; };
 		B51C67502C6441A5002F83D1 /* UnpackedValueCoercer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnpackedValueCoercer.swift; sourceTree = "<group>"; };
 		B51D8808298CA7A000CEBA98 /* AsyncMediaValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncMediaValue.swift; sourceTree = "<group>"; };
+		B52148992C837CA6009AD42C /* DelayOneNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayOneNode.swift; sourceTree = "<group>"; };
 		B523698B29F9E5E800240395 /* NodeRowObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowObserver.swift; sourceTree = "<group>"; };
 		B525BB472C18AFC300A98EB4 /* FileDropHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileDropHandling.swift; sourceTree = "<group>"; };
 		B526AFFD2C764E8D00B5971F /* SchemaVersions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaVersions.swift; sourceTree = "<group>"; };
@@ -1803,8 +1802,6 @@
 				B501920C2C6D144D00A048ED /* StitchEngine in Frameworks */,
 				20D1601925A802FF005AEB72 /* NonEmpty in Frameworks */,
 				B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */,
-				E4CB84102C6E8FED000D6D31 /* StitchSchemaKit in Frameworks */,
-				E4CB840D2C6E8E85000D6D31 /* StitchSchemaKit in Frameworks */,
 				B58612AF2C68681600C64313 /* StitchEngine in Frameworks */,
 				ECD5438E29A003F8009D0A30 /* DisplayLink in Frameworks */,
 				B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */,
@@ -1821,7 +1818,6 @@
 				201953DA25B25D3300D5296C /* Tagged in Frameworks */,
 				20578DA7259EAF6400DACCA8 /* BrightFutures in Frameworks */,
 				EC211A4B2698A8B70068A0F0 /* SwiftyJSON in Frameworks */,
-				E4CC35812C6D39D600DF5B3C /* StitchSchemaKit in Frameworks */,
 				E463E7EF2C6FC7090008E318 /* StitchSchemaKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4136,6 +4132,7 @@
 				ECB8D58628B851E800D993CF /* DeviceInfoNode.swift */,
 				EC8BA54826A6388B002E345C /* VelocityNode.swift */,
 				E457441C2BC0548300B1642E /* QRCodeDetection.swift */,
+				B52148992C837CA6009AD42C /* DelayOneNode.swift */,
 			);
 			path = Type;
 			sourceTree = "<group>";
@@ -4334,9 +4331,6 @@
 				ECD5438D29A003F8009D0A30 /* DisplayLink */,
 				B50F41672C1EB4320082262F /* StitchViewKit */,
 				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
-				E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */,
-				E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */,
-				E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */,
 				E463E7EE2C6FC7090008E318 /* StitchSchemaKit */,
 				EC5E8BD02C766992001DDB8D /* StitchEngine */,
 			);
@@ -5130,6 +5124,7 @@
 				EC8DD69C29A594930061FB67 /* PortValuesUtils.swift in Sources */,
 				ECE35EE427CEE7E100CB8F5C /* FieldCoercers.swift in Sources */,
 				EC252403269F5C71003ABF8F /* EditJSONEntry.swift in Sources */,
+				B521489A2C837CA6009AD42C /* DelayOneNode.swift in Sources */,
 				ECEC7E0826CCBEAC008A39C1 /* ClassicAnimationCurve.swift in Sources */,
 				205E6DDE25AFCB23001C5C27 /* GraphState.swift in Sources */,
 				ECC301B129380CB900C34F10 /* SubarrayNode.swift in Sources */,
@@ -5501,7 +5496,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5534,7 +5529,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5671,7 +5666,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -5788,7 +5783,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5.1;
+				MARKETING_VERSION = 1.5.2;
 				PRODUCT_BUNDLE_IDENTIFIER = app.stitchdesign.stitch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -6044,7 +6039,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = exactVersion;
-				version = 23.1.0;
+				version = 24.0.0;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
@@ -6167,18 +6162,6 @@
 		E463E7EE2C6FC7090008E318 /* StitchSchemaKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */;
-			productName = StitchSchemaKit;
-		};
-		E4CB840C2C6E8E85000D6D31 /* StitchSchemaKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = StitchSchemaKit;
-		};
-		E4CB840F2C6E8FED000D6D31 /* StitchSchemaKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = StitchSchemaKit;
-		};
-		E4CC35802C6D39D600DF5B3C /* StitchSchemaKit */ = {
-			isa = XCSwiftPackageProductDependency;
 			productName = StitchSchemaKit;
 		};
 		EC1137372719F9B400ADCA72 /* OrderedCollections */ = {

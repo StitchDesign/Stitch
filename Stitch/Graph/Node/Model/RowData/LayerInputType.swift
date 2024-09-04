@@ -256,12 +256,12 @@ extension LayerInputPort {
             return .anchoring(.defaultAnchoring)
         case .pinOffset:
             return .size(.zero)
-//        case .layerPadding:
-//            return .padding(.zero)
-//        case .layerMargin:
-//            return .padding(.zero)
-//        case .offsetInGroup:
-//            return .size(.zero)
+        case .layerPadding:
+            return .padding(.zero)
+        case .layerMargin:
+            return .padding(.zero)
+        case .offsetInGroup:
+            return .size(.zero)
         }
     }
     
@@ -468,12 +468,12 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
-//        case .layerPadding:
-//            return \.layerPaddingPort
-//        case .layerMargin:
-//            return \.layerMarginPort
-//        case .offsetInGroup:
-//            return \.offsetInGroupPort
+        case .layerPadding:
+            return \.layerPaddingPort
+        case .layerMargin:
+            return \.layerMarginPort
+        case .offsetInGroup:
+            return \.offsetInGroupPort
         }
     }
     
@@ -713,12 +713,12 @@ extension LayerViewModel {
             return self.pinAnchor
         case .pinOffset:
             return self.pinOffset
-//        case .layerPadding:
-//            return self.layerPadding
-//        case .layerMargin:
-//            return self.layerMargin
-//        case .offsetInGroup:
-//            return self.offsetInGroup
+        case .layerPadding:
+            return self.layerPadding
+        case .layerMargin:
+            return self.layerMargin
+        case .offsetInGroup:
+            return self.offsetInGroup
         }
     }
     
@@ -921,12 +921,12 @@ extension LayerViewModel {
             self.pinAnchor = value
         case .pinOffset:
             self.pinOffset = value
-//        case .layerPadding:
-//            self.layerPadding = value
-//        case .layerMargin:
-//            self.layerMargin = value
-//        case .offsetInGroup:
-//            self.offsetInGroup = value
+        case .layerPadding:
+            self.layerPadding = value
+        case .layerMargin:
+            self.layerMargin = value
+        case .offsetInGroup:
+            self.offsetInGroup = value
         }
     }
 }
@@ -1123,12 +1123,12 @@ extension LayerInputPort {
             return \.pinAnchorPort
         case .pinOffset:
             return \.pinOffsetPort
-//        case .layerPadding:
-//            return \.layerPaddingPort
-//        case .layerMargin:
-//            return \.layerMarginPort
-//        case .offsetInGroup:
-//            return \.offsetInGroupPort
+        case .layerPadding:
+            return \.layerPaddingPort
+        case .layerMargin:
+            return \.layerMarginPort
+        case .offsetInGroup:
+            return \.offsetInGroupPort
         }
     }
     
@@ -1177,7 +1177,7 @@ extension LayerInputPort {
                 return [value]
             }
             
-            return [.number(position.width), .number(position.height)]
+            return [.number(position.x), .number(position.y)]
             
         default:
             // TODO: get to other types
@@ -1426,12 +1426,12 @@ extension LayerInputPort {
         case .pinOffset:
             return useShortLabel ? "Offset" : "Pin Offset"
         
-//        case .layerPadding:
-//            return useShortLabel ? "Padding" : "Layer Padding"
-//        case .layerMargin:
-//            return useShortLabel ? "Margin" : "Layer Margin"
-//        case .offsetInGroup:
-//            return useShortLabel ? "Offset" : "Offset in Group"
+        case .layerPadding:
+            return useShortLabel ? "Padding" : "Layer Padding"
+        case .layerMargin:
+            return useShortLabel ? "Margin" : "Layer Margin"
+        case .offsetInGroup:
+            return useShortLabel ? "Offset" : "Offset in Group"
         }
     }
 

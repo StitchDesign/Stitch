@@ -260,7 +260,7 @@ struct InputValueView: View {
                 isSelectedInspectorRow: isSelectedInspectorRow,
                 choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                     isForLayerGroup: false, 
-//                                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                     isForPinTo: false))
         
         case .pinTo(let pinToId):
@@ -274,7 +274,7 @@ struct InputValueView: View {
                            isSelectedInspectorRow: isSelectedInspectorRow,
                            choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                                isForLayerGroup: rowViewModel.nodeKind == .layer(.group),
-//                                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                                                isForPinTo: true))
 
         case .anchorPopover(let anchor):

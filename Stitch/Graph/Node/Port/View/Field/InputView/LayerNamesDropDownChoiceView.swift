@@ -56,11 +56,11 @@ extension GraphState {
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
                               isForLayerGroup: Bool,
+                              isFieldInsideLayerInspector: Bool,
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
-        let pinMap = self.visibleNodesViewModel.flattenedPinMap
-        let viewsPinnedToThisLayerId = pinMap.get(isForNode.asLayerNodeId) ?? .init()
+        let viewsPinnedToThisLayerId = self.visibleNodesViewModel.pinMap.getLinkedPinnedLayers(from: isForNode.asLayerNodeId)
         
         // includes self?
         var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())
