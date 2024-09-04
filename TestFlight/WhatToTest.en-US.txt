@@ -1,14 +1,17 @@
-Introducing layer pinning: a new way to easily “pin” one layer to another in a prototype. Layer pinning enables precise layer placement regardless of layer group context.
+Layer enhancements:
+- UI polish for layer inspector sidebar
+- New spacing input ports for margin, padding, and group offset
 
-3D model improvements:
-- Custom 3D transforms no longer cause objects to disappear in 3D Model layer node
-- 3D transforms simplified to no longer include “Rotation Real”
-- Transform rotation values use degrees instead of radians
-- Transform pack + unpack fixed to produce consistent results
+Media improvements:
+- Improved audio metering values to use a more even distribution of values
+- Fixed “Jump” input pulse for Sound Import node
+- Fixed issue where imported media may incorrectly display as “None”
+- Fixed issue where image thumbnails wouldn’t update on import change
+- Fixed issue where Image Import “Size” output wouldn’t update
+
+Other bugs:
+- Fixed issue where “/“ characters in project titles would break project sharing
 
 Other improvements:
-- Fixed performance regression caused by updates to node ports
-- Added sound metering for Sound Import node
-- Layer inspector ports fixed to show “Add Node” button on hover
-- Small improvements to node searches in Insert Node menu
-- Layer padding and margin edits use “flyout” menu
+- CMD + . toggles visibility of both sidebars
+- CMD + / toggles preview window
