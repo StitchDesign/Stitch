@@ -9,22 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct GraphMediaValue {
+struct GraphMediaValue: Hashable {
     let id: MediaObjectId
     let dataType: DataType<MediaKey>
     var mediaObject: StitchMediaObject
-}
-
-extension GraphMediaValue: Hashable {
-    static func == (lhs: GraphMediaValue, rhs: GraphMediaValue) -> Bool {
-        lhs.id == rhs.id &&
-        lhs.dataType == rhs.dataType
-    }
-    
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.id)
-        hasher.combine(self.dataType)
-    }
 }
 
 extension GraphMediaValue {
