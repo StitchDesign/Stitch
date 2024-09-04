@@ -415,8 +415,8 @@ class EvalTests: XCTestCase {
 
         let expectedOutputs: PortValuesList = [
             [
-                .position(CGSize(width: 10, height: 100)),
-                .position(CGSize(width: 20, height: 200))
+                .position(.init(x: 10, y: 100)),
+                .position(.init(x: 20, y: 200))
             ]
         ]
 
@@ -460,8 +460,8 @@ class EvalTests: XCTestCase {
     func testSizeUnpackEvalArrayWithPositionNodeType() throws {
 
         let n1: PortValues = [
-            .position(CGSize(width: 10, height: 100)),
-            .position(CGSize(width: 20, height: 200))
+            .position(.init(x: 10, y: 100)),
+            .position(.init(x: 20, y: 200))
         ]
 
         let expectedOutputs: PortValuesList = [
