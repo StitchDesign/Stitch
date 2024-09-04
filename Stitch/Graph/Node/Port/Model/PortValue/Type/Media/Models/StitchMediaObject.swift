@@ -46,7 +46,32 @@ extension StitchSingletonMediaObject {
     }
 }
 
-extension StitchMediaObject {    
+extension StitchMediaObject: Hashable {
+    static func == (lhs: StitchMediaObject, rhs: StitchMediaObject) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        switch self {
+        case .image(let uIImage):
+            hasher.combine(uIImage.hashValue)
+        case .video(let video):
+            hasher.combine(video.url?.hashValue)
+        case .soundfile(let stitchSoundPlayer):
+            hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
+        case .mic(let stitchSoundPlayer):
+            hasher.combine(stitchSoundPlayer.delegate.url?.hashValue ?? .zero)
+        case .model3D(let stitchEntity):
+            hasher.combine(stitchEntity.sourceURL)
+        case .arAnchor(let anchorEntity):
+            hasher.combine(anchorEntity.hashValue)
+        case .coreMLImageModel(let stitchMLModel):
+            hasher.combine(stitchMLModel.hashValue)
+        }
+    }
+}
+
+extension StitchMediaObject {
     mutating func transferData(from otherMediaObject: StitchMediaObject) {
         switch self {
         case .image(let uIImage):
