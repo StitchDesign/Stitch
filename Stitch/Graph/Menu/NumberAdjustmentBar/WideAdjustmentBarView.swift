@@ -251,9 +251,10 @@ struct WideAdjustmentBarView: View {
                     readCenter(oldCenter: scrollCenter,
                                currentCenter: geometry[x.center],
                                onChange: { (newCenter: CGPoint) in
-                                scrollCenter = newCenter
-                               })
-
+                        DispatchQueue.main.async {
+                            scrollCenter = newCenter
+                        }
+                    })
                 }
             }
         }
@@ -362,16 +363,16 @@ struct WideAdjustmentBarView: View {
             //                log("Auto select center: self.currentlySelectedNumber: \(self.currentlySelectedNumber)")
 
             if pref.number != self.currentlySelectedNumber {
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak graph] in
                     self.currentlySelectedNumber = pref.number
 
                     // log("Auto select center: pref.number: \(pref.number)")
-                    graph.inputEdited(fieldValue: fieldValue,
-                                      fieldIndex: pref.field.fieldIndex,
-                                      coordinate: rowObserverCoordinate,
-                                      isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                      // We don't persist changes from auto-selectiong the center value during scroll
-                                      isCommitting: false)
+                    graph?.inputEdited(fieldValue: fieldValue,
+                                       fieldIndex: pref.field.fieldIndex,
+                                       coordinate: rowObserverCoordinate,
+                                       isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                       // We don't persist changes from auto-selectiong the center value during scroll
+                                       isCommitting: false)
                 }
 
             }

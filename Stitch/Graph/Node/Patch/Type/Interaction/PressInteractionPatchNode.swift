@@ -155,7 +155,12 @@ func pressInteractionOp(pressNode: NodeViewModel,
     if willDelayTap {
         evalObserver.prevTapTime = newTapTime
         
-        Task(priority: .high) {
+        Task(priority: .high) { [weak evalObserver, weak graph] in
+            guard let evalObserver = evalObserver,
+                  let graph = graph else {
+                return
+            }
+            
             try? await evalObserver.actor.delayTap(delayValue: delayValue,
                                                    newTapTime: newTapTime,
                                                    pressNode: pressNode,

@@ -174,7 +174,10 @@ func visionObjectDetectionRequest(for model: VNCoreMLModel,
     // Processes vision request on background thread for perf.
     // Various operations here like creating a CIImage and completing the vision request
     // are computationally expensive.
-    Task.detached(priority: .userInitiated) {
+    Task.detached(priority: .userInitiated) { [weak model] in
+        guard let model = model else {
+            return
+        }
 
         //    Task(priority: .high) {
 
