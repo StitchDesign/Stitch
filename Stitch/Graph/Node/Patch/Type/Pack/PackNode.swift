@@ -173,9 +173,7 @@ struct PackPatchNode: PatchNodeDefinition {
 
         default:
             // Not expected here
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return []
         }
     }
