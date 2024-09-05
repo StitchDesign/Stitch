@@ -14,30 +14,8 @@ import StitchSchemaKit
 let GRAPH_MOMENTUM_AMPLITUDE_MINIMUM: CGFloat = 0.001
 
 struct MomentumAnimationState: Equatable, Codable, Hashable {
-    var shouldRunY = false
-    var shouldRunX = false
-
-    // Do we need to run this momentum?
-    var shouldRun: Bool {
-        self.shouldRunY || self.shouldRunX
-    }
-
-    var didYMomentumFinish: Bool {
-        (self.stepY > GRAPH_MOMENTUM_END_STEP_COUNT)
-            || self.amplitude.y.magnitude < GRAPH_MOMENTUM_AMPLITUDE_MINIMUM
-    }
-
-    // Shouldn't this also use `shouldRunX`?
-    var didXMomentumFinish: Bool {
-        (self.stepX > GRAPH_MOMENTUM_END_STEP_COUNT)
-            || self.amplitude.x.magnitude < GRAPH_MOMENTUM_AMPLITUDE_MINIMUM
-    }
-
-    var stepY: CGFloat = 0
-    var stepX: CGFloat = 0
-
-    var amplitude: CGPoint = .zero // initialVelocity * scaleFactor
-    var delta: CGPoint = .zero
+    var endVelocity: Int = 0
+    var elapsedGraphTime: CGFloat = 0.0
 }
 
 func boundVelocity(velocity: CGFloat,
