@@ -523,9 +523,9 @@ extension GraphState {
         // NOTE: we must do this before updating the position,
         // in order to make sure that the updatePosition call
         // has a previousPosition that reflects the momentum movement.
-        if self.graphMovement.shouldRun {
-            self.graphMovement.resetGraphMovement()
-        }
+//        if self.graphMovement.shouldRun {
+//            self.graphMovement.resetGraphMovement()
+//        }
 
         //    log("handleGraphScrolled: state.graphUI.graphMovement.localPosition was: \(state.graphUI.graphMovement.localPosition)")
 

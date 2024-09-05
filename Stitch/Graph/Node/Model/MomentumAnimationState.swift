@@ -73,11 +73,11 @@ func startMomentum(_ state: MomentumAnimationState,
 
     var state = state
 
-    state.shouldRunX = velocity.x.magnitude > threshold
-    state.shouldRunY = velocity.y.magnitude > threshold
-
-    state.amplitude.x = calculateAmplitude(velocity: velocity.x, zoom: zoom)
-    state.amplitude.y = calculateAmplitude(velocity: velocity.y, zoom: zoom)
+//    state.shouldRunX = velocity.x.magnitude > threshold
+//    state.shouldRunY = velocity.y.magnitude > threshold
+//
+//    state.amplitude.x = calculateAmplitude(velocity: velocity.x, zoom: zoom)
+//    state.amplitude.y = calculateAmplitude(velocity: velocity.y, zoom: zoom)
 
     //    #if DEV_DEBUG
     //    log("\n startMomentum: zoom: \(zoom)")
@@ -116,28 +116,28 @@ func runMomentum(_ state: MomentumAnimationState,
     var x = x
     var y = y
 
-    if shouldRunY {
-        state.delta.y = state.amplitude.y / GRAPH_MOMENTUM_TIME_CONSTANT
-        //        log("runMomentum: state.amplitude.y was: \(state.amplitude.y)")
-        //        log("runMomentum: state.delta.y: \(state.delta.y)")
-
-        y += state.delta.y
-        state.amplitude.y -= state.delta.y
-        state.stepY += 1
-    }
-
-    if shouldRunX {
-        state.delta.x = state.amplitude.x / GRAPH_MOMENTUM_TIME_CONSTANT
-
-        //        #if DEV_DEBUG
-        //        log("runMomentum: state.amplitude.x was: \(state.amplitude.x)")
-        //        log("runMomentum: state.delta.x: \(state.delta.x)")
-        //        #endif
-
-        x += state.delta.x
-        state.amplitude.x -= state.delta.x
-        state.stepX += 1
-    }
+//    if shouldRunY {
+//        state.delta.y = state.amplitude.y / GRAPH_MOMENTUM_TIME_CONSTANT
+//        //        log("runMomentum: state.amplitude.y was: \(state.amplitude.y)")
+//        //        log("runMomentum: state.delta.y: \(state.delta.y)")
+//
+//        y += state.delta.y
+//        state.amplitude.y -= state.delta.y
+//        state.stepY += 1
+//    }
+//
+//    if shouldRunX {
+//        state.delta.x = state.amplitude.x / GRAPH_MOMENTUM_TIME_CONSTANT
+//
+//        //        #if DEV_DEBUG
+//        //        log("runMomentum: state.amplitude.x was: \(state.amplitude.x)")
+//        //        log("runMomentum: state.delta.x: \(state.delta.x)")
+//        //        #endif
+//
+//        x += state.delta.x
+//        state.amplitude.x -= state.delta.x
+//        state.stepX += 1
+//    }
 
     return MomentumRunResult(momentumState: state, x: x, y: y)
 }

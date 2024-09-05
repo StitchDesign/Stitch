@@ -120,33 +120,33 @@ final class GraphMovementObserver {
 }
 
 extension GraphMovementObserver {
-    var shouldRunY: Bool {
-        momentumState.shouldRunY
-    }
-    var shouldRunX: Bool {
-        momentumState.shouldRunX
-    }
+//    var shouldRunY: Bool {
+//        momentumState.shouldRunY
+//    }
+//    var shouldRunX: Bool {
+//        momentumState.shouldRunX
+//    }
 
-    // Do we need to run this momentum?
-    var shouldRun: Bool {
-        shouldRunY || shouldRunX
-    }
+//    // Do we need to run this momentum?
+//    var shouldRun: Bool {
+//        shouldRunY || shouldRunX
+//    }
 
-    var stepY: CGFloat {
-        momentumState.stepY
-    }
-
-    var stepX: CGFloat {
-        momentumState.stepX
-    }
-
-    var amplitude: CGPoint {
-        momentumState.amplitude
-    }
-
-    var delta: CGPoint {
-        momentumState.delta
-    }
+//    var stepY: CGFloat {
+//        momentumState.stepY
+//    }
+//
+//    var stepX: CGFloat {
+//        momentumState.stepX
+//    }
+//
+//    var amplitude: CGPoint {
+//        momentumState.amplitude
+//    }
+//
+//    var delta: CGPoint {
+//        momentumState.delta
+//    }
 
     func resetGraphMovement() {
         self.localPreviousPosition = self.localPosition
