@@ -695,19 +695,19 @@ extension GraphState {
         if !doNotStartMomentum {
             //        log("handleGraphDragEnded: will initialize momentum: momentumOrigin: \(momentumOrigin)")
 
-            graphMovement
-                .momentumState = startMomentum(graphMovement.momentumState,
-                                               graphMovement.zoomData.zoom,
-                                               velocity)
-
-            // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
-            if let origin = momentumOrigin?.origin {
-                graphMovement
-
-                    .graphBoundOriginAtStart = .init(
-                        origin: origin,
-                        setByMomentum: true)
-            }
+//            graphMovement
+//                .momentumState = startMomentum(graphMovement.momentumState,
+//                                               graphMovement.zoomData.zoom,
+//                                               velocity)
+//
+//            // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
+//            if let origin = momentumOrigin?.origin {
+//                graphMovement
+//
+//                    .graphBoundOriginAtStart = .init(
+//                        origin: origin,
+//                        setByMomentum: true)
+//            }
         }
 
         // always reset 'wasTrackpadScroll'
