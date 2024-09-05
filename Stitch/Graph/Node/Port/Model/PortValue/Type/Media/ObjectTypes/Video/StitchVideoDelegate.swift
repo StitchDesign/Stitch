@@ -116,7 +116,11 @@ class StitchVideoDelegate: NSObject {
             removeLoopObserver()
 
             self.loopObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime,
-                                                                       object: currentPlayer.currentItem, queue: .main) { [weak self] _ in
+                                                                       object: currentPlayer.currentItem, queue: .main) { [weak self, weak currentPlayer] _ in
+                guard let currentPlayer = currentPlayer else {
+                    return
+                }
+                
                 if isLooped {
                     let videoStart = Double.zero.cmTime
                     self?.seek(on: currentPlayer,

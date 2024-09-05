@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 typealias OnNewScrollCenter = @Sendable (CGPoint) -> Void
 
+@MainActor
 func readCenter(oldCenter: CGPoint?,
                 currentCenter: CGPoint,
                 onChange: @escaping OnNewScrollCenter) -> EmptyView {
@@ -19,10 +20,7 @@ func readCenter(oldCenter: CGPoint?,
     let centerChanged = oldCenter.map({ $0 != currentCenter }) ?? false
 
     if noCenterYet || centerChanged {
-        DispatchQueue.main.async {
-            onChange(currentCenter)
-        }
-
+        onChange(currentCenter)
     }
     return EmptyView()
 }
