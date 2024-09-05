@@ -640,7 +640,8 @@ extension GraphState {
         let graphMovement = self.graphMovement
         let graphUIState = self.graphUI
 
-        let doNotStartMomentum = wasScreenDrag && graphUIState.selection.isSelecting
+        // Determine if momentum should start
+        let shouldStartMomentum = !(wasScreenDrag && graphUIState.selection.isSelecting)
 
         // always set start and current location of drag gesture
         graphUIState.selection.dragStartLocation = nil
@@ -691,23 +692,22 @@ extension GraphState {
 
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 
-        // start momentum
-        if !doNotStartMomentum {
+        // Start momentum if applicable
+        if shouldStartMomentum {
             //        log("handleGraphDragEnded: will initialize momentum: momentumOrigin: \(momentumOrigin)")
 
-//            graphMovement
-//                .momentumState = startMomentum(graphMovement.momentumState,
-//                                               graphMovement.zoomData.zoom,
-//                                               velocity)
-//
-//            // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
-//            if let origin = momentumOrigin?.origin {
-//                graphMovement
-//
-//                    .graphBoundOriginAtStart = .init(
-//                        origin: origin,
-//                        setByMomentum: true)
-//            }
+    //        graphMovement
+    //            .momentumState = startMomentum(graphMovement.momentumState,
+    //                                           graphMovement.zoomData.zoom,
+    //                                           velocity)
+    //
+    //        // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
+    //        if let origin = momentumOrigin?.origin {
+    //            graphMovement
+    //                .graphBoundOriginAtStart = .init(
+    //                    origin: origin,
+    //                    setByMomentum: true)
+    //        }
         }
 
         // always reset 'wasTrackpadScroll'
