@@ -321,44 +321,44 @@ func dragInteractionEvalOp(values: PortValues,
                     threshold: FREE_SCROLL_MOMENTUM_VELOCITY_THRESHOLD)
     }
     
-    let result = runMomentum(
-        state.momentum,
-        shouldRunX: state.momentum.shouldRunX,
-        shouldRunY: state.momentum.shouldRunY,
-        x: newOutput.x,
-        y: newOutput.y)
-    
-    newOutput.x = result.x
-    newOutput.y = result.y
-    state.momentum = result.momentumState
-    
-    if state.momentum.didXMomentumFinish {
-        // log("dragInteractionEvalOp: momentum x finished")
-        state.momentum.shouldRunX = false
-    }
-    
-    if state.momentum.didYMomentumFinish {
-        // log("dragInteractionEvalOp: momentum y finished")
-        state.momentum.shouldRunY = false
-    }
-    
-    // Cancel momentum if momentum state finished or if user initiated a drag
-    let shouldCancelMomentum = !state.momentum.shouldRun || isCurrentlyDragged
-    if shouldCancelMomentum {
-        state.momentum = resetMomentum(state.momentum)
-        // log("dragInteractionEvalOp: will not run again")
-        
-        // If we're done running momentum,
-        // we should also update the drag starting point.
-        return .init(
-            outputs: [.position(cap(newOutput)),
-                      .size(interactiveLayer.dragVelocity.toLayerSize),
-                      .size(interactiveLayer.dragTranslation.toLayerSize)],
-            willRunAgain: false
-        )
-    }
-    // else: should run again
-    else {
+//    let result = runMomentum(
+//        state.momentum,
+//        shouldRunX: state.momentum.shouldRunX,
+//        shouldRunY: state.momentum.shouldRunY,
+//        x: newOutput.x,
+//        y: newOutput.y)
+//    
+//    newOutput.x = result.x
+//    newOutput.y = result.y
+//    state.momentum = result.momentumState
+//    
+//    if state.momentum.didXMomentumFinish {
+//        // log("dragInteractionEvalOp: momentum x finished")
+//        state.momentum.shouldRunX = false
+//    }
+//    
+//    if state.momentum.didYMomentumFinish {
+//        // log("dragInteractionEvalOp: momentum y finished")
+//        state.momentum.shouldRunY = false
+//    }
+//    
+//    // Cancel momentum if momentum state finished or if user initiated a drag
+//    let shouldCancelMomentum = !state.momentum.shouldRun || isCurrentlyDragged
+//    if shouldCancelMomentum {
+//        state.momentum = resetMomentum(state.momentum)
+//        // log("dragInteractionEvalOp: will not run again")
+//        
+//        // If we're done running momentum,
+//        // we should also update the drag starting point.
+//        return .init(
+//            outputs: [.position(cap(newOutput)),
+//                      .size(interactiveLayer.dragVelocity.toLayerSize),
+//                      .size(interactiveLayer.dragTranslation.toLayerSize)],
+//            willRunAgain: false
+//        )
+//    }
+//    // else: should run again
+//    else {
         // log("dragInteractionEvalOp: will run again: animationState is now: \(animationState)")
         return .init(
             outputs: [.position(cap(newOutput)),
@@ -366,7 +366,7 @@ func dragInteractionEvalOp(values: PortValues,
                       .size(interactiveLayer.dragTranslation.toLayerSize)],
             willRunAgain: true
         )
-    }
+//    }
 }
 
 extension CGPoint {
