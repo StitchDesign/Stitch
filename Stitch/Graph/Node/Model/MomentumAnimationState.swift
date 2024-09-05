@@ -146,17 +146,8 @@ func runMomentum(_ state: MomentumAnimationState,
 // - a new drag gesture, and/or
 // - the end of the momentum-run.
 func resetMomentum(_ state: MomentumAnimationState) -> MomentumAnimationState {
-
     var state = state
-
-    state.shouldRunY = false
-    state.shouldRunX = false
-
-    state.stepY = .zero
-    state.stepX = .zero
-
-    state.amplitude = .zero
-    state.delta = .zero
-
+    state.elapsedGraphTime = 0
+    state.endVelocity = 0
     return state
 }
