@@ -698,11 +698,7 @@ extension GraphState {
             graphMovement.momentumState.updateElapsedGraphTime(newTime: graphStepManager.lastGraphTime)
             
             print("Momentum State Velocity: \(velocity)")
-            graphMovement.momentumState.updateEndVelocity(newVelocity: velocity)
-
             print("Momentum State Elapsed Graph Time: \(graphStepManager.lastGraphTime)")
-            graphMovement.momentumState.updateElapsedGraphTime(newTime: graphStepManager.lastGraphTime)
-
 
             //        log("handleGraphDragEnded: will initialize momentum: momentumOrigin: \(momentumOrigin)")
 
