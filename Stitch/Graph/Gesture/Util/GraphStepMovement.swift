@@ -33,6 +33,9 @@ extension GraphState {
         let postMomentumGraphOffsetX = positionOffset.x
         let postMomentumGraphOffsetY = positionOffset.y
 
+        
+        graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
+        graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
 
         // log("handleGraphMovementOnGraphStep: postMomentumGraphOffsetX: \(postMomentumGraphOffsetX)")
 
@@ -75,11 +78,11 @@ extension GraphState {
             log("handleGraphMovementOnGraphStep: did not have graphBoundsAtStart")
         }
 
-        if let graphBounds = graphBounds,
-           let graphBoundsAtStart = graphBoundsAtStart {
-
- 
-
+//        if let graphBounds = graphBounds,
+//           let graphBoundsAtStart = graphBoundsAtStart {
+//
+// 
+//
 //            if graphState.graphMovement.momentumState.shouldRunY {
 //
 //                if let finalYOffset = graphState.graphMovement.capMomentumPositionY(
@@ -90,18 +93,18 @@ extension GraphState {
 //
 //                    //                log("handleGraphMovementOnGraphStep: finalYOffset: \(finalYOffset)")
 //                    graphState.graphMovement.localPosition.y = finalYOffset
-//                    shouldResetMomentumY = true
+//                    //shouldResetMomentumY = true
 //                } else {
 //                    //                log("handleGraphMovementOnGraphStep: no final y offset yet... ")
 //                    graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
 //                }
 //            } else {
 //                //            log("shouldRunY was false; so will set shouldResetMomentumY true")
-//                shouldResetMomentumY = true
+//                //shouldResetMomentumY = true
 //            }
 //        }
-
-        // did not have graphBounds or graphBoundsAtStart
+//
+//         //did not have graphBounds or graphBoundsAtStart
 //        else {
 //            //            log("handleGraphMovementOnGraphStep: did not have graphBounds; will use regular momentum")
 //            graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
@@ -117,7 +120,6 @@ extension GraphState {
 //            // log("handleGraphMovementOnGraphStep: resetting x momentum")
 //            graphState.graphMovement.momentumState.shouldRunX = false
 //            graphState.graphMovement.localPreviousPosition.x = graphState.graphMovement.localPosition.x
-//
 //        }
 //
 //        if shouldResetMomentumY {
@@ -136,13 +138,13 @@ extension GraphState {
 //                }
 //            }
 //        }
-
+//
 //        if !graphState.graphMovement.shouldRun {
 //            graphState.graphMovement.resetGraphMovement()
 //            graphState.graphMovement.graphBoundOriginAtStart = nil
 //
 //            // Wipe comment box bounds
 //            graphState.wipeCommentBoxBounds()
-        }
+//        }
     }
 }
