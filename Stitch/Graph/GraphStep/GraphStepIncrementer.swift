@@ -30,6 +30,9 @@ extension GraphState: GraphStepManagerDelegate {
         
         let graphTime = self.graphStepManager.graphTime
         
+        
+        self.graphMovement.momentumState.endVelocity = GraphState.calculateScrollOffset(velocity: self.graphMovement.momentumState.endVelocity, elapsedTime: self.graphMovement.momentumState.elapsedGraphTime)
+        
 //        if self.graphMovement.shouldRun {
 //            // 60 FPS = 0.0167 seconds elapse between graph steps
 //            // 120 FPS = 0.00833 seconds elapse between graph steps
@@ -78,7 +81,8 @@ extension GraphState: GraphStepManagerDelegate {
     static func calculateScrollOffset(velocity: CGPoint, elapsedTime: TimeInterval) -> CGPoint {
         
         // Calculate the deceleration factor based on elapsed time
-        let decelerationFactor = pow(SCROLL_DECELERATION_RATE, CGFloat(elapsedTime) / SCROLL_DURATION * 60)
+        let decelerationFactor = pow(SCROLL_DECELERATION_RATE, 
+                                     CGFloat(elapsedTime) / SCROLL_DURATION * 60)
         
         // Calculate the offset based on the deceleration
         let xOffset = velocity.x * decelerationFactor * CGFloat(elapsedTime)
