@@ -62,6 +62,8 @@ extension GraphState {
         log("GraphTappedDuringMouseScroll called")
         self.graphMovement.resetGraphMovement()
         self.graphUI.selection.graphDragState = .none
+        
+        
     }
 }
 
@@ -499,7 +501,9 @@ extension GraphState {
     @MainActor
     func handleGraphScrolled(_ translation: CGSize,
                              wasTrackpadScroll: Bool) {
-
+        
+        self.graphMovement.resetGraphMovement()
+        
         // Scrolling the graph immediately exits edge-editing state and disables edge-animation
         // setOnChange needed to prevent extra render cycles
         if self.graphUI.edgeEditingState != nil {
