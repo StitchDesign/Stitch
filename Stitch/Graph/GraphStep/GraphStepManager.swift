@@ -8,6 +8,7 @@
 import SwiftUI
 import StitchSchemaKit
 
+
 protocol GraphStepManagerDelegate: AnyObject {
     @MainActor
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
@@ -28,6 +29,9 @@ final class GraphStepManager: MiddlewareService {
 
     /// Assigned to `StitchStore` and processes graph step changes.
     weak var delegate: GraphStepManagerDelegate?
+    
+    var SCROLL_DECELERATION_RATE = 0.98
+    var SCROLL_DURATION = 0.4
 
     @MainActor
     var graphTime: TimeInterval {

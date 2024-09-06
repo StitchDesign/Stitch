@@ -9,6 +9,7 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
+
 extension GraphState: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
@@ -71,13 +72,11 @@ extension GraphState: GraphStepManagerDelegate {
         self.calculate(from: nodesToRunOnGraphStep)
     }
     
-    
+
     static func calculateScrollOffset(velocity: CGPoint, elapsedTime: TimeInterval) -> CGPoint {
-        let decelerationRate: CGFloat = 0.98
-        let duration: CGFloat = 0.4
         
         // Calculate the deceleration factor based on elapsed time
-        let decelerationFactor = pow(decelerationRate, CGFloat(elapsedTime) / duration * 60)
+        let decelerationFactor = pow(SCROLL_DECELERATION_RATE, CGFloat(elapsedTime) / SCROLL_DURATION * 60)
         
         // Calculate the offset based on the deceleration
         let xOffset = velocity.x * decelerationFactor * CGFloat(elapsedTime)
@@ -86,3 +85,4 @@ extension GraphState: GraphStepManagerDelegate {
         return CGPoint(x: xOffset, y: yOffset)
     }
 }
+
