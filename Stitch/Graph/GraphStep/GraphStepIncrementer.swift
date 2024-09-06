@@ -70,4 +70,19 @@ extension GraphState: GraphStepManagerDelegate {
         // without having to pass parameters through a bunch of other `calculateGraph` functions.
         self.calculate(from: nodesToRunOnGraphStep)
     }
+    
+    
+    static func calculateScrollOffset(velocity: CGPoint, elapsedTime: TimeInterval) -> CGPoint {
+        let decelerationRate: CGFloat = 0.98
+        let duration: CGFloat = 0.4
+        
+        // Calculate the deceleration factor based on elapsed time
+        let decelerationFactor = pow(decelerationRate, CGFloat(elapsedTime) / duration * 60)
+        
+        // Calculate the offset based on the deceleration
+        let xOffset = velocity.x * decelerationFactor * CGFloat(elapsedTime)
+        let yOffset = velocity.y * decelerationFactor * CGFloat(elapsedTime)
+        
+        return CGPoint(x: xOffset, y: yOffset)
+    }
 }
