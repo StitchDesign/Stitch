@@ -9,8 +9,8 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-var SCROLL_DECELERATION_RATE = 0.98
-var SCROLL_DURATION = 0.4
+let SCROLL_DECELERATION_RATE = 0.98
+let SCROLL_DURATION = 0.4
 
 extension GraphState: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
