@@ -157,6 +157,6 @@ func runMomentum(_ state: MomentumAnimationState,
 func resetMomentum(_ state: MomentumAnimationState) -> MomentumAnimationState {
     var state = state
     state.elapsedGraphTime = 0
-    state.endVelocity = 0
+    state.endVelocity = .zero
     return state
 }
