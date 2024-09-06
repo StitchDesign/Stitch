@@ -684,11 +684,11 @@ extension GraphState {
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
         // TODO: What happens if we zoom in or out *while momentum is running*?
-//        let momentumOrigin = self
-//            .graphBounds(graphMovement.zoomData.zoom,
-//                         graphView: graphUIState.frame,
-//                         graphOffset: graphMovement.localPosition,
-//                         groupNodeFocused: graphUIState.groupNodeFocused)
+        let momentumOrigin = self
+            .graphBounds(graphMovement.zoomData.zoom,
+                         graphView: graphUIState.frame,
+                         graphOffset: graphMovement.localPosition,
+                         groupNodeFocused: graphUIState.groupNodeFocused)
 
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 
@@ -708,12 +708,12 @@ extension GraphState {
     //                                           velocity)
     //
     //        // also set graphOrigins; JUST FOR GRAPH DRAG AND GRAPH MOMENTUM
-    //        if let origin = momentumOrigin?.origin {
-    //            graphMovement
-    //                .graphBoundOriginAtStart = .init(
-    //                    origin: origin,
-    //                    setByMomentum: true)
-    //        }
+            if let origin = momentumOrigin?.origin {
+                graphMovement
+                    .graphBoundOriginAtStart = .init(
+                        origin: origin,
+                        setByMomentum: true)
+            }
         }
 
         // always reset 'wasTrackpadScroll'

@@ -14,13 +14,7 @@ extension GraphState {
     func handleGraphMovementOnGraphStep() {
 
         let graphState: GraphState = self
-        
-        
-        
-        
-        
-
-
+ 
         // contains the updated
 //        let result = runMomentum(
 //            graphState.graphMovement.momentumState,
@@ -116,7 +110,7 @@ extension GraphState {
 //
 //        //        log("handleGraphMovementOnGraphStep: did not have graphBounds; will use regular momentum")
 //        graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
-//        //        graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
+//        graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
 //
 //        // Check each dimension for whether we finished:
 //        if shouldResetMomentumX {
