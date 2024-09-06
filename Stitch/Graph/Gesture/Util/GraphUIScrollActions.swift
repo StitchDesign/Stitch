@@ -694,6 +694,9 @@ extension GraphState {
 
         // Start momentum if applicable
         if shouldStartMomentum {
+            graphMovement.momentumState.updateEndVelocity(newVelocity: 100)
+            graphMovement.momentumState.updateElapsedGraphTime(newTime: 1.5)
+
             //        log("handleGraphDragEnded: will initialize momentum: momentumOrigin: \(momentumOrigin)")
 
     //        graphMovement
