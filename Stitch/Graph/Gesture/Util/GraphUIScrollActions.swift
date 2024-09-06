@@ -79,7 +79,7 @@ extension GraphMovementObserver {
 
         //    log("\n borderHelperX CALLED \n ")
 
-        // where the nodesMap origin was on screen at the start of the gesture;
+        // where the nodesMap origin was on screen at the    of the gesture;
         // takes into account graph offset.
         //    let adjustedOriginAtStart = startOrigins.x +
 
@@ -684,11 +684,11 @@ extension GraphState {
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
         // TODO: What happens if we zoom in or out *while momentum is running*?
-        let momentumOrigin = self
-            .graphBounds(graphMovement.zoomData.zoom,
-                         graphView: graphUIState.frame,
-                         graphOffset: graphMovement.localPosition,
-                         groupNodeFocused: graphUIState.groupNodeFocused)
+//        let momentumOrigin = self
+//            .graphBounds(graphMovement.zoomData.zoom,
+//                         graphView: graphUIState.frame,
+//                         graphOffset: graphMovement.localPosition,
+//                         groupNodeFocused: graphUIState.groupNodeFocused)
 
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 

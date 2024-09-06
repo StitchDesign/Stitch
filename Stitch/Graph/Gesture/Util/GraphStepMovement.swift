@@ -14,95 +14,78 @@ extension GraphState {
     func handleGraphMovementOnGraphStep() {
 
         let graphState: GraphState = self
-//
-//        guard graphState.graphMovement.shouldRun else {
-//            log("handleGraphMovementOnGraphStep: should not run momentum")
-//            return
-//        }
+        
+        
+        
+        
+        
 
-//        // contains the updated
+
+        // contains the updated
 //        let result = runMomentum(
 //            graphState.graphMovement.momentumState,
-//            shouldRunX: graphState.graphMovement.shouldRunX,
-//            shouldRunY: graphState.graphMovement.shouldRunY,
+//            //shouldRunX: graphState.graphMovement.shouldRunX,
+//            //shouldRunY: graphState.graphMovement.shouldRunY,
 //            x: graphState.graphMovement.localPosition.x,
 //            y: graphState.graphMovement.localPosition.y)
-//
-//        // This is the FINAL POSITION,
-//        // if we apply momentum;
-//        // ie current offset + delta from momentum
+
+        // This is the FINAL POSITION,
+        // if we apply momentum;
+        // ie current offset + delta from momentum
 //        let postMomentumGraphOffsetX = result.x
 //        let postMomentumGraphOffsetY = result.y
-//
-//        // log("handleGraphMovementOnGraphStep: postMomentumGraphOffsetX: \(postMomentumGraphOffsetX)")
-//
-//        // For adjusting actively dragged nodes' positioning
+        
+        let positionOffset: CGPoint = graphState.graphMovement.momentumState.endVelocity
+        let postMomentumGraphOffsetX = positionOffset.x
+        let postMomentumGraphOffsetY = positionOffset.y
+
+
+        // log("handleGraphMovementOnGraphStep: postMomentumGraphOffsetX: \(postMomentumGraphOffsetX)")
+
+        // For adjusting actively dragged nodes' positioning
 //        let adjustment = result.momentumState.delta
-//
-//        // Set the updated momentum animation state in the GraphMovement state,
-//        // since we've modified the delta, amplitude etc.
+
+        // Set the updated momentum animation state in the GraphMovement state,
+        // since we've modified the delta, amplitude etc.
 //        graphState.graphMovement.momentumState = result.momentumState
-//
-//        /*
-//         Potentially reset the momentum state
-//
-//         Reset momentum along a momentum just if:
-//         1. momentum naturally ran its course, or
-//         2. momentum would carry us past a screen edge
-//         */
+
+        /*
+         Potentially reset the momentum state
+
+         Reset momentum along a momentum just if:
+         1. momentum naturally ran its course, or
+         2. momentum would carry us past a screen edge
+         */
 //        var shouldResetMomentumX = graphState.graphMovement.momentumState.didXMomentumFinish
-//
 //        var shouldResetMomentumY = graphState.graphMovement.momentumState.didYMomentumFinish
-//
-//        /*
-//         Update the graphOffset with the new x and y positions,
-//         but cap them if we hit a border.
-//
-//         Only look at bounds if we have nodes;
-//         otherwise just immediately update graph position.
-//         */
-//
-//        let graphBounds = graphState.graphBounds(
-//            graphState.graphMovement.zoomData.zoom,
-//            graphView: graphState.graphUI.frame,
-//            graphOffset: graphState.localPosition,
-//            groupNodeFocused: graphState.graphUI.groupNodeFocused)
-//
-//        let graphBoundsAtStart: GraphOriginAtStart? = graphState.graphMovement.graphBoundOriginAtStart
-//
-//        // How does this situation arise?
-//        // If graphBoundsAtStart is not defined, then
-//        if !graphBoundsAtStart.isDefined {
-//            log("handleGraphMovementOnGraphStep: did not have graphBoundsAtStart")
-//        }
-//
-//        if let graphBounds = graphBounds,
-//           let graphBoundsAtStart = graphBoundsAtStart {
-//
-//            if graphState.graphMovement.momentumState.shouldRunX {
-//
-//                // We're not passing in the post-momentum new offset;
-//                // rather, this looks at whether we're already at the border;
-//                // if we are, then we return this as a final position
-//                if let finalXOffset = graphState.graphMovement.capMomentumPositionX(
-//                    graphBounds: graphBounds,
-//                    frame: graphUI.frame,
-//                    zoom: graphMovement.zoomData.zoom,
-//                    startOrigins: graphBoundsAtStart.origin) {
-//
-//                    // log("handleGraphMovementOnGraphStep: finalXOffset: \(finalXOffset)")
-//                    graphState.graphMovement.localPosition.x = finalXOffset
-//                    shouldResetMomentumX = true
-//
-//                } else {
-//                    // log("handleGraphMovementOnGraphStep: no final x offset yet... ")
-//                    graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
-//                }
-//            } else {
-//                // log("shouldRunX was false; so will set shouldResetMomentumX true")
-//                shouldResetMomentumX = true
-//            }
-//
+
+        /*
+         Update the graphOffset with the new x and y positions,
+         but cap them if we hit a border.
+
+         Only look at bounds if we have nodes;
+         otherwise just immediately update graph position.
+         */
+
+        let graphBounds = graphState.graphBounds(
+            graphState.graphMovement.zoomData.zoom,
+            graphView: graphState.graphUI.frame,
+            graphOffset: graphState.localPosition,
+            groupNodeFocused: graphState.graphUI.groupNodeFocused)
+
+        let graphBoundsAtStart: GraphOriginAtStart? = graphState.graphMovement.graphBoundOriginAtStart
+
+        // How does this situation arise?
+        // If graphBoundsAtStart is not defined, then
+        if !graphBoundsAtStart.isDefined {
+            log("handleGraphMovementOnGraphStep: did not have graphBoundsAtStart")
+        }
+
+        if let graphBounds = graphBounds,
+           let graphBoundsAtStart = graphBoundsAtStart {
+
+ 
+
 //            if graphState.graphMovement.momentumState.shouldRunY {
 //
 //                if let finalYOffset = graphState.graphMovement.capMomentumPositionY(
@@ -123,8 +106,8 @@ extension GraphState {
 //                shouldResetMomentumY = true
 //            }
 //        }
-//
-//        // did not have graphBounds or graphBoundsAtStart
+
+        // did not have graphBounds or graphBoundsAtStart
 //        else {
 //            //            log("handleGraphMovementOnGraphStep: did not have graphBounds; will use regular momentum")
 //            graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
@@ -159,13 +142,13 @@ extension GraphState {
 //                }
 //            }
 //        }
-//
+
 //        if !graphState.graphMovement.shouldRun {
 //            graphState.graphMovement.resetGraphMovement()
 //            graphState.graphMovement.graphBoundOriginAtStart = nil
 //
 //            // Wipe comment box bounds
 //            graphState.wipeCommentBoxBounds()
-//        }
+        }
     }
 }

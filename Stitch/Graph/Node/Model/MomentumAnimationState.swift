@@ -13,6 +13,12 @@ import StitchSchemaKit
 // Stop if amplitude gets too small.
 let GRAPH_MOMENTUM_AMPLITUDE_MINIMUM: CGFloat = 0.001
 
+//TODO: This should not be a struct
+//we'll have perf loss from using immutable value types
+//because of copy on write (refers to the perf improvement that comes with certain data structs that support var mutations
+//so, if you have a value type (like here),
+// a struct is a UNIQUE copy
+// make a copy then mutate the property
 struct MomentumAnimationState: Equatable, Codable, Hashable {
     var endVelocity: CGPoint = .zero
     var elapsedGraphTime: CGFloat = 0.0
