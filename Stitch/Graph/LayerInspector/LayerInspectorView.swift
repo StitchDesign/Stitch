@@ -120,8 +120,8 @@ struct LayerInspectorView: View {
                 
                 Spacer()
             }
-                .padding()
-                .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+            .padding()
+            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
             
             #endif
             
@@ -168,8 +168,6 @@ struct LayerInspectorView: View {
                         
             // Note: hard to be exact here
             // The default ListStyle adds padding (visible if we do not use Color.clear as list row background), but using e.g. ListStyle.plain introduces sticky header sections that we do not want.
-            .padding([.leading], -6)
-            .padding([.trailing], -4)
         } // VStack
     }
 }
