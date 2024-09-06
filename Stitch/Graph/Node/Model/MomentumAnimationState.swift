@@ -14,10 +14,10 @@ import StitchSchemaKit
 let GRAPH_MOMENTUM_AMPLITUDE_MINIMUM: CGFloat = 0.001
 
 struct MomentumAnimationState: Equatable, Codable, Hashable {
-    var endVelocity: Int = 0
+    var endVelocity: CGPoint = .zero
     var elapsedGraphTime: CGFloat = 0.0
 
-    mutating func updateEndVelocity(newVelocity: Int) {
+    mutating func updateEndVelocity(newVelocity: CGPoint) {
         self.endVelocity = newVelocity
     }
     
