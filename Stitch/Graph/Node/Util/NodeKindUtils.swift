@@ -231,12 +231,13 @@ extension NodeKind {
     }
     
     // Some inputs don't need to coerce PortValues and can instead copy values directly
-    func canCopyInputValues(portId: Int?) -> Bool {
+    func canCopyInputValues(portId: Int?,
+                            userVisibleType: UserVisibleType?) -> Bool {
         guard let portId = portId else {
             return false
         }
         
-        return self.graphNode?.rowDefinitions(for: nil)
+        return self.graphNode?.rowDefinitions(for: userVisibleType)
             .inputs[safe: portId]?.canDirectlyCopyUpstreamValues ?? false
     }
 }
