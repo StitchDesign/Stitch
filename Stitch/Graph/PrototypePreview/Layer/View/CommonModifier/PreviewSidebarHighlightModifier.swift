@@ -32,7 +32,10 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
     }
     
     var isHighlighted: Bool {
-        highlightedSidebarLayers.contains(nodeId)
+        // TODO: reads here cause a crash nodes once connected to layer inputs nodes
+        /// https://github.com/StitchDesign/Stitch/issues/264
+//        highlightedSidebarLayers.contains(nodeId)
+        false
     }
     
     // Subtract out scale, so that line is always same width
