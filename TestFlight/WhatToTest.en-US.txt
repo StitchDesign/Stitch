@@ -11,6 +11,7 @@ Media improvements:
 
 Other bugs:
 - Fixed issue where “/“ characters in project titles would break project sharing
+- Fixed issue where Drag Interaction position output woud reset on each drag
 
 Other improvements:
 - CMD + . toggles visibility of both sidebars

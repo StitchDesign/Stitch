@@ -81,6 +81,9 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
     
     // Keeps track of drag state to detect last cycle of dragging (for momentum purposes)
     var wasDragging = false
+    
+    // Updates whenever drag ends so a new drag increments from here, fixing issue where values could constantly increment
+    var prevPositionStart: CGPoint = .zero
 }
 
 /*
@@ -133,12 +136,6 @@ func dragInteractionEvalOp(values: PortValues,
                            graphTime: TimeInterval,
                            fps: StitchFPS) -> ImpureEvalOpResult {
     
-    // log("dragInteractionEvalOp called: values: \(values)")
-    
-    let currentOutput = interactiveLayer.layerPosition
-    
-    // log("dragInteractionEvalOp: currentOutput at start: \(currentOutput)")
-    
     let dragEnabled: Bool = values[safeIndex: DragNodeInputLocations.isEnabled]?.getBool ?? false
     let momentumEnabled: Bool = values[safeIndex: DragNodeInputLocations.isMomentumEnabled]?.getBool ?? false
     let startingPoint: CGPoint = values[safeIndex: DragNodeInputLocations.startPoint]?.getPoint ?? .zero
@@ -148,16 +145,21 @@ func dragInteractionEvalOp(values: PortValues,
     let min = values[safeIndex: DragNodeInputLocations.min]?.getPoint ?? .zero
     let max = values[safeIndex: DragNodeInputLocations.max]?.getPoint ?? .zero
     
-    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? .zero
+    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? interactiveLayer.layerPosition
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
     let shouldMomentumStart = momentumEnabled &&
         interactiveLayer.dragStartingPoint == nil &&
         state.wasDragging
     
-    let dragStartingPoint = interactiveLayer.dragStartingPoint ?? previousStartingPoint
     let isCurrentlyDragged = interactiveLayer.isDown
     
-    var newOutput = interactiveLayer.getDraggedPosition(startingPoint: dragStartingPoint)
+    // Update previous position when drag ends so that when next drag starts, we increment from a constant
+    // previous value, fixing issue where re-using live previous output leads to constantly incrementing values
+    if !isCurrentlyDragged {
+        state.prevPositionStart = previousStartingPoint
+    }
+    
+    var newOutput = interactiveLayer.getDraggedPosition(startingPoint: state.prevPositionStart)
     
     // Caps the position just if `clippingEnabled`
     let cap = { (p: CGPoint) in
@@ -350,7 +352,7 @@ func dragInteractionEvalOp(values: PortValues,
         
         // If we're done running momentum,
         // we should also update the drag starting point.
-        return .init(
+         return .init(
             outputs: [.position(cap(newOutput)),
                       .size(interactiveLayer.dragVelocity.toLayerSize),
                       .size(interactiveLayer.dragTranslation.toLayerSize)],
