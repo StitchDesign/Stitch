@@ -81,7 +81,8 @@ extension NodeRowObserver {
         }
         
         let graphTime = graph.graphStepState.graphTime
-        let canCopyInputValues = node.kind.canCopyInputValues(portId: self.id.portId)
+        let canCopyInputValues = node.kind.canCopyInputValues(portId: self.id.portId,
+                                                              userVisibleType: node.userVisibleType)
         
         guard !newValues.isEmpty else {
             //            #if DEV_DEBUG
