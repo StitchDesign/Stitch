@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "ShareFileIcon.png 22-20-50-191.png",
+      "filename" : "macos.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "shareFileIcon2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "shareFileIcon3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
