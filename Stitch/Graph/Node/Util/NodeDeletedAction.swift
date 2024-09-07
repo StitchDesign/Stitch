@@ -95,6 +95,9 @@ extension GraphState {
 
             layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
+            // Remove conection
+            layerNode[keyPath: x.keyPath.layerNodeKeyPath].rowObserver.upstreamOutputCoordinate = nil
+            
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
             guard let layerNode = self.getNodeViewModel(x.node)?.layerNode,
