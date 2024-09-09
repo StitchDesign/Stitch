@@ -141,7 +141,7 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 // TODO: create an inner view that still receives this data
 struct ProjectSettingsView_Previews: PreviewProvider {
     @State static var show = true
-    static let graph = GraphState(id: .init(), store: nil)
+    static let graph = GraphState.createEmpty()
 
     static var previews: some View {
         ProjectSettingsView(previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,

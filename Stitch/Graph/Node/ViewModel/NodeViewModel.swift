@@ -112,6 +112,10 @@ extension NodeViewModel: NodeCalculatable {
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate?.allLoopedValues
             }
+        case .component(let componentData):
+            return componentData.canvas.inputViewModels.compactMap {
+                $0.rowDelegate?.allLoopedValues
+            }
         }
     }
     
@@ -123,6 +127,10 @@ extension NodeViewModel: NodeCalculatable {
             return layer.outputPorts.map { $0.rowObserver }
         case .group(let canvas):
             return canvas.outputViewModels.compactMap {
+                $0.rowDelegate
+            }
+        case .component(let component):
+            return component.canvas.outputViewModels.compactMap {
                 $0.rowDelegate
             }
         }
@@ -151,7 +159,7 @@ extension NodeViewModel: NodeCalculatable {
                 return nil
             }
             
-        case .group:
+        case .group, .component:
 #if DEBUG
             fatalErrorIfDebug()
 #endif
@@ -248,6 +256,8 @@ extension NodeViewModel {
             return layerNode.getAllCanvasObservers()
         case .group(let canvasObserver):
             return [canvasObserver]
+        case .component(let component):
+            return [component.canvas]
         }
     }
     
@@ -271,8 +281,8 @@ extension NodeViewModel {
                 return nil
             }
         
-        case .group(let canvasObserver):
-            return canvasObserver
+        case .group, .component:
+            return self.patchCanvasItem
         }
     }
     
@@ -284,6 +294,8 @@ extension NodeViewModel {
             return nil
         case .group(let canvasObserver):
             return canvasObserver
+        case .component(let component):
+            return component.canvas
         }
     }
     
@@ -499,7 +511,7 @@ extension NodeViewModel {
                     : getLongestLoopIndices(valuesList: outputValuesList)
             }
 
-        case .group:
+        case .group, .component:
             return []
         }
     }
@@ -540,6 +552,9 @@ extension NodeViewModel: NodeDelegate {
         case .group(let canvas):
             return canvas.inputViewModels
             
+        case .component(let component):
+            return component.canvas.inputViewModels
+            
         case .layer(let layer):
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
                 let inputPort = layer[keyPath: $0.layerNodeKeyPath]
@@ -562,6 +577,9 @@ extension NodeViewModel: NodeDelegate {
         
         case .group(let canvas):
             return canvas.outputViewModels
+            
+        case .component(let component):
+            return component.canvas.outputViewModels
             
         case .layer(let layer):
             return layer.outputPorts.flatMap { outputData in
@@ -659,6 +677,8 @@ extension NodeViewModel {
                 .layerGraphNode.inputDefinitions.count
         case .group(let canvas):
             return canvas.inputViewModels.count
+        case .component(let component):
+            return component.canvas.inputViewModels.count
         case .patch(let patchNode):
             return patchNode.inputsObservers.count
         }

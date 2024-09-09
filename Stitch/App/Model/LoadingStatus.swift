@@ -18,7 +18,7 @@ enum DocumentLoadingStatus: Sendable {
     case initialized
     case failed
     case loading
-    case loaded(StitchDocument)
+    case loaded(StitchDocumentData)
 }
 
 extension DocumentLoadingStatus: Hashable {
@@ -30,8 +30,8 @@ extension DocumentLoadingStatus: Hashable {
             hasher.combine("failed")
         case .loading:
             hasher.combine("loading")
-        case .loaded(let stitchDocument):
-            hasher.combine(stitchDocument.id)
+        case .loaded(let data):
+            hasher.combine(data.document.id)
         }
     }
 }

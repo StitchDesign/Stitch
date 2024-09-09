@@ -8,16 +8,16 @@
 import Foundation
 import StitchSchemaKit
 
-extension GraphState: StitchDocumentIdentifiable { }
+//extension GraphState: StitchDocumentIdentifiable { }
 
 extension DocumentEncoder {
     func deleteMediaFromNode(mediaKey: MediaKey) async {
         switch await StitchFileManager.getMediaURL(for: mediaKey,
-                                                   document: self.lastEncodedDocument,
+                                                   document: self.lastEncodedData.document,
                                                    forRecentlyDeleted: false) {
         case .success(let url):
             let _ = await StitchFileManager.removeStitchMedia(at: url,
-                                                              currentProject: self.lastEncodedDocument)
+                                                              currentProject: self.lastEncodedData.document)
 
         case .failure(let error):
             // Silently report error
@@ -28,13 +28,14 @@ extension DocumentEncoder {
 
 extension GraphState {
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func graphInitialized(document: StitchDocument) async {
-        let importedFilesDir = await StitchFileManager.getAllMediaURLs(in: self.createSchema().getImportedFilesURL())
+    func graphInitialized(data: StitchDocumentData) async {
+        let importedFilesDir = await StitchFileManager
+            .getAllMediaURLs(in: data.document.getImportedFilesURL())
 
         // Start graph once library is built
         await MainActor.run { [weak self] in
             self?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
-                                                 document: document)
+                                                 data: data)
         }
     }
 }

@@ -117,6 +117,9 @@ struct NodeTagMenuButtonsView: View {
                 deleteButton
                 duplicateButton
                 createGroupButton
+                if FeatureFlags.USE_COMPONENTS {
+                    createComponentButton
+                }
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
 //                    createCommentBoxButton
 //                }
@@ -297,6 +300,13 @@ struct NodeTagMenuButtonsView: View {
     var createGroupButton: some View {
         nodeTagMenuButton(label: "Group Nodes") {
             dispatch(GroupNodeCreatedEvent())
+        }
+    }
+    
+    @MainActor
+    var createComponentButton: some View {
+        nodeTagMenuButton(label: "Create Component") {
+            self.graph.documentDelegate?.createGroup(isComponent: true)
         }
     }
 

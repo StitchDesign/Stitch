@@ -105,13 +105,19 @@ extension GraphState {
     
     @MainActor
     func createGroupNode(newGroupNodeId: GroupNodeId,
-                         center: CGPoint) -> NodeViewModel {
+                         center: CGPoint,
+                         isComponent: Bool) -> NodeViewModel {
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
                                             parentGroupNodeId: self.graphUI.groupNodeFocused?.asNodeId)
         
+        // Create new canvas entity if specified
+        let nodeType: NodeTypeEntity = isComponent ? .component(.init(id: .init(),
+                                                                      canvasEntity: canvasEntity))
+                                                   : .group(canvasEntity)
+        
         let schema = NodeEntity(id: newGroupNodeId.id,
-                                nodeTypeEntity: .group(canvasEntity),
+                                nodeTypeEntity: nodeType,
                                 title: NodeKind.group.getDisplayTitle(customName: nil))
         
         let newGroupNode = NodeViewModel(from: schema,
@@ -135,37 +141,40 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
 
     @MainActor
     func handle(state: StitchDocumentViewModel) {
+        state.createGroup(isComponent: false)
+    }
+}
 
-        guard !state.llmRecording.isRecording else {
+extension StitchDocumentViewModel {
+    @MainActor
+    func createGroup(isComponent: Bool) {
+        guard !self.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
             return
         }
         
         let newGroupNodeId = GroupNodeId(id: NodeId())
-//        let selectedNodeIds = state.selectedNodeIds
-        let selectedCanvasItems = state.visibleGraph.selectedCanvasItems
-        let edges = state.createEdges()
+        let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
+        let edges = self.createEdges()
 
-//        #if DEV || DEV_DEBUG
-//        // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = state.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
-        if state.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
+        // Every selected node must belong to this traversal level.
+        let nodesAtThisLevel = self.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
+        if self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
             fatalErrorIfDebug()
         }
-//        #endif
 
         let (inputEdgesToUpdate,
-             outputEdgesToUpdate) = state.visibleGraph.getEdgesToUpdate(
+             outputEdgesToUpdate) = self.visibleGraph.getEdgesToUpdate(
                 selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
                 edges: edges)
 
         // log("GroupNodeCreatedEvent: inputEdgesToUpdate: \(inputEdgesToUpdate)")
         // log("GroupNodeCreatedEvent: outputEdgesToUpdate: \(outputEdgesToUpdate)")
 
-        let center = state.graphUI.center(state.localPosition)
+        let center = self.graphUI.center(self.localPosition)
         
         //input splitters need to be west of the `to` node for the `edge`
-        var oldEdgeToNodeLocations = state.visibleGraph.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
+        var oldEdgeToNodeLocations = self.visibleGraph.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
                                                                 
         inputEdgesToUpdate.forEach { edge in
             
@@ -173,7 +182,7 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
             let to = edge.to
             var nodePosition = oldEdgeToNodeLocations.get(to) ?? center
             
-            state.visibleGraph.insertIntermediaryNode(
+            self.visibleGraph.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
                 splitterType: .input,
@@ -186,7 +195,7 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
             oldEdgeToNodeLocations[to] = nodePosition
         }
         
-        var oldEdgeFromNodeLocations = state.visibleGraph
+        var oldEdgeFromNodeLocations = self.visibleGraph
             .getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
         
         // output edge = an edge going FROM a node in the group, TO a node outside the group
@@ -196,7 +205,7 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
             let from = edge.from
             var nodePosition = oldEdgeFromNodeLocations.get(from) ?? center
             
-            state.visibleGraph.insertIntermediaryNode(
+            self.visibleGraph.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
                 splitterType: .output,
@@ -213,26 +222,39 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
         selectedCanvasItems.forEach { $0.parentGroupNodeId = newGroupNodeId.id }
         
         // Create the actual GroupNode itself
-        let newGroupNode = state.visibleGraph
+        let newGroupNode = self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
-                             center: center)
+                             center: center,
+                             isComponent: isComponent)
 
         // wipe selected edges and canvas items
-        state.graphUI.selection = GraphUISelectionState()
-        state.visibleGraph.selectedEdges = .init()
-        state.visibleGraph.resetSelectedCanvasItems()
+        self.graphUI.selection = GraphUISelectionState()
+        self.visibleGraph.selectedEdges = .init()
+        self.visibleGraph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
         // TODO: highlight new group node's incoming and outgoing edges
         newGroupNode.patchCanvasItem?.select()
 
         // Stop any active node dragging etc.
-        state.graphMovement.stopNodeMovement()
+        self.graphMovement.stopNodeMovement()
 
         // Recalculate graph
-        state.initializeGraphComputation()
+        self.initializeGraphComputation()
         
-        state.graph.encodeProjectInBackground()
+        // Encode component files if specified
+        if isComponent {
+            let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
+            let result = self.visibleGraph.createNewStitchComponent(componentId: newGroupNodeId.asNodeId,
+                                                                    saveLocation: .document(self.id),
+                                                                    selectedNodeIds: selectedNodeIds)
+            
+            Task { [weak self] in
+                await self?.graph.documentEncoder.encodeComponent(result)
+            }
+        }
+        
+        self.graph.encodeProjectInBackground()
     }
 }
 

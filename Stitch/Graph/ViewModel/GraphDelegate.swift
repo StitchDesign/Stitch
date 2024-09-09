@@ -10,7 +10,7 @@ import StitchSchemaKit
 import StitchEngine
 
 // Used only by GraphState
-protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
+protocol GraphDelegate: AnyObject, Sendable {
     var documentDelegate: StitchDocumentViewModel? { get }
     
     var id: UUID { get }

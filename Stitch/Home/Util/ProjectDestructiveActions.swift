@@ -20,13 +20,14 @@ extension StitchStore {
         }
 
         self.navPath = []
-        self.deleteProject(document: document.createSchema())
+        self.deleteProject(data: document.createSchema())
     }
 }
 
 extension StitchStore {
     @MainActor
-    func deleteProject(document: StitchDocument) {
+    func deleteProject(data: StitchDocumentData) {
+        let document = data.document
         let projectId = document.projectId
 
         switch StitchFileManager.removeStitchProject(
@@ -37,7 +38,7 @@ extension StitchStore {
             log("StitchStore: deleteProject: success")
             // If undo is called, re-import the project from recently deleted
             let undoEvents: [Action] = [UndoDeleteProject(projectId: projectId) ]
-            let redoEvents: [Action] = [ProjectDeleted(document: document)]
+            let redoEvents: [Action] = [ProjectDeleted(data: data)]
 
             // Displays toast UI on projects screen
             
@@ -84,8 +85,9 @@ extension StitchStore {
         // Reimports deleted project
         Task {
             do {
-                let _ = try await StitchDocument.openDocument(from: deletedProjectURL,
-                                                              isImport: true)
+                let _ = try await StitchDocumentData
+                    .openDocument(from: deletedProjectURL,
+                                  isImport: true)
             } catch {
                 await MainActor.run { [weak self] in
                     self?.alertState.stitchFileError = .projectWriteFailed

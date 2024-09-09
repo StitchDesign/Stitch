@@ -63,7 +63,7 @@ actor DocumentLoader {
                                   isNonICloudDocumentsFile: Bool = false) async -> DocumentLoadingStatus {
         // Need to be kept for when first renders on screen.
         do {
-            guard let document = try await StitchDocument.openDocument(
+            guard let document = try await StitchDocumentData.openDocument(
                 from: url,
                 isImport: isImport,
                 isNonICloudDocumentsFile: isNonICloudDocumentsFile) else {
@@ -95,26 +95,29 @@ extension DocumentLoader {
     }
 
     func installDocument(document: StitchDocument) async throws {
+        let rootUrl = document.rootUrl
+        
         // Encode projecet directories
-        await document.encodeDocumentContents()
+        await document.encodeDocumentContents(documentRootUrl: rootUrl)
 
         // Create versioned document
-        try await self.encodeVersionedContents(document: document)
+        try Self.encodeDocument(document, to: rootUrl)
     }
 
-    // Note: this fails if file does not already exist at path
-    func encodeVersionedContents(document: StitchDocument,
-                                 directoryUrl: URL? = nil) async throws {
-        try Self.encodeDocument(document, to: directoryUrl)
-
-        // Gets home screen to update with latest doc version
-        await dispatch(DirectoryUpdated())
+//    // Note: this fails if file does not already exist at path
+//    func encodeVersionedContents<Document>(document: Document,
+//                                           directoryUrl: URL) async throws where Document: MediaDocumentEncodable {
+//        try Self.encodeDocument(document, to: directoryUrl)
+//    }
+    
+    static func encodeDocument(_ document: StitchDocumentData) throws {
+        try Self.encodeDocument(document, to: document.document.rootUrl)
     }
     
-    static func encodeDocument(_ document: StitchDocument,
-                               to directoryURL: URL? = nil) throws {
+    static func encodeDocument<Document>(_ document: Document,
+                                         to directoryURL: URL) throws where Document: MediaDocumentEncodable {
         // Default directory is known by document, sometimes we use a temp URL
-        let directoryURL = directoryURL ?? document.rootUrl
+        let directoryURL = document.getEncodingUrl(documentRootUrl: directoryURL)
         
         let versionedData = try getStitchEncoder().encode(document)
         let filePath = directoryURL.appendingVersionedSchemaPath()

@@ -12,6 +12,17 @@ enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
     case group(CanvasItemViewModel)
+    case component(StitchComponentViewModel)
+}
+
+final class StitchComponentViewModel {
+    var componentId: UUID
+    let canvas: CanvasItemViewModel
+    
+    init(componentId: UUID, canvas: CanvasItemViewModel) {
+        self.componentId = componentId
+        self.canvas = canvas
+    }
 }
 
 extension NodeViewModelType {
@@ -34,6 +45,17 @@ extension NodeViewModelType {
                                 // Irrelevant
                                 unpackedPortParentFieldGroupType: nil,
                                 unpackedPortIndex: nil))
+        case .component(let component):
+            let component = StitchComponentViewModel(
+                componentId: component.id,
+                canvas: .init(from: component.canvasEntity,
+                              id: .node(nodeId),
+                              // Initialize as empty since splitter row observers might not have yet been created
+                              inputRowObservers: [],
+                              outputRowObservers: [],
+                              unpackedPortParentFieldGroupType: nil,
+                              unpackedPortIndex: nil))
+            self = .component(component)
         }
     }
     
@@ -53,6 +75,10 @@ extension NodeViewModelType {
                                                    // Not relevant
                                                    unpackedPortParentFieldGroupType: nil,
                                                    unpackedPortIndex: nil)
+        case .component(let componentViewModel):
+            componentViewModel.canvas.initializeDelegate(node,
+                                                         unpackedPortParentFieldGroupType: nil,
+                                                         unpackedPortIndex: nil)
         }
     }
 
@@ -65,6 +91,9 @@ extension NodeViewModelType {
             layerViewModel.update(from: layerEntity)
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
+        case (.component(let componentViewModel), .component(let component)):
+            componentViewModel.componentId = component.id
+            componentViewModel.canvas.update(from: component.canvasEntity)
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()
@@ -79,6 +108,9 @@ extension NodeViewModelType {
             return .layer(layerNodeViewModel.createSchema())
         case .group(let canvasNodeViewModel):
             return .group(canvasNodeViewModel.createSchema())
+        case .component(let component):
+            return .component(.init(id: component.componentId,
+                                    canvasEntity: component.canvas.createSchema()))
         }
     }
 }
@@ -117,7 +149,7 @@ extension NodeViewModelType {
             return .patch(patchNode.patch)
         case .layer(let layerNode):
             return .layer(layerNode.layer)
-        case .group:
+        case .group, .component:
             return .group
         }
     }

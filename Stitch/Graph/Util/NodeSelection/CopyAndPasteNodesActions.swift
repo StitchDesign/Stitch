@@ -83,7 +83,7 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             let componentData = try Data(
                 contentsOf: pasteboardUrl.appendingDataJsonPath()
             )
-            let newComponent = try getStitchDecoder().decode(StitchComponent.self, from: componentData)
+            let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let currentDoc = state.createSchema()
             let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
             let mediaUrls = StitchFileManager

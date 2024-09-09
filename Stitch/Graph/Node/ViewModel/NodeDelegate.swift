@@ -109,6 +109,10 @@ extension NodeDelegate {
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate
             }
+        case .component(let component):
+            return component.canvas.inputViewModels.compactMap {
+                $0.rowDelegate
+            }
         }
     }
     

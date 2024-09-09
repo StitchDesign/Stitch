@@ -18,16 +18,18 @@ extension StitchStore {
             }
             
             let newDoc = try await documentLoader.installNewDocument()
+            let data = StitchDocumentData(document: newDoc,
+                                          publishedDocumentComponents: [])
 
             // Open doc
             await MainActor.run { [weak self] in
-                self?.openProjectAction(from: newDoc)
+                self?.openProjectAction(from: data)
             }
         }
     }
 
     @MainActor
-    func openProjectAction(from document: StitchDocument) {
+    func openProjectAction(from data: StitchDocumentData) {
         // Get latest preview window size
         let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
             PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
@@ -37,7 +39,7 @@ extension StitchStore {
             return
         }
 
-        let document = StitchDocumentViewModel(from: document,
+        let document = StitchDocumentViewModel(from: data,
                                                store: self)
         document.previewSizeDevice = previewDevice
         document.previewWindowSize = previewDevice.previewWindowDimensions

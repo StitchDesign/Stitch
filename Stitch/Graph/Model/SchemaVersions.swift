@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import StitchSchemaKit
 
 public typealias Anchoring = CurrentAnchoring.Anchoring
@@ -36,7 +37,7 @@ public typealias LightType = CurrentLightType.LightType
 public typealias MobileHapticStyle = CurrentMobileHapticStyle.MobileHapticStyle
 public typealias MediaKey = CurrentMediaKey.MediaKey
 public typealias NetworkRequestType = CurrentNetworkRequestType.NetworkRequestType
-public typealias NodeEntity = CurrentNodeEntity.NodeEntity
+public typealias NodeEntity = Stitch.NodeEntity_V24.NodeEntity
 public typealias NodeKind = CurrentNodeKind.NodeKind
 public typealias NodeIOCoordinate = CurrentNodeIOCoordinate.NodeIOCoordinate
 public typealias NodePortInputEntity = CurrentNodePortInputEntity.NodePortInputEntity
@@ -64,7 +65,7 @@ public typealias ShapeCoordinates = CurrentShapeCoordinates.ShapeCoordinates
 public typealias SidebarLayerData = CurrentSidebarLayerData.SidebarLayerData
 public typealias SplitterType = CurrentSplitterType.SplitterType
 public typealias SplitterNodeEntity = CurrentSplitterNodeEntity.SplitterNodeEntity
-public typealias StitchDocument = CurrentStitchDocument.StitchDocument
+public typealias StitchDocument = Stitch.StitchDocument_V24.StitchDocument
 public typealias StitchBlendMode = CurrentStitchBlendMode.StitchBlendMode
 public typealias StitchCameraOrientation = CurrentStitchCameraOrientation.StitchCameraOrientation
 public typealias StitchDeviceOrientation = CurrentStitchDeviceOrientation.StitchDeviceOrientation
@@ -88,7 +89,7 @@ public typealias StitchContentMode = CurrentStitchContentMode.StitchContentMode
 public typealias StitchSpacing = CurrentStitchSpacing.StitchSpacing
 public typealias StitchPadding = CurrentStitchPadding.StitchPadding
 public typealias SizingScenario = CurrentSizingScenario.SizingScenario
-public typealias NodeTypeEntity = CurrentNodeTypeEntity.NodeTypeEntity
+//public typealias NodeTypeEntity = CurrentNodeTypeEntity.NodeTypeEntity
 public typealias CanvasNodeEntity = CurrentCanvasNodeEntity.CanvasNodeEntity
 public typealias LayerInputDataEntity = CurrentLayerInputDataEntity.LayerInputDataEntity
 public typealias CanvasItemId = CurrentCanvasItemId.CanvasItemId
@@ -100,4 +101,222 @@ public typealias LayerInputPort = CurrentLayerInputPort.LayerInputPort
 public typealias LayerInputKeyPathType = CurrentLayerInputKeyPathType.LayerInputKeyPathType
 public typealias UnpackedPortType = CurrentUnpackedPortType.UnpackedPortType
 public typealias StitchTransform = CurrentStitchTransform.StitchTransform
-public typealias StitchComponent = CurrentStitchComponent.StitchComponent
+public typealias StitchComponent = StitchComponent_V24.StitchComponent // CurrentStitchComponent.StitchComponent
+
+
+// TODO: move
+public struct StitchDocumentVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchDocument
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
+public struct StitchComonentVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchComponent
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
+extension StitchDocumentVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1:
+            return StitchDocument_V1.StitchDocument.self
+        case ._V2:
+            return StitchDocument_V2.StitchDocument.self
+        case ._V3:
+            return StitchDocument_V3.StitchDocument.self
+        case ._V4:
+            return StitchDocument_V4.StitchDocument.self
+        case ._V5:
+            return StitchDocument_V5.StitchDocument.self
+        case ._V6:
+            return StitchDocument_V6.StitchDocument.self
+        case ._V7:
+            return StitchDocument_V7.StitchDocument.self
+        case ._V8:
+            return StitchDocument_V8.StitchDocument.self
+        case ._V9:
+            return StitchDocument_V9.StitchDocument.self
+        case ._V10:
+            return StitchDocument_V10.StitchDocument.self
+        case ._V11:
+            return StitchDocument_V11.StitchDocument.self
+        case ._V12:
+            return StitchDocument_V12.StitchDocument.self
+        case ._V13:
+            return StitchDocument_V13.StitchDocument.self
+        case ._V14:
+            return StitchDocument_V14.StitchDocument.self
+        case ._V15:
+            return StitchDocument_V15.StitchDocument.self
+        case ._V16:
+            return StitchDocument_V16.StitchDocument.self
+        case ._V17:
+            return StitchDocument_V17.StitchDocument.self
+        case ._V18:
+            return StitchDocument_V18.StitchDocument.self
+        case ._V19:
+            return StitchDocument_V19.StitchDocument.self
+        case ._V20:
+            return StitchDocument_V20.StitchDocument.self
+        case ._V21:
+            return StitchDocument_V21.StitchDocument.self
+        case ._V22:
+            return StitchDocument_V22.StitchDocument.self
+        case ._V23:
+            return StitchDocument_V23.StitchDocument.self
+        case ._V24:
+            return StitchDocument_V24.StitchDocument.self
+        }
+    }
+}
+
+extension StitchComonentVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23:
+            fatalError("No StitchComponent version expected before v24.")
+            
+        case ._V24:
+            return StitchComponent_V24.StitchComponent.self
+        }
+    }
+}
+
+
+public enum NodeTypeEntity: Equatable, Codable {
+    case patch(PatchNodeEntity_V24.PatchNodeEntity)
+    case layer(LayerNodeEntity_V24.LayerNodeEntity)
+    case group(CanvasNodeEntity_V24.CanvasNodeEntity)
+    case component(ComponentEntity)
+}
+
+public struct ComponentEntity: Codable, Equatable {
+    var id: UUID
+    var canvasEntity: CanvasNodeEntity_V24.CanvasNodeEntity
+}
+
+public enum NodeEntity_V24: StitchSchemaVersionable {
+    public static let version = StitchSchemaVersion._V24
+    
+    public struct NodeEntity: StitchVersionedCodable, Equatable, Identifiable {
+        public let id: UUID
+        public var nodeTypeEntity: NodeTypeEntity
+        public let title: String
+        
+        public init(id: UUID,
+                    nodeTypeEntity: NodeTypeEntity,
+                    title: String) {
+            self.id = id
+            self.nodeTypeEntity = nodeTypeEntity
+            self.title = title
+        }
+    
+        public init(previousInstance: Self) {
+            fatalError()
+        }
+    }
+}
+
+// TODO: move to SSK
+public enum StitchComponent_V24: StitchSchemaVersionable {
+    public static let version = StitchSchemaVersion._V24
+    
+    public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
+        // Share location, saved here due to static helpers for sharing
+        public var saveLocation: ComponentSaveLocation
+        public var id = UUID()
+        public var nodes: [NodeEntity]
+        public var orderedSidebarLayers: [SidebarLayerData]
+        public let lastModifiedDate: Date
+        
+        public init(id: UUID = UUID(),
+                    saveLocation: ComponentSaveLocation,
+                    nodes: [NodeEntity],
+                    orderedSidebarLayers: [SidebarLayerData],
+                    lastModifiedDate: Date) {
+            self.id = id
+            self.saveLocation = saveLocation
+            self.nodes = nodes
+            self.orderedSidebarLayers = orderedSidebarLayers
+            self.lastModifiedDate = lastModifiedDate
+        }
+        
+        public init(previousInstance: Self) {
+            fatalError()
+        }
+    }
+}
+
+public enum StitchDocument_V24: StitchSchemaVersionable {
+    public static let version = StitchSchemaVersion._V24
+    
+    public struct StitchDocument: StitchVersionedCodable, Equatable {
+        public var projectId: ProjectId
+        public var name: String
+        
+        // Preview window
+        public let previewWindowSize: CGSize
+        public let previewSizeDevice: PreviewSize
+        public let previewWindowBackgroundColor: Color
+        
+        // Graph positioning data
+        public let localPosition: CGPoint
+        public let zoomData: CGFloat
+        
+        // Node data
+        public var nodes: [NodeEntity]
+        public var orderedSidebarLayers: [SidebarLayerData]
+        public let commentBoxes: [CommentBoxData]
+        
+        public let cameraSettings: CameraSettings
+        
+        public init(projectId: ProjectId,
+                    name: String,
+                    previewWindowSize: CGSize,
+                    previewSizeDevice: PreviewSize,
+                    previewWindowBackgroundColor: Color,
+                    localPosition: CGPoint,
+                    zoomData: CGFloat,
+                    nodes: [NodeEntity],
+                    orderedSidebarLayers: [SidebarLayerData],
+                    commentBoxes: [CommentBoxData],
+                    cameraSettings: CameraSettings) {
+            self.projectId = projectId
+            self.name = name
+            self.previewWindowSize = previewWindowSize
+            self.previewSizeDevice = previewSizeDevice
+            self.previewWindowBackgroundColor = previewWindowBackgroundColor
+            self.localPosition = localPosition
+            self.zoomData = zoomData
+            self.nodes = nodes
+            self.orderedSidebarLayers = orderedSidebarLayers
+            self.commentBoxes = commentBoxes
+            self.cameraSettings = cameraSettings
+        }
+        
+        public init(previousInstance: Self) {
+            fatalError()
+        }
+        
+        // MARK: remove `transferRepresentation` from older `StitchDocument` versions
+        //        static var transferRepresentation: some TransferRepresentation {
+        //            FileRepresentation(contentType: .stitchDocument,
+        //                               exporting: Self.exportDocument,
+        //                               importing: Self.importDocument)
+        //        }
+    }
+}
+
+//public enum NodeKind: Codable, Equatable, Hashable {
+//    case patch(Patch), layer(Layer), group
+//}

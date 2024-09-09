@@ -27,7 +27,7 @@ extension StitchStore {
             .clipped()
         
         let document = documentViewModel.createSchema()
-        let rootUrl = documentViewModel.graph.rootUrl
+        let rootUrl = document.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
         
         Task { [weak self] in
@@ -56,8 +56,9 @@ extension StitchStore {
                 
                 // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
                 //                 graph.encodeProjectInBackground()
-                try await store.documentLoader.encodeVersionedContents(
-                    document: document)
+                
+                // TODO: see if thumbnail hack is needed
+//                try await DocumentLoader.encodeDocument(documentData, to: documentData.document.rootUrl)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")
             }

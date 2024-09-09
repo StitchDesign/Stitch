@@ -218,7 +218,7 @@ func getFakeNode(choice: NodeKind,
                  _ zIndex: ZIndex = 1,
                  customName: String? = nil) -> NodeViewModel? {
 
-    let document = StitchDocumentViewModel(id: .fakeId, store: nil)
+    let document = StitchDocumentViewModel.createEmpty()
     
     if let node = document.nodeCreated(choice: choice) {
                 

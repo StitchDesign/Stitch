@@ -63,7 +63,7 @@ extension DocumentEncoder {
             return
         }
 
-        let lastEncodedDocument = self.lastEncodedDocument
+        let lastEncodedData = self.lastEncodedData
 
         // TODO: can we ever write undo-history if we had undo-events but shouldPersist=false ?
         if StitchUndoManager.shouldUpdateUndo(
@@ -71,14 +71,14 @@ extension DocumentEncoder {
             containsUndoEvents: !(response.undoEvents ?? []).isEmpty) {
 
             // log("handleResponse: will update undo history")
-            let nextDocument = graphState.createSchema()
+            let nextData = graphState.createSchema()
 
             // Create copy of next state to be saved in the UndoManager stack
             Task { [weak store] in
                 // If no reframe response but undo, we use StitchDocument
                 store?.environment.undoManager.prepareAndSaveUndoHistory(
-                    prevDocument: lastEncodedDocument,
-                    nextDocument: nextDocument,
+                    prevDocument: lastEncodedData,
+                    nextDocument: nextData,
                     undoEvents: response.undoEvents,
                     redoEvents: response.redoEvents)
             }

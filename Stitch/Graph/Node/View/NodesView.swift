@@ -32,6 +32,27 @@ struct NodesView: View {
         self.graph.graphUI
     }
     
+    @MainActor var isComponent: Bool {
+        self.component != nil
+    }
+    
+    // Recursively traverse up groups to find closest component parent
+    @MainActor var component: StitchComponent? {
+        var traversedGroupNode = groupNodeFocused?.asNodeId
+        
+        while let groupId = traversedGroupNode,
+              // Assume one canvas item for group nodes
+              let node = graph.getCanvasNodeViewModels(from: groupId).first {
+            if let discoveredComponent = self.graph.publishedDocumentComponents.first(where: { $0.id == groupId }) {
+                return discoveredComponent
+            }
+            
+            traversedGroupNode = node.parentGroupNodeId
+        }
+        
+        return nil
+    }
+    
     // Finds a group node's offset from center, used for animating
     // group node traversals
     // TODO: group node location for transition
@@ -57,8 +78,12 @@ struct NodesView: View {
                         canvasItem.inputViewModels
                     }
                 
-                
-                ZStack {
+                VStack {
+                    if let component {
+                        Rectangle()
+                            .foregroundColor(.red)
+                    }
+                    
                     // CommentBox needs to be affected by graph offset and zoom
                     // but can live somewhere else?
                     ZStack {

@@ -33,14 +33,14 @@ struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
 extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
-    func insertNewComponent(_ copiedComponentResult: StitchComponentCopiedResult) {
+    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>) where T: StitchComponentable {
         self.insertNewComponent(component: copiedComponentResult.component,
                                 effects: copiedComponentResult.effects)
     }
 
     @MainActor
-    func insertNewComponent(component: StitchComponent,
-                            effects: AsyncCallbackList) {
+    func insertNewComponent<T>(component: T,
+                               effects: AsyncCallbackList) where T: StitchComponentable {
         let hasEffectsToRun = !effects.isEmpty
 
         // Change all IDs
@@ -82,8 +82,8 @@ extension GraphState {
     }
 
     @MainActor
-    func _insertNewComponent(_ component: StitchComponent) {
-        var document = self.createSchema()
+    func _insertNewComponent<T>(_ component: T) where T: StitchComponentable {
+        var data = self.createSchema()
 
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = component.nodes
@@ -105,9 +105,9 @@ extension GraphState {
             }
 
         // Add new nodes
-        document.nodes += newNodes
-        document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.documentDelegate?.update(from: document)
+        data.document.nodes += newNodes
+        data.document.orderedSidebarLayers = component.orderedSidebarLayers + data.document.orderedSidebarLayers
+        self.documentDelegate?.update(from: data)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
@@ -138,7 +138,7 @@ extension GraphState {
                         
                     }
                     
-                case .patch, .group:
+                case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
                         canvasItem.select()

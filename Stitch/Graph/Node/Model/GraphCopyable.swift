@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 // TODO: Move and version this
 typealias NodeEntities = [NodeEntity]
@@ -59,6 +60,13 @@ extension NodeTypeEntity: GraphCopyable {
             return .group(canvasEntity.createCopy(newId: newId,
                                                   mappableData: mappableData,
                                                   copiedNodeIds: copiedNodeIds))
+            
+        case .component(var component):
+            // Only change canvas
+            component.canvasEntity = component.canvasEntity.createCopy(newId: newId,
+                                                                       mappableData: mappableData,
+                                                                       copiedNodeIds: copiedNodeIds)
+            return .component(component)
         }
     }
 }
@@ -267,8 +275,8 @@ extension SidebarLayerList {
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
 
-struct StitchComponentCopiedResult: Sendable {
-    let component: StitchComponent
+struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
+    let component: T
     let effects: AsyncCallbackList
 }
 
@@ -280,9 +288,9 @@ extension Array where Element == AsyncCallback {
     }
 }
 
-extension StitchComponent {
+extension StitchComponentable {
     /// Creates fresh IDs for all data in NodeEntities
-    func changeIds() -> StitchComponent {
+    func changeIds() -> StitchClipboardContent {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
 
         // Create mapping dictionary from old NodeID's to new NodeID's
@@ -317,6 +325,9 @@ extension NodeTypeEntity {
         case .group(var canvas):
             canvas.resetGroupId(focusedGroupId)
             self = .group(canvas)
+        case .component(var component):
+            component.canvasEntity.resetGroupId(focusedGroupId)
+            self = .component(component)
         case .layer(var layerNode):
             // Reset groups for inputs
             layerNode.layer.layerGraphNode.inputDefinitions.forEach {
@@ -368,7 +379,32 @@ extension CanvasNodeEntity {
 extension GraphState {
     @MainActor
     func createCopiedComponent(groupNodeFocused: NodeId?,
-                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult {
+                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
+        self.createComponent(groupNodeFocused: groupNodeFocused,
+                             selectedNodeIds: selectedNodeIds) {
+            StitchClipboardContent(nodes: $0, orderedSidebarLayers: $1)
+        }
+    }
+    
+    @MainActor func createNewStitchComponent(componentId: UUID,
+                                             saveLocation: ComponentSaveLocation,
+                                             selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
+        self.createComponent(groupNodeFocused: componentId,
+                             selectedNodeIds: selectedNodeIds) {
+            StitchComponent(id: componentId,
+                            saveLocation: saveLocation,
+                            nodes: $0,
+                            orderedSidebarLayers: $1,
+                            lastModifiedDate: .now)
+        }
+    }
+    
+    /// For clipboard, `groupNodeFocused` represents the focused group node of the graph.
+    /// For components, it must be defined and represent the ID of the newly created group node.
+    @MainActor
+    func createComponent<T>(groupNodeFocused: NodeId?,
+                            selectedNodeIds: NodeIdSet,
+                            createComponentable: @escaping (NodeEntities, SidebarLayerList) -> T) -> StitchComponentCopiedResult<T> where T: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
@@ -379,10 +415,10 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
-        let copiedComponent = StitchComponent(nodes: selectedNodes,
-                                              orderedSidebarLayers: selectedSidebarLayers)
+        let copiedComponent = createComponentable(selectedNodes, selectedSidebarLayers)
 
-        let newImportedFilesDirectory = copiedComponent.rootUrl.appendingStitchMediaPath()
+        let newImportedFilesDirectory = copiedComponent.getEncodingUrl(documentRootUrl: self.createSchema().rootUrl)
+            .appendingStitchMediaPath()
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in
@@ -424,71 +460,73 @@ extension SidebarLayerList {
     }
 }
 
-extension StitchComponent: MediaDocumentEncodable {
-    var rootUrl: URL {
-        // TODO: adjust for permanently stored components
-        StitchFileManager.tempDir
-            .appendingPathComponent(self.id.uuidString,
-                                    conformingTo: .stitchComponent)
-    }
 
-    static let dataJsonName = "data"
+// TODO: move
+protocol StitchComponentable: Sendable, MediaDocumentEncodable, Transferable {
+    var nodes: [NodeEntity] { get set }
+    var orderedSidebarLayers: SidebarLayerList { get set }
+    static var fileType: UTType { get }
+    var rootUrl: URL { get }
+    var dataJsonUrl: URL { get }
+}
+
+//extension StitchComponent: StitchComponentable { }
+
+struct StitchClipboardContent: StitchComponentable {
+    static let fileType = UTType.stitchClipboard
+    static let dataJsonName = StitchDocument.graphDataFileName
+    
+    var id = UUID()
+    var nodes: [NodeEntity]
+    var orderedSidebarLayers: SidebarLayerList
+}
+
+extension StitchClipboardContent: MediaDocumentEncodable {
+    var rootUrl: URL {
+        StitchFileManager.tempDir
+            .appendingPathComponent("copied-data",
+                                    conformingTo: Self.fileType)
+    }
+    
     var dataJsonUrl: URL {
-        self.rootUrl.appendingDataJsonPath()
+        self.rootUrl
+            .appendingPathComponent(StitchClipboardContent.dataJsonName,
+                                    conformingTo: .json)
+    }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Ignore param, always using temp directory
+        self.rootUrl
     }
 }
 
-extension StitchComponent: Transferable {
+extension StitchComponentable {
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(contentType: .stitchComponent,
-                           exporting: Self.exportComponent,
-                           importing: Self.importComponent)
+        FileRepresentation(exportedContentType: self.fileType,
+                           exporting: Self.exportComponent)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchComponent) async -> SentTransferredFile {
-        await component.encodeDocumentContents()
+    static func exportComponent(_ component: Self) async -> SentTransferredFile {
+        let rootUrl = component.rootUrl
+        // Create directories if it doesn't exist
+        let _ = try? await StitchFileManager.createDirectories(at: rootUrl,
+                                                               withIntermediate: true)
+        await component.encodeDocumentContents(folderUrl: rootUrl)
 
         let url = component.dataJsonUrl
-        await StitchComponent.exportComponent(component, url: url)
+        await Self.exportComponent(component, url: url)
         return SentTransferredFile(url)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchComponent, url: URL) async {
+    static func exportComponent(_ component: Self, url: URL) async {
         do {
             let encodedData = try getStitchEncoder().encode(component)
             try encodedData.write(to: url, options: .atomic)
         } catch {
-            log("exportComponent error: \(error)")
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug("exportComponent error: \(error)")
         }
-    }
-
-    @Sendable
-    static func importComponent(_ received: ReceivedTransferredFile) async -> StitchComponent {
-        fatalError()
-        //        do {
-        //            guard let doc = try await Self.importDocument(from: received.file,
-        //                                                          isImport: true) else {
-        //                //                #if DEBUG
-        //                //                fatalError()
-        //                //                #endif
-        //                DispatchQueue.main.async {
-        //                    dispatchStitch(.displayError(.unsupportedProject))
-        //                }
-        //                return StitchDocument()
-        //            }
-        //
-        //            return doc
-        //        } catch {
-        //            #if DEBUG
-        //            fatalError()
-        //            #endif
-        //            return StitchDocument()
-        //        }
     }
 }
 
@@ -515,14 +553,17 @@ extension GraphState {
 }
 
 extension DocumentEncoder {
-    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult) async {
-        let pasteboard = UIPasteboard.general
+    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
+        await self.encodeComponent(copiedComponentResult)
         
-        let _ = await StitchComponent.exportComponent(copiedComponentResult.component)
+        let pasteboard = UIPasteboard.general
+        pasteboard.url = copiedComponentResult.component.rootUrl
+    }
+    
+    func encodeComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
+        let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await copiedComponentResult.effects.processEffects()
-
-        pasteboard.url = copiedComponentResult.component.rootUrl
+        await result.effects.processEffects()
     }
 }

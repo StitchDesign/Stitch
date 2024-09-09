@@ -77,7 +77,7 @@ extension GraphState {
     func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) async {
         let copyResult = await StitchFileManager.copyToMediaDirectory(
             originalURL: fileURL,
-            in: self.createSchema(),
+            in: self.createSchema().document,
             forRecentlyDeleted: false)
 
         await MainActor.run {
@@ -95,7 +95,7 @@ extension GraphState {
     @MainActor
     func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
         let copyResult = await StitchFileManager.copyToMediaDirectory(originalURL: fileURL,
-                                                                      in: self.createSchema(),
+                                                                      in: self.createSchema().document,
                                                                       forRecentlyDeleted: false)
         await MainActor.run {
             switch copyResult {
@@ -111,7 +111,7 @@ extension GraphState {
     /// Called when recently-deleted media is undo-ed.
     @MainActor
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
-        let document = self.createSchema()
+        let document = self.createSchema().document
 
         // Look for media in expected "recently deleted" location"
         let expectedMediaURL = document.getImportedFilesURL(forRecentlyDeleted: true)
