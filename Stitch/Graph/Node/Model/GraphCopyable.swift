@@ -59,6 +59,13 @@ extension NodeTypeEntity: GraphCopyable {
             return .group(canvasEntity.createCopy(newId: newId,
                                                   mappableData: mappableData,
                                                   copiedNodeIds: copiedNodeIds))
+            
+        case .component(var component):
+            // Only change canvas
+            component.canvasEntity = component.canvasEntity.createCopy(newId: newId,
+                                                                       mappableData: mappableData,
+                                                                       copiedNodeIds: copiedNodeIds)
+            return .component(component)
         }
     }
 }
@@ -317,6 +324,9 @@ extension NodeTypeEntity {
         case .group(var canvas):
             canvas.resetGroupId(focusedGroupId)
             self = .group(canvas)
+        case .component(var component):
+            component.canvasEntity.resetGroupId(focusedGroupId)
+            self = .component(component)
         case .layer(var layerNode):
             // Reset groups for inputs
             layerNode.layer.layerGraphNode.inputDefinitions.forEach {

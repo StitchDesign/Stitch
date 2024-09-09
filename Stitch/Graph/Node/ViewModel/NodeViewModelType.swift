@@ -12,15 +12,15 @@ enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
     case group(CanvasItemViewModel)
-    case component(UUID)
+    case component(StitchComponentViewModel)
 }
 
 final class StitchComponentViewModel {
-    let id: UUID
+    let componentId: UUID
     let canvas: CanvasItemViewModel
     
-    init(id: UUID, canvas: CanvasItemViewModel) {
-        self.id = id
+    init(componentId: UUID, canvas: CanvasItemViewModel) {
+        self.componentId = componentId
         self.canvas = canvas
     }
 }
@@ -42,6 +42,15 @@ extension NodeViewModelType {
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
                                 outputRowObservers: []))
+        case .component(let component):
+            let component = StitchComponentViewModel(
+                componentId: component.id,
+                canvas: .init(from: component.canvasEntity,
+                              id: .node(nodeId),
+                              // Initialize as empty since splitter row observers might not have yet been created
+                              inputRowObservers: [],
+                              outputRowObservers: []))
+            self = .component(component)
         }
     }
     
@@ -87,8 +96,9 @@ extension NodeViewModelType {
             return .layer(layerNodeViewModel.createSchema())
         case .group(let canvasNodeViewModel):
             return .group(canvasNodeViewModel.createSchema())
-//        case .component(let id):
-//            return .component(id)
+        case .component(let component):
+            return .component(.init(id: component.componentId,
+                                    canvasEntity: component.canvas.createSchema()))
         }
     }
 }
@@ -127,7 +137,7 @@ extension NodeViewModelType {
             return .patch(patchNode.patch)
         case .layer(let layerNode):
             return .layer(layerNode.layer)
-        case .group:
+        case .group, .component:
             return .group
         }
     }

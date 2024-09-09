@@ -277,6 +277,16 @@ extension InputNodeRowObserver {
             }
             
             inputs.append(groupInput)
+            
+        case .component(let component):
+            let canvas = component.canvas
+            guard let portId = self.id.portId,
+                  let groupInput = canvas.inputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            inputs.append(groupInput)
         }
 
         return inputs
@@ -330,6 +340,16 @@ extension OutputNodeRowObserver {
             }
             
         case .group(let canvas):
+            guard let portId = self.id.portId,
+                  let groupOutput = canvas.outputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            outputs.append(groupOutput)
+            
+        case .component(let component):
+            let canvas = component.canvas
             guard let portId = self.id.portId,
                   let groupOutput = canvas.outputViewModels[safe: portId] else {
                 fatalErrorIfDebug()
