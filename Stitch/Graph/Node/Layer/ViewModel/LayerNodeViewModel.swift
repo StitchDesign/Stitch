@@ -28,114 +28,114 @@ final class LayerNodeViewModel {
     var previewLayerViewModels: [LayerViewModel] = []
  
     // Some layer nodes contain outputs
-    @MainActor var outputPorts: [OutputLayerNodeRowData] = []
+    var outputPorts: [OutputLayerNodeRowData] = []
     
     // TODO: temporarily using positionPort as only canvas item location until inspector is done
     
-    @MainActor var positionPort: LayerInputObserver
-    @MainActor var sizePort: LayerInputObserver
-    @MainActor var scalePort: LayerInputObserver
-    @MainActor var anchoringPort: LayerInputObserver
-    @MainActor var opacityPort: LayerInputObserver
-    @MainActor var zIndexPort: LayerInputObserver
-    @MainActor var masksPort: LayerInputObserver
-    @MainActor var colorPort: LayerInputObserver
-    @MainActor var startColorPort: LayerInputObserver
-    @MainActor var endColorPort: LayerInputObserver
-    @MainActor var startAnchorPort: LayerInputObserver
-    @MainActor var endAnchorPort: LayerInputObserver
-    @MainActor var centerAnchorPort: LayerInputObserver
-    @MainActor var startAnglePort: LayerInputObserver
-    @MainActor var endAnglePort: LayerInputObserver
-    @MainActor var startRadiusPort: LayerInputObserver
-    @MainActor var endRadiusPort: LayerInputObserver
-    @MainActor var rotationXPort: LayerInputObserver
-    @MainActor var rotationYPort: LayerInputObserver
-    @MainActor var rotationZPort: LayerInputObserver
-    @MainActor var lineColorPort: LayerInputObserver
-    @MainActor var lineWidthPort: LayerInputObserver
-    @MainActor var blurPort: LayerInputObserver
-    @MainActor var blendModePort: LayerInputObserver
-    @MainActor var brightnessPort: LayerInputObserver
-    @MainActor var colorInvertPort: LayerInputObserver
-    @MainActor var contrastPort: LayerInputObserver
-    @MainActor var hueRotationPort: LayerInputObserver
-    @MainActor var saturationPort: LayerInputObserver
-    @MainActor var pivotPort: LayerInputObserver
-    @MainActor var enabledPort: LayerInputObserver
-    @MainActor var blurRadiusPort: LayerInputObserver
-    @MainActor var backgroundColorPort: LayerInputObserver
-    @MainActor var isClippedPort: LayerInputObserver
-    @MainActor var orientationPort: LayerInputObserver
-    @MainActor var paddingPort: LayerInputObserver
-    @MainActor var setupModePort: LayerInputObserver
-    @MainActor var allAnchorsPort: LayerInputObserver
-    @MainActor var cameraDirectionPort: LayerInputObserver
-    @MainActor var isCameraEnabledPort: LayerInputObserver
-    @MainActor var isShadowsEnabledPort: LayerInputObserver
+    var positionPort: LayerInputObserver
+    var sizePort: LayerInputObserver
+    var scalePort: LayerInputObserver
+    var anchoringPort: LayerInputObserver
+    var opacityPort: LayerInputObserver
+    var zIndexPort: LayerInputObserver
+    var masksPort: LayerInputObserver
+    var colorPort: LayerInputObserver
+    var startColorPort: LayerInputObserver
+    var endColorPort: LayerInputObserver
+    var startAnchorPort: LayerInputObserver
+    var endAnchorPort: LayerInputObserver
+    var centerAnchorPort: LayerInputObserver
+    var startAnglePort: LayerInputObserver
+    var endAnglePort: LayerInputObserver
+    var startRadiusPort: LayerInputObserver
+    var endRadiusPort: LayerInputObserver
+    var rotationXPort: LayerInputObserver
+    var rotationYPort: LayerInputObserver
+    var rotationZPort: LayerInputObserver
+    var lineColorPort: LayerInputObserver
+    var lineWidthPort: LayerInputObserver
+    var blurPort: LayerInputObserver
+    var blendModePort: LayerInputObserver
+    var brightnessPort: LayerInputObserver
+    var colorInvertPort: LayerInputObserver
+    var contrastPort: LayerInputObserver
+    var hueRotationPort: LayerInputObserver
+    var saturationPort: LayerInputObserver
+    var pivotPort: LayerInputObserver
+    var enabledPort: LayerInputObserver
+    var blurRadiusPort: LayerInputObserver
+    var backgroundColorPort: LayerInputObserver
+    var isClippedPort: LayerInputObserver
+    var orientationPort: LayerInputObserver
+    var paddingPort: LayerInputObserver
+    var setupModePort: LayerInputObserver
+    var allAnchorsPort: LayerInputObserver
+    var cameraDirectionPort: LayerInputObserver
+    var isCameraEnabledPort: LayerInputObserver
+    var isShadowsEnabledPort: LayerInputObserver
     
-    @MainActor var shapePort: LayerInputObserver
-    @MainActor var strokePositionPort: LayerInputObserver
-    @MainActor var strokeWidthPort: LayerInputObserver
-    @MainActor var strokeColorPort: LayerInputObserver
-    @MainActor var strokeStartPort: LayerInputObserver
-    @MainActor var strokeEndPort: LayerInputObserver
-    @MainActor var strokeLineCapPort: LayerInputObserver
-    @MainActor var strokeLineJoinPort: LayerInputObserver
-    @MainActor var coordinateSystemPort: LayerInputObserver
+    var shapePort: LayerInputObserver
+    var strokePositionPort: LayerInputObserver
+    var strokeWidthPort: LayerInputObserver
+    var strokeColorPort: LayerInputObserver
+    var strokeStartPort: LayerInputObserver
+    var strokeEndPort: LayerInputObserver
+    var strokeLineCapPort: LayerInputObserver
+    var strokeLineJoinPort: LayerInputObserver
+    var coordinateSystemPort: LayerInputObserver
     
-    @MainActor var cornerRadiusPort: LayerInputObserver
-    @MainActor var canvasLineColorPort: LayerInputObserver
-    @MainActor var canvasLineWidthPort: LayerInputObserver
-    @MainActor var textPort: LayerInputObserver
-    @MainActor var fontSizePort: LayerInputObserver
-    @MainActor var textAlignmentPort: LayerInputObserver
-    @MainActor var verticalAlignmentPort: LayerInputObserver
-    @MainActor var textDecorationPort: LayerInputObserver
-    @MainActor var textFontPort: LayerInputObserver
-    @MainActor var imagePort: LayerInputObserver
-    @MainActor var videoPort: LayerInputObserver
-    @MainActor var fitStylePort: LayerInputObserver
-    @MainActor var clippedPort: LayerInputObserver
-    @MainActor var isAnimatingPort: LayerInputObserver
-    @MainActor var progressIndicatorStylePort: LayerInputObserver
-    @MainActor var progressPort: LayerInputObserver
-    @MainActor var model3DPort: LayerInputObserver
-    @MainActor var mapTypePort: LayerInputObserver
-    @MainActor var mapLatLongPort: LayerInputObserver
-    @MainActor var mapSpanPort: LayerInputObserver
-    @MainActor var isSwitchToggledPort: LayerInputObserver
-    @MainActor var placeholderTextPort: LayerInputObserver
+    var cornerRadiusPort: LayerInputObserver
+    var canvasLineColorPort: LayerInputObserver
+    var canvasLineWidthPort: LayerInputObserver
+    var textPort: LayerInputObserver
+    var fontSizePort: LayerInputObserver
+    var textAlignmentPort: LayerInputObserver
+    var verticalAlignmentPort: LayerInputObserver
+    var textDecorationPort: LayerInputObserver
+    var textFontPort: LayerInputObserver
+    var imagePort: LayerInputObserver
+    var videoPort: LayerInputObserver
+    var fitStylePort: LayerInputObserver
+    var clippedPort: LayerInputObserver
+    var isAnimatingPort: LayerInputObserver
+    var progressIndicatorStylePort: LayerInputObserver
+    var progressPort: LayerInputObserver
+    var model3DPort: LayerInputObserver
+    var mapTypePort: LayerInputObserver
+    var mapLatLongPort: LayerInputObserver
+    var mapSpanPort: LayerInputObserver
+    var isSwitchToggledPort: LayerInputObserver
+    var placeholderTextPort: LayerInputObserver
     
-    @MainActor var shadowColorPort: LayerInputObserver
-    @MainActor var shadowOpacityPort: LayerInputObserver
-    @MainActor var shadowRadiusPort: LayerInputObserver
-    @MainActor var shadowOffsetPort: LayerInputObserver
-    @MainActor var sfSymbolPort: LayerInputObserver
+    var shadowColorPort: LayerInputObserver
+    var shadowOpacityPort: LayerInputObserver
+    var shadowRadiusPort: LayerInputObserver
+    var shadowOffsetPort: LayerInputObserver
+    var sfSymbolPort: LayerInputObserver
     
-    @MainActor var videoURLPort: LayerInputObserver
-    @MainActor var volumePort: LayerInputObserver
+    var videoURLPort: LayerInputObserver
+    var volumePort: LayerInputObserver
     
-    @MainActor var spacingBetweenGridColumnsPort: LayerInputObserver
-    @MainActor var spacingBetweenGridRowsPort: LayerInputObserver
-    @MainActor var itemAlignmentWithinGridCellPort: LayerInputObserver
+    var spacingBetweenGridColumnsPort: LayerInputObserver
+    var spacingBetweenGridRowsPort: LayerInputObserver
+    var itemAlignmentWithinGridCellPort: LayerInputObserver
     
-    @MainActor var widthAxisPort: LayerInputObserver
-    @MainActor var heightAxisPort: LayerInputObserver
-    @MainActor var contentModePort: LayerInputObserver
-    @MainActor var minSizePort: LayerInputObserver
-    @MainActor var maxSizePort: LayerInputObserver
-    @MainActor var spacingPort: LayerInputObserver
-    @MainActor var sizingScenarioPort: LayerInputObserver
+    var widthAxisPort: LayerInputObserver
+    var heightAxisPort: LayerInputObserver
+    var contentModePort: LayerInputObserver
+    var minSizePort: LayerInputObserver
+    var maxSizePort: LayerInputObserver
+    var spacingPort: LayerInputObserver
+    var sizingScenarioPort: LayerInputObserver
 
-    @MainActor var isPinnedPort: LayerInputObserver
-    @MainActor var pinToPort: LayerInputObserver
-    @MainActor var pinAnchorPort: LayerInputObserver
-    @MainActor var pinOffsetPort: LayerInputObserver
+    var isPinnedPort: LayerInputObserver
+    var pinToPort: LayerInputObserver
+    var pinAnchorPort: LayerInputObserver
+    var pinOffsetPort: LayerInputObserver
     
-    @MainActor var layerMarginPort: LayerInputObserver
-    @MainActor var layerPaddingPort: LayerInputObserver
-    @MainActor var offsetInGroupPort: LayerInputObserver
+    var layerMarginPort: LayerInputObserver
+    var layerPaddingPort: LayerInputObserver
+    var offsetInGroupPort: LayerInputObserver
     
     weak var nodeDelegate: NodeDelegate?
 
@@ -162,7 +162,6 @@ final class LayerNodeViewModel {
     
     var isExpandedInSidebar: Bool?
 
-    @MainActor
     init(from schema: LayerNodeEntity) {
         
         let graphNode = schema.layer.layerGraphNode
@@ -318,12 +317,11 @@ final class LayerNodeViewModel {
 }
 
 extension LayerNodeViewModel: SchemaObserver {
-    @MainActor
-    static func createObject(from entity: LayerNodeEntity) -> Self {
+    static func createObject(from entity: LayerNodeEntity,
+                             activeIndex: ActiveIndex) -> Self {
         .init(from: entity)
     }
 
-    @MainActor
     func update(from schema: LayerNodeEntity) {
         if self.layer != schema.layer {
             self.layer = schema.layer
@@ -348,7 +346,6 @@ extension LayerNodeViewModel: SchemaObserver {
         self.updateOutputData(from: schema.outputCanvasPorts)
     }
     
-    @MainActor
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
     func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
         self.layer.layerGraphNode.inputDefinitions.forEach {
@@ -426,7 +423,6 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
-    @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         

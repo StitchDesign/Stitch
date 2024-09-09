@@ -14,6 +14,7 @@ import StitchSchemaKit
 struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
 
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -55,7 +56,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         //                textLayerAlignment: .center))
 
             .modifier(PreviewLayerRotationModifier(
-                document: document,
+                graph: graph,
                 viewModel: viewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -87,6 +88,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
             // SwiftUI gestures must come AFTER the .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
                 document: document,
+                graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?

@@ -41,6 +41,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -48,7 +49,8 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewVideoStreamLayer(
             document: document,
-            layerViewModel: viewModel, 
+            graph: graph,
+            layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             enabled: viewModel.enabled.getBool ?? true,
@@ -78,6 +80,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
 
 struct PreviewVideoStreamLayer: View {
     let document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -106,6 +109,7 @@ struct PreviewVideoStreamLayer: View {
             .opacity(enabled ? opacity : 0.0)
             .modifier(PreviewCommonModifier(
                 document: document,
+                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

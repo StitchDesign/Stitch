@@ -9,8 +9,8 @@ import Foundation
 import StitchSchemaKit
 
 /// Helpers focused on reading/writing with a specific project URL.
-extension StitchFileManager {
-    static func getAllMediaURLs(in importedFilesDir: URL) async -> [URL] {
+extension DocumentEncodable {
+    static func getAllMediaURLs(in importedFilesDir: URL) -> [URL] {
         let importedFiles = Self.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
 
         // use temp directory rather than documentsURL
@@ -19,16 +19,19 @@ extension StitchFileManager {
         let allMedia = importedFiles + tempFiles
         return allMedia
     }
+    
+    func getAllMediaURLs() -> [URL] {
+        Self.getAllMediaURLs(in: self.getImportedFilesURL())
+    }
 
-    static func readMediaFilesDirectory(document: StitchDocumentIdentifiable,
-                                        forRecentlyDeleted: Bool) -> [URL] {
+    func readMediaFilesDirectory(forRecentlyDeleted: Bool) -> [URL] {
         // Assumes usage of DocumentsURL
-        let mediaDirectory = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
-        return self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
+        let mediaDirectory = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
+        return Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
     }
 
     static func readMediaFilesDirectory(mediaDirectory: URL) -> [URL] {
-        let readContentsResult = readDirectoryContents(mediaDirectory)
+        let readContentsResult = StitchFileManager.readDirectoryContents(mediaDirectory)
         switch readContentsResult {
         case .success(let urls):
             return urls
@@ -37,28 +40,44 @@ extension StitchFileManager {
             return []
         }
     }
+    
+    static func readComponentsDirectory(rootUrl: URL) -> [URL] {
+        (try? FileManager.default.contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
+                                                      includingPropertiesForKeys: nil)) ?? []
+    }
+    
+    func readAllImportedFiles() -> StitchDocumentDirectory {
+        Self.readAllImportedFiles(rootUrl: self.rootUrl)
+    }
+    
+    static func readAllImportedFiles(rootUrl: URL) -> StitchDocumentDirectory {
+        let importedFilesDir = Self.getAllMediaURLs(in: rootUrl.appendingStitchMediaPath())
+        let componentFilesDir = Self.readComponentsDirectory(rootUrl: rootUrl)
+        
+        return .init(importedMediaUrls: importedFilesDir,
+                     componentDirs: componentFilesDir)
+    }
 
-    static func copyToMediaDirectory(originalURL: URL,
-                                     in document: StitchDocumentIdentifiable,
-                                     forRecentlyDeleted: Bool,
-                                     customMediaKey: MediaKey? = nil) async -> URLResult {
-        let importedFilesURL = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
-        return await Self.copyToMediaDirectory(originalURL: originalURL,
-                                               importedFilesURL: importedFilesURL,
-                                               customMediaKey: customMediaKey)
+    func copyToMediaDirectory(originalURL: URL,
+                              forRecentlyDeleted: Bool,
+                              customMediaKey: MediaKey? = nil) -> URLResult {
+        let importedFilesURL = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
+        return Self.copyToMediaDirectory(originalURL: originalURL,
+                                         importedFilesURL: importedFilesURL,
+                                         customMediaKey: customMediaKey)
     }
 
     /// Copies to imported files uing a custom MediaKey, rather than re-using the same key from the original URL.
     static func copyToMediaDirectory(originalURL: URL,
                                      importedFilesURL: URL,
-                                     customMediaKey: MediaKey? = nil) async -> URLResult {
+                                     customMediaKey: MediaKey? = nil) -> URLResult {
         let _ = originalURL.startAccessingSecurityScopedResource()
 
         // Create media key for destination file
         let destinationMediaKey = customMediaKey ?? originalURL.mediaKey
 
-        switch await self.createMediaFileURL(from: destinationMediaKey,
-                                             importedFilesURL: importedFilesURL) {
+        switch self.createMediaFileURL(from: destinationMediaKey,
+                                       importedFilesURL: importedFilesURL) {
         case .success(let newURL):
             do {
                 try FileManager.default.copyItem(at: originalURL, to: newURL)
@@ -76,10 +95,10 @@ extension StitchFileManager {
     }
 
     static func createMediaFileURL(from mediaKey: MediaKey,
-                                   importedFilesURL: URL) async -> URLResult {
+                                   importedFilesURL: URL) -> URLResult {
         // Create ImportedFiles url if it doesn't exist
-        let _ = try? await StitchFileManager.createDirectories(at: importedFilesURL,
-                                                               withIntermediate: true)
+        let _ = try? StitchFileManager.createDirectories(at: importedFilesURL,
+                                                         withIntermediate: true)
 
         let uniqueName = createUniqueFilename(filename: mediaKey.filename,
                                               mediaType: mediaKey.getMediaType(),
@@ -97,11 +116,72 @@ extension StitchFileManager {
     static func createUniqueFilename(filename: String,
                                      mediaType: SupportedMediaFormat,
                                      mediaDirectory: URL) -> String {
-        let existingFileNames = StitchFileManager.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
+        let existingFileNames = Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
             .map { $0.filename }
 
         return Stitch.createUniqueFilename(filename: filename,
                                            existingFilenames: existingFileNames,
                                            mediaType: mediaType)
+    }
+    
+    /// Copies files from another directory.
+    func copyFiles(from directory: StitchDocumentDirectory) -> StitchDocumentDirectory {
+        // Copy selected media
+        let newMediaUrls: [URL] = directory.importedMediaUrls.compactMap { mediaUrl in
+            switch self.copyToMediaDirectory(originalURL: mediaUrl,
+                                             forRecentlyDeleted: false) {
+            case .success(let newMediaUrl):
+                return newMediaUrl
+            case .failure(let error):
+                log("SelectedGraphItemsPasted error: could not get imported media URL.")
+                DispatchQueue.main.async {
+                    dispatch(DisplayError(error: error))
+                }
+                
+                return nil
+            }
+        }
+        
+        let newComponentUrls = directory.componentDirs.compactMap { srcComponentUrl -> URL? in
+            guard let componentIdPath = srcComponentUrl.pathComponents.last else {
+                fatalErrorIfDebug()
+                return nil
+            }
+
+            let destComponentUrl = self.rootUrl
+                .appendingComponentsPath()
+            // Append component ID
+                .appendingPathComponent(componentIdPath,
+                                        conformingTo: .stitchComponentUnzipped)
+            
+            let _ = srcComponentUrl.startAccessingSecurityScopedResource()
+            
+            let subfolders = [srcComponentUrl.appendingComponentDraftPath(),
+                              srcComponentUrl.appendingComponentPublishedPath()]
+            
+            do {
+                // Silently fail directory creation if already exists
+                try FileManager.default.createDirectory(at: destComponentUrl,
+                                                         withIntermediateDirectories: true)
+                
+                subfolders.forEach { subfile in
+                    let name = subfile.lastPathComponent
+                    
+                    try? FileManager.default
+                        .copyItem(at: subfile,
+                                  to: destComponentUrl.appendingPathComponent(name))
+                }
+                
+                srcComponentUrl.stopAccessingSecurityScopedResource()
+                return destComponentUrl
+            } catch {
+                // Usually means direcory already exists--valid when we copy an already-existing component
+                srcComponentUrl.stopAccessingSecurityScopedResource()
+                return nil
+            }
+        }
+        
+        return .init(importedMediaUrls: newMediaUrls,
+                     componentDirs: newComponentUrls)
     }
 }

@@ -27,70 +27,76 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
             state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-                groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
-                selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
-            
-            state.visibleGraph.insertNewComponent(copiedComponentResult)
+            groupNodeFocused: state.graphUI.groupNodeFocused,
+            selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+        
+            state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                                  encoder: state.visibleGraph.documentEncoderDelegate)
         }
         
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 
 extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
-    func insertNewComponent(_ copiedComponentResult: StitchComponentCopiedResult) {
+    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
+                               encoder: (any DocumentEncodable)?) where T: StitchComponentable {
         self.insertNewComponent(component: copiedComponentResult.component,
-                                effects: copiedComponentResult.effects)
+                                encoder: encoder,
+                                copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
     }
 
     @MainActor
-    func insertNewComponent(component: StitchComponent,
-                            effects: AsyncCallbackList) {
-        let hasEffectsToRun = !effects.isEmpty
+    func insertNewComponent<T>(component: T,
+                               encoder: (any DocumentEncodable)?,
+                               copiedFiles: StitchDocumentDirectory) where T: StitchComponentable {
 
         // Change all IDs
-        var newComponent = component.changeIds()
+        var newComponent = component
+        newComponent.graph = newComponent.graph.changeIds()
 
         // Update nodes in the follow ways:
         // 1. Stagger position
         // 2. Increment z-index
-        newComponent.nodes = newComponent.nodes.map { node in
+        newComponent.graph.nodes = newComponent.nodes.map { node in
             var node = node
+            
+            // Update positional data
             node.canvasEntityMap { node in
                 var node = node
                 node.position.shiftNodePosition()
                 node.zIndex += 1
                 return node
             }
-            return node
-        }
 
-        guard hasEffectsToRun else {
-            // Update state synchronously
-            self._insertNewComponent(newComponent)
-            return
+            return node
         }
 
         // Display loading status for imported media effects
 //        self.libraryLoadingStatus = .loading
 
-        Task {
-            await effects.processEffects()
-
-            await MainActor.run { [weak self] in
-                self?._insertNewComponent(newComponent)
-
-                // Hide loading status
-//                self?.libraryLoadingStatus = .loaded
+        Task(priority: .high) { [weak encoder, weak self] in
+            guard let encoder = encoder else {
+                return
             }
+            
+            // Copy files before inserting component
+            await encoder.importComponentFiles(copiedFiles)
+            await self?._insertNewComponent(newComponent)
         }
     }
 
     @MainActor
-    func _insertNewComponent(_ component: StitchComponent) {
-        var document = self.createSchema()
+    func _insertNewComponent<T>(_ component: T) async where T: StitchComponentable {
+        guard let document = self.documentDelegate,
+              let encoderDelegate = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        var graph = self.createSchema()
 
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = component.nodes
@@ -112,9 +118,11 @@ extension GraphState {
             }
 
         // Add new nodes
-        document.nodes += newNodes
-        document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.documentDelegate?.update(from: document)
+        graph.nodes += newNodes
+        graph.orderedSidebarLayers = component.graph.orderedSidebarLayers + graph.orderedSidebarLayers
+        await self.update(from: graph)
+        self.initializeDelegate(document: document,
+                                documentEncoderDelegate: encoderDelegate)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
@@ -166,7 +174,7 @@ extension GraphState {
                         }
                     }
                     
-                case .patch, .group:
+                case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
                         canvasItem.select()
@@ -174,17 +182,8 @@ extension GraphState {
                 }
         }
         
-        // update sidebar UI data
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
-        self.calculateFullGraph() // not needed?
-        self.updateOrderedPreviewLayers()
+        // Also wipe sidebar selection state
+        self.sidebarSelectionState = .init()
     }
     
     // Duplicate ONLY the selected comment boxes

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension StitchDocumentViewModel {
+extension GraphState {
     
     /// Recursively creates a sorted list of layers.
     @MainActor
@@ -41,7 +41,7 @@ extension StitchDocumentViewModel {
                     handled: handled,
                     sidebarLayersAtHierarchy: filteredSidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
-                    layerNodes: self.graph.layerNodes,
+                    layerNodes: self.layerNodes,
                     pinMap: pinMap)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(newLayerTypesAtThisLevel)
@@ -55,7 +55,7 @@ extension StitchDocumentViewModel {
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
                 pinnedData: pinnedData,
                 sidebarLayers: sidebarLayersGlobal,
-                layerNodes: self.graph.layerNodes,
+                layerNodes: self.layerNodes,
                 layerTypesAtThisLevel: layerTypesAtThisLevel)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
@@ -78,7 +78,7 @@ extension StitchDocumentViewModel {
             self.getLayerDataFromLayerType(layerType,
                                            pinMap: pinMap,
                                            sidebarLayersGlobal: sidebarLayersGlobal,
-                                           layerNodes: self.graph.layerNodes)
+                                           layerNodes: self.layerNodes)
         }
         
         // log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")

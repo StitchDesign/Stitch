@@ -128,34 +128,77 @@ extension StitchStore {
 
         // Update schema data
         if let newState = newState {
-            document.update(from: newState)
+            Task(priority: .high) {
+                await document.update(from: newState)
+            }
 
             // Persist graph
-            document.graph.encodeProjectInBackground()
+            document.visibleGraph.encodeProjectInBackground(wasUndo: true)
             
         }
     }
     
     /// Saves undo history of some graph using copies of StitchDocument.
-    @MainActor
-    func saveUndoHistory(oldState: StitchDocument,
-                         newState: StitchDocument,
-                         undoEvents: Actions? = nil,
-                         redoEvents: Actions? = nil) {
-        let undoManager = self.environment.undoManager
-        let undoFileEffects = undoManager.createUndoEffects(undoEvents: undoEvents,
-                                                            redoEvents: redoEvents)
-
-        self.saveUndoHistory(oldState: oldState,
-                             newState: newState,
-                             undoFileEffects: undoFileEffects)
+    func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
+                                          oldSchema: EncoderDelegate.CodableDocument,
+                                          newSchema: EncoderDelegate.CodableDocument,
+                                          undoEvents: Actions? = nil,
+                                          redoEvents: Actions? = nil) where EncoderDelegate: DocumentEncodableDelegate {
+        let undoCallback = {
+            guard let undoEvents = undoEvents else {
+                return
+            }
+            
+            // TODO: do we need dispatch?
+            DispatchQueue.main.async {
+                for action in undoEvents {
+                    dispatch(action)
+                }
+            }
+        }
+        
+        let redoCallback = {
+            guard let redoEvents else {
+                return
+            }
+            
+            DispatchQueue.main.async {
+                for action in redoEvents {
+                    dispatch(action)
+                }
+            }
+        }
+        
+        return self.saveUndoHistory(from: encoderDelegate,
+                                    oldSchema: oldSchema,
+                                    newSchema: newSchema,
+                                    undoEffectsData: .init(undoCallback: undoCallback,
+                                                           redoCallback: redoCallback))
+    }
+    
+    func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
+                                          oldSchema: EncoderDelegate.CodableDocument,
+                                          newSchema: EncoderDelegate.CodableDocument,
+                                          undoEffectsData: UndoEffectsData? = nil) where EncoderDelegate: DocumentEncodableDelegate {
+        
+        // Update undo
+        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in
+            delegate.updateOnUndo(schema: oldSchema)
+            
+            undoEffectsData?.undoCallback?()
+            
+            self.saveUndoHistory(from: delegate,
+                                 oldSchema: newSchema,
+                                 newSchema: oldSchema,
+                                 undoEffectsData: undoEffectsData?.createRedoEffects())
+        }
     }
 
     /// Saves undo history of some graph using copies of StitchDocument.
     @MainActor
     func saveUndoHistory(oldState: StitchDocument,
                          newState: StitchDocument,
-                         undoFileEffects: UndoFileEffects?) {
+                         undoFileEffects: UndoFileEffects? = nil) {
         let undoManager = self.environment.undoManager
 
         undoManager.undoManager.registerUndo(withTarget: self) { _ in
@@ -224,6 +267,18 @@ extension StitchStore {
             self.saveUndoHistory(undoEvents: onRedoUndoEvents,
                                  redoEvents: onRedoRedoEvents)
         }
+    }
+}
+
+struct UndoEffectsData {
+    var undoCallback: (() -> Void)?
+    var redoCallback: (() -> Void)?
+}
+
+extension UndoEffectsData {
+    func createRedoEffects() -> UndoEffectsData {
+        .init(undoCallback: redoCallback,
+              redoCallback: undoCallback)
     }
 }
 

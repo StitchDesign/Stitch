@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import StitchSchemaKit
 
 public typealias Anchoring = CurrentAnchoring.Anchoring
@@ -101,3 +102,97 @@ public typealias LayerInputKeyPathType = CurrentLayerInputKeyPathType.LayerInput
 public typealias UnpackedPortType = CurrentUnpackedPortType.UnpackedPortType
 public typealias StitchTransform = CurrentStitchTransform.StitchTransform
 public typealias StitchComponent = CurrentStitchComponent.StitchComponent
+public typealias ComponentEntity = CurrentComponentEntity.ComponentEntity
+public typealias GraphEntity = CurrentGraphEntity.GraphEntity
+public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
+public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
+
+public struct StitchDocumentVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchDocument
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
+public struct StitchComonentVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchComponent
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
+extension StitchDocumentVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1:
+            return StitchDocument_V1.StitchDocument.self
+        case ._V2:
+            return StitchDocument_V2.StitchDocument.self
+        case ._V3:
+            return StitchDocument_V3.StitchDocument.self
+        case ._V4:
+            return StitchDocument_V4.StitchDocument.self
+        case ._V5:
+            return StitchDocument_V5.StitchDocument.self
+        case ._V6:
+            return StitchDocument_V6.StitchDocument.self
+        case ._V7:
+            return StitchDocument_V7.StitchDocument.self
+        case ._V8:
+            return StitchDocument_V8.StitchDocument.self
+        case ._V9:
+            return StitchDocument_V9.StitchDocument.self
+        case ._V10:
+            return StitchDocument_V10.StitchDocument.self
+        case ._V11:
+            return StitchDocument_V11.StitchDocument.self
+        case ._V12:
+            return StitchDocument_V12.StitchDocument.self
+        case ._V13:
+            return StitchDocument_V13.StitchDocument.self
+        case ._V14:
+            return StitchDocument_V14.StitchDocument.self
+        case ._V15:
+            return StitchDocument_V15.StitchDocument.self
+        case ._V16:
+            return StitchDocument_V16.StitchDocument.self
+        case ._V17:
+            return StitchDocument_V17.StitchDocument.self
+        case ._V18:
+            return StitchDocument_V18.StitchDocument.self
+        case ._V19:
+            return StitchDocument_V19.StitchDocument.self
+        case ._V20:
+            return StitchDocument_V20.StitchDocument.self
+        case ._V21:
+            return StitchDocument_V21.StitchDocument.self
+        case ._V22:
+            return StitchDocument_V22.StitchDocument.self
+        case ._V23:
+            return StitchDocument_V23.StitchDocument.self
+        case ._V24:
+            return StitchDocument_V24.StitchDocument.self
+        case ._V25:
+            return StitchDocument_V25.StitchDocument.self
+        }
+    }
+}
+
+extension StitchComonentVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23, ._V24:
+            fatalError("No StitchComponent version expected before v24.")
+            
+        case ._V25:
+            return StitchComponent_V25.StitchComponent.self
+        }
+    }
+}
+

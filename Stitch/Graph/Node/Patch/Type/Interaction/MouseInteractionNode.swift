@@ -48,7 +48,7 @@ let MOUSE_NODE_DEFAULT_OUTPUTS: PortValuesList = [
     [.position(.zero)]
 ]
 
-extension StitchDocumentViewModel {
+extension GraphState {
     var mouseNodes: IdSet {
         self.nodes.values
             .filter { $0.patch == .mouse }

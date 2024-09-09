@@ -65,7 +65,7 @@ extension StitchDocumentViewModel {
             graphMovement.zoomData.zoom,
             graphView: self.graphUI.frame,
             graphOffset: visibleGraph.localPosition,
-            groupNodeFocused: self.graphUI.groupNodeFocused)
+            groupNodeFocused: self.graphUI.groupNodeFocused?.groupNodeId)
 
         let graphBoundsAtStart: GraphOriginAtStart? = self.graphMovement.graphBoundOriginAtStart
 

@@ -15,15 +15,9 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
                               currentEstimatedFPS: StitchFPS) {
         // log("graphStepIncremented called")
         
-        // Tracks whether any graph-recalc changes were actually made.
-        // If no, we can return nil, which ensures no render cycles are made.
-        var shouldRunGraph = false
-        
         self.graphStepManager.lastGraphTime = elapsedProjectTime
         self.graphStepManager.lastGraphAnimationTime = elapsedProjectTime
         self.graphStepManager.estimatedFPS = currentEstimatedFPS
-                
-        var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
         
         let graphTime = self.graphStepManager.graphTime
         
@@ -36,6 +30,18 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
                 self.graphUI.lastMomentumRunTime = graphTime
             }
         }
+
+        self.graph.graphStepIncremented()
+    }
+}
+
+extension GraphState {
+    @MainActor func graphStepIncremented() {
+        var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
+        
+        let graphTime = self.graphStepManager.graphTime
+        let components = self.nodes.values
+            .compactMap { $0.nodeType.componentNode }
         
         // If we have actively-interacted-with mouse nodes, we may need reset their velocity outputs
         if let lastMouseMovement = self.graphUI.lastMouseNodeMovement,
@@ -49,9 +55,25 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
             }
             
             nodesToRunOnGraphStep = nodesToRunOnGraphStep.union(mouseNodeIds)
+            
+            // Add components containing mouse nodes
+            nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
+                if !component.graph.mouseNodes.isEmpty,
+                   let nodeId = component.nodeDelegate?.id {
+                    nodesSet.insert(nodeId)
+                }
+            }
         }
         
-        if nodesToRunOnGraphStep.isEmpty && !shouldRunGraph {
+        // Check if any components need to be run
+        nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
+            if !component.graph.nodesToRunOnGraphStep.isEmpty,
+               let nodeId = component.nodeDelegate?.id {
+                nodesSet.insert(nodeId)
+            }
+        }
+        
+        if nodesToRunOnGraphStep.isEmpty {
             /*
              Usually we can return `nil` if there were no must run nodes
              or if we didn't need to recalculate the graph;

@@ -30,6 +30,7 @@ extension LayerViewModel {
 
 struct PreviewGroupLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList // child layers for THIS group
     let isPinnedViewRendering: Bool
@@ -112,7 +113,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: document.pinMap,
+                pinMap: graph.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -138,7 +139,7 @@ struct PreviewGroupLayer: View {
                 scale: scale))
                 
             .modifier(PreviewLayerRotationModifier(
-                document: document,
+                graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -161,7 +162,7 @@ struct PreviewGroupLayer: View {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                document: document,
+                graph: graph,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition, 
@@ -171,6 +172,7 @@ struct PreviewGroupLayer: View {
         // SwiftUI gestures must be applied after .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
                 document: document,
+                graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,
@@ -182,6 +184,7 @@ struct PreviewGroupLayer: View {
     @ViewBuilder
     private var groupLayer: some View {
         PreviewLayersView(document: document,
+                          graph: graph,
                           layers: layersInGroup,
 //                          isPinnedViewRendering: isPinnedViewRendering,
                           // This Group's size will be the `parentSize` for the `layersInGroup`

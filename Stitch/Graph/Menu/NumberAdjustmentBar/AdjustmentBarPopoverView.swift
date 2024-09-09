@@ -93,7 +93,7 @@ struct AdjustmentBarPopoverView: View {
             // Only persist when we close
             Task(priority: .background) { [weak graph] in
                 // TODO: test undo on adjustment bar close
-                let _ = graph?.encodeProject()
+                let _ = graph?.encodeProjectInBackground()
                 graph?.storeDelegate?.saveUndoHistory(undoEvents: [undoEvent],
                                                       redoEvents: [])
             }

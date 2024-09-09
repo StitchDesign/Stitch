@@ -10,12 +10,13 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-extension StitchDocumentViewModel {
+extension GraphState {
     /// Gets all node IDs except for those in groups.
     var allNodesToCalculate: NodeIdSet {
         self.nodes.values
             .compactMap {
-                guard $0.kind != .group else {
+                // Ignore group nodes
+                guard $0.nodeType.groupNode == nil else {
                     return nil
                 }
                 

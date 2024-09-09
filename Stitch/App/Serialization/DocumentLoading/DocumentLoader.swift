@@ -95,26 +95,23 @@ extension DocumentLoader {
     }
 
     func installDocument(document: StitchDocument) async throws {
+        let rootUrl = document.rootUrl
+        
         // Encode projecet directories
-        await document.encodeDocumentContents()
+        await document.encodeDocumentContents(documentRootUrl: rootUrl)
 
         // Create versioned document
-        try await self.encodeVersionedContents(document: document)
-    }
-
-    // Note: this fails if file does not already exist at path
-    func encodeVersionedContents(document: StitchDocument,
-                                 directoryUrl: URL? = nil) async throws {
-        try Self.encodeDocument(document, to: directoryUrl)
-
-        // Gets home screen to update with latest doc version
-        await dispatch(DirectoryUpdated())
+        try Self.encodeDocument(document, to: rootUrl)
     }
     
-    static func encodeDocument(_ document: StitchDocument,
-                               to directoryURL: URL? = nil) throws {
+    static func encodeDocument(_ document: StitchDocument) throws {
+        try Self.encodeDocument(document, to: document.rootUrl)
+    }
+    
+    static func encodeDocument<Document>(_ document: Document,
+                                         to directoryURL: URL) throws where Document: StitchDocumentEncodable {
         // Default directory is known by document, sometimes we use a temp URL
-        let directoryURL = directoryURL ?? document.rootUrl
+        let directoryURL = document.getEncodingUrl(documentRootUrl: directoryURL)
         
         let versionedData = try getStitchEncoder().encode(document)
         let filePath = directoryURL.appendingVersionedSchemaPath()

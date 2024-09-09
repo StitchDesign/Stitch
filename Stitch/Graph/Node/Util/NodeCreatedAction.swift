@@ -15,8 +15,11 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     let choice: NodeKind
     
     func handle(state: StitchDocumentViewModel) {
-        let _ = state.nodeCreated(choice: choice)
-        state.graph.encodeProjectInBackground()
+        guard let node = state.nodeCreated(choice: choice) else {
+            fatalErrorIfDebug()
+            return
+        }
+        state.visibleGraph.persistNewNode(node)
     }
 }
 
@@ -76,7 +79,7 @@ extension StitchDocumentViewModel {
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
         node.getAllCanvasObservers().forEach {
-            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId            
+            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
@@ -93,7 +96,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.sidebarListState = getMasterListFrom(
                 layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
-                orderedSidebarItems: self.orderedSidebarLayers)
+                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
             
             // TODO: why is this necessary?
             _updateStateAfterListChange(
@@ -101,15 +104,11 @@ extension StitchDocumentViewModel {
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
                 graphState: self.visibleGraph)
         }
-
-        // Little hack to update node data so first render works proper
-        self.update(from: self.createSchema())
-
-        // TODO: handle camera undo event
-        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
-        if choice == .patch(.cameraFeed) {
-            undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
-        }
+        
+        node.initializeDelegate(graph: self.visibleGraph,
+                                document: self)
+        
+        self.visibleGraph.calculateFullGraph()
 
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
@@ -167,7 +166,6 @@ extension StitchDocumentViewModel {
                     id: newNodeId,
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
-                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph) else {
                 #if DEBUG
                 fatalError()
@@ -194,9 +192,22 @@ extension StitchDocumentViewModel {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     graphTime: graphTime,
-                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph)
             } // choice
         }
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func persistNewNode(_ node: PatchNode) {
+        var undoEvents = [Action]()
+        
+        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
+        if node.kind == .patch(.cameraFeed) {
+            undoEvents.append(CameraFeedNodeDeleted(nodeId: node.id))
+        }
+        
+        self.encodeProjectInBackground(undoEvents: undoEvents)
     }
 }
