@@ -112,6 +112,10 @@ extension NodeViewModel: NodeCalculatable {
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate?.allLoopedValues
             }
+//        case .component(let componentData):
+//            return componentData.canvasEntity.inputViewModels.compactMap {
+//                $0.rowDelegate?.allLoopedValues
+//            }
         }
     }
     

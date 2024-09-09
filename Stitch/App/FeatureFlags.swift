@@ -12,4 +12,5 @@ import StitchSchemaKit
 struct FeatureFlags {
     static let USE_COMMENT_BOX_FLAG: Bool = false
     static let SUPPORTS_LAYER_UNPACK = false
+    static let USE_COMPONENTS = true
 }

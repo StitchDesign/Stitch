@@ -268,7 +268,7 @@ typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
 
 struct StitchComponentCopiedResult: Sendable {
-    let component: StitchComponent
+    let component: StitchClipboardContent
     let effects: AsyncCallbackList
 }
 
@@ -280,9 +280,9 @@ extension Array where Element == AsyncCallback {
     }
 }
 
-extension StitchComponent {
+extension StitchClipboardContent {
     /// Creates fresh IDs for all data in NodeEntities
-    func changeIds() -> StitchComponent {
+    func changeIds() -> StitchClipboardContent {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
 
         // Create mapping dictionary from old NodeID's to new NodeID's
@@ -379,8 +379,8 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
-        let copiedComponent = StitchComponent(nodes: selectedNodes,
-                                              orderedSidebarLayers: selectedSidebarLayers)
+        let copiedComponent = StitchClipboardContent(nodes: selectedNodes,
+                                                     orderedSidebarLayers: selectedSidebarLayers)
 
         let newImportedFilesDirectory = copiedComponent.rootUrl.appendingStitchMediaPath()
         
@@ -424,38 +424,51 @@ extension SidebarLayerList {
     }
 }
 
-extension StitchComponent: MediaDocumentEncodable {
+
+// TODO: move
+protocol StitchComponentable: Codable {
+    var nodes: [NodeEntity] { get set }
+    var orderedSidebarLayers: SidebarLayerList { get set }
+}
+
+//extension StitchComponent: StitchComponentable { }
+
+struct StitchClipboardContent: StitchComponentable {
+    var nodes: [NodeEntity]
+    var orderedSidebarLayers: SidebarLayerList
+}
+
+extension StitchClipboardContent: MediaDocumentEncodable {
     var rootUrl: URL {
-        // TODO: adjust for permanently stored components
         StitchFileManager.tempDir
-            .appendingPathComponent(self.id.uuidString,
-                                    conformingTo: .stitchComponent)
+            .appendingPathComponent("copied-data",
+                                    conformingTo: .stitchClipboard)
     }
 
     static let dataJsonName = "data"
+    
     var dataJsonUrl: URL {
         self.rootUrl.appendingDataJsonPath()
     }
 }
 
-extension StitchComponent: Transferable {
+extension StitchClipboardContent: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(contentType: .stitchComponent,
-                           exporting: Self.exportComponent,
-                           importing: Self.importComponent)
+        FileRepresentation(exportedContentType: .stitchClipboard,
+                           exporting: Self.exportComponent)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchComponent) async -> SentTransferredFile {
+    static func exportComponent(_ component: StitchClipboardContent) async -> SentTransferredFile {
         await component.encodeDocumentContents()
 
         let url = component.dataJsonUrl
-        await StitchComponent.exportComponent(component, url: url)
+        await StitchClipboardContent.exportComponent(component, url: url)
         return SentTransferredFile(url)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchComponent, url: URL) async {
+    static func exportComponent(_ component: StitchClipboardContent, url: URL) async {
         do {
             let encodedData = try getStitchEncoder().encode(component)
             try encodedData.write(to: url, options: .atomic)
@@ -465,30 +478,6 @@ extension StitchComponent: Transferable {
             fatalError()
             #endif
         }
-    }
-
-    @Sendable
-    static func importComponent(_ received: ReceivedTransferredFile) async -> StitchComponent {
-        fatalError()
-        //        do {
-        //            guard let doc = try await Self.importDocument(from: received.file,
-        //                                                          isImport: true) else {
-        //                //                #if DEBUG
-        //                //                fatalError()
-        //                //                #endif
-        //                DispatchQueue.main.async {
-        //                    dispatchStitch(.displayError(.unsupportedProject))
-        //                }
-        //                return StitchDocument()
-        //            }
-        //
-        //            return doc
-        //        } catch {
-        //            #if DEBUG
-        //            fatalError()
-        //            #endif
-        //            return StitchDocument()
-        //        }
     }
 }
 
@@ -518,7 +507,7 @@ extension DocumentEncoder {
     func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult) async {
         let pasteboard = UIPasteboard.general
         
-        let _ = await StitchComponent.exportComponent(copiedComponentResult.component)
+        let _ = await StitchClipboardContent.exportComponent(copiedComponentResult.component)
 
         // Process imported media side effects
         await copiedComponentResult.effects.processEffects()

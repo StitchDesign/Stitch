@@ -12,6 +12,17 @@ enum NodeViewModelType {
     case patch(PatchNodeViewModel)
     case layer(LayerNodeViewModel)
     case group(CanvasItemViewModel)
+    case component(UUID)
+}
+
+final class StitchComponentViewModel {
+    let id: UUID
+    let canvas: CanvasItemViewModel
+    
+    init(id: UUID, canvas: CanvasItemViewModel) {
+        self.id = id
+        self.canvas = canvas
+    }
 }
 
 extension NodeViewModelType {
@@ -47,6 +58,9 @@ extension NodeViewModelType {
             layerNodeViewModel.initializeDelegate(node)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node)
+        case .component:
+            // Node data for components isn't saved in here
+            return
         }
     }
 
@@ -73,6 +87,8 @@ extension NodeViewModelType {
             return .layer(layerNodeViewModel.createSchema())
         case .group(let canvasNodeViewModel):
             return .group(canvasNodeViewModel.createSchema())
+//        case .component(let id):
+//            return .component(id)
         }
     }
 }

@@ -192,6 +192,7 @@
 		B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */; };
 		B5B43FCC2B4F565300C6A847 /* NodeDefinition.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */; };
 		B5B8166B2BBD105C003EA2AD /* NodeIOCoordiante.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */; };
+		B5BC6F412C718BF2004541CD /* StitchComponentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */; };
 		B5C0E0A72998813A00322A1E /* StitchMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */; };
 		B5C0E0AB299AD5FE00322A1E /* Camera App.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */; };
 		B5C0E0AD299AD69D00322A1E /* Earth Video.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B5C0E0AC299AD69D00322A1E /* Earth Video.stitch */; };
@@ -1096,6 +1097,7 @@
 		B5B20BB1279A171E008A2B5A /* GestureHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureHostingController.swift; sourceTree = "<group>"; };
 		B5B43FCB2B4F565300C6A847 /* NodeDefinition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeDefinition.swift; sourceTree = "<group>"; };
 		B5B8166A2BBD105C003EA2AD /* NodeIOCoordiante.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeIOCoordiante.swift; sourceTree = "<group>"; };
+		B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentUtil.swift; sourceTree = "<group>"; };
 		B5C0E0A62998813A00322A1E /* StitchMediaObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMediaObject.swift; sourceTree = "<group>"; };
 		B5C0E0AA299AD5FE00322A1E /* Camera App.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Camera App.stitch"; sourceTree = "<group>"; };
 		B5C0E0AC299AD69D00322A1E /* Earth Video.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Earth Video.stitch"; sourceTree = "<group>"; };
@@ -2029,6 +2031,7 @@
 				EC4081242C0114060047989F /* StitchCustomURL.swift */,
 				EC4081282C014E310047989F /* VersionedURL.swift */,
 				ECB5361E26DD7A9600C3BE97 /* StitchFolderUtil.swift */,
+				B5BC6F402C718BF2004541CD /* StitchComponentUtil.swift */,
 			);
 			path = File;
 			sourceTree = "<group>";
@@ -5169,6 +5172,7 @@
 				20B8D4F825D75FAD005D71C5 /* Coercers.swift in Sources */,
 				EC3BAABE299D83190047EFF7 /* StitchRootView.swift in Sources */,
 				ECB18FCA2681469B00D439BE /* VideoHelpers.swift in Sources */,
+				B5BC6F412C718BF2004541CD /* StitchComponentUtil.swift in Sources */,
 				ECA92A1C260A6A0900281B52 /* SwitchNode.swift in Sources */,
 				ECA56F79296736EB00ABE9A4 /* CubicBezierUtils.swift in Sources */,
 				EC55EB912936A936005EF38B /* DateAndTimeFormatterNode.swift in Sources */,

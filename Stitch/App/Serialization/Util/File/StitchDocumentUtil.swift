@@ -23,6 +23,7 @@ extension UTType {
     static let stitchDocument: UTType = UTType(exportedAs: "app.stitchdesign.stitch.document")
     static let stitchProjectData: UTType = UTType(exportedAs: "app.stitchdesign.stitch.projectdata")
     static let stitchComponent: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
+    static let stitchClipboard: UTType = UTType(exportedAs: "app.stitchdesign.stitch.clipboard")
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
@@ -45,11 +46,11 @@ extension StitchDocument: StitchDocumentIdentifiable {
 }
 
 extension StitchDocumentIdentifiable {
-    var uniqueInternalDirectoryName: String {
-        Self.getFileName(projectId: self.projectId)
+    static func getUniqueInternalDirectoryName(from id: UUID) -> String {
+        Self.getFileName(projectId: id)
     }
     
-    static func getFileName(projectId: ProjectId) -> String {
+    static func getFileName(projectId: UUID) -> String {
         "stitch--\(projectId)"
     }
 
@@ -59,17 +60,21 @@ extension StitchDocumentIdentifiable {
         let fileExt = "\(versionString).json"
         return fileExt
     }
+    
+    static func getRootUrl(from documentId: UUID) -> URL {
+        StitchFileManager.documentsURL
+            .url
+            .appendingStitchProjectDataPath(documentId)
+    }
 
     /// URL location for document contents, i.e. imported media
     var rootUrl: URL {
-        StitchFileManager.documentsURL
-            .url
-            .appendingStitchProjectDataPath(self)
+        Self.getRootUrl(from: self.projectId)
     }
 
     /// URL location for recently deleted project.
     private var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self)
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.projectId)
     }
 
     func getUrl(forRecentlyDeleted: Bool = false) -> URL {
