@@ -35,7 +35,6 @@ final class LayerInputObserver {
      */
     var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
-    @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
         
         self.layer = schema.layer
@@ -118,7 +117,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
             return .unpacked
@@ -147,7 +145,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:
@@ -157,7 +154,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var values: PortValues {
         switch self.mode {
         case .packed:
@@ -167,13 +163,11 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var graphDelegate: GraphDelegate? {
         // Hacky solution, just get row observer delegate from packed data
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
     }
     
-    @MainActor 
     var activeValue: PortValue {
         let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
         let values = self.values
@@ -195,8 +189,7 @@ extension LayerInputObserver {
             return unpackedObserver.allPorts
         }
     }
-    
-    @MainActor 
+     
     func initializeDelegate(_ node: NodeDelegate,
                             layer: Layer) {
                 
@@ -273,7 +266,7 @@ extension LayerInputObserver {
             self._packedData.rowObserver.updateValues(values)
         }
         
-        self.graphDelegate?.updateGraphData(document: nil)
+        self.graphDelegate?.updateGraphData()
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.

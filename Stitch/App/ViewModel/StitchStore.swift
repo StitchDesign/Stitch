@@ -88,4 +88,8 @@ extension StitchStore {
     var currentGraph: GraphState? {
         self.currentDocument?.graph
     }
+    
+    var undoManager: StitchUndoManager {
+        self.environment.undoManager
+    }
 }

@@ -94,14 +94,12 @@ extension Layer {
                      position: CGSize,
                      zIndex: Double,
                      firstCreation: Bool = true,
-                     activeIndex: ActiveIndex,
                      graphDelegate: GraphDelegate?) -> NodeViewModel? {
 
         let node = self.layerGraphNode.createViewModel(
             id: id,
             position: position.toCGPoint,
             zIndex: zIndex,
-            activeIndex: activeIndex,
             graphDelegate: graphDelegate)
 
         /*

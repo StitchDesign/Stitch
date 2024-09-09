@@ -54,12 +54,14 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
     }
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(document: document,
+                         graph: graph,
                          layerViewModel: viewModel,
                          isPinnedViewRendering: isPinnedViewRendering,
                          interactiveLayer: viewModel.interactiveLayer,

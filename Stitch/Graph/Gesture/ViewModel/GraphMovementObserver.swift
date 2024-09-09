@@ -152,4 +152,11 @@ extension GraphMovementObserver {
         self.localPreviousPosition = self.localPosition
         self.momentumState = resetMomentum(self.momentumState)
     }
+    
+    func stopNodeMovement() {
+        self.draggedCanvasItem = nil
+        self.lastCanvasItemTranslation = .zero
+        self.accumulatedGraphTranslation = .zero
+        self.runningGraphTranslationBeforeNodeDragged = nil
+    }
 }

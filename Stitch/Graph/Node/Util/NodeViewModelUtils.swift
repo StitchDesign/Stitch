@@ -15,9 +15,7 @@ extension NodeViewModel {
                                         position: CGPoint = .zero,
                                         zIndex: CGFloat = .zero,
                                         parentGroupNodeId: GroupNodeId? = nil,
-                                        activeIndex: ActiveIndex,
                                         graphDelegate: GraphDelegate?) {
-        var nodeType: NodeTypeEntity
         let kind = T.graphKind.kind
         let userVisibleType = kind.graphNode?.graphKind.patch?.defaultUserVisibleType
         
@@ -57,25 +55,35 @@ extension NodeViewModel {
                 userVisibleType: patchNode.defaultUserVisibleType,
                 splitterNode: splitter,
                 mathExpression: patchNode.patch == .mathExpression ? "" : nil)
-            nodeType = .patch(patchNode)
+            
+            let nodeEntity = NodeEntity(id: id,
+                                        nodeTypeEntity: .patch(patchNode),
+                                        title: graphNode.defaultTitle)
+            let patchNodeViewModel = PatchNodeViewModel(from: patchNode)
+            
+            self.init(from: nodeEntity,
+                      nodeType: .patch(patchNodeViewModel))
+            
 
         case .layer(let layerNode):
-            var layerNode = LayerNodeEntity(nodeId: id,
+            let layerNode = LayerNodeEntity(nodeId: id,
                                             layer: layerNode.layer,
                                             hasSidebarVisibility: true,
                                             layerGroupId: nil,
                                             isExpandedInSidebar: nil)
-            nodeType = .layer(layerNode)
+            let nodeEntity = NodeEntity(id: id,
+                                        nodeTypeEntity: .layer(layerNode),
+                                        title: graphNode.defaultTitle)
+            let layerNodeViewModel = LayerNodeViewModel(from: layerNode)
+            
+            self.init(from: nodeEntity,
+                      nodeType: .layer(layerNodeViewModel))
         }
-
-        let nodeEntity = NodeEntity(id: id,
-                                    nodeTypeEntity: nodeType,
-                                    title: graphNode.defaultTitle)
-        self.init(from: nodeEntity,
-                  activeIndex: activeIndex)
         
-        if let graphDelegate = graphDelegate {
-            self.initializeDelegate(graph: graphDelegate)
+        if let graphDelegate = graphDelegate,
+           let document = graphDelegate.documentDelegate {
+            self.initializeDelegate(graph: graphDelegate,
+                                    document: document)
         }
     }
 
@@ -117,7 +125,6 @@ extension NodeViewModel {
     @MainActor
     static var mock: NodeViewModel {
         NodeViewModel(from: SplitterPatchNode.self,
-                      activeIndex: .init(.zero),
                       graphDelegate: nil)
     }
 
@@ -207,6 +214,10 @@ extension NodeViewModel {
 
     var layerNode: LayerNodeViewModel? {
         nodeType.layerNode
+    }
+    
+    var componentNode: StitchComponentViewModel? {
+        nodeType.componentNode
     }
 
     @MainActor

@@ -22,7 +22,7 @@ protocol NodeDelegate: AnyObject {
     
     var userVisibleType: UserVisibleType? { get }
     
-    @MainActor var nodeType: NodeViewModelType { get }
+    var nodeType: NodeViewModelType { get }
     
     @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
     
@@ -34,7 +34,7 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var outputsRowCount: Int { get }
     
-    @MainActor var activeIndex: ActiveIndex { get }
+    var activeIndex: ActiveIndex { get }
     
     @MainActor var displayTitle: String { get }
 
@@ -106,6 +106,10 @@ extension NodeDelegate {
             return canvas.inputViewModels.compactMap {
                 $0.rowDelegate
             }
+        case .component(let component):
+            return component.canvas.inputViewModels.compactMap {
+                $0.rowDelegate
+            }
         }
     }
     
@@ -136,7 +140,7 @@ extension NodeDelegate {
         }
     }
     
-    @MainActor var layerNodeViewModel: LayerNodeViewModel? {
+    var layerNodeViewModel: LayerNodeViewModel? {
         switch self.nodeType {
         case .layer(let layerNode):
             return layerNode

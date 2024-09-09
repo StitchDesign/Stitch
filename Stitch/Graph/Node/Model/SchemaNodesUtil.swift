@@ -9,7 +9,6 @@ import Foundation
 import StitchSchemaKit
 
 extension [NodePortInputEntity] {
-    @MainActor
     func createInputObservers(nodeId: NodeId,
                               kind: NodeKind,
                               userVisibleType: UserVisibleType?) -> [InputNodeRowObserver] {
@@ -48,7 +47,6 @@ extension [NodePortInputEntity] {
                                         nodeKind: kind,
                                         userVisibleType: userVisibleType,
                                         id: .init(portId: portId, nodeId: nodeId),
-                                        activeIndex: .init(.zero),
                                         upstreamOutputCoordinate: schemaData.portData.upstreamConnection)
         }
     }
@@ -111,7 +109,6 @@ extension NodePortInputEntity {
 }
 
 extension NodeRowDefinitions {
-    @MainActor
     func createOutputObservers(nodeId: NodeId,
                                // Pass in values directly from eval
                                values: PortValuesList,
@@ -122,16 +119,14 @@ extension NodeRowDefinitions {
                                   nodeKind: .patch(patch),
                                   userVisibleType: userVisibleType,
                                   id: .init(portId: portId, nodeId: nodeId),
-                                  activeIndex: .init(.zero),
                                   upstreamOutputCoordinate: nil)
         }
     }
 
-    @MainActor
     func createOutputLayerPorts(schema: LayerNodeEntity,
-                               // Pass in values directly from eval
-                               valuesList: PortValuesList,
-                               userVisibleType: UserVisibleType?) -> [OutputLayerNodeRowData] {
+                                // Pass in values directly from eval
+                                valuesList: PortValuesList,
+                                userVisibleType: UserVisibleType?) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
         let kind = NodeKind.layer(schema.layer)
         
@@ -145,8 +140,7 @@ extension NodeRowDefinitions {
             let observer = OutputNodeRowObserver(values: values,
                                                  nodeKind: kind,
                                                  userVisibleType: userVisibleType,
-                                                 id: .init(portId: portId, nodeId: nodeId),
-                                                 activeIndex: .init(.zero))
+                                                 id: .init(portId: portId, nodeId: nodeId))
 
             if let canvasEntity = canvasEntity {
                 canvasObserver = CanvasItemViewModel(

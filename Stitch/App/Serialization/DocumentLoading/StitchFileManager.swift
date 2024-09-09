@@ -12,7 +12,7 @@ import StitchSchemaKit
 @Observable
 final class StitchFileManager: FileManager, MiddlewareService {
     var syncStatus: iCloudSyncStatus = .offline
-
+    
     static var documentsURL: DocumentsURL {
         switch getCloudDocumentURL() {
         case .success(let documentsURL):
@@ -22,109 +22,23 @@ final class StitchFileManager: FileManager, MiddlewareService {
             return getLocalDocumentURL()
         }
     }
-
+    
     static var tempDir: URL {
         URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
     }
-
+    
     /// File removal abstraction which enables possible usage of temporary storage for recently deleted items, enabling undo/redo support on deleted files.
-    private static func removeItem(at URL: URL) -> StitchFileVoidResult {
+    static func removeItem(at URL: URL) -> StitchFileVoidResult {
         do {
             try Self.default.removeItem(at: URL)
         } catch {
             log("removeStitchItem error: \(error)")
             return .failure(.deleteFileFailed)
         }
-
-        return .success
-    }
-
-    static func removeStitchMedia(at URL: URL,
-                                  currentProject: StitchDocumentIdentifiable,
-                                  permanently: Bool = false) async -> StitchFileVoidResult {
-        if !permanently {
-            // Copy file to recentely deleted URL
-            let _ = await self.copyToMediaDirectory(originalURL: URL,
-                                                    in: currentProject,
-                                                    forRecentlyDeleted: true)
-        }
-        return Self.removeItem(at: URL)
-    }
-
-    @MainActor
-    static func removeStitchProject(url: URL,
-                                    projectId: ProjectId,
-                                    permanently: Bool = false) -> StitchFileVoidResult {
-        
-        // let _ = url.startAccessingSecurityScopedResource()
-        
-        // TODO: fix 'Undo Delete' on iPhone
-        let allowUndo = !permanently && !isPhoneDevice()
-        
-        if allowUndo {
-            
-            log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId) at url \(url)")
-            
-             log("StitchFileManager.removeStitchProject: url.absoluteString \(url.absoluteString)")
-
-            // Remove any possibly existing file with same name
-            let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
-                .appendingStitchProjectDataPath(projectId)
-            
-             log("StitchFileManager.removeStitchProject: recentlyDeletedProjectUrl: \(recentlyDeletedProjectUrl)")
-            
-            // Silently fail if it doesn't exist
-//            try! Self.default.removeItem(at: recentlyDeletedProjectUrl)
-            if let _ = try? Self.default.removeItem(at: recentlyDeletedProjectUrl) {
-                log("StitchFileManager.removeStitchProject: failed to delete \(recentlyDeletedProjectUrl)")
-            }
-            
-            do {
-                // Save to recently deleted
-                // TODO: Encode project on removal
-                //                fatalError()
-                
-                try Self.default.moveItem(at: url,
-                                          to: recentlyDeletedProjectUrl)
-                
-                //                try Self.default.moveItem(atPath: url.absoluteString,
-                //                                          toPath: recentlyDeletedProjectUrl.absoluteString)
-                
-                //                try self.moveItem(at: url,
-                //                                  to: recentlyDeletedProjectUrl)
-            } catch {
-                log("StitchFileManager.removeStitchProject error: \(error)")
-                return .failure(.deleteFileFailed)
-            }
-        } else {
-            log("StitchFileManager.removeStitchProject: Will permanently delete StitchProject \(projectId) at url \(url)")
-            do {
-                try Self.default.removeItem(at: url)
-            } catch {
-                log("StitchFileManager.removeStitchProject error: \(error)")
-                return .failure(.deleteFileFailed)
-            }
-        }
-        
-        // url.stopAccessingSecurityScopedResource()
         
         return .success
     }
-
-    static func getMediaURL(for mediaKey: MediaKey,
-                            document: StitchDocumentIdentifiable,
-                            forRecentlyDeleted: Bool) -> URLResult {
-
-        let importedFiles = Self.readMediaFilesDirectory(document: document,
-                                                         forRecentlyDeleted: forRecentlyDeleted)
-
-        guard let url = importedFiles.first(where: { $0.mediaKey == mediaKey }) else {
-            return .failure(.mediaNotFoundInLibrary)
-        }
-
-        return .success(url)
-    }
-
+    
     /// Zips contents of self to new URL.
     func zip(from fromURL: URL, to: URL) -> StitchFileVoidResult {
         do {
@@ -166,7 +80,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
 
     static func readDirectoryContents(_ directoryURL: URL) -> DirectoryContentsResult {
         do {
-            let urls = try Self.default.contentsOfDirectory(
+            let urls = try FileManager.default.contentsOfDirectory(
                 at: directoryURL,
                 includingPropertiesForKeys: nil)
             return .success(urls)
@@ -177,7 +91,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     }
 
     // create the project dir, if it doesn't already exist
-    static func createDirectories(at url: URL, withIntermediate: Bool) async throws {
+    static func createDirectories(at url: URL, withIntermediate: Bool) throws {
         if !FileManager.default.fileExists(atPath: url.relativePath) {
             log("createDirectories: will create dir")
 
@@ -186,5 +100,89 @@ final class StitchFileManager: FileManager, MiddlewareService {
                 withIntermediateDirectories: withIntermediate,
                 attributes: nil)
         }
+    }
+    
+    @MainActor
+    static func removeStitchProject(url: URL,
+                                    projectId: ProjectId,
+                                    permanently: Bool = false) -> StitchFileVoidResult {
+        
+        // let _ = url.startAccessingSecurityScopedResource()
+        
+        // TODO: fix 'Undo Delete' on iPhone
+        let allowUndo = !permanently && !isPhoneDevice()
+        
+        if allowUndo {
+            
+            log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId) at url \(url)")
+            
+             log("StitchFileManager.removeStitchProject: url.absoluteString \(url.absoluteString)")
+
+            // Remove any possibly existing file with same name
+            let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
+                .appendingStitchProjectDataPath(projectId)
+            
+             log("StitchFileManager.removeStitchProject: recentlyDeletedProjectUrl: \(recentlyDeletedProjectUrl)")
+            
+            // Silently fail if it doesn't exist
+//            try! Self.default.removeItem(at: recentlyDeletedProjectUrl)
+            if let _ = try? StitchFileManager.default.removeItem(at: recentlyDeletedProjectUrl) {
+                log("StitchFileManager.removeStitchProject: failed to delete \(recentlyDeletedProjectUrl)")
+            }
+            
+            do {
+                // Save to recently deleted
+                // TODO: Encode project on removal
+                //                fatalError()
+                
+                try StitchFileManager.default.moveItem(at: url,
+                                                       to: recentlyDeletedProjectUrl)
+                
+                //                try Self.default.moveItem(atPath: url.absoluteString,
+                //                                          toPath: recentlyDeletedProjectUrl.absoluteString)
+                
+                //                try self.moveItem(at: url,
+                //                                  to: recentlyDeletedProjectUrl)
+            } catch {
+                log("StitchFileManager.removeStitchProject error: \(error)")
+                return .failure(.deleteFileFailed)
+            }
+        } else {
+            log("StitchFileManager.removeStitchProject: Will permanently delete StitchProject \(projectId) at url \(url)")
+            do {
+                try StitchFileManager.default.removeItem(at: url)
+            } catch {
+                log("StitchFileManager.removeStitchProject error: \(error)")
+                return .failure(.deleteFileFailed)
+            }
+        }
+        
+        // url.stopAccessingSecurityScopedResource()
+        
+        return .success
+    }
+}
+
+extension DocumentEncodable {
+    func removeStitchMedia(at URL: URL,
+                           permanently: Bool = false) async -> StitchFileVoidResult {
+        if !permanently {
+            // Copy file to recentely deleted URL
+            let _ = await self.copyToMediaDirectory(originalURL: URL,
+                                                    forRecentlyDeleted: true)
+        }
+        return StitchFileManager.removeItem(at: URL)
+    }
+    
+    func getMediaURL(for mediaKey: MediaKey,
+                     forRecentlyDeleted: Bool) -> URLResult {
+
+        let importedFiles = self.readMediaFilesDirectory(forRecentlyDeleted: forRecentlyDeleted)
+
+        guard let url = importedFiles.first(where: { $0.mediaKey == mediaKey }) else {
+            return .failure(.mediaNotFoundInLibrary)
+        }
+
+        return .success(url)
     }
 }

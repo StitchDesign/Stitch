@@ -83,16 +83,12 @@ final class GraphUIState {
 
     var selection = GraphUISelectionState()
 
-    // If there's a group in focus
-    var groupNodeFocused: GroupNodeId?
-
     // Control animation direction when group nodes are traversed
     var groupTraversedToChild = false
 
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
-    @MainActor
-    var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
+    var isFullScreenMode: Bool = false
     
     #if DEV_DEBUG
 //    var showsLayerInspector = true   during dev
@@ -104,7 +100,7 @@ final class GraphUIState {
     var leftSidebarOpen = false 
 
     // Tracks group breadcrumbs when group nodes are visited
-    var groupNodeBreadcrumbs: NodeIdList = []
+    var groupNodeBreadcrumbs: [GroupNodeType] = []
 
     var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
 
@@ -121,7 +117,6 @@ final class GraphUIState {
     var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
 
     // Explicit `init` is required to use `didSet` on a property
-    @MainActor
     init(activeSpacebarClickDrag: Bool = false,
          safeAreaInsets: SafeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue,
          colorScheme: ColorScheme = defaultColorScheme,
@@ -130,10 +125,9 @@ final class GraphUIState {
          activeIndex: ActiveIndex = .defaultActiveIndex,
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
-         groupNodeFocused: GroupNodeId? = nil,
          groupTraversedToChild: Bool = false,
-         isFullScreenMode: Bool = GraphUIState.isPhoneDevice,
-         groupNodeBreadcrumbs: NodeIdList = .init(),
+         isPhoneDevice: Bool,
+         groupNodeBreadcrumbs: [GroupNodeType] = .init(),
          showPreviewWindow: Bool = PREVIEW_SHOWN_DEFAULT_STATE,
          insertNodeMenuState: InsertNodeMenuState = .init(),
          activeDragInteraction: ActiveDragInteractionNodeVelocityData = .init()) {
@@ -146,9 +140,8 @@ final class GraphUIState {
         self.activeIndex = activeIndex
         self.frame = frame
         self.selection = selection
-        self.groupNodeFocused = groupNodeFocused
         self.groupTraversedToChild = groupTraversedToChild
-        self.isFullScreenMode = isFullScreenMode
+        self.isFullScreenMode = isPhoneDevice
         self.groupNodeBreadcrumbs = groupNodeBreadcrumbs
         self.showPreviewWindow = showPreviewWindow
         self.insertNodeMenuState = insertNodeMenuState
@@ -171,6 +164,11 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphUIState {
+    // If there's a group in focus
+    var groupNodeFocused: GroupNodeType? {
+        self.groupNodeBreadcrumbs.last
+    }
+    
     @MainActor
     var isPortraitMode: Bool {
         #if targetEnvironment(macCatalyst)

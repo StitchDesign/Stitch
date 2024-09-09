@@ -56,12 +56,14 @@ struct OvalLayerNode: LayerNodeDefinition {
     
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         ShapeLayerView(document: document,
+                       graph: graph,
                        viewModel: viewModel,
                        isPinnedViewRendering: isPinnedViewRendering,
                        parentSize: parentSize,

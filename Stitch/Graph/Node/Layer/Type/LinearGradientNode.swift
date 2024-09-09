@@ -34,6 +34,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
     
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -41,6 +42,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewLinearGradientLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -66,6 +68,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
 
 struct PreviewLinearGradientLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -99,6 +102,7 @@ struct PreviewLinearGradientLayer: View {
             .opacity(enabled ? opacity : 0.0)
             .modifier(PreviewCommonModifier(
                 document: document,
+                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

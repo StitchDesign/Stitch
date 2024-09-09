@@ -82,10 +82,10 @@ func onCampsiteURLOpen(_ url: URL, store: StitchStore) async throws {
             isImport: true,
             isNonICloudDocumentsFile: true) {
             
-        case .loaded(let document):
+        case .loaded(let data):
             DispatchQueue.main.async { [weak store] in
                 log("onCampsiteURLOpen: will open project from document")
-                store?.openProjectAction(from: document)
+                store?.openProjectAction(from: data)
             }
             
         default:
