@@ -218,7 +218,7 @@ extension GraphState: SchemaObserver {
     }
 
     @MainActor
-    static func createObject(from entity: CurrentStitchDocument.StitchDocument) -> Self {
+    static func createObject(from entity: StitchDocument) -> Self {
         // Unused
         fatalErrorIfDebug()
         
