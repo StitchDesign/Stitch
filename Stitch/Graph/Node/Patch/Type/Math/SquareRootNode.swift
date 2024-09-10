@@ -77,8 +77,6 @@ func squareRootEval(inputs: PortValuesList,
     let result = resultsMaker(inputs)
 
     switch evalKind {
-    case .string:
-        return result(stringOp)
     case .number:
         return result(numberOp)
     case .position:

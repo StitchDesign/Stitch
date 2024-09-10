@@ -70,11 +70,23 @@ func addEval(inputs: PortValuesList,
     
     let result = resultsMaker(inputs)
     
+    // Check if any input is a string
+    let hasStringInput = inputs.contains { portValues in
+        portValues.contains { portValue in
+            if case .string(_) = portValue {
+                return true
+            }
+            return false
+        }
+    }
+    
+    if hasStringInput {
+        return result(AddEvalOps.stringOperation)
+    }
+    
     switch evalKind {
     case .number:
         return result(AddEvalOps.numberOperation)
-    case .string:
-        return result(AddEvalOps.stringOperation)
     case .size:
         return result(AddEvalOps.sizeOperation)
     case .position:
