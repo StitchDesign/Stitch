@@ -16,6 +16,11 @@ extension MediaDocumentEncodable {
     /// Initializer used for a new project, which creates file paths for contents like media.
     func encodeDocumentContents() async {
         let folderUrl = self.rootUrl
+        
+        // Only proceed if folder doesn't exist
+        guard !FileManager.default.fileExists(atPath: folderUrl.path) else {
+            return
+        }
 
         do {
             // Create file wrapper which creates the .stitch folder
