@@ -53,7 +53,9 @@ struct Preview3DModelLayer: View {
 
     var body: some View {
         Group {
-            if let entity = entity {
+            if graph.isGeneratingProjectThumbnail {
+                Color.clear
+            } else if let entity = entity {
                 Model3DView(entity: entity,
                             sceneSize: size.asCGSize!,
                             modelOpacity: opacity)
