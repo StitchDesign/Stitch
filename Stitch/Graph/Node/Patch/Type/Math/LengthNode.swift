@@ -41,8 +41,10 @@ func lengthEval(inputs: PortValuesList,
                 evalKind: ArithmeticNodeType) -> PortValuesList {
     // log("lengthEval called")
 
-    let stringOp: Operation = { (_: PortValues) -> PortValue in
-        return .string(.init(""))
+    let stringOp: Operation = { (values: PortValues) -> PortValue in
+        let str = values[0].getString?.string ?? ""
+        let length = str.count
+        return .number(Double(length))
     }
 
     let sizeOp: Operation = { (values: PortValues) -> PortValue in
@@ -66,11 +68,11 @@ func lengthEval(inputs: PortValuesList,
         return .number(length)
     }
 
-    // Length on a .number type does nothing ?
     let numberOp: Operation = { (values: PortValues) -> PortValue in
-        // log("lengthEval: values: \(values)")
-        let n = values[0].getNumber!
-        return .number(n)
+        let n = values[0].getNumber ?? 0.0 // Use a default value if nil
+        // Format to remove decimal point and count digits
+        let length = String(format: "%.0f", abs(n)).count
+        return .number(Double(length)) // Return the length as a number
     }
 
     let result = resultsMaker(inputs)
