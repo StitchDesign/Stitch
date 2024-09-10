@@ -246,6 +246,8 @@ extension VisibleNodesViewModel {
                 return layerNode.getAllCanvasObservers()
             case .group(let canvas):
                 return [canvas]
+            case .component(let component):
+                return [component.canvas]
             }
         }
     }

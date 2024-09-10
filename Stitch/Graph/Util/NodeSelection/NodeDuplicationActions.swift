@@ -39,7 +39,7 @@ extension GraphState {
     }
 
     @MainActor
-    func insertNewComponent(component: StitchComponent,
+    func insertNewComponent(component: StitchClipboardContent,
                             effects: AsyncCallbackList) {
         let hasEffectsToRun = !effects.isEmpty
 
@@ -82,7 +82,7 @@ extension GraphState {
     }
 
     @MainActor
-    func _insertNewComponent(_ component: StitchComponent) {
+    func _insertNewComponent(_ component: StitchClipboardContent) {
         var document = self.createSchema()
 
         // Update top-level nodes to match current focused group
@@ -138,7 +138,7 @@ extension GraphState {
                         
                     }
                     
-                case .patch, .group:
+                case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
                         canvasItem.select()
