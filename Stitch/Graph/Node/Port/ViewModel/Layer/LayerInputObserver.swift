@@ -56,7 +56,8 @@ extension LayerInputObserver {
     }
     
     /// Updates all-up values, handling scenarios like unpacked if applicable.
-    @MainActor func updatePortValues(_ values: PortValues) {
+    @MainActor
+    func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
         self._packedData.rowObserver.updateValues(values)
     }
@@ -143,6 +144,8 @@ extension LayerInputObserver {
     
     /// Called after the pack mode changes for some port.
     @MainActor func wasPackModeToggled() {
+        log("wasPackModeToggled called for \(self.layer)")
+        
         let nodeId = self._packedData.rowObserver.id.nodeId
         
         guard let node = self.graphDelegate?.getNodeViewModel(nodeId),

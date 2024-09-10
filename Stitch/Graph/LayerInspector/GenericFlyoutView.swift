@@ -86,18 +86,18 @@ struct GenericFlyoutView: View {
                 HStack {
                     // TODO: consolidate with `LayerInspectorRowButton`
                     // TODO: Figma UI: field on canvas
-                    //                    Image(systemName: "plus.circle")
-                    //                        .resizable()
-                    //                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                    //                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    //                        .onTapGesture {
-                    //                            log("will add field to canvas")
-                    //                            dispatch(LayerInputFieldAddedToGraph(
-                    //                                layerInput: layerInput,
-                    //                                nodeId: nodeId,
-                    //                                fieldIndex: fieldIndex))
-                    //                        }
-                    //                        .opacity(isSelectedRow ? 1 : 0)
+                    Image(systemName: "plus.circle")
+                        .resizable()
+                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                        .onTapGesture {
+                            log("will add field to canvas")
+                            dispatch(LayerInputFieldAddedToGraph(
+                                layerInput: layerInput,
+                                nodeId: nodeId,
+                                fieldIndex: fieldIndex))
+                        }
+                        .opacity(isSelectedRow ? 1 : 0)
                     
                     // For a single field
                     InputValueEntry(graph: graph,
@@ -150,30 +150,32 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
         
-        fatalErrorIfDebug()
-        return .noChange
+//        fatalErrorIfDebug()
+//        return .noChange
         
-        //        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
-        //        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
-        //        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-        //
-        //        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
-        ////        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
-        //
-        //        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
-        //
-        //            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-        //
-        //            var unpackSchema = unpackedPort.createSchema()
-        //            unpackSchema.canvasItem = .init(position: .zero,
-        //                                            zIndex: .zero,
-        //                                            parentGroupNodeId: parentGroupNodeId)
-        //            unpackedPort.update(from: unpackSchema,
-        //                                layerInputType: unpackedPort.id,
-        //                                layerNode: layerNode,
-        //                                nodeId: nodeId,
-        //                                nodeDelegate: node)
-        //        }
+        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
+        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
+        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
         
+        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
+        //        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
+        
+        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+            
+            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+            
+            var unpackSchema = unpackedPort.createSchema()
+            unpackSchema.canvasItem = .init(position: .zero,
+                                            zIndex: .zero,
+                                            parentGroupNodeId: parentGroupNodeId)
+            
+            unpackedPort.update(from: unpackSchema,
+                                layerInputType: unpackedPort.id,
+                                layerNode: layerNode,
+                                nodeId: nodeId,
+                                nodeDelegate: node)
+        }
+        
+        return .persistenceResponse
     }
 }

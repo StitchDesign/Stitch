@@ -15,6 +15,7 @@ struct LayerInspectorInputPortView: View {
     var body: some View {
         let observerMode = portObserver.observerMode
         
+        // TODO: inspector row ALWAYS shows packed version; individual fields are only shows as rows in the flyout ('flyout row')
         Group {
             switch observerMode {
             case .packed(let inputLayerNodeRowData):
@@ -35,19 +36,6 @@ struct LayerInspectorInputPortView: View {
                                       propertyIsSelected: propertyRowIsSelected,
                                       propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                                       isCanvasItemSelected: false)
-                    }
-                // NOTE: attaching even a ZStack around LayerInspectorPortView causes the row's background color to expand to fill whole list row
-                // TODO: finalize UI for pack, unpack
-                    .overlay(alignment: .topLeading) {
-                        // MARK: debugging unpack feature
-                        if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                            Button {
-                                // TODO: canvas item creation only used for debugging
-                                self.debug__createUnpackedCanvasItems()
-                            } label: {
-                                Text("Unpack")
-                            }
-                        }
                     }
                 
                 
