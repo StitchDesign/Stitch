@@ -483,10 +483,7 @@ extension StitchClipboardContent: Transferable {
             let encodedData = try getStitchEncoder().encode(component)
             try encodedData.write(to: url, options: .atomic)
         } catch {
-            log("exportComponent error: \(error)")
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug("exportComponent error: \(error)")
         }
     }
 }
