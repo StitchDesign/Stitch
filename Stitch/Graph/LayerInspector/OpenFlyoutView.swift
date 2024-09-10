@@ -26,18 +26,14 @@ struct OpenFlyoutView: View, KeyboardReadable {
             // If pseudo-modal-background placed here,
             // then we disable scroll
             #if DEV_DEBUG || DEBUG
-//            let pseudoPopoverBackgroundOpacity = 0.1
-            let pseudoPopoverBackgroundOpacity = 0.001
+            let pseudoPopoverBackgroundOpacity = 0.1
             #else
             let pseudoPopoverBackgroundOpacity = 0.001
             #endif
             
-            Color.blue.opacity(pseudoPopoverBackgroundOpacity)
-            // SwiftUI native .popover disables scroll; probably best solution here.
-            // .offset(x: -LayerInspectorView.LAYER_INSPECTOR_WIDTH)
-                .onTapGesture {
-                    dispatch(FlyoutClosed())
-                }
+            ModalBackgroundGestureRecognizer(dismissalCallback: { dispatch(FlyoutClosed()) }) {
+                Color.blue.opacity(pseudoPopoverBackgroundOpacity)
+            }
             
             let topPadding = graph.graphUI.propertySidebar.safeAreaTopPadding
               
@@ -107,6 +103,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
 }
 
 
+// TODO: add debouncer
 
 /// Publisher to read keyboard changes.
 protocol KeyboardReadable {
@@ -131,5 +128,74 @@ extension KeyboardReadable {
                 }
         )
         .eraseToAnyPublisher()
+    }
+}
+
+// TODO: consolidate with
+struct ModalBackgroundGestureRecognizer<T: View>: UIViewControllerRepresentable {
+    
+    let dismissalCallback: () -> Void
+    @ViewBuilder var view: () -> T
+
+    func makeUIViewController(context: Context) -> GraphGestureBackgroundViewController<T> {
+        let vc = GraphGestureBackgroundViewController(
+            rootView: view(),
+            ignoresSafeArea: true,
+            ignoreKeyCommands: true,
+            name: "_GraphGestureBackgroundView")
+
+        let delegate = context.coordinator
+        
+        // Any trackpad or screen pan will close modal
+        let screenPanGesture = UIPanGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.onGesture))
+        screenPanGesture.allowedScrollTypesMask = [.continuous, .discrete]
+        screenPanGesture.allowedTouchTypes = [SCREEN_TOUCH_ID, TRACKPAD_TOUCH_ID]
+        screenPanGesture.delegate = delegate
+        vc.view.addGestureRecognizer(screenPanGesture)
+        
+        // Tap closes modal
+        let tapGesture = UITapGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.onGesture))
+        tapGesture.delegate = delegate
+        vc.view.addGestureRecognizer(tapGesture)
+        
+        // Pinch closes
+        let pinchGesture = UIPinchGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.onGesture))
+        pinchGesture.delegate = delegate
+        vc.view.addGestureRecognizer(pinchGesture)
+
+        return vc
+    }
+
+    func updateUIViewController(_ uiViewController: GraphGestureBackgroundViewController<T>, context: Context) {
+        uiViewController.rootView = view()
+    }
+
+    func makeCoordinator() -> ModalBackgroundGestureDelegate {
+        ModalBackgroundGestureDelegate(dismissalCallback: dismissalCallback)
+    }
+}
+
+class ModalBackgroundGestureDelegate: NSObject, UIGestureRecognizerDelegate {
+  
+    var dismissalCallback: () -> Void
+
+    init(dismissalCallback: @escaping () -> Void) {
+        self.dismissalCallback = dismissalCallback
+        super.init()
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
+    }
+    
+    @MainActor
+    @objc func onGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+        dismissalCallback()
     }
 }
