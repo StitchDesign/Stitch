@@ -165,7 +165,8 @@ struct InputValueView: View {
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout,
-                                     isSelectedInspectorRow: isSelectedInspectorRow)
+                                     isSelectedInspectorRow: isSelectedInspectorRow, 
+                                     nodeKind: nodeKind)
 
         case .number:
             FieldValueNumberView(graph: graph,
@@ -183,7 +184,8 @@ struct InputValueView: View {
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
+                                 isSelectedInspectorRow: isSelectedInspectorRow, 
+                                 nodeKind: nodeKind)
                     
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
@@ -201,7 +203,8 @@ struct InputValueView: View {
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 isSelectedInspectorRow: isSelectedInspectorRow)
+                                 isSelectedInspectorRow: isSelectedInspectorRow, 
+                                 nodeKind: nodeKind)
             
         case .spacing:
             FieldValueNumberView(graph: graph,
@@ -220,7 +223,8 @@ struct InputValueView: View {
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isForSpacingField: true)
+                                 isForSpacingField: true, 
+                                 nodeKind: nodeKind)
 
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId, 
