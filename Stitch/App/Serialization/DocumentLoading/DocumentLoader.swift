@@ -110,6 +110,10 @@ extension DocumentLoader {
 //        try Self.encodeDocument(document, to: directoryUrl)
 //    }
     
+    static func encodeDocument(_ document: StitchDocumentData) throws {
+        try Self.encodeDocument(document, to: document.document.rootUrl)
+    }
+    
     static func encodeDocument<Document>(_ document: Document,
                                          to directoryURL: URL) throws where Document: MediaDocumentEncodable {
         // Default directory is known by document, sometimes we use a temp URL

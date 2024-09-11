@@ -99,7 +99,7 @@ protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
 /// Data structure representing all saved files for some project.
 /// Components are not defined in `StitchDocument` as they are managed in separate files.
 struct StitchDocumentData: Equatable {
-    let document: StitchDocument
+    var document: StitchDocument
     
     // final copies of components--only updated on user publish
     let publishedDocumentComponents: [StitchComponent]
@@ -126,6 +126,13 @@ extension StitchComponent {
         }
         
         return components
+    }
+}
+
+extension StitchDocumentData: MediaDocumentEncodable {
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Don't append anything to parameter
+        documentRootUrl
     }
 }
 

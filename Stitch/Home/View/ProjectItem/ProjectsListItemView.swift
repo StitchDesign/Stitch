@@ -107,7 +107,7 @@ struct ProjectsListItemView: View {
         } labelView: {
             switch projectLoader.loadingDocument {
             case .loaded(let data):
-                ProjectThumbnailTextField(document: data.document,
+                ProjectThumbnailTextField(data: data,
                                           namespace: namespace)
             default:
                 // Blank text view to copy height of loaded view

@@ -24,7 +24,7 @@ actor DocumentEncoder {
         do {
             // Encode document
             try DocumentLoader.encodeDocument(data.document,
-                                                    to: rootDocUrl)
+                                              to: rootDocUrl)
             
             // Encode document-level published components
             for component in data.publishedDocumentComponents {
