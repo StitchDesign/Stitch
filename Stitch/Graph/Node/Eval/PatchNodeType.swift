@@ -83,12 +83,6 @@ struct ArithmeticUVT: NodeTypeEnummable {
     static let value = UVTSet([.string, .number, .position, .size, .point3D])
 }
 
-struct ArithmeticUVTMinusText: NodeTypeEnummable {
-    typealias NT = ArithmeticNodeType
-    static let value = UVTSet([.number, .position, .size, .point3D])
-}
-
-
 // For Add, Substract nodes
 enum ArithmeticNodeType: PatchNodeTypeSet {
     case number, position, size, point3D
@@ -105,6 +99,7 @@ enum ArithmeticNodeType: PatchNodeTypeSet {
         }
     }
 }
+
 
 // MATH: Multiply, Divide nodes
 

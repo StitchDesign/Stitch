@@ -40,7 +40,7 @@ func powerNode(id: NodeId,
 }
 
 func powerEval(inputs: PortValuesList,
-               evalKind: ArithmeticNodeType) -> PortValuesList {
+               evalKind: MathNodeType) -> PortValuesList {
 
     //    log("powerEval called")
 

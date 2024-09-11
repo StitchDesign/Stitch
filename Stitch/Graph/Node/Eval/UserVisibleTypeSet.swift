@@ -38,6 +38,10 @@ extension PatchNodeViewModel {
     var asArithmeticEval: ArithmeticNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asArithmetic)
     }
+    
+    var asArithmeticMinusTextEval: ArithmeticNodeType? {
+        return self.userVisibleType.flatMap(patch.availableNodeTypes.asArithmetic)
+    }
 
     var asMathEval: MathNodeType? {
         return self.userVisibleType.flatMap(patch.availableNodeTypes.asMath)

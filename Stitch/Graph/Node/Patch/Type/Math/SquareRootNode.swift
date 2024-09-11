@@ -38,7 +38,7 @@ func squareRootNode(id: NodeId,
 }
 
 func squareRootEval(inputs: PortValuesList,
-                    evalKind: ArithmeticNodeType) -> PortValuesList {
+                    evalKind: MathNodeType) -> PortValuesList {
 
     //    log("squareRootEval called")
 

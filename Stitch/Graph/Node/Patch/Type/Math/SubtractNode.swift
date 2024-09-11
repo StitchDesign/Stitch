@@ -36,7 +36,7 @@ func subtractNode(id: NodeId,
 }
 
 func subtractEval(inputs: PortValuesList,
-                  evalKind: ArithmeticNodeType) -> PortValuesList {
+                  evalKind: MathNodeType) -> PortValuesList {
 
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
 

@@ -201,15 +201,15 @@ extension Patch {
         case .optionEquals:
             return .pure(.node(outputsOnlyEval(optionEqualsEval)))
         case .subtract:
-            return .pure(.node(arithmeticNodeTypeEval(subtractEval)))
+            return .pure(.node(mathNodeTypeEval(subtractEval)))
         case .squareRoot:
-            return .pure(.node(arithmeticNodeTypeEval(squareRootEval)))
+            return .pure(.node(mathNodeTypeEval(squareRootEval)))
         case .length:
             return .pure(.node(arithmeticNodeTypeEval(lengthEval)))
         case .min:
             return .pure(.node(outputsOnlyEval(minEval)))
         case .power:
-            return .pure(.node(arithmeticNodeTypeEval(powerEval)))
+            return .pure(.node(mathNodeTypeEval(powerEval)))
         case .equals:
             return .pure(.node(outputsOnlyEval(equalsEval)))
         case .equalsExactly:
