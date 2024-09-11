@@ -117,14 +117,14 @@ final class GraphState: Sendable {
     weak var storeDelegate: StoreDelegate?
 
     @MainActor init(from data: StitchDocumentData,
-         store: StoreDelegate?) {
+                    store: StoreDelegate?) {
         // MARK: do not populate ordered sidebar layers until effect below is dispatched!
         // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
         // but nodes haven't yet populated
         let schema = data.document
 
         self.graphUI = GraphUIState()
-        self.documentEncoder = .init(document: schema)
+        self.documentEncoder = .init(data: data)
         self.projectId = schema.id
         self.projectName = schema.name
         self.previewWindowSize = schema.previewWindowSize
@@ -260,7 +260,7 @@ extension GraphState: SchemaObserver {
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     func updateGraphData(document: StitchDocument? = nil) {
-        let document = document ?? self.createSchema()
+        let document = document ?? self.createSchema().document
 
         self.visibleNodesViewModel.updateSchemaData(newNodes: document.nodes,
                                                     activeIndex: self.activeIndex,
@@ -446,7 +446,7 @@ extension GraphState {
                 return
             }
             
-            switch await self?.documentEncoder.encodeProject(document,
+            switch await self?.documentEncoder.encodeProject(data,
                                                              temporaryURL: temporaryURL,
                                                              documentLoader: documentLoader) {
             case .success, .none:

@@ -47,7 +47,7 @@ func handleOnDrop(providers: [NSItemProvider],
                                                                         isImport: true) {
                         case .loaded(let data):
                             DispatchQueue.main.async { [weak store] in
-                                store?.openProjectAction(from: data.document)
+                                store?.openProjectAction(from: data)
                             }
                         default:
                             DispatchQueue.main.async {
