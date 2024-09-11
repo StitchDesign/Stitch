@@ -70,60 +70,62 @@ struct GenericFlyoutView: View {
     // TODO: just use `NodeInputView` here ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
-        FieldsListView(graph: graph,
-                       rowViewModel: inputRowViewModel,
-                       nodeId: inputRowViewModel.id.nodeId,
-                       isGroupNodeKind: inputRowViewModel.nodeKind.isGroup,
-                       forPropertySidebar: true,
-                       // TODO: fix
-                       propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultiField in
-            
-            if let coordinate = inputRowViewModel.rowDelegate?.id {
-                
-                let fieldIndex = inputFieldViewModel.fieldIndex
-                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
-                
-                HStack {
-                    // TODO: consolidate with `LayerInspectorRowButton`
-                    // TODO: Figma UI: field on canvas
-                    Image(systemName: "plus.circle")
-                        .resizable()
-                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                        .onTapGesture {
-                            log("will add field to canvas")
-                            dispatch(LayerInputFieldAddedToGraph(
-                                layerInput: layerInput,
-                                nodeId: nodeId,
-                                fieldIndex: fieldIndex))
-                        }
-                        .opacity(isSelectedRow ? 1 : 0)
-                    
-                    // For a single field
-                    InputValueEntry(graph: graph,
-                                    rowViewModel: inputRowViewModel,
-                                    viewModel: inputFieldViewModel,
-                                    inputLayerNodeRowData: inputLayerNodeRowData,
-                                    rowObserverId: coordinate,
-                                    nodeKind: .layer(layer),
-                                    isCanvasItemSelected: false,
-                                    hasIncomingEdge: hasIncomingEdge, // always false?
-                                    forPropertySidebar: true,
-                                    // TODO: Figma UI: field on canvas
-                                    propertyIsAlreadyOnGraph: false, // Not relevant?
-                                    isFieldInMultifieldInput: isMultiField,
-                                    isForFlyout: true,
-                                    // False for now, until individual fields can be added to the graph
-                                    isSelectedInspectorRow: false)
-                    .onTapGesture {
-                        log("flyout: tapped field row \(fieldIndex)")
-                        self.selectedFlyoutRow = fieldIndex
-                    }
-                }
-            } else {
-                FatalErrorIfDebugView()
-            }
-        }
+        Text("FlyoutRows")
+        
+//        FieldsListView(graph: graph,
+//                       rowViewModel: inputRowViewModel,
+//                       nodeId: inputRowViewModel.id.nodeId,
+//                       isGroupNodeKind: inputRowViewModel.nodeKind.isGroup,
+//                       forPropertySidebar: true,
+//                       // TODO: fix
+//                       propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultiField in
+//            
+//            if let coordinate = inputRowViewModel.rowDelegate?.id {
+//                
+//                let fieldIndex = inputFieldViewModel.fieldIndex
+//                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
+//                
+//                HStack {
+//                    // TODO: consolidate with `LayerInspectorRowButton`
+//                    // TODO: Figma UI: field on canvas
+//                    Image(systemName: "plus.circle")
+//                        .resizable()
+//                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+//                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+//                        .onTapGesture {
+//                            log("will add field to canvas")
+//                            dispatch(LayerInputFieldAddedToGraph(
+//                                layerInput: layerInput,
+//                                nodeId: nodeId,
+//                                fieldIndex: fieldIndex))
+//                        }
+//                        .opacity(isSelectedRow ? 1 : 0)
+//                    
+//                    // For a single field
+//                    InputValueEntry(graph: graph,
+//                                    rowViewModel: inputRowViewModel,
+//                                    viewModel: inputFieldViewModel,
+//                                    inputLayerNodeRowData: inputLayerNodeRowData,
+//                                    rowObserverId: coordinate,
+//                                    nodeKind: .layer(layer),
+//                                    isCanvasItemSelected: false,
+//                                    hasIncomingEdge: hasIncomingEdge, // always false?
+//                                    forPropertySidebar: true,
+//                                    // TODO: Figma UI: field on canvas
+//                                    propertyIsAlreadyOnGraph: false, // Not relevant?
+//                                    isFieldInMultifieldInput: isMultiField,
+//                                    isForFlyout: true,
+//                                    // False for now, until individual fields can be added to the graph
+//                                    isSelectedInspectorRow: false)
+//                    .onTapGesture {
+//                        log("flyout: tapped field row \(fieldIndex)")
+//                        self.selectedFlyoutRow = fieldIndex
+//                    }
+//                }
+//            } else {
+//                FatalErrorIfDebugView()
+//            }
+//        }
     }
 }
 

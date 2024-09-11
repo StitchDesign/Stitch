@@ -12,7 +12,10 @@ import StitchSchemaKit
 struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var rowViewModel: InputNodeRowViewModel
+    
+    // Can no longer accept an input row
+//    @Bindable var rowViewModel: InputNodeRowViewModel
+    
     @Bindable var viewModel: InputFieldViewModel
     
     // Always and only for inspector-rows, not flyout-rows ?
@@ -22,6 +25,8 @@ struct InputValueEntry: View {
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
     let hasIncomingEdge: Bool
+    
+    // TODO: package these up into `InspectorData` ?
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isFieldInMultifieldInput: Bool
@@ -78,10 +83,13 @@ struct InputValueEntry: View {
                        
                        // Always false for inspector-rows
                        // ... only for pulse button and color orb
-                       hasIncomingEdge: rowViewModel.rowDelegate?.upstreamOutputCoordinate != nil,
+                       hasIncomingEdge: hasIncomingEdge, // rowViewModel.rowDelegate?.upstreamOutputCoordinate != nil,
                        
                        isForLayerGroup: nodeKind.getLayer == .group,
-                       isUpstreamValue: rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
+                       
+                       // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
+                       isUpstreamValue: hasIncomingEdge, // rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
+                       
                        isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep

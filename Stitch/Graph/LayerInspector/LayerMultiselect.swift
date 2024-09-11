@@ -14,6 +14,8 @@ extension String {
 }
 
 extension InputFieldViewModel {
+    
+    // Get rid of this -- it's used
     var isFieldInsideLayerInspector: Bool {
         self.rowViewModelDelegate?.id.graphItemType.isLayerInspector ?? false
     }

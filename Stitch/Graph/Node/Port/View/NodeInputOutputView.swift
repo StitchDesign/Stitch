@@ -111,10 +111,20 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: NodeRowObserverType
-    @Bindable var rowData: NodeRowType
+    
+//    @Bindable var rowObserver: NodeRowObserverType
+//    @Bindable var rowData: NodeRowType
+    
+    let isGroupNode: Bool
+    
+    let label: String
+    let portId: Int
+    let canvasItemId: CanvasItemId?
+    
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
+    
+    
     @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
     
     @MainActor
@@ -122,39 +132,41 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
         self.graph.graphUI
     }
     
-    @MainActor
-    var label: String {
-        if isGroupNode {
-            return rowObserver.nodeDelegate?.displayTitle ?? ""
-        }
-        
-        return self.rowObserver.label(forPropertySidebar)
-    }
+//    @MainActor
+//    var label: String {
+//        if isGroupNode {
+//            return rowObserver.nodeDelegate?.displayTitle ?? ""
+//        }
+//        
+//        return self.rowObserver.label(forPropertySidebar)
+//    }
     
-    var isGroupNode: Bool {
-        self.rowData.nodeDelegate?.kind.isGroup ?? false
-    } 
+//    var isGroupNode: Bool {
+//        self.rowData.nodeDelegate?.kind.isGroup ?? false
+//    } 
     
     var body: some View {
-            // Fields and port ordering depending on input/output
-            self.fieldsView(rowData, labelView)
+        // Fields and port ordering depending on input/output
+        self.fieldsView(rowData, labelView)
         
         // Don't specify height for layer inspector property row, so that multifields can be shown vertically
-        .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
-
-        .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
+            .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
         
-        .onChange(of: self.graphUI.activeIndex) {
-            let oldViewValue = self.rowData.activeValue
-            let newViewValue = self.rowObserver.activeValue
-            self.rowData.activeValueChanged(oldValue: oldViewValue,
-                                            newValue: newViewValue)
-        }
-        .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                           portId: rowData.id.portId,
-                                           nodeId: self.rowData.canvasItemDelegate?.id,
-                                           nodeIOType: NodeRowType.nodeIO,
-                                           forPropertySidebar: forPropertySidebar))
+            .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
+  
+        // Now handled in `ActiveIndexChangedAction`
+//            .onChange(of: self.graphUI.activeIndex) {
+//                let oldViewValue = self.rowData.activeValue
+//                let newViewValue = self.rowObserver.activeValue
+//                self.rowData.activeValueChanged(oldValue: oldViewValue,
+//                                                newValue: newViewValue)
+//            }
+        
+            .modifier(EdgeEditModeViewModifier(graphState: graph,
+                                               portId: portId, //rowData.id.portId,
+                                               canvasItemId: canvasItemId, //self.rowData.canvasItemDelegate?.id,
+                                               nodeIOType: NodeRowType.nodeIO,
+                                               forPropertySidebar: forPropertySidebar))
     }
     
     @ViewBuilder @MainActor
@@ -178,8 +190,20 @@ struct NodeInputView: View {
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
-    @Bindable var rowObserver: InputNodeRowObserver
-    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    
+    let nodeId: NodeId
+    let nodeKind: NodeKind
+    let hasIncomingEdge: Bool
+    
+    // What does this really mean
+    let rowObserverId: NodeIOCoordinate
+    
+//    @Bindable var rowObserver: InputNodeRowObserver
+//    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    
+    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+    // rowData.fieldValueTypes
+    
     
     // This is for the inspector-row, so
     let inputLayerNodeRowData: LayerInputObserver?
@@ -188,6 +212,13 @@ struct NodeInputView: View {
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
+
+    var isGroupNodeKind: Bool {
+        nodeKind.isGroup
+    }
+    // rowObserver.nodeDelegate?.kind.isGroup ?? false,
+    
+    let layerInput: LayerInputPort?
     
     var forFlyout: Bool = false
     
@@ -196,27 +227,27 @@ struct NodeInputView: View {
         self.graph.graphUI
     }
     
-    var nodeId: NodeId {
-        self.rowObserver.id.nodeId
-    }
+//    var nodeId: NodeId {
+//        self.rowObserver.id.nodeId
+//    }
     
     // pass in instead of accessing via nodeDelegate
-    @MainActor
-    var nodeKind: NodeKind {
-        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
-    }
+//    @MainActor
+//    var nodeKind: NodeKind {
+//        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
+//    }
         
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
-                        isMultiField: Bool) -> some View {
+                        isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
-                        rowViewModel: rowData,
+//                        rowViewModel: rowData,
                         viewModel: portViewModel, 
                         inputLayerNodeRowData: inputLayerNodeRowData,
-                        rowObserverId: rowObserver.id,
+                        rowObserverId: rowObserverId, //rowObserver.id,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
-                        hasIncomingEdge: rowObserver.upstreamOutputObserver.isDefined,
+                        hasIncomingEdge: hasIncomingEdge,  //rowObserver.upstreamOutputObserver.isDefined,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                         isFieldInMultifieldInput: isMultiField,
@@ -224,21 +255,22 @@ struct NodeInputView: View {
                         isSelectedInspectorRow: propertyIsSelected)
     }
     
-    var layerInput: LayerInputPort? {
-        rowData.rowDelegate?.id.keyPath?.layerInput
-    }
+//    var layerInput: LayerInputPort? {
+//        rowData.rowDelegate?.id.keyPath?.layerInput
+//    }
     
     var body: some View {
         NodeInputOutputView(graph: graph,
-                            rowObserver: rowObserver,
-                            rowData: rowData,
+//                            rowObserver: rowObserver,
+//                            rowData: rowData,
                             forPropertySidebar: forPropertySidebar,
-                            propertyIsSelected: propertyIsSelected) { inputViewModel, labelView in
+                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType, labelView: LabelDisplayView) in
            
             // For multifields, want the overall label to sit at top of fields' VStack.
             // For single fields, want to the overall label t
             HStack(alignment: hStackAlignment) {
                 
+                // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
                 if !forPropertySidebar {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
@@ -271,13 +303,17 @@ struct NodeInputView: View {
                         Spacer()
                     }
                     
-                    FieldsListView(graph: graph,
-                                   rowViewModel: rowData,
-                                   nodeId: nodeId,
-                                   isGroupNodeKind: rowObserver.nodeDelegate?.kind.isGroup ?? false,
-                                   forPropertySidebar: forPropertySidebar,
-                                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                   valueEntryView: valueEntryView)
+//                    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
+                    
+                    FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+                        graph: graph,
+                        //                                   rowViewModel: rowData,
+                        fieldValueTypes: fieldValueTypes, // rowViewModel.fieldValueTypes
+                        nodeId: nodeId,
+                        isGroupNodeKind: isGroupNodeKind, //rowObserver.nodeDelegate?.kind.isGroup ?? false,
+                        forPropertySidebar: forPropertySidebar,
+                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                        valueEntryView: valueEntryView)
                 }
             } // HStack
         }
@@ -288,7 +324,8 @@ struct NodeInputView: View {
     }
     
     var isMultiField: Bool {
-        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+//        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+        (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
     }
 }
 
@@ -325,7 +362,7 @@ struct NodeOutputView: View {
         
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: OutputFieldViewModel,
-                        isMultiField: Bool) -> some View {
+                        isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
                          rowViewModel: rowData,
                          viewModel: portViewModel,
@@ -355,8 +392,11 @@ struct NodeOutputView: View {
                 
                 // Hide outputs for value node
                 if !isSplitter {
-                    FieldsListView(graph: graph,
-                                   rowViewModel: rowData,
+                    let fieldValueTypes: [FieldGroupTypeViewModel<OutputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
+                    
+                    FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(graph: graph,
+//                                   rowViewModel: rowData,
+                                   fieldValueTypes: fieldValueTypes,
                                    nodeId: nodeId,
                                    isGroupNodeKind: nodeKind.isGroup,
                                    forPropertySidebar: forPropertySidebar,
@@ -383,7 +423,8 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     
     // make more generic?
     // currently we pass on the exact view model
-    @Bindable var rowViewModel: PortType // e.g. InputNodeRowViewModel
+//    @Bindable var rowViewModel: PortType // e.g. InputNodeRowViewModel
+    var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
     
     let nodeId: NodeId
     let isGroupNodeKind: Bool
@@ -392,8 +433,9 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
     var body: some View {
-        ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-            
+//        ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
+        
+        ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,
                            nodeId: nodeId,
@@ -421,6 +463,7 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         NodeRowObserverType.nodeIOType
     }
     
+    // should be passed down as a param
     @MainActor
     var isGroup: Bool {
         self.rowObserver.nodeDelegate?.kind.isGroup ?? false

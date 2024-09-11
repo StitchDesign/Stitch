@@ -35,6 +35,26 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
+//typealias InputFieldViewModels = [FieldViewModel]
+//typealias OutputFieldViewModels = [FieldViewModel]
+
+//@Observable
+//final class FieldViewModel {
+//    var fieldValue: FieldValue
+//    var fieldIndex: Int
+//    var fieldLabel: String
+//    var isBlockedOut: Bool = false
+//    
+//    init(fieldValue: FieldValue,
+//         fieldIndex: Int,
+//         fieldLabel: String) {
+//        self.fieldValue = fieldValue
+//        self.fieldIndex = fieldIndex
+//        self.fieldLabel = fieldLabel
+//    }
+//}
+
+
 @Observable
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
@@ -61,6 +81,7 @@ final class OutputFieldViewModel: FieldViewModel {
     var fieldIndex: Int
     var fieldLabel: String
     var isBlockedOut: Bool = false
+    
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
     init(fieldValue: FieldValue,

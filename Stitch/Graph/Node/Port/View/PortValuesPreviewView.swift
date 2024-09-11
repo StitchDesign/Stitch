@@ -88,12 +88,12 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
     func updateTableData(with values: PortValues) {
         let enumerated = Array(zip(values.indices, values))
         self.tableData = enumerated.map { index, _ in
-            let rowObserver = RowObserver(values: values,
-                                          nodeKind: data.nodeKind,
-                                          userVisibleType: data.userVisibleType,
-                                          id: self.data.id,
-                                          activeIndex: .init(index),
-                                          upstreamOutputCoordinate: nil)
+//            let rowObserver = RowObserver(values: values,
+//                                          nodeKind: data.nodeKind,
+//                                          userVisibleType: data.userVisibleType,
+//                                          id: self.data.id,
+//                                          activeIndex: .init(index),
+//                                          upstreamOutputCoordinate: nil)
 
             let fields = fieldValueTypes.flatMap { $0.fieldObservers }
 
