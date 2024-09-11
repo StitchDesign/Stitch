@@ -59,8 +59,8 @@ final class StitchUndoManager: MiddlewareService {
     }
 
     @MainActor
-    func prepareAndSaveUndoHistory(prevDocument: StitchDocument,
-                                   nextDocument: StitchDocument,
+    func prepareAndSaveUndoHistory(prevDocument: StitchDocumentData,
+                                   nextDocument: StitchDocumentData,
                                    undoEvents: Actions?,
                                    redoEvents: Actions?) {
         let undoFileEffects = createUndoEffects(undoEvents: undoEvents,
@@ -86,8 +86,8 @@ final class StitchUndoManager: MiddlewareService {
     }
 
     @MainActor
-    private func saveUndoHistory(prevState: StitchDocument,
-                                 nextState: StitchDocument,
+    private func saveUndoHistory(prevState: StitchDocumentData,
+                                 nextState: StitchDocumentData,
                                  undoFileEffects: UndoFileEffects? = nil) {
 
         undoManager.registerUndo(withTarget: self) { _ in
@@ -118,7 +118,7 @@ final class StitchUndoManager: MiddlewareService {
 
 extension StitchStore {
     @MainActor
-    func undoManagerInvoked(newState: StitchDocument? = nil) {
+    func undoManagerInvoked(newState: StitchDocumentData? = nil) {
         guard let graph = self.currentGraph else {
             return
         }
@@ -138,8 +138,8 @@ extension StitchStore {
     
     /// Saves undo history of some graph using copies of StitchDocument.
     @MainActor
-    func saveUndoHistory(oldState: StitchDocument,
-                         newState: StitchDocument,
+    func saveUndoHistory(oldState: StitchDocumentData,
+                         newState: StitchDocumentData,
                          undoEvents: Actions? = nil,
                          redoEvents: Actions? = nil) {
         let undoManager = self.environment.undoManager
@@ -153,8 +153,8 @@ extension StitchStore {
 
     /// Saves undo history of some graph using copies of StitchDocument.
     @MainActor
-    func saveUndoHistory(oldState: StitchDocument,
-                         newState: StitchDocument,
+    func saveUndoHistory(oldState: StitchDocumentData,
+                         newState: StitchDocumentData,
                          undoFileEffects: UndoFileEffects?) {
         let undoManager = self.environment.undoManager
 
@@ -172,8 +172,8 @@ extension StitchStore {
 
     /// Saves undo history using actions.
     @MainActor
-    func saveUndoHistory(oldState: StitchDocument,
-                         newState: StitchDocument,
+    func saveUndoHistory(oldState: StitchDocumentData,
+                         newState: StitchDocumentData,
                          undoEvents: [Action],
                          redoEvents: [Action]) {
         let undoManager = self.environment.undoManager

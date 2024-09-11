@@ -334,6 +334,12 @@ extension GraphState: SchemaObserver {
 }
 
 extension GraphState {
+    @MainActor static func createEmpty() -> GraphState {
+        GraphState(from: .init(document: .init(),
+                               publishedDocumentComponents: []),
+                   store: nil)
+    }
+    
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)

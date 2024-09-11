@@ -44,7 +44,7 @@ struct GraphInitialized: StitchStoreEvent {
 }
 
 struct UndoManagerInvoked: StitchStoreEvent {
-    let newState: StitchDocument?
+    let newState: StitchDocumentData?
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.undoManagerInvoked(newState: newState)

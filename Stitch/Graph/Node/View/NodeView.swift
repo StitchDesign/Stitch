@@ -217,7 +217,7 @@ func getFakeNode(choice: NodeKind,
                  _ zIndex: ZIndex = 1,
                  customName: String? = nil) -> NodeViewModel? {
 
-    let graphState = GraphState(id: .fakeId, store: nil)
+    let graphState = GraphState.createEmpty()
     
     if let node = graphState.nodeCreated(choice: choice) {
                 

@@ -176,7 +176,7 @@ struct HSLSliderView: View {
                                      brightness: 0.5,
                                      //                                     opacity: 0.5))
                                      opacity: 0.75)), 
-        graph: .init(id: .init(), store: nil)
+        graph: GraphState.createEmpty()
     )
     //    .rotationEffect(.degrees(90))
     //    .scaleEffect(5)
