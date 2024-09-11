@@ -12,7 +12,7 @@ struct StitchFontDropdown: View {
 
     let input: InputCoordinate
     let stitchFont: StitchFont
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let propertyIsSelected: Bool
 

@@ -49,7 +49,7 @@ struct CommonEditingView: View {
     @State private var isBase64 = false
     
     @Bindable var inputField: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     
     let inputString: String // from redux
     
@@ -57,7 +57,6 @@ struct CommonEditingView: View {
     
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
 
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`

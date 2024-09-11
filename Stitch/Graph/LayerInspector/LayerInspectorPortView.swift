@@ -8,83 +8,110 @@
 import SwiftUI
 import StitchSchemaKit
 
+
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
+    let nodeId: NodeId
     
     var body: some View {
         let observerMode = portObserver.observerMode
         
-        // TODO: inspector row ALWAYS shows packed version; individual fields are only shows as rows in the flyout ('flyout row')
-        Group {
-            switch observerMode {
-            case .packed(let inputLayerNodeRowData):
-                let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
-                
-                LayerInspectorPortView(
-                    layerProperty: .layerInput(inputLayerNodeRowData.id),
-                    rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
-                    rowObserver: inputLayerNodeRowData.rowObserver,
-                    graph: graph,
-                    canvasItemId: canvasItemId) { propertyRowIsSelected in
-                        
-                        NodeInputView(graph: graph,
-                                      rowObserver: inputLayerNodeRowData.rowObserver,
-                                      rowData: inputLayerNodeRowData.inspectorRowViewModel,
-                                      inputLayerNodeRowData: inputLayerNodeRowData,
-                                      forPropertySidebar: true,
-                                      propertyIsSelected: propertyRowIsSelected,
-                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                                      isCanvasItemSelected: false)
-                    }
-                
-                
-            case .unpacked(let unpackedPortObserver):
-                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
-                    let canvasItemId = unpackedPort.canvasObserver?.id
-                    
-                    LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
-                                           rowViewModel: unpackedPort.inspectorRowViewModel,
-                                           rowObserver: unpackedPort.rowObserver,
-                                           graph: graph,
-                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
-                        NodeInputView(graph: graph,
-                                      rowObserver: unpackedPort.rowObserver,
-                                      rowData: unpackedPort.inspectorRowViewModel,
-                                      inputLayerNodeRowData: nil, // TODO: handle properly
-                                      forPropertySidebar: true,
-                                      propertyIsSelected: propertyRowIsSelected,
-                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                                      isCanvasItemSelected: false)
-                    }
-                }
-                
-            } // observerMode
-        } // Group
+        let layerInputType = LayerInputType(layerInput: portObserver.port,
+                                            // Always `.packed` at the inspector-row level
+                                            portType: .packed)
+        
+        let layerProperty: LayerInspectorRowId = .layerInput(layerInputType)
+        
+        
+        // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
+        // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
+        
+        // but canvas item view model needs to know "packed vs unpacked" for its id;
+        // so we do need to pass the packed-vs-unpacked information
+        
+        //
+        
+        let coordinate: NodeIOCoordinate = .init(
+            portType: .keyPath(layerInputType),
+            nodeId: nodeId)
+        
+        // When a single field is on the canvas, should we show the "this inspector row is on the canvas" ?
+        // Per Origami, no?
+        
+        // Does this inspector-row (the entire input) have a canvas item?
+        let canvasItemId: CanvasItemId? = observerMode == .packed ? portObserver._packedData.canvasObserver?.id : nil
+        
+//        // Grab the "parent"/"packed"
+//        let inputLayerNodeRowData: LayerInputObserver =
+//        let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
+        
+        LayerInspectorPortView(
+            layerProperty: layerProperty,
+            coordinate: coordinate,
+            graph: graph,
+            canvasItemId: canvasItemId) { propertyRowIsSelected in
+                NodeInputView(graph: graph,
+                              rowObserver: inputLayerNodeRowData.rowObserver,
+                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              forPropertySidebar: true,
+                              propertyIsSelected: propertyRowIsSelected,
+                              propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                              isCanvasItemSelected: false)
+            }
+//
+//
+//        // TODO: inspector row ALWAYS shows packed version; individual fields are only shows as rows in the flyout ('flyout row')
+//        Group {
+//            switch observerMode {
+//            case .packed(let inputLayerNodeRowData):
+//                let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
+//                
+//                LayerInspectorPortView(
+//                    layerProperty: .layerInput(inputLayerNodeRowData.id),
+//                    rowViewModel: inputLayerNodeRowData.inspectorRowViewModel,
+//                    rowObserver: inputLayerNodeRowData.rowObserver,
+//                    graph: graph,
+//                    canvasItemId: canvasItemId) { propertyRowIsSelected in
+//                        
+//                        NodeInputView(graph: graph,
+//                                      rowObserver: inputLayerNodeRowData.rowObserver,
+//                                      rowData: inputLayerNodeRowData.inspectorRowViewModel,
+//                                      inputLayerNodeRowData: inputLayerNodeRowData,
+//                                      forPropertySidebar: true,
+//                                      propertyIsSelected: propertyRowIsSelected,
+//                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+//                                      isCanvasItemSelected: false)
+//                    }
+//                
+//                
+//            case .unpacked(let unpackedPortObserver):
+//                ForEach(unpackedPortObserver.allPorts) { unpackedPort in
+//                    let canvasItemId = unpackedPort.canvasObserver?.id
+//                    
+//                    LayerInspectorPortView(layerProperty: .layerInput(unpackedPort.id),
+//                                           rowViewModel: unpackedPort.inspectorRowViewModel,
+//                                           rowObserver: unpackedPort.rowObserver,
+//                                           graph: graph,
+//                                           canvasItemId: canvasItemId) { propertyRowIsSelected in
+//                        NodeInputView(graph: graph,
+//                                      rowObserver: unpackedPort.rowObserver,
+//                                      rowData: unpackedPort.inspectorRowViewModel,
+//                                      inputLayerNodeRowData: nil, // TODO: handle properly
+//                                      forPropertySidebar: true,
+//                                      propertyIsSelected: propertyRowIsSelected,
+//                                      propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+//                                      isCanvasItemSelected: false)
+//                    }
+//                }
+//                
+//            } // observerMode
+//        } // Group
+        
         .onChange(of: portObserver.mode) {
             self.portObserver.wasPackModeToggled()
         }
-    }
-    
-    // TODO: canvas item creation only used for debugging
-    @MainActor func debug__createUnpackedCanvasItems() {
-        // TODO: this view probably does not need the full `node` (especially in case of layer multiselect); handle the creation of unpacked canvas items should outside of the view and disallow for layer multiselect?
-        fatalErrorIfDebug()
-        
-//                let nodeId = portObserver._packedData.rowObserver.id.nodeId
-//                let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-//        
-//                portObserver._unpackedData.allPorts.forEach { unpackedPort in
-//                    var unpackSchema = unpackedPort.createSchema()
-//                    unpackSchema.canvasItem = .init(position: .zero,
-//                                                    zIndex: .zero,
-//                                                    parentGroupNodeId: parentGroupNodeId)
-//                    unpackedPort.update(from: unpackSchema,
-//                                        layerInputType: unpackedPort.id,
-//                                        layerNode: layerNode,
-//                                        nodeId: nodeId,
-//                                        nodeDelegate: node)
-//                }
     }
 }
 
@@ -100,19 +127,24 @@ struct LayerInspectorOutputPortView: View {
     let canvasItemId: CanvasItemId?
     
     var body: some View {
-        LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
-                               rowViewModel: rowViewModel,
-                               rowObserver: rowObserver,
-                               graph: graph,
-                               canvasItemId: canvasItemId) { propertyRowIsSelected in
-            NodeOutputView(graph: graph,
-                           rowObserver: rowObserver,
-                           rowData: rowViewModel,
-                           forPropertySidebar: true,
-                           propertyIsSelected: propertyRowIsSelected,
-                           propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                           isCanvasItemSelected: false)
-        }
+        Text("Implement me")
+            .onAppear(perform: {
+                fatalErrorIfDebug()
+            })
+        
+//        LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
+//                               rowViewModel: rowViewModel,
+//                               rowObserver: rowObserver,
+//                               graph: graph,
+//                               canvasItemId: canvasItemId) { propertyRowIsSelected in
+//            NodeOutputView(graph: graph,
+//                           rowObserver: rowObserver,
+//                           rowData: rowViewModel,
+//                           forPropertySidebar: true,
+//                           propertyIsSelected: propertyRowIsSelected,
+//                           propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+//                           isCanvasItemSelected: false)
+//        }
     }
 }
 
@@ -128,7 +160,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     let layerProperty: LayerInspectorRowId
     
     @Bindable var rowViewModel: RowObserver.RowViewModelType
-    @Bindable var rowObserver: RowObserver
+//    @Bindable var rowObserver: RowObserver
+    let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
     
     // non-nil = this row is present on canvas
@@ -153,7 +186,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
     var body: some View {
         HStack {
             LayerInspectorRowButton(layerProperty: layerProperty,
-                                    coordinate: rowObserver.id,
+//                                    coordinate: rowObserver.id,
+                                    coordinate: coordinate,
                                     canvasItemId: canvasItemId,
                                     isRowSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
@@ -175,7 +209,8 @@ struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: Nod
             TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
                 if isOnGraphAlready,
-                   let canvasItemId = rowViewModel.canvasItemDelegate?.id {
+                   let canvasItemId = canvasItemId {
+//                   let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                     dispatch(JumpToCanvasItem(id: canvasItemId))
                 } else {
                     withAnimation {

@@ -8,10 +8,25 @@
 import SwiftUI
 import StitchSchemaKit
 
+// lists all the fields
+/*
+ 
+- overall label on the fields
+ 
+ */
+
+// `NodeFieldsView` would take this as its argument instead
+protocol NodeFieldsData {
+    
+}
+
 struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
                                                              ValueEntryView: View {
     @Bindable var graph: GraphState
+    
+    // just becomes a list of field models
     @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
+    
     let nodeId: NodeId
     let isGroupNodeKind: Bool
     let isMultiField: Bool
@@ -19,6 +34,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     let propertyIsAlreadyOnGraph: Bool
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
 
+    // OVERALL LABEL ON ALL FIELDS, e.g. "Size" for size input row
     var label: String? {
         // if this is an input or output on a splitter node for a group node,
         // then use the splitter node's title directly:
@@ -70,6 +86,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
     }
         
+    // fieldObservers / field view models remain our bread-and-butter
     var fields: some View {
         ForEach(fieldGroupViewModel.fieldObservers) { (fieldViewModel: FieldType) in
 //            self.valueEntryView(fieldViewModel)

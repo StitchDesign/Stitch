@@ -12,12 +12,11 @@ struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
     let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
@@ -48,7 +47,8 @@ struct CommonEditingViewWrapper: View {
     var isFieldInMultfieldInspectorInput: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
-    
+        
+    // There MUST be 
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultfieldInspectorInput
         && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
@@ -99,7 +99,6 @@ struct CommonEditingViewWrapper: View {
                               graph: graph,
                               fieldIndex: fieldCoordinate.fieldIndex,
                               isCanvasItemSelected: isCanvasItemSelected,
-                              hasIncomingEdge: hasIncomingEdge,
                               choices: choices,
                               isAdjustmentBarInUse: isButtonPressed,
                               forPropertySidebar: forPropertySidebar,

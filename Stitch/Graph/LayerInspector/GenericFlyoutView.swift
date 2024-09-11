@@ -22,7 +22,7 @@ struct GenericFlyoutView: View {
     
     @Bindable var graph: GraphState
     let inputRowViewModel: InputNodeRowViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
+    let inputLayerNodeRowData: LayerInputObserver // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     let hasIncomingEdge: Bool
     let layerInput: LayerInputPort
@@ -165,8 +165,8 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
             let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
             
             var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: .zero,
-                                            zIndex: .zero,
+            unpackSchema.canvasItem = .init(position: state.newLayerPropertyLocation,
+                                            zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
             
             unpackedPort.update(from: unpackSchema,

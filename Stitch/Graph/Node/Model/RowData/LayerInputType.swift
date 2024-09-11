@@ -1149,6 +1149,8 @@ extension LayerInputPort {
         // Incoming values must match or exceed expected unpacked port count
         assertInDebug(unpackedPortCount <= values.count)
         
+        // TODO: what is this about?
+        
         // shorten values list to expected count for port
         let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
         

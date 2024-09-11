@@ -107,7 +107,7 @@ struct LayerNamesDropDownChoiceView: View {
     
     let id: InputCoordinate
     let value: PortValue
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isForPinTo: Bool
     let isSelectedInspectorRow: Bool

@@ -13,13 +13,12 @@ struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
     let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
@@ -81,7 +80,6 @@ struct FieldValueNumberView: View {
                                      fieldCoordinate: fieldCoordinate,
                                      rowObserverCoordinate: rowObserverCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
-                                     hasIncomingEdge: hasIncomingEdge,
                                      choices: nil,
                                      adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,

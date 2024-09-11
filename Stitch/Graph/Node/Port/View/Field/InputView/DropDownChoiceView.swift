@@ -15,7 +15,7 @@ struct DropDownChoiceView: View {
     
     let id: InputCoordinate
     
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     
     @Bindable var graph: GraphState
     

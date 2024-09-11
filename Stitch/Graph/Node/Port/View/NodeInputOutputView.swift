@@ -60,7 +60,6 @@ struct AddLayerPropertyToGraphButton: View {
     @Environment(\.appTheme) var theme
         
     let coordinate: NodeIOCoordinate
-    
     let isRowSelected: Bool
     
     var nodeId: NodeId {
@@ -167,6 +166,11 @@ struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
     }
 }
 
+/*
+ Patch node input of Point4D = one node row observer becomes 4 fields
+ 
+ Layer node input of Size = one node row observer becomes 1 single field
+ */
 struct NodeInputView: View {
     
     @Environment(\.appTheme) var theme
@@ -176,7 +180,10 @@ struct NodeInputView: View {
     @Bindable var graph: GraphState
     @Bindable var rowObserver: InputNodeRowObserver
     @Bindable var rowData: InputNodeRowObserver.RowViewModelType
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    
+    // This is for the inspector-row, so
+    let inputLayerNodeRowData: LayerInputObserver?
+    
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -369,9 +376,15 @@ struct NodeOutputView: View {
     }
 }
 
+// or should new protocol be taken here?
+// i.e. `row view model` should replaced by a protocol that is just
 struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
     @Bindable var graph: GraphState
-    @Bindable var rowViewModel: PortType
+    
+    // make more generic?
+    // currently we pass on the exact view model
+    @Bindable var rowViewModel: PortType // e.g. InputNodeRowViewModel
+    
     let nodeId: NodeId
     let isGroupNodeKind: Bool
     let forPropertySidebar: Bool

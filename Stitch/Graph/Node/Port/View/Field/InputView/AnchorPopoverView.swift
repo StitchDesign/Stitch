@@ -26,7 +26,7 @@ struct AnchorPopoverView: View {
     
     let input: InputCoordinate
     let selection: Anchoring
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
 

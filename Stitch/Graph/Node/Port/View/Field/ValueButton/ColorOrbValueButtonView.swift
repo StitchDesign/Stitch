@@ -18,7 +18,7 @@ struct ColorOrbValueButtonView: View {
     @State private var show = false
 
     let fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let nodeId: NodeId
     let id: InputCoordinate
     let currentColor: Color // the current color, from input

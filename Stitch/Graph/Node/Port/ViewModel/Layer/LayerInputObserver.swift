@@ -13,6 +13,8 @@ import StitchSchemaKit
 final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
+    
+    // TODO: use `private` to prevent access?
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     

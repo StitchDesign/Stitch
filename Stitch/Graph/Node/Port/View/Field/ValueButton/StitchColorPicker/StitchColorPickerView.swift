@@ -55,7 +55,7 @@ struct StitchColorPickerView: View {
     @State private var show: Bool = false
 
     let rowId: NodeIOCoordinate?
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let inputLayerNodeRowData: LayerInputObserver?
     let fieldCoordinate: FieldCoordinate
     let isFieldInsideLayerInspector: Bool
     var isForPreviewWindowBackgroundPicker: Bool = false

@@ -51,7 +51,9 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
         
-        handleLayerInputAddedToGraph(state: state, nodeId: nodeId, coordinate: coordinate)
+        handleLayerInputAddedToGraph(state: state, 
+                                     nodeId: nodeId,
+                                     coordinate: coordinate)
         
         return .shouldPersist
     }
