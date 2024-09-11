@@ -7,6 +7,59 @@
 
 import Foundation
 import StitchSchemaKit
+import SwiftUI
+
+
+// this will have to be typed by input vs output? b
+protocol NodeInputOutputData: AnyObject, Observable {
+    
+    var portColor: PortColor { get set }
+    
+    var canvasItemDelegate: CanvasItemViewModel? { get set }
+    
+    static var nodeIO: NodeIO { get }
+    
+    
+    // NEARLY EVERYTHING FROM NodeRowViewModel
+    
+//    var id: NodeRowViewModelId { get set }
+    
+    associatedtype FieldType: FieldViewModel
+    
+    // View-specific value that only updates when visible
+    // separate propety for perf reasons:
+    var activeValue: PortValue { get set }
+    
+    // Holds view models for fields
+    var fieldValueTypes: [FieldGroupTypeViewModel<FieldType>] { get set }
+    
+    var anchorPoint: CGPoint? { get set }
+    
+    var connectedCanvasItems: Set<CanvasItemId> { get set }
+        
+    var nodeDelegate: NodeDelegate? { get set }
+    
+    // No, can't have anything specific to row observer
+//    var rowDelegate: RowObserver? { get set }
+    
+    @MainActor func calculatePortColor() -> PortColor
+    
+    @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
+    
+    @MainActor func portDragEnded(graphState: GraphState)
+    
+    @MainActor func hasSelectedEdge() -> Bool
+    
+    @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
+    
+    
+    
+    // NEARLY EVERYTHING FROM NodeRowObsever
+    
+    var allLoopedValues: PortValues { get set }
+    var nodeKind: NodeKind { get set }
+    
+}
 
 // Must be a class for coordinate keypaths, which expect a reference type on the other end.
 @Observable

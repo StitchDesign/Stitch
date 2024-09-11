@@ -15,23 +15,27 @@ let PORT_ENTRY_NON_EXTENDED_HITBOX_SIZE = CGSize(
     width: PORT_VISIBLE_LENGTH,
     height: NODE_ROW_HEIGHT)
 
-struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
+//struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
+struct PortEntryView<ViewDataType: NodeInputOutputData>: View {
     @Environment(\.appTheme) var theme
 
     let height: CGFloat = 8
     
-    @Bindable var rowViewModel: NodeRowViewModelType
+//    @Bindable var rowViewModel: NodeRowViewModelType
+    @Bindable var viewData: ViewDataType
     @Bindable var graph: GraphState
     let coordinate: NodeIOPortType
 
     @MainActor
     var portColor: Color {
-        rowViewModel.portColor.color(theme)
+//        rowViewModel.portColor.color(theme)
+        viewData.portColor.color(theme)
     }
     
     @MainActor
     var isNodeMoving: Bool {
-        rowViewModel.canvasItemDelegate?.isMoving ?? false
+//        rowViewModel.canvasItemDelegate?.isMoving ?? false
+        viewData.canvasItemDelegate?.isMoving ?? false
     }
     
     var body: some View {
