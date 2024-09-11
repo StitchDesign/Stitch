@@ -24,6 +24,10 @@ extension URL {
     func appendingStitchMediaPath() -> URL {
         self.appendingPathComponent(STITCH_IMPORTED_FILES_DIR)
     }
+    
+    func appendingComponentsPath() -> URL {
+        self.appendingPathComponent(Self.componentsDirPath)
+    }
 
     func appendingDataJsonPath() -> URL {
         self.appendingPathComponent(StitchClipboardContent.dataJsonName,

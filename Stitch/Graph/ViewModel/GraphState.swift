@@ -428,7 +428,7 @@ extension GraphState {
                 return
             }
             
-            let _ = await self?.documentEncoder.encodeProject(document, 
+            let _ = await self?.documentEncoder.encodeProject(data,
                                                               temporaryURL: temporaryURL,
                                                               documentLoader: documentLoader)
         }
@@ -436,10 +436,10 @@ extension GraphState {
 
     @MainActor
     func encodeProject(temporaryURL: DocumentsURL? = nil) {
-        let document = self.createSchema()
+        let data = self.createSchema()
 
         // Update nodes data
-        self.updateGraphData(document: document)
+        self.updateGraphData(document: data.document)
 
         Task(priority: .background) { [weak self] in
             guard let documentLoader = self?.storeDelegate?.documentLoader else {

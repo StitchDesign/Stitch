@@ -454,6 +454,11 @@ extension StitchClipboardContent: MediaDocumentEncodable {
             .appendingPathComponent("copied-data",
                                     conformingTo: .stitchClipboard)
     }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Ignore param, always using temp directory
+        self.rootUrl
+    }
 
     static let dataJsonName = "data"
     
@@ -470,7 +475,7 @@ extension StitchClipboardContent: Transferable {
 
     @Sendable
     static func exportComponent(_ component: StitchClipboardContent) async -> SentTransferredFile {
-        await component.encodeDocumentContents()
+        await component.encodeDocumentContents(folderUrl: component.rootUrl)
 
         let url = component.dataJsonUrl
         await StitchClipboardContent.exportComponent(component, url: url)

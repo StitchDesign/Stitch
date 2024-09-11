@@ -72,6 +72,11 @@ extension StitchDocumentIdentifiable {
     var rootUrl: URL {
         Self.getRootUrl(from: self.projectId)
     }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Use param in case going to recently deleted temp directory
+        documentRootUrl
+    }
 
     /// URL location for recently deleted project.
     private var recentlyDeletedUrl: URL {
@@ -98,6 +103,12 @@ struct StitchDocumentData: Equatable {
     
     // final copies of components--only updated on user publish
     let publishedDocumentComponents: [StitchComponent]
+}
+
+extension StitchComponent: MediaDocumentEncodable {
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        documentRootUrl.appendingComponentsPath()
+    }
 }
 
 extension StitchComponent {
@@ -235,7 +246,7 @@ extension StitchDocumentData: Transferable, Sendable {
             // log("openDocument: successfully moved item")
             
             // Encode document contents on import to save newest project data
-            try DocumentLoader.encodeDocument(codableDoc)
+            try DocumentLoader.encodeDocument(codableDoc, to: codableDoc.rootUrl)
             // log("openDocument: successfully encoded item")
         }
         
