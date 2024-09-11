@@ -79,7 +79,7 @@ extension StitchStore {
         // TODO: loading state needed
         Task(priority: .userInitiated) {
             do {
-                guard let document = try await StitchDocument.openDocument(from: documentURL) else {
+                guard let data = try await StitchDocumentData.openDocument(from: documentURL) else {
                     await MainActor.run { [weak self] in
                         self?.displayError(error: .projectSchemaNotFound)
                     }
@@ -92,8 +92,8 @@ extension StitchStore {
                         return
                     }
                     
-                    log("handleProjectTapped: about to set \(document.projectId)")
-                    let graphState = GraphState(from: document,
+                    log("handleProjectTapped: about to set \(data.document.projectId)")
+                    let graphState = GraphState(from: data,
                                                 store: store)
                     store.navPath = [graphState]
                 }

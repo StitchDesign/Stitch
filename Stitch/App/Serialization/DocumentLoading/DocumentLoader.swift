@@ -63,7 +63,7 @@ actor DocumentLoader {
                                   isNonICloudDocumentsFile: Bool = false) async -> DocumentLoadingStatus {
         // Need to be kept for when first renders on screen.
         do {
-            guard let document = try await StitchDocument.openDocument(
+            guard let document = try await StitchDocumentData.openDocument(
                 from: url,
                 isImport: isImport,
                 isNonICloudDocumentsFile: isNonICloudDocumentsFile) else {

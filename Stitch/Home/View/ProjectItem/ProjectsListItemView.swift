@@ -73,10 +73,10 @@ struct ProjectsListItemView: View {
     let documentLoader: DocumentLoader
     let namespace: Namespace.ID
 
-    var document: StitchDocument? {
+    var data: StitchDocumentData? {
         switch projectLoader.loadingDocument {
-        case .loaded(let document):
-            return document
+        case .loaded(let data):
+            return data
         default:
             return nil
         }
@@ -91,13 +91,13 @@ struct ProjectsListItemView: View {
                 ProjectsListItemIconView(projectThumbnail: nil,
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
-            case .loaded(let document):
+            case .loaded(let data):
                 #if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: document.getProjectThumbnailImage(),
-                    previewWindowBackgroundColor: document.previewWindowBackgroundColor,
+                    projectThumbnail: data.document.getProjectThumbnailImage(),
+                    previewWindowBackgroundColor: data.document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
                         dispatch(ProjectTapped(documentURL: projectLoader.url))
@@ -106,8 +106,8 @@ struct ProjectsListItemView: View {
             }
         } labelView: {
             switch projectLoader.loadingDocument {
-            case .loaded(let document):
-                ProjectThumbnailTextField(document: document,
+            case .loaded(let data):
+                ProjectThumbnailTextField(document: data.document,
                                           namespace: namespace)
             default:
                 // Blank text view to copy height of loaded view
@@ -126,7 +126,7 @@ struct ProjectsListItemView: View {
         .onDisappear {
             self.projectLoader.loadingDocument = .initialized
         }
-        .projectContextMenu(document: document,
+        .projectContextMenu(data: data,
                             url: projectLoader.url)
         .animation(.stitchAnimation, value: projectLoader.loadingDocument)
     }

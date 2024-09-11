@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct ShareViewModifier: ViewModifier {
     @State private var isProjectLoaded = false
     @State private var sharableURL: URL?
-    let document: StitchDocument?
+    let data: StitchDocumentData?
     @Binding var willPresent: Bool
 
     func body(content: Content) -> some View {
@@ -27,7 +27,7 @@ struct ShareViewModifier: ViewModifier {
                     ]
                 )
             }
-            .onChange(of: document) {
+            .onChange(of: data) {
                 self.updateShareSheet()
             }
             .onChange(of: willPresent) {
@@ -39,10 +39,10 @@ struct ShareViewModifier: ViewModifier {
     } // var body
 
     func updateShareSheet() {
-        if let document = self.document,
+        if let document = self.data,
            willPresent {
             Task(priority: .high) {
-                let newUrl = await StitchDocument.exportDocument(document).file
+                let newUrl = await StitchDocumentData.exportDocument(document).file
 
                 await MainActor.run {
                     self.sharableURL = newUrl
@@ -79,13 +79,13 @@ struct ActivityViewController: UIViewControllerRepresentable {
 
 struct StitchDocumentShareButton: View {
     @Binding var willPresentShareSheet: Bool
-    let document: StitchDocument
+    let data: StitchDocumentData
 
     var body: some View {
         // MARK: ShareLink broken on iPad
         #if targetEnvironment(macCatalyst)
-        ShareLink(item: document,
-                  preview: SharePreview(document.name)) {
+        ShareLink(item: data,
+                  preview: SharePreview(data.document.name)) {
             Label("Share", systemImage: "square.and.arrow.up")
         }
         #else
@@ -158,19 +158,19 @@ struct ProjectContextMenuModifer: ViewModifier {
     @Environment(StitchStore.self) private var store
     @State var willPresentShareSheet = false
 
-    let document: StitchDocument?
+    let data: StitchDocumentData?
     let url: URL
 
     func body(content: Content) -> some View {
         return content
             .contextMenu {
-                if let document = document {
+                if let data = data {
                     StitchDocumentShareButton(willPresentShareSheet: $willPresentShareSheet,
-                                              document: document)
+                                              data: data)
                     
                     StitchButton(action: {
                         Task { [weak store] in
-                            await store?.copyExistingProject(document)
+                            await store?.copyExistingProject(data.document)
                         }
                     }, label: {
                         Text("Duplicate")
@@ -182,7 +182,7 @@ struct ProjectContextMenuModifer: ViewModifier {
                     StitchButton(role: .destructive,
                                  action: {
                         // log("ProjectContextMenuModifier: will attempt to delete URL: \(projectURL)")
-                        dispatch(ProjectDeleted(document: document))
+                        dispatch(ProjectDeleted(document: data.document))
                     }, label: {
                         Text("Delete")
                         Image(systemName: "trash")
@@ -206,9 +206,9 @@ struct ProjectContextMenuModifer: ViewModifier {
 }
 
 extension View {
-    func projectContextMenu(document: StitchDocument?,
+    func projectContextMenu(data: StitchDocumentData?,
                             url: URL) -> some View {
-        self.modifier(ProjectContextMenuModifer(document: document,
+        self.modifier(ProjectContextMenuModifer(data: data,
                                                 url: url))
     }
 }

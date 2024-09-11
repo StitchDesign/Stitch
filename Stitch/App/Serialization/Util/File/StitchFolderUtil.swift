@@ -29,6 +29,10 @@ struct DocumentsURL: Equatable, Codable {
 }
 
 extension StitchDocumentIdentifiable {
+    var componentsDirUrl: URL {
+        self.rootUrl.appending(component: URL.componentsDirPath)
+    }
+    
     func getImportedFilesURL(forRecentlyDeleted: Bool = false) -> URL {
         self.getUrl(forRecentlyDeleted: forRecentlyDeleted)
             .appendingStitchMediaPath()

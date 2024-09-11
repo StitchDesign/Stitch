@@ -38,7 +38,8 @@ extension StitchDocument: StitchDocumentIdentifiable {
                   zoomData: 1,
                   nodes: nodes,
                   orderedSidebarLayers: [],
-                  commentBoxes: .init(),
+                  commentBoxes: .init(), 
+                  draftedComponents: [],
                   cameraSettings: .init())
     }
     
@@ -89,7 +90,35 @@ protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
     var projectId: UUID { get }
 }
 
-extension StitchDocument: Transferable, Sendable {
+// TODO: move
+/// Data structure representing all saved files for some project.
+/// Components are not defined in `StitchDocument` as they are managed in separate files.
+struct StitchDocumentData: Equatable {
+    let document: StitchDocument
+    
+    // final copies of components--only updated on user publish
+    let publishedDocumentComponents: [StitchComponent]
+}
+
+extension StitchComponent {
+    static func migrateEncodedComponents(at directory: URL) throws -> [StitchComponent] {
+        let componentDirectories = try FileManager.default.contentsOfDirectory(atPath: directory.path())
+        
+        let components = componentDirectories.compactMap { componentPath in
+            let componentUrl = URL(fileURLWithPath: componentPath, isDirectory: true)
+            do {
+                return try StitchComonentVersion.migrate(versionedCodableUrl: componentUrl)
+            } catch {
+                fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
+                return nil
+            }
+        }
+        
+        return components
+    }
+}
+
+extension StitchDocumentData: Transferable, Sendable {
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(contentType: .stitchDocument,
                            exporting: Self.exportDocument,
@@ -97,9 +126,10 @@ extension StitchDocument: Transferable, Sendable {
     }
 
     @Sendable
-    static func exportDocument(_ document: StitchDocument) async -> SentTransferredFile {
+    static func exportDocument(_ data: StitchDocumentData) async -> SentTransferredFile {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
+        let document = data.document
         let projectURL = document.getUrl()
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
@@ -137,9 +167,9 @@ extension StitchDocument: Transferable, Sendable {
     }
 
     @Sendable
-    static func importDocument(_ received: ReceivedTransferredFile) async -> StitchDocument {
+    static func importDocument(_ received: ReceivedTransferredFile) async -> StitchDocumentData {
         do {
-            guard let doc = try await Self.openDocument(from: received.file,
+            guard let data = try await Self.openDocument(from: received.file,
                                                         isImport: true) else {
                 //                #if DEBUG
                 //                fatalError()
@@ -147,19 +177,21 @@ extension StitchDocument: Transferable, Sendable {
                 DispatchQueue.main.async {
                     dispatch(DisplayError(error: .unsupportedProject))
                 }
-                return StitchDocument()
+                return .init(document: .init(),
+                             publishedDocumentComponents: [])
             }
 
-            return doc
+            return data
         } catch {
             fatalErrorIfDebug()
-            return StitchDocument()
+            return .init(document: .init(),
+                         publishedDocumentComponents: [])
         }
     }
 
     static func openDocument(from importedUrl: URL,
                              isImport: Bool = false,
-                             isNonICloudDocumentsFile: Bool = false ) async throws -> StitchDocument? {
+                             isNonICloudDocumentsFile: Bool = false ) async throws -> StitchDocumentData? {
         
         // log("openDocument importedUrl: \(importedUrl)")
                 
@@ -206,15 +238,21 @@ extension StitchDocument: Transferable, Sendable {
             try DocumentLoader.encodeDocument(codableDoc)
             // log("openDocument: successfully encoded item")
         }
+        
+        // Find and migrate each installed component
+        let publishedDocumentComponentsDir = codableDoc.componentsDirUrl
+        let components = try StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)
 
         graphDataUrl.stopAccessingSecurityScopedResource()
 
         log("openDocument: returning codable doc")
-        return codableDoc
+        let data = StitchDocumentData(document: codableDoc,
+                                      publishedDocumentComponents: components)
+        return data
     }
 }
 
-extension StitchDocument {
+extension StitchDocumentData {
     /// Unzips document contents on project import, returning the URL of the unzipped contents.
     static func getUnzippedProjectData(importedUrl: URL) throws -> URL? {
         // .stitchproject is already unzipped so we just return this
@@ -226,21 +264,23 @@ extension StitchDocument {
             fatalErrorIfDebug("Expected .stitch file type but got: \(importedUrl.pathExtension)")
             return nil
         }
-
+        
         let unzipDestinationURL = StitchFileManager.tempDir
             .appendingPathComponent(UUID().uuidString)
         try FileManager.default.unzipItem(at: importedUrl, to: unzipDestinationURL)
-
+        
         // Find .stitchproject file
         let items = try FileManager.default.contentsOfDirectory(at: unzipDestinationURL,
                                                                 includingPropertiesForKeys: nil)
         let projectFile = items.first { file in
             file.pathExtension == UTType.stitchProjectData.preferredFilenameExtension
         }
-
+        
         return projectFile
     }
-    
+}
+
+extension StitchDocument {
     public static let defaultName = "Untitled"
     
     /// Matches iPHone 12, 13, 14 etc

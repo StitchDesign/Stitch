@@ -9,27 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// TODO: move to SSK
-struct StitchComponent: Codable {
-    public var id = UUID()
-    public var nodes: [NodeEntity]
-    public var orderedSidebarLayers: SidebarLayerList
-    public let lastModifiedDate: Date
-    public let version: Int
-    
-    public init(id: UUID = UUID(),
-                nodes: [NodeEntity],
-                orderedSidebarLayers: SidebarLayerList,
-                lastModifiedDate: Date,
-                version: Int) {
-        self.id = id
-        self.nodes = nodes
-        self.orderedSidebarLayers = orderedSidebarLayers
-        self.lastModifiedDate = lastModifiedDate
-        self.version = version
-    }
-}
-
 extension StitchComponent: StitchComponentable { }
 
 // MARK: always be saved locally in case of edits, remote deletions

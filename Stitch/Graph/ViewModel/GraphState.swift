@@ -58,7 +58,6 @@ final class GraphState: Sendable {
     
     var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
     
-    
     var commentBoxesDict = CommentBoxesDict()
     var cameraSettings = CameraSettings()
 
@@ -87,6 +86,10 @@ final class GraphState: Sendable {
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
     
+    // Encoded copies of local published components
+    var publishedDocumentComponents: [StitchComponent]
+    var draftedComponents: [StitchComponentViewModel]
+    
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
     var cachedOrderedPreviewLayers: LayerDataList = .init()
@@ -113,11 +116,12 @@ final class GraphState: Sendable {
     // Keeps reference to store
     weak var storeDelegate: StoreDelegate?
 
-    @MainActor init(from schema: StitchDocument,
+    @MainActor init(from data: StitchDocumentData,
          store: StoreDelegate?) {
         // MARK: do not populate ordered sidebar layers until effect below is dispatched!
         // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
         // but nodes haven't yet populated
+        let schema = data.document
 
         self.graphUI = GraphUIState()
         self.documentEncoder = .init(document: schema)
@@ -129,6 +133,7 @@ final class GraphState: Sendable {
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.cameraSettings = schema.cameraSettings
         self.localPosition = schema.localPosition
+        self.publishedDocumentComponents = data.publishedDocumentComponents
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store
@@ -191,34 +196,37 @@ extension GraphState: GraphDelegate {
 extension GraphState: SchemaObserver {
     var id: ProjectId { self.projectId }
 
-    @MainActor convenience init(id: ProjectId,
-                     projectName: String = STITCH_PROJECT_DEFAULT_NAME,
-                     previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                     previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
-                     previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
-                     localPosition: CGPoint = .zero,
-                     zoomData: CGFloat = 1,
-                     nodes: [NodeEntity] = [],
-                     orderedSidebarLayers: [SidebarLayerData] = [],
-                     commentBoxes: [CommentBoxData] = .init(),
-                     cameraSettings: CameraSettings = CameraSettings(),
-                     store: StoreDelegate?) {
-        let document = StitchDocument(projectId: id,
-                                      name: projectName,
-                                      previewWindowSize: previewWindowSize,
-                                      previewSizeDevice: previewSizeDevice,
-                                      previewWindowBackgroundColor: previewWindowBackgroundColor,
-                                      localPosition: localPosition,
-                                      zoomData: zoomData,
-                                      nodes: nodes,
-                                      orderedSidebarLayers: orderedSidebarLayers,
-                                      commentBoxes: commentBoxes,
-                                      cameraSettings: cameraSettings)
-        self.init(from: document, store: store)
-    }
+//    @MainActor convenience init(id: ProjectId,
+//                                projectName: String = STITCH_PROJECT_DEFAULT_NAME,
+//                                previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+//                                previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
+//                                previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
+//                                localPosition: CGPoint = .zero,
+//                                zoomData: CGFloat = 1,
+//                                nodes: [NodeEntity] = [],
+//                                orderedSidebarLayers: [SidebarLayerData] = [],
+//                                draftedComponents: [StitchComponent] = [],
+//                                commentBoxes: [CommentBoxData] = .init(),
+//                                cameraSettings: CameraSettings = CameraSettings(),
+//                                store: StoreDelegate?) {
+//        let document = StitchDocument(projectId: id,
+//                                      name: projectName,
+//                                      previewWindowSize: previewWindowSize,
+//                                      previewSizeDevice: previewSizeDevice,
+//                                      previewWindowBackgroundColor: previewWindowBackgroundColor,
+//                                      localPosition: localPosition,
+//                                      zoomData: zoomData,
+//                                      nodes: nodes,
+//                                      orderedSidebarLayers: orderedSidebarLayers,
+//                                      commentBoxes: commentBoxes,
+//                                      draftedComponents: draftedComponents,
+//                                      cameraSettings: cameraSettings)
+//
+//        self.init(from: document, store: store)
+//    }
 
     @MainActor
-    static func createObject(from entity: StitchDocument) -> Self {
+    static func createObject(from entity: StitchDocumentData) -> Self {
         // Unused
         fatalErrorIfDebug()
         
@@ -226,11 +234,13 @@ extension GraphState: SchemaObserver {
     }
 
     @MainActor
-    func update(from schema: StitchDocument) {
-
+    func update(from data: StitchDocumentData) {
+        let schema = data.document
+        
         // Sync project attributes
         self.projectId = schema.projectId
         self.projectName = schema.name
+        self.publishedDocumentComponents = data.publishedDocumentComponents
 
         // Sync preview window attributes
         self.previewWindowSize = schema.previewWindowSize
@@ -282,23 +292,28 @@ extension GraphState: SchemaObserver {
         self.visibleNodesViewModel.pinMap = rootPinMap
     }
 
-    func createSchema() -> StitchDocument {
+    func createSchema() -> StitchDocumentData {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
 
-        return StitchDocument(projectId: self.projectId,
-                              name: self.projectName,
-                              previewWindowSize: self.previewWindowSize,
-                              previewSizeDevice: self.previewSizeDevice,
-                              previewWindowBackgroundColor: self.previewWindowBackgroundColor,
-                              // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
-                              localPosition: self.localPositionToPersist,
-                              zoomData: self.graphMovement.zoomData.zoom,
-                              nodes: nodes,
-                              orderedSidebarLayers: self.orderedSidebarLayers,
-                              commentBoxes: commentBoxes,
-                              cameraSettings: self.cameraSettings)
+        fatalError("derive drafted components from live data")
+        
+        let doc = StitchDocument(projectId: self.projectId,
+                                 name: self.projectName,
+                                 previewWindowSize: self.previewWindowSize,
+                                 previewSizeDevice: self.previewSizeDevice,
+                                 previewWindowBackgroundColor: self.previewWindowBackgroundColor,
+                                 // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
+                                 localPosition: self.localPositionToPersist,
+                                 zoomData: self.graphMovement.zoomData.zoom,
+                                 nodes: nodes,
+                                 orderedSidebarLayers: self.orderedSidebarLayers,
+                                 commentBoxes: commentBoxes, 
+                                 draftedComponents: [],
+                                 cameraSettings: self.cameraSettings)
+        return .init(document: doc,
+                     publishedDocumentComponents: self.publishedDocumentComponents)
     }
     
     func onPrototypeRestart() {
@@ -405,7 +420,7 @@ extension GraphState {
             return
         }
         
-        let document = self.createSchema()
+        let data = self.createSchema()
         
         Task(priority: .background) { [weak documentLoader, weak self] in
             guard let documentLoader = documentLoader else {
@@ -413,7 +428,8 @@ extension GraphState {
                 return
             }
             
-            let _ = await self?.documentEncoder.encodeProject(document, temporaryURL: temporaryURL,
+            let _ = await self?.documentEncoder.encodeProject(document, 
+                                                              temporaryURL: temporaryURL,
                                                               documentLoader: documentLoader)
         }
     }

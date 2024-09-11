@@ -101,7 +101,7 @@ public typealias LayerInputPort = CurrentLayerInputPort.LayerInputPort
 public typealias LayerInputKeyPathType = CurrentLayerInputKeyPathType.LayerInputKeyPathType
 public typealias UnpackedPortType = CurrentUnpackedPortType.UnpackedPortType
 public typealias StitchTransform = CurrentStitchTransform.StitchTransform
-//public typealias StitchComponent = CurrentStitchComponent.StitchComponent
+public typealias StitchComponent = StitchComponent_V24.StitchComponent // CurrentStitchComponent.StitchComponent
 
 
 // TODO: move
@@ -115,15 +115,15 @@ public struct StitchDocumentVersion: StitchSchemaVersionType {
     }
 }
 
-//public struct StitchComonentVersion: StitchSchemaVersionType {
-//    public typealias NewestVersionType = StitchComponent
-//    
-//    public var version: StitchSchemaVersion
-//    
-//    public init(version: StitchSchemaVersion) {
-//        self.version = version
-//    }
-//}
+public struct StitchComonentVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchComponent
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
 
 extension StitchDocumentVersion {
     public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
@@ -180,17 +180,17 @@ extension StitchDocumentVersion {
     }
 }
 
-//extension StitchComonentVersion {
-//    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
-//        switch version {
-//        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23:
-//            fatalError("No StitchComponent version expected before v24.")
-//            
-//        case ._V24:
-//            return StitchComponent_V24.StitchComponent.self
-//        }
-//    }
-//}
+extension StitchComonentVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23:
+            fatalError("No StitchComponent version expected before v24.")
+            
+        case ._V24:
+            return StitchComponent_V24.StitchComponent.self
+        }
+    }
+}
 
 
 public enum NodeTypeEntity: Equatable, Codable {
@@ -227,6 +227,32 @@ public enum NodeEntity_V24: StitchSchemaVersionable {
     }
 }
 
+// TODO: move to SSK
+public enum StitchComponent_V24: StitchSchemaVersionable {
+    public static let version = StitchSchemaVersion._V24
+    
+    public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
+        public var id = UUID()
+        public var nodes: [NodeEntity]
+        public var orderedSidebarLayers: [SidebarLayerData]
+        public let lastModifiedDate: Date
+        
+        public init(id: UUID = UUID(),
+                    nodes: [NodeEntity],
+                    orderedSidebarLayers: [SidebarLayerData],
+                    lastModifiedDate: Date) {
+            self.id = id
+            self.nodes = nodes
+            self.orderedSidebarLayers = orderedSidebarLayers
+            self.lastModifiedDate = lastModifiedDate
+        }
+        
+        public init(previousInstance: Self) {
+            fatalError()
+        }
+    }
+}
+
 public enum StitchDocument_V24: StitchSchemaVersionable {
     public static let version = StitchSchemaVersion._V24
     
@@ -248,6 +274,9 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
         public var orderedSidebarLayers: [SidebarLayerData]
         public let commentBoxes: [CommentBoxData]
         
+        // Saves local changes of components, cross-checked with published copies for detecting changes
+        public var draftedComponents: [StitchComponent]
+        
         public let cameraSettings: CameraSettings
         
         public init(projectId: ProjectId,
@@ -260,6 +289,7 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
                     nodes: [NodeEntity],
                     orderedSidebarLayers: [SidebarLayerData],
                     commentBoxes: [CommentBoxData],
+                    draftedComponents: [StitchComponent],
                     cameraSettings: CameraSettings) {
             self.projectId = projectId
             self.name = name
@@ -271,6 +301,7 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
             self.nodes = nodes
             self.orderedSidebarLayers = orderedSidebarLayers
             self.commentBoxes = commentBoxes
+            self.draftedComponents = draftedComponents
             self.cameraSettings = cameraSettings
         }
         
