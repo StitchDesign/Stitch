@@ -65,7 +65,7 @@ struct CommonEditingViewWrapper: View {
         } else if isForSpacingField {
             return SPACING_FIELD_WIDTH
         } else if nodeKind.getPatch == .soulver {
-            return 90
+            return SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH
         }
         else {
             return NODE_INPUT_OR_OUTPUT_WIDTH
