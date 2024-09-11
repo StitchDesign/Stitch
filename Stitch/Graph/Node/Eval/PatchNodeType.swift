@@ -85,11 +85,10 @@ struct ArithmeticUVT: NodeTypeEnummable {
 
 // For Add, Substract nodes
 enum ArithmeticNodeType: PatchNodeTypeSet {
-    case string, number, position, size, point3D
+    case number, position, size, point3D
 
     static func fromNodeType(_ nodeType: UserVisibleType) -> ArithmeticNodeType {
         switch nodeType {
-        case .string: return .string
         case .number: return .number
         case .position: return .position
         case .size: return .size
@@ -100,6 +99,7 @@ enum ArithmeticNodeType: PatchNodeTypeSet {
         }
     }
 }
+
 
 // MATH: Multiply, Divide nodes
 

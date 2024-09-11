@@ -36,7 +36,7 @@ func subtractNode(id: NodeId,
 }
 
 func subtractEval(inputs: PortValuesList,
-                  evalKind: ArithmeticNodeType) -> PortValuesList {
+                  evalKind: MathNodeType) -> PortValuesList {
 
     let numberOperation: Operation = { (values: PortValues) -> PortValue in
 
@@ -90,9 +90,6 @@ func subtractEval(inputs: PortValuesList,
     switch evalKind {
     case .number:
         return result(numberOperation)
-    case .string:
-        log("subtract node does not support string type eval")
-        return result(stringOp)
     case .size:
         return result(sizeOperation)
     case .position:

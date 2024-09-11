@@ -101,13 +101,12 @@ extension Patch {
         //            return NumberUVT.value
 
         // ARITHMETIC
-        case .add, .subtract,
-             .squareRoot, .length, .power:
+        case .add:
             // LATER: color
             return ArithmeticUVT.value
 
-        // MATH
-        case .multiply, .divide:
+        // Updated to exclude text/string types
+        case .subtract, .multiply, .divide, .power, .squareRoot:
             return MathUVT.value
 
         // ANIMATION

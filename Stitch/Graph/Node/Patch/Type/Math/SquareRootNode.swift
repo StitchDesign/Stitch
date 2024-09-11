@@ -38,7 +38,7 @@ func squareRootNode(id: NodeId,
 }
 
 func squareRootEval(inputs: PortValuesList,
-                    evalKind: ArithmeticNodeType) -> PortValuesList {
+                    evalKind: MathNodeType) -> PortValuesList {
 
     //    log("squareRootEval called")
 
@@ -77,8 +77,6 @@ func squareRootEval(inputs: PortValuesList,
     let result = resultsMaker(inputs)
 
     switch evalKind {
-    case .string:
-        return result(stringOp)
     case .number:
         return result(numberOp)
     case .position:
