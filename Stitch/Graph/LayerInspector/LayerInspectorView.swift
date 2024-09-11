@@ -241,8 +241,9 @@ struct LayerInspectorInputsSectionView: View {
       
     var body: some View {
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs, id: \.layerInput) { layerInput in
+            ForEach(layerInputs, id: \.layerInput) { (layerInput) in
                 let layerPort: LayerInputObserver = layerInput.portObserver
+                
                 
                 // TODO: only using packed data here
                 let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false

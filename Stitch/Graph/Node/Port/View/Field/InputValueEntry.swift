@@ -38,12 +38,13 @@ struct InputValueEntry: View {
     
     // TODO: support derived field-labels
     // TODO: perf-impact? is this running all the time?
+    @MainActor
     var useIndividualFieldLabel: Bool {
         if forPropertySidebar,
             isFieldInMultifieldInput,
             !isForFlyout,
            // Do not use labels on the fields of a padding-type input
-            (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false) {
+            (inputLayerNodeRowData?.activeValue.getPadding.isDefined ?? false) {
             return false
         }
         
@@ -312,16 +313,14 @@ struct InputValueView: View {
                                     nodeId: rowObserverId.nodeId,
                                     id: rowObserverId,
                                     currentColor: color,
-                                    /*hasIncomingEdge: hasIncomingEdge*/
-                                    hasIncomingEdge: false,
+                                    hasIncomingEdge: hasIncomingEdge,
                                     graph: graph)
 
         case .pulse(let pulseTime):
             PulseValueButtonView(inputCoordinate: rowObserverId,
                                  nodeId: rowObserverId.nodeId,
                                  pulseTime: pulseTime,
-                                 /*hasIncomingEdge: hasIncomingEdge*/
-                                 hasIncomingEdge: false)
+                                 hasIncomingEdge: hasIncomingEdge)
 
         case .json(let json):
             EditJSONEntry(graph: graph,

@@ -48,12 +48,17 @@ struct CommonEditingViewWrapper: View {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
         
-    // There MUST be 
+    // There MUST be an inspector-row for this
+    // Can there be a better way to handle this?
+    // Maybe don't care whether it's inside the inspector or not?
+    @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultfieldInspectorInput
-        && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
+        && (inputLayerNodeRowData?.activeValue.getPadding.isDefined ?? false)
+//        && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
     }
     
+    @MainActor
     var fieldWidth: CGFloat {
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH

@@ -78,18 +78,22 @@ struct ShadowFlyoutView: View {
                // TODO: why must we double this?
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             ForEach(LayerInspectorView.shadow) { shadowInput in
-                let layerInputPort = layerNode[keyPath: shadowInput.layerNodeKeyPath]
+                let layerInputPort: LayerInputObserver = layerNode[keyPath: shadowInput.layerNodeKeyPath]
                 let layerInputData = layerInputPort._packedData
-                NodeInputView(graph: graph,
-                              rowObserver: layerInputData.rowObserver,
-                              rowData: layerInputData.inspectorRowViewModel,
-                              inputLayerNodeRowData: layerInputData,
-                              forPropertySidebar: true,
-                              propertyIsSelected: false, // NA
-                              // TODO: applicable or not?
-                              propertyIsAlreadyOnGraph: false ,
-                              isCanvasItemSelected: false,
-                              forFlyout: true)
+                
+                Text("Joy")
+                
+//                NodeInputView(graph: graph,
+//                              rowObserver: layerInputData.rowObserver,
+//                              rowData: layerInputData.inspectorRowViewModel,
+//                              inputLayerNodeRowData: layerInputData,
+//                              forPropertySidebar: true,
+//                              propertyIsSelected: false, // NA
+//                              // TODO: applicable or not?
+//                              propertyIsAlreadyOnGraph: false ,
+//                              isCanvasItemSelected: false,
+//                              forFlyout: true)
+                
                 // Each row seems too tall? Probably from a set node row height somewhere?
                 // Uses padding to reduce size
 //                .padding([.top, .bottom], -2)

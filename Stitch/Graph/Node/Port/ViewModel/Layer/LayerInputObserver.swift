@@ -49,6 +49,11 @@ final class LayerInputObserver {
 
 extension LayerInputObserver {
     @MainActor
+    var nodeId: NodeId {
+        self.rowObserver.id.nodeId
+    }
+    
+    @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
             return .unpacked
@@ -200,7 +205,7 @@ extension InputLayerNodeRowData {
     }
 }
 
-enum LayerInputMode {
+enum LayerInputMode: Equatable, Hashable {
     case packed
     case unpacked
 }
@@ -208,4 +213,25 @@ enum LayerInputMode {
 enum LayerInputObserverMode {
     case packed(InputLayerNodeRowData)
     case unpacked(LayerInputUnpackedPortObserver)
+}
+
+extension LayerInputObserverMode {
+
+    var isPacked: Bool {
+        switch self {
+        case .packed:
+            return true
+        case .unpacked:
+            return false
+        }
+    }
+    
+    var isUnpacked: Bool {
+        switch self {
+        case .packed:
+            return false
+        case .unpacked:
+            return true
+        }
+    }
 }

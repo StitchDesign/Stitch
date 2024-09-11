@@ -205,22 +205,19 @@ struct OutputValueView: View {
                                 isInput: false,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
-                                hasIncomingEdge: false,
                                 isFieldInsideLayerInspector: false,
                                 isSelectedInspectorRow: isSelectedInspectorRow,
                                 graph: graph)
 
         case .color(let color):
             StitchColorPickerOrb(chosenColor: color, 
-                                 isMultiselectInspectorInputWithHeterogenousValues: false)
+                                    isMultiselectInspectorInputWithHeterogenousValues: false)
 
         case .pulse(let pulseTime):
-            PulseValueButtonView(
-                graph: graph,
-                inputPort: nil,
-                stitchId: coordinate.nodeId,
-                pulseTime: pulseTime,
-                hasIncomingEdge: false)
+            PulseValueButtonView(inputCoordinate: nil,
+                                 nodeId: coordinate.nodeId,
+                                 pulseTime: pulseTime,
+                                 hasIncomingEdge: false)
 
         case .json(let json):
             ValueJSONView(coordinate: coordinate,

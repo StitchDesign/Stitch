@@ -12,7 +12,6 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
-    let nodeId: NodeId
     
     var body: some View {
         let observerMode = portObserver.observerMode
@@ -34,17 +33,19 @@ struct LayerInspectorInputPortView: View {
         
         let coordinate: NodeIOCoordinate = .init(
             portType: .keyPath(layerInputType),
-            nodeId: nodeId)
+            nodeId: portObserver.nodeId)
         
         // When a single field is on the canvas, should we show the "this inspector row is on the canvas" ?
         // Per Origami, no?
         
         // Does this inspector-row (the entire input) have a canvas item?
-        let canvasItemId: CanvasItemId? = observerMode == .packed ? portObserver._packedData.canvasObserver?.id : nil
+        let canvasItemId: CanvasItemId? = observerMode.isPacked ? portObserver._packedData.canvasObserver?.id : nil
         
 //        // Grab the "parent"/"packed"
 //        let inputLayerNodeRowData: LayerInputObserver =
 //        let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
+        
+        Text("Love")
         
         LayerInspectorPortView(
             layerProperty: layerProperty,
@@ -60,6 +61,9 @@ struct LayerInspectorInputPortView: View {
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                               isCanvasItemSelected: false)
             }
+        
+        
+        
 //
 //
 //        // TODO: inspector row ALWAYS shows packed version; individual fields are only shows as rows in the flyout ('flyout row')
