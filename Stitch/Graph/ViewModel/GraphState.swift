@@ -88,7 +88,7 @@ final class GraphState: Sendable {
     
     // Encoded copies of local published components
     var publishedDocumentComponents: [StitchComponent]
-    var draftedComponents: [StitchComponentViewModel]
+    var draftedComponents: [StitchComponent]
     
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
@@ -130,10 +130,12 @@ final class GraphState: Sendable {
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
-        self.commentBoxesDict.sync(from: schema.commentBoxes)
+        self.publishedDocumentComponents = data.publishedDocumentComponents
+        self.draftedComponents = schema.draftedComponents
         self.cameraSettings = schema.cameraSettings
         self.localPosition = schema.localPosition
-        self.publishedDocumentComponents = data.publishedDocumentComponents
+
+        self.commentBoxesDict.sync(from: schema.commentBoxes)
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store
@@ -142,7 +144,7 @@ final class GraphState: Sendable {
         DispatchQueue.main.async { [weak self] in
             if let graph = self {
                 dispatch(GraphInitialized(graph: graph,
-                                          document: schema))
+                                          data: data))
             }
         }
     }
@@ -193,7 +195,7 @@ extension GraphState: GraphDelegate {
     }
 }
 
-extension GraphState: SchemaObserver {
+extension GraphState {
     var id: ProjectId { self.projectId }
 
 //    @MainActor convenience init(id: ProjectId,
@@ -292,7 +294,7 @@ extension GraphState: SchemaObserver {
         self.visibleNodesViewModel.pinMap = rootPinMap
     }
 
-    func createSchema() -> StitchDocumentData {
+    @MainActor func createSchema() -> StitchDocumentData {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
@@ -316,7 +318,7 @@ extension GraphState: SchemaObserver {
                      publishedDocumentComponents: self.publishedDocumentComponents)
     }
     
-    func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart() {
         self.graphStepManager.resetGraphStepState()
         
         self.nodes.values.forEach { $0.onPrototypeRestart() }

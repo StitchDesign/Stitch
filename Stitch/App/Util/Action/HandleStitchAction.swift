@@ -33,11 +33,11 @@ struct KeyCharacterPressBegan: StitchStoreEvent {
 
 struct GraphInitialized: StitchStoreEvent {
     let graph: GraphState
-    let document: StitchDocument
+    let data: StitchDocumentData
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         Task { [weak graph] in
-            await graph?.graphInitialized(document: document)
+            await graph?.graphInitialized(data: data)
         }
         return .noChange
     }

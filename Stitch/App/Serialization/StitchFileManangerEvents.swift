@@ -28,14 +28,14 @@ extension DocumentEncoder {
 
 extension GraphState {
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func graphInitialized(document: StitchDocument) async {
+    func graphInitialized(data: StitchDocumentData) async {
         let importedFilesDir = await StitchFileManager
             .getAllMediaURLs(in: self.createSchema().document.getImportedFilesURL())
 
         // Start graph once library is built
         await MainActor.run { [weak self] in
             self?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
-                                                 document: document)
+                                                 data: data)
         }
     }
 }

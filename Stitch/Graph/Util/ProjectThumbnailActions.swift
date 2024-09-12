@@ -27,7 +27,7 @@ extension StitchStore {
             .clipped()
         
         let documentData = graph.createSchema()
-        let rootUrl = graph.rootUrl
+        let rootUrl = documentData.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
         
         Task { [weak self] in

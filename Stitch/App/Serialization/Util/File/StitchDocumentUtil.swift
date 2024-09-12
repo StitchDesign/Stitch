@@ -27,6 +27,12 @@ extension UTType {
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
+extension StitchDocumentData: StitchDocumentIdentifiable {
+    var projectId: UUID {
+        self.document.projectId
+    }
+}
+
 extension StitchDocument: StitchDocumentIdentifiable {
     init(nodes: [NodeEntity] = []) {
         self.init(projectId: ProjectId(),
@@ -148,7 +154,7 @@ extension StitchDocumentData: Transferable, Sendable {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
         let document = data.document
-        let projectURL = document.getUrl()
+        let projectURL = data.getUrl()
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
@@ -209,7 +215,7 @@ extension StitchDocumentData: Transferable, Sendable {
 
     static func openDocument(from importedUrl: URL,
                              isImport: Bool = false,
-                             isNonICloudDocumentsFile: Bool = false ) async throws -> StitchDocumentData? {
+                             isNonICloudDocumentsFile: Bool = false) async throws -> StitchDocumentData? {
         
         // log("openDocument importedUrl: \(importedUrl)")
                 

@@ -33,7 +33,7 @@ struct CloseGraph: StitchStoreEvent {
 extension GraphState {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        document: StitchDocument) {
+                                        data: StitchDocumentData) {
 
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded
@@ -56,7 +56,7 @@ extension GraphState {
         self.graphStepManager.start()
 
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
-        self.update(from: document)
+        self.update(from: data)
         
         self.updateSidebarListStateAfterStateChange()
         
