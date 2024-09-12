@@ -30,6 +30,7 @@ final class LayerInputObserver {
                                         portType: .packed),
                                   layer: schema.layer)
         
+        // initial these with field indices that reflect port0 vs port1 vs port2 ..
         self._unpackedData = .init(layerPort: port,
                                    layer: schema.layer,
                                    port0: .empty(.init(layerInput: port,
@@ -52,7 +53,11 @@ extension LayerInputObserver {
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
     @MainActor
     func overallPortLabel(usesShortLabel: Bool) -> String {
-        self._packedData.inspectorRowViewModel.rowDelegate?.label(true) ?? ""
+        guard let label = self._packedData.inspectorRowViewModel.rowDelegate?.label(true) else {
+            fatalErrorIfDebug("Did not have rowDelegate?")
+            return "NO LABEL"
+        }
+        return label
     }
     
     // get field value types, regardless of pack or unpack state
@@ -159,8 +164,15 @@ extension LayerInputObserver {
     
     @MainActor 
     func initializeDelegate(_ node: NodeDelegate) {
-        self._packedData.initializeDelegate(node)
-        self._unpackedData.initializeDelegate(node)
+        self._packedData.initializeDelegate(node,
+                                            // Not relevant for packed data
+                                            unpackedPortParentFieldGroupType: nil,
+                                            unpackedPortIndex: nil)
+        
+        self._unpackedData.initializeDelegate(node,
+                                              // TODO: SEPT 12
+                                              unpackedPortParentFieldGroupType: nil,
+                                              unpackedPortIndex: nil)
     }
     
     @MainActor 
@@ -197,6 +209,8 @@ extension LayerInputObserver {
         case .unpacked:
             // Get values from previous packed mode
             let values = self._packedData.allLoopedValues
+            
+            // Note: why do we do this?
             
             // Reset packed state
             self._packedData.resetOnPackModeToggle()

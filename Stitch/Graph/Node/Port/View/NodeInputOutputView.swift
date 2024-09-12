@@ -521,14 +521,12 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
             
             // if we're in the inspector-row or flyout-row, we are
             
-            // i.e. don't need to think about packed vs unpacked 
+            // i.e. don't need to think about packed vs unpacked
             let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
             
 //            let isMultiField = fieldGroupViewModel.fieldObservers.count > 1
             
             logInView("isMultiField: \(isMultiField)")
-            
-            
             
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,

@@ -81,9 +81,13 @@ extension LayerInputUnpackedPortObserver {
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         self.allPorts.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex)
         }
     }
     

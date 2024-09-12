@@ -191,6 +191,8 @@ extension NodeRowObserver {
             return Self.nodeIOType == .input
             ? rowDefinitions.inputs[safe: portId]?.label ?? ""
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
+//            ? rowDefinitions.inputs[safe: portId]?.label ?? "No input label"
+//            : rowDefinitions.outputs[safe: portId]?.label ?? "No output label"
             
         case .keyPath(let keyPath):
             return keyPath.layerInput.label(useShortLabel)

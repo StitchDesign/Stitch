@@ -114,8 +114,10 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
             itemType = .empty
         }
         
+        // When we initialize this `inspectorRowViewModel` ... where do we create the field types then?
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
+                                                     // Why portId=0 ?
                                                      portId: 0),
                                            activeValue: rowObserver.activeValue,
                                            rowDelegate: rowObserver,
@@ -155,16 +157,28 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
     
     @MainActor func initializeDelegate(_ node: NodeDelegate) {
         self.rowObserver.initializeDelegate(node)
-        self.canvasObserver?.initializeDelegate(node)
-        self.inspectorRowViewModel.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node,
+                                                // Not relevant
+                                                unpackedPortParentFieldGroupType: nil,
+                                                unpackedPortIndex: nil)
+        self.inspectorRowViewModel.initializeDelegate(node,
+                                                      // Not relevant
+                                                      unpackedPortParentFieldGroupType: nil,
+                                                      unpackedPortIndex: nil)
     }
 }
 
 extension LayerNodeRowData {
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor func initializeDelegate(_ node: NodeDelegate,
+                                       unpackedPortParentFieldGroupType: FieldGroupType?,
+                                       unpackedPortIndex: Int?) {
         self.rowObserver.initializeDelegate(node)
-        self.canvasObserver?.initializeDelegate(node)
-        self.inspectorRowViewModel.initializeDelegate(node)
+        self.canvasObserver?.initializeDelegate(node,
+                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                unpackedPortIndex: unpackedPortIndex)
+        self.inspectorRowViewModel.initializeDelegate(node,
+                                                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                      unpackedPortIndex: unpackedPortIndex)
     }
     
     var allLoopedValues: PortValues {
@@ -217,10 +231,13 @@ extension InputLayerNodeRowData {
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
+                unpackedPortParentFieldGroupType: FieldGroupType?,
+                unpackedPortIndex: Int?,
                 nodeDelegate: NodeDelegate? = nil) {
         self.rowObserver.id.nodeId = nodeId
         self.rowObserver.update(from: schema.inputPort,
                                 inputType: layerInputType)
+                
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
                 canvasObserver.update(from: canvas)
@@ -232,7 +249,9 @@ extension InputLayerNodeRowData {
                 self.canvasObserver = .init(from: canvas,
                                             id: canvasId,
                                             inputRowObservers: [self.rowObserver],
-                                            outputRowObservers: [])
+                                            outputRowObservers: [],
+                                            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                            unpackedPortIndex: unpackedPortIndex)
                 
                 self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
@@ -241,7 +260,9 @@ extension InputLayerNodeRowData {
         }
         
         if let node = nodeDelegate {
-            self.initializeDelegate(node)
+            self.initializeDelegate(node,
+                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                    unpackedPortIndex: unpackedPortIndex)
         }
     }
 }
@@ -282,7 +303,10 @@ extension LayerInputObserver {
                                         layerInputType: .init(layerInput: layerInputType,
                                                               portType: .packed),
                                         layerNode: layerNode,
-                                        nodeId: nodeId)
+                                        nodeId: nodeId,
+                                        // Not relevant
+                                        unpackedPortParentFieldGroupType: nil,
+                                        unpackedPortIndex: nil)
         
         
         // Update unpacked data
@@ -295,11 +319,17 @@ extension LayerInputObserver {
             let unpackedObserver = data.0
             let unpackedSchema = data.1
             
+            // TODO: SEPT 12
+            let unpackedPortParentFieldGroupType: FieldGroupType? = nil
+            let unpackedPortIndex: Int? = nil
+            
             unpackedObserver.update(from: unpackedSchema,
                                     layerInputType: .init(layerInput: layerInputType,
                                                           portType: .unpacked(unpackedPortType)),
                                     layerNode: layerNode,
-                                    nodeId: nodeId)
+                                    nodeId: nodeId,
+                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                    unpackedPortIndex: unpackedPortIndex)
         }
     }
     

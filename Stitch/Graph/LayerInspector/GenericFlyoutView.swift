@@ -318,7 +318,8 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
         
         // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
-        //        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
+        //        let fieldObserver: InputLayerNodeRowData? = 
+        portObserver._unpackedData.allPorts[safe: fieldIndex]
         
         if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
             
@@ -329,10 +330,15 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
             
+            // TODO: SEPT 12
+            let unpackedPortParentFieldGroupType: FieldGroupType? = nil
+            let unpackedPortIndex: Int? = nil
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
                                 layerNode: layerNode,
                                 nodeId: nodeId,
+                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                unpackedPortIndex: unpackedPortIndex,
                                 nodeDelegate: node)
         }
         

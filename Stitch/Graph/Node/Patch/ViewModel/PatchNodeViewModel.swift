@@ -79,7 +79,9 @@ final class PatchNodeViewModel: Sendable {
         self.canvasObserver = .init(from: schema.canvasEntity,
                                     id: .node(schema.id),
                                     inputRowObservers: inputsObservers,
-                                    outputRowObservers: outputsObservers)
+                                    outputRowObservers: outputsObservers,
+                                    unpackedPortParentFieldGroupType: nil,
+                                    unpackedPortIndex: nil)
         
         self.inputsObservers = inputsObservers
         self.outputsObservers = outputsObservers
@@ -133,7 +135,9 @@ extension PatchNodeViewModel {
             $0.initializeDelegate(node)
         }
         
-        self.canvasObserver.initializeDelegate(node)
+        self.canvasObserver.initializeDelegate(node,
+                                               unpackedPortParentFieldGroupType: nil,
+                                               unpackedPortIndex: nil)
     }
     
     // Other inits better for public accesss

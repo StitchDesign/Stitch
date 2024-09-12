@@ -32,7 +32,8 @@ extension FieldGroupType {
                 PADDING_LEFT_FIELD_LABEL
             ]
         case .dropdown, .bool, .asyncMedia, .number, .string, .readOnly, .layerDimension, .pulse, .color, .json, .assignedLayer, .anchoring, .spacing, .pinTo:
-            return [""]
+//            return [""]
+            return ["DOG"]
         }
     }
 

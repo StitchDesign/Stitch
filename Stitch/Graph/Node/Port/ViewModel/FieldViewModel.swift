@@ -35,26 +35,6 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
-//typealias InputFieldViewModels = [FieldViewModel]
-//typealias OutputFieldViewModels = [FieldViewModel]
-
-//@Observable
-//final class FieldViewModel {
-//    var fieldValue: FieldValue
-//    var fieldIndex: Int
-//    var fieldLabel: String
-//    var isBlockedOut: Bool = false
-//    
-//    init(fieldValue: FieldValue,
-//         fieldIndex: Int,
-//         fieldLabel: String) {
-//        self.fieldValue = fieldValue
-//        self.fieldIndex = fieldIndex
-//        self.fieldLabel = fieldLabel
-//    }
-//}
-
-
 @Observable
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
@@ -106,18 +86,54 @@ extension FieldViewModel {
     }
 }
 
+
+// i.e. `createFieldObservers`
+// We can't rely on the underlying data anymore;
 extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
+
+         // Unpacked ports need special logic for grabbing their proper label
+         // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
+         unpackedPortParentFieldGroupType: FieldGroupType?,
+         unpackedPortIndex: Int?,
+         
          startingFieldIndex: Int,
+//         fieldIndex: Int,
          rowViewModel: Element.NodeRowType?) {
+        
+        let fieldGroup = unpackedPortParentFieldGroupType ?? fieldGroupType
+        
         let labels = fieldGroupType.labels
         let defaultValues = fieldGroupType.defaultFieldValues
 
-        self = defaultValues.enumerated().map { index, fieldValue in
-            let fieldLabel = labels[safe: index] ?? ""
+        
+        // we can no longer just assume enumeration
+//        self = defaultValues.enumerated().map { index, fieldValue in
+        
+        self = defaultValues.enumerated().map { fieldIndex, fieldValue in
+            
+            let index = unpackedPortIndex ?? fieldIndex
+        
+//        self = defaultValues.map { fieldValue in
+//            let fieldLabel = labels[safe: index] ?? ""
+            
+            // what probably happens is that we have an unpacked "port" for a Position layer property,
+            
+            let _fieldlabel = labels[safe: index]
+//            let _fieldlabel = labels[safe: fieldIndex]
+            // Every field should have a label, even if just an empty string
+//            if _fieldlabel == nil {
+//                fatalErrorIfDebug()
+//            }
+//            
+//            let fieldLabel = _fieldlabel ?? ""
+            let fieldLabel = _fieldlabel ?? "NO LABEL"
+            
+            // We actually ARE finding the label, but there's no field label for e.g. just the Unpacked number type in a
 
             return .init(fieldValue: fieldValue,
                          fieldIndex: startingFieldIndex + index,
+//                         fieldIndex: startingFieldIndex + fieldIndex,
                          fieldLabel: fieldLabel,
                          rowViewModelDelegate: rowViewModel)
         }

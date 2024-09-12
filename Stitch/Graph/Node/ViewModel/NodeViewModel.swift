@@ -735,7 +735,10 @@ extension NodeViewModel {
                                                       activeValue: newInputObserver.activeValue,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
-        newInputViewModel.initializeDelegate(self)
+        newInputViewModel.initializeDelegate(self,
+                                             // Only relevant for layer nodes, which cannot have an input added or removed
+                                             unpackedPortParentFieldGroupType: nil,
+                                             unpackedPortIndex: nil)
         
         patchNode.inputsObservers.append(newInputObserver)
         patchNode.canvasObserver.inputViewModels.append(newInputViewModel)

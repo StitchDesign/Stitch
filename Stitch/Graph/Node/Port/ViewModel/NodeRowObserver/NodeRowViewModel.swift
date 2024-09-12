@@ -120,14 +120,19 @@ extension NodeRowViewModel {
         self.rowDelegate?.nodeDelegate
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor 
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         guard let rowDelegate = self.rowDelegate else {
             fatalErrorIfDebug()
             return
         }
         
         self.nodeDelegate = node
-        self.initializeValues(rowDelegate: rowDelegate)
+        self.initializeValues(rowDelegate: rowDelegate,
+                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                              unpackedPortIndex: unpackedPortIndex)
     }
     
     var portViewData: PortViewType? {
@@ -140,13 +145,18 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver) {
+    func initializeValues(rowDelegate: Self.RowObserver,
+                          unpackedPortParentFieldGroupType: FieldGroupType?,
+                          unpackedPortIndex: Int?) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                     activeIndex: activeIndex)
+        
         self.createFieldValueTypes(initialValue: self.activeValue,
                                    nodeIO: Self.nodeIO,
+                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                   unpackedPortIndex: unpackedPortIndex,
                                    importedMediaObject: nil)
     }
     
@@ -308,7 +318,10 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.canvasItemDelegate = canvasItemDelegate
         
         if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate)
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  // Irrelevant for outputs, since an output cannot be unpacked
+                                  unpackedPortParentFieldGroupType: nil,
+                                  unpackedPortIndex: nil)
         }
     }
 }
@@ -403,7 +416,12 @@ extension Array where Element: NodeRowViewModel {
                                            canvasItemDelegate: canvas)
                 
                 if let node = node {
-                    rowViewModel.initializeDelegate(node)                    
+                    rowViewModel.initializeDelegate(node,
+                                                    // Ah, this might be bad?
+                                                    // Because sync could be
+                                                    // TODO: SEPT 12
+                                                    unpackedPortParentFieldGroupType: nil,
+                                                    unpackedPortIndex: nil)
                 }
                 
                 return rowViewModel

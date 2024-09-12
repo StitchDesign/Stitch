@@ -16,6 +16,8 @@ struct InputValueEntry: View {
     // Can no longer accept an input row
 //    @Bindable var rowViewModel: InputNodeRowViewModel
     
+//    let fieldGroupType: FieldGroupType
+    
     @Bindable var viewModel: InputFieldViewModel
     
     // Always and only for inspector-rows, not flyout-rows ?
@@ -37,8 +39,30 @@ struct InputValueEntry: View {
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
     
+    // Label for an individual field ?
     var label: String {
-        self.viewModel.fieldLabel
+//        "Pain"
+        
+        if forPropertySidebar, isFieldInMultifieldInput {
+            // If this is for an inspector- or flyout-row,
+            // and is a multifield, we can't rely on just the fieldLabel,
+            // since the input maybe have been broken
+//            return 
+            
+            let fieldGroupType: FieldGroupType = .xY
+            
+            let labels = fieldGroupType.labels
+            let label = labels[safe: viewModel.fieldIndex] ?? "CAT"
+            return label
+            
+            // What is the
+            
+        } else {
+            return self.viewModel.fieldLabel
+        }
+        
+        // Good for most cases but not accurate when we have a property
+//        return self.viewModel.fieldLabel
     }
     
     // TODO: support derived field-labels
