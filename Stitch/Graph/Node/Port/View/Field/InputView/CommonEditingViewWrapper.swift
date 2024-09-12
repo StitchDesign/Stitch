@@ -26,6 +26,7 @@ struct CommonEditingViewWrapper: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
+    var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
     
@@ -63,7 +64,10 @@ struct CommonEditingViewWrapper: View {
             return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         } else if isForSpacingField {
             return SPACING_FIELD_WIDTH
-        } else {
+        } else if nodeKind.getPatch == .soulver {
+            return SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH
+        }
+        else {
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }

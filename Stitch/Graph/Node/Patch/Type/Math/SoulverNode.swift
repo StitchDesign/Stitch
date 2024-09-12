@@ -25,7 +25,7 @@ func soulverNode(id: NodeId,
 
     let inputs = toInputs(
         id: id,
-        values: (nil, [.string(.init(n1))])
+        values: (nil, [.string(.init(n1.isEmpty ? "34% of 2k" : n1))])
     )
 
     let initialOutput = soulve(n1)

@@ -29,6 +29,8 @@ let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WID
 
 // node field input/output width, per Figma Spec
 let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
+// the soulver node needs more width
+let SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
 
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
 //let SPACING_FIELD_WIDTH: CGFloat = 72

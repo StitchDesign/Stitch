@@ -28,6 +28,7 @@ struct FieldValueNumberView: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
+    var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
     
@@ -88,7 +89,8 @@ struct FieldValueNumberView: View {
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
-                                     isSelectedInspectorRow: isSelectedInspectorRow)
+                                     isSelectedInspectorRow: isSelectedInspectorRow, 
+                                     nodeKind: nodeKind)
         }
     }
 }
