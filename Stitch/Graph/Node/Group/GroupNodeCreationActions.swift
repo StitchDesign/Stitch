@@ -154,17 +154,14 @@ extension GraphState {
         }
         
         let newGroupNodeId = GroupNodeId(id: NodeId())
-//        let selectedNodeIds = state.selectedNodeIds
         let selectedCanvasItems = state.selectedCanvasItems
         let edges = state.createEdges()
 
-//        #if DEV || DEV_DEBUG
-//        // Every selected node must belong to this traversal level.
+        // Every selected node must belong to this traversal level.
         let nodesAtThisLevel = state.getVisibleCanvasItems().map(\.id).toSet
         if state.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
             fatalErrorIfDebug()
         }
-//        #endif
 
         let (inputEdgesToUpdate,
              outputEdgesToUpdate) = state.getEdgesToUpdate(
@@ -245,7 +242,14 @@ extension GraphState {
         
         // Encode component files if specified
         if isComponent {
-            fatalError("Come back here")
+            let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
+            let result = self.createNewStitchComponent(componentId: newGroupNodeId.asNodeId,
+                                                       saveLocation: .document(state.id),
+                                                       selectedNodeIds: selectedNodeIds)
+            
+            Task { [weak state] in
+                await state?.documentEncoder.encodeComponent(result)
+            }
         }
         
         state.encodeProjectInBackground()

@@ -8,30 +8,37 @@
 import Foundation
 import SwiftUI
 import StitchSchemaKit
+import UniformTypeIdentifiers
 
-extension StitchComponent: StitchComponentable { }
+extension StitchComponent: StitchComponentable {
+    static let fileType: UTType = .stitchComponent
+    
+    var rootUrl: URL {
+        self.saveLocation.rootUrl
+    }
+}
 
-// MARK: always be saved locally in case of edits, remote deletions
-//enum ComponentSaveLocation {
-//    case document(UUID)
-//    case userLibrary
-//    // TODO: system
-//    //case system(UUID)
-//}
+// TODO: move to SSK
+public enum ComponentSaveLocation: Codable, Equatable, Sendable {
+    case document(UUID)
+    case userLibrary
+    // TODO: system
+    //case system(UUID)
+}
 
-//extension ComponentSaveLocation {
-//    var rootUrl: URL {
-//        switch self {
-//        case .document(let documentId):
-//            StitchDocument.getRootUrl(from: documentId)
-//                .appendingPathComponent(URL.componentsDirPath,
-//                                        conformingTo: .stitchComponent)
-//        case .userLibrary:
-//            // TODO: come back to user library
-//            fatalError()
-//        }
-//    }
-//}
+extension ComponentSaveLocation {
+    var rootUrl: URL {
+        switch self {
+        case .document(let documentId):
+            StitchDocument.getRootUrl(from: documentId)
+                .appendingPathComponent(URL.componentsDirPath,
+                                        conformingTo: .stitchComponent)
+        case .userLibrary:
+            // TODO: come back to user library
+            fatalError()
+        }
+    }
+}
 
 // TODO: consider data structure here
 //struct ComponentSaveData {

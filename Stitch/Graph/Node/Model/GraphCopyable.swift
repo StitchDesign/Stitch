@@ -8,6 +8,7 @@
 import Foundation
 import StitchSchemaKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 // TODO: Move and version this
 typealias NodeEntities = [NodeEntity]
@@ -274,8 +275,8 @@ extension SidebarLayerList {
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
 
-struct StitchComponentCopiedResult: Sendable {
-    let component: StitchClipboardContent
+struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
+    let component: T
     let effects: AsyncCallbackList
 }
 
@@ -287,7 +288,7 @@ extension Array where Element == AsyncCallback {
     }
 }
 
-extension StitchClipboardContent {
+extension StitchComponentable {
     /// Creates fresh IDs for all data in NodeEntities
     func changeIds() -> StitchClipboardContent {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
@@ -378,7 +379,32 @@ extension CanvasNodeEntity {
 extension GraphState {
     @MainActor
     func createCopiedComponent(groupNodeFocused: NodeId?,
-                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult {
+                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
+        self.createComponent(groupNodeFocused: groupNodeFocused,
+                             selectedNodeIds: selectedNodeIds) {
+            StitchClipboardContent(nodes: $0, orderedSidebarLayers: $1)
+        }
+    }
+    
+    @MainActor func createNewStitchComponent(componentId: UUID,
+                                             saveLocation: ComponentSaveLocation,
+                                             selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
+        self.createComponent(groupNodeFocused: componentId,
+                             selectedNodeIds: selectedNodeIds) {
+            StitchComponent(id: componentId,
+                            saveLocation: saveLocation,
+                            nodes: $0,
+                            orderedSidebarLayers: $1,
+                            lastModifiedDate: .now)
+        }
+    }
+    
+    /// For clipboard, `groupNodeFocused` represents the focused group node of the graph.
+    /// For components, it must be defined and represent the ID of the newly created group node.
+    @MainActor
+    func createComponent<T>(groupNodeFocused: NodeId?,
+                            selectedNodeIds: NodeIdSet,
+                            createComponentable: @escaping (NodeEntities, SidebarLayerList) -> T) -> StitchComponentCopiedResult<T> where T: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
@@ -389,10 +415,10 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
-        let copiedComponent = StitchClipboardContent(nodes: selectedNodes,
-                                                     orderedSidebarLayers: selectedSidebarLayers)
+        let copiedComponent = createComponentable(selectedNodes, selectedSidebarLayers)
 
-        let newImportedFilesDirectory = copiedComponent.rootUrl.appendingStitchMediaPath()
+        let newImportedFilesDirectory = copiedComponent.getEncodingUrl(documentRootUrl: self.createSchema().rootUrl)
+            .appendingStitchMediaPath()
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in
@@ -436,14 +462,19 @@ extension SidebarLayerList {
 
 
 // TODO: move
-protocol StitchComponentable: Codable {
+protocol StitchComponentable: Sendable, MediaDocumentEncodable, Transferable {
     var nodes: [NodeEntity] { get set }
     var orderedSidebarLayers: SidebarLayerList { get set }
+    static var fileType: UTType { get }
+    var rootUrl: URL { get }
 }
 
 //extension StitchComponent: StitchComponentable { }
 
 struct StitchClipboardContent: StitchComponentable {
+    static let fileType = UTType.stitchClipboard
+    
+    var id = UUID()
     var nodes: [NodeEntity]
     var orderedSidebarLayers: SidebarLayerList
 }
@@ -452,38 +483,42 @@ extension StitchClipboardContent: MediaDocumentEncodable {
     var rootUrl: URL {
         StitchFileManager.tempDir
             .appendingPathComponent("copied-data",
-                                    conformingTo: .stitchClipboard)
+                                    conformingTo: Self.fileType)
     }
     
     func getEncodingUrl(documentRootUrl: URL) -> URL {
         // Ignore param, always using temp directory
         self.rootUrl
     }
+}
 
-    static let dataJsonName = "data"
+extension StitchComponentable {
+    static var dataJsonName: String { "data" }
     
     var dataJsonUrl: URL {
         self.rootUrl.appendingDataJsonPath()
     }
-}
-
-extension StitchClipboardContent: Transferable {
+    
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(exportedContentType: .stitchClipboard,
+        FileRepresentation(exportedContentType: self.fileType,
                            exporting: Self.exportComponent)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchClipboardContent) async -> SentTransferredFile {
-        await component.encodeDocumentContents(folderUrl: component.rootUrl)
+    static func exportComponent(_ component: Self) async -> SentTransferredFile {
+        let rootUrl = component.rootUrl
+        // Create directories if it doesn't exist
+        let _ = try? await StitchFileManager.createDirectories(at: rootUrl,
+                                                               withIntermediate: true)
+        await component.encodeDocumentContents(folderUrl: rootUrl)
 
         let url = component.dataJsonUrl
-        await StitchClipboardContent.exportComponent(component, url: url)
+        await Self.exportComponent(component, url: url)
         return SentTransferredFile(url)
     }
 
     @Sendable
-    static func exportComponent(_ component: StitchClipboardContent, url: URL) async {
+    static func exportComponent(_ component: Self, url: URL) async {
         do {
             let encodedData = try getStitchEncoder().encode(component)
             try encodedData.write(to: url, options: .atomic)
@@ -516,14 +551,17 @@ extension GraphState {
 }
 
 extension DocumentEncoder {
-    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult) async {
-        let pasteboard = UIPasteboard.general
+    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
+        await self.encodeComponent(copiedComponentResult)
         
-        let _ = await StitchClipboardContent.exportComponent(copiedComponentResult.component)
+        let pasteboard = UIPasteboard.general
+        pasteboard.url = copiedComponentResult.component.rootUrl
+    }
+    
+    func encodeComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
+        let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await copiedComponentResult.effects.processEffects()
-
-        pasteboard.url = copiedComponentResult.component.rootUrl
+        await result.effects.processEffects()
     }
 }

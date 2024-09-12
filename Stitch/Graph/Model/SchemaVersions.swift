@@ -232,16 +232,20 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
     public static let version = StitchSchemaVersion._V24
     
     public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
+        // Share location, saved here due to static helpers for sharing
+        public var saveLocation: ComponentSaveLocation
         public var id = UUID()
         public var nodes: [NodeEntity]
         public var orderedSidebarLayers: [SidebarLayerData]
         public let lastModifiedDate: Date
         
         public init(id: UUID = UUID(),
+                    saveLocation: ComponentSaveLocation,
                     nodes: [NodeEntity],
                     orderedSidebarLayers: [SidebarLayerData],
                     lastModifiedDate: Date) {
             self.id = id
+            self.saveLocation = saveLocation
             self.nodes = nodes
             self.orderedSidebarLayers = orderedSidebarLayers
             self.lastModifiedDate = lastModifiedDate

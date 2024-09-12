@@ -16,7 +16,7 @@ enum NodeViewModelType {
 }
 
 final class StitchComponentViewModel {
-    let componentId: UUID
+    var componentId: UUID
     let canvas: CanvasItemViewModel
     
     init(componentId: UUID, canvas: CanvasItemViewModel) {
@@ -67,9 +67,8 @@ extension NodeViewModelType {
             layerNodeViewModel.initializeDelegate(node)
         case .group(let canvasItemViewModel):
             canvasItemViewModel.initializeDelegate(node)
-        case .component:
-            // Node data for components isn't saved in here
-            return
+        case .component(let componentViewModel):
+            componentViewModel.canvas.initializeDelegate(node)
         }
     }
 
@@ -82,6 +81,9 @@ extension NodeViewModelType {
             layerViewModel.update(from: layerEntity)
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
+        case (.component(let componentViewModel), .component(let component)):
+            componentViewModel.componentId = component.id
+            componentViewModel.canvas.update(from: component.canvasEntity)
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()

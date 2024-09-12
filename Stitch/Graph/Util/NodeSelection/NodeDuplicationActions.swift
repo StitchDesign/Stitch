@@ -33,14 +33,14 @@ struct SelectedGraphItemsDuplicated: GraphEventWithResponse {
 extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
-    func insertNewComponent(_ copiedComponentResult: StitchComponentCopiedResult) {
+    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>) where T: StitchComponentable {
         self.insertNewComponent(component: copiedComponentResult.component,
                                 effects: copiedComponentResult.effects)
     }
 
     @MainActor
-    func insertNewComponent(component: StitchClipboardContent,
-                            effects: AsyncCallbackList) {
+    func insertNewComponent<T>(component: T,
+                               effects: AsyncCallbackList) where T: StitchComponentable {
         let hasEffectsToRun = !effects.isEmpty
 
         // Change all IDs
@@ -82,7 +82,7 @@ extension GraphState {
     }
 
     @MainActor
-    func _insertNewComponent(_ component: StitchClipboardContent) {
+    func _insertNewComponent<T>(_ component: T) where T: StitchComponentable {
         var data = self.createSchema()
 
         // Update top-level nodes to match current focused group
