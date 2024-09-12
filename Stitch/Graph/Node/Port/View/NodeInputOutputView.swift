@@ -235,6 +235,7 @@ struct NodeInputView: View {
     }
     // rowObserver.nodeDelegate?.kind.isGroup ?? false,
     
+    // NOTE: only for specific for inspector row cases
     let layerInput: LayerInputPort?
     
     var label: String //
@@ -313,6 +314,7 @@ struct NodeInputView: View {
                 }
                 
                 
+                // This is a special condition
                 let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
                 
                 if isShadowLayerInputRow, forPropertySidebar, !forFlyout {

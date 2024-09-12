@@ -60,16 +60,13 @@ struct LayerInspectorInputPortView: View {
                               nodeKind: .layer(portObserver.layer),
                               hasIncomingEdge: false, // always false
                               rowObserverId: coordinate,
-                              
 //                              rowObserver: inputLayerNodeRowData.rowObserver,
 //                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
                               rowObserver: nil,
                               rowData: nil,
-                              
                               // Always use the packed
                               fieldValueTypes: portObserver._packedData.inspectorRowViewModel.fieldValueTypes,
                                 //[FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
-                              
                               inputLayerNodeRowData: portObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,

@@ -81,12 +81,11 @@ struct NodeTypeView: View {
                 WirelessPortView(isOutput: false, id: node.id)
                     .padding(.trailing, NODE_BODY_SPACING)
             } else {
-                Text("TODO: DefaultNodeInputView")
-//                DefaultNodeInputView(graph: graph,
-//                                     node: node,
-//                                     canvas: canvasNode,
-//                                     isNodeSelected: isSelected,
-//                                     adjustmentBarSessionId: adjustmentBarSessionId)
+                DefaultNodeInputView(graph: graph,
+                                     node: node,
+                                     canvas: canvasNode,
+                                     isNodeSelected: isSelected,
+                                     adjustmentBarSessionId: adjustmentBarSessionId)
             }
         }
     }
@@ -118,21 +117,28 @@ struct DefaultNodeInputView: View {
     let adjustmentBarSessionId: AdjustmentBarSessionId
     
     var body: some View {
-        Text("TODO: DefaultNodeInputView")
-//        DefaultNodeRoswView(graph: graph,
-//                           node: node,
-//                           rowViewModels: canvas.inputViewModels,
-//                           nodeIO: .input,
-//                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-//            NodeInputView(graph: graph,
-//                          rowObserver: rowObserver,
-//                          rowData: rowViewModel,
-//                          inputLayerNodeRowData: nil,
-//                          forPropertySidebar: false,
-//                          propertyIsSelected: false,
-//                          propertyIsAlreadyOnGraph: true,
-//                          isCanvasItemSelected: isNodeSelected)
-//        }
+        DefaultNodeRowView(graph: graph,
+                           node: node,
+                           rowViewModels: canvas.inputViewModels,
+                           nodeIO: .input,
+                           adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
+            NodeInputView(graph: graph, 
+                          nodeId: node.id,
+                          nodeKind: node.kind,
+                          hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                          rowObserverId: rowObserver.id,
+                          rowObserver: rowObserver,
+                          rowData: rowViewModel,
+                          fieldValueTypes: rowViewModel.fieldValueTypes,
+                          inputLayerNodeRowData: nil, // Always nil, since this is a canvas item not an inspector-row
+                          forPropertySidebar: false,
+                          propertyIsSelected: false,
+                          propertyIsAlreadyOnGraph: true, // Irrelevant?
+                          isCanvasItemSelected: isNodeSelected,
+                          // Note: `layerInput` only used for shadow layer inspector-row
+                          layerInput: nil,
+                          label: rowObserver.label())
+        }
     }
 }
 
@@ -156,7 +162,7 @@ struct DefaultNodeOutputView: View {
                            propertyIsSelected: false,
                            propertyIsAlreadyOnGraph: true,
                            isCanvasItemSelected: isNodeSelected, 
-                           label: "TODO: DefaultNodeOutputView")
+                           label: rowObserver.label())
         }
     }
 }
