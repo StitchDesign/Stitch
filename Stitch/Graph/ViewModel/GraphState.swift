@@ -234,23 +234,23 @@ extension GraphState: SchemaObserver {
     }
 
     @MainActor
-    func update(from data: StitchDocumentData) {
-        let schema = data.document
+    func update(from schema: StitchDocumentData) {
+        let document = schema.document
         
         // Sync project attributes
-        self.projectId = schema.projectId
-        self.projectName = schema.name
-        self.publishedDocumentComponents = data.publishedDocumentComponents
+        self.projectId = document.projectId
+        self.projectName = document.name
+        self.publishedDocumentComponents = schema.publishedDocumentComponents
 
         // Sync preview window attributes
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+        self.previewWindowSize = document.previewWindowSize
+        self.previewSizeDevice = document.previewSizeDevice
+        self.previewWindowBackgroundColor = document.previewWindowBackgroundColor
 
         // Sync node view models + cached data
-        self.updateGraphData(document: schema)
+        self.updateGraphData(document: document)
 
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.orderedSidebarLayers = document.orderedSidebarLayers
         
         // No longer needed, since sidebar-expanded-items handled by node schema
 //        self.sidebarExpandedItems = self.allGroupLayerNodes()
