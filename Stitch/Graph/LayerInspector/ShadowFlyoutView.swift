@@ -77,11 +77,31 @@ struct ShadowFlyoutView: View {
         VStack(alignment: .leading,
                // TODO: why must we double this?
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
-            ForEach(LayerInspectorView.shadow) { shadowInput in
+            ForEach(LayerInspectorView.shadow) { (shadowInput: LayerInputPort) in
+                
                 let layerInputPort: LayerInputObserver = layerNode[keyPath: shadowInput.layerNodeKeyPath]
+                
+                // Shadow input is *always packed*
                 let layerInputData = layerInputPort._packedData
                 
-                Text("Joy")
+//                Text("Joy")
+                
+                NodeInputView(graph: graph,
+                              nodeId: node.id,
+                              nodeKind: node.kind,
+                              hasIncomingEdge: false,
+                              rowObserverId: layerInputData.rowObserver.id,
+                              rowObserver: nil,
+                              rowData: nil,
+                              fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
+                              inputLayerNodeRowData: layerInputPort, // layerInputData, // not needed though?
+                              forPropertySidebar: true,
+                              propertyIsSelected: false, // N/A ?
+                              propertyIsAlreadyOnGraph: false,
+                              isCanvasItemSelected: false,
+                              layerInput: nil, // only for layer inspector
+                              label: layerInputData.rowObserver.label(true),
+                              forFlyout: true)
                 
 //                NodeInputView(graph: graph,
 //                              rowObserver: layerInputData.rowObserver,

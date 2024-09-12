@@ -67,10 +67,9 @@ struct OpenFlyoutView: View, KeyboardReadable {
                 Group {
                     // Multiple single-field inputs presented in one flyout
                     if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
-//                       ShadowFlyoutView(node: node,
-//                                        layerNode: layerNode,
-//                                        graph: graph)
-                        Text("Shadow Flyout TODO")
+                       ShadowFlyoutView(node: node,
+                                        layerNode: layerNode,
+                                        graph: graph)
                     }
                     // One multifield input presented in separate rows in the flyout
                     else {
