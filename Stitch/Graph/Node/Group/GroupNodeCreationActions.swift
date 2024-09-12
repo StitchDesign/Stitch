@@ -105,13 +105,19 @@ extension GraphState {
     
     @MainActor
     func createGroupNode(newGroupNodeId: GroupNodeId,
-                         center: CGPoint) -> NodeViewModel {
+                         center: CGPoint,
+                         isComponent: Bool) -> NodeViewModel {
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
                                             parentGroupNodeId: self.graphUI.groupNodeFocused?.asNodeId)
         
+        // Create new canvas entity if specified
+        let nodeType: NodeTypeEntity = isComponent ? .component(.init(id: .init(),
+                                                                      canvasEntity: canvasEntity))
+                                                   : .group(canvasEntity)
+        
         let schema = NodeEntity(id: newGroupNodeId.id,
-                                nodeTypeEntity: .group(canvasEntity),
+                                nodeTypeEntity: nodeType,
                                 title: NodeKind.group.getDisplayTitle(customName: nil))
         
         let newGroupNode = NodeViewModel(from: schema,
@@ -131,14 +137,20 @@ extension GraphState {
  * 2. Creates input and output group nodes.
  * 3. Removes old edges and connections and updates them to new group nodes.
  */
-struct GroupNodeCreatedEvent: GraphEventWithResponse {
-
+struct GroupNodeCreatedEvent: GraphEvent {
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: GraphState) {
+        state.createGroup(isComponent: false)
+    }
+}
 
+extension GraphState {
+    @MainActor
+    func createGroup(isComponent: Bool) {
+        let state = self
         guard !state.graphUI.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
-            return .noChange
+            return
         }
         
         let newGroupNodeId = GroupNodeId(id: NodeId())
@@ -213,7 +225,8 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         
         // Create the actual GroupNode itself
         let newGroupNode = state.createGroupNode(newGroupNodeId: newGroupNodeId,
-                                                 center: center)
+                                                 center: center,
+                                                 isComponent: isComponent)
 
         // wipe selected edges and canvas items
         state.graphUI.selection = GraphUISelectionState()
@@ -230,7 +243,12 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         // Recalculate graph
         state.initializeGraphComputation()
         
-        return .persistenceResponse
+        // Encode component files if specified
+        if isComponent {
+            fatalError("Come back here")
+        }
+        
+        state.encodeProjectInBackground()
     }
 }
 
