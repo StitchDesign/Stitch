@@ -83,7 +83,7 @@ extension GraphState {
 
     @MainActor
     func _insertNewComponent(_ component: StitchClipboardContent) {
-        var document = self.createSchema()
+        var data = self.createSchema()
 
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = component.nodes
@@ -105,9 +105,9 @@ extension GraphState {
             }
 
         // Add new nodes
-        document.nodes += newNodes
-        document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.update(from: document)
+        data.document.nodes += newNodes
+        data.document.orderedSidebarLayers = component.orderedSidebarLayers + data.document.orderedSidebarLayers
+        self.update(from: data)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
