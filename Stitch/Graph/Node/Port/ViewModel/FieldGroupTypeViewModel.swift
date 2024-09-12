@@ -64,6 +64,227 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     }
 }
 
+extension NodeRowType {
+    var getFieldGroupTypeForLayerInput: FieldGroupType {
+        switch self {
+        case .size:
+            return .hW
+            
+        case .position:
+            return .xY
+        case .point3D:
+            return .xYZ
+        case .point4D:
+            return .xYZW
+            
+        case .padding:
+            return .padding
+
+        case .shapeCommand(let shapeCommand):
+            // No layer input uses shape command
+            fatalErrorIfDebug()
+            return .dropdown
+
+        case .singleDropdown, .textFontDropdown:
+            return .dropdown
+            
+        case .bool:
+            return .bool
+
+        case .asyncMedia:
+            return .asyncMedia
+
+        case .number:
+            return .number
+
+        case .string:
+            return .string
+
+        case .layerDimension:
+            return .layerDimension
+
+        case .pulse:
+            return .pulse
+
+        case .color:
+            return .color
+
+        case .json:
+            return .json
+
+        case .assignedLayer:
+            return .assignedLayer
+
+        case .pinTo:
+            return .pinTo
+            
+        case .anchoring:
+            return .anchoring
+            
+        case .readOnly:
+            return .readOnly
+            
+        case .spacing:
+            return .spacing
+        }
+    }
+}
+
+func getFieldValueTypes<FieldType: FieldViewModel>(initialValue: PortValue,
+                        nodeIO: NodeIO,
+                        unpackedPortParentFieldGroupType: FieldGroupType?,
+                        unpackedPortIndex: Int?,
+                        importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
+    
+    switch initialValue.getNodeRowType(nodeIO: nodeIO) {
+        
+    case .size:
+        return [.init(type: .hW,
+                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                          unpackedPortIndex: unpackedPortIndex)]
+        
+    case .position:
+        return [.init(type: .xY,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .point3D:
+        return [.init(type: .xYZ,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .point4D:
+        return [.init(type: .xYZW,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .padding:
+        return [.init(type: .padding,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .shapeCommand(let shapeCommand):
+        switch shapeCommand {
+        case .closePath:
+            return [.init(type: .dropdown,
+                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                          unpackedPortIndex: unpackedPortIndex)]
+        case .lineTo: // i.e. .moveTo or .lineTo
+            return [.init(type: .dropdown,
+                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                          unpackedPortIndex: unpackedPortIndex),
+                    .init(type: .xY,
+                          groupLabel: "Point", // optional
+                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                          unpackedPortIndex: unpackedPortIndex,
+                          // REQUIRED, else we get two dropdowns
+                          startingFieldIndex: 1)
+            ]
+        case .curveTo:
+            return .init([
+                .init(type: .dropdown,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex),
+                .init(type: .xY,
+                      groupLabel: "Point",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 1),
+                .init(type: .xY,
+                      groupLabel: "Curve From",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 3),
+                .init(type: .xY,
+                      groupLabel: "Curve To",
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      startingFieldIndex: 5)
+            ])
+        case .output:
+            return [.init(type: .readOnly,
+                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                          unpackedPortIndex: unpackedPortIndex)]
+        }
+        
+    case .singleDropdown:
+        return [.init(type: .dropdown,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .textFontDropdown:
+        // TODO: Can keep using .dropdown ?
+        return [.init(type: .dropdown,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .bool:
+        return [.init(type: .bool,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .asyncMedia:
+        return [.init(type: .asyncMedia,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .number:
+        return [.init(type: .number,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .string:
+        return [.init(type: .string,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .layerDimension:
+        return [.init(type: .layerDimension,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .pulse:
+        return [.init(type: .pulse,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .color:
+        return [.init(type: .color,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .json:
+        return [.init(type: .json,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .assignedLayer:
+        return [.init(type: .assignedLayer,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .pinTo:
+        return [.init(type: .pinTo,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .anchoring:
+        return [.init(type: .anchoring,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .readOnly:
+        return [.init(type: .readOnly,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+        
+    case .spacing:
+        return [.init(type: .spacing,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex)]
+    }
+}
+
 //extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
 extension NodeRowViewModel {
     @MainActor
@@ -72,152 +293,160 @@ extension NodeRowViewModel {
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
                                importedMediaObject: StitchMediaObject?) {
-        switch initialValue.getNodeRowType(nodeIO: nodeIO) {
-        case .size:
-            self.fieldValueTypes = [.init(type: .hW,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        switch initialValue.getNodeRowType(nodeIO: nodeIO) {
+//        case .size:
+//            self.fieldValueTypes = [.init(type: .hW,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .position:
+//            self.fieldValueTypes = [.init(type: .xY,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .point3D:
+//            self.fieldValueTypes = [.init(type: .xYZ,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .point4D:
+//            self.fieldValueTypes = [.init(type: .xYZW,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//            
+//        case .padding:
+//            self.fieldValueTypes = [.init(type: .padding,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .shapeCommand(let shapeCommand):
+//            switch shapeCommand {
+//            case .closePath:
+//                self.fieldValueTypes = [.init(type: .dropdown,
+//                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                              unpackedPortIndex: unpackedPortIndex)]
+//            case .lineTo: // i.e. .moveTo or .lineTo
+//                self.fieldValueTypes = [.init(type: .dropdown,
+//                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                              unpackedPortIndex: unpackedPortIndex),
+//                        .init(type: .xY,
+//                              groupLabel: "Point", // optional
+//                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                              unpackedPortIndex: unpackedPortIndex,
+//                              // REQUIRED, else we get two dropdowns
+//                              startingFieldIndex: 1)
+//                ]
+//            case .curveTo:
+//                self.fieldValueTypes = .init([
+//                    .init(type: .dropdown,
+//                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                          unpackedPortIndex: unpackedPortIndex),
+//                    .init(type: .xY,
+//                          groupLabel: "Point",
+//                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                          unpackedPortIndex: unpackedPortIndex,
+//                          startingFieldIndex: 1),
+//                    .init(type: .xY,
+//                          groupLabel: "Curve From",
+//                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                          unpackedPortIndex: unpackedPortIndex,
+//                          startingFieldIndex: 3),
+//                    .init(type: .xY,
+//                          groupLabel: "Curve To",
+//                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                          unpackedPortIndex: unpackedPortIndex,
+//                          startingFieldIndex: 5)
+//                ])
+//            case .output:
+//                self.fieldValueTypes = [.init(type: .readOnly,
+//                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                              unpackedPortIndex: unpackedPortIndex)]
+//            }
+//
+//        case .singleDropdown:
+//            self.fieldValueTypes = [.init(type: .dropdown,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .textFontDropdown:
+//            // TODO: Can keep using .dropdown ?
+//            self.fieldValueTypes = [.init(type: .dropdown,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .bool:
+//            self.fieldValueTypes = [.init(type: .bool,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .asyncMedia:
+//            self.fieldValueTypes = [.init(type: .asyncMedia,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .number:
+//            self.fieldValueTypes = [.init(type: .number,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .string:
+//            self.fieldValueTypes = [.init(type: .string,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .layerDimension:
+//            self.fieldValueTypes = [.init(type: .layerDimension,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .pulse:
+//            self.fieldValueTypes = [.init(type: .pulse,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .color:
+//            self.fieldValueTypes = [.init(type: .color,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .json:
+//            self.fieldValueTypes = [.init(type: .json,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .assignedLayer:
+//            self.fieldValueTypes = [.init(type: .assignedLayer,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .pinTo:
+//            self.fieldValueTypes = [.init(type: .pinTo,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//            
+//        case .anchoring:
+//            self.fieldValueTypes = [.init(type: .anchoring,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//
+//        case .readOnly:
+//            self.fieldValueTypes = [.init(type: .readOnly,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//            
+//        case .spacing:
+//            self.fieldValueTypes = [.init(type: .spacing,
+//                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                          unpackedPortIndex: unpackedPortIndex)]
+//        }
+        
+        self.fieldValueTypes = getFieldValueTypes(initialValue: initialValue,
+                                                  nodeIO: nodeIO,
+                                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                  unpackedPortIndex: unpackedPortIndex,
+                                                  importedMediaObject: importedMediaObject)
 
-        case .position:
-            self.fieldValueTypes = [.init(type: .xY,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .point3D:
-            self.fieldValueTypes = [.init(type: .xYZ,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .point4D:
-            self.fieldValueTypes = [.init(type: .xYZW,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-            
-        case .padding:
-            self.fieldValueTypes = [.init(type: .padding,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .shapeCommand(let shapeCommand):
-            switch shapeCommand {
-            case .closePath:
-                self.fieldValueTypes = [.init(type: .dropdown,
-                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                              unpackedPortIndex: unpackedPortIndex)]
-            case .lineTo: // i.e. .moveTo or .lineTo
-                self.fieldValueTypes = [.init(type: .dropdown,
-                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                              unpackedPortIndex: unpackedPortIndex),
-                        .init(type: .xY,
-                              groupLabel: "Point", // optional
-                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                              unpackedPortIndex: unpackedPortIndex,
-                              // REQUIRED, else we get two dropdowns
-                              startingFieldIndex: 1)
-                ]
-            case .curveTo:
-                self.fieldValueTypes = .init([
-                    .init(type: .dropdown,
-                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                          unpackedPortIndex: unpackedPortIndex),
-                    .init(type: .xY,
-                          groupLabel: "Point",
-                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                          unpackedPortIndex: unpackedPortIndex,
-                          startingFieldIndex: 1),
-                    .init(type: .xY,
-                          groupLabel: "Curve From",
-                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                          unpackedPortIndex: unpackedPortIndex,
-                          startingFieldIndex: 3),
-                    .init(type: .xY,
-                          groupLabel: "Curve To",
-                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                          unpackedPortIndex: unpackedPortIndex,
-                          startingFieldIndex: 5)
-                ])
-            case .output:
-                self.fieldValueTypes = [.init(type: .readOnly,
-                                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                              unpackedPortIndex: unpackedPortIndex)]
-            }
-
-        case .singleDropdown:
-            self.fieldValueTypes = [.init(type: .dropdown,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .textFontDropdown:
-            // TODO: Can keep using .dropdown ?
-            self.fieldValueTypes = [.init(type: .dropdown,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .bool:
-            self.fieldValueTypes = [.init(type: .bool,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .asyncMedia:
-            self.fieldValueTypes = [.init(type: .asyncMedia,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .number:
-            self.fieldValueTypes = [.init(type: .number,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .string:
-            self.fieldValueTypes = [.init(type: .string,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .layerDimension:
-            self.fieldValueTypes = [.init(type: .layerDimension,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .pulse:
-            self.fieldValueTypes = [.init(type: .pulse,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .color:
-            self.fieldValueTypes = [.init(type: .color,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .json:
-            self.fieldValueTypes = [.init(type: .json,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .assignedLayer:
-            self.fieldValueTypes = [.init(type: .assignedLayer,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .pinTo:
-            self.fieldValueTypes = [.init(type: .pinTo,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-            
-        case .anchoring:
-            self.fieldValueTypes = [.init(type: .anchoring,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-
-        case .readOnly:
-            self.fieldValueTypes = [.init(type: .readOnly,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-            
-        case .spacing:
-            self.fieldValueTypes = [.init(type: .spacing,
-                                          unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                          unpackedPortIndex: unpackedPortIndex)]
-        }
         
         self.fieldValueTypes.forEach { fieldValueType in
             fieldValueType.fieldObservers.forEach {

@@ -319,9 +319,21 @@ extension LayerInputObserver {
             let unpackedObserver = data.0
             let unpackedSchema = data.1
             
+            let defaultValue = layerInputType.getDefaultValue(for: layerNode.layer)
+            
+            let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
+                initialValue: defaultValue,
+                nodeIO: .input,
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                importedMediaObject: nil)
+            
+            // given a layer input port (Which is neither packed nor unpacked)
+            let parentFieldGroupType: FieldGroupType = fieldGroups.first!.type
+            
             // TODO: SEPT 12
-            let unpackedPortParentFieldGroupType: FieldGroupType? = nil
-            let unpackedPortIndex: Int? = nil
+            let unpackedPortParentFieldGroupType: FieldGroupType? = parentFieldGroupType
+            
             
             unpackedObserver.update(from: unpackedSchema,
                                     layerInputType: .init(layerInput: layerInputType,
@@ -329,7 +341,8 @@ extension LayerInputObserver {
                                     layerNode: layerNode,
                                     nodeId: nodeId,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: unpackedPortIndex)
+//                                    unpackedPortIndex: unpackedPortIndex)
+                                    unpackedPortIndex: portId)
         }
     }
     

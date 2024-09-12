@@ -438,7 +438,8 @@ extension LayerNodeViewModel {
         
         // Set up inputs
         self.forEachInput { layerInput in
-            layerInput.initializeDelegate(node)
+            layerInput.initializeDelegate(node,
+                                          layer: self.layer)
         }
         
         // Set blocked fields after all fields have been initialized

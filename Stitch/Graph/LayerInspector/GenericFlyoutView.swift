@@ -296,7 +296,7 @@ struct FatalErrorIfDebugView: View {
     }
 }
 
-struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
+struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
     //    let layerInput: LayerInputType
     let layerInput: LayerInputPort
@@ -319,7 +319,7 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         
         // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
         //        let fieldObserver: InputLayerNodeRowData? = 
-        portObserver._unpackedData.allPorts[safe: fieldIndex]
+//        portObserver._unpackedData.allPorts[safe: fieldIndex]
         
         if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
             
@@ -330,9 +330,27 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
             
+            
+//            let fieldGroups: [FieldGroupType] =
+            
+            let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
+            
+            let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
+                initialValue: defaultValue,
+                nodeIO: .input,
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                importedMediaObject: nil)
+            
+            // given a layer input port (Which is neither packed nor unpacked)
+            let parentFieldGroupType: FieldGroupType = fieldGroups.first!.type
+            
             // TODO: SEPT 12
-            let unpackedPortParentFieldGroupType: FieldGroupType? = nil
-            let unpackedPortIndex: Int? = nil
+            let unpackedPortParentFieldGroupType: FieldGroupType? = parentFieldGroupType
+            
+            // In this case, we already have the fieldIndex as 0 or 1 ?
+            let unpackedPortIndex: Int? = fieldIndex
+            
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
                                 layerNode: layerNode,
