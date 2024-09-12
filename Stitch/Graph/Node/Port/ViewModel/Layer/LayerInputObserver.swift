@@ -49,11 +49,26 @@ final class LayerInputObserver {
 
 extension LayerInputObserver {
     
+    // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
+    @MainActor
+    func overallPortLabel(usesShortLabel: Bool) -> String {
+        self._packedData.inspectorRowViewModel.rowDelegate?.label(true) ?? ""
+    }
+    
     // get field value types, regardless of pack or unpack state
-//    @MainActor
-//    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+    
+    // gets the INSPECTOR ROW'S field view models
+    @MainActor
+    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+        
+        let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
+            portData.inspectorRowViewModel.fieldValueTypes
+        }
+        
+        return fields
+        
 //        switch self.mode {
-//        case .packed(let x):
+//        case .packed:
 //            return self._packedData.inspectorRowViewModel.fieldValueTypes
 //            
 //            // take all the unpacked data
@@ -62,7 +77,7 @@ extension LayerInputObserver {
 //                port.
 //            }
 //        }
-//    }
+    }
     
     @MainActor
     var mode: LayerInputMode {
@@ -119,7 +134,8 @@ extension LayerInputObserver {
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
     }
     
-    @MainActor var activeValue: PortValue {
+    @MainActor 
+    var activeValue: PortValue {
         let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
         let values = self.values
         
@@ -141,12 +157,14 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor 
+    func initializeDelegate(_ node: NodeDelegate) {
         self._packedData.initializeDelegate(node)
         self._unpackedData.initializeDelegate(node)
     }
     
-    @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
+    @MainActor 
+    func getAllCanvasObservers() -> [CanvasItemViewModel] {
         switch self.observerMode {
         case .packed(let packedData):
             if let canvas = packedData.canvasObserver {
@@ -160,8 +178,11 @@ extension LayerInputObserver {
         }
     }
     
+    // TODO: why do we reset
+    
     /// Called after the pack mode changes for some port.
-    @MainActor func wasPackModeToggled() {
+    @MainActor 
+    func wasPackModeToggled() {
         log("wasPackModeToggled called for \(self.layer)")
         
         let nodeId = self._packedData.rowObserver.id.nodeId

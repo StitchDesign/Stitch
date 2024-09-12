@@ -102,8 +102,10 @@ struct GenericFlyoutView: View {
                     nodeId: nodeId,
                     fieldIndex: fieldIndex,
                     isMultifield: isMultifield,
-                    nodeKind: nodeKind,
-                    isSelectedRow: isSelectedRow)
+                    nodeKind: nodeKind
+//                     ,
+//                    isSelectedRow: isSelectedRow
+                  )
                 
 //                GenericFlyoutRowView(layerInput: layerInput,
 //                                     nodeId: nodeId,
@@ -236,7 +238,8 @@ struct GenericFlyoutRowView: View {
     let isMultifield: Bool
     let nodeKind: NodeKind
     
-    let isSelectedRow: Bool
+//    let isSelectedRow: Bool
+    @State var isSelectedRow: Bool = false
     
     var body: some View {
         //        Text("GenericFlyoutRowView")
@@ -269,6 +272,15 @@ struct GenericFlyoutRowView: View {
                                 isForFlyout: true,
                                 isSelectedInspectorRow: false)
             } // HStack
+            .border(.green)
+            .contentShape(Rectangle())
+            .border(.red)
+            .onTapGesture {
+                log("flyout: tapped field row \(fieldIndex)")
+//                self.selectedFlyoutRow = fieldIndex
+                self.isSelectedRow.toggle()
+            }
+            
         } else {
             FatalErrorIfDebugView()
         }

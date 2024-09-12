@@ -221,7 +221,6 @@ struct NodeInputView: View {
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     // rowData.fieldValueTypes
     
-    
     // This is for the inspector-row, so
     let inputLayerNodeRowData: LayerInputObserver?
     
@@ -363,14 +362,16 @@ struct NodeInputView: View {
                          isSelectedInspectorRow: propertyIsSelected)
     }
     
+    // Not needed anymore?
     var hStackAlignment: VerticalAlignment {
-        (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
+        let isMultiField = (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+        return (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
     }
     
-    var isMultiField: Bool {
-//        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
-        (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
-    }
+//    var isMultiField: Bool {
+////        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+//        (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
+//    }
 }
 
 struct NodeOutputView: View {
@@ -506,12 +507,34 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     var body: some View {
 //        ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
         
+        // Ah, for an unpacked layer input, we pass in multiple `fieldGroupViewModel`s, each of which has a single `fieldObserver` ?
+        // And for packed layer input, we pass in a single `fieldGroupViewModel`, which has multiple `fieldObserver`s ?
+        // `isMultifield` can be passed down at the top-level
+        
+        let multipleFieldGroups = fieldValueTypes.count > 1
+        
         ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
+            
+            let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
+            
+            // In non-property-sidebar cases, an input
+            
+            // if we're in the inspector-row or flyout-row, we are
+            
+            // i.e. don't need to think about packed vs unpacked 
+            let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
+            
+//            let isMultiField = fieldGroupViewModel.fieldObservers.count > 1
+            
+            logInView("isMultiField: \(isMultiField)")
+            
+            
+            
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,
                            nodeId: nodeId,
                            isGroupNodeKind: isGroupNodeKind,
-                           isMultiField: fieldGroupViewModel.fieldObservers.count > 1,
+                           isMultiField: isMultiField,
                            forPropertySidebar: forPropertySidebar,
                            propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                            valueEntryView: valueEntryView)

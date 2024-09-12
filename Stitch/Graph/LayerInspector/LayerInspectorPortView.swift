@@ -24,14 +24,11 @@ struct LayerInspectorInputPortView: View {
         
         let layerProperty: LayerInspectorRowId = .layerInput(layerInputType)
         
-        
         // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
         // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
         
         // but canvas item view model needs to know "packed vs unpacked" for its id;
         // so we do need to pass the packed-vs-unpacked information
-        
-        //
         
         let coordinate: NodeIOCoordinate = .init(
             portType: .keyPath(layerInputType),
@@ -60,12 +57,15 @@ struct LayerInspectorInputPortView: View {
                               nodeKind: .layer(portObserver.layer),
                               hasIncomingEdge: false, // always false
                               rowObserverId: coordinate,
-//                              rowObserver: inputLayerNodeRowData.rowObserver,
-//                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                              
+                              // Only used for PortEntryView, which inspector- and flyout-rows do not use
+                              //                              rowObserver: inputLayerNodeRowData.rowObserver,
+                              //                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
                               rowObserver: nil,
                               rowData: nil,
                               // Always use the packed
-                              fieldValueTypes: portObserver._packedData.inspectorRowViewModel.fieldValueTypes,
+                              fieldValueTypes: portObserver.fieldValueTypes,
+                                // portObserver._packedData.inspectorRowViewModel.fieldValueTypes,
                                 //[FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
                               inputLayerNodeRowData: portObserver,
                               forPropertySidebar: true,
@@ -75,8 +75,7 @@ struct LayerInspectorInputPortView: View {
                               layerInput: portObserver.port,
                               // Inspector Row always uses the overall input level, never an individual field label
                               // so use the packed label
-//                              label: portObserver.packedObserver?.rowObserver.label()
-                              label: portObserver._packedData.inspectorRowViewModel.rowDelegate?.label(true) ?? ""
+                              label: portObserver.overallPortLabel(usesShortLabel: true)
                 )
             }
         

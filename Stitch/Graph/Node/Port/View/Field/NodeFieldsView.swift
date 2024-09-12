@@ -100,6 +100,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                    }
 //                }
             
+            // Can't rely on this being blocked out anymore?
             if !fieldViewModel.isBlockedOut {
                 self.valueEntryView(fieldViewModel, isMultiField)
             }
