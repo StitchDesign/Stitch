@@ -15,7 +15,6 @@ struct CommonEditingViewWrapper: View {
     let inputLayerNodeRowData: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
     let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId

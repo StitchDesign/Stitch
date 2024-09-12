@@ -78,7 +78,6 @@ struct FieldValueNumberView: View {
                                      inputLayerNodeRowData: inputLayerNodeRowData,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
-                                     rowObserverCoordinate: rowObserverCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
                                      choices: nil,
                                      adjustmentBarSessionId: adjustmentBarSessionId,

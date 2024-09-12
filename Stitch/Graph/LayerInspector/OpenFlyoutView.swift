@@ -20,8 +20,9 @@ struct OpenFlyoutView: View, KeyboardReadable {
             
             let flyoutSize = flyoutState.flyoutSize
             
-            // assumes packed data
-            let inputData = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]._packedData
+            let portObserver: LayerInputObserver = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
+            
+            let inputData: InputLayerNodeRowData = portObserver._packedData
             
             // If pseudo-modal-background placed here,
             // then we disable scroll
@@ -60,7 +61,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
             - safeAreaAdjustment // move flyout up if its bottom edge would go below graph's bottom edge
             - keyboardAdjustment // move flyout up a bit more if keyboard is open and we're near bottom
             
-            let flyoutInput = flyoutState.flyoutInput
+            let flyoutInput: LayerInputPort = flyoutState.flyoutInput
             
             HStack {
                 Spacer()
@@ -72,8 +73,18 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                         graph: graph)
                     }
                     // One multifield input presented in separate rows in the flyout
-                    else {
-                        Text("Generic Flyout TODO")
+                    else {                        
+                        // The Flyout takes the whole input,
+                        // and displays each field
+                        GenericFlyoutView(graph: graph,
+                                          inputLayerNodeRowData: portObserver,
+                                          layer: layerNode.layer,
+                                          layerInput: flyoutInput,
+                                          nodeId: node.id,
+                                          nodeKind: node.kind,
+                                          fieldValueTypes: portObserver._packedData.inspectorRowViewModel.fieldValueTypes)
+                        
+//                        // Flyout always takes whole packed view
 //                        GenericFlyoutView(graph: graph,
 //                                          inputRowViewModel: inputData.inspectorRowViewModel,
 //                                          inputLayerNodeRowData: inputData,

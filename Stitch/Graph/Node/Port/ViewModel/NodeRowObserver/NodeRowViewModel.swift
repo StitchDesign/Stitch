@@ -48,7 +48,7 @@ struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
     var nodeId: NodeId
     
-    // TODO: this is always 0 for layer inpsector which creates issues for tabbing
+    // TODO: this is always 0 for layer inspector which creates issues for tabbing
     var portId: Int
 }
 
