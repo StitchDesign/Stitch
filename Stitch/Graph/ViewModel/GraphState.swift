@@ -88,7 +88,6 @@ final class GraphState: Sendable {
     
     // Encoded copies of local published components
     var publishedDocumentComponents: [StitchComponent]
-    var draftedComponents: [StitchComponent]
     
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
@@ -131,7 +130,6 @@ final class GraphState: Sendable {
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.publishedDocumentComponents = data.publishedDocumentComponents
-        self.draftedComponents = schema.draftedComponents
         self.cameraSettings = schema.cameraSettings
         self.localPosition = schema.localPosition
 
@@ -298,8 +296,6 @@ extension GraphState {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
-
-        fatalError("derive drafted components from live data")
         
         let doc = StitchDocument(projectId: self.projectId,
                                  name: self.projectName,
@@ -311,8 +307,7 @@ extension GraphState {
                                  zoomData: self.graphMovement.zoomData.zoom,
                                  nodes: nodes,
                                  orderedSidebarLayers: self.orderedSidebarLayers,
-                                 commentBoxes: commentBoxes, 
-                                 draftedComponents: [],
+                                 commentBoxes: commentBoxes,
                                  cameraSettings: self.cameraSettings)
         return .init(document: doc,
                      publishedDocumentComponents: self.publishedDocumentComponents)

@@ -274,9 +274,6 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
         public var orderedSidebarLayers: [SidebarLayerData]
         public let commentBoxes: [CommentBoxData]
         
-        // Saves local changes of components, cross-checked with published copies for detecting changes
-        public var draftedComponents: [StitchComponent]
-        
         public let cameraSettings: CameraSettings
         
         public init(projectId: ProjectId,
@@ -289,7 +286,6 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
                     nodes: [NodeEntity],
                     orderedSidebarLayers: [SidebarLayerData],
                     commentBoxes: [CommentBoxData],
-                    draftedComponents: [StitchComponent],
                     cameraSettings: CameraSettings) {
             self.projectId = projectId
             self.name = name
@@ -301,7 +297,6 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
             self.nodes = nodes
             self.orderedSidebarLayers = orderedSidebarLayers
             self.commentBoxes = commentBoxes
-            self.draftedComponents = draftedComponents
             self.cameraSettings = cameraSettings
         }
         

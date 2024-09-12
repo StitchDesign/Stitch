@@ -44,8 +44,7 @@ extension StitchDocument: StitchDocumentIdentifiable {
                   zoomData: 1,
                   nodes: nodes,
                   orderedSidebarLayers: [],
-                  commentBoxes: .init(), 
-                  draftedComponents: [],
+                  commentBoxes: .init(),
                   cameraSettings: .init())
     }
     
