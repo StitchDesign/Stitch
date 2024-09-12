@@ -78,10 +78,10 @@ struct DisplayError: StitchStoreEvent {
 
 struct ProjectDeleted: StitchStoreEvent {
     
-    let document: StitchDocument
+    let data: StitchDocumentData
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.deleteProject(document: document)
+        store.deleteProject(data: data)
         return .shouldPersist
     }
 }

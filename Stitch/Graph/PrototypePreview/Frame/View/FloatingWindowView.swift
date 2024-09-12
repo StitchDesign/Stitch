@@ -238,7 +238,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(graph: .init(id: .init(), store: nil),
+        FloatingWindowView(graph: .createEmpty(),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)
