@@ -104,79 +104,86 @@ struct JumpToLayerPropertyOnGraphButton: View {
     }
 }
 
-struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
-                           FieldsView: View>: View {
-    typealias NodeRowType = NodeRowObserverType.RowViewModelType
-    
-    @State private var showPopover: Bool = false
-    
-    @Bindable var graph: GraphState
-    
-//    @Bindable var rowObserver: NodeRowObserverType
-//    @Bindable var rowData: NodeRowType
-    
-    let isGroupNode: Bool
-    
-    let label: String
-    let portId: Int
-    let canvasItemId: CanvasItemId?
-    
-    let forPropertySidebar: Bool
-    let propertyIsSelected: Bool
-    
-    
-    @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
-    
-    @MainActor
-    private var graphUI: GraphUIState {
-        self.graph.graphUI
-    }
-    
+//struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
+//                           FieldsView: View>: View {
+//    typealias NodeRowType = NodeRowObserverType.RowViewModelType
+//    
+//    @State private var showPopover: Bool = false
+//    
+//    @Bindable var graph: GraphState
+//    
+////    @Bindable var rowObserver: NodeRowObserverType
+////    @Bindable var rowData: NodeRowType
+//    
+//    let isGroupNode: Bool
+//    
+//    let label: String
+//    let portId: Int
+//    let canvasItemId: CanvasItemId?
+//    
+//    let forPropertySidebar: Bool
+//    let propertyIsSelected: Bool
+//    
+//    @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
+//    
 //    @MainActor
-//    var label: String {
-//        if isGroupNode {
-//            return rowObserver.nodeDelegate?.displayTitle ?? ""
-//        }
-//        
-//        return self.rowObserver.label(forPropertySidebar)
+//    private var graphUI: GraphUIState {
+//        self.graph.graphUI
 //    }
-    
-//    var isGroupNode: Bool {
-//        self.rowData.nodeDelegate?.kind.isGroup ?? false
-//    } 
-    
-    var body: some View {
-        // Fields and port ordering depending on input/output
-        self.fieldsView(rowData, labelView)
-        
-        // Don't specify height for layer inspector property row, so that multifields can be shown vertically
-            .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
-        
-            .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
-  
-        // Now handled in `ActiveIndexChangedAction`
-//            .onChange(of: self.graphUI.activeIndex) {
-//                let oldViewValue = self.rowData.activeValue
-//                let newViewValue = self.rowObserver.activeValue
-//                self.rowData.activeValueChanged(oldValue: oldViewValue,
-//                                                newValue: newViewValue)
-//            }
-        
-            .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                               portId: portId, //rowData.id.portId,
-                                               canvasItemId: canvasItemId, //self.rowData.canvasItemDelegate?.id,
-                                               nodeIOType: NodeRowType.nodeIO,
-                                               forPropertySidebar: forPropertySidebar))
-    }
-    
-    @ViewBuilder @MainActor
-    var labelView: LabelDisplayView {
-        LabelDisplayView(label: label,
-                         isLeftAligned: false,
-                         fontColor: STITCH_FONT_GRAY_COLOR,
-                         isSelectedInspectorRow: propertyIsSelected)
-    }
-}
+//    
+////    @MainActor
+////    var label: String {
+////        if isGroupNode {
+////            return rowObserver.nodeDelegate?.displayTitle ?? ""
+////        }
+////        
+////        return self.rowObserver.label(forPropertySidebar)
+////    }
+//    
+////    var isGroupNode: Bool {
+////        self.rowData.nodeDelegate?.kind.isGroup ?? false
+////    } 
+//    
+//    var body: some View {
+//        // Fields and port ordering depending on input/output
+//        self.fieldsView(rowData, labelView)
+//        
+////        NodeInputOutputView
+//        // Don't specify height for layer inspector property row, so that multifields can be shown vertically
+//        
+//        // NO LONGER RELEVANT SINCE FIELDS NO LONGER STACKED VERTICALLY?
+////            .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
+//        
+//        // ALSO NO LONGER RELEVANT
+//            .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
+//  
+//        // Now handled in `ActiveIndexChangedAction`
+////            .onChange(of: self.graphUI.activeIndex) {
+////                let oldViewValue = self.rowData.activeValue
+////                let newViewValue = self.rowObserver.activeValue
+////                self.rowData.activeValueChanged(oldValue: oldViewValue,
+////                                                newValue: newViewValue)
+////            }
+//        
+//        // MOVED TO NodeOutputView
+//        //
+////            .modifier(EdgeEditModeViewModifier(graphState: graph,
+////                                               portId: portId, //rowData.id.portId,
+////                                               canvasItemId: canvasItemId, //self.rowData.canvasItemDelegate?.id,
+////                                               nodeIOType: NodeRowType.nodeIO,
+////                                               forPropertySidebar: forPropertySidebar))
+//    }
+//    
+//    @ViewBuilder @MainActor
+//    var labelView: LabelDisplayView {
+//        LabelDisplayView(label: label,
+//                         isLeftAligned: false,
+//                         fontColor: STITCH_FONT_GRAY_COLOR,
+//                         isSelectedInspectorRow: propertyIsSelected)
+//    }
+//}
+
+
 
 /*
  Patch node input of Point4D = one node row observer becomes 4 fields
@@ -201,6 +208,16 @@ struct NodeInputView: View {
 //    @Bindable var rowObserver: InputNodeRowObserver
 //    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
     
+    // Only for inputs on the canvas; never for inputs on the
+    // Ah, but the @Bindables can't be optional ?
+    // that's okay -- wrap them in data
+//    @Bindable var rowObserver: InputNodeRowObserver
+//    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
+    
+    // ONLY for port-view
+    let rowObserver: InputNodeRowObserver?
+    let rowData: InputNodeRowObserver.RowViewModelType?
+        
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     // rowData.fieldValueTypes
     
@@ -220,7 +237,21 @@ struct NodeInputView: View {
     
     let layerInput: LayerInputPort?
     
+    var label: String //
+    
+    // @MainActor
+   //    var label: String {
+   //        if isGroupNode {
+   //            return rowObserver.nodeDelegate?.displayTitle ?? ""
+   //        }
+   //
+   //        // this will need to change for packed vs unpacked
+   //        return self.rowObserver.label(forPropertySidebar)
+   //    }
+    
+    
     var forFlyout: Bool = false
+    
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -260,18 +291,21 @@ struct NodeInputView: View {
 //    }
     
     var body: some View {
-        NodeInputOutputView(graph: graph,
-//                            rowObserver: rowObserver,
-//                            rowData: rowData,
-                            forPropertySidebar: forPropertySidebar,
-                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType, labelView: LabelDisplayView) in
+//        NodeInputOutputView(graph: graph,
+////                            rowObserver: rowObserver,
+////                            rowData: rowData,
+//                            forPropertySidebar: forPropertySidebar,
+////                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType, labelView: LabelDisplayView) in
+//                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType) in
            
             // For multifields, want the overall label to sit at top of fields' VStack.
             // For single fields, want to the overall label t
             HStack(alignment: hStackAlignment) {
                 
                 // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
-                if !forPropertySidebar {
+                if !forPropertySidebar,
+                   let rowObserver = rowObserver,
+                   let rowData = rowData {
                     NodeRowPortView(graph: graph,
                                     rowObserver: rowObserver,
                                     rowViewModel: rowData,
@@ -316,7 +350,15 @@ struct NodeInputView: View {
                         valueEntryView: valueEntryView)
                 }
             } // HStack
-        }
+//        }
+    }
+        
+    @ViewBuilder @MainActor
+    var labelView: LabelDisplayView {
+        LabelDisplayView(label: label,
+                         isLeftAligned: false,
+                         fontColor: STITCH_FONT_GRAY_COLOR,
+                         isSelectedInspectorRow: propertyIsSelected)
     }
     
     var hStackAlignment: VerticalAlignment {
@@ -341,6 +383,19 @@ struct NodeOutputView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
     
+    
+    var label: String //
+    
+    // @MainActor
+   //    var label: String {
+   //        if isGroupNode {
+   //            return rowObserver.nodeDelegate?.displayTitle ?? ""
+   //        }
+   //
+   //        // this will need to change for packed vs unpacked
+   //        return self.rowObserver.label(forPropertySidebar)
+   //    }
+    
     @MainActor
     private var graphUI: GraphUIState {
         self.graph.graphUI
@@ -364,7 +419,7 @@ struct NodeOutputView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
-                         rowViewModel: rowData,
+//                         rowViewModel: rowData,
                          viewModel: portViewModel,
                          coordinate: rowObserver.id,
                          isMultiField: isMultiField,
@@ -376,11 +431,11 @@ struct NodeOutputView: View {
     }
     
     var body: some View {
-        NodeInputOutputView(graph: graph,
-                            rowObserver: rowObserver,
-                            rowData: rowData,
-                            forPropertySidebar: forPropertySidebar,
-                            propertyIsSelected: propertyIsSelected) { outputViewModel, labelView in
+//        NodeInputOutputView(graph: graph,
+//                            rowObserver: rowObserver,
+//                            rowData: rowData,
+//                            forPropertySidebar: forPropertySidebar,
+//                            propertyIsSelected: propertyIsSelected) { outputViewModel, labelView in
             HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
                 // Property sidebar always shows labels on left side, never right
                 if forPropertySidebar {
@@ -411,8 +466,22 @@ struct NodeOutputView: View {
                                     rowViewModel: rowData,
                                     showPopover: $showPopover)
                 }
-            }
-        }
+            } // HStack
+            
+            // Only for outputs
+            .modifier(EdgeEditModeViewModifier(graphState: graph,
+                                               portId: rowData.id.portId,
+                                               canvasItemId: self.rowData.canvasItemDelegate?.id,
+                                               forPropertySidebar: forPropertySidebar))
+//        }
+    }
+    
+    @ViewBuilder @MainActor
+    var labelView: LabelDisplayView {
+        LabelDisplayView(label: label,
+                         isLeftAligned: false,
+                         fontColor: STITCH_FONT_GRAY_COLOR,
+                         isSelectedInspectorRow: propertyIsSelected)
     }
 }
 

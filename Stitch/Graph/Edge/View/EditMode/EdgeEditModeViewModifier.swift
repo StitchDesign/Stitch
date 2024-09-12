@@ -8,12 +8,12 @@
 import StitchSchemaKit
 import SwiftUI
 
+// Only for outputs? So should be in NodeOutputView, not NodeInputOutputView
 struct EdgeEditModeViewModifier: ViewModifier {
 
     @Bindable var graphState: GraphState
     let portId: Int
     let canvasItemId: CanvasItemId?
-    let nodeIOType: NodeIO
     let forPropertySidebar: Bool
 
     @MainActor
@@ -24,7 +24,6 @@ struct EdgeEditModeViewModifier: ViewModifier {
     func body(content: Content) -> some View {
                 
         if let canvasItemId = canvasItemId,
-            nodeIOType == .output,
            !forPropertySidebar {
             content
                 .modifier(EdgeEditModeOutputHoverViewModifier(

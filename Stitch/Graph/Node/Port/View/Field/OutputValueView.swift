@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var rowViewModel: OutputNodeRowViewModel
+//    @Bindable var rowViewModel: OutputNodeRowViewModel // NOT EVEN USED ?
     @Bindable var viewModel: OutputFieldViewModel
 
     let coordinate: NodeIOCoordinate

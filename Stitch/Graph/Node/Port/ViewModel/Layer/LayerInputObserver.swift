@@ -48,10 +48,10 @@ final class LayerInputObserver {
 }
 
 extension LayerInputObserver {
-    @MainActor
-    var nodeId: NodeId {
-        self.rowObserver.id.nodeId
-    }
+//    @MainActor
+//    var nodeId: NodeId {
+//        self.rowObserver.id.nodeId
+//    }
     
     @MainActor
     var mode: LayerInputMode {

@@ -12,8 +12,10 @@ import StitchSchemaKit
 struct LayerInspectorInputPortView: View {
     @Bindable var portObserver: LayerInputObserver
     @Bindable var graph: GraphState
+    let nodeId: NodeId
     
     var body: some View {
+        
         let observerMode = portObserver.observerMode
         
         let layerInputType = LayerInputType(layerInput: portObserver.port,
@@ -33,7 +35,7 @@ struct LayerInspectorInputPortView: View {
         
         let coordinate: NodeIOCoordinate = .init(
             portType: .keyPath(layerInputType),
-            nodeId: portObserver.nodeId)
+            nodeId: nodeId)
         
         // When a single field is on the canvas, should we show the "this inspector row is on the canvas" ?
         // Per Origami, no?
@@ -44,8 +46,8 @@ struct LayerInspectorInputPortView: View {
 //        // Grab the "parent"/"packed"
 //        let inputLayerNodeRowData: LayerInputObserver =
 //        let canvasItemId = inputLayerNodeRowData.canvasObserver?.id
-        
-        Text("Love")
+                
+//        let propertyRowIsSelected = graph.graphUI.propertySidebar.selectedProperty == layerProperty
         
         LayerInspectorPortView(
             layerProperty: layerProperty,
@@ -53,13 +55,32 @@ struct LayerInspectorInputPortView: View {
             graph: graph,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeInputView(graph: graph,
-                              rowObserver: inputLayerNodeRowData.rowObserver,
-                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
+//                              nodeId: portObserver.nodeId,
+                              nodeId: nodeId,
+                              nodeKind: .layer(portObserver.layer),
+                              hasIncomingEdge: false, // always false
+                              rowObserverId: coordinate,
+                              
+//                              rowObserver: inputLayerNodeRowData.rowObserver,
+//                              rowData: inputLayerNodeRowData.inspectorRowViewModel,
+                              rowObserver: nil,
+                              rowData: nil,
+                              
+                              // Always use the packed
+                              fieldValueTypes: portObserver._packedData.inspectorRowViewModel.fieldValueTypes,
+                                //[FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+                              
+                              inputLayerNodeRowData: portObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-                              isCanvasItemSelected: false)
+                              isCanvasItemSelected: false,
+                              layerInput: portObserver.port,
+                              // Inspector Row always uses the overall input level, never an individual field label
+                              // so use the packed label
+//                              label: portObserver.packedObserver?.rowObserver.label()
+                              label: portObserver._packedData.inspectorRowViewModel.rowDelegate?.label(true) ?? ""
+                )
             }
         
         
@@ -158,12 +179,13 @@ let LAYER_INSPECTOR_ROW_SPACING = 8.0
 // how big an icon / button is
 let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 
-struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
+//struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
+struct LayerInspectorPortView<RowView>: View where RowView: View {
         
     // input or output
     let layerProperty: LayerInspectorRowId
     
-    @Bindable var rowViewModel: RowObserver.RowViewModelType
+//    @Bindable var rowViewModel: RowObserver.RowViewModelType
 //    @Bindable var rowObserver: RowObserver
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
