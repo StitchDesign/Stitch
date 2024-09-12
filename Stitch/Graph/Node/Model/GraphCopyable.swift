@@ -467,12 +467,14 @@ protocol StitchComponentable: Sendable, MediaDocumentEncodable, Transferable {
     var orderedSidebarLayers: SidebarLayerList { get set }
     static var fileType: UTType { get }
     var rootUrl: URL { get }
+    var dataJsonUrl: URL { get }
 }
 
 //extension StitchComponent: StitchComponentable { }
 
 struct StitchClipboardContent: StitchComponentable {
     static let fileType = UTType.stitchClipboard
+    static let dataJsonName = StitchDocument.graphDataFileName
     
     var id = UUID()
     var nodes: [NodeEntity]
@@ -486,6 +488,12 @@ extension StitchClipboardContent: MediaDocumentEncodable {
                                     conformingTo: Self.fileType)
     }
     
+    var dataJsonUrl: URL {
+        self.rootUrl
+            .appendingPathComponent(StitchClipboardContent.dataJsonName,
+                                    conformingTo: .json)
+    }
+    
     func getEncodingUrl(documentRootUrl: URL) -> URL {
         // Ignore param, always using temp directory
         self.rootUrl
@@ -493,12 +501,6 @@ extension StitchClipboardContent: MediaDocumentEncodable {
 }
 
 extension StitchComponentable {
-    static var dataJsonName: String { "data" }
-    
-    var dataJsonUrl: URL {
-        self.rootUrl.appendingDataJsonPath()
-    }
-    
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(exportedContentType: self.fileType,
                            exporting: Self.exportComponent)

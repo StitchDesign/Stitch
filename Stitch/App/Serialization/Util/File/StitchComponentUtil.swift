@@ -15,6 +15,11 @@ extension StitchComponent: StitchComponentable {
     
     var rootUrl: URL {
         self.saveLocation.rootUrl
+            .appendingPathComponent("\(self.id)")
+    }
+    
+    var dataJsonUrl: URL {
+        self.rootUrl.appendingVersionedSchemaPath()
     }
 }
 
@@ -31,8 +36,7 @@ extension ComponentSaveLocation {
         switch self {
         case .document(let documentId):
             StitchDocument.getRootUrl(from: documentId)
-                .appendingPathComponent(URL.componentsDirPath,
-                                        conformingTo: .stitchComponent)
+                .appendingComponentsPath()
         case .userLibrary:
             // TODO: come back to user library
             fatalError()

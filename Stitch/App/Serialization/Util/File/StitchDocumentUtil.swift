@@ -118,12 +118,20 @@ extension StitchComponent: MediaDocumentEncodable {
 
 extension StitchComponent {
     static func migrateEncodedComponents(at directory: URL) throws -> [StitchComponent] {
-        let componentDirectories = try FileManager.default.contentsOfDirectory(atPath: directory.path())
+        let componentDirectories = try FileManager.default.contentsOfDirectory(at: directory,
+                                                                               includingPropertiesForKeys: nil)
         
-        let components = componentDirectories.compactMap { componentPath in
-            let componentUrl = URL(fileURLWithPath: componentPath, isDirectory: true)
+        let components = componentDirectories.compactMap { componentUrl -> StitchComponent? in
+            let versionedDataUrls = componentUrl.getVersionedDataUrls()
+        
             do {
-                return try StitchComonentVersion.migrate(versionedCodableUrl: componentUrl)
+                // If multiple verisoned URLs found, delete the older documents
+                guard let graphDataUrl: URL = try versionedDataUrls.getAndCleanupVersions() else {
+                    log("StitchComponent.migrateEncodedComponents error: could not get versioned URL from package.")
+                    return nil
+                }
+                
+                return try StitchComonentVersion.migrate(versionedCodableUrl: graphDataUrl)
             } catch {
                 fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
                 return nil
@@ -264,8 +272,9 @@ extension StitchDocumentData: Transferable, Sendable {
         
         // Find and migrate each installed component
         let publishedDocumentComponentsDir = codableDoc.componentsDirUrl
-        let components = try StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)
-
+        // Components might not exist so fail quietly
+        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
+        
         graphDataUrl.stopAccessingSecurityScopedResource()
 
         log("openDocument: returning codable doc")
