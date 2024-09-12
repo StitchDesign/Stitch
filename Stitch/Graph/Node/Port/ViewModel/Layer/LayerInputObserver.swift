@@ -48,9 +48,20 @@ final class LayerInputObserver {
 }
 
 extension LayerInputObserver {
+    
+    // get field value types, regardless of pack or unpack state
 //    @MainActor
-//    var nodeId: NodeId {
-//        self.rowObserver.id.nodeId
+//    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+//        switch self.mode {
+//        case .packed(let x):
+//            return self._packedData.inspectorRowViewModel.fieldValueTypes
+//            
+//            // take all the unpacked data
+//        case .unpacked:
+//            return self._unpackedData.allPorts.map { (port: InputLayerNodeRowData) in
+//                port.
+//            }
+//        }
 //    }
     
     @MainActor

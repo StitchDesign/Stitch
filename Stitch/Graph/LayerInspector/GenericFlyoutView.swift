@@ -33,6 +33,8 @@ struct GenericFlyoutView: View {
     
     let nodeId: NodeId
     let nodeKind: NodeKind
+    
+    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
         
     var body: some View {
         
@@ -69,14 +71,10 @@ struct GenericFlyoutView: View {
     }
     
     @State var selectedFlyoutRow: Int? = nil
-    
-    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
-    
+        
     // TODO: just use `NodeInputView` here ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
-//        Text("FlyoutRows")
-        
         // Assumes: all flyouts have a single row which contains multiple fields
         
         // Can't just use NodeInputView, since we need to add a button
