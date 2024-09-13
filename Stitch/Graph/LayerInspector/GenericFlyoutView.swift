@@ -78,24 +78,17 @@ struct GenericFlyoutView: View {
             graph: graph,
             fieldValueTypes: fieldValueTypes,
             nodeId: nodeId,
-            isGroupNodeKind: false,
-            forPropertySidebar: true,
-            // fix this?
-            propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultifield in
-                                
-                let fieldIndex = inputFieldViewModel.fieldIndex
-                
-                  GenericFlyoutRowView(
+            forPropertySidebar: true) { inputFieldViewModel, isMultifield in
+                GenericFlyoutRowView(
                     graph: graph,
                     viewModel: inputFieldViewModel,
-                    // coordinate: inputF // inputRowViewModel.rowDelegate?.id,
                     layerInputObserver: inputLayerNodeRowData,
                     layerInput: layerInput,
                     nodeId: nodeId,
-                    fieldIndex: fieldIndex,
+                    fieldIndex: inputFieldViewModel.fieldIndex,
                     isMultifield: isMultifield,
                     nodeKind: nodeKind)
-        }
+            }
         
     }
 }

@@ -16,16 +16,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
     
     let nodeId: NodeId
-    let isGroupNodeKind: Bool
     let isMultiField: Bool
     let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
-    
-    var isForPropertyAlreadyOnGraph: Bool {
-        forPropertySidebar && propertyIsAlreadyOnGraph
-    }
-    
+        
     var body: some View {
         if allFieldsBlockedOut {
             EmptyView()
@@ -71,6 +65,5 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
                 self.valueEntryView(fieldViewModel, isMultiField)
             }
         }
-        .allowsHitTesting(!isForPropertyAlreadyOnGraph)
     }
 }

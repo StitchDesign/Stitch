@@ -49,43 +49,25 @@ struct LayerInspectorRowButton: View {
             return true
         }
     }
-
-//    @MainActor
-//    var showAddLayerPropertyButton: Bool {
-//        if canvasItemId.isDefined {
-//            return false
-//        }
-//        
-//        if isHovered {
-//            return true
-//        }
-//        
-//        if canBeAddedToCanvas, isPortSelected {
-//            return true
-//        }
-//        
-//        return false
-//    }
     
     @MainActor
     var showButton: Bool {
-        if canvasItemId.isDefined {
+        if canvasItemId.isDefined || isWholeInputWithAtleastOneFieldAlreadyOnCanvas ||  isHovered || (canBeAddedToCanvas && isPortSelected) {
             return true
+        } else {
+            return false
         }
-        
-        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
-            return true
-        }
-        
-        if isHovered {
-            return true
-        }
-        
-        if canBeAddedToCanvas, isPortSelected {
-            return true
-        }
-        
-        return false
+
+
+//        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+//            return true
+//        } else if isHovered {
+//            return true
+//        } else if canBeAddedToCanvas, isPortSelected {
+//            return true
+//        } else {
+//            return false
+//        }
     }
     
     @MainActor
@@ -127,48 +109,6 @@ struct LayerInspectorRowButton: View {
         .opacity(showButton ? 1 : 0)
         
         .animation(.default, value: showButton)
-        
-        
-//        
-//        if let canvasItemId = canvasItemId {
-//            button(imageString: "scope") {
-//                dispatch(JumpToCanvasItem(id: canvasItemId))
-//            }
-//        } else {
-//            button(imageString: isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? "circle.fill" : "plus.circle") {
-//                let nodeId = coordinate.nodeId
-//                if let layerInput = coordinate.keyPath {
-//                    
-//                    switch layerInput.portType {
-//                    
-//                    case .packed:
-//                        dispatch(LayerInputAddedToGraph(
-//                            nodeId: nodeId,
-//                            coordinate: layerInput))
-//                        
-//                    case .unpacked(let unpackedPortType):
-//                        dispatch(LayerInputFieldAddedToGraph(
-//                            layerInput: layerInput.layerInput, 
-//                            nodeId: nodeId,
-//                            fieldIndex: unpackedPortType.rawValue))
-//                    }
-//                    
-//                    
-//                } else if let portId = coordinate.portId {
-//                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
-//                                                     portId: portId))
-//                }
-//            }
-//            
-//            // Shrink down the dot view
-//            .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
-//            
-//            // Only show the dot / plus button if we're hovering or row is selected or ...
-//            .opacity((isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton) ? 1 : 0)
-//            
-//            .animation(.default,
-//                       value: (isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton))
-//        }
     }
     
     @MainActor
@@ -181,56 +121,6 @@ struct LayerInspectorRowButton: View {
                    height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
             .onTapGesture {
                 onTap()
-            }
-    }
-}
-
-// TODO: revisit this when we're able to add LayerNodes with outputs to the graph again
-struct AddLayerPropertyToGraphButton: View {
-    
-    @Environment(\.appTheme) var theme
-        
-    let coordinate: NodeIOCoordinate
-    let isRowSelected: Bool
-    
-    var nodeId: NodeId {
-        coordinate.nodeId
-    }
-    
-    var body: some View {
-        Image(systemName: "plus.circle")
-            .resizable()
-            .foregroundColor(isRowSelected ? theme.fontColor : .primary)
-            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
-            .onTapGesture {
-                if let layerInput = coordinate.keyPath {
-                    dispatch(LayerInputAddedToGraph(
-                        nodeId: nodeId,
-                        coordinate: layerInput))
-                } else if let portId = coordinate.portId {
-                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
-                                                     portId: portId))
-                }
-            }
-    }
-}
-
-struct JumpToLayerPropertyOnGraphButton: View {
-    @Environment(\.appTheme) var theme
-    
-    let canvasItemId: CanvasItemId
-    let isRowSelected: Bool
-        
-    var body: some View {
-        // TODO: use a button ?
-        Image(systemName: "scope")
-            .resizable()
-            .foregroundColor(isRowSelected ? theme.fontColor : .primary)
-            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-            .onTapGesture {
-                dispatch(JumpToCanvasItem(id: canvasItemId))
             }
     }
 }
@@ -269,26 +159,11 @@ struct NodeInputView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
 
-    var isGroupNodeKind: Bool {
-        nodeKind.isGroup
-    }
-    
     // NOTE: only for specific for inspector row cases
     let layerInput: LayerInputPort?
     
     var label: String
-    
-    // @MainActor
-   //    var label: String {
-   //        if isGroupNode {
-   //            return rowObserver.nodeDelegate?.displayTitle ?? ""
-   //        }
-   //
-   //        // this will need to change for packed vs unpacked
-   //        return self.rowObserver.label(forPropertySidebar)
-   //    }
-    
-    
+   
     var forFlyout: Bool = false
     
     @MainActor
@@ -317,7 +192,6 @@ struct NodeInputView: View {
         // For multifields, want the overall label to sit at top of fields' VStack.
         // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
-//        HStack {
             
             // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
             if !forPropertySidebar,
@@ -328,7 +202,6 @@ struct NodeInputView: View {
                                 rowViewModel: rowData,
                                 showPopover: $showPopover)
             }
-            
             
             // This is a special condition
             let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
@@ -359,9 +232,7 @@ struct NodeInputView: View {
                     graph: graph,
                     fieldValueTypes: fieldValueTypes,
                     nodeId: nodeId,
-                    isGroupNodeKind: isGroupNodeKind,
                     forPropertySidebar: forPropertySidebar,
-                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                     valueEntryView: valueEntryView)
             }
         } // HStack
@@ -443,9 +314,7 @@ struct NodeOutputView: View {
                     graph: graph,
                     fieldValueTypes: fieldValueTypes,
                     nodeId: nodeId,
-                    isGroupNodeKind: nodeKind.isGroup,
                     forPropertySidebar: forPropertySidebar,
-                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                     valueEntryView: valueEntryView)
             }
             
@@ -457,7 +326,6 @@ struct NodeOutputView: View {
                                 showPopover: $showPopover)
             }
         } // HStack
-        
         .modifier(EdgeEditModeOutputViewModifier(
             graphState: graph,
             portId: rowData.id.portId,
@@ -474,40 +342,32 @@ struct NodeOutputView: View {
     }
 }
 
-// or should new protocol be taken here?
-// i.e. `row view model` should replaced by a protocol that is just
 struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
 
     @Bindable var graph: GraphState
 
     var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
     let nodeId: NodeId
-    let isGroupNodeKind: Bool
     let forPropertySidebar: Bool
-    let propertyIsAlreadyOnGraph: Bool
+
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
     var body: some View {
-        // Ah, for an unpacked layer input, we pass in multiple `fieldGroupViewModel`s, each of which has a single `fieldObserver` ?
-        // And for packed layer input, we pass in a single `fieldGroupViewModel`, which has multiple `fieldObserver`s ?
-        // `isMultifield` can be passed down at the top-level
-        
+     
         let multipleFieldGroups = fieldValueTypes.count > 1
         
         ForEach(fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
             
             let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
             
-            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate
+            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate for an unpacked port
             let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
                                     
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,
                            nodeId: nodeId,
-                           isGroupNodeKind: isGroupNodeKind,
                            isMultiField: isMultiField,
                            forPropertySidebar: forPropertySidebar,
-                           propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                            valueEntryView: valueEntryView)
         }
     }
@@ -563,36 +423,3 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
         }
     }
 }
-
-//#Preview {
-//    NodeInputOutputView(graph: <#T##GraphState#>,
-//                        node: <#T##NodeViewModel#>,
-//                        rowData: <#T##NodeRowObserver#>,
-//                        coordinateType: <#T##PortViewType#>,
-//                        nodeKind: <#T##NodeKind#>,
-//                        isNodeSelected: <#T##Bool#>,
-//                        adjustmentBarSessionId: <#T##AdjustmentBarSessionId#>)
-//}
-
-// struct SpecNodeInputView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let coordinate = Coordinate.input(InputCoordinate(portId: 0, nodeId: .init()))
-//
-//        NodeInputOutputView(valueObserver: .init(initialValue: .number(999),
-//                                                 coordinate: coordinate,
-//                                                 valuesCount: 1,
-//                                                 isInFrame: true),
-//                            valuesObserver: .init([.number(999)], coordinate),
-//                            isInput: true,
-//                            label: "",
-//                            nodeKind: .patch(.add),
-//                            focusedField: nil,
-//                            layerNames: .init(),
-//                            broadcastChoices: .init(),
-//                            edges: .init(),
-//                            selectedEdges: nil,
-//                            nearestEligibleInput: nil,
-//                            edgeDrawingGesture: .none)
-//            .previewDevice(IPAD_PREVIEW_DEVICE_NAME)
-//    }
-// }
