@@ -8,18 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-// lists all the fields
-/*
- 
-- overall label on the fields
- 
- */
-
-// `NodeFieldsView` would take this as its argument instead
-protocol NodeFieldsData {
-    
-}
-
 struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
                                                              ValueEntryView: View {
     @Bindable var graph: GraphState
@@ -33,27 +21,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     let forPropertySidebar: Bool
     let propertyIsAlreadyOnGraph: Bool
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
-
-    // OVERALL LABEL ON ALL FIELDS, e.g. "Size" for size input row
-    var label: String? {
-        // if this is an input or output on a splitter node for a group node,
-        // then use the splitter node's title directly:
-           if isGroupNodeKind {
-               if let nodeVM = graph.getNodeViewModel(nodeId) {
-                   @Bindable var nodeViewModel = nodeVM
-                   let title = nodeViewModel.title
-                   // Don't use label if group splitter does not have custom title
-                   return title == Patch.splitter.defaultDisplayTitle() ? "" : title
-               } else {
-                   #if DEBUG || DEV_DEBUG
-                   return "NO LABEL"
-                   #endif
-                   return ""
-               }
-           } else {
-               return fieldGroupViewModel.groupLabel
-           }
-       }
     
     var isForPropertyAlreadyOnGraph: Bool {
         forPropertySidebar && propertyIsAlreadyOnGraph
@@ -65,23 +32,23 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         } else {
             
             // Only non-nil for ShapeCommands i.e. `lineTo`, `curveTo` etc. ?
-            if let groupLabel = label {
-                StitchTextView(string: groupLabel)
+            if let fieldGroupLabel = fieldGroupViewModel.groupLabel {
+                StitchTextView(string: fieldGroupLabel)
             }
             
             // TODO: how to handle the multifield "shadow offset" input in the Shadow Flyout? For now, we stack those fields vertically
             if isMultiField,
-                forPropertySidebar,
-                fieldGroupViewModel.id.rowId.portType.keyPath?.layerInput == .shadowOffset {
+               forPropertySidebar,
+               fieldGroupViewModel.id.rowId.portType.keyPath?.layerInput == .shadowOffset {
                 VStack {
-                    fields 
+                    fields
                 }
             } else {
                 fields
             }
         }
     }
-        
+    
     var allFieldsBlockedOut: Bool {
         fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
     }
@@ -100,7 +67,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                    }
 //                }
             
-            // Can't rely on this being blocked out anymore?
             if !fieldViewModel.isBlockedOut {
                 self.valueEntryView(fieldViewModel, isMultiField)
             }

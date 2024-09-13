@@ -181,8 +181,15 @@ extension NodeRowObserver {
         if self.nodeKind.getPatch == .splitter,
            (self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId.isDefined ?? false) {
             // Rows in a group-ui-node use the underlying splitter node's tit
-            let labelFromSplitter = self.nodeDelegate?.displayTitle ?? "PUPPY"
-            return labelFromSplitter
+            let labelFromSplitter = self.nodeDelegate?.displayTitle
+            assertInDebug(labelFromSplitter.isDefined)
+
+            // Don't show label on group node's input/output row unless it is custom
+            if labelFromSplitter == Patch.splitter.defaultDisplayTitle() {
+                return ""
+            }
+            
+            return labelFromSplitter ?? ""
         }
         
         switch id.portType {

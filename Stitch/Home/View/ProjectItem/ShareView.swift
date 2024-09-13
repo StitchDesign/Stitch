@@ -91,7 +91,7 @@ struct StitchDocumentShareButton: View {
         #else
         StitchButton {
             willPresentShareSheet.toggle()
-        } label: {
+        } individualFieldLabel: {
             Label("Share", systemImage: "square.and.arrow.up")
         }
         #endif

@@ -100,28 +100,9 @@ struct ShadowFlyoutView: View {
                               layerInput: nil, // only for layer inspector
                               label: layerInputData.rowObserver.label(true),
                               forFlyout: true)
-//                .border(.green)
                 
-//                NodeInputView(graph: graph,
-//                              rowObserver: layerInputData.rowObserver,
-//                              rowData: layerInputData.inspectorRowViewModel,
-//                              inputLayerNodeRowData: layerInputData,
-//                              forPropertySidebar: true,
-//                              propertyIsSelected: false, // NA
-//                              // TODO: applicable or not?
-//                              propertyIsAlreadyOnGraph: false ,
-//                              isCanvasItemSelected: false,
-//                              forFlyout: true)
-                
-                // Each row seems too tall? Probably from a set node row height somewhere?
-                // Uses padding to reduce size
                 .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
-//                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
-////                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
-//                .background {
-//                    WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE
-//                        .cornerRadius(6)
-//                }
+                
                 .onChange(of: layerInputPort.mode) {
                     // Unpacked modes not supported here
                     assertInDebug(layerInputPort.mode == .packed)

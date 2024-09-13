@@ -50,22 +50,22 @@ struct LayerInspectorRowButton: View {
         }
     }
 
-    @MainActor
-    var showAddLayerPropertyButton: Bool {
-        if canvasItemId.isDefined {
-            return false
-        }
-        
-        if isHovered {
-            return true
-        }
-        
-        if canBeAddedToCanvas, isPortSelected {
-            return true
-        }
-        
-        return false
-    }
+//    @MainActor
+//    var showAddLayerPropertyButton: Bool {
+//        if canvasItemId.isDefined {
+//            return false
+//        }
+//        
+//        if isHovered {
+//            return true
+//        }
+//        
+//        if canBeAddedToCanvas, isPortSelected {
+//            return true
+//        }
+//        
+//        return false
+//    }
     
     @MainActor
     var showButton: Bool {
@@ -101,74 +101,74 @@ struct LayerInspectorRowButton: View {
         
     var body: some View {
         
-//        button(imageString: imageString) {
-//            
-//            let nodeId = coordinate.nodeId
-//            
-//            // If we're already on the canvas, jump to that canvas item
-//            if let canvasItemId = canvasItemId {
-//                dispatch(JumpToCanvasItem(id: canvasItemId))
-//            } 
-//            
-//            // Else we're adding an input (whole or field) or an output to the canvas
-//            else if let layerInput = coordinate.keyPath {
-//                dispatch(LayerInputAddedToGraph(
-//                    nodeId: nodeId,
-//                    coordinate: layerInput))
-//            } else if let portId = coordinate.portId {
-//                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
-//                                                 portId: portId))
-//            }
-//        }
-//        // Shrink down the dot view
-//        .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
-//        
-//        // Only show the dot / plus button if we're hovering or row is selected or ...
-//        .opacity(showButton ? 1 : 0)
-//        
-//        .animation(.default, value: showButton)
-        
-        
-        
-        if let canvasItemId = canvasItemId {
-            button(imageString: "scope") {
+        button(imageString: imageString) {
+            
+            let nodeId = coordinate.nodeId
+            
+            // If we're already on the canvas, jump to that canvas item
+            if let canvasItemId = canvasItemId {
                 dispatch(JumpToCanvasItem(id: canvasItemId))
+            } 
+            
+            // Else we're adding an input (whole or field) or an output to the canvas
+            else if let layerInput = coordinate.keyPath {
+                dispatch(LayerInputAddedToGraph(
+                    nodeId: nodeId,
+                    coordinate: layerInput))
+            } else if let portId = coordinate.portId {
+                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                                                 portId: portId))
             }
-        } else {
-            button(imageString: isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? "circle.fill" : "plus.circle") {
-                let nodeId = coordinate.nodeId
-                if let layerInput = coordinate.keyPath {
-                    
-                    switch layerInput.portType {
-                    
-                    case .packed:
-                        dispatch(LayerInputAddedToGraph(
-                            nodeId: nodeId,
-                            coordinate: layerInput))
-                        
-                    case .unpacked(let unpackedPortType):
-                        dispatch(LayerInputFieldAddedToGraph(
-                            layerInput: layerInput.layerInput, 
-                            nodeId: nodeId,
-                            fieldIndex: unpackedPortType.rawValue))
-                    }
-                    
-                    
-                } else if let portId = coordinate.portId {
-                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
-                                                     portId: portId))
-                }
-            }
-            
-            // Shrink down the dot view
-            .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
-            
-            // Only show the dot / plus button if we're hovering or row is selected or ...
-            .opacity((isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton) ? 1 : 0)
-            
-            .animation(.default,
-                       value: (isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton))
         }
+        // Shrink down the dot view
+        .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
+        
+        // Only show the dot / plus button if we're hovering or row is selected or ...
+        .opacity(showButton ? 1 : 0)
+        
+        .animation(.default, value: showButton)
+        
+        
+//        
+//        if let canvasItemId = canvasItemId {
+//            button(imageString: "scope") {
+//                dispatch(JumpToCanvasItem(id: canvasItemId))
+//            }
+//        } else {
+//            button(imageString: isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? "circle.fill" : "plus.circle") {
+//                let nodeId = coordinate.nodeId
+//                if let layerInput = coordinate.keyPath {
+//                    
+//                    switch layerInput.portType {
+//                    
+//                    case .packed:
+//                        dispatch(LayerInputAddedToGraph(
+//                            nodeId: nodeId,
+//                            coordinate: layerInput))
+//                        
+//                    case .unpacked(let unpackedPortType):
+//                        dispatch(LayerInputFieldAddedToGraph(
+//                            layerInput: layerInput.layerInput, 
+//                            nodeId: nodeId,
+//                            fieldIndex: unpackedPortType.rawValue))
+//                    }
+//                    
+//                    
+//                } else if let portId = coordinate.portId {
+//                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+//                                                     portId: portId))
+//                }
+//            }
+//            
+//            // Shrink down the dot view
+//            .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
+//            
+//            // Only show the dot / plus button if we're hovering or row is selected or ...
+//            .opacity((isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton) ? 1 : 0)
+//            
+//            .animation(.default,
+//                       value: (isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton))
+//        }
     }
     
     @MainActor
@@ -235,91 +235,6 @@ struct JumpToLayerPropertyOnGraphButton: View {
     }
 }
 
-
-
-
-
-//struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
-//                           FieldsView: View>: View {
-//    typealias NodeRowType = NodeRowObserverType.RowViewModelType
-//    
-//    @State private var showPopover: Bool = false
-//    
-//    @Bindable var graph: GraphState
-//    
-////    @Bindable var rowObserver: NodeRowObserverType
-////    @Bindable var rowData: NodeRowType
-//    
-//    let isGroupNode: Bool
-//    
-//    let label: String
-//    let portId: Int
-//    let canvasItemId: CanvasItemId?
-//    
-//    let forPropertySidebar: Bool
-//    let propertyIsSelected: Bool
-//    
-//    @ViewBuilder var fieldsView: (NodeRowType, LabelDisplayView) -> FieldsView
-//    
-//    @MainActor
-//    private var graphUI: GraphUIState {
-//        self.graph.graphUI
-//    }
-//    
-////    @MainActor
-////    var label: String {
-////        if isGroupNode {
-////            return rowObserver.nodeDelegate?.displayTitle ?? ""
-////        }
-////        
-////        return self.rowObserver.label(forPropertySidebar)
-////    }
-//    
-////    var isGroupNode: Bool {
-////        self.rowData.nodeDelegate?.kind.isGroup ?? false
-////    } 
-//    
-//    var body: some View {
-//        // Fields and port ordering depending on input/output
-//        self.fieldsView(rowData, labelView)
-//        
-////        NodeInputOutputView
-//        // Don't specify height for layer inspector property row, so that multifields can be shown vertically
-//        
-//        // NO LONGER RELEVANT SINCE FIELDS NO LONGER STACKED VERTICALLY?
-////            .frame(height: forPropertySidebar ? nil : NODE_ROW_HEIGHT)
-//        
-//        // ALSO NO LONGER RELEVANT
-//            .padding([.top, .bottom], forPropertySidebar ? 8 : 0)
-//  
-//        // Now handled in `ActiveIndexChangedAction`
-////            .onChange(of: self.graphUI.activeIndex) {
-////                let oldViewValue = self.rowData.activeValue
-////                let newViewValue = self.rowObserver.activeValue
-////                self.rowData.activeValueChanged(oldValue: oldViewValue,
-////                                                newValue: newViewValue)
-////            }
-//        
-//        // MOVED TO NodeOutputView
-//        //
-////            .modifier(EdgeEditModeViewModifier(graphState: graph,
-////                                               portId: portId, //rowData.id.portId,
-////                                               canvasItemId: canvasItemId, //self.rowData.canvasItemDelegate?.id,
-////                                               nodeIOType: NodeRowType.nodeIO,
-////                                               forPropertySidebar: forPropertySidebar))
-//    }
-//    
-//    @ViewBuilder @MainActor
-//    var labelView: LabelDisplayView {
-//        LabelDisplayView(label: label,
-//                         isLeftAligned: false,
-//                         fontColor: STITCH_FONT_GRAY_COLOR,
-//                         isSelectedInspectorRow: propertyIsSelected)
-//    }
-//}
-
-
-
 /*
  Patch node input of Point4D = one node row observer becomes 4 fields
  
@@ -339,22 +254,12 @@ struct NodeInputView: View {
     
     // What does this really mean
     let rowObserverId: NodeIOCoordinate
-    
-//    @Bindable var rowObserver: InputNodeRowObserver
-//    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
-    
-    // Only for inputs on the canvas; never for inputs on the
-    // Ah, but the @Bindables can't be optional ?
-    // that's okay -- wrap them in data
-//    @Bindable var rowObserver: InputNodeRowObserver
-//    @Bindable var rowData: InputNodeRowObserver.RowViewModelType
-    
-    // ONLY for port-view
+        
+    // ONLY for port-view, which is only on canvas items
     let rowObserver: InputNodeRowObserver?
     let rowData: InputNodeRowObserver.RowViewModelType?
         
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
-    // rowData.fieldValueTypes
     
     // This is for the inspector-row, so
     let inputLayerNodeRowData: LayerInputObserver?
@@ -367,12 +272,11 @@ struct NodeInputView: View {
     var isGroupNodeKind: Bool {
         nodeKind.isGroup
     }
-    // rowObserver.nodeDelegate?.kind.isGroup ?? false,
     
     // NOTE: only for specific for inspector row cases
     let layerInput: LayerInputPort?
     
-    var label: String //
+    var label: String
     
     // @MainActor
    //    var label: String {
@@ -386,7 +290,6 @@ struct NodeInputView: View {
     
     
     var forFlyout: Bool = false
-    
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -414,6 +317,7 @@ struct NodeInputView: View {
         // For multifields, want the overall label to sit at top of fields' VStack.
         // For single fields, want to the overall label t
         HStack(alignment: hStackAlignment) {
+//        HStack {
             
             // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
             if !forPropertySidebar,
@@ -471,7 +375,7 @@ struct NodeInputView: View {
                          isSelectedInspectorRow: propertyIsSelected)
     }
     
-    // Not needed anymore?
+    // Only needed for Shadow Flyout's Shadow Offset multifield-input?
     var hStackAlignment: VerticalAlignment {
         let isMultiField = (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
         return (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center

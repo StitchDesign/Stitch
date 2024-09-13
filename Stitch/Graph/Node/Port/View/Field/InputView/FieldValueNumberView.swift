@@ -41,7 +41,6 @@ struct FieldValueNumberView: View {
             @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
             return inputLayerNodeRowData.fieldHasHeterogenousValues(
                 fieldIndex,
-                //                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 // should be same as `forPropertySidebar`
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {

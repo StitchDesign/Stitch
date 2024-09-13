@@ -13,14 +13,8 @@ struct InputValueEntry: View {
 
     @Bindable var graph: GraphState
     
-    // Can no longer accept an input row
-//    @Bindable var rowViewModel: InputNodeRowViewModel
-    
-//    let fieldGroupType: FieldGroupType
-    
     @Bindable var viewModel: InputFieldViewModel
     
-    // Always and only for inspector-rows, not flyout-rows ?
     let inputLayerNodeRowData: LayerInputObserver?
     
     let rowObserverId: NodeIOCoordinate
@@ -39,7 +33,7 @@ struct InputValueEntry: View {
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
     
-    var label: String {
+    var individualFieldLabel: String {
         self.viewModel.fieldLabel
     }
     
@@ -59,11 +53,10 @@ struct InputValueEntry: View {
     }
     
     var labelDisplay: some View {
-        LabelDisplayView(label: label,
+        LabelDisplayView(label: individualFieldLabel,
                          isLeftAligned: true,
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
-        .border(.green)
     }
 
     @MainActor
@@ -99,10 +92,8 @@ struct InputValueEntry: View {
         HStack(spacing: NODE_COMMON_SPACING) {
             if self.useIndividualFieldLabel {
                 labelDisplay
-                    .border(.blue)
             }
              
-            
             if forPropertySidebar,
                isForFlyout,
                isFieldInMultifieldInput {
@@ -110,7 +101,6 @@ struct InputValueEntry: View {
             }
             
             valueDisplay
-            //                .border(.green)
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
