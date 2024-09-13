@@ -12,7 +12,7 @@ struct LayerInspectorRowButton: View {
     
     @Environment(\.appTheme) var theme
     
-    let layerInputObserver: LayerInputObserver
+    let layerInputObserver: LayerInputObserver?
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let canvasItemId: CanvasItemId?
@@ -23,9 +23,9 @@ struct LayerInspectorRowButton: View {
     var isWholeInputWithAtleastOneFieldAlreadyOnCanvas: Bool {
         if case let .layerInput(layerInputType) = layerInspectorRowId,
            layerInputType.portType == .packed,
+           let layerInputObserver = layerInputObserver,
            layerInputObserver.observerMode.isUnpacked,
            !layerInputObserver.getAllCanvasObservers().isEmpty {
-            log("LayerInspectorRowButton:isWholeInputWithAtleastOneFieldAlreadyOnCanvas")
             return true
         }
         
@@ -308,11 +308,10 @@ struct NodeOutputView: View {
             
             // Hide outputs for value node
             if !isSplitter {
-                let fieldValueTypes: [FieldGroupTypeViewModel<OutputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
                 
                 FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
                     graph: graph,
-                    fieldValueTypes: fieldValueTypes,
+                    fieldValueTypes: rowData.fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
                     valueEntryView: valueEntryView)

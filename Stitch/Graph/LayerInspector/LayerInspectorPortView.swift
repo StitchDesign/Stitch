@@ -82,24 +82,28 @@ struct LayerInspectorOutputPortView: View {
     let canvasItemId: CanvasItemId?
     
     var body: some View {
-        Text("Implement me")
-            .onAppear(perform: {
-                fatalErrorIfDebug()
-            })
         
-        //        LayerInspectorPortView(layerProperty: .layerOutput(outputPortId),
-        //                               rowViewModel: rowViewModel,
-        //                               rowObserver: rowObserver,
-        //                               graph: graph,
-        //                               canvasItemId: canvasItemId) { propertyRowIsSelected in
-        //            NodeOutputView(graph: graph,
-        //                           rowObserver: rowObserver,
-        //                           rowData: rowViewModel,
-        //                           forPropertySidebar: true,
-        //                           propertyIsSelected: propertyRowIsSelected,
-        //                           propertyIsAlreadyOnGraph: canvasItemId.isDefined,
-        //                           isCanvasItemSelected: false)
-        //        }
+        let portId = rowViewModel.id.portId
+        
+        let coordinate: NodeIOCoordinate = .init(
+            portType: .portIndex(portId),
+            nodeId: rowViewModel.id.nodeId)
+
+        LayerInspectorPortView(
+            layerInputObserver: nil,
+            layerInspectorRowId: .layerOutput(rowViewModel.id.portId),
+            coordinate: coordinate,
+            graph: graph, 
+            canvasItemId: rowViewModel.canvasItemDelegate?.id) { propertyRowIsSelected in
+                NodeOutputView(graph: graph,
+                               rowObserver: rowObserver,
+                               rowData: rowViewModel,
+                               forPropertySidebar: true,
+                               propertyIsSelected: propertyRowIsSelected,
+                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                               isCanvasItemSelected: false,
+                               label: rowObserver.label(true))
+            }        
     }
 }
 
@@ -112,13 +116,11 @@ let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 //struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
 struct LayerInspectorPortView<RowView>: View where RowView: View {
     
-    let layerInputObserver: LayerInputObserver
+    let layerInputObserver: LayerInputObserver?
     
     // input or output
     let layerInspectorRowId: LayerInspectorRowId
     
-    //    @Bindable var rowViewModel: RowObserver.RowViewModelType
-    //    @Bindable var rowObserver: RowObserver
     let coordinate: NodeIOCoordinate
     @Bindable var graph: GraphState
     
