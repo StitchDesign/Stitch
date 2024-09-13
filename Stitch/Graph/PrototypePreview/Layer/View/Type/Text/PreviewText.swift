@@ -18,7 +18,7 @@ let defaultTextAlignment = PortValue.textAlignment(DEFAULT_TEXT_ALIGNMENT)
 let defaultTextVerticalAlignment = PortValue.textVerticalAlignment(DEFAULT_TEXT_VERTICAL_ALIGNMENT)
 
 struct PreviewTextLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -70,7 +70,7 @@ struct PreviewTextLayer: View {
             .padding()
 
         return view.modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

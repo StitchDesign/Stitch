@@ -212,7 +212,7 @@
 		B5D7EC79298DDEF300549E80 /* StitchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */; };
 		B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5DB632D2C61A8C900B78B68 /* StitchEngine */; };
 		B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */; };
-		B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */; };
+		B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */; };
 		B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */; };
 		B5E0DDFA28DBF4B90080BE71 /* StitchFileManagerProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */; };
 		B5E0DDFC28DBF6770080BE71 /* StitchFileManangerEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDFB28DBF6770080BE71 /* StitchFileManangerEvents.swift */; };
@@ -1115,7 +1115,7 @@
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
 		B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEnvironment.swift; sourceTree = "<group>"; };
 		B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepManager.swift; sourceTree = "<group>"; };
-		B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputedGraphState.swift; sourceTree = "<group>"; };
+		B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestUtils.swift; sourceTree = "<group>"; };
 		B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManager.swift; sourceTree = "<group>"; };
 		B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManagerProject.swift; sourceTree = "<group>"; };
 		B5E0DDFB28DBF6770080BE71 /* StitchFileManangerEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManangerEvents.swift; sourceTree = "<group>"; };
@@ -2050,6 +2050,7 @@
 				EC28CC9D287E351100987792 /* PatchNodeTypeExtensions.swift */,
 				EC28CC9B287E348A00987792 /* PatchDefaultNodeExtensions.swift */,
 				EC4A7212274C5A460026B233 /* WirelessReceiver.swift */,
+				B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -3095,7 +3096,6 @@
 				8B77BA782713CED300255C40 /* GraphUI.swift */,
 				B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */,
 				B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */,
-				B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4668,7 +4668,7 @@
 				ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */,
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
-				B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */,
+				B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */,
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,

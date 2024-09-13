@@ -31,14 +31,14 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewAngularGradientLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -64,10 +64,10 @@ struct AngularGradientLayerNode: LayerNodeDefinition {
 
 
 struct PreviewAngularGradientLayer: View {
-    var graph: GraphState
+    let document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
-let interactiveLayer: InteractiveLayer
+    let interactiveLayer: InteractiveLayer
     let enabled: Bool
     let opacity: Double
     let scale: Double
@@ -100,7 +100,7 @@ let interactiveLayer: InteractiveLayer
                                endAngle: Angle(degrees: endAngle))
             .opacity(enabled ? opacity : 0.0)
             .modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

@@ -65,7 +65,7 @@ extension GraphState {
 
         // BATCH OPERATION: Update sidebar state ONCE, after deleting all nodes
         // Recreate topological order
-        self.updateTopologicalData()
+        self.documentDelegate?.updateTopologicalData()
 
         self.graphMovement.draggedCanvasItem = nil
         
@@ -164,7 +164,7 @@ extension GraphState {
 
                 // Tear down location when last of this node is deleted
                 if lastOfNode {
-                    self.teardownSingleton(keyPath: \.locationManager)
+                    self.documentDelegate?.teardownSingleton(keyPath: \.locationManager)
                 }
             case .patch(.cameraFeed), .layer(.realityView):
                 // Check if we deleted the last of some camera-supported node
@@ -173,7 +173,7 @@ extension GraphState {
 
                 if lastOfNode {
                     // Update CameraFeedManager with latest enabled nodes--conditional tear down handled there
-                    self.removeCameraNode(id: id)
+                    self.documentDelegate?.removeCameraNode(id: id)
                 }
             default:
                 break

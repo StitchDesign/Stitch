@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct PreviewLayerView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let layer: Layer
     let isPinnedViewRendering: Bool
@@ -22,7 +22,7 @@ struct PreviewLayerView: View {
     }
     
     var body: some View {
-        layer.layerGraphNode.content(graph: graph,
+        layer.layerGraphNode.content(document: document,
                                      viewModel: layerViewModel,
                                      parentSize: parentSize,
                                      layersInGroup: [],

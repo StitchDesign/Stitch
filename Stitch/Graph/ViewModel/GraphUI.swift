@@ -32,8 +32,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 final class GraphUIState {
 
     let propertySidebar = PropertySidebarObserver()
-    
-    var llmRecording = LLMRecordingState()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
@@ -71,8 +69,6 @@ final class GraphUIState {
     var dragDuplication: Bool = false
 
     var doubleTapLocation: CGPoint?
-
-    var keypressState = KeyPressState()
 
     // which loop index to show
     var activeIndex: ActiveIndex = ActiveIndex(0)
@@ -131,7 +127,6 @@ final class GraphUIState {
          colorScheme: ColorScheme = defaultColorScheme,
          dragDuplication: Bool = false,
          doubleTapLocation: CGPoint? = nil,
-         keypressState: KeyPressState = .init(),
          activeIndex: ActiveIndex = .defaultActiveIndex,
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
@@ -148,7 +143,6 @@ final class GraphUIState {
         self.colorScheme = colorScheme
         self.dragDuplication = dragDuplication
         self.doubleTapLocation = doubleTapLocation
-        self.keypressState = keypressState
         self.activeIndex = activeIndex
         self.frame = frame
         self.selection = selection
@@ -162,7 +156,7 @@ final class GraphUIState {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
         self.graphUI.doubleTapLocation.map {

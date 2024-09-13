@@ -257,10 +257,10 @@ extension NodeRowObserver {
     }
 }
 
-struct RealityViewCreatedWithoutCamera: GraphEvent {
+struct RealityViewCreatedWithoutCamera: StitchDocumentEvent {
     let nodeId: NodeId
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         if state.cameraFeedManager?.isLoading ?? false {
             log("RealityViewCreatedWithoutCamera: already loading")
             return
@@ -270,21 +270,21 @@ struct RealityViewCreatedWithoutCamera: GraphEvent {
     }
 }
 
-struct SingletonMediaTeardown: GraphEvent {
+struct SingletonMediaTeardown: StitchDocumentEvent {
     let keyPath: MediaManagerSingletonKeyPath
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         state.teardownSingleton(keyPath: keyPath)
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     func teardownSingleton(keyPath: MediaManagerSingletonKeyPath) {
         self[keyPath: keyPath] = nil
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.
@@ -375,7 +375,6 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
     let isFieldInsideLayerInspector: Bool
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // Commit the new media to the selector input
         graphState.handleInputEditCommitted(input: input,
@@ -391,7 +390,6 @@ struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
     let isFieldInsideLayerInspector: Bool
     
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         let emptyPortValue = PortValue.asyncMedia(nil)
         graphState.handleInputEditCommitted(input: input,

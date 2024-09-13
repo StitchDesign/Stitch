@@ -9,24 +9,23 @@ import Foundation
 import StitchSchemaKit
 import CoreMedia
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func handleGraphMovementOnGraphStep() {
-
-        let graphState: GraphState = self
-
-        guard graphState.graphMovement.shouldRun else {
+        let graphMovement = self.graphMovement
+        
+        guard self.graphMovement.shouldRun else {
             log("handleGraphMovementOnGraphStep: should not run momentum")
             return
         }
 
         // contains the updated
         let result = runMomentum(
-            graphState.graphMovement.momentumState,
-            shouldRunX: graphState.graphMovement.shouldRunX,
-            shouldRunY: graphState.graphMovement.shouldRunY,
-            x: graphState.graphMovement.localPosition.x,
-            y: graphState.graphMovement.localPosition.y)
+            graphMovement.momentumState,
+            shouldRunX: graphMovement.shouldRunX,
+            shouldRunY: graphMovement.shouldRunY,
+            x: graphMovement.localPosition.x,
+            y: graphMovement.localPosition.y)
 
         // This is the FINAL POSITION,
         // if we apply momentum;
@@ -41,7 +40,7 @@ extension GraphState {
 
         // Set the updated momentum animation state in the GraphMovement state,
         // since we've modified the delta, amplitude etc.
-        graphState.graphMovement.momentumState = result.momentumState
+        graphMovement.momentumState = result.momentumState
 
         /*
          Potentially reset the momentum state
@@ -50,9 +49,9 @@ extension GraphState {
          1. momentum naturally ran its course, or
          2. momentum would carry us past a screen edge
          */
-        var shouldResetMomentumX = graphState.graphMovement.momentumState.didXMomentumFinish
+        var shouldResetMomentumX = graphMovement.momentumState.didXMomentumFinish
 
-        var shouldResetMomentumY = graphState.graphMovement.momentumState.didYMomentumFinish
+        var shouldResetMomentumY = graphMovement.momentumState.didYMomentumFinish
 
         /*
          Update the graphOffset with the new x and y positions,
@@ -62,13 +61,13 @@ extension GraphState {
          otherwise just immediately update graph position.
          */
 
-        let graphBounds = graphState.graphBounds(
-            graphState.graphMovement.zoomData.zoom,
-            graphView: graphState.graphUI.frame,
-            graphOffset: graphState.localPosition,
-            groupNodeFocused: graphState.graphUI.groupNodeFocused)
+        let graphBounds = self.visibleGraph.graphBounds(
+            graphMovement.zoomData.zoom,
+            graphView: self.graphUI.frame,
+            graphOffset: visibleGraph.localPosition,
+            groupNodeFocused: self.graphUI.groupNodeFocused)
 
-        let graphBoundsAtStart: GraphOriginAtStart? = graphState.graphMovement.graphBoundOriginAtStart
+        let graphBoundsAtStart: GraphOriginAtStart? = self.graphMovement.graphBoundOriginAtStart
 
         // How does this situation arise?
         // If graphBoundsAtStart is not defined, then
@@ -79,44 +78,44 @@ extension GraphState {
         if let graphBounds = graphBounds,
            let graphBoundsAtStart = graphBoundsAtStart {
 
-            if graphState.graphMovement.momentumState.shouldRunX {
+            if graphMovement.momentumState.shouldRunX {
 
                 // We're not passing in the post-momentum new offset;
                 // rather, this looks at whether we're already at the border;
                 // if we are, then we return this as a final position
-                if let finalXOffset = graphState.graphMovement.capMomentumPositionX(
+                if let finalXOffset = graphMovement.capMomentumPositionX(
                     graphBounds: graphBounds,
                     frame: graphUI.frame,
                     zoom: graphMovement.zoomData.zoom,
                     startOrigins: graphBoundsAtStart.origin) {
 
                     // log("handleGraphMovementOnGraphStep: finalXOffset: \(finalXOffset)")
-                    graphState.graphMovement.localPosition.x = finalXOffset
+                    graphMovement.localPosition.x = finalXOffset
                     shouldResetMomentumX = true
 
                 } else {
                     // log("handleGraphMovementOnGraphStep: no final x offset yet... ")
-                    graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
+                    graphMovement.localPosition.x = postMomentumGraphOffsetX
                 }
             } else {
                 // log("shouldRunX was false; so will set shouldResetMomentumX true")
                 shouldResetMomentumX = true
             }
 
-            if graphState.graphMovement.momentumState.shouldRunY {
+            if graphMovement.momentumState.shouldRunY {
 
-                if let finalYOffset = graphState.graphMovement.capMomentumPositionY(
+                if let finalYOffset = graphMovement.capMomentumPositionY(
                     graphBounds: graphBounds,
                     frame: graphUI.frame,
                     zoom: graphMovement.zoomData.zoom,
                     startOrigins: graphBoundsAtStart.origin) {
 
                     //                log("handleGraphMovementOnGraphStep: finalYOffset: \(finalYOffset)")
-                    graphState.graphMovement.localPosition.y = finalYOffset
+                    graphMovement.localPosition.y = finalYOffset
                     shouldResetMomentumY = true
                 } else {
                     //                log("handleGraphMovementOnGraphStep: no final y offset yet... ")
-                    graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
+                    graphMovement.localPosition.y = postMomentumGraphOffsetY
                 }
             } else {
                 //            log("shouldRunY was false; so will set shouldResetMomentumY true")
@@ -127,45 +126,45 @@ extension GraphState {
         // did not have graphBounds or graphBoundsAtStart
         else {
             //            log("handleGraphMovementOnGraphStep: did not have graphBounds; will use regular momentum")
-            graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
-            graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
+            graphMovement.localPosition.x = postMomentumGraphOffsetX
+            graphMovement.localPosition.y = postMomentumGraphOffsetY
         }
 
         //        log("handleGraphMovementOnGraphStep: did not have graphBounds; will use regular momentum")
-        graphState.graphMovement.localPosition.x = postMomentumGraphOffsetX
-        //        graphState.graphMovement.localPosition.y = postMomentumGraphOffsetY
+        graphMovement.localPosition.x = postMomentumGraphOffsetX
+        //        graphMovement.localPosition.y = postMomentumGraphOffsetY
 
         // Check each dimension for whether we finished:
         if shouldResetMomentumX {
             // log("handleGraphMovementOnGraphStep: resetting x momentum")
-            graphState.graphMovement.momentumState.shouldRunX = false
-            graphState.graphMovement.localPreviousPosition.x = graphState.graphMovement.localPosition.x
+            graphMovement.momentumState.shouldRunX = false
+            graphMovement.localPreviousPosition.x = graphMovement.localPosition.x
 
         }
 
         if shouldResetMomentumY {
             // log("handleGraphMovementOnGraphStep: resetting y momentum")
-            graphState.graphMovement.momentumState.shouldRunY = false
-            graphState.graphMovement.localPreviousPosition.y = graphState.graphMovement.localPosition.y
+            graphMovement.momentumState.shouldRunY = false
+            graphMovement.localPreviousPosition.y = graphMovement.localPosition.y
         }
 
         // If we're currently dragging node(s), treat graph momentum's change
         // of the graph's position as a change of a node's current and starting position (i.e. node.position and node.previousPosition)
-        if graphState.graphMovement.canvasItemIsDragged {
-            graphState.selectedNodeIds.forEach { id in
-                if let node = graphState.getCanvasItem(id) {
+        if graphMovement.canvasItemIsDragged {
+            self.visibleGraph.selectedNodeIds.forEach { id in
+                if let node = visibleGraph.getCanvasItem(id) {
                     node.previousPosition -= adjustment
                     node.position -= adjustment
                 }
             }
         }
 
-        if !graphState.graphMovement.shouldRun {
-            graphState.graphMovement.resetGraphMovement()
-            graphState.graphMovement.graphBoundOriginAtStart = nil
+        if !graphMovement.shouldRun {
+            graphMovement.resetGraphMovement()
+            graphMovement.graphBoundOriginAtStart = nil
 
             // Wipe comment box bounds
-            graphState.wipeCommentBoxBounds()
+            self.wipeCommentBoxBounds()
         }
     }
 }

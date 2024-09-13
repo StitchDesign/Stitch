@@ -9,11 +9,11 @@ import SwiftUI
 import StitchSchemaKit
 
 struct CanvasItemPositionHandler: ViewModifier {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     @MainActor
     private var graphUI: GraphUIState {
-        self.graph.graphUI
+        self.document.graphUI
     }
 
     @Bindable var node: CanvasItemViewModel
@@ -21,7 +21,7 @@ struct CanvasItemPositionHandler: ViewModifier {
 
     @MainActor
     var isOptionPressed: Bool {
-        graphUI.keypressState.isOptionPressed
+        document.keypressState.isOptionPressed
     }
 
     // ZIndex:
@@ -60,9 +60,9 @@ struct CanvasItemPositionHandler: ViewModifier {
                                             id: nodeId,
                                             translation: gesture.translation))
                             } else {
-                                graph.canvasItemMoved(for: node,
-                                                      translation: gesture.translation,
-                                                      wasDrag: true)
+                                document.visibleGraph.canvasItemMoved(for: node,
+                                                                      translation: gesture.translation,
+                                                                      wasDrag: true)
                             }
                         }
                         .onEnded { _ in
@@ -76,16 +76,16 @@ struct CanvasItemPositionHandler: ViewModifier {
 
 extension View {
     /// Handles node position, drag gestures, and option+select for duplicating node.
-    func canvasItemPositionHandler(graph: GraphState,
+    func canvasItemPositionHandler(document: StitchDocumentViewModel,
                                    node: CanvasItemViewModel,
                                    position: CGPoint,
                                    zIndex: ZIndex,
                                    usePositionHandler: Bool) -> some View {
 
-        self.modifier(CanvasItemPositionHandler(graph: graph,
-                                          node: node,
-                                          position: position,
-                                          zIndex: zIndex,
-                                          usePositionHandler: usePositionHandler))
+        self.modifier(CanvasItemPositionHandler(document: document,
+                                                node: node,
+                                                position: position,
+                                                zIndex: zIndex,
+                                                usePositionHandler: usePositionHandler))
     }
 }

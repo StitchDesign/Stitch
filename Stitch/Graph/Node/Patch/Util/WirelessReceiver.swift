@@ -15,7 +15,6 @@ struct SetBroadcastForWirelessReceiver: ProjectEnvironmentEvent {
     let receiverNodeId: NodeId
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         log("SetBroadcastForWirelessReceiver called")

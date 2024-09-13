@@ -33,17 +33,15 @@ extension StitchStore {
             PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
 
         guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return
         }
 
-        let graphState = GraphState(from: document,
-                                    store: self)
-        graphState.previewSizeDevice = previewDevice
-        graphState.previewWindowSize = previewDevice.previewWindowDimensions
-        self.navPath = [graphState]
+        let document = StitchDocumentViewModel(from: document,
+                                               store: self)
+        document.previewSizeDevice = previewDevice
+        document.previewWindowSize = previewDevice.previewWindowDimensions
+        self.navPath = [document]
     }
 
     /// Called in the event where project saved in iCloud is deleted

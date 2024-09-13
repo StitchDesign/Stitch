@@ -13,7 +13,7 @@ import StitchSchemaKit
 // TODO: revisit this modifier; main purpose is just to use .offset instead of .position when a Shape is using Absolute Coordinate Space ?
 struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -55,7 +55,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         //                textLayerAlignment: .center))
 
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
+                document: document,
                 viewModel: viewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -86,7 +86,7 @@ struct PreviewAbsoluteShapeLayerModifier: ViewModifier {
         
             // SwiftUI gestures must come AFTER the .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
+                document: document,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 // TODO: For handling Press interaction location with Custom Shape layer that uses absolute-coordinate space, what needs to change?

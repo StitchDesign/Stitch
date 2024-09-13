@@ -35,13 +35,13 @@ struct VideoLayerNode: LayerNodeDefinition {
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
-        VisualMediaLayerView(graph: graph,
+        VisualMediaLayerView(document: document,
                              viewModel: viewModel,
                              isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,

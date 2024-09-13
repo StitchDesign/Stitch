@@ -13,7 +13,7 @@ struct VisualMediaLayerView: View {
     // State for media needed if we need to async load an import
     @State private var mediaObject: StitchMediaObject?
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -37,7 +37,7 @@ struct VisualMediaLayerView: View {
     }
     
     @MainActor var mediaRowObserver: InputNodeRowObserver? {
-        guard let layerNode = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId)?.layerNode else {
+        guard let layerNode = document.getNodeViewModel(viewModel.id.layerNodeId.asNodeId)?.layerNode else {
             return nil
         }
         
@@ -81,14 +81,14 @@ struct VisualMediaLayerView: View {
         Group {
             switch mediaObject {
             case .image(let image):
-                ImageLayerView(graph: graph,
+                ImageLayerView(document: document,
                                viewModel: viewModel,
                                image: image, 
                                isPinnedViewRendering: isPinnedViewRendering,
                                parentSize: parentSize,
                                parentDisablesPosition: parentDisablesPosition)
             case .video(let video):
-                VideoLayerView(graph: graph,
+                VideoLayerView(document: document,
                                viewModel: viewModel,
                                video: video,
                                isPinnedViewRendering: isPinnedViewRendering,
@@ -101,13 +101,13 @@ struct VisualMediaLayerView: View {
         }
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,
-                                         graph: graph,
+                                         document: document,
                                          mediaRowObserver: mediaRowObserver))
     }
 }
 
 struct ImageLayerView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     let image: UIImage
     
@@ -117,7 +117,7 @@ struct ImageLayerView: View {
 
     var body: some View {
         PreviewImageLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -150,7 +150,7 @@ struct ImageLayerView: View {
 }
 
 struct VideoLayerView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     @State var video: StitchVideoImportPlayer
     
@@ -160,7 +160,7 @@ struct VideoLayerView: View {
 
     var body: some View {
         PreviewVideoLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

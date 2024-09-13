@@ -14,7 +14,7 @@ import StitchSchemaKit
 /// `struct PreviewShapeLayer<T: View & InsettableShape>: View, CommonView {`
 ///
 struct PreviewShapeLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -77,7 +77,7 @@ struct PreviewShapeLayer: View {
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+                    highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
                     scale: scale))
             // order of .blur vs other modiifers doesn't matter?
                 .blur(radius: blurRadius)
@@ -85,7 +85,7 @@ struct PreviewShapeLayer: View {
             
             // TODO: revisit this
                 .modifier(PreviewAbsoluteShapeLayerModifier(
-                    graph: graph, 
+                    document: document,
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,
@@ -107,7 +107,7 @@ struct PreviewShapeLayer: View {
             shape
                 .opacity(opacity)
                 .modifier(PreviewCommonModifier(
-                    graph: graph,
+                    document: document,
                     layerViewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,

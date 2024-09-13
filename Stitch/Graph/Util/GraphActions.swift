@@ -56,7 +56,8 @@ extension GraphState {
         self.graphStepManager.start()
 
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
-        self.update(from: document)
+        // TODO: need a separate updater for graph
+        self.documentDelegate?.update(from: document)
         
         self.updateSidebarListStateAfterStateChange()
         
@@ -68,7 +69,7 @@ extension GraphState {
             graphState: self)
                 
         // Calculate graph
-        self.initializeGraphComputation()
+        self.documentDelegate?.initializeGraphComputation()
         
         // Initialize preview layers
         self.updateOrderedPreviewLayers()
@@ -86,9 +87,9 @@ extension GraphState {
     }
 }
 
-struct PreviewWindowDimensionsSwapped: GraphEventWithResponse {
+struct PreviewWindowDimensionsSwapped: StitchDocumentEvent {
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         log("PreviewWindowDimensionsSwapped called")
 
         let originalSize = state.previewWindowSize
@@ -97,20 +98,20 @@ struct PreviewWindowDimensionsSwapped: GraphEventWithResponse {
 
         log("PreviewWindowDimensionsSwapped: state.previewWindowSize is now: \(state.previewWindowSize)")
 
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 
-struct UpdatePreviewCanvasDimension: GraphEventWithResponse {
+struct UpdatePreviewCanvasDimension: StitchDocumentEvent {
     let edit: String
     let isWidth: Bool
     let isCommitting: Bool
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         guard let number = Double(edit) else {
             // occurs when e.g. user enters a letter in the number
             //            log("UpdatePreviewCanvasDimension: did not have a valid number")
-            return .noChange
+            return
         }
 
         // Only coerce to min dimension if we're committing
@@ -128,14 +129,14 @@ struct UpdatePreviewCanvasDimension: GraphEventWithResponse {
             state.previewSizeDevice = .custom
         }
 
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 
-struct UpdatePreviewCanvasDevice: GraphEventWithResponse {
+struct UpdatePreviewCanvasDevice: StitchDocumentEvent {
     let previewSize: PreviewWindowDevice
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         state.previewSizeDevice = previewSize
 
         // Only update dimensions if custom isn't selected
@@ -143,6 +144,6 @@ struct UpdatePreviewCanvasDevice: GraphEventWithResponse {
             state.previewWindowSize = previewSize.previewWindowDimensions
         }
 
-        return .persistenceResponse
+        state.visibleGraph.encodeProjectInBackground()
     }
 }

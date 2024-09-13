@@ -39,7 +39,6 @@ struct TextFieldInputEdited: ProjectEnvironmentEvent {
     let newEdit: String
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         // set the newEdit in the text field layer node's output (id.nodeId) at the given loop index (id.loopIndex)

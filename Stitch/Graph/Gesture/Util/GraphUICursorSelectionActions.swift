@@ -12,7 +12,7 @@ import StitchSchemaKit
 // Actions and helpers related to the nodes-selection box
 // (ie what shows up when we long press on the graph or click+drag graph via trackpad)
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func screenLongPressed(location: CGPoint) {
         self.graphUI.selection.isSelecting = true
@@ -40,7 +40,7 @@ extension GraphState {
                            gestureState: UIGestureRecognizer.State) {
         //        log("TrackpadClickDragEvent")
 
-        let spaceHeld = self.graphUI.keypressState.isSpacePressed
+        let spaceHeld = self.keypressState.isSpacePressed
         let activeSpacebarDrag = self.graphUI.activeSpacebarClickDrag
 
         // log("TrackpadClickDragEvent: spaceHeld: \(spaceHeld)")
@@ -152,7 +152,7 @@ extension GraphState {
         graphUI.selection.isSelecting = true
         graphUI.selection.graphDragState = .none
 
-        self.selectedEdges = .init()
+        self.visibleGraph.selectedEdges = .init()
     }
 
     @MainActor

@@ -12,7 +12,7 @@ import StitchSchemaKit
 struct MediaLayerViewModifier: ViewModifier {
     let mediaValue: AsyncMediaValue?
     @Binding var mediaObject: StitchMediaObject?
-    let graph: GraphState
+    let document: StitchDocumentViewModel
     let mediaRowObserver: InputNodeRowObserver?
     
     func body(content: Content) -> some View {
@@ -27,8 +27,8 @@ struct MediaLayerViewModifier: ViewModifier {
                     self.mediaObject = _mediaObject
                 } else if let mediaKey = mediaValue.mediaKey {
                     // Create media if none assigned to the port value
-                    Task(priority: .high) { [weak graph, weak mediaRowObserver] in
-                        guard let graph = graph else {
+                    Task(priority: .high) { [weak document, weak mediaRowObserver] in
+                        guard let document = document else {
                             return
                         }
                         
@@ -36,7 +36,7 @@ struct MediaLayerViewModifier: ViewModifier {
                             .createMediaValue(from: mediaKey,
                                               isComputedCopy: false,
                                               mediaId: mediaValue.id,
-                                              graphDelegate: graph,
+                                              graphDelegate: document.visibleGraph,
                                               nodeId: mediaRowObserver?.id.nodeId)?.mediaObject
                         self.mediaObject = newMediaObject
                         

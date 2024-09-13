@@ -67,7 +67,7 @@ func newCameraSelectedEffect(cameraId: String, userDefaults: UserDefaults) -> Ef
     }
 }
 
-extension GraphDelegate {
+extension StitchDocumentViewModel {
     /// Update GraphSchema.CameraSettings and MediaManager after a Camera Feed Node's camera-orientation input received a new orientation value.
     @MainActor
     func cameraOrientationUpdated(input: InputCoordinate,
@@ -116,7 +116,7 @@ extension GraphDelegate {
         let cameraFeed = CameraFeedManager(cameraSettings: self.cameraSettings,
                                            enabledNodeIds: enabledNodeIds,
                                            isCameraFeedNode: nodeKind == .patch(.cameraFeed),
-                                           graphDelegate: self)
+                                           documentDelegate: self)
         return cameraFeed
     }
 

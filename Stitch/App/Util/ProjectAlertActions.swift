@@ -50,19 +50,25 @@ struct ShowProjectSettingsSheet: ProjectAlertEvent {
     }
 }
 
-struct HideProjectSettingsSheet: ProjectAlertEvent {
-    func handle(state: ProjectAlertState) -> ProjectAlertResponse {
-        var state = state
-        state.showProjectSettings = false
-        return .stateOnly(state)
-    }
-}
-
 struct ShowAppSettingsSheet: ProjectAlertEvent {
     func handle(state: ProjectAlertState) -> ProjectAlertResponse {
         var state = state
         state.showAppSettings = true
         return .stateOnly(state)
+    }
+}
+
+extension StitchStore {
+    @MainActor func hideProjectSettingsSheet() {
+        var alertState = self.alertState
+        alertState.showProjectSettings = false
+        self.alertState = alertState
+    }
+    
+    @MainActor func showAppSettingsSheet() {
+        var alertState = self.alertState
+        alertState.showAppSettings = true
+        self.alertState = alertState
     }
 }
 

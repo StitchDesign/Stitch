@@ -15,7 +15,7 @@ struct CatalystNavBarTitleEditField: View {
     @FocusState var focus: Bool
     
     var body: some View {
-        TextField("", text: $graph.projectName)
+        TextField("", text: $graph.name)
             .focused(self.$focus)
             .autocorrectionDisabled()
             .modifier(SelectAllTextViewModifier())
@@ -46,7 +46,7 @@ struct CatalystNavBarTitleEditField: View {
                     dispatch(ReduxFieldFocused(focusedField: .projectTitle))
                 } else {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
-                    graph.projectName = graph.projectName.validateProjectTitle()
+                    graph.name = graph.name.validateProjectTitle()
                     // Commit project name to disk
                     self.graph.encodeProjectInBackground()
                 }
@@ -122,7 +122,7 @@ extension String {
 // TODO: update iPad graph view as well
 struct CatalystTopBarGraphButtons: View {
 
-    let graphUI: GraphUIState
+    let document: StitchDocumentViewModel
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -136,7 +136,7 @@ struct CatalystTopBarGraphButtons: View {
         HStack {
             
             CatalystNavBarButton(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL) {
-                dispatch(LLMActionsJSONEntryModalOpened())
+                document.openedLLMActionsJSONEntryModal()
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             

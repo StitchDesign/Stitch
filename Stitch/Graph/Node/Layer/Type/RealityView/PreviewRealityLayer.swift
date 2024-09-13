@@ -10,7 +10,7 @@ import RealityKit
 import StitchSchemaKit
 
 struct PreviewRealityLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -28,13 +28,13 @@ struct PreviewRealityLayer: View {
         let anchoring = viewModel.anchoring.getAnchoring ?? .defaultAnchoring
         let scale = viewModel.scale.asCGFloat
         
-        switch graph.cameraFeedManager {
+        switch document.cameraFeedManager {
         case .loaded(let cameraFeedManager):
             if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-               let node = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
+               let node = document.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
                 @Bindable var node = node
                 
-                RealityLayerView(graph: graph,
+                RealityLayerView(document: document,
                                  node: node,
                                  layerViewModel: viewModel,
                                  cameraFeedManager: cameraFeedManager, 
@@ -93,7 +93,7 @@ struct PreviewRealityLayer: View {
 }
 
 struct RealityLayerView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
     
@@ -133,7 +133,7 @@ struct RealityLayerView: View {
         Group {
             if isPinnedViewRendering, // Can't run multiple reality views
                let arView = cameraFeedManager.arView,
-               !graph.isGeneratingProjectThumbnail {
+               !document.isGeneratingProjectThumbnail {
                 RealityView(arView: arView,
                             size: layerSize,
                             scale: scale,
@@ -151,7 +151,7 @@ struct RealityLayerView: View {
             }
         }
         .modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

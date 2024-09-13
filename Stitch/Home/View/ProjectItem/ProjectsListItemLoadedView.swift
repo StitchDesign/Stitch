@@ -93,9 +93,9 @@ extension StitchStore {
                     }
                     
                     log("handleProjectTapped: about to set \(document.projectId)")
-                    let graphState = GraphState(from: document,
-                                                store: store)
-                    store.navPath = [graphState]
+                    let document = StitchDocumentViewModel(from: document,
+                                                           store: store)
+                    store.navPath = [document]
                 }
             } catch {
                 await MainActor.run { [weak self] in

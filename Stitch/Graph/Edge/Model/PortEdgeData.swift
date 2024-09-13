@@ -61,7 +61,7 @@ extension NodeIOCoordinate {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     func createEdges() -> Edges {
         self.connections.reduce(into: []) { partialResult, connection in
             partialResult += connection.value.map { PortEdgeData(from: connection.key,

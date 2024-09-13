@@ -9,24 +9,24 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SelectedGraphItemsDuplicated: GraphEventWithResponse {
+struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
     
     // Duplicates BOTH nodes AND comments
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
-            return .noChange
+            return
         }
         
-        let copiedComponentResult = state.createCopiedComponent(
+        let copiedComponentResult = state.visibleGraph.createCopiedComponent(
             groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
-            selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
         
-        state.insertNewComponent(copiedComponentResult)
+        state.visibleGraph.insertNewComponent(copiedComponentResult)
         
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 
@@ -107,7 +107,7 @@ extension GraphState {
         // Add new nodes
         document.nodes += newNodes
         document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.update(from: document)
+        self.documentDelegate?.update(from: document)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()

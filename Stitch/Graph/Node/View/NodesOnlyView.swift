@@ -10,6 +10,7 @@ import StitchSchemaKit
 
 struct NodesOnlyView: View {
 
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     @Bindable var nodePageData: NodePageData
@@ -40,6 +41,7 @@ struct NodesOnlyView: View {
             if let node = canvasNode.nodeDelegate as? NodeViewModel,
                canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId {
                 NodeTypeView(
+                    document: document,
                     graph: graph,
                     node: node,
                     canvasNode: canvasNode,

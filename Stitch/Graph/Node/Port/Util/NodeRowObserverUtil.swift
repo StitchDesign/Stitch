@@ -112,7 +112,7 @@ extension NodeRowObserver {
         if node.kind.usesCamera,
            let originalValue = oldValues.first,
            let coercedValue = coercedValues.first {
-            graph.cameraInputChange(
+            graph.documentDelegate?.cameraInputChange(
                 input: self.id,
                 originalValue: originalValue,
                 coercedValue: coercedValue)
