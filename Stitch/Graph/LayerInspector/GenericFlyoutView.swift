@@ -210,20 +210,17 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
 
-//            // TODO: SEPT 12
-            let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
-            let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
-            let unpackedPortParentFieldGroupType: FieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
-
-            // In this case, we already have the fieldIndex as 0 or 1 ?
-            let unpackedPortIndex: Int? = fieldIndex
+            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+                .getDefaultValue(for: layerNode.layer)
+                .getNodeRowType(nodeIO: .input)
+                .getFieldGroupTypeForLayerInput
             
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
                                 layerNode: layerNode,
                                 nodeId: nodeId,
                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                unpackedPortIndex: unpackedPortIndex,
+                                unpackedPortIndex: fieldIndex,
                                 nodeDelegate: node)
         }
         

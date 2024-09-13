@@ -419,9 +419,6 @@ extension Array where Element: NodeRowViewModel {
                 
                 if let node = node {
                     rowViewModel.initializeDelegate(node,
-                                                    // Ah, this might be bad?
-                                                    // Because sync could be
-                                                    // TODO: SEPT 12
                                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                                     unpackedPortIndex: unpackedPortIndex)
                 }

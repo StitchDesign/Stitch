@@ -211,18 +211,7 @@ extension CanvasItemViewModel {
                                   unpackedPortIndex: unpackedPortIndex)
         }
     }
-    
-    // Not used ?
-//    @MainActor
-//    static func createEmpty() -> Self {
-//        .init(from: .init(position: .zero,
-//                          zIndex: .zero,
-//                          parentGroupNodeId: nil),
-//              id: .node(.init()),
-//              inputRowObservers: [],
-//              outputRowObservers: [])
-//    }
-    
+        
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
@@ -261,11 +250,7 @@ extension InputLayerNodeRowData {
     @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
-        // this creates the node row observer, which is fine -- it doesn't know about field index etc.
-        // ... it should be okay to create a node row observer for a number part of a position part
-        // it's the row view models, not the row observer, which contain the fields
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
-//                                               nodeKind: .layer(.rectangle), // Why .rectangle ?
                                                nodeKind: .layer(layer),
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
