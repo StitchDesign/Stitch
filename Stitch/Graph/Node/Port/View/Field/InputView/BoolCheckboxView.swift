@@ -14,7 +14,7 @@ struct BoolCheckboxView: View {
     @Environment(\.appTheme) var theme
     
     let id: InputCoordinate? // nil = used in output
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     let value: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
@@ -22,10 +22,10 @@ struct BoolCheckboxView: View {
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
         
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
                         
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+            return layerInputObserver.fieldHasHeterogenousValues(
                 0,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {

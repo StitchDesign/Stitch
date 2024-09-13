@@ -53,7 +53,7 @@ struct LayerInspectorInputPortView: View {
                               rowViewModel: nil,
                               // Always use the packed
                               fieldValueTypes: layerInputObserver.fieldValueTypes,
-                              inputLayerNodeRowData: layerInputObserver,
+                              layerInputObserver: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,

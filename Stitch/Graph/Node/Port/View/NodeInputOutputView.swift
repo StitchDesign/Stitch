@@ -151,7 +151,7 @@ struct NodeInputView: View {
         
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
@@ -162,7 +162,7 @@ struct NodeInputView: View {
     var forFlyout: Bool = false
     
     var isShadowLayerInputRow: Bool {
-        inputLayerNodeRowData?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+        layerInputObserver?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
     }
     
     @MainActor
@@ -175,7 +175,7 @@ struct NodeInputView: View {
                         isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
                         viewModel: portViewModel,
-                        inputLayerNodeRowData: inputLayerNodeRowData,
+                        layerInputObserver: layerInputObserver,
                         rowObserverId: rowObserverId,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,

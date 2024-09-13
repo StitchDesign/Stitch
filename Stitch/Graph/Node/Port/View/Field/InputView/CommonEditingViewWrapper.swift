@@ -12,7 +12,7 @@ struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
     let isCanvasItemSelected: Bool
@@ -33,9 +33,9 @@ struct CommonEditingViewWrapper: View {
     
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {
@@ -53,8 +53,8 @@ struct CommonEditingViewWrapper: View {
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultfieldInspectorInput
-        && (inputLayerNodeRowData?.activeValue.getPadding.isDefined ?? false)
-//        && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
+        && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
+//        && (layerInputObserver?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
     }
     
     @MainActor
@@ -98,7 +98,7 @@ struct CommonEditingViewWrapper: View {
             
         } else {
             CommonEditingView(inputField: fieldViewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              layerInputObserver: layerInputObserver,
                               inputString: stringValue,
                               graph: graph,
                               fieldIndex: fieldCoordinate.fieldIndex,

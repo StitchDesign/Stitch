@@ -92,7 +92,7 @@ struct ShadowFlyoutView: View {
                               rowObserver: nil,
                               rowViewModel: nil,
                               fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
-                              inputLayerNodeRowData: layerInputPort,
+                              layerInputObserver: layerInputPort,
                               forPropertySidebar: true,
                               propertyIsSelected: false, // N/A ?
                               propertyIsAlreadyOnGraph: false,

@@ -15,7 +15,7 @@ struct InputValueEntry: View {
     
     @Bindable var viewModel: InputFieldViewModel
     
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     
     let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
@@ -45,7 +45,7 @@ struct InputValueEntry: View {
             isFieldInMultifieldInput,
             !isForFlyout,
            // Do not use labels on the fields of a padding-type input
-            (inputLayerNodeRowData?.activeValue.getPadding.isDefined ?? false) {
+            (layerInputObserver?.activeValue.getPadding.isDefined ?? false) {
             return false
         }
         
@@ -63,7 +63,7 @@ struct InputValueEntry: View {
     var valueDisplay: some View {
         InputValueView(graph: graph,
                        viewModel: viewModel,
-                       inputLayerNodeRowData: inputLayerNodeRowData,
+                       layerInputObserver: layerInputObserver,
                        rowObserverId: rowObserverId,
                        nodeKind: nodeKind,
                        isCanvasItemSelected: isCanvasItemSelected,
@@ -111,7 +111,7 @@ struct InputValueEntry: View {
 struct InputValueView: View {
     @Bindable var graph: GraphState
     @Bindable var viewModel: InputFieldViewModel
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     let rowObserverId: NodeIOCoordinate
     let nodeKind: NodeKind
     let isCanvasItemSelected: Bool
@@ -157,7 +157,7 @@ struct InputValueView: View {
         case .string:
             CommonEditingViewWrapper(graph: graph,
                                      fieldViewModel: viewModel,
-                                     inputLayerNodeRowData: inputLayerNodeRowData,
+                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
@@ -172,7 +172,7 @@ struct InputValueView: View {
         case .number:
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
-                                 inputLayerNodeRowData: inputLayerNodeRowData,
+                                 layerInputObserver: layerInputObserver,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
@@ -189,7 +189,7 @@ struct InputValueView: View {
         case .layerDimension(let layerDimensionField):
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
-                                 inputLayerNodeRowData: inputLayerNodeRowData,
+                                 layerInputObserver: layerInputObserver,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: layerDimensionField.fieldValueNumberType,
                                  fieldCoordinate: fieldCoordinate,
@@ -206,7 +206,7 @@ struct InputValueView: View {
         case .spacing:
             FieldValueNumberView(graph: graph,
                                  fieldViewModel: viewModel,
-                                 inputLayerNodeRowData: inputLayerNodeRowData,
+                                 layerInputObserver: layerInputObserver,
                                  fieldValue: fieldValue,
                                  fieldValueNumberType: .number,
                                  fieldCoordinate: fieldCoordinate,
@@ -223,14 +223,14 @@ struct InputValueView: View {
 
         case .bool(let bool):
             BoolCheckboxView(id: rowObserverId, 
-                             inputLayerNodeRowData: inputLayerNodeRowData,
+                             layerInputObserver: layerInputObserver,
                              value: bool,
                              isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                              isSelectedInspectorRow: isSelectedInspectorRow)
 
         case .dropdown(let choiceDisplay, let choices):
             DropDownChoiceView(id: rowObserverId,
-                               inputLayerNodeRowData: inputLayerNodeRowData,
+                               layerInputObserver: layerInputObserver,
                                graph: graph,
                                choiceDisplay: choiceDisplay,
                                choices: choices,
@@ -240,7 +240,7 @@ struct InputValueView: View {
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: rowObserverId,
                                stitchFont: stitchFont, 
-                               inputLayerNodeRowData: inputLayerNodeRowData,
+                               layerInputObserver: layerInputObserver,
                                isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                propertyIsSelected: isSelectedInspectorRow)
                 // need enough width for font design + font weight name
@@ -253,7 +253,7 @@ struct InputValueView: View {
                 graph: graph,
                 id: rowObserverId,
                 value: .assignedLayer(layerId), 
-                inputLayerNodeRowData: inputLayerNodeRowData,
+                layerInputObserver: layerInputObserver,
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 isSelectedInspectorRow: isSelectedInspectorRow,
@@ -267,7 +267,7 @@ struct InputValueView: View {
                            graph: graph,
                            id: rowObserverId,
                            value: .pinTo(pinToId),
-                           inputLayerNodeRowData: inputLayerNodeRowData,
+                           layerInputObserver: layerInputObserver,
                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            isSelectedInspectorRow: isSelectedInspectorRow,
@@ -279,7 +279,7 @@ struct InputValueView: View {
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
                               selection: anchor,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              layerInputObserver: layerInputObserver,
                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                               isSelectedInspectorRow: isSelectedInspectorRow)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
@@ -291,7 +291,7 @@ struct InputValueView: View {
 
         case .media(let media):
             MediaFieldValueView(inputCoordinate: rowObserverId, 
-                                inputLayerNodeRowData: inputLayerNodeRowData,
+                                layerInputObserver: layerInputObserver,
                                 isUpstreamValue: isUpstreamValue, // rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
                                 media: media,
                                 nodeKind: nodeKind,
@@ -304,7 +304,7 @@ struct InputValueView: View {
 
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel, 
-                                    inputLayerNodeRowData: inputLayerNodeRowData,
+                                    layerInputObserver: layerInputObserver,
                                     nodeId: rowObserverId.nodeId,
                                     id: rowObserverId,
                                     currentColor: color,

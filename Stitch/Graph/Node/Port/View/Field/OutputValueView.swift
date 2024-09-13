@@ -126,7 +126,7 @@ struct OutputValueView: View {
 
         case .bool(let bool):
             BoolCheckboxView(id: nil, 
-                             inputLayerNodeRowData: nil,
+                             layerInputObserver: nil,
                              value: bool,
                              isFieldInsideLayerInspector: false,
                              isSelectedInspectorRow: isSelectedInspectorRow)
@@ -141,7 +141,7 @@ struct OutputValueView: View {
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
                                stitchFont: stitchFont, 
-                               inputLayerNodeRowData: nil,
+                               layerInputObserver: nil,
                                isFieldInsideLayerInspector: false, 
                                propertyIsSelected: isSelectedInspectorRow)
                 // need enough width for font design + font weight name
@@ -154,7 +154,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .assignedLayer(layerId), 
-                                         inputLayerNodeRowData: nil,
+                                         layerInputObserver: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: false,
                                          isSelectedInspectorRow: isSelectedInspectorRow,
@@ -171,7 +171,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .pinTo(pinToId),
-                                         inputLayerNodeRowData: nil,
+                                         layerInputObserver: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: true,
                                          isSelectedInspectorRow: isSelectedInspectorRow,
@@ -188,7 +188,7 @@ struct OutputValueView: View {
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
                               selection: anchor, 
-                              inputLayerNodeRowData: nil,
+                              layerInputObserver: nil,
                               isFieldInsideLayerInspector: false, 
                               isSelectedInspectorRow: isSelectedInspectorRow)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
@@ -198,7 +198,7 @@ struct OutputValueView: View {
 
         case .media(let media):
             MediaFieldValueView(inputCoordinate: coordinate, 
-                                inputLayerNodeRowData: nil,
+                                layerInputObserver: nil,
                                 isUpstreamValue: false,     // only valid for inputs
                                 media: media,
                                 nodeKind: nodeKind,

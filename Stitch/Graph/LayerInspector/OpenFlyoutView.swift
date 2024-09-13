@@ -78,7 +78,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                         // The Flyout takes the whole input,
                         // and displays each field
                         GenericFlyoutView(graph: graph,
-                                          inputLayerNodeRowData: portObserver,
+                                          layerInputObserver: portObserver,
                                           layer: layerNode.layer,
                                           layerInput: flyoutInput,
                                           nodeId: node.id,

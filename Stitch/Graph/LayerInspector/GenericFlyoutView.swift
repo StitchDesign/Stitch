@@ -23,7 +23,7 @@ struct GenericFlyoutView: View {
     @Bindable var graph: GraphState
     
     // non-nil, because flyouts are always for inspector inputs
-    let inputLayerNodeRowData: LayerInputObserver
+    let layerInputObserver: LayerInputObserver
     
     let layer: Layer
     var hasIncomingEdge: Bool = false
@@ -82,7 +82,7 @@ struct GenericFlyoutView: View {
                 GenericFlyoutRowView(
                     graph: graph,
                     viewModel: inputFieldViewModel,
-                    layerInputObserver: inputLayerNodeRowData,
+                    layerInputObserver: layerInputObserver,
                     layerInput: layerInput,
                     nodeId: nodeId,
                     fieldIndex: inputFieldViewModel.fieldIndex,
@@ -163,7 +163,7 @@ struct GenericFlyoutRowView: View {
             
             InputValueEntry(graph: graph,
                             viewModel: viewModel,
-                            inputLayerNodeRowData: layerInputObserver,
+                            layerInputObserver: layerInputObserver,
                             rowObserverId: coordinate,
                             nodeKind: nodeKind,
                             isCanvasItemSelected: false, // Always false

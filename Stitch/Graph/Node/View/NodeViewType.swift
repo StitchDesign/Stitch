@@ -130,7 +130,7 @@ struct DefaultNodeInputView: View {
                           rowObserver: rowObserver,
                           rowViewModel: rowViewModel,
                           fieldValueTypes: rowViewModel.fieldValueTypes,
-                          inputLayerNodeRowData: nil, // Always nil, since this is a canvas item not an inspector-row
+                          layerInputObserver: nil, // Always nil, since this is a canvas item not an inspector-row
                           forPropertySidebar: false,
                           propertyIsSelected: false,
                           propertyIsAlreadyOnGraph: true, // Irrelevant?

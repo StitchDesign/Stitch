@@ -13,7 +13,7 @@ struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
@@ -37,9 +37,9 @@ struct FieldValueNumberView: View {
     // Bad: do not want this running constantly when we're not inside a
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 // should be same as `forPropertySidebar`
                 isFieldInsideLayerInspector: forPropertySidebar)
@@ -74,7 +74,7 @@ struct FieldValueNumberView: View {
             
             CommonEditingViewWrapper(graph: graph,
                                      fieldViewModel: fieldViewModel,
-                                     inputLayerNodeRowData: inputLayerNodeRowData,
+                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,

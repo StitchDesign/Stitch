@@ -49,7 +49,7 @@ struct CommonEditingView: View {
     @State private var isBase64 = false
     
     @Bindable var inputField: InputFieldViewModel
-    let inputLayerNodeRowData: LayerInputObserver?
+    let layerInputObserver: LayerInputObserver?
     
     let inputString: String // from redux
     
@@ -129,9 +129,9 @@ struct CommonEditingView: View {
             
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
