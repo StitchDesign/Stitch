@@ -22,6 +22,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
             
             let portObserver: LayerInputObserver = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
             
+            // Can't assume this?
             let inputData: InputLayerNodeRowData = portObserver._packedData
             
             // If pseudo-modal-background placed here,
@@ -82,15 +83,7 @@ struct OpenFlyoutView: View, KeyboardReadable {
                                           layerInput: flyoutInput,
                                           nodeId: node.id,
                                           nodeKind: node.kind,
-                                          fieldValueTypes: portObserver._packedData.inspectorRowViewModel.fieldValueTypes)
-                        
-//                        // Flyout always takes whole packed view
-//                        GenericFlyoutView(graph: graph,
-//                                          inputRowViewModel: inputData.inspectorRowViewModel,
-//                                          inputLayerNodeRowData: inputData,
-//                                          layer: layerNode.layer,
-//                                          hasIncomingEdge: inputData.rowObserver.containsUpstreamConnection,
-//                                          layerInput: flyoutInput)
+                                          fieldValueTypes: portObserver.fieldValueTypes)
                     }
                 }
                 .offset(

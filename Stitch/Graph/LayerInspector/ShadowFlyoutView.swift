@@ -75,7 +75,7 @@ struct ShadowFlyoutView: View {
     @MainActor
     var rows: some View {
         VStack(alignment: .leading,
-               // TODO: why must we double this?
+               // TODO: why must we double this *and* use padding?
                spacing: INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2) {
             ForEach(LayerInspectorView.shadow) { (shadowInput: LayerInputPort) in
                 
@@ -83,9 +83,7 @@ struct ShadowFlyoutView: View {
                 
                 // Shadow input is *always packed*
                 let layerInputData = layerInputPort._packedData
-                
-//                Text("Joy")
-                
+                                
                 NodeInputView(graph: graph,
                               nodeId: node.id,
                               nodeKind: node.kind,
@@ -102,6 +100,7 @@ struct ShadowFlyoutView: View {
                               layerInput: nil, // only for layer inspector
                               label: layerInputData.rowObserver.label(true),
                               forFlyout: true)
+//                .border(.green)
                 
 //                NodeInputView(graph: graph,
 //                              rowObserver: layerInputData.rowObserver,
@@ -116,7 +115,7 @@ struct ShadowFlyoutView: View {
                 
                 // Each row seems too tall? Probably from a set node row height somewhere?
                 // Uses padding to reduce size
-//                .padding([.top, .bottom], -2)
+                .padding([.top, .bottom], INSPECTOR_LIST_ROW_TOP_AND_BOTTOM_INSET * 2)
 //                .padding([.leading, .trailing], LAYER_INSPECTOR_ROW_SPACING)
 ////                .frame(height: 32) // per Figma // Doesn't work while a single row is split across a VStack
 //                .background {

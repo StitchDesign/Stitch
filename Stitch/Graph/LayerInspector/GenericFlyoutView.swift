@@ -75,10 +75,7 @@ struct GenericFlyoutView: View {
     // TODO: just use `NodeInputView` here ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
-        // Assumes: all flyouts have a single row which contains multiple fields
-        
-        // Can't just use NodeInputView, since we need to add a button
-
+        // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
         FieldsListView<InputNodeRowViewModel, GenericFlyoutRowView>(
             graph: graph,
             fieldValueTypes: fieldValueTypes,
@@ -87,9 +84,7 @@ struct GenericFlyoutView: View {
             forPropertySidebar: true,
             // fix this?
             propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultifield in
-                
-//                Text("FlyoutRow")
-                
+                                
                 let fieldIndex = inputFieldViewModel.fieldIndex
                 let isSelectedRow = self.selectedFlyoutRow == fieldIndex
                 
@@ -102,122 +97,8 @@ struct GenericFlyoutView: View {
                     nodeId: nodeId,
                     fieldIndex: fieldIndex,
                     isMultifield: isMultifield,
-                    nodeKind: nodeKind
-//                     ,
-//                    isSelectedRow: isSelectedRow
-                  )
-                
-//                GenericFlyoutRowView(layerInput: layerInput,
-//                                     nodeId: nodeId,
-//                                     fieldIndex: fieldIndex,
-//                                     isSelectedRow: isSelectedRow)
-            
-//            if let coordinate = inputRowViewModel.rowDelegate?.id {
-//                
-//                let fieldIndex = inputFieldViewModel.fieldIndex
-//                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
-//                
-//                HStack {
-//                    // TODO: consolidate with `LayerInspectorRowButton`
-//                    // TODO: Figma UI: field on canvas
-//                    Image(systemName: "plus.circle")
-//                        .resizable()
-//                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-//                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-//                        .onTapGesture {
-//                            log("will add field to canvas")
-//                            dispatch(LayerInputFieldAddedToGraph(
-//                                layerInput: layerInput,
-//                                nodeId: nodeId,
-//                                fieldIndex: fieldIndex))
-//                        }
-//                        .opacity(isSelectedRow ? 1 : 0)
-//                    
-////                    // For a single field
-////                    InputValueEntry(graph: graph,
-////                                    rowViewModel: inputRowViewModel,
-////                                    viewModel: inputFieldViewModel,
-////                                    inputLayerNodeRowData: inputLayerNodeRowData,
-////                                    rowObserverId: coordinate,
-////                                    nodeKind: .layer(layer),
-////                                    isCanvasItemSelected: false,
-////                                    hasIncomingEdge: hasIncomingEdge, // always false?
-////                                    forPropertySidebar: true,
-////                                    // TODO: Figma UI: field on canvas
-////                                    propertyIsAlreadyOnGraph: false, // Not relevant?
-////                                    isFieldInMultifieldInput: isMultifield,
-////                                    isForFlyout: true,
-////                                    // False for now, until individual fields can be added to the graph
-////                                    isSelectedInspectorRow: false)
-////                    .onTapGesture {
-////                        log("flyout: tapped field row \(fieldIndex)")
-////                        self.selectedFlyoutRow = fieldIndex
-////                    }
-//                }
-//            } // if let
-//            
-//            else {
-//                FatalErrorIfDebugView()
-//            }
+                    nodeKind: nodeKind)
         }
-        
-        
-//        FieldsListView(graph: graph,
-//                       rowViewModel: inputRowViewModel,
-//                       nodeId: inputRowViewModel.id.nodeId,
-//                       isGroupNodeKind: inputRowViewModel.nodeKind.isGroup,
-//                       forPropertySidebar: true,
-//                       // TODO: fix
-//                       propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultiField in
-//            
-//            if let coordinate = inputRowViewModel.rowDelegate?.id {
-//                
-//                let fieldIndex = inputFieldViewModel.fieldIndex
-//                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
-//                
-//                HStack {
-//                    // TODO: consolidate with `LayerInspectorRowButton`
-//                    // TODO: Figma UI: field on canvas
-//                    Image(systemName: "plus.circle")
-//                        .resizable()
-//                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-//                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-//                        .onTapGesture {
-//                            log("will add field to canvas")
-//                            dispatch(LayerInputFieldAddedToGraph(
-//                                layerInput: layerInput,
-//                                nodeId: nodeId,
-//                                fieldIndex: fieldIndex))
-//                        }
-//                        .opacity(isSelectedRow ? 1 : 0)
-//                    
-//                    // For a single field
-//                    InputValueEntry(graph: graph,
-//                                    rowViewModel: inputRowViewModel,
-//                                    viewModel: inputFieldViewModel,
-//                                    inputLayerNodeRowData: inputLayerNodeRowData,
-//                                    rowObserverId: coordinate,
-//                                    nodeKind: .layer(layer),
-//                                    isCanvasItemSelected: false,
-//                                    hasIncomingEdge: hasIncomingEdge, // always false?
-//                                    forPropertySidebar: true,
-//                                    // TODO: Figma UI: field on canvas
-//                                    propertyIsAlreadyOnGraph: false, // Not relevant?
-//                                    isFieldInMultifieldInput: isMultiField,
-//                                    isForFlyout: true,
-//                                    // False for now, until individual fields can be added to the graph
-//                                    isSelectedInspectorRow: false)
-//                    .onTapGesture {
-//                        log("flyout: tapped field row \(fieldIndex)")
-//                        self.selectedFlyoutRow = fieldIndex
-//                    }
-//                }
-//            } // if let
-//            
-//            else {
-//                FatalErrorIfDebugView()
-//            }
-//        } // FieldsListView
         
     }
 }

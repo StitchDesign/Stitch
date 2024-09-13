@@ -491,13 +491,10 @@ struct NodeOutputView: View {
 // or should new protocol be taken here?
 // i.e. `row view model` should replaced by a protocol that is just
 struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowViewModel, ValueEntryView: View {
+
     @Bindable var graph: GraphState
-    
-    // make more generic?
-    // currently we pass on the exact view model
-//    @Bindable var rowViewModel: PortType // e.g. InputNodeRowViewModel
+
     var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
-    
     let nodeId: NodeId
     let isGroupNodeKind: Bool
     let forPropertySidebar: Bool
@@ -505,8 +502,6 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
     var body: some View {
-//        ForEach(rowViewModel.fieldValueTypes) { (fieldGroupViewModel: FieldGroupTypeViewModel<PortType.FieldType>) in
-        
         // Ah, for an unpacked layer input, we pass in multiple `fieldGroupViewModel`s, each of which has a single `fieldObserver` ?
         // And for packed layer input, we pass in a single `fieldGroupViewModel`, which has multiple `fieldObserver`s ?
         // `isMultifield` can be passed down at the top-level
@@ -517,17 +512,10 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
             
             let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
             
-            // In non-property-sidebar cases, an input
-            
-            // if we're in the inspector-row or flyout-row, we are
-            
-            // i.e. don't need to think about packed vs unpacked
             let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
             
 //            let isMultiField = fieldGroupViewModel.fieldObservers.count > 1
-            
-            logInView("isMultiField: \(isMultiField)")
-            
+                        
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,
                            nodeId: nodeId,
