@@ -153,13 +153,16 @@ struct GenericFlyoutRowView: View {
         graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
+    @MainActor
+    var canvasItemId: CanvasItemId? {
+        // Is this particular unpacked-port already on the canvas?
+        layerInputObserver.getCanvasItem(for: fieldIndex)?.id
+    }
+    
     var body: some View {
         HStack {
-            
-            // Is this particular unpacked-port already on the canvas?
-            let canvasItemId: CanvasItemId? = layerInputObserver.getCanvasItem(for: fieldIndex)?.id
-            
-            LayerInspectorRowButton(layerInspectorRowId: layerInspectorRowId,
+            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+                                    layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
                                     isPortSelected: isSelectedRow,
@@ -173,7 +176,7 @@ struct GenericFlyoutRowView: View {
                             isCanvasItemSelected: false, // Always false
                             hasIncomingEdge: false,
                             forPropertySidebar: true,
-                            propertyIsAlreadyOnGraph: canvasItemId.isDefined, // fix
+                            propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
                             isSelectedInspectorRow: isSelectedRow)
@@ -183,18 +186,10 @@ struct GenericFlyoutRowView: View {
             self.isHovered = hovering
         })
         .onTapGesture {
-            log("flyout: tapped field row \(fieldIndex)")
-            graph.graphUI.layerPropertyTapped(layerInspectorRowId)
+            graph.graphUI.onLayerPortRowTapped(
+                layerInspectorRowId: layerInspectorRowId,
+                 canvasItemId: canvasItemId)
         }
-    }
-}
-
-struct FatalErrorIfDebugView: View {
-    var body: some View {
-        Color.clear
-            .onAppear {
-                fatalErrorIfDebug()
-            }
     }
 }
 

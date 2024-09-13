@@ -9,6 +9,15 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
+struct FatalErrorIfDebugView: View {
+    var body: some View {
+        Color.clear
+            .onAppear {
+                fatalErrorIfDebug()
+            }
+    }
+}
+
 func fatalErrorIfDebug(_ message: String = "") {
 #if DEBUG || DEV_DEBUG
     fatalError(message)

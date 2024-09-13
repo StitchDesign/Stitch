@@ -203,18 +203,3 @@ extension GraphState {
         self.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
 }
-
-extension GraphUIState {
-    func layerPropertyTapped(_ property: LayerInspectorRowId) {
-        let alreadySelected = self.propertySidebar.selectedProperty == property
-        
-        withAnimation {
-            if alreadySelected {
-                self.propertySidebar.selectedProperty = nil
-            } else {
-                self.propertySidebar.selectedProperty = property
-            }
-        }
-        
-    }
-}

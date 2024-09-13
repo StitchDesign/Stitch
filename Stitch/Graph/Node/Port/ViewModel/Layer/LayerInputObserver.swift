@@ -48,6 +48,17 @@ final class LayerInputObserver {
     }
 }
 
+extension LayerInputType {
+    var getUnpackedPortType: UnpackedPortType? {
+        switch self.portType {
+        case .unpacked(let unpackedPortType):
+            return unpackedPortType
+        default:
+            return nil
+        }
+    }
+}
+
 extension LayerInputObserver {
     
     // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
@@ -83,7 +94,12 @@ extension LayerInputObserver {
     
     @MainActor
     func getCanvasItem(for fieldIndex: Int) -> CanvasItemViewModel? {
-        self.getAllCanvasObservers()[safeIndex: fieldIndex]
+        // Important: if fieldIndex = 0, but there's only e.g. one canvas item (which is for port1), then we'll incorrectly return port1's canvas item
+//        self.getAllCanvasObservers()[safeIndex: fieldIndex]
+        
+        self.getAllCanvasObservers().first { (canvas: CanvasItemViewModel) in
+            canvas.id.layerInputCase?.keyPath.getUnpackedPortType?.rawValue == fieldIndex
+        }
     }
     
     @MainActor

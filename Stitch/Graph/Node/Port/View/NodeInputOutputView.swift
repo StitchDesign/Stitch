@@ -10,13 +10,38 @@ import StitchSchemaKit
 
 struct LayerInspectorRowButton: View {
     
+    @Environment(\.appTheme) var theme
+    
+    let layerInputObserver: LayerInputObserver
     let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let canvasItemId: CanvasItemId?
     let isPortSelected: Bool
     let isHovered: Bool
     
+    @MainActor
+    var isWholeInputWithAtleastOneFieldAlreadyOnCanvas: Bool {
+        if case let .layerInput(layerInputType) = layerInspectorRowId,
+           layerInputType.portType == .packed,
+           layerInputObserver.observerMode.isUnpacked,
+           !layerInputObserver.getAllCanvasObservers().isEmpty {
+            log("LayerInspectorRowButton:isWholeInputWithAtleastOneFieldAlreadyOnCanvas")
+            return true
+        }
+        
+        return false
+    }
+    
+    @MainActor
     var canBeAddedToCanvas: Bool {
+        
+        // If this is a button for a whole input,
+        // and then input already has a field on the canvas,
+        // then we cannot add the whole input to the canvas
+        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+            return false
+        }
+        
         switch layerInspectorRowId {
         case .layerInput(let layerInputType):
             return layerInputType.layerInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY
@@ -24,7 +49,8 @@ struct LayerInspectorRowButton: View {
             return true
         }
     }
-    
+
+    @MainActor
     var showAddLayerPropertyButton: Bool {
         if canvasItemId.isDefined {
             return false
@@ -41,17 +67,121 @@ struct LayerInspectorRowButton: View {
         return false
     }
     
+    @MainActor
+    var showButton: Bool {
+        if canvasItemId.isDefined {
+            return true
+        }
+        
+        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+            return true
+        }
+        
+        if isHovered {
+            return true
+        }
+        
+        if canBeAddedToCanvas, isPortSelected {
+            return true
+        }
+        
+        return false
+    }
+    
+    @MainActor
+    var imageString: String {
+        if canvasItemId.isDefined {
+            return "scope"
+        } else if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
+            return "circle.fill"
+        } else {
+            return "plus.circle"
+        }
+    }
+        
     var body: some View {
         
+//        button(imageString: imageString) {
+//            
+//            let nodeId = coordinate.nodeId
+//            
+//            // If we're already on the canvas, jump to that canvas item
+//            if let canvasItemId = canvasItemId {
+//                dispatch(JumpToCanvasItem(id: canvasItemId))
+//            } 
+//            
+//            // Else we're adding an input (whole or field) or an output to the canvas
+//            else if let layerInput = coordinate.keyPath {
+//                dispatch(LayerInputAddedToGraph(
+//                    nodeId: nodeId,
+//                    coordinate: layerInput))
+//            } else if let portId = coordinate.portId {
+//                dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+//                                                 portId: portId))
+//            }
+//        }
+//        // Shrink down the dot view
+//        .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
+//        
+//        // Only show the dot / plus button if we're hovering or row is selected or ...
+//        .opacity(showButton ? 1 : 0)
+//        
+//        .animation(.default, value: showButton)
+        
+        
+        
         if let canvasItemId = canvasItemId {
-            JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId,
-                                             isRowSelected: isPortSelected)
+            button(imageString: "scope") {
+                dispatch(JumpToCanvasItem(id: canvasItemId))
+            }
         } else {
-            AddLayerPropertyToGraphButton(coordinate: coordinate,
-                                          isRowSelected: isPortSelected)
-                .opacity(showAddLayerPropertyButton ? 1 : 0)
-                .animation(.default, value: showAddLayerPropertyButton)
+            button(imageString: isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? "circle.fill" : "plus.circle") {
+                let nodeId = coordinate.nodeId
+                if let layerInput = coordinate.keyPath {
+                    
+                    switch layerInput.portType {
+                    
+                    case .packed:
+                        dispatch(LayerInputAddedToGraph(
+                            nodeId: nodeId,
+                            coordinate: layerInput))
+                        
+                    case .unpacked(let unpackedPortType):
+                        dispatch(LayerInputFieldAddedToGraph(
+                            layerInput: layerInput.layerInput, 
+                            nodeId: nodeId,
+                            fieldIndex: unpackedPortType.rawValue))
+                    }
+                    
+                    
+                } else if let portId = coordinate.portId {
+                    dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
+                                                     portId: portId))
+                }
+            }
+            
+            // Shrink down the dot view
+            .scaleEffect(isWholeInputWithAtleastOneFieldAlreadyOnCanvas ? 0.5 : 1)
+            
+            // Only show the dot / plus button if we're hovering or row is selected or ...
+            .opacity((isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton) ? 1 : 0)
+            
+            .animation(.default,
+                       value: (isWholeInputWithAtleastOneFieldAlreadyOnCanvas || showAddLayerPropertyButton))
         }
+    }
+    
+    @MainActor
+    func button(imageString: String,
+                onTap: @escaping () -> Void) -> some View {
+        Image(systemName: imageString)
+            .resizable()
+            .foregroundColor(isPortSelected ? theme.fontColor : .primary)
+            .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+                   height: LAYER_INSPECTOR_ROW_ICON_LENGTH) // per Figma
+            .onTapGesture {
+                onTap()
+            }
     }
 }
 
@@ -104,6 +234,10 @@ struct JumpToLayerPropertyOnGraphButton: View {
             }
     }
 }
+
+
+
+
 
 //struct NodeInputOutputView<NodeRowObserverType: NodeRowObserver,
 //                           FieldsView: View>: View {
