@@ -88,61 +88,35 @@ extension FieldViewModel {
 
 
 // i.e. `createFieldObservers`
-// We can't rely on the underlying data anymore;
 extension Array where Element: FieldViewModel {
-    init(_ _fieldGroupType: FieldGroupType,
-
+    init(_ fieldGroupType: FieldGroupType,
          // Unpacked ports need special logic for grabbing their proper label
          // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
          unpackedPortParentFieldGroupType: FieldGroupType?,
          unpackedPortIndex: Int?,
-         
          startingFieldIndex: Int,
-//         fieldIndex: Int,
          rowViewModel: Element.NodeRowType?) {
         
-//        let fieldGroupType = unpackedPortParentFieldGroupType ?? _fieldGroupType
-        
-        let labels = (unpackedPortParentFieldGroupType ?? _fieldGroupType).labels
-        
-//        let defaultValues = fieldGroupType.defaultFieldValues
-        
+        // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
+        let labels = (unpackedPortParentFieldGroupType ?? fieldGroupType).labels
+                
         // Default value still uses original, proper field group type
-        let defaultValues = _fieldGroupType.defaultFieldValues
-
-        
-        // we can no longer just assume enumeration
-//        self = defaultValues.enumerated().map { index, fieldValue in
+        let defaultValues = fieldGroupType.defaultFieldValues
         
         self = defaultValues.enumerated().map { fieldIndex, fieldValue in
             
             let index = unpackedPortIndex ?? fieldIndex
-        
-//        self = defaultValues.map { fieldValue in
-//            let fieldLabel = labels[safe: index] ?? ""
-            
-            // what probably happens is that we have an unpacked "port" for a Position layer property,
             
             let _fieldlabel = labels[safe: index]
-//            let _fieldlabel = labels[safe: fieldIndex]
-            // Every field should have a label, even if just an empty string
-//            if _fieldlabel == nil {
-//                fatalErrorIfDebug()
-//            }
-//            
-//            let fieldLabel = _fieldlabel ?? ""
-            let fieldLabel = _fieldlabel ?? "NO FIELD LABEL"
-//            if fieldLabel == "NO FIELD LABEL" {
-            if fieldLabel == "DOG" {
-                log("had NO FIELD LABEL for field index: \(fieldIndex), index: \(index), unpackedPortIndex: \(unpackedPortIndex), unpackedPortParentFieldGroupType: \(unpackedPortParentFieldGroupType), _fieldGroupType: \(_fieldGroupType)")
+
+            // Every field should have a label, even if just an empty string.
+            if _fieldlabel == nil {
+                fatalErrorIfDebug()
             }
             
-            // We actually ARE finding the label, but there's no field label for e.g. just the Unpacked number type in a
-
             return .init(fieldValue: fieldValue,
                          fieldIndex: startingFieldIndex + index,
-//                         fieldIndex: startingFieldIndex + fieldIndex,
-                         fieldLabel: fieldLabel,
+                         fieldLabel: _fieldLabel ?? "",
                          rowViewModelDelegate: rowViewModel)
         }
     }
