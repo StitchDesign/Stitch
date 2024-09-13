@@ -42,7 +42,7 @@ extension StitchDocumentViewModel: GraphStepManagerDelegate {
            (graphTime - lastMouseMovement) > DRAG_NODE_VELOCITY_RESET_STEP {
             let mouseNodeIds = self.mouseNodes
             for mouseNodeId in mouseNodeIds {
-                if let mouseNode = self.getPatchNode(id: mouseNodeId) {
+                if let mouseNode = self.getNodeViewModel(id: mouseNodeId) {
                     mouseNode.getOutputRowObserver(MouseNodeOutputLocations.velocity)?
                         .updateValues([.position(.zero)])
                 }

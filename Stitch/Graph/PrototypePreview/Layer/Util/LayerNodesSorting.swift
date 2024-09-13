@@ -41,7 +41,7 @@ extension StitchDocumentViewModel {
                     handled: handled,
                     sidebarLayersAtHierarchy: filteredSidebarLayersAtHierarchy,
                     sidebarLayersGlobal: sidebarLayersGlobal,
-                    layerNodes: self.layerNodes,
+                    layerNodes: self.graph.layerNodes,
                     pinMap: pinMap)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(newLayerTypesAtThisLevel)
@@ -55,7 +55,7 @@ extension StitchDocumentViewModel {
             let layerTypesFromRootPinnedViews = getLayerTypesForPinnedViews(
                 pinnedData: pinnedData,
                 sidebarLayers: sidebarLayersGlobal,
-                layerNodes: self.layerNodes,
+                layerNodes: self.graph.layerNodes,
                 layerTypesAtThisLevel: layerTypesAtThisLevel)
             
             layerTypesAtThisLevel = layerTypesAtThisLevel.union(layerTypesFromRootPinnedViews)
@@ -78,7 +78,7 @@ extension StitchDocumentViewModel {
             self.getLayerDataFromLayerType(layerType,
                                            pinMap: pinMap,
                                            sidebarLayersGlobal: sidebarLayersGlobal,
-                                           layerNodes: self.layerNodes)
+                                           layerNodes: self.graph.layerNodes)
         }
         
         log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")

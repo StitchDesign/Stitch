@@ -33,6 +33,9 @@ extension GraphState: Hashable {
 @Observable
 final class StitchDocumentViewModel {
     let graph: GraphState
+    @MainActor let graphUI: GraphUIState
+    let graphStepManager = GraphStepManager()
+    let graphMovement = GraphMovementObserver()
     
     // Updated when connections, new nodes etc change
     var topologicalData = GraphTopologicalData<NodeViewModel>()
@@ -63,8 +66,6 @@ final class StitchDocumentViewModel {
     
     var cameraSettings = CameraSettings()
     
-    let graphStepManager = GraphStepManager()
-    
     var keypressState = KeyPressState()
     var llmRecording = LLMRecordingState()
     
@@ -80,11 +81,12 @@ final class StitchDocumentViewModel {
         // MARK: do not populate ordered sidebar layers until effect below is dispatched!
         // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
         // but nodes haven't yet populated
-
+        self.graphUI = GraphUIState()
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
+        self.localPosition = schema.localPosition
         self.graph = .init(from: schema)
         
         self.graphStepManager.delegate = self
@@ -101,9 +103,51 @@ extension StitchDocumentViewModel {
     var projectName: String {
         self.graph.name
     }
+    
+    // TODO: fix visible graph state to use graphUI selection
+    var visibleGraph: GraphState {
+        self.graph
+    }
+    
+    // TODO: update with components
+    var allGraphs: [GraphState] {
+        [self.graph]
+    }
+    
+    var activeIndex: ActiveIndex {
+        self.graphUI.activeIndex
+    }
+    
+    /// Syncs visible nodes and topological data when persistence actions take place.
+    @MainActor
+    func updateGraphData(document: StitchDocument? = nil) {
+        let document = document ?? self.createSchema()
+
+        self.allGraphs.forEach {
+            // TODO: update visible nodes updater for specific nodes
+            $0.visibleNodesViewModel.updateSchemaData(newNodes: document.nodes,
+                                                      activeIndex: self.activeIndex,
+                                                      graphDelegate: $0)
+        }
+        
+        self.updateTopologicalData()
+
+        // MARK: must be called after connections are established in both visible nodes and topolological data
+        self.allGraphs.forEach {
+            $0.visibleNodesViewModel.updateAllNodeViewData()
+        }
+        
+        // Update preview layers
+        self.updateOrderedPreviewLayers()
+    }
 }
 
 extension StitchDocumentViewModel: GraphCalculatable {
+    
+    var orderedSidebarLayers: SidebarLayerList {
+        self.graph.orderedSidebarLayers
+    }
+    
     @MainActor
     func updateOrderedPreviewLayers() {
         // Cannot use Equality check here since LayerData does not conform to Equatable;
@@ -150,6 +194,44 @@ extension StitchDocumentViewModel: GraphCalculatable {
     }
 }
 
+extension StitchDocumentViewModel {
+    @MainActor
+    func update(from schema: StitchDocument) {
+        // Sync preview window attributes
+        self.previewWindowSize = schema.previewWindowSize
+        self.previewSizeDevice = schema.previewSizeDevice
+        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+
+        // Sync node view models + cached data
+        self.graph.update(from: schema)
+        self.updateGraphData(document: schema)
+        
+        // No longer needed, since sidebar-expanded-items handled by node schema
+//        self.sidebarExpandedItems = self.allGroupLayerNodes()
+        self.calculateFullGraph()
+    }
+    
+    func createSchema() -> StitchDocument {
+        self.graph.createSchema()
+    }
+    
+    @MainActor func onPrototypeRestart() {
+        self.graphStepManager.resetGraphStepState()
+        
+        self.graph.onPrototypeRestart()
+        
+        // Defocus the preview window's TextField layer
+        if self.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
+            self.graphUI.reduxFocusedField = nil
+        }
+        
+        // Update animation value for restart-prototype icon;
+        self.graphUI.restartPrototypeWindowIconRotationZ += 360
+
+        self.initializeGraphComputation()
+    }
+}
+
 @Observable
 final class GraphState: Sendable {
     
@@ -166,14 +248,10 @@ final class GraphState: Sendable {
     var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-
-    // View models
-    @MainActor let graphUI: GraphUIState
     
     let previewWindowSizingObserver = PreviewWindowSizing()
 
     let visibleNodesViewModel = VisibleNodesViewModel()
-    let graphMovement = GraphMovementObserver()
     let edgeDrawingObserver = EdgeDrawingObserver()
 
     // Loading status for media
@@ -204,17 +282,11 @@ final class GraphState: Sendable {
     
     weak var documentDelegate: StitchDocumentViewModel?
 
-    @MainActor init(from schema: StitchDocument) {
-        // MARK: do not populate ordered sidebar layers until effect below is dispatched!
-        // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
-        // but nodes haven't yet populated
-
-        self.graphUI = GraphUIState()
+    init(from schema: StitchDocument) {
         self.documentEncoder = .init(document: schema)
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
-        self.localPosition = schema.localPosition
 
         // MARK: important we don't initialize nodes until after media is estbalished
         DispatchQueue.main.async { [weak self] in
@@ -231,6 +303,15 @@ final class GraphState: Sendable {
 }
 
 extension GraphState: GraphDelegate {
+    @MainActor var graphUI: GraphUIState {
+        guard let graphUI = self.documentDelegate?.graphUI else {
+            fatalErrorIfDebug()
+            return GraphUIState()
+        }
+        
+        return graphUI
+    }
+    
     var storeDelegate: StitchStore? {
         self.documentDelegate?.storeDelegate
     }
@@ -251,10 +332,6 @@ extension GraphState: GraphDelegate {
     var nodesDict: NodesViewModelDict {
         self.nodes
     }
-    
-    var keypressState: KeyPressState {
-        self.graphUI.keypressState
-    }
 
     var safeAreaInsets: SafeAreaInsets {
         self.graphUI.safeAreaInsets
@@ -273,7 +350,7 @@ extension GraphState: GraphDelegate {
     }
 }
 
-extension GraphState: SchemaObserver {
+extension GraphState {
     @MainActor convenience init(id: ProjectId,
                      projectName: String = STITCH_PROJECT_DEFAULT_NAME,
                      previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
@@ -297,55 +374,15 @@ extension GraphState: SchemaObserver {
                                       orderedSidebarLayers: orderedSidebarLayers,
                                       commentBoxes: commentBoxes,
                                       cameraSettings: cameraSettings)
-        self.init(from: document, store: store)
+        self.init(from: document)
     }
-
-    @MainActor
-    static func createObject(from entity: CurrentStitchDocument.StitchDocument) -> Self {
-        // Unused
-        fatalErrorIfDebug()
-        
-        return self.init(from: entity, store: nil)
-    }
-
+    
     @MainActor
     func update(from schema: StitchDocument) {
-
         // Sync project attributes
-        self.projectId = schema.projectId
-        self.projectName = schema.name
-
-        // Sync preview window attributes
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
-
-        // Sync node view models + cached data
-        self.updateGraphData(document: schema)
-
+        self.id = schema.projectId
+        self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-        
-        // No longer needed, since sidebar-expanded-items handled by node schema
-//        self.sidebarExpandedItems = self.allGroupLayerNodes()
-        self.calculateFullGraph()
-    }
-
-    /// Syncs visible nodes and topological data when persistence actions take place.
-    @MainActor
-    func updateGraphData(document: StitchDocument? = nil) {
-        let document = document ?? self.createSchema()
-
-        self.visibleNodesViewModel.updateSchemaData(newNodes: document.nodes,
-                                                    activeIndex: self.activeIndex,
-                                                    graphDelegate: self)
-        
-        self.updateTopologicalData()
-
-        // MARK: must be called after connections are established in both visible nodes and topolological data
-        self.visibleNodesViewModel.updateAllNodeViewData()
-        
-        // Update preview layers
-        self.updateOrderedPreviewLayers()
     }
 
     func createSchema() -> StitchDocument {
@@ -388,53 +425,6 @@ extension GraphState {
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
-    }
-    
-    @MainActor
-    var localPositionToPersist: CGPoint {
-        /*
-         TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
-
-         Ideally, we remember (serialize) each traversal level's graph-offset.
-         Currently, we only remember the root level's graph-offset.
-         So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
-         */
-
-        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
-
-        let _rootLevelGraphOffset = self.visibleNodesViewModel
-            .nodePageDataAtCurrentTraversalLevel(nil)?
-            .localPosition
-
-        if !_rootLevelGraphOffset.isDefined {
-            #if DEV || DEV_DEBUG
-            log("GraphState.localPositionToPersists: no root level graph offset")
-            #endif
-        }
-        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
-
-        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
-
-        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
-        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
-
-        return graphOffset
-    }
-
-    var localPosition: CGPoint {
-        get {
-            self.graphMovement.localPosition
-        } set {
-            self.graphMovement.localPosition = newValue
-        }
-    }
-
-    var localPreviousPosition: CGPoint {
-        get {
-            self.graphMovement.localPreviousPosition
-        } set {
-            self.graphMovement.localPreviousPosition = newValue
-        }
     }
 
     @MainActor
