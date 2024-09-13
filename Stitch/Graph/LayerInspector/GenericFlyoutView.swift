@@ -22,11 +22,9 @@ struct GenericFlyoutView: View {
     
     @Bindable var graph: GraphState
     
-    // Don't actually have access to this if the layer input is e.g. packed instead of unpacked ?
-    // or we can always access the _packed data ?
-//    let inputRowViewModel: InputNodeRowViewModel
+    // non-nil, because flyouts are always for inspector inputs
+    let inputLayerNodeRowData: LayerInputObserver
     
-    let inputLayerNodeRowData: LayerInputObserver // non-nil, because flyouts are always for inspector inputs
     let layer: Layer
     var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
@@ -86,13 +84,12 @@ struct GenericFlyoutView: View {
             propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultifield in
                                 
                 let fieldIndex = inputFieldViewModel.fieldIndex
-                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
                 
                   GenericFlyoutRowView(
                     graph: graph,
                     viewModel: inputFieldViewModel,
                     // coordinate: inputF // inputRowViewModel.rowDelegate?.id,
-                    inputLayerNodeRowData: inputLayerNodeRowData,
+                    layerInputObserver: inputLayerNodeRowData,
                     layerInput: layerInput,
                     nodeId: nodeId,
                     fieldIndex: fieldIndex,
@@ -103,14 +100,30 @@ struct GenericFlyoutView: View {
     }
 }
 
+extension Int {
+    var asUnpackedPortType: UnpackedPortType {
+        switch self {
+        case 0:
+            return .port0
+        case 1:
+            return .port1
+        case 2:
+            return .port2
+        case 3:
+            return .port3
+        default:
+            fatalErrorIfDebug()
+            return .port0
+        }
+    }
+}
+
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
     let viewModel: InputFieldViewModel
-    
-//    let coordinate: NodeIOCoordinate?
-    
-    let inputLayerNodeRowData: LayerInputObserver?
+        
+    let layerInputObserver: LayerInputObserver
     
     let layerInput: LayerInputPort
     let nodeId: NodeId
@@ -119,51 +132,59 @@ struct GenericFlyoutRowView: View {
     let isMultifield: Bool
     let nodeKind: NodeKind
     
-//    let isSelectedRow: Bool
-    @State var isSelectedRow: Bool = false
+    @State var isHovered: Bool = false
+        
+    var layerInputType: LayerInputType {
+        .init(layerInput: layerInput,
+              portType: .unpacked(fieldIndex.asUnpackedPortType))
+    }
+    
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerInput(layerInputType)
+    }
+    
+    var coordinate: NodeIOCoordinate {
+        .init(portType: .keyPath(layerInputType),
+              nodeId: nodeId)
+    }
+    
+    @MainActor
+    var isSelectedRow: Bool {
+        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+    }
     
     var body: some View {
-        //        Text("GenericFlyoutRowView")
-        
-        if let coordinate = viewModel.rowDelegate?.id {
-            HStack {
-                Image(systemName: "plus.circle")
-                    .resizable()
-                    .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                           height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    .onTapGesture {
-                        log("will add field to canvas")
-                        dispatch(LayerInputFieldAddedToGraph(
-                            layerInput: layerInput,
-                            nodeId: nodeId,
-                            fieldIndex: fieldIndex))
-                    }
-                    .opacity(isSelectedRow ? 1 : 0)
-                
-                InputValueEntry(graph: graph,
-                                viewModel: viewModel,
-                                inputLayerNodeRowData: inputLayerNodeRowData,
-                                rowObserverId: coordinate,
-                                nodeKind: nodeKind,
-                                isCanvasItemSelected: false,
-                                hasIncomingEdge: false,
-                                forPropertySidebar: true,
-                                propertyIsAlreadyOnGraph: false, // fix
-                                isFieldInMultifieldInput: isMultifield,
-                                isForFlyout: true,
-                                isSelectedInspectorRow: false)
-            } // HStack
-            .border(.green)
-            .contentShape(Rectangle())
-            .border(.red)
-            .onTapGesture {
-                log("flyout: tapped field row \(fieldIndex)")
-//                self.selectedFlyoutRow = fieldIndex
-                self.isSelectedRow.toggle()
-            }
+        HStack {
             
-        } else {
-            FatalErrorIfDebugView()
+            // Is this particular unpacked-port already on the canvas?
+            let canvasItemId: CanvasItemId? = layerInputObserver.getCanvasItem(for: fieldIndex)?.id
+            
+            LayerInspectorRowButton(layerInspectorRowId: layerInspectorRowId,
+                                    coordinate: coordinate,
+                                    canvasItemId: canvasItemId,
+                                    isPortSelected: isSelectedRow,
+                                    isHovered: isHovered)
+            
+            InputValueEntry(graph: graph,
+                            viewModel: viewModel,
+                            inputLayerNodeRowData: layerInputObserver,
+                            rowObserverId: coordinate,
+                            nodeKind: nodeKind,
+                            isCanvasItemSelected: false, // Always false
+                            hasIncomingEdge: false,
+                            forPropertySidebar: true,
+                            propertyIsAlreadyOnGraph: canvasItemId.isDefined, // fix
+                            isFieldInMultifieldInput: isMultifield,
+                            isForFlyout: true,
+                            isSelectedInspectorRow: isSelectedRow)
+        } // HStack
+        .contentShape(Rectangle())
+        .onHover(perform: { hovering in
+            self.isHovered = hovering
+        })
+        .onTapGesture {
+            log("flyout: tapped field row \(fieldIndex)")
+            graph.graphUI.layerPropertyTapped(layerInspectorRowId)
         }
     }
 }
@@ -190,16 +211,7 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
         
-//        fatalErrorIfDebug()
-//        return .noChange
-        
-        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
-        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-        
-        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
-        //        let fieldObserver: InputLayerNodeRowData? = 
-//        portObserver._unpackedData.allPorts[safe: fieldIndex]
         
         if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
             
@@ -209,23 +221,15 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
             unpackSchema.canvasItem = .init(position: state.newLayerPropertyLocation,
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
-            
-//            let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
-//            
-//            // given a layer input port (Which is neither packed nor unpacked)
-//            let parentFieldGroupType: FieldGroupType = fieldGroups.first!.type
-//            
+
 //            // TODO: SEPT 12
-//            let unpackedPortParentFieldGroupType: FieldGroupType? = parentFieldGroupType
-            
             let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
             let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
             let unpackedPortParentFieldGroupType: FieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
-            
+
             // In this case, we already have the fieldIndex as 0 or 1 ?
             let unpackedPortIndex: Int? = fieldIndex
             
-          
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
                                 layerNode: layerNode,

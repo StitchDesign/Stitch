@@ -10,14 +10,14 @@ import StitchSchemaKit
 
 struct LayerInspectorRowButton: View {
     
-    let layerProperty: LayerInspectorRowId
+    let layerInspectorRowId: LayerInspectorRowId
     let coordinate: NodeIOCoordinate
     let canvasItemId: CanvasItemId?
-    let isRowSelected: Bool
+    let isPortSelected: Bool
     let isHovered: Bool
     
     var canBeAddedToCanvas: Bool {
-        switch layerProperty {
+        switch layerInspectorRowId {
         case .layerInput(let layerInputType):
             return layerInputType.layerInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY
         case .layerOutput:
@@ -34,7 +34,7 @@ struct LayerInspectorRowButton: View {
             return true
         }
         
-        if canBeAddedToCanvas, isRowSelected {
+        if canBeAddedToCanvas, isPortSelected {
             return true
         }
         
@@ -42,12 +42,13 @@ struct LayerInspectorRowButton: View {
     }
     
     var body: some View {
+        
         if let canvasItemId = canvasItemId {
             JumpToLayerPropertyOnGraphButton(canvasItemId: canvasItemId,
-                                             isRowSelected: isRowSelected)
+                                             isRowSelected: isPortSelected)
         } else {
             AddLayerPropertyToGraphButton(coordinate: coordinate,
-                                          isRowSelected: isRowSelected)
+                                          isRowSelected: isPortSelected)
                 .opacity(showAddLayerPropertyButton ? 1 : 0)
                 .animation(.default, value: showAddLayerPropertyButton)
         }

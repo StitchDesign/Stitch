@@ -22,7 +22,7 @@ struct LayerInspectorInputPortView: View {
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
         
-        let layerProperty: LayerInspectorRowId = .layerInput(layerInputType)
+        let layerInspectorRowId: LayerInspectorRowId = .layerInput(layerInputType)
         
         // We pass down coordinate because that can be either for an input (added whole input to the graph) or output (added whole output to the graph, i.e. a port id)
         // But now, what `AddLayerPropertyToGraphButton` needs is more like `RowCoordinate = LayerPortCoordinate || OutputCoordinate`
@@ -47,7 +47,7 @@ struct LayerInspectorInputPortView: View {
 //        let propertyRowIsSelected = graph.graphUI.propertySidebar.selectedProperty == layerProperty
         
         LayerInspectorPortView(
-            layerProperty: layerProperty,
+            layerInspectorRowId: layerInspectorRowId,
             coordinate: coordinate,
             graph: graph,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
@@ -179,7 +179,7 @@ let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 struct LayerInspectorPortView<RowView>: View where RowView: View {
         
     // input or output
-    let layerProperty: LayerInspectorRowId
+    let layerInspectorRowId: LayerInspectorRowId
     
 //    @Bindable var rowViewModel: RowObserver.RowViewModelType
 //    @Bindable var rowObserver: RowObserver
@@ -198,7 +198,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     // Is this property-row selected?
     @MainActor
     var propertyRowIsSelected: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerProperty
+        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
     }
     
     var isOnGraphAlready: Bool {
@@ -207,11 +207,10 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
     
     var body: some View {
         HStack {
-            LayerInspectorRowButton(layerProperty: layerProperty,
-//                                    coordinate: rowObserver.id,
+            LayerInspectorRowButton(layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    isRowSelected: propertyRowIsSelected,
+                                    isPortSelected: propertyRowIsSelected,
                                     isHovered: isHovered)
             
             rowView(propertyRowIsSelected)
@@ -232,12 +231,9 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                 log("LayerInspectorPortView tapped")
                 if isOnGraphAlready,
                    let canvasItemId = canvasItemId {
-//                   let canvasItemId = rowViewModel.canvasItemDelegate?.id {
                     dispatch(JumpToCanvasItem(id: canvasItemId))
                 } else {
-                    withAnimation {
-                        graph.graphUI.layerPropertyTapped(layerProperty)
-                    }
+                        graph.graphUI.layerPropertyTapped(layerInspectorRowId)
                 }
             })
         ) // .gesture

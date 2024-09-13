@@ -65,23 +65,25 @@ extension LayerInputObserver {
     // gets the INSPECTOR ROW'S field view models
     @MainActor
     var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
-        
         let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
             portData.inspectorRowViewModel.fieldValueTypes
         }
-        
         return fields
-        
-//        switch self.mode {
-//        case .packed:
-//            return self._packedData.inspectorRowViewModel.fieldValueTypes
-//            
-//            // take all the unpacked data
-//        case .unpacked:
-//            return self._unpackedData.allPorts.map { (port: InputLayerNodeRowData) in
-//                port.
-//            }
-//        }
+    }
+    
+    @MainActor
+    func getCanvasItemForWholeInput() -> CanvasItemViewModel? {
+        let canvasObsevers = self.getAllCanvasObservers()
+        if canvasObsevers.count > 1 {
+            fatalErrorIfDebug()
+            return nil
+        }
+        return canvasObsevers.first
+    }
+    
+    @MainActor
+    func getCanvasItem(for fieldIndex: Int) -> CanvasItemViewModel? {
+        self.getAllCanvasObservers()[safeIndex: fieldIndex]
     }
     
     @MainActor

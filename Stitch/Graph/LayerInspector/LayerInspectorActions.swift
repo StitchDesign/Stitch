@@ -207,11 +207,14 @@ extension GraphState {
 extension GraphUIState {
     func layerPropertyTapped(_ property: LayerInspectorRowId) {
         let alreadySelected = self.propertySidebar.selectedProperty == property
-                
-        if alreadySelected {
-            self.propertySidebar.selectedProperty = nil
-        } else {
-            self.propertySidebar.selectedProperty = property
+        
+        withAnimation {
+            if alreadySelected {
+                self.propertySidebar.selectedProperty = nil
+            } else {
+                self.propertySidebar.selectedProperty = property
+            }
         }
+        
     }
 }
