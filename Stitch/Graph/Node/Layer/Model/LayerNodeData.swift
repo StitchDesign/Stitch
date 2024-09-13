@@ -8,28 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-//extension GraphDelegate {
-//    
-//    // Called from various UI, e.g. `CommonEditingView`,
-//    // which could be for a field on the canvas or in the layer inspector
-//    @MainActor
-//    func fieldHasHeterogenousValues(layerInputPort: LayerInputPort,
-//                                    _ fieldIndex: Int,
-//                                    isFieldInsideLayerInspector: Bool) -> Bool {
-//
-//        // Only relevant when this layer-input field is in the layer inspector and multiple layers are selected
-//        guard isFieldInsideLayerInspector,
-//              self.multiselectInputs.isDefined else {
-//            return false
-//        }
-//    
-//         return layerInputPort
-//            .fieldsInMultiselectInputWithHeterogenousValues(self)
-//            .contains(fieldIndex)
-//    }
-//}
-
-
 extension LayerInputObserver {
     
     // Called from various UI, e.g. `CommonEditingView`,

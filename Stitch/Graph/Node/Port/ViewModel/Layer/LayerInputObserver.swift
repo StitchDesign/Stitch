@@ -188,23 +188,11 @@ extension LayerInputObserver {
                 
         let layerInput: LayerInputPort = self.port
                 
+        let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+            .getDefaultValue(for: layer)
+            .getNodeRowType(nodeIO: .input)
+            .getFieldGroupTypeForLayerInput
         
-        let defaultValue = layerInput.getDefaultValue(for: layer)
-        let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
-        let unpackedPortParentFieldGroupType: FieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
-        
-        
-//        let defaultValue = layerInput.getDefaultValue(for: layer)
-//        let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
-//            initialValue: defaultValue,
-//            nodeIO: .input,
-//            unpackedPortParentFieldGroupType: nil,
-//            unpackedPortIndex: nil,
-//            importedMediaObject: nil)
-//        
-//        // given a layer input port (Which is neither packed nor unpacked)
-//        let unpackedPortParentFieldGroupType: FieldGroupType? = fieldGroups.first!.type
-  
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
@@ -227,12 +215,9 @@ extension LayerInputObserver {
         }
     }
     
-    // TODO: why do we reset
-    
     /// Called after the pack mode changes for some port.
     @MainActor 
     func wasPackModeToggled() {
-        log("wasPackModeToggled called for \(self.layer)")
         
         let nodeId = self._packedData.rowObserver.id.nodeId
         

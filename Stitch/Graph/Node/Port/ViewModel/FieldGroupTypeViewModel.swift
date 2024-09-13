@@ -65,6 +65,7 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
 }
 
 extension NodeRowType {
+    // TODO: must be some better way to get this information and/or tie it to `getFieldValueTypes`
     var getFieldGroupTypeForLayerInput: FieldGroupType {
         switch self {
         case .size:
@@ -118,12 +119,6 @@ func getFieldValueTypes<FieldType: FieldViewModel>(initialValue: PortValue,
                                                    unpackedPortParentFieldGroupType: FieldGroupType?,
                                                    unpackedPortIndex: Int?,
                                                    importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
-    
-    log("getFieldValueTypes: initialValue: \(initialValue)")
-    let nodeRowType = initialValue.getNodeRowType(nodeIO: nodeIO)
-    log("getFieldValueTypes: nodeRowType: \(nodeRowType)")
-    log("getFieldValueTypes: unpackedPortParentFieldGroupType: \(unpackedPortParentFieldGroupType)")
-    log("getFieldValueTypes: unpackedPortIndex: \(unpackedPortIndex)")
     
     switch initialValue.getNodeRowType(nodeIO: nodeIO) {
         

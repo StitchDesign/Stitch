@@ -151,9 +151,6 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
             .gesture(DragGesture(minimumDistance: 0.05,
                                  // .local = relative to this view
                                  coordinateSpace: .named(NodesView.coordinateNameSpace))
-                     
-                     // just use an action; otherwise protocol has to be bigger
-                     // oh -- but he's doing it on output vs input
                         .onChanged { gesture in
                             rowViewModel.portDragged(gesture: gesture,
                                                      graphState: graphState)
@@ -165,23 +162,3 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
             )
     }
 }
-
-
-
-// struct PortEntryREPL: View {
-//    var body: some View {
-//        ZStack {
-//            PortEntry(
-//                coordinate: .fakeInputCoordinate,
-//                color: .loopEdge)
-//                .frame(width: 50, height: 50)
-//        }.scaleEffect(4)
-//
-//    }
-// }
-//
-// struct PortEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PortEntryREPL()
-//    }
-// }

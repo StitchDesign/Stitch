@@ -80,17 +80,6 @@ extension LayerInputUnpackedPortObserver {
         self.allPorts.map { $0.createSchema() }
     }
     
-//    @MainActor
-//    func initializeDelegate(_ node: NodeDelegate,
-//                            unpackedPortParentFieldGroupType: FieldGroupType?,
-//                            unpackedPortIndex: Int?) {
-//        self.allPorts.forEach {
-//            $0.initializeDelegate(node,
-//                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-//                                  unpackedPortIndex: unpackedPortIndex)
-//        }
-//    }
-    
     @MainActor
     /// From packed values, unpacks them for unpack layer input scenario.
     func updateValues(from packedValues: PortValues,
