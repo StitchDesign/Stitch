@@ -141,7 +141,7 @@ extension [LayerPinData] {
     }
 }
 
-extension VisibleNodesViewModel {
+extension StitchDocumentViewModel {
     // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
     @MainActor
     func getFlattenedPinMap() -> PinMap {

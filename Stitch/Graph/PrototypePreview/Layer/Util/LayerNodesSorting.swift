@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension VisibleNodesViewModel {
+extension StitchDocumentViewModel {
     
     /// Recursively creates a sorted list of layers.
     @MainActor

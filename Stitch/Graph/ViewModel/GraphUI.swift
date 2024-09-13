@@ -32,8 +32,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 final class GraphUIState {
 
     let propertySidebar = PropertySidebarObserver()
-    
-    var llmRecording = LLMRecordingState()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()
     
@@ -71,8 +69,6 @@ final class GraphUIState {
     var dragDuplication: Bool = false
 
     var doubleTapLocation: CGPoint?
-
-    var keypressState = KeyPressState()
 
     // which loop index to show
     var activeIndex: ActiveIndex = ActiveIndex(0)

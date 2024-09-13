@@ -29,10 +29,129 @@ extension GraphState: Hashable {
     }
 }
 
+// TODO: move
 @Observable
-final class GraphState: Sendable {
+final class StitchDocumentViewModel {
+    let graph: GraphState
+    
+    // Updated when connections, new nodes etc change
+    var topologicalData = GraphTopologicalData<NodeViewModel>()
+    
+    // Cache of ordered list of preview layer view models;
+    // updated in various scenarious, e.g. sidebar list item dragged
+    var cachedOrderedPreviewLayers: LayerDataList = .init()
+    
+    // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
+    // Checked at the end of graph calc for efficient updating
+    var shouldResortPreviewLayers: Bool = false
+    
+    // Used in rotation modifier to know whether view receives a pin;
+    // updated whenever preview layers cache is updated.
+    var pinMap = RootPinMap()
+    var flattenedPinMap = PinMap()
     
     var isGeneratingProjectThumbnail = false
+    
+    // The raw size we pass to GeneratePreview
+    var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
+    
+    // Changed by e.g. project-settings modal, e.g. UpdatePreviewCanvasDevice;
+    // Not changed by user's manual drag on the preview window handle.
+    var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
+    
+    var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
+    
+    var cameraSettings = CameraSettings()
+    
+    let graphStepManager = GraphStepManager()
+    
+    var keypressState = KeyPressState()
+    var llmRecording = LLMRecordingState()
+    
+    // Singleton instances
+    var locationManager: LoadingStatus<StitchSingletonMediaObject>?
+    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    
+    // Keeps reference to store
+    weak var storeDelegate: StoreDelegate?
+    
+    @MainActor init(from schema: StitchDocument,
+                    store: StoreDelegate?) {
+        // MARK: do not populate ordered sidebar layers until effect below is dispatched!
+        // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
+        // but nodes haven't yet populated
+
+        self.previewWindowSize = schema.previewWindowSize
+        self.previewSizeDevice = schema.previewSizeDevice
+        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+        self.cameraSettings = schema.cameraSettings
+        self.graph = .init(from: schema)
+        
+        self.graphStepManager.delegate = self
+        self.storeDelegate = store
+        self.graph.initializeDelegate(document: self)
+    }
+}
+
+extension StitchDocumentViewModel {
+    var projectId: UUID {
+        self.graph.id
+    }
+    
+    var projectName: String {
+        self.graph.name
+    }
+}
+
+extension StitchDocumentViewModel: GraphCalculatable {
+    @MainActor
+    func updateOrderedPreviewLayers() {
+        // Cannot use Equality check here since LayerData does not conform to Equatable;
+        // so instead we should be smart about only calling this when layer nodes actually change.
+        
+        let flattenedPinMap = self.getFlattenedPinMap()
+        let rootPinMap = self.getRootPinMap(pinMap: flattenedPinMap)
+        
+        let previewLayers = self.recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
+                                                        pinMap: rootPinMap)
+        
+        self.cachedOrderedPreviewLayers = previewLayers
+        self.flattenedPinMap = flattenedPinMap
+        self.pinMap = rootPinMap
+    }
+    
+    func getNodesToAlwaysRun() -> Set<UUID> {
+        Array(self.nodes
+                .values
+                .filter { $0.patch?.willAlwaysRunEval ?? false }
+                .map(\.id))
+            .toSet
+    }
+    
+    func getAnimationNodes() -> Set<UUID> {
+        Array(self.nodes
+                .values
+                .filter { $0.patch?.isAnimationNode ?? false }
+                .map(\.id))
+            .toSet
+    }
+    
+    var nodes: [UUID : NodeViewModel] {
+        get {
+            self.graph.nodes
+        }
+        set(newValue) {
+            self.graph.nodes = newValue
+        }
+    }
+    
+    func getNodeViewModel(id: UUID) -> NodeViewModel? {
+        self.graph.getNodeViewModel(id)
+    }
+}
+
+@Observable
+final class GraphState: Sendable {
     
     // TODO: wrap in a new data structure like `SidebarUIState`
     var sidebarListState: SidebarListState = .init()
@@ -42,25 +161,11 @@ final class GraphState: Sendable {
     //    var sidebarExpandedItems = LayerIdSet() // should be persisted
     
     let documentEncoder: DocumentEncoder
-    
-    let computedGraphState = ComputedGraphState()
-    let graphStepManager = GraphStepManager()
 
-    var projectId = ProjectId()
-    var projectName: String = STITCH_PROJECT_DEFAULT_NAME
-        
-    // used tons of places; the raw size we pass to GeneratePreview etc.
-    var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
-    
-    // Changed by e.g. project-settings modal, e.g. UpdatePreviewCanvasDevice;
-    // Not changed by user's manual drag on the preview window handle.
-    var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
-    
-    var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
-    
+    var id = UUID()
+    var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-    var cameraSettings = CameraSettings()
 
     // View models
     @MainActor let graphUI: GraphUIState
@@ -74,9 +179,6 @@ final class GraphState: Sendable {
     // Loading status for media
     var libraryLoadingStatus = LoadingState.loading
 
-    // Updated when connections, new nodes etc change
-    var topologicalData = GraphTopologicalData<NodeViewModel>()
-
     var selectedEdges = Set<PortEdgeUI>()
 
     // Hackiness for handling edge case in our UI where somehow
@@ -86,14 +188,6 @@ final class GraphState: Sendable {
 
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
-    
-    // Cache of ordered list of preview layer view models;
-    // updated in various scenarious, e.g. sidebar list item dragged
-    var cachedOrderedPreviewLayers: LayerDataList = .init()
-    
-    // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
-    // Checked at the end of graph calc for efficient updating
-    var shouldResortPreviewLayers: Bool = false
 
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
@@ -106,32 +200,21 @@ final class GraphState: Sendable {
     // DEVICE MOTION
     var motionManagers = StitchMotionManagersDict()
     
-    // Singleton instances
-    var locationManager: LoadingStatus<StitchSingletonMediaObject>?
-    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
-    // Keeps reference to store
-    weak var storeDelegate: StoreDelegate?
+    weak var documentDelegate: StitchDocumentViewModel?
 
-    @MainActor init(from schema: StitchDocument,
-         store: StoreDelegate?) {
+    @MainActor init(from schema: StitchDocument) {
         // MARK: do not populate ordered sidebar layers until effect below is dispatched!
         // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
         // but nodes haven't yet populated
 
         self.graphUI = GraphUIState()
         self.documentEncoder = .init(document: schema)
-        self.projectId = schema.id
-        self.projectName = schema.name
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+        self.id = schema.id
+        self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
-        self.cameraSettings = schema.cameraSettings
         self.localPosition = schema.localPosition
-        
-        self.graphStepManager.delegate = self
-        self.storeDelegate = store
 
         // MARK: important we don't initialize nodes until after media is estbalished
         DispatchQueue.main.async { [weak self] in
@@ -141,9 +224,17 @@ final class GraphState: Sendable {
             }
         }
     }
+    
+    func initializeDelegate(document: StitchDocumentViewModel) {
+        self.documentDelegate = document
+    }
 }
 
-extension GraphState: GraphCalculatable {
+extension GraphState: GraphDelegate {
+    var storeDelegate: StitchStore? {
+        self.documentDelegate?.storeDelegate
+    }
+    
     var nodes: [UUID : NodeViewModel] {
         get {
             self.visibleNodesViewModel.nodes
@@ -153,12 +244,6 @@ extension GraphState: GraphCalculatable {
         }
     }
     
-    func getNodeViewModel(id: UUID) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
-}
-
-extension GraphState: GraphDelegate {
     var groupNodeFocused: NodeId? {
         self.graphUI.groupNodeFocused?.asNodeId
     }
@@ -189,8 +274,6 @@ extension GraphState: GraphDelegate {
 }
 
 extension GraphState: SchemaObserver {
-    var id: ProjectId { self.projectId }
-
     @MainActor convenience init(id: ProjectId,
                      projectName: String = STITCH_PROJECT_DEFAULT_NAME,
                      previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
@@ -263,23 +346,6 @@ extension GraphState: SchemaObserver {
         
         // Update preview layers
         self.updateOrderedPreviewLayers()
-    }
-    
-    @MainActor
-    func updateOrderedPreviewLayers() {
-        // Cannot use Equality check here since LayerData does not conform to Equatable;
-        // so instead we should be smart about only calling this when layer nodes actually change.
-        
-        let flattenedPinMap = self.visibleNodesViewModel.getFlattenedPinMap()
-        let rootPinMap = self.visibleNodesViewModel.getRootPinMap(pinMap: flattenedPinMap)
-        
-        let previewLayers = self.visibleNodesViewModel
-            .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
-                                    pinMap: rootPinMap)
-        
-        self.cachedOrderedPreviewLayers = previewLayers
-        self.visibleNodesViewModel.flattenedPinMap = flattenedPinMap
-        self.visibleNodesViewModel.pinMap = rootPinMap
     }
 
     func createSchema() -> StitchDocument {
@@ -638,22 +704,6 @@ extension GraphState {
     @MainActor
     func getCanvasItems() -> CanvasItemViewModels {
         self.visibleNodesViewModel.getCanvasItems()
-    }
-
-    func getNodesToAlwaysRun() -> NodeIdSet {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.willAlwaysRunEval ?? false }
-                .map(\.id))
-            .toSet
-    }
-
-    func getAnimationNodes() -> NodeIdSet {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.isAnimationNode ?? false }
-                .map(\.id))
-            .toSet
     }
 
     var keyboardNodes: NodeIdSet {

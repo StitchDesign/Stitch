@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 import StitchEngine
 
-extension GraphState: GraphStepManagerDelegate {
+extension StitchDocumentViewModel: GraphStepManagerDelegate {
     func graphStepIncremented(elapsedProjectTime: TimeInterval,
                               frameCount: Int,
                               currentEstimatedFPS: StitchFPS) {

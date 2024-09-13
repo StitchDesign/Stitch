@@ -11,9 +11,9 @@ import StitchEngine
 
 // Used only by GraphState
 protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
-    var projectId: UUID { get }
+    var documentDelegate: StitchDocumentViewModel? { get }
     
-    @MainActor var isGeneratingProjectThumbnail:  Bool { get }
+    var id: UUID { get }
     
     @MainActor var shouldResortPreviewLayers: Bool { get set }
     
@@ -25,9 +25,7 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     var motionManagers: StitchMotionManagersDict { get set }
     
-    @MainActor var nodesDict: NodesViewModelDict { get }
-    
-    @MainActor var connections: GraphState.TopologicalData.Connections { get }
+//    @MainActor var nodesDict: NodesViewModelDict { get }
     
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
@@ -36,8 +34,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
     @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-        
-    @MainActor var cameraSettings: CameraSettings { get set }
     
     @MainActor var keypressState: KeyPressState { get }
     
@@ -73,10 +69,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
-//    @MainActor func isConnectedToASelectedNode(at rowObserver: InputNodeRowObserver) -> Bool
-//    
-//    @MainActor func isConnectedToASelectedNode(at rowObserver: OutputNodeRowObserver) -> Bool
-    
     @MainActor var graphStepState: GraphStepState { get }
     
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>? { get set }
@@ -107,7 +99,21 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
 }
 
 extension GraphDelegate {
+    var projectId: UUID { self.id }
+    
+    @MainActor var isGeneratingProjectThumbnail:  Bool {
+        self.documentDelegate?.isGeneratingProjectThumbnail ?? false
+    }
+    
+    @MainActor var connections: StitchDocumentViewModel.TopologicalData.Connections {
+        self.documentDelegate?.connections ?? .init()
+    }
+    
     var cameraFeed: CameraFeedManager? {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
+    }
+    
+    @MainActor var cameraSettings: CameraSettings {
+        self.documentDelegate?.cameraSettings ?? .init()
     }
 }
