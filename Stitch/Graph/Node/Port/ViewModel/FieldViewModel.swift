@@ -107,16 +107,16 @@ extension Array where Element: FieldViewModel {
             
             let index = unpackedPortIndex ?? fieldIndex
             
-            let _fieldlabel = labels[safe: index]
+            let fieldLabel = labels[safe: index]
 
             // Every field should have a label, even if just an empty string.
-            if _fieldlabel == nil {
+            if fieldLabel == nil {
                 fatalErrorIfDebug()
             }
             
             return .init(fieldValue: fieldValue,
                          fieldIndex: startingFieldIndex + index,
-                         fieldLabel: _fieldLabel ?? "",
+                         fieldLabel: fieldLabel ?? "",
                          rowViewModelDelegate: rowViewModel)
         }
     }
