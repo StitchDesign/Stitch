@@ -8,17 +8,16 @@
 import SwiftUI
 import StitchSchemaKit
 
-
 struct LayerInspectorInputPortView: View {
-    @Bindable var portObserver: LayerInputObserver
+    @Bindable var layerInputObserver: LayerInputObserver
     @Bindable var graph: GraphState
     let nodeId: NodeId
     
     var body: some View {
         
-        let observerMode = portObserver.observerMode
+        let observerMode = layerInputObserver.observerMode
         
-        let layerInputType = LayerInputType(layerInput: portObserver.port,
+        let layerInputType = LayerInputType(layerInput: layerInputObserver.port,
                                             // Always `.packed` at the inspector-row level
                                             portType: .packed)
         
@@ -35,42 +34,38 @@ struct LayerInspectorInputPortView: View {
             nodeId: nodeId)
         
         // Does this inspector-row (the entire input) have a canvas item?
-        let canvasItemId: CanvasItemId? = observerMode.isPacked ? portObserver._packedData.canvasObserver?.id : nil
+        let canvasItemId: CanvasItemId? = observerMode.isPacked ? layerInputObserver._packedData.canvasObserver?.id : nil
         
         LayerInspectorPortView(
-            layerInputObserver: portObserver,
+            layerInputObserver: layerInputObserver,
             layerInspectorRowId: layerInspectorRowId,
             coordinate: coordinate,
             graph: graph,
             canvasItemId: canvasItemId) { propertyRowIsSelected in
                 NodeInputView(graph: graph,
                               nodeId: nodeId,
-                              nodeKind: .layer(portObserver.layer),
+                              nodeKind: .layer(layerInputObserver.layer),
                               hasIncomingEdge: false, // always false
                               rowObserverId: coordinate,
                               
                               // Only used for PortEntryView, which inspector- and flyout-rows do not use
                               rowObserver: nil,
-                              rowData: nil,
+                              rowViewModel: nil,
                               // Always use the packed
-                              fieldValueTypes: portObserver.fieldValueTypes,
-                              inputLayerNodeRowData: portObserver,
+                              fieldValueTypes: layerInputObserver.fieldValueTypes,
+                              inputLayerNodeRowData: layerInputObserver,
                               forPropertySidebar: true,
                               propertyIsSelected: propertyRowIsSelected,
                               propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                               isCanvasItemSelected: false,
-                              layerInput: portObserver.port,
                               // Inspector Row always uses the overall input label, never an individual field label
-                              label: portObserver.overallPortLabel(usesShortLabel: true)
-                )
+                              label: layerInputObserver.overallPortLabel(usesShortLabel: true))
             }
-            .onChange(of: portObserver.mode) {
-                self.portObserver.wasPackModeToggled()
+            .onChange(of: layerInputObserver.mode) {
+                self.layerInputObserver.wasPackModeToggled()
             }
     }
 }
-
-
 
 struct LayerInspectorOutputPortView: View {
     let outputPortId: Int
@@ -97,7 +92,7 @@ struct LayerInspectorOutputPortView: View {
             canvasItemId: rowViewModel.canvasItemDelegate?.id) { propertyRowIsSelected in
                 NodeOutputView(graph: graph,
                                rowObserver: rowObserver,
-                               rowData: rowViewModel,
+                               rowViewModel: rowViewModel,
                                forPropertySidebar: true,
                                propertyIsSelected: propertyRowIsSelected,
                                propertyIsAlreadyOnGraph: canvasItemId.isDefined,

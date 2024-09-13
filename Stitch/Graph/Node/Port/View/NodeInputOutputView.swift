@@ -147,11 +147,10 @@ struct NodeInputView: View {
         
     // ONLY for port-view, which is only on canvas items
     let rowObserver: InputNodeRowObserver?
-    let rowData: InputNodeRowObserver.RowViewModelType?
+    let rowViewModel: InputNodeRowObserver.RowViewModelType?
         
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     
-    // This is for the inspector-row, so
     let inputLayerNodeRowData: LayerInputObserver?
     
     let forPropertySidebar: Bool
@@ -159,12 +158,12 @@ struct NodeInputView: View {
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
 
-    // NOTE: only for specific for inspector row cases
-    let layerInput: LayerInputPort?
-    
     var label: String
-   
     var forFlyout: Bool = false
+    
+    var isShadowLayerInputRow: Bool {
+        inputLayerNodeRowData?.port == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+    }
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -196,31 +195,16 @@ struct NodeInputView: View {
             // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
             if !forPropertySidebar,
                let rowObserver = rowObserver,
-               let rowData = rowData {
+               let rowViewModel = rowViewModel {
                 NodeRowPortView(graph: graph,
                                 rowObserver: rowObserver,
-                                rowViewModel: rowData,
+                                rowViewModel: rowViewModel,
                                 showPopover: $showPopover)
             }
             
-            // This is a special condition
-            let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-            
             if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                HStack {
-                    StitchTextView(string: "Shadow",
-                                   fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-                    Spacer()
-                }
-                .overlay {
-                    Color.white.opacity(0.001)
-                        .onTapGesture {
-                            dispatch(FlyoutToggled(
-                                flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                                flyoutNodeId: nodeId))
-                        }
-                }
-                
+                ShadowInputInspectorRow(nodeId: nodeId,
+                                        propertyIsSelected: propertyIsSelected)
             } else {
                 labelView
                 
@@ -253,13 +237,37 @@ struct NodeInputView: View {
     }
 }
 
+struct ShadowInputInspectorRow: View {
+    
+    @Environment(\.appTheme) var theme
+    
+    let nodeId: NodeId
+    let propertyIsSelected: Bool
+    
+    var body: some View {
+        HStack {
+            StitchTextView(string: "Shadow",
+                           fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+            Spacer()
+        }
+        .overlay {
+            Color.white.opacity(0.001)
+                .onTapGesture {
+                    dispatch(FlyoutToggled(
+                        flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                        flyoutNodeId: nodeId))
+                }
+        }
+    }
+}
+
 struct NodeOutputView: View {
     @State private var showPopover: Bool = false
     
     @Bindable var graph: GraphState
     
     @Bindable var rowObserver: OutputNodeRowObserver
-    @Bindable var rowData: OutputNodeRowObserver.RowViewModelType
+    @Bindable var rowViewModel: OutputNodeRowObserver.RowViewModelType
     let forPropertySidebar: Bool
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
@@ -311,7 +319,7 @@ struct NodeOutputView: View {
                 
                 FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
                     graph: graph,
-                    fieldValueTypes: rowData.fieldValueTypes,
+                    fieldValueTypes: rowViewModel.fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
                     valueEntryView: valueEntryView)
@@ -321,14 +329,14 @@ struct NodeOutputView: View {
                 labelView
                 NodeRowPortView(graph: graph,
                                 rowObserver: rowObserver,
-                                rowViewModel: rowData,
+                                rowViewModel: rowViewModel,
                                 showPopover: $showPopover)
             }
         } // HStack
         .modifier(EdgeEditModeOutputViewModifier(
             graphState: graph,
-            portId: rowData.id.portId,
-            canvasItemId: self.rowData.canvasItemDelegate?.id,
+            portId: rowViewModel.id.portId,
+            canvasItemId: self.rowViewModel.canvasItemDelegate?.id,
             forPropertySidebar: forPropertySidebar))
     }
     

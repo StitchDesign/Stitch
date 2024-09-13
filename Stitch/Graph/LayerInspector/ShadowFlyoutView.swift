@@ -90,14 +90,13 @@ struct ShadowFlyoutView: View {
                               hasIncomingEdge: false,
                               rowObserverId: layerInputData.rowObserver.id,
                               rowObserver: nil,
-                              rowData: nil,
+                              rowViewModel: nil,
                               fieldValueTypes: layerInputData.inspectorRowViewModel.fieldValueTypes,
-                              inputLayerNodeRowData: layerInputPort, // layerInputData, // not needed though?
+                              inputLayerNodeRowData: layerInputPort,
                               forPropertySidebar: true,
                               propertyIsSelected: false, // N/A ?
                               propertyIsAlreadyOnGraph: false,
                               isCanvasItemSelected: false,
-                              layerInput: nil, // only for layer inspector
                               label: layerInputData.rowObserver.label(true),
                               forFlyout: true)
                 

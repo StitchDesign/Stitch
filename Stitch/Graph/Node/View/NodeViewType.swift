@@ -128,15 +128,13 @@ struct DefaultNodeInputView: View {
                           hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
                           rowObserverId: rowObserver.id,
                           rowObserver: rowObserver,
-                          rowData: rowViewModel,
+                          rowViewModel: rowViewModel,
                           fieldValueTypes: rowViewModel.fieldValueTypes,
                           inputLayerNodeRowData: nil, // Always nil, since this is a canvas item not an inspector-row
                           forPropertySidebar: false,
                           propertyIsSelected: false,
                           propertyIsAlreadyOnGraph: true, // Irrelevant?
                           isCanvasItemSelected: isNodeSelected,
-                          // Note: `layerInput` only used for shadow layer inspector-row
-                          layerInput: nil,
                           label: rowObserver.label())
         }
     }
@@ -157,7 +155,7 @@ struct DefaultNodeOutputView: View {
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeOutputView(graph: graph,
                            rowObserver: rowObserver,
-                           rowData: rowViewModel,
+                           rowViewModel: rowViewModel,
                            forPropertySidebar: false,
                            propertyIsSelected: false,
                            propertyIsAlreadyOnGraph: true,

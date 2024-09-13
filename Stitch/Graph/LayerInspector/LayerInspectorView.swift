@@ -241,7 +241,7 @@ struct LayerInspectorInputsSectionView: View {
                 let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(portObserver: layerPort,
+                    LayerInspectorInputPortView(layerInputObserver: layerPort,
                                                 graph: graph,
                                                 nodeId: nodeId)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
