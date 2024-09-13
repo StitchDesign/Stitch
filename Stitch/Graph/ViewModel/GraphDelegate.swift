@@ -15,8 +15,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     var id: UUID { get }
     
-    @MainActor var shouldResortPreviewLayers: Bool { get set }
-    
     @MainActor var activeIndex: ActiveIndex { get }
     
     @MainActor var groupNodeFocused: NodeId? { get }
@@ -25,8 +23,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     var motionManagers: StitchMotionManagersDict { get set }
     
-//    @MainActor var nodesDict: NodesViewModelDict { get }
-    
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
     @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
@@ -34,12 +30,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
     @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-    
-    @MainActor var keypressState: KeyPressState { get }
-    
-    @MainActor var previewWindowSize: CGSize { get }
-    
-    @MainActor var graphMovement: GraphMovementObserver { get }
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
@@ -69,37 +59,80 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
-    @MainActor var graphStepState: GraphStepState { get }
-    
-    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>? { get set }
-    
-    var locationManager: LoadingStatus<StitchSingletonMediaObject>? { get set }
-    
-    // Calc
-    @MainActor func calculateFullGraph()
-    
-    @MainActor func calculate(_ id: NodeId)
-      
-    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
-                                     nodeId: NodeId,
-                                     loopIndex: Int)
-    
-    @MainActor func updateOutputs(at loopIndex: Int,
-                                  node: NodeViewModel,
-                                  portValues: PortValues)
-    
     @MainActor
     var sidebarSelectionState: SidebarSelectionState { get }
     
     @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }
-    
-    /// Invoked when nodes change on graph.
-    func updateGraphData(document: StitchDocument?)
 }
 
 extension GraphDelegate {
     var projectId: UUID { self.id }
+    
+    @MainActor var graphStepState: GraphStepState {
+        self.documentDelegate?.graphStepManager.graphStepState ??
+            .init(estimatedFPS: .defaultAssumedFPS)
+    }
+    
+    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>? {
+        self.documentDelegate?.cameraFeedManager
+    }
+    
+    
+    /// Invoked when nodes change on graph.
+    @MainActor func updateGraphData(document: StitchDocument?) {
+        self.documentDelegate?.updateGraphData(document: document)
+    }
+    
+    var locationManager: LoadingStatus<StitchSingletonMediaObject>? {
+        self.documentDelegate?.locationManager
+    }
+    
+    // Calc
+    @MainActor func calculateFullGraph() {
+        self.documentDelegate?.calculateFullGraph()
+    }
+    
+    @MainActor func calculate(_ id: NodeId) {
+        self.documentDelegate?.calculate(id)
+    }
+      
+    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
+                                     nodeId: NodeId,
+                                     loopIndex: Int) {
+        self.documentDelegate?.recalculateGraph(outputValues: outputValues,
+                                                nodeId: nodeId,
+                                                loopIndex: loopIndex)
+    }
+    
+    @MainActor func updateOutputs(at loopIndex: Int,
+                                  node: NodeViewModel,
+                                  portValues: PortValues) {
+        self.updateOutputs(at: loopIndex,
+                           node: node,
+                           portValues: portValues)
+    }
+    
+    @MainActor var shouldResortPreviewLayers: Bool {
+        get {
+            self.documentDelegate?.shouldResortPreviewLayers ?? false
+        }
+        set(newValue) {
+            self.documentDelegate?.shouldResortPreviewLayers = newValue
+        }
+    }
+    
+    @MainActor var keypressState: KeyPressState {
+        self.documentDelegate?.keypressState ?? .init()
+    }
+    
+    @MainActor var previewWindowSize: CGSize {
+        self.documentDelegate?.previewWindowSize ?? .init()
+    }
+    
+    @MainActor var graphMovement: GraphMovementObserver {
+        self.documentDelegate?.graphMovement ?? .init()
+    }
     
     @MainActor var isGeneratingProjectThumbnail:  Bool {
         self.documentDelegate?.isGeneratingProjectThumbnail ?? false

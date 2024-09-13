@@ -385,39 +385,31 @@ extension GraphState {
         self.orderedSidebarLayers = schema.orderedSidebarLayers
     }
 
-    func createSchema() -> StitchDocument {
+    @MainActor func createSchema() -> StitchDocument {
+        assertInDebug(self.documentDelegate != nil)
+        let documentDelegate = self.documentDelegate ?? .init(from: .init(),
+                                                              store: self.storeDelegate)
+        
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
 
         return StitchDocument(projectId: self.projectId,
-                              name: self.projectName,
-                              previewWindowSize: self.previewWindowSize,
-                              previewSizeDevice: self.previewSizeDevice,
+                              name: documentDelegate.projectName,
+                              previewWindowSize: documentDelegate.previewWindowSize,
+                              previewSizeDevice: documentDelegate.previewSizeDevice,
                               previewWindowBackgroundColor: self.previewWindowBackgroundColor,
                               // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
-                              localPosition: self.localPositionToPersist,
+                              localPosition: documentDelegate.localPositionToPersist,
                               zoomData: self.graphMovement.zoomData.zoom,
                               nodes: nodes,
                               orderedSidebarLayers: self.orderedSidebarLayers,
                               commentBoxes: commentBoxes,
-                              cameraSettings: self.cameraSettings)
+                              cameraSettings: documentDelegate.cameraSettings)
     }
     
     func onPrototypeRestart() {
-        self.graphStepManager.resetGraphStepState()
-        
         self.nodes.values.forEach { $0.onPrototypeRestart() }
-        
-        // Defocus the preview window's TextField layer
-        if self.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
-            self.graphUI.reduxFocusedField = nil
-        }
-        
-        // Update animation value for restart-prototype icon;
-        self.graphUI.restartPrototypeWindowIconRotationZ += 360
-
-        self.initializeGraphComputation()
     }
 }
 
@@ -426,12 +418,12 @@ extension GraphState {
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
     }
-
+    
     @MainActor
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
     }
-
+    
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
@@ -439,11 +431,11 @@ extension GraphState {
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
                 }
-
+                
                 return node
             }
     }
-
+    
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
     @MainActor
     var highestZIndex: Double {
@@ -453,7 +445,7 @@ extension GraphState {
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }
-
+    
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
         guard let documentLoader = self.storeDelegate?.documentLoader else {
@@ -473,14 +465,14 @@ extension GraphState {
                                                               documentLoader: documentLoader)
         }
     }
-
+    
     @MainActor
     func encodeProject(temporaryURL: DocumentsURL? = nil) {
         let document = self.createSchema()
-
+        
         // Update nodes data
         self.updateGraphData(document: document)
-
+        
         Task(priority: .background) { [weak self] in
             guard let documentLoader = self?.storeDelegate?.documentLoader else {
                 return
@@ -496,26 +488,26 @@ extension GraphState {
             }
         }
     }
-
+    
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
     }
-
+    
     var patchNodes: NodesViewModelDict {
         self.visibleNodesViewModel.patchNodes
     }
-
+    
     var layerNodes: NodesViewModelDict {
         self.visibleNodesViewModel.layerNodes
     }
-
+    
     var groupNodes: NodesViewModelDict {
         self.visibleNodesViewModel.groupNodes
     }
-
+    
     /*
      Primarily used for NodeViewModels, which are used in UI and during graph eval
-
+     
      Secondarily used in some helpers for creating a GraphState that we then feed into GraphSchema
      - second use-case ideally removed in the future
      */
@@ -523,20 +515,20 @@ extension GraphState {
         self.visibleNodesViewModel.nodes
             .updateValue(node, forKey: node.id)
     }
-
+    
     func updatePatchNode(_ patchNode: PatchNode) {
         self.updateNode(patchNode)
     }
-
+    
     // MISC HELPERS
-
+    
     @MainActor
     func getInputValues(coordinate: InputCoordinate) -> PortValues? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)?
             .allLoopedValues
     }
-
+    
     @MainActor
     func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
@@ -566,7 +558,7 @@ extension GraphState {
         
         return node.getOutputRowViewModel(for: rowId)
     }
-
+    
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
@@ -665,20 +657,20 @@ extension GraphState {
             return [canvas]
         }
     }
-
+    
     func getLayerNode(id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
-
+    
     // id = NodeId for GroupNode
     func getGroupNode(id: GroupNodeId) -> NodeViewModel? {
         self.getNodeViewModel(id.asNodeId)
     }
-
+    
     func getGroupNodeBreadcrumb(id: GroupNodeId) -> NodeId? {
         getGroupNode(id: id)?.id
     }
-
+    
     @MainActor
     func getVisibleNodes() -> [NodeDelegate] {
         self.visibleNodesViewModel
@@ -695,22 +687,22 @@ extension GraphState {
     func getCanvasItems() -> CanvasItemViewModels {
         self.visibleNodesViewModel.getCanvasItems()
     }
-
+    
     var keyboardNodes: NodeIdSet {
         Array(self.nodes
-                .values
-                .filter { $0.patch == .keyboard }
-                .map(\.id))
-            .toSet
+            .values
+            .filter { $0.patch == .keyboard }
+            .map(\.id))
+        .toSet
     }
-
+    
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
             .filter { $0.layerNode?.layerGroupId == groupId }
             .map { $0.id }
             .toSet
     }
-
+    
     @MainActor
     func getGroupChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
@@ -739,7 +731,9 @@ extension GraphState {
         
         return outputRow.id
     }
-    
+}
+
+extension StitchDocumentViewModel {
     /// Updates values at a specific output loop index.
     @MainActor
     func updateOutputs(at loopIndex: Int,
