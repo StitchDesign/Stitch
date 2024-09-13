@@ -90,7 +90,7 @@ extension FieldViewModel {
 // i.e. `createFieldObservers`
 // We can't rely on the underlying data anymore;
 extension Array where Element: FieldViewModel {
-    init(_ fieldGroupType: FieldGroupType,
+    init(_ _fieldGroupType: FieldGroupType,
 
          // Unpacked ports need special logic for grabbing their proper label
          // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
@@ -101,10 +101,14 @@ extension Array where Element: FieldViewModel {
 //         fieldIndex: Int,
          rowViewModel: Element.NodeRowType?) {
         
-        let fieldGroup = unpackedPortParentFieldGroupType ?? fieldGroupType
+//        let fieldGroupType = unpackedPortParentFieldGroupType ?? _fieldGroupType
         
-        let labels = fieldGroupType.labels
-        let defaultValues = fieldGroupType.defaultFieldValues
+        let labels = (unpackedPortParentFieldGroupType ?? _fieldGroupType).labels
+        
+//        let defaultValues = fieldGroupType.defaultFieldValues
+        
+        // Default value still uses original, proper field group type
+        let defaultValues = _fieldGroupType.defaultFieldValues
 
         
         // we can no longer just assume enumeration
@@ -127,7 +131,11 @@ extension Array where Element: FieldViewModel {
 //            }
 //            
 //            let fieldLabel = _fieldlabel ?? ""
-            let fieldLabel = _fieldlabel ?? "NO LABEL"
+            let fieldLabel = _fieldlabel ?? "NO FIELD LABEL"
+//            if fieldLabel == "NO FIELD LABEL" {
+            if fieldLabel == "DOG" {
+                log("had NO FIELD LABEL for field index: \(fieldIndex), index: \(index), unpackedPortIndex: \(unpackedPortIndex), unpackedPortParentFieldGroupType: \(unpackedPortParentFieldGroupType), _fieldGroupType: \(_fieldGroupType)")
+            }
             
             // We actually ARE finding the label, but there's no field label for e.g. just the Unpacked number type in a
 

@@ -173,26 +173,23 @@ extension LayerInputObserver {
                 
         let layerInput: LayerInputPort = self.port
                 
+        
         let defaultValue = layerInput.getDefaultValue(for: layer)
+        let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
+        let unpackedPortParentFieldGroupType: FieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
         
-        let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
-            initialValue: defaultValue,
-            nodeIO: .input,
-            unpackedPortParentFieldGroupType: nil,
-            unpackedPortIndex: nil,
-            importedMediaObject: nil)
         
-        // given a layer input port (Which is neither packed nor unpacked)
-        let unpackedPortParentFieldGroupType: FieldGroupType? = fieldGroups.first!.type
-        
-        // In this case, we already have the fieldIndex as 0 or 1 ?
-//        let unpackedPortIndex: Int? = fieldIndex
-        
-//        self._unpackedData.initializeDelegate(node,
-//                                              // TODO: SEPT 12
-//                                              unpackedPortParentFieldGroupType: nil,
-//                                              unpackedPortIndex: nil)
-                
+//        let defaultValue = layerInput.getDefaultValue(for: layer)
+//        let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
+//            initialValue: defaultValue,
+//            nodeIO: .input,
+//            unpackedPortParentFieldGroupType: nil,
+//            unpackedPortIndex: nil,
+//            importedMediaObject: nil)
+//        
+//        // given a layer input port (Which is neither packed nor unpacked)
+//        let unpackedPortParentFieldGroupType: FieldGroupType? = fieldGroups.first!.type
+  
         self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
             port.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

@@ -378,7 +378,9 @@ extension Array where Element: NodeRowViewModel {
     @MainActor
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
-                       canvas: CanvasItemViewModel) {
+                       canvas: CanvasItemViewModel,
+                       unpackedPortParentFieldGroupType: FieldGroupType?,
+                       unpackedPortIndex: Int?) {
         // This will be nil for some inits--that's ok, just need to set delegate after
         let node = canvas.nodeDelegate
         
@@ -420,8 +422,8 @@ extension Array where Element: NodeRowViewModel {
                                                     // Ah, this might be bad?
                                                     // Because sync could be
                                                     // TODO: SEPT 12
-                                                    unpackedPortParentFieldGroupType: nil,
-                                                    unpackedPortIndex: nil)
+                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                    unpackedPortIndex: unpackedPortIndex)
                 }
                 
                 return rowViewModel

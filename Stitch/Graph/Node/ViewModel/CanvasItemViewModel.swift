@@ -120,7 +120,9 @@ final class CanvasItemViewModel: Identifiable {
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers)
+                               outputRowObservers: outputRowObservers,
+                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                               unpackedPortIndex: unpackedPortIndex)
         
         if let node = nodeDelegate {
             self.initializeDelegate(node,
@@ -133,9 +135,19 @@ final class CanvasItemViewModel: Identifiable {
 extension CanvasItemViewModel: SchemaObserver {
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                           outputRowObservers: [OutputNodeRowObserver]) {
-        self.inputViewModels.sync(with: inputRowObservers, canvas: self)
-        self.outputViewModels.sync(with: outputRowObservers, canvas: self)
+                           outputRowObservers: [OutputNodeRowObserver],
+                           unpackedPortParentFieldGroupType: FieldGroupType?,
+                           unpackedPortIndex: Int?) {
+        
+        self.inputViewModels.sync(with: inputRowObservers,
+                                  canvas: self,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex)
+        
+        self.outputViewModels.sync(with: outputRowObservers,
+                                   canvas: self,
+                                   unpackedPortParentFieldGroupType: nil,
+                                   unpackedPortIndex: nil)
     }
     
     @MainActor

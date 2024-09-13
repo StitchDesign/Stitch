@@ -257,7 +257,10 @@ extension PatchNodeViewModel {
         
         // Update input row view models in canvas
         self.canvasObserver.inputViewModels.sync(with: self._inputsObservers,
-                                                 canvas: self.canvasObserver)
+                                                 canvas: self.canvasObserver,
+                                                 // Not relevant
+                                                 unpackedPortParentFieldGroupType: nil,
+                                                 unpackedPortIndex: nil)
     }
     
     @MainActor

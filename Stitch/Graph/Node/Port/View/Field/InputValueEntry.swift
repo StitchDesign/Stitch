@@ -43,26 +43,27 @@ struct InputValueEntry: View {
     var label: String {
 //        "Pain"
         
-        if forPropertySidebar, isFieldInMultifieldInput {
-            // If this is for an inspector- or flyout-row,
-            // and is a multifield, we can't rely on just the fieldLabel,
-            // since the input maybe have been broken
-//            return 
-            
-            let fieldGroupType: FieldGroupType = .xY
-            
-            let labels = fieldGroupType.labels
-            let label = labels[safe: viewModel.fieldIndex] ?? "CAT"
-            return label
-            
-            // What is the
-            
-        } else {
-            return self.viewModel.fieldLabel
-        }
+//        if forPropertySidebar, isFieldInMultifieldInput {
+//            // If this is for an inspector- or flyout-row,
+//            // and is a multifield, we can't rely on just the fieldLabel,
+//            // since the input maybe have been broken
+////            return 
+//            
+////            let fieldGroupType: FieldGroupType = .xY
+//            
+////            let labels = fieldGroupType.labels
+////            let label = labels[safe: viewModel.fieldIndex] ?? "CAT"
+////            return label
+//            
+//            // What is the
+//            return self.viewModel.fieldLabel
+//            
+//        } else {
+//            return self.viewModel.fieldLabel
+//        }
         
         // Good for most cases but not accurate when we have a property
-//        return self.viewModel.fieldLabel
+        return self.viewModel.fieldLabel
     }
     
     // TODO: support derived field-labels

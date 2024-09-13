@@ -298,7 +298,6 @@ struct FatalErrorIfDebugView: View {
 
 struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
-    //    let layerInput: LayerInputType
     let layerInput: LayerInputPort
     let nodeId: NodeId
     let fieldIndex: Int
@@ -323,34 +322,29 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
         
         if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
             
-            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
+            let parentGroupNodeId = state.groupNodeFocused
             
             var unpackSchema = unpackedPort.createSchema()
             unpackSchema.canvasItem = .init(position: state.newLayerPropertyLocation,
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
             
-            
-//            let fieldGroups: [FieldGroupType] =
+//            let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
+//            
+//            // given a layer input port (Which is neither packed nor unpacked)
+//            let parentFieldGroupType: FieldGroupType = fieldGroups.first!.type
+//            
+//            // TODO: SEPT 12
+//            let unpackedPortParentFieldGroupType: FieldGroupType? = parentFieldGroupType
             
             let defaultValue = layerInput.getDefaultValue(for: layerNode.layer)
-            
-            let fieldGroups: [FieldGroupTypeViewModel<InputFieldViewModel>] = getFieldValueTypes(
-                initialValue: defaultValue,
-                nodeIO: .input,
-                unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
-                importedMediaObject: nil)
-            
-            // given a layer input port (Which is neither packed nor unpacked)
-            let parentFieldGroupType: FieldGroupType = fieldGroups.first!.type
-            
-            // TODO: SEPT 12
-            let unpackedPortParentFieldGroupType: FieldGroupType? = parentFieldGroupType
+            let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
+            let unpackedPortParentFieldGroupType: FieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
             
             // In this case, we already have the fieldIndex as 0 or 1 ?
             let unpackedPortIndex: Int? = fieldIndex
             
+          
             unpackedPort.update(from: unpackSchema,
                                 layerInputType: unpackedPort.id,
                                 layerNode: layerNode,

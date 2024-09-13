@@ -143,14 +143,20 @@ extension VisibleNodesViewModel {
             case .patch(let patchNode):
                 // Syncs ports if nodes had inputs added/removed
                 patchNode.canvasObserver.syncRowViewModels(inputRowObservers: patchNode.inputsObservers,
-                                                           outputRowObservers: patchNode.outputsObservers)
+                                                           outputRowObservers: patchNode.outputsObservers,
+                                                           // Not relevant
+                                                           unpackedPortParentFieldGroupType: nil,
+                                                           unpackedPortIndex: nil)
                 
             case .group(let canvasGroup):
                 // Create port view models for group nodes once row observers have been established
                 let inputRowObservers = self.getSplitterInputRowObservers(for: node.id)
                 let outputRowObservers = self.getSplitterOutputRowObservers(for: node.id)
                 canvasGroup.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                              outputRowObservers: outputRowObservers)
+                                              outputRowObservers: outputRowObservers,
+                                              // Not relevant
+                                              unpackedPortParentFieldGroupType: nil,
+                                              unpackedPortIndex: nil)
                 
             default:
                 return

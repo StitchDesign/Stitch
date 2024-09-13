@@ -427,22 +427,53 @@ extension NodeRowViewModel {
             // If existing field observer group's count does not match the new fields count,
             // reset the fields on this input/output.
             // TODO: is this specifically for ShapeCommands, where a dropdown choice (e.g. .lineTo vs .curveTo) can change the number of fields without a node-type change?
+            
+            // BAD: we're assuming that we can use field
             let fieldObserversCount = fieldObserverGroup.fieldObservers.count
+//            let isRowForLayer =  self.rowDelegate?.nodeKind.getLayer.isDefined ?? false
+            
+            //
+            let fieldCountChanged = (newFields.count != fieldObserversCount) // && !isRowForLayer
             
             // Force update if any media--inefficient but works
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
+            
+            // TODO: what about imported media on a layer node ?
+//            let willUpdateField = fieldCountChanged || importedMediaObject.isDefined
+            
+            var unpackedPortParentFieldGroupType: FieldGroupType? = nil //nodeRowType.getFieldGroupTypeForLayerInput
+//            var unpackedPortIndex: Int? = nil //fieldIndex
+            // assume zero for a moment -- does this help?
+            
+            // this works -- but then get two Y's
+            var unpackedPortIndex: Int? = 1 //fieldIndex
+            
+            if let layer: Layer = self.nodeKind.getLayer,
+               let layerInput: LayerInputPort = self.rowDelegate?.id.keyPath?.layerInput {
+                
+                let defaultValue = layerInput.getDefaultValue(for: layer)
+                let nodeRowType = defaultValue.getNodeRowType(nodeIO: .input)
+                unpackedPortParentFieldGroupType = nodeRowType.getFieldGroupTypeForLayerInput
+                log("NodeRowViewModel: activeValueChanged: unpackedPortParentFieldGroupType is now \(unpackedPortParentFieldGroupType)")
+            }
+            
+            
+//            let unpackedPortParentFieldGroupType: FieldGroupType? = nil
+//            let unpackedPortIndex: Int? = nil
             
             if willUpdateField {
                 self.createFieldValueTypes(initialValue: newValue,
                                            nodeIO: nodeIO,
                                            // Note: this is only for a patch node whose node-type has changed; does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
-                                           unpackedPortParentFieldGroupType: nil,
-                                           unpackedPortIndex: nil,
+                                           unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType, // nil,
+                                           unpackedPortIndex: unpackedPortIndex, // nil,
                                            importedMediaObject: importedMediaObject)
+                log("NodeRowViewModel: activeValueChanged: created field value types, exiting now")
                 return
             }
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
+            log("NodeRowViewModel: activeValueChanged: updated field value types, exiting now")
         } // zip
         
         if let node = self.nodeDelegate,
