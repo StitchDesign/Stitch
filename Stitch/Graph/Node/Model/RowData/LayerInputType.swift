@@ -1338,9 +1338,8 @@ extension LayerInputEntity {
 
 extension LayerInputPort {
     // shortLabel = used for property sidebar
-    func label(_ useShortLabel: Bool = false) -> String {
+    func label(useShortLabel: Bool = false) -> String {
         switch self {
-            // Required everywhere
         case .position:
             return "Position"
         case .size:

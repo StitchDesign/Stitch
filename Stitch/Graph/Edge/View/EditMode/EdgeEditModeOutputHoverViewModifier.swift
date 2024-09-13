@@ -9,7 +9,7 @@ import StitchSchemaKit
 import SwiftUI
 
 // Only for outputs? So should be in NodeOutputView, not NodeInputOutputView
-struct EdgeEditModeViewModifier: ViewModifier {
+struct EdgeEditModeOutputViewModifier: ViewModifier {
 
     @Bindable var graphState: GraphState
     let portId: Int

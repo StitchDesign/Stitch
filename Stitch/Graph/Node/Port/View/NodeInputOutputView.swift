@@ -393,27 +393,16 @@ struct NodeInputView: View {
         self.graph.graphUI
     }
     
-//    var nodeId: NodeId {
-//        self.rowObserver.id.nodeId
-//    }
-    
-    // pass in instead of accessing via nodeDelegate
-//    @MainActor
-//    var nodeKind: NodeKind {
-//        self.rowObserver.nodeDelegate?.kind ?? .patch(.splitter)
-//    }
-        
     @ViewBuilder @MainActor
     func valueEntryView(portViewModel: InputFieldViewModel,
                         isMultiField: Bool) -> InputValueEntry {
         InputValueEntry(graph: graph,
-//                        rowViewModel: rowData,
-                        viewModel: portViewModel, 
+                        viewModel: portViewModel,
                         inputLayerNodeRowData: inputLayerNodeRowData,
-                        rowObserverId: rowObserverId, //rowObserver.id,
+                        rowObserverId: rowObserverId,
                         nodeKind: nodeKind,
                         isCanvasItemSelected: isCanvasItemSelected,
-                        hasIncomingEdge: hasIncomingEdge,  //rowObserver.upstreamOutputObserver.isDefined,
+                        hasIncomingEdge: hasIncomingEdge,
                         forPropertySidebar: forPropertySidebar,
                         propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                         isFieldInMultifieldInput: isMultiField,
@@ -421,74 +410,59 @@ struct NodeInputView: View {
                         isSelectedInspectorRow: propertyIsSelected)
     }
     
-//    var layerInput: LayerInputPort? {
-//        rowData.rowDelegate?.id.keyPath?.layerInput
-//    }
-    
     var body: some View {
-//        NodeInputOutputView(graph: graph,
-////                            rowObserver: rowObserver,
-////                            rowData: rowData,
-//                            forPropertySidebar: forPropertySidebar,
-////                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType, labelView: LabelDisplayView) in
-//                            propertyIsSelected: propertyIsSelected) { (inputViewModel: NodeRowType) in
-           
-            // For multifields, want the overall label to sit at top of fields' VStack.
-            // For single fields, want to the overall label t
-            HStack(alignment: hStackAlignment) {
-                
-                // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
-                if !forPropertySidebar,
-                   let rowObserver = rowObserver,
-                   let rowData = rowData {
-                    NodeRowPortView(graph: graph,
-                                    rowObserver: rowObserver,
-                                    rowViewModel: rowData,
-                                    showPopover: $showPopover)
+        // For multifields, want the overall label to sit at top of fields' VStack.
+        // For single fields, want to the overall label t
+        HStack(alignment: hStackAlignment) {
+            
+            // Alternatively, pass `NodeRowPortView` as a closure like we do with ValueEntry view etc.?
+            if !forPropertySidebar,
+               let rowObserver = rowObserver,
+               let rowData = rowData {
+                NodeRowPortView(graph: graph,
+                                rowObserver: rowObserver,
+                                rowViewModel: rowData,
+                                showPopover: $showPopover)
+            }
+            
+            
+            // This is a special condition
+            let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
+            
+            if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
+                HStack {
+                    StitchTextView(string: "Shadow",
+                                   fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
+                    Spacer()
+                }
+                .overlay {
+                    Color.white.opacity(0.001)
+                        .onTapGesture {
+                            dispatch(FlyoutToggled(
+                                flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
+                                flyoutNodeId: nodeId))
+                        }
                 }
                 
+            } else {
+                labelView
                 
-                // This is a special condition
-                let isShadowLayerInputRow = self.layerInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY
-                
-                if isShadowLayerInputRow, forPropertySidebar, !forFlyout {
-                    HStack {
-                        StitchTextView(string: "Shadow",
-                                       fontColor: propertyIsSelected ? theme.fontColor : STITCH_FONT_GRAY_COLOR)
-                        Spacer()
-                    }
-                    .overlay {
-                        Color.white.opacity(0.001)
-                            .onTapGesture {
-                                dispatch(FlyoutToggled(
-                                    flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                                    flyoutNodeId: nodeId))
-                            }
-                    }
-                    
-                } else {
-                    labelView
-                    
-                    if forPropertySidebar {
-                        Spacer()
-                    }
-                    
-//                    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
-                    
-                    FieldsListView<InputNodeRowViewModel, InputValueEntry>(
-                        graph: graph,
-                        //                                   rowViewModel: rowData,
-                        fieldValueTypes: fieldValueTypes, // rowViewModel.fieldValueTypes
-                        nodeId: nodeId,
-                        isGroupNodeKind: isGroupNodeKind, //rowObserver.nodeDelegate?.kind.isGroup ?? false,
-                        forPropertySidebar: forPropertySidebar,
-                        propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                        valueEntryView: valueEntryView)
+                if forPropertySidebar {
+                    Spacer()
                 }
-            } // HStack
-//        }
+                
+                FieldsListView<InputNodeRowViewModel, InputValueEntry>(
+                    graph: graph,
+                    fieldValueTypes: fieldValueTypes,
+                    nodeId: nodeId,
+                    isGroupNodeKind: isGroupNodeKind,
+                    forPropertySidebar: forPropertySidebar,
+                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                    valueEntryView: valueEntryView)
+            }
+        } // HStack
     }
-        
+    
     @ViewBuilder @MainActor
     var labelView: LabelDisplayView {
         LabelDisplayView(label: label,
@@ -502,11 +476,6 @@ struct NodeInputView: View {
         let isMultiField = (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
         return (forPropertySidebar && isMultiField) ? .firstTextBaseline : .center
     }
-    
-//    var isMultiField: Bool {
-////        (self.rowData.fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
-//        (fieldValueTypes.first?.fieldObservers.count ?? 0) > 1
-//    }
 }
 
 struct NodeOutputView: View {
@@ -520,19 +489,7 @@ struct NodeOutputView: View {
     let propertyIsSelected: Bool
     let propertyIsAlreadyOnGraph: Bool
     let isCanvasItemSelected: Bool
-    
-    
-    var label: String //
-    
-    // @MainActor
-   //    var label: String {
-   //        if isGroupNode {
-   //            return rowObserver.nodeDelegate?.displayTitle ?? ""
-   //        }
-   //
-   //        // this will need to change for packed vs unpacked
-   //        return self.rowObserver.label(forPropertySidebar)
-   //    }
+    let label: String
     
     @MainActor
     private var graphUI: GraphUIState {
@@ -557,7 +514,6 @@ struct NodeOutputView: View {
     func valueEntryView(portViewModel: OutputFieldViewModel,
                         isMultiField: Bool) -> OutputValueEntry {
         OutputValueEntry(graph: graph,
-//                         rowViewModel: rowData,
                          viewModel: portViewModel,
                          coordinate: rowObserver.id,
                          isMultiField: isMultiField,
@@ -569,49 +525,40 @@ struct NodeOutputView: View {
     }
     
     var body: some View {
-//        NodeInputOutputView(graph: graph,
-//                            rowObserver: rowObserver,
-//                            rowData: rowData,
-//                            forPropertySidebar: forPropertySidebar,
-//                            propertyIsSelected: propertyIsSelected) { outputViewModel, labelView in
-            HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
-                // Property sidebar always shows labels on left side, never right
-                if forPropertySidebar {
-                    labelView
-                    
-                    // TODO: fields in layer-inspector flush with right screen edge?
-                    //                    Spacer()
-                }
-                
-                // Hide outputs for value node
-                if !isSplitter {
-                    let fieldValueTypes: [FieldGroupTypeViewModel<OutputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
-                    
-                    FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(graph: graph,
-//                                   rowViewModel: rowData,
-                                   fieldValueTypes: fieldValueTypes,
-                                   nodeId: nodeId,
-                                   isGroupNodeKind: nodeKind.isGroup,
-                                   forPropertySidebar: forPropertySidebar,
-                                   propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
-                                   valueEntryView: valueEntryView)
-                }
-                
-                if !forPropertySidebar {
-                    labelView
-                    NodeRowPortView(graph: graph,
-                                    rowObserver: rowObserver,
-                                    rowViewModel: rowData,
-                                    showPopover: $showPopover)
-                }
-            } // HStack
+        HStack(alignment: forPropertySidebar ? .firstTextBaseline: .center) {
+            // Property sidebar always shows labels on left side, never right
+            if forPropertySidebar {
+                labelView
+            }
             
-            // Only for outputs
-            .modifier(EdgeEditModeViewModifier(graphState: graph,
-                                               portId: rowData.id.portId,
-                                               canvasItemId: self.rowData.canvasItemDelegate?.id,
-                                               forPropertySidebar: forPropertySidebar))
-//        }
+            // Hide outputs for value node
+            if !isSplitter {
+                let fieldValueTypes: [FieldGroupTypeViewModel<OutputNodeRowViewModel.FieldType>] = rowData.fieldValueTypes
+                
+                FieldsListView<OutputNodeRowViewModel, OutputValueEntry>(
+                    graph: graph,
+                    fieldValueTypes: fieldValueTypes,
+                    nodeId: nodeId,
+                    isGroupNodeKind: nodeKind.isGroup,
+                    forPropertySidebar: forPropertySidebar,
+                    propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
+                    valueEntryView: valueEntryView)
+            }
+            
+            if !forPropertySidebar {
+                labelView
+                NodeRowPortView(graph: graph,
+                                rowObserver: rowObserver,
+                                rowViewModel: rowData,
+                                showPopover: $showPopover)
+            }
+        } // HStack
+        
+        .modifier(EdgeEditModeOutputViewModifier(
+            graphState: graph,
+            portId: rowData.id.portId,
+            canvasItemId: self.rowData.canvasItemDelegate?.id,
+            forPropertySidebar: forPropertySidebar))
     }
     
     @ViewBuilder @MainActor
@@ -647,10 +594,9 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
             
             let multipleFieldsPerGroup = fieldGroupViewModel.fieldObservers.count > 1
             
+            // Note: "multifield" is more complicated for layer inputs, since `fieldObservers.count` is now inaccurate
             let isMultiField = forPropertySidebar ?  (multipleFieldGroups || multipleFieldsPerGroup) : fieldGroupViewModel.fieldObservers.count > 1
-            
-//            let isMultiField = fieldGroupViewModel.fieldObservers.count > 1
-                        
+                                    
             NodeFieldsView(graph: graph,
                            fieldGroupViewModel: fieldGroupViewModel,
                            nodeId: nodeId,

@@ -39,31 +39,8 @@ struct InputValueEntry: View {
     // Saving this state outside the button context allows us to control renders.
     @State private var isButtonPressed = false
     
-    // Label for an individual field ?
     var label: String {
-//        "Pain"
-        
-//        if forPropertySidebar, isFieldInMultifieldInput {
-//            // If this is for an inspector- or flyout-row,
-//            // and is a multifield, we can't rely on just the fieldLabel,
-//            // since the input maybe have been broken
-////            return 
-//            
-////            let fieldGroupType: FieldGroupType = .xY
-//            
-////            let labels = fieldGroupType.labels
-////            let label = labels[safe: viewModel.fieldIndex] ?? "CAT"
-////            return label
-//            
-//            // What is the
-//            return self.viewModel.fieldLabel
-//            
-//        } else {
-//            return self.viewModel.fieldLabel
-//        }
-        
-        // Good for most cases but not accurate when we have a property
-        return self.viewModel.fieldLabel
+        self.viewModel.fieldLabel
     }
     
     // TODO: support derived field-labels
@@ -84,17 +61,14 @@ struct InputValueEntry: View {
     var labelDisplay: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: true,
-                         // Gray color for multi-field
-//                         fontColor: isMultiField ? STITCH_FONT_GRAY_COLOR : Color(.titleFont))
-                         // Seems like every input label is gray now?
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
+        .border(.green)
     }
 
     @MainActor
     var valueDisplay: some View {
         InputValueView(graph: graph,
-//                       rowViewModel: rowViewModel,
                        viewModel: viewModel,
                        inputLayerNodeRowData: inputLayerNodeRowData,
                        rowObserverId: rowObserverId,
@@ -106,15 +80,14 @@ struct InputValueEntry: View {
                        isForFlyout: isForFlyout,
                        isSelectedInspectorRow: isSelectedInspectorRow,
                        
+                       // Only for pulse button and color orb;
                        // Always false for inspector-rows
-                       // ... only for pulse button and color orb
-                       hasIncomingEdge: hasIncomingEdge, // rowViewModel.rowDelegate?.upstreamOutputCoordinate != nil,
+                       hasIncomingEdge: hasIncomingEdge,
                        
                        isForLayerGroup: nodeKind.getLayer == .group,
                        
                        // This is same as `hasIncomingEdge` ? a check on whether rowDelegate has a defined upstream output (coordinate vs observer should not matter?)
-                       isUpstreamValue: hasIncomingEdge, // rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
-                       
+                       isUpstreamValue: hasIncomingEdge,
                        isButtonPressed: $isButtonPressed)
             .font(STITCH_FONT)
             // Monospacing prevents jittery node widths if values change on graphstep
@@ -126,9 +99,9 @@ struct InputValueEntry: View {
         HStack(spacing: NODE_COMMON_SPACING) {
             if self.useIndividualFieldLabel {
                 labelDisplay
+                    .border(.blue)
             }
-            
-            //                .border(.blue)
+             
             
             if forPropertySidebar,
                isForFlyout,

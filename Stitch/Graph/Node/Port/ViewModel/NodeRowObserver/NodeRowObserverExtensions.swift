@@ -175,6 +175,16 @@ extension NodeRowObserver {
     
     @MainActor
     func label(_ useShortLabel: Bool = false) -> String {
+
+        // A Group Node uses its underlying Splitter node's row for its own row.
+        // Thus we use the underyling Splitter node's title for the row label:
+        if self.nodeKind.getPatch == .splitter,
+           (self.nodeDelegate?.patchNodeViewModel?.parentGroupNodeId.isDefined ?? false) {
+            // Rows in a group-ui-node use the underlying splitter node's tit
+            let labelFromSplitter = self.nodeDelegate?.displayTitle ?? "PUPPY"
+            return labelFromSplitter
+        }
+        
         switch id.portType {
         case .portIndex(let portId):
             if Self.nodeIOType == .input,
@@ -191,11 +201,9 @@ extension NodeRowObserver {
             return Self.nodeIOType == .input
             ? rowDefinitions.inputs[safe: portId]?.label ?? ""
             : rowDefinitions.outputs[safe: portId]?.label ?? ""
-//            ? rowDefinitions.inputs[safe: portId]?.label ?? "No input label"
-//            : rowDefinitions.outputs[safe: portId]?.label ?? "No output label"
             
         case .keyPath(let keyPath):
-            return keyPath.layerInput.label(useShortLabel)
+            return keyPath.layerInput.label(useShortLabel: useShortLabel)
         }
     }
 }

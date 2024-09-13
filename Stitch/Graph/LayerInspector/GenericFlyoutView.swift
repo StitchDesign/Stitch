@@ -38,7 +38,7 @@ struct GenericFlyoutView: View {
         
         VStack(alignment: .leading) {
             // TODO: need better padding here; but confounding factor is UIKitWrapper
-            FlyoutHeader(flyoutTitle: layerInput.label(true))
+            FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
             
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
