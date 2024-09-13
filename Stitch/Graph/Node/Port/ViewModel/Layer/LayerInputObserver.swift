@@ -70,10 +70,7 @@ extension LayerInputObserver {
         }
         return label
     }
-    
-    // get field value types, regardless of pack or unpack state
-    
-    // gets the INSPECTOR ROW'S field view models
+        
     @MainActor
     var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
         let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
