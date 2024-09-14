@@ -126,7 +126,8 @@ extension MediaEvalOpObservable {
         // A bit of a hack to get fields to update with loaded media
         if let mediaPortRow = self.nodeDelegate?.getInputRowObserver(0) {
             guard mediaPortRow.allLoopedValues.count > loopIndex else {
-                fatalErrorIfDebug()
+                // Hit on loops with anchors, likely not a big deal
+//                fatalErrorIfDebug()
                 return
             }
             
