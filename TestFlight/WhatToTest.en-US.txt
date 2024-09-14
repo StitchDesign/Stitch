@@ -1,5 +1,6 @@
 - Layer inputs now support node creation and connections into specific fields
 - Layer inspector flyout popover dismisses on scroll, tap, or pinch
+- Fixed broken Reality layer node
 - Fixed Length node to use improved counting logic for numbers and strings
 - Improved project thumbnails in home screen to remove error display from 3D model layers
 - Added placeholder default text for Soulver node

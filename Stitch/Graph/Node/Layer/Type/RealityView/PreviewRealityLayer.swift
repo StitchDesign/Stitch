@@ -131,7 +131,8 @@ struct RealityLayerView: View {
     
     var body: some View {
         Group {
-            if let arView = cameraFeedManager.arView,
+            if isPinnedViewRendering, // Can't run multiple reality views
+               let arView = cameraFeedManager.arView,
                !graph.isGeneratingProjectThumbnail {
                 RealityView(arView: arView,
                             size: layerSize,
@@ -146,7 +147,7 @@ struct RealityLayerView: View {
                     arView.updateAnchors(mediaList: mediaList)
                 }
             } else {
-                EmptyView()
+                Color.clear
             }
         }
         .modifier(PreviewCommonModifier(
