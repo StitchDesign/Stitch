@@ -408,8 +408,16 @@ extension GraphState {
                               cameraSettings: documentDelegate.cameraSettings)
     }
     
-    func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
+    }
+    
+    var localPosition: CGPoint {
+        self.documentDelegate?.localPosition ?? .init()
+    }
+    
+    var previewWindowBackgroundColor: Color {
+        self.documentDelegate?.previewWindowBackgroundColor ?? .LAYER_DEFAULT_COLOR
     }
 }
 
