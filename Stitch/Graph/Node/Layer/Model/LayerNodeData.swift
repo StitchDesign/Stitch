@@ -213,8 +213,6 @@ extension InputLayerNodeRowData {
                 unpackedPortIndex: Int?,
                 nodeDelegate: NodeDelegate? = nil) {
         self.rowObserver.id.nodeId = nodeId
-        self.rowObserver.update(from: schema.inputPort,
-                                inputType: layerInputType)
                 
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
@@ -309,6 +307,30 @@ extension LayerInputObserver {
                                     nodeId: nodeId,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                     unpackedPortIndex: portId)
+        }
+        
+        // Update values once mode is known (requires updating canvas items first
+        // This logic is needed to prevent a bug where unpacked mode updates packed observer values despite upstream connection
+        switch self.observerMode {
+        case .packed(let packedObserver):
+            packedObserver.rowObserver.update(from: schema.packedData.inputPort,
+                                              inputType: .init(layerInput: layerInputType,
+                                                               portType: .packed))
+            
+        case .unpacked:
+            zip(unpackedObservers, schema.unpackedData).enumerated().forEach { portId, data in
+                guard let unpackedPortType = UnpackedPortType(rawValue: portId) else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                let unpackedObserver = data.0
+                let unpackedSchema = data.1
+                
+                unpackedObserver.rowObserver.update(from: unpackedSchema.inputPort,
+                                                    inputType: .init(layerInput: layerInputType,
+                                                                     portType: .unpacked(unpackedPortType)))
+            }
         }
     }
     
