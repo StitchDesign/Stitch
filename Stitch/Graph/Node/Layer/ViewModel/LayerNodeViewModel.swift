@@ -294,19 +294,17 @@ final class LayerNodeViewModel {
                                             portType: .packed)
             
             // Check for ports which support unpacked state
-            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-                if let unpackedPortCount = layerInputPort.unpackedPortCount(layer: self.layer) {
-                    (0..<unpackedPortCount).forEach { unpackedPortId in
-                        guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
-                            fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")
-                            return
-                        }
-                        
-                        // Initialize unpacked port
-                        self.preinitializeSupportedPort(layerInputPort: layerInputPort,
-                                                        portType: .unpacked(unpackedPortType))
+            if let unpackedPortCount = layerInputPort.unpackedPortCount(layer: self.layer) {
+                (0..<unpackedPortCount).forEach { unpackedPortId in
+                    guard let unpackedPortType = UnpackedPortType(rawValue: unpackedPortId) else {
+                        fatalErrorIfDebug("Expected to find unpacked port for \(unpackedPortId)")
+                        return
                     }
-                }                
+                    
+                    // Initialize unpacked port
+                    self.preinitializeSupportedPort(layerInputPort: layerInputPort,
+                                                    portType: .unpacked(unpackedPortType))
+                }
             }
         }
         
