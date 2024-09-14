@@ -87,7 +87,7 @@ struct InputValueEntry: View {
             .monospacedDigit()
             .lineLimit(1)
     }
-
+    
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             if self.useIndividualFieldLabel {
@@ -104,6 +104,7 @@ struct InputValueEntry: View {
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
+        .allowsHitTesting(!(forPropertySidebar && propertyIsAlreadyOnGraph))
     }
 
 }

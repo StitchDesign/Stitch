@@ -70,7 +70,7 @@ struct GenericFlyoutView: View {
     
     @State var selectedFlyoutRow: Int? = nil
         
-    // TODO: just use `NodeInputView` here ?
+    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
         // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
@@ -183,6 +183,7 @@ struct GenericFlyoutRowView: View {
                 layerInspectorRowId: layerInspectorRowId,
                  canvasItemId: canvasItemId)
         }
+        
     }
 }
 
