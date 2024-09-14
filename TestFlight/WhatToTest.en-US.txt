@@ -1,18 +1,5 @@
-Layer enhancements:
-- UI polish for layer inspector sidebar
-- New spacing input ports for margin, padding, and group offset
-
-Media improvements:
-- Improved audio metering values to use a more even distribution of values
-- Fixed “Jump” input pulse for Sound Import node
-- Fixed issue where imported media may incorrectly display as “None”
-- Fixed issue where image thumbnails wouldn’t update on import change
-- Fixed issue where Image Import “Size” output wouldn’t update
-
-Other bugs:
-- Fixed issue where “/“ characters in project titles would break project sharing
-- Fixed issue where Drag Interaction position output woud reset on each drag
-
-Other improvements:
-- CMD + . toggles visibility of both sidebars
-- CMD + / toggles preview window
+- Layer inputs now support node creation and connections into specific fields
+- Layer inspector flyout popover dismisses on scroll, tap, or pinch
+- Fixed Length node to use improved counting logic for numbers and strings
+- Improved project thumbnails in home screen to remove error display from 3D model layers
+- Added placeholder default text for Soulver node
