@@ -542,7 +542,7 @@ class EvalTests: XCTestCase {
         
         let result: PortValuesList = addEval(
             inputs: newInputs,
-            evalKind: .string)
+            evalKind: .number)
         
         XCTAssertEqual(result, [expectedOutput])
     }

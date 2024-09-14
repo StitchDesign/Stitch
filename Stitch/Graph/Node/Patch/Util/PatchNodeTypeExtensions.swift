@@ -101,7 +101,7 @@ extension Patch {
         //            return NumberUVT.value
 
         // ARITHMETIC
-        case .add:
+        case .add, .length:
             // LATER: color
             return ArithmeticUVT.value
 
