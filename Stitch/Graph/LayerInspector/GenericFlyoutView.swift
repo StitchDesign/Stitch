@@ -221,8 +221,7 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                 layerNode: layerNode,
                                 nodeId: nodeId,
                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                unpackedPortIndex: fieldIndex,
-                                nodeDelegate: node)
+                                unpackedPortIndex: fieldIndex)
         }
         
         return .persistenceResponse
