@@ -22,8 +22,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     // Since this could be one of many in a node's row
     let startingFieldIndex: Int
     
-    //    let parent
-
     init(type: FieldGroupType,
          groupLabel: String? = nil,
          unpackedPortParentFieldGroupType: FieldGroupType?,

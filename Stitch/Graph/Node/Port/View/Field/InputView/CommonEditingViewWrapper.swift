@@ -54,7 +54,6 @@ struct CommonEditingViewWrapper: View {
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultfieldInspectorInput
         && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
-//        && (layerInputObserver?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
     }
     
     @MainActor

@@ -36,20 +36,3 @@ extension FieldViewModelType {
         }
     }
 }
-
-// this isn't used?
-//extension FieldViewModelTypes {
-//    init(singleFieldValue: FieldValue,
-////         fieldLabel: String = "",
-//         fieldLabel: String,
-//         rowViewModelDelegate: InputNodeRowViewModel) {
-//        self = [
-//            .single(
-//                InputFieldViewModel(fieldValue: singleFieldValue,
-//                                    fieldIndex: 0,
-//                                    fieldLabel: fieldLabel,
-//                                    rowViewModelDelegate: rowViewModelDelegate)
-//            )
-//        ]
-//    }
-//}

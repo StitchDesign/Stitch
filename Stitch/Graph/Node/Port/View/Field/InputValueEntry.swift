@@ -293,7 +293,7 @@ struct InputValueView: View {
         case .media(let media):
             MediaFieldValueView(inputCoordinate: rowObserverId, 
                                 layerInputObserver: layerInputObserver,
-                                isUpstreamValue: isUpstreamValue, // rowViewModel.rowDelegate?.upstreamOutputObserver.isDefined ?? false,
+                                isUpstreamValue: isUpstreamValue,
                                 media: media,
                                 nodeKind: nodeKind,
                                 isInput: true,
@@ -321,8 +321,6 @@ struct InputValueView: View {
         case .json(let json):
             EditJSONEntry(graph: graph,
                           coordinate: fieldCoordinate,
-                          //FieldCoordinate(rowId: rowViewModel.id,
-                          //               fieldIndex: viewModel.fieldIndex),
                           rowObserverCoordinate: rowObserverId,
                           json: isButtonPressed ? json : nil,
                           isSelectedInspectorRow: isSelectedInspectorRow,

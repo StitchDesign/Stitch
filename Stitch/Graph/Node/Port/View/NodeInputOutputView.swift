@@ -57,17 +57,6 @@ struct LayerInspectorRowButton: View {
         } else {
             return false
         }
-
-
-//        if isWholeInputWithAtleastOneFieldAlreadyOnCanvas {
-//            return true
-//        } else if isHovered {
-//            return true
-//        } else if canBeAddedToCanvas, isPortSelected {
-//            return true
-//        } else {
-//            return false
-//        }
     }
     
     @MainActor

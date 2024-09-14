@@ -12,9 +12,6 @@ let PULSE_ICON_SF_SYMBOL_NAME = "record.circle.fill"
 
 struct PulseValueButtonView: View {
     @State private var isPulsed = false
-
-//    @Bindable var graph: GraphState
-//    let inputPort: InputNodeRowViewModel?
     
     let inputCoordinate: NodeIOCoordinate? // nil = for output
     
@@ -23,10 +20,6 @@ struct PulseValueButtonView: View {
 
     // always false for outputs
     let hasIncomingEdge: Bool
-
-//    private var graphStep: GraphStepManager {
-//        self.graph.graphStepManager
-//    }
 
     var pulseColor: PulseColor {
         isPulsed ? .active : .inactive
@@ -67,17 +60,3 @@ struct PulseValueButtonView: View {
         }
     }
 }
-
-// struct PulseValueButton_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PulseValueButtonView(
-//            nodeId: InputCoordinate
-//                .fakeInputCoordinate
-//                .nodeId,
-//            id: .fakeInputCoordinate,
-//            color: .active,
-//            hasIncomingEdge: false)
-//            .scaleEffect(15)
-//            .previewInterfaceOrientation(.landscapeLeft)
-//    }
-// }

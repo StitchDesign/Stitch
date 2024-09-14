@@ -1163,20 +1163,6 @@ extension LayerInputPort {
         let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
 
         return values.pack(defaultPackedValue)
-        
-//        switch defaultPackedValue {
-//        case .position(let position):
-//            return shortenedValues.unpackedPositionCoercer()
-//        }
-//        
-//        switch self {
-//        case .position:
-//            return shortenedValues.unpackedPositionCoercer()
-//            
-//        default:
-//            // TODO: define behavior for other nodes
-//            fatalError()
-//        }
     }
     
     /// Converts port data from unpacked state to packed state.
@@ -1188,33 +1174,6 @@ extension LayerInputPort {
         }
         
         return value.unpack
-        
-        
-//        switch self {
-//        case .position:
-//            guard let position = value.getPosition else {
-//                fatalErrorIfDebug()
-//                return [value]
-//            }
-//            
-//            return [.number(position.x), .number(position.y)]
-//            
-//        case .size:
-//            guard let position = value.getPosition else {
-//                fatalErrorIfDebug()
-//                return [value]
-//            }
-//            
-//            return [.layerDimension(<#T##PortValue_V24.LayerDimension#>)]
-//            
-//        default:
-//            // TODO: get to other types
-//            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-//                fatalError("Support other types")
-//            }
-//            
-//            return nil
-//        }
     }
 }
 
@@ -1267,36 +1226,9 @@ extension PortValue {
           
         // LayerDimension cannot be unpacked, nor can ShapeCommand
             
-//        case .layerDimension:
-//            switch fieldValue.layerDimensionField {
-//            case .none:
-//                return .layerDimension(.number(.zero))
-//            case .some(let fieldValueNumber):
-//                return .layerDimension(fieldValueNumber.layerDimension)
-//            }
-            
-//        case .shapeCommand(let shapeCommand):
-//            switch shapeCommand {
-//            case .closePath:
-//                // Not possible to edit
-//                return self
-//            case .lineTo(let point), .moveTo(let point), .curveTo(_, let point, _):
-//                // Position indexes are 0 or 1 but shape commands can have as many as 7
-//                // First field is always dropdown so we subtract 1 on a modulo function
-//                let positionFieldIndex = (fieldIndex - 1) % 2
-//                guard let position = positionParent(point.stitchPosition, positionFieldIndex, fieldValue.stringValue) else {
-//                    log("PortValue.parseInputEdit error: unable to create position")
-//                    return self
-//                }
-//
-//                let newCommand = shapeCommand.updatePositionForField(position, fieldIndex)
-//                return .shapeCommand(newCommand)
-//            }
-            
         default:
             log("LayerInputPort: unpackValues")
             return nil
-            //return parseUpdate(self, fieldValue.stringValue)
         }
     }
 }
@@ -1524,9 +1456,7 @@ extension LayerInputPort {
         case .spacing:
             return "Spacing"
         case .sizingScenario:
-//            return "Sizing Scenario"
             return "Sizing"
-        
         case .isPinned:
             return "Pinned"
         case .pinTo:

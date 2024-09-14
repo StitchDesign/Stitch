@@ -11,7 +11,6 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-//    @Bindable var rowViewModel: OutputNodeRowViewModel // NOT EVEN USED ?
     @Bindable var viewModel: OutputFieldViewModel
 
     let coordinate: NodeIOCoordinate
@@ -33,9 +32,6 @@ struct OutputValueEntry: View {
     var labelDisplay: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
-                         // Gray color for multi-field
-//                         fontColor: isMultiField ? STITCH_FONT_GRAY_COLOR : Color(.titleFont))
-                         // Seems like every input label is gray now?
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
     }
@@ -60,9 +56,7 @@ struct OutputValueEntry: View {
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             labelDisplay
-            //                .border(.blue)
             valueDisplay
-            //                .border(.green)
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)

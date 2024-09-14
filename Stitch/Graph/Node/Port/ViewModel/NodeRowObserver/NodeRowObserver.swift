@@ -440,12 +440,10 @@ extension NodeRowViewModel {
                                            unpackedPortParentFieldGroupType: nil,
                                            unpackedPortIndex:  nil,
                                            importedMediaObject: importedMediaObject)
-                log("NodeRowViewModel: activeValueChanged: created field value types, exiting now")
                 return
             }
             
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
-            log("NodeRowViewModel: activeValueChanged: updated field value types, exiting now")
         } // zip
         
         if let node = self.nodeDelegate,
