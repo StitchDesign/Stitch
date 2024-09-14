@@ -18,8 +18,10 @@ final class StitchARView: ARView {
     var anchorMap: [UInt64: AnchorEntity] = [:]
 
     // For camera session delegate
-    var totalFrameCount: Int = 0
-    var currentImage: UIImage?
+    @MainActor var currentImage: UIImage? {
+        self.bufferDelegate.convertedImage
+    }
+    
     var bufferDelegate = StitchARViewCaptureDelegate()
 
     // Non-zero rect import for preventing warning that sometimes appears
@@ -175,8 +177,7 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
     private let context = CIContext()
     private var processedImage: UIImage?
     private var isLoading: Bool = false
-    
-    weak var sessionDelegate: StitchCameraSession?
+    @MainActor var convertedImage: UIImage?
 
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         guard !isLoading else {
@@ -201,7 +202,7 @@ final class StitchARViewCaptureDelegate: NSObject, ARSessionDelegate, Sendable {
                     }
                     
                     newImage.accessibilityIdentifier = CAMERA_DESCRIPTION
-                    self?.sessionDelegate?.currentImage = newImage
+                    self?.convertedImage = newImage
                     self?.isLoading = false
                     
                     dispatch(RecalculateCameraNodes())

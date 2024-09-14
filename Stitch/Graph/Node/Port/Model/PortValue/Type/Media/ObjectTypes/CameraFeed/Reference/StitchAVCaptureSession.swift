@@ -15,14 +15,17 @@ extension AVCaptureSession: @unchecked Sendable { }
 /// Camera library used when AR is not available.
 final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     weak var actor: CameraFeedActor?
-    var currentImage: UIImage?
+    
+    @MainActor var currentImage: UIImage? {
+        self.bufferDelegate.convertedImage
+    }
+    
     var bufferDelegate = CaptureSessionBufferDelegate()
 
     init(actor: CameraFeedActor) {
         super.init()
 
         self.actor = actor
-        self.bufferDelegate.sessionDelegate = self
 
         // .high: causes app to crash on device 'due to memory issues',
         // even though app's memory footprint is quite low;
@@ -126,7 +129,7 @@ final class CaptureSessionBufferDelegate: NSObject, AVCaptureVideoDataOutputSamp
     private var processedImage: UIImage?
     private var isLoading: Bool = false
     
-    weak var sessionDelegate: StitchCameraSession?
+    @MainActor var convertedImage: UIImage?
     
     // updated signature per this comment: https://medium.com/@b99705008/great-tutorial-it-really-help-me-to-understand-the-process-to-implement-a-camera-capture-feature-4baeadfe0d96
     func captureOutput(_ captureOutput: AVCaptureOutput,
@@ -148,12 +151,12 @@ final class CaptureSessionBufferDelegate: NSObject, AVCaptureVideoDataOutputSamp
                                                      context: context)
         self.isLoading = true
         
-        DispatchQueue.main.async { [weak sessionDelegate, weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let newImage = self?.processedImage else {
                 return
             }
             
-            sessionDelegate?.currentImage = newImage
+            self?.convertedImage = newImage
             self?.isLoading = false
             
             dispatch(RecalculateCameraNodes())
