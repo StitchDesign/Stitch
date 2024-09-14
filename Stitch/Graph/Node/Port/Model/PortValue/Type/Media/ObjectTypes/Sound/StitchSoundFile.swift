@@ -46,7 +46,7 @@ final class StitchSoundFilePlayer: NSObject, StitchSoundPlayerDelegate {
 
         self.ampTap = AmplitudeTap(mixer, callbackQueue: .main)
 
-        let peakAmpTap = AmplitudeTap(mixer2, callbackQueue: .main)
+        let peakAmpTap = AmplitudeTap(mixer, callbackQueue: .main)
         peakAmpTap.analysisMode = .peak
         self.peakAmpTap = peakAmpTap
 
