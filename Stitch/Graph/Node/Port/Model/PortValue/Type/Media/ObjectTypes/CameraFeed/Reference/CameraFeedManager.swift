@@ -22,7 +22,7 @@ protocol StitchCameraSession: AnyObject, Sendable {
                           cameraOrientation: StitchCameraOrientation)
 
     @MainActor
-    var currentImage: UIImage? { get set }
+    var currentImage: UIImage? { get }
 }
 
 final class CameraFeedManager: Sendable, MiddlewareService {
