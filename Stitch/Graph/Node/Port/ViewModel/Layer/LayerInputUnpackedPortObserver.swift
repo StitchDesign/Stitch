@@ -40,11 +40,6 @@ final class LayerInputUnpackedPortObserver {
 extension LayerInputUnpackedPortObserver {
     @MainActor
     func getParentPortValuesList() -> PortValues {
-        // TODO: ignore unpacked ports until we support unpacking
-        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
-            return []
-        }
-        
         let allRawValues: PortValuesList = allPorts.map { $0.allLoopedValues }
         let lengthenedValues: PortValuesList = allRawValues.lengthenArrays()
         
@@ -60,11 +55,6 @@ extension LayerInputUnpackedPortObserver {
     
     @MainActor
     var allPorts: [InputLayerNodeRowData] {
-        // TODO: ignore unpacked ports until we support unpacking
-        if !FeatureFlags.SUPPORTS_LAYER_UNPACK {
-            return []
-        }
-
         guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
             return []
         }
