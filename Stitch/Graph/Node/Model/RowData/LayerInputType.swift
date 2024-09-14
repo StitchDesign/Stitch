@@ -1227,7 +1227,6 @@ extension PortValue {
         // LayerDimension cannot be unpacked, nor can ShapeCommand
             
         default:
-            log("LayerInputPort: unpackValues")
             return nil
         }
     }
