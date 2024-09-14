@@ -41,6 +41,19 @@ func lengthEval(inputs: PortValuesList,
                 evalKind: ArithmeticNodeType) -> PortValuesList {
     // log("lengthEval called")
 
+    
+    // Check if any input is a string
+    let hasStringInput = inputs.contains { portValues in
+        portValues.contains { portValue in
+            if case .string(_) = portValue {
+                return true
+            }
+            return false
+        }
+    }
+    
+    
+    
     let stringOp: Operation = { (values: PortValues) -> PortValue in
         let str = values[0].getString?.string ?? ""
         let length = str.count
@@ -76,6 +89,10 @@ func lengthEval(inputs: PortValuesList,
     }
 
     let result = resultsMaker(inputs)
+        
+    if hasStringInput {
+        return result(stringOp)
+    }
 
     switch evalKind {
     case .number:
