@@ -378,8 +378,15 @@ extension LayerNodeViewModel: SchemaObserver {
                         from: canvasEntity,
                         id: .layerOutput(coordinate),
                         inputRowObservers: [],
-                        outputRowObservers: [outputData.rowObserver])
-                    outputData.canvasObserver?.initializeDelegate(node)
+                        outputRowObservers: [outputData.rowObserver],
+                        // Not relevant
+                        unpackedPortParentFieldGroupType: nil,
+                        unpackedPortIndex: nil)
+                    
+                    outputData.canvasObserver?.initializeDelegate(node,
+                                                                  // Not relevant
+                                                                  unpackedPortParentFieldGroupType: nil,
+                                                                  unpackedPortIndex: nil)
                 }
                 return
             }
@@ -431,7 +438,8 @@ extension LayerNodeViewModel {
         
         // Set up inputs
         self.forEachInput { layerInput in
-            layerInput.initializeDelegate(node)
+            layerInput.initializeDelegate(node,
+                                          layer: self.layer)
         }
         
         // Set blocked fields after all fields have been initialized

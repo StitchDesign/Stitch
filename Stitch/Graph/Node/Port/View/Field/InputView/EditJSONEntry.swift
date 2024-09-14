@@ -24,10 +24,6 @@ struct EditJSONEntry: View {
     let isSelectedInspectorRow: Bool
     @Binding var isPressed: Bool
 
-//    var coordinate: NodeRowViewModelId {
-//        inputViewModel.id
-//    }
-
     var body: some View {
         FieldButtonImage(sfSymbolName: JSON_BRACKET_SF_SYMBOL,
                          isSelectedInspectorRow: isSelectedInspectorRow)

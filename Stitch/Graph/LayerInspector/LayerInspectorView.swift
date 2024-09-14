@@ -96,34 +96,25 @@ struct LayerInspectorView: View {
     
     @MainActor @ViewBuilder
     func selectedLayerView(layerInspectorHeader: String,
-                           node: NodeId?,
+                           node: NodeId,
                            // Represents the already-filtered layer input+observer for this specific layer
                            layerInputObserverDict: LayerInputObserverDict,
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
             
-            #if DEV_DEBUG || DEBUG
-            
+#if DEV_DEBUG || DEBUG
             HStack {
                 // Only show editable layer node title if this isn't a multiselect case
-                if let node = node {
-                    StitchTitleTextField(graph: graph,
-                                         titleEditType: .layerInspector(node),
-                                         label: layerInspectorHeader,
-                                         font: .title2)
-                } else {
-                    StitchTextView(string: layerInspectorHeader,
-                                   font: .title2)
-                }
-                
-                
+                StitchTitleTextField(graph: graph,
+                                     titleEditType: .layerInspector(node),
+                                     label: layerInspectorHeader,
+                                     font: .title2)
                 Spacer()
             }
             .padding()
             .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-            
-            #endif
+#endif
             
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
@@ -151,7 +142,8 @@ struct LayerInspectorView: View {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
                             layerInputs: filteredInputs,
-                            graph: graph
+                            graph: graph, 
+                            nodeId: node
                         )
                     }
                 } // ForEach
@@ -235,21 +227,23 @@ struct LayerInspectorInputsSectionView: View {
     // This section's layer inputs, filtered to excluded any not supported by this specific layer.
     let layerInputs: [LayerInputAndObserver]
     @Bindable var graph: GraphState
-
+    let nodeId: NodeId
     
     @State private var expanded = true
       
     var body: some View {
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs, id: \.layerInput) { layerInput in
+            ForEach(layerInputs, id: \.layerInput) { (layerInput) in
                 let layerPort: LayerInputObserver = layerInput.portObserver
+                
                 
                 // TODO: only using packed data here
                 let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(portObserver: layerPort,
-                                                graph: graph)
+                    LayerInspectorInputPortView(layerInputObserver: layerPort,
+                                                graph: graph,
+                                                nodeId: nodeId)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,
                                                            layerInput: layerInput.layerInput))
                 }
@@ -337,7 +331,7 @@ extension GraphState {
     // Note: just used for `LayerInspectorView`
     @MainActor
     func getLayerInspectorData() -> (header: String,
-                                     node: NodeId?,
+                                     node: NodeId,
                                      inputs: LayerInputObserverDict,
                                      outputs: [OutputLayerNodeRowData])? {
                 
@@ -358,7 +352,8 @@ extension GraphState {
         
         // multiselect
         if selectedLayers.count > 1 {
-            guard let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
+            guard let firstLayer = selectedLayers.first,
+                  let multiselectState = self.graphUI.propertySidebar.inputsCommonToSelectedLayers else {
                 log("Had multiple selected layers but no multiselect state")
                 return nil
             }
@@ -366,7 +361,9 @@ extension GraphState {
             let inputs: LayerInputObserverDict = multiselectState.asLayerInputObserverDict(self)
             
             return (header: "Multiselect",
-                    node: nil,
+//                    node: nil,
+                    // TODO: is this bad? grabbing
+                    node: firstLayer.asNodeId,
                     inputs: inputs,
                     outputs: []) // TODO: multiselect for outputs
             

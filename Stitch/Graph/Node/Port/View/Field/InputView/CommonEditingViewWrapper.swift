@@ -12,12 +12,10 @@ struct CommonEditingViewWrapper: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldCoordinate: FieldCoordinate
-    let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
     let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
@@ -36,9 +34,9 @@ struct CommonEditingViewWrapper: View {
     
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {
@@ -49,12 +47,17 @@ struct CommonEditingViewWrapper: View {
     var isFieldInMultfieldInspectorInput: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
-    
+        
+    // There MUST be an inspector-row for this
+    // Can there be a better way to handle this?
+    // Maybe don't care whether it's inside the inspector or not?
+    @MainActor
     var isPaddingFieldInsideInspector: Bool {
         isFieldInMultfieldInspectorInput
-        && (inputLayerNodeRowData?.inspectorRowViewModel.activeValue.getPadding.isDefined ?? false)
+        && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
     }
     
+    @MainActor
     var fieldWidth: CGFloat {
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
@@ -98,12 +101,11 @@ struct CommonEditingViewWrapper: View {
             
         } else {
             CommonEditingView(inputField: fieldViewModel,
-                              inputLayerNodeRowData: inputLayerNodeRowData,
+                              layerInputObserver: layerInputObserver,
                               inputString: stringValue,
                               graph: graph,
                               fieldIndex: fieldCoordinate.fieldIndex,
                               isCanvasItemSelected: isCanvasItemSelected,
-                              hasIncomingEdge: hasIncomingEdge,
                               choices: choices,
                               isAdjustmentBarInUse: isButtonPressed,
                               forPropertySidebar: forPropertySidebar,

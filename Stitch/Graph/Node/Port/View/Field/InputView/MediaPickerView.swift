@@ -31,14 +31,13 @@ extension GraphState {
 /// Picker view for all imported media nodes (Core ML, image, audio, video etc.).
 struct MediaFieldValueView: View {
     let inputCoordinate: InputCoordinate
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     let isUpstreamValue: Bool
     let media: FieldValueMedia
     let nodeKind: NodeKind
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
-    let hasIncomingEdge: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
     
@@ -63,9 +62,9 @@ struct MediaFieldValueView: View {
 
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
@@ -92,7 +91,6 @@ struct MediaFieldValueView: View {
                                     isInput: isInput,
                                     fieldIndex: fieldIndex,
                                     isNodeSelected: isNodeSelected,
-                                    hasIncomingEdge: hasIncomingEdge,
                                     isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
             } else {
                 EmptyView()
@@ -107,7 +105,6 @@ struct MediaFieldLabelView: View {
     let isInput: Bool
     let fieldIndex: Int
     let isNodeSelected: Bool
-    let hasIncomingEdge: Bool
     let isMultiselectInspectorInputWithHeterogenousValues: Bool
     
     var body: some View {

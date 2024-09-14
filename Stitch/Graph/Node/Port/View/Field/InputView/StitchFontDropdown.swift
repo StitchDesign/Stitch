@@ -12,16 +12,16 @@ struct StitchFontDropdown: View {
 
     let input: InputCoordinate
     let stitchFont: StitchFont
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     let isFieldInsideLayerInspector: Bool
     let propertyIsSelected: Bool
 
     @MainActor
     var hasHeterogenousValues: Bool {
         
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 0,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {

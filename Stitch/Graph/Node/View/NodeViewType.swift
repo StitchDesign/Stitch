@@ -74,6 +74,7 @@ struct NodeTypeView: View {
     
     @ViewBuilder @MainActor
     func inputsViews() -> some View {
+        
         VStack(alignment: .leading,
                spacing: SPACING_BETWEEN_NODE_ROWS) {
             if self.node.patch == .wirelessReceiver {
@@ -121,14 +122,20 @@ struct DefaultNodeInputView: View {
                            rowViewModels: canvas.inputViewModels,
                            nodeIO: .input,
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
-            NodeInputView(graph: graph,
+            NodeInputView(graph: graph, 
+                          nodeId: node.id,
+                          nodeKind: node.kind,
+                          hasIncomingEdge: rowObserver.upstreamOutputCoordinate.isDefined,
+                          rowObserverId: rowObserver.id,
                           rowObserver: rowObserver,
-                          rowData: rowViewModel,
-                          inputLayerNodeRowData: nil,
+                          rowViewModel: rowViewModel,
+                          fieldValueTypes: rowViewModel.fieldValueTypes,
+                          layerInputObserver: nil, // Always nil, since this is a canvas item not an inspector-row
                           forPropertySidebar: false,
                           propertyIsSelected: false,
-                          propertyIsAlreadyOnGraph: true,
-                          isCanvasItemSelected: isNodeSelected)
+                          propertyIsAlreadyOnGraph: true, // Irrelevant?
+                          isCanvasItemSelected: isNodeSelected,
+                          label: rowObserver.label())
         }
     }
 }
@@ -148,11 +155,12 @@ struct DefaultNodeOutputView: View {
                            adjustmentBarSessionId: adjustmentBarSessionId) { rowObserver, rowViewModel in
             NodeOutputView(graph: graph,
                            rowObserver: rowObserver,
-                           rowData: rowViewModel,
+                           rowViewModel: rowViewModel,
                            forPropertySidebar: false,
                            propertyIsSelected: false,
                            propertyIsAlreadyOnGraph: true,
-                           isCanvasItemSelected: isNodeSelected)
+                           isCanvasItemSelected: isNodeSelected, 
+                           label: rowObserver.label())
         }
     }
 }

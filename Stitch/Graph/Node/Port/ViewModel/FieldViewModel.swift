@@ -61,6 +61,7 @@ final class OutputFieldViewModel: FieldViewModel {
     var fieldIndex: Int
     var fieldLabel: String
     var isBlockedOut: Bool = false
+    
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
     init(fieldValue: FieldValue,
@@ -85,19 +86,37 @@ extension FieldViewModel {
     }
 }
 
+
+// i.e. `createFieldObservers`
 extension Array where Element: FieldViewModel {
     init(_ fieldGroupType: FieldGroupType,
+         // Unpacked ports need special logic for grabbing their proper label
+         // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
+         unpackedPortParentFieldGroupType: FieldGroupType?,
+         unpackedPortIndex: Int?,
          startingFieldIndex: Int,
          rowViewModel: Element.NodeRowType?) {
-        let labels = fieldGroupType.labels
+        
+        // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
+        let labels = (unpackedPortParentFieldGroupType ?? fieldGroupType).labels
+                
+        // Default value still uses original, proper field group type
         let defaultValues = fieldGroupType.defaultFieldValues
+        
+        self = defaultValues.enumerated().map { fieldIndex, fieldValue in
+            
+            let index = unpackedPortIndex ?? fieldIndex
+            
+            let fieldLabel = labels[safe: index]
 
-        self = defaultValues.enumerated().map { index, fieldValue in
-            let fieldLabel = labels[safe: index] ?? ""
-
+            // Every field should have a label, even if just an empty string.
+            if fieldLabel == nil {
+                fatalErrorIfDebug()
+            }
+            
             return .init(fieldValue: fieldValue,
                          fieldIndex: startingFieldIndex + index,
-                         fieldLabel: fieldLabel,
+                         fieldLabel: fieldLabel ?? "",
                          rowViewModelDelegate: rowViewModel)
         }
     }

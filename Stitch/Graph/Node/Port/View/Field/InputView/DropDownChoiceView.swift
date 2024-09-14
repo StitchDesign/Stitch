@@ -15,7 +15,7 @@ struct DropDownChoiceView: View {
     
     let id: InputCoordinate
     
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     
     @Bindable var graph: GraphState
     
@@ -27,9 +27,9 @@ struct DropDownChoiceView: View {
     @MainActor
     var hasHeterogenousValues: Bool {
         
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 0,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {

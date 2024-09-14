@@ -255,6 +255,13 @@ struct ActiveIndexChangedAction: GraphEvent {
 
     func handle(state: GraphState) {
         state.graphUI.activeIndex = index
+        
+        // Note: previously this logic was handled in the view (`NodeInputOutputView`);
+        // the advantage was that only actively-rendered
+        state.getVisibleNodes().forEach { (node: any NodeDelegate) in
+            node.updateInputPortViewModels(activeIndex: index)
+            node.updateOutputPortViewModels(activeIndex: index)
+        }
     }
 }
 

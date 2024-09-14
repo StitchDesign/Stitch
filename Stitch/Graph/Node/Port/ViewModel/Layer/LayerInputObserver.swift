@@ -13,6 +13,8 @@ import StitchSchemaKit
 final class LayerInputObserver {
     // Not intended to be used as an API given both data payloads always exist
     // Variables here necessary to ensure keypaths logic works
+    
+    // TODO: use `private` to prevent access?
     var _packedData: InputLayerNodeRowData
     var _unpackedData: LayerInputUnpackedPortObserver
     
@@ -28,6 +30,7 @@ final class LayerInputObserver {
                                         portType: .packed),
                                   layer: schema.layer)
         
+        // initial these with field indices that reflect port0 vs port1 vs port2 ..
         self._unpackedData = .init(layerPort: port,
                                    layer: schema.layer,
                                    port0: .empty(.init(layerInput: port,
@@ -45,7 +48,57 @@ final class LayerInputObserver {
     }
 }
 
+extension LayerInputType {
+    var getUnpackedPortType: UnpackedPortType? {
+        switch self.portType {
+        case .unpacked(let unpackedPortType):
+            return unpackedPortType
+        default:
+            return nil
+        }
+    }
+}
+
 extension LayerInputObserver {
+    
+    // The overall-label for the port, e.g. "Size" (not "W" or "H") for the size property
+    @MainActor
+    func overallPortLabel(usesShortLabel: Bool) -> String {
+        guard let label = self._packedData.inspectorRowViewModel.rowDelegate?.label(true) else {
+            fatalErrorIfDebug("Did not have rowDelegate?")
+            return "NO LABEL"
+        }
+        return label
+    }
+        
+    @MainActor
+    var fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>] {
+        let fields = self.allInputData.flatMap { (portData: InputLayerNodeRowData) in
+            portData.inspectorRowViewModel.fieldValueTypes
+        }
+        return fields
+    }
+    
+    @MainActor
+    func getCanvasItemForWholeInput() -> CanvasItemViewModel? {
+        let canvasObsevers = self.getAllCanvasObservers()
+        if canvasObsevers.count > 1 {
+            fatalErrorIfDebug()
+            return nil
+        }
+        return canvasObsevers.first
+    }
+    
+    @MainActor
+    func getCanvasItem(for fieldIndex: Int) -> CanvasItemViewModel? {
+        // Important: if fieldIndex = 0, but there's only e.g. one canvas item (which is for port1), then we'll incorrectly return port1's canvas item
+//        self.getAllCanvasObservers()[safeIndex: fieldIndex]
+        
+        self.getAllCanvasObservers().first { (canvas: CanvasItemViewModel) in
+            canvas.id.layerInputCase?.keyPath.getUnpackedPortType?.rawValue == fieldIndex
+        }
+    }
+    
     @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
@@ -56,7 +109,8 @@ extension LayerInputObserver {
     }
     
     /// Updates all-up values, handling scenarios like unpacked if applicable.
-    @MainActor func updatePortValues(_ values: PortValues) {
+    @MainActor
+    func updatePortValues(_ values: PortValues) {
         // Updating the packed observer will always update unpacked observers if the mode is set as unpacked
         self._packedData.rowObserver.updateValues(values)
     }
@@ -100,7 +154,8 @@ extension LayerInputObserver {
         self._packedData.rowObserver.nodeDelegate?.graphDelegate
     }
     
-    @MainActor var activeValue: PortValue {
+    @MainActor 
+    var activeValue: PortValue {
         let activeIndex = self.graphDelegate?.activeIndex ?? .init(.zero)
         let values = self.values
         
@@ -122,12 +177,31 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
-        self._packedData.initializeDelegate(node)
-        self._unpackedData.initializeDelegate(node)
+    @MainActor 
+    func initializeDelegate(_ node: NodeDelegate,
+                            layer: Layer) {
+                
+        self._packedData.initializeDelegate(node,
+                                            // Not relevant for packed data
+                                            unpackedPortParentFieldGroupType: nil,
+                                            unpackedPortIndex: nil)
+                
+        let layerInput: LayerInputPort = self.port
+                
+        let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+            .getDefaultValue(for: layer)
+            .getNodeRowType(nodeIO: .input)
+            .getFieldGroupTypeForLayerInput
+        
+        self._unpackedData.allPorts.enumerated().forEach { fieldIndex, port in
+            port.initializeDelegate(node,
+                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                    unpackedPortIndex: fieldIndex)
+        }
     }
     
-    @MainActor func getAllCanvasObservers() -> [CanvasItemViewModel] {
+    @MainActor 
+    func getAllCanvasObservers() -> [CanvasItemViewModel] {
         switch self.observerMode {
         case .packed(let packedData):
             if let canvas = packedData.canvasObserver {
@@ -142,7 +216,9 @@ extension LayerInputObserver {
     }
     
     /// Called after the pack mode changes for some port.
-    @MainActor func wasPackModeToggled() {
+    @MainActor 
+    func wasPackModeToggled() {
+        
         let nodeId = self._packedData.rowObserver.id.nodeId
         
         guard let node = self.graphDelegate?.getNodeViewModel(nodeId),
@@ -155,6 +231,8 @@ extension LayerInputObserver {
         case .unpacked:
             // Get values from previous packed mode
             let values = self._packedData.allLoopedValues
+            
+            // Note: why do we do this?
             
             // Reset packed state
             self._packedData.resetOnPackModeToggle()
@@ -195,7 +273,7 @@ extension InputLayerNodeRowData {
     }
 }
 
-enum LayerInputMode {
+enum LayerInputMode: Equatable, Hashable {
     case packed
     case unpacked
 }
@@ -203,4 +281,25 @@ enum LayerInputMode {
 enum LayerInputObserverMode {
     case packed(InputLayerNodeRowData)
     case unpacked(LayerInputUnpackedPortObserver)
+}
+
+extension LayerInputObserverMode {
+
+    var isPacked: Bool {
+        switch self {
+        case .packed:
+            return true
+        case .unpacked:
+            return false
+        }
+    }
+    
+    var isUnpacked: Bool {
+        switch self {
+        case .packed:
+            return false
+        case .unpacked:
+            return true
+        }
+    }
 }

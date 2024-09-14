@@ -8,9 +8,16 @@
 import Foundation
 import StitchSchemaKit
 
+// layer node id + layer input (regardless of packed or unpacked)
+struct LayerPortCoordinate: Equatable, Hashable {
+    let nodeId: NodeId
+    let layerInputPort: LayerInputPort
+}
+
 // Can this really be identifiable ?
 enum LayerInspectorRowId: Equatable, Hashable {
     case layerInput(LayerInputType) // Layer node inputs use keypaths
+//    case layerInput(LayerPortCoordinate) // Layer node inputs use keypaths
     case layerOutput(Int) // Layer node outputs use port ids (ints)
 }
 

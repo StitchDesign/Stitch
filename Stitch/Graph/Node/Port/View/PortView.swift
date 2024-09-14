@@ -162,21 +162,3 @@ struct PortEntryExtendedHitBox<RowViewModel: NodeRowViewModel>: View {
             )
     }
 }
-
-// struct PortEntryREPL: View {
-//    var body: some View {
-//        ZStack {
-//            PortEntry(
-//                coordinate: .fakeInputCoordinate,
-//                color: .loopEdge)
-//                .frame(width: 50, height: 50)
-//        }.scaleEffect(4)
-//
-//    }
-// }
-//
-// struct PortEntry_Previews: PreviewProvider {
-//    static var previews: some View {
-//        PortEntryREPL()
-//    }
-// }

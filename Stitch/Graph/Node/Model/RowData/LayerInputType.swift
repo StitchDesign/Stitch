@@ -1149,17 +1149,20 @@ extension LayerInputPort {
         // Incoming values must match or exceed expected unpacked port count
         assertInDebug(unpackedPortCount <= values.count)
         
+        // TODO: what is this about?
+        
         // shorten values list to expected count for port
         let shortenedValues: PortValues = Array(values.prefix(upTo: unpackedPortCount))
         
-        switch self {
-        case .position:
-            return shortenedValues.unpackedPositionCoercer()
-            
-        default:
-            // TODO: define behavior for other nodes
-            fatalError()
-        }
+        // NOTE: Want to switch on PortValue itself, not the LayerInputType;
+        // ah, but the incoming `values: PortValues` is e.g. [PortValue.layerDimension(...), PortValue.layerDimension(...)] for PortValue.size
+        
+        // So you would have to map the
+        // Maybe just pass in the packed data anyway?
+        
+        let defaultPackedValue: PortValue = self.getDefaultValue(for: layer)
+
+        return values.pack(defaultPackedValue)
     }
     
     /// Converts port data from unpacked state to packed state.
@@ -1170,21 +1173,61 @@ extension LayerInputPort {
             return []
         }
         
+        return value.unpack
+    }
+}
+
+
+// See also `PortValue.pack: PortValues -> PortValue?`
+extension PortValue {
+    var unpack: PortValues? {
+        // Unpacking logic should probably be by the passed-in PortValue, rather than the layer-input-type, since most
+                
+        // Can we reuse some logic from `PortValue -> FieldViewModels` ?
+        // PortValue.createFieldValues is from PortValue to FieldValues; but we need to return
+        // Ah, you have field-editing logic that goes from
+        
         switch self {
-        case .position:
-            guard let position = value.getPosition else {
-                fatalErrorIfDebug()
-                return [value]
-            }
             
-            return [.number(position.x), .number(position.y)]
+        case .size(let layerSize):
+            return [
+                .layerDimension(layerSize.width),
+                .layerDimension(layerSize.height)
+            ]
+            
+        case .position(let position):
+            return [
+                .number(position.x),
+                .number(position.y)
+            ]
+            
+        case .point3D(let point):
+            return [
+                .number(point.x),
+                .number(point.y),
+                .number(point.z)
+            ]
+            
+        case .point4D(let point):
+            return [
+                .number(point.x),
+                .number(point.y),
+                .number(point.z),
+                .number(point.w)
+            ]
+            
+        case .padding(let padding):
+            return [
+                .number(padding.top),
+                .number(padding.right),
+                .number(padding.bottom),
+                .number(padding.left)
+            ]
+          
+        // LayerDimension cannot be unpacked, nor can ShapeCommand
             
         default:
-            // TODO: get to other types
-            if FeatureFlags.SUPPORTS_LAYER_UNPACK {
-//                fatalError("Support other types")
-            }
-            
+            log("LayerInputPort: unpackValues")
             return nil
         }
     }
@@ -1227,9 +1270,8 @@ extension LayerInputEntity {
 
 extension LayerInputPort {
     // shortLabel = used for property sidebar
-    func label(_ useShortLabel: Bool = false) -> String {
+    func label(useShortLabel: Bool = false) -> String {
         switch self {
-            // Required everywhere
         case .position:
             return "Position"
         case .size:
@@ -1414,9 +1456,7 @@ extension LayerInputPort {
         case .spacing:
             return "Spacing"
         case .sizingScenario:
-//            return "Sizing Scenario"
             return "Sizing"
-        
         case .isPinned:
             return "Pinned"
         case .pinTo:

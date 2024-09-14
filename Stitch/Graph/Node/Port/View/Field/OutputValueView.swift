@@ -11,7 +11,6 @@ import StitchSchemaKit
 struct OutputValueEntry: View {
 
     @Bindable var graph: GraphState
-    @Bindable var rowViewModel: OutputNodeRowViewModel
     @Bindable var viewModel: OutputFieldViewModel
 
     let coordinate: NodeIOCoordinate
@@ -33,9 +32,6 @@ struct OutputValueEntry: View {
     var labelDisplay: some View {
         LabelDisplayView(label: label,
                          isLeftAligned: false,
-                         // Gray color for multi-field
-//                         fontColor: isMultiField ? STITCH_FONT_GRAY_COLOR : Color(.titleFont))
-                         // Seems like every input label is gray now?
                          fontColor: STITCH_FONT_GRAY_COLOR,
                          isSelectedInspectorRow: isSelectedInspectorRow)
     }
@@ -60,9 +56,7 @@ struct OutputValueEntry: View {
     var body: some View {
         HStack(spacing: NODE_COMMON_SPACING) {
             labelDisplay
-            //                .border(.blue)
             valueDisplay
-            //                .border(.green)
         }
         .foregroundColor(VALUE_FIELD_BODY_COLOR)
         .height(NODE_ROW_HEIGHT + 6)
@@ -126,7 +120,7 @@ struct OutputValueView: View {
 
         case .bool(let bool):
             BoolCheckboxView(id: nil, 
-                             inputLayerNodeRowData: nil,
+                             layerInputObserver: nil,
                              value: bool,
                              isFieldInsideLayerInspector: false,
                              isSelectedInspectorRow: isSelectedInspectorRow)
@@ -141,7 +135,7 @@ struct OutputValueView: View {
         case .textFontDropdown(let stitchFont):
             StitchFontDropdown(input: coordinate,
                                stitchFont: stitchFont, 
-                               inputLayerNodeRowData: nil,
+                               layerInputObserver: nil,
                                isFieldInsideLayerInspector: false, 
                                propertyIsSelected: isSelectedInspectorRow)
                 // need enough width for font design + font weight name
@@ -154,7 +148,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .assignedLayer(layerId), 
-                                         inputLayerNodeRowData: nil,
+                                         layerInputObserver: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: false,
                                          isSelectedInspectorRow: isSelectedInspectorRow,
@@ -171,7 +165,7 @@ struct OutputValueView: View {
             LayerNamesDropDownChoiceView(graph: graph,
                                          id: coordinate,
                                          value: .pinTo(pinToId),
-                                         inputLayerNodeRowData: nil,
+                                         layerInputObserver: nil,
                                          isFieldInsideLayerInspector: false,
                                          isForPinTo: true,
                                          isSelectedInspectorRow: isSelectedInspectorRow,
@@ -188,7 +182,7 @@ struct OutputValueView: View {
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: coordinate,
                               selection: anchor, 
-                              inputLayerNodeRowData: nil,
+                              layerInputObserver: nil,
                               isFieldInsideLayerInspector: false, 
                               isSelectedInspectorRow: isSelectedInspectorRow)
             .frame(width: NODE_INPUT_OR_OUTPUT_WIDTH,
@@ -198,29 +192,26 @@ struct OutputValueView: View {
 
         case .media(let media):
             MediaFieldValueView(inputCoordinate: coordinate, 
-                                inputLayerNodeRowData: nil,
+                                layerInputObserver: nil,
                                 isUpstreamValue: false,     // only valid for inputs
                                 media: media,
                                 nodeKind: nodeKind,
                                 isInput: false,
                                 fieldIndex: fieldIndex,
                                 isNodeSelected: isCanvasItemSelected,
-                                hasIncomingEdge: false,
                                 isFieldInsideLayerInspector: false,
                                 isSelectedInspectorRow: isSelectedInspectorRow,
                                 graph: graph)
 
         case .color(let color):
             StitchColorPickerOrb(chosenColor: color, 
-                                 isMultiselectInspectorInputWithHeterogenousValues: false)
+                                    isMultiselectInspectorInputWithHeterogenousValues: false)
 
         case .pulse(let pulseTime):
-            PulseValueButtonView(
-                graph: graph,
-                inputPort: nil,
-                stitchId: coordinate.nodeId,
-                pulseTime: pulseTime,
-                hasIncomingEdge: false)
+            PulseValueButtonView(inputCoordinate: nil,
+                                 nodeId: coordinate.nodeId,
+                                 pulseTime: pulseTime,
+                                 hasIncomingEdge: false)
 
         case .json(let json):
             ValueJSONView(coordinate: coordinate,

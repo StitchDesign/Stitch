@@ -51,7 +51,7 @@ struct CommonEditingView: View {
     @State private var isBase64 = false
     
     @Bindable var inputField: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     
     let inputString: String // from redux
     
@@ -59,7 +59,6 @@ struct CommonEditingView: View {
     
     let fieldIndex: Int
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
 
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
@@ -132,9 +131,9 @@ struct CommonEditingView: View {
             
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {
@@ -311,52 +310,7 @@ struct CommonEditingView: View {
             })
         
         
-//        StitchTextView(string: self.fieldHasHeterogenousValues ? .HETEROGENOUS_VALUES : self.inputString,
-//                       font: STITCH_FONT,
-//                       fontColor: STITCH_FONT_GRAY_COLOR)
-//        .modifier(InputViewBackground(
-//            backgroundColor: forPropertySidebar ? .INSPECTOR_FIELD_BACKGROUND_COLOR : .COMMON_EDITING_VIEW_READ_ONLY_BACKGROUND_COLOR,
-//            show: self.isHovering || forPropertySidebar,
-//            hasDropdown: choices.isDefined,
-//            width: fieldWidth))
-//        
-//        // Manually focus this field when user taps.
-//        // Better as global redux-state than local view-state: only one field in entire app can be focused at a time.
-//        .onTapGesture {
-//            // Every multifield input in the inspector uses a flyout
-//            if isFieldInMultfieldInspectorInput,
-//               let layerInput = inputField.layerInput,
-//               !isForFlyout {
-//                
-//                dispatch(FlyoutToggled(flyoutInput: layerInput,
-//                                       flyoutNodeId: self.nodeId))
-//            } else {
-//                dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
-//            }
-//        }
-        
     }
-    
-//    var isFieldInMultfieldInspectorInput: Bool {
-////        isFieldInMultifieldInput && forPropertySidebar
-//        isFieldInMultifieldInput
-//        && forPropertySidebar
-//        && !isForFlyout
-//        
-//    }
-    
-//    var fieldWidth: CGFloat {
-//        
-//        if isFieldInMultfieldInspectorInput {
-//            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
-//        }
-//        
-//        if isForSpacingField {
-//            return SPACING_FIELD_WIDTH
-//        }
-//        
-//        return NODE_INPUT_OR_OUTPUT_WIDTH
-//    }
 
     // Currently only used when we focus or de-focus
     @MainActor

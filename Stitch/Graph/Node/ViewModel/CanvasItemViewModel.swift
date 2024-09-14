@@ -109,6 +109,8 @@ final class CanvasItemViewModel: Identifiable {
          parentGroupNodeId: NodeId?,
          inputRowObservers: [InputNodeRowObserver],
          outputRowObservers: [OutputNodeRowObserver],
+         unpackedPortParentFieldGroupType: FieldGroupType?,
+         unpackedPortIndex: Int?,
          nodeDelegate: NodeDelegate? = nil) {
         self.id = id
         self.position = position
@@ -118,10 +120,14 @@ final class CanvasItemViewModel: Identifiable {
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers)
+                               outputRowObservers: outputRowObservers,
+                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                               unpackedPortIndex: unpackedPortIndex)
         
         if let node = nodeDelegate {
-            self.initializeDelegate(node)
+            self.initializeDelegate(node,
+                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                    unpackedPortIndex: unpackedPortIndex)
         }
     }
 }
@@ -129,22 +135,36 @@ final class CanvasItemViewModel: Identifiable {
 extension CanvasItemViewModel: SchemaObserver {
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
-                           outputRowObservers: [OutputNodeRowObserver]) {
-        self.inputViewModels.sync(with: inputRowObservers, canvas: self)
-        self.outputViewModels.sync(with: outputRowObservers, canvas: self)
+                           outputRowObservers: [OutputNodeRowObserver],
+                           unpackedPortParentFieldGroupType: FieldGroupType?,
+                           unpackedPortIndex: Int?) {
+        
+        self.inputViewModels.sync(with: inputRowObservers,
+                                  canvas: self,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex)
+        
+        self.outputViewModels.sync(with: outputRowObservers,
+                                   canvas: self,
+                                   unpackedPortParentFieldGroupType: nil,
+                                   unpackedPortIndex: nil)
     }
     
     @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
-                     outputRowObservers: [OutputNodeRowObserver]) {
+                     outputRowObservers: [OutputNodeRowObserver],
+                     unpackedPortParentFieldGroupType: FieldGroupType?,
+                     unpackedPortIndex: Int?) {
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
                   parentGroupNodeId: canvasEntity.parentGroupNodeId,
                   inputRowObservers: inputRowObservers,
-                  outputRowObservers: outputRowObservers)
+                  outputRowObservers: outputRowObservers,
+                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                  unpackedPortIndex: unpackedPortIndex)
     }
     
     func createSchema() -> CanvasNodeEntity {
@@ -175,27 +195,23 @@ extension CanvasItemViewModel: SchemaObserver {
 }
 
 extension CanvasItemViewModel {
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor func initializeDelegate(_ node: NodeDelegate,
+                                       unpackedPortParentFieldGroupType: FieldGroupType?,
+                                       unpackedPortIndex: Int?) {
         self.nodeDelegate = node
         self.inputViewModels.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex)
         }
         
         self.outputViewModels.forEach {
-            $0.initializeDelegate(node)
+            $0.initializeDelegate(node,
+                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                  unpackedPortIndex: unpackedPortIndex)
         }
     }
-    
-    @MainActor
-    static func createEmpty() -> Self {
-        .init(from: .init(position: .zero,
-                          zIndex: .zero,
-                          parentGroupNodeId: nil),
-              id: .node(.init()),
-              inputRowObservers: [],
-              outputRowObservers: [])
-    }
-    
+        
     var sizeByLocalBounds: CGSize {
         self.bounds.localBounds.size
     }
@@ -235,7 +251,7 @@ extension InputLayerNodeRowData {
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
-                                               nodeKind: .layer(.rectangle),
+                                               nodeKind: .layer(layer),
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: .init()),

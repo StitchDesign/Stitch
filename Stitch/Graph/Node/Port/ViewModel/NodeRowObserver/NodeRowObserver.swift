@@ -406,6 +406,9 @@ extension NodeRowViewModel {
         guard !nodeRowTypeChanged else {
             self.createFieldValueTypes(initialValue: newValue,
                                        nodeIO: nodeIO,
+                                       // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
+                                       unpackedPortParentFieldGroupType: nil,
+                                       unpackedPortIndex: nil,
                                        importedMediaObject: importedMediaObject)
             return
         }
@@ -432,6 +435,10 @@ extension NodeRowViewModel {
             if willUpdateField {
                 self.createFieldValueTypes(initialValue: newValue,
                                            nodeIO: nodeIO,
+                                           // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
+                                           // Not relevant?
+                                           unpackedPortParentFieldGroupType: nil,
+                                           unpackedPortIndex:  nil,
                                            importedMediaObject: importedMediaObject)
                 return
             }
@@ -508,10 +515,6 @@ extension NodeRowObserver {
             $0.graphDelegate?.groupNodeFocused == $0.canvasItemDelegate?.parentGroupNodeId
         }
     }
-    
-//    var fieldValueTypes: FieldGroupTypeViewModelList<Self.RowViewModelType.FieldType> {
-//        self.rowViewModel.fieldValueTypes
-//    }
 }
 
 extension InputNodeRowObserver: NodeRowCalculatable { }

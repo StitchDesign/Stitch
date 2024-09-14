@@ -30,7 +30,10 @@ extension NodeViewModelType {
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
-                                outputRowObservers: []))
+                                outputRowObservers: [],
+                                // Irrelevant
+                                unpackedPortParentFieldGroupType: nil,
+                                unpackedPortIndex: nil))
         }
     }
     
@@ -46,7 +49,10 @@ extension NodeViewModelType {
         case .layer(let layerNodeViewModel):
             layerNodeViewModel.initializeDelegate(node)
         case .group(let canvasItemViewModel):
-            canvasItemViewModel.initializeDelegate(node)
+            canvasItemViewModel.initializeDelegate(node,
+                                                   // Not relevant
+                                                   unpackedPortParentFieldGroupType: nil,
+                                                   unpackedPortIndex: nil)
         }
     }
 

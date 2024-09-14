@@ -48,7 +48,7 @@ struct NodeRowViewModelId: Hashable {
     var graphItemType: GraphItemType
     var nodeId: NodeId
     
-    // TODO: this is always 0 for layer inpsector which creates issues for tabbing
+    // TODO: this is always 0 for layer inspector which creates issues for tabbing
     var portId: Int
 }
 
@@ -120,14 +120,19 @@ extension NodeRowViewModel {
         self.rowDelegate?.nodeDelegate
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor 
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         guard let rowDelegate = self.rowDelegate else {
             fatalErrorIfDebug()
             return
         }
         
         self.nodeDelegate = node
-        self.initializeValues(rowDelegate: rowDelegate)
+        self.initializeValues(rowDelegate: rowDelegate,
+                              unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                              unpackedPortIndex: unpackedPortIndex)
     }
     
     var portViewData: PortViewType? {
@@ -140,13 +145,18 @@ extension NodeRowViewModel {
     }
     
     @MainActor
-    func initializeValues(rowDelegate: Self.RowObserver) {
+    func initializeValues(rowDelegate: Self.RowObserver,
+                          unpackedPortParentFieldGroupType: FieldGroupType?,
+                          unpackedPortIndex: Int?) {
         let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                     activeIndex: activeIndex)
+        
         self.createFieldValueTypes(initialValue: self.activeValue,
                                    nodeIO: Self.nodeIO,
+                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                   unpackedPortIndex: unpackedPortIndex,
                                    importedMediaObject: nil)
     }
     
@@ -308,7 +318,10 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
         self.canvasItemDelegate = canvasItemDelegate
         
         if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate)
+            self.initializeValues(rowDelegate: rowDelegate,
+                                  // Irrelevant for outputs, since an output cannot be unpacked
+                                  unpackedPortParentFieldGroupType: nil,
+                                  unpackedPortIndex: nil)
         }
     }
 }
@@ -365,7 +378,9 @@ extension Array where Element: NodeRowViewModel {
     @MainActor
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
-                       canvas: CanvasItemViewModel) {
+                       canvas: CanvasItemViewModel,
+                       unpackedPortParentFieldGroupType: FieldGroupType?,
+                       unpackedPortIndex: Int?) {
         // This will be nil for some inits--that's ok, just need to set delegate after
         let node = canvas.nodeDelegate
         
@@ -403,7 +418,9 @@ extension Array where Element: NodeRowViewModel {
                                            canvasItemDelegate: canvas)
                 
                 if let node = node {
-                    rowViewModel.initializeDelegate(node)                    
+                    rowViewModel.initializeDelegate(node,
+                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                    unpackedPortIndex: unpackedPortIndex)
                 }
                 
                 return rowViewModel

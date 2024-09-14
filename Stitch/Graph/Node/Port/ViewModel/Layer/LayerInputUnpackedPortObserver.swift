@@ -81,13 +81,6 @@ extension LayerInputUnpackedPortObserver {
     }
     
     @MainActor
-    func initializeDelegate(_ node: NodeDelegate) {
-        self.allPorts.forEach {
-            $0.initializeDelegate(node)
-        }
-    }
-    
-    @MainActor
     /// From packed values, unpacks them for unpack layer input scenario.
     func updateValues(from packedValues: PortValues,
                       layerNode: LayerNodeViewModel) {

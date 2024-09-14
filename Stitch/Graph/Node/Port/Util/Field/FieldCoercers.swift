@@ -70,13 +70,10 @@ extension PortValue {
 
         switch self {
         case .size(let layerSize):
-            //            switch fieldValue {
-            //            case .string(let string):
             guard let newSize = sizeParent(layerSize, fieldIndex, fieldValue.stringValue) else {
                 log("parseInputEdit error: unable to parse size.")
                 return self
             }
-
             return .size(newSize)
             
         case .position(let position):

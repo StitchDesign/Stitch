@@ -587,7 +587,7 @@
 		EC8BA54726A6383F002E345C /* SmoothValueNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54626A6383F002E345C /* SmoothValueNode.swift */; };
 		EC8BA54926A6388B002E345C /* VelocityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BA54826A6388B002E345C /* VelocityNode.swift */; };
 		EC8BD76E2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */; };
-		EC8BD7702B6C143E009BA60C /* EdgeEditModeViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD76F2B6C143E009BA60C /* EdgeEditModeViewModifier.swift */; };
+		EC8BD7702B6C143E009BA60C /* EdgeEditModeOutputHoverViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD76F2B6C143E009BA60C /* EdgeEditModeOutputHoverViewModifier.swift */; };
 		EC8C5C112616334B0099C374 /* OptionSwitchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */; };
 		EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C142616415F0099C374 /* SoundKitNode.swift */; };
 		EC8C5C2326165C870099C374 /* PulseOnChangeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */; };
@@ -1499,7 +1499,7 @@
 		EC8BA54626A6383F002E345C /* SmoothValueNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmoothValueNode.swift; sourceTree = "<group>"; };
 		EC8BA54826A6388B002E345C /* VelocityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VelocityNode.swift; sourceTree = "<group>"; };
 		EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeOutputHoverView.swift; sourceTree = "<group>"; };
-		EC8BD76F2B6C143E009BA60C /* EdgeEditModeViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeViewModifier.swift; sourceTree = "<group>"; };
+		EC8BD76F2B6C143E009BA60C /* EdgeEditModeOutputHoverViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeOutputHoverViewModifier.swift; sourceTree = "<group>"; };
 		EC8C5C102616334B0099C374 /* OptionSwitchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionSwitchNode.swift; sourceTree = "<group>"; };
 		EC8C5C142616415F0099C374 /* SoundKitNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundKitNode.swift; sourceTree = "<group>"; };
 		EC8C5C2226165C870099C374 /* PulseOnChangeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseOnChangeNode.swift; sourceTree = "<group>"; };
@@ -2571,7 +2571,7 @@
 			children = (
 				B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */,
 				EC8BD76D2B6C1350009BA60C /* EdgeEditModeOutputHoverView.swift */,
-				EC8BD76F2B6C143E009BA60C /* EdgeEditModeViewModifier.swift */,
+				EC8BD76F2B6C143E009BA60C /* EdgeEditModeOutputHoverViewModifier.swift */,
 				EC9832682B69C926003F9462 /* EdgeEditModeInputLabelView.swift */,
 			);
 			path = EditMode;
@@ -4917,7 +4917,7 @@
 				EC165ED829C8B7FC0024ECDF /* CustomShapeView.swift in Sources */,
 				B555010D2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift in Sources */,
 				B50AD536292C9F69003CC61E /* InsertNodeMenuSearchBar.swift in Sources */,
-				EC8BD7702B6C143E009BA60C /* EdgeEditModeViewModifier.swift in Sources */,
+				EC8BD7702B6C143E009BA60C /* EdgeEditModeOutputHoverViewModifier.swift in Sources */,
 				B5F0FC162B4F2FB5009104A8 /* GraphReducer.swift in Sources */,
 				EC2BBF062947BCCD005BCCDB /* PreviewColorFillLayer.swift in Sources */,
 				ECFC87312936ECBD004A065A /* OptionSenderNode.swift in Sources */,

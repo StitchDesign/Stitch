@@ -21,21 +21,24 @@ struct GenericFlyoutView: View {
     @State var height: CGFloat? = nil
     
     @Bindable var graph: GraphState
-    let inputRowViewModel: InputNodeRowViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData // non-nil, because flyouts are always for inspector inputs
+    
+    // non-nil, because flyouts are always for inspector inputs
+    let layerInputObserver: LayerInputObserver
+    
     let layer: Layer
-    let hasIncomingEdge: Bool
+    var hasIncomingEdge: Bool = false
     let layerInput: LayerInputPort
     
-    var nodeId: NodeId {
-        self.inputRowViewModel.id.nodeId
-    }
+    let nodeId: NodeId
+    let nodeKind: NodeKind
     
+    let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
+        
     var body: some View {
         
         VStack(alignment: .leading) {
             // TODO: need better padding here; but confounding factor is UIKitWrapper
-            FlyoutHeader(flyoutTitle: layerInput.label(true))
+            FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
             
             // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
@@ -66,79 +69,126 @@ struct GenericFlyoutView: View {
     }
     
     @State var selectedFlyoutRow: Int? = nil
-    
-    // TODO: just use `NodeInputView` here ?
+        
+    // TODO: just use `NodeInputView` here ? Or keep this view separate and compose views ?
     @ViewBuilder @MainActor
     var flyoutRows: some View {
-        FieldsListView(graph: graph,
-                       rowViewModel: inputRowViewModel,
-                       nodeId: inputRowViewModel.id.nodeId,
-                       isGroupNodeKind: inputRowViewModel.nodeKind.isGroup,
-                       forPropertySidebar: true,
-                       // TODO: fix
-                       propertyIsAlreadyOnGraph: false) { inputFieldViewModel, isMultiField in
-            
-            if let coordinate = inputRowViewModel.rowDelegate?.id {
-                
-                let fieldIndex = inputFieldViewModel.fieldIndex
-                let isSelectedRow = self.selectedFlyoutRow == fieldIndex
-                
-                HStack {
-                    // TODO: consolidate with `LayerInspectorRowButton`
-                    // TODO: Figma UI: field on canvas
-                    //                    Image(systemName: "plus.circle")
-                    //                        .resizable()
-                    //                        .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                    //                               height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    //                        .onTapGesture {
-                    //                            log("will add field to canvas")
-                    //                            dispatch(LayerInputFieldAddedToGraph(
-                    //                                layerInput: layerInput,
-                    //                                nodeId: nodeId,
-                    //                                fieldIndex: fieldIndex))
-                    //                        }
-                    //                        .opacity(isSelectedRow ? 1 : 0)
-                    
-                    // For a single field
-                    InputValueEntry(graph: graph,
-                                    rowViewModel: inputRowViewModel,
-                                    viewModel: inputFieldViewModel,
-                                    inputLayerNodeRowData: inputLayerNodeRowData,
-                                    rowObserverId: coordinate,
-                                    nodeKind: .layer(layer),
-                                    isCanvasItemSelected: false,
-                                    hasIncomingEdge: hasIncomingEdge, // always false?
-                                    forPropertySidebar: true,
-                                    // TODO: Figma UI: field on canvas
-                                    propertyIsAlreadyOnGraph: false, // Not relevant?
-                                    isFieldInMultifieldInput: isMultiField,
-                                    isForFlyout: true,
-                                    // False for now, until individual fields can be added to the graph
-                                    isSelectedInspectorRow: false)
-                    .onTapGesture {
-                        log("flyout: tapped field row \(fieldIndex)")
-                        self.selectedFlyoutRow = fieldIndex
-                    }
-                }
-            } else {
-                FatalErrorIfDebugView()
+        // Assumes: all flyouts (besides shadow-flyout) have a single row which contains multiple fields
+        FieldsListView<InputNodeRowViewModel, GenericFlyoutRowView>(
+            graph: graph,
+            fieldValueTypes: fieldValueTypes,
+            nodeId: nodeId,
+            forPropertySidebar: true) { inputFieldViewModel, isMultifield in
+                GenericFlyoutRowView(
+                    graph: graph,
+                    viewModel: inputFieldViewModel,
+                    layerInputObserver: layerInputObserver,
+                    layerInput: layerInput,
+                    nodeId: nodeId,
+                    fieldIndex: inputFieldViewModel.fieldIndex,
+                    isMultifield: isMultifield,
+                    nodeKind: nodeKind)
             }
+        
+    }
+}
+
+extension Int {
+    var asUnpackedPortType: UnpackedPortType {
+        switch self {
+        case 0:
+            return .port0
+        case 1:
+            return .port1
+        case 2:
+            return .port2
+        case 3:
+            return .port3
+        default:
+            fatalErrorIfDebug()
+            return .port0
         }
     }
 }
 
-struct FatalErrorIfDebugView: View {
+struct GenericFlyoutRowView: View {
+    
+    @Bindable var graph: GraphState
+    let viewModel: InputFieldViewModel
+        
+    let layerInputObserver: LayerInputObserver
+    
+    let layerInput: LayerInputPort
+    let nodeId: NodeId
+    let fieldIndex: Int
+    
+    let isMultifield: Bool
+    let nodeKind: NodeKind
+    
+    @State var isHovered: Bool = false
+        
+    var layerInputType: LayerInputType {
+        .init(layerInput: layerInput,
+              portType: .unpacked(fieldIndex.asUnpackedPortType))
+    }
+    
+    var layerInspectorRowId: LayerInspectorRowId {
+        .layerInput(layerInputType)
+    }
+    
+    var coordinate: NodeIOCoordinate {
+        .init(portType: .keyPath(layerInputType),
+              nodeId: nodeId)
+    }
+    
+    @MainActor
+    var isSelectedRow: Bool {
+        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
+    }
+    
+    @MainActor
+    var canvasItemId: CanvasItemId? {
+        // Is this particular unpacked-port already on the canvas?
+        layerInputObserver.getCanvasItem(for: fieldIndex)?.id
+    }
+    
     var body: some View {
-        Color.clear
-            .onAppear {
-                fatalErrorIfDebug()
-            }
+        HStack {
+            LayerInspectorRowButton(layerInputObserver: layerInputObserver,
+                                    layerInspectorRowId: layerInspectorRowId,
+                                    coordinate: coordinate,
+                                    canvasItemId: canvasItemId,
+                                    isPortSelected: isSelectedRow,
+                                    isHovered: isHovered)
+            
+            InputValueEntry(graph: graph,
+                            viewModel: viewModel,
+                            layerInputObserver: layerInputObserver,
+                            rowObserverId: coordinate,
+                            nodeKind: nodeKind,
+                            isCanvasItemSelected: false, // Always false
+                            hasIncomingEdge: false,
+                            forPropertySidebar: true,
+                            propertyIsAlreadyOnGraph: canvasItemId.isDefined,
+                            isFieldInMultifieldInput: isMultifield,
+                            isForFlyout: true,
+                            isSelectedInspectorRow: isSelectedRow)
+        } // HStack
+        .contentShape(Rectangle())
+        .onHover(perform: { hovering in
+            self.isHovered = hovering
+        })
+        .onTapGesture {
+            graph.graphUI.onLayerPortRowTapped(
+                layerInspectorRowId: layerInspectorRowId,
+                 canvasItemId: canvasItemId)
+        }
+        
     }
 }
 
-struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
+struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
-    //    let layerInput: LayerInputType
     let layerInput: LayerInputPort
     let nodeId: NodeId
     let fieldIndex: Int
@@ -150,30 +200,31 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
         
-        fatalErrorIfDebug()
-        return .noChange
+        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
         
-        //        // How to get the `LayerInputObserver`, given a `LayerInputType` or `LayerInputPort` ?
-        //        // Note: `layerNode[keyPath: layerInput.layerNodeKeyPath]` retrieves `InputLayerNodeRowData`
-        //        let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
-        //
-        //        // Confusing: this is for a specific field but the type is called `InputLayerNodeRowData` ?
-        ////        let fieldObserver: InputLayerNodeRowData? = portObserver._unpackedData.allPorts[safe: fieldIndex]
-        //
-        //        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
-        //
-        //            let parentGroupNodeId = portObserver.graphDelegate?.groupNodeFocused
-        //
-        //            var unpackSchema = unpackedPort.createSchema()
-        //            unpackSchema.canvasItem = .init(position: .zero,
-        //                                            zIndex: .zero,
-        //                                            parentGroupNodeId: parentGroupNodeId)
-        //            unpackedPort.update(from: unpackSchema,
-        //                                layerInputType: unpackedPort.id,
-        //                                layerNode: layerNode,
-        //                                nodeId: nodeId,
-        //                                nodeDelegate: node)
-        //        }
+        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+            
+            let parentGroupNodeId = state.groupNodeFocused
+            
+            var unpackSchema = unpackedPort.createSchema()
+            unpackSchema.canvasItem = .init(position: state.newLayerPropertyLocation,
+                                            zIndex: state.highestZIndex + 1,
+                                            parentGroupNodeId: parentGroupNodeId)
+
+            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+                .getDefaultValue(for: layerNode.layer)
+                .getNodeRowType(nodeIO: .input)
+                .getFieldGroupTypeForLayerInput
+            
+            unpackedPort.update(from: unpackSchema,
+                                layerInputType: unpackedPort.id,
+                                layerNode: layerNode,
+                                nodeId: nodeId,
+                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                unpackedPortIndex: fieldIndex,
+                                nodeDelegate: node)
+        }
         
+        return .persistenceResponse
     }
 }

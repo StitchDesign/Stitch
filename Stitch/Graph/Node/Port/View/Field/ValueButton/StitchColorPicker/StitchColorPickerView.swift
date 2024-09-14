@@ -55,7 +55,7 @@ struct StitchColorPickerView: View {
     @State private var show: Bool = false
 
     let rowId: NodeIOCoordinate?
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     let fieldCoordinate: FieldCoordinate
     let isFieldInsideLayerInspector: Bool
     var isForPreviewWindowBackgroundPicker: Bool = false
@@ -68,9 +68,9 @@ struct StitchColorPickerView: View {
         
     @MainActor
     var isMultiselectInspectorInputWithHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldCoordinate.fieldIndex,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
         } else {

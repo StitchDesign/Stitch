@@ -51,7 +51,9 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
             return .noChange
         }
         
-        handleLayerInputAddedToGraph(state: state, nodeId: nodeId, coordinate: coordinate)
+        handleLayerInputAddedToGraph(state: state, 
+                                     nodeId: nodeId,
+                                     coordinate: coordinate)
         
         return .shouldPersist
     }
@@ -110,6 +112,10 @@ extension GraphState {
         
         let nodeId = node.id
         
+        // When adding an entire input to the graph, we don't worry about unpacked state etc.
+        let unpackedPortParentFieldGroupType: FieldGroupType? = nil
+        let unpackedPortIndex: Int? = nil
+        
         input.canvasObserver = CanvasItemViewModel(
             id: .layerInput(.init(
                 node: nodeId,
@@ -119,9 +125,13 @@ extension GraphState {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [input.rowObserver],
-            outputRowObservers: [])
+            outputRowObservers: [],
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex)
         
-        input.canvasObserver?.initializeDelegate(node)
+        input.canvasObserver?.initializeDelegate(node,
+                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                 unpackedPortIndex: unpackedPortIndex)
         
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
@@ -165,6 +175,10 @@ extension GraphState {
                                  output: OutputLayerNodeRowData,
                                  portId: Int) {
         
+        // Not relevant for output
+        let unpackedPortParentFieldGroupType: FieldGroupType? = nil
+        let unpackedPortIndex: Int? = nil
+        
         output.canvasObserver = CanvasItemViewModel(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
@@ -173,9 +187,13 @@ extension GraphState {
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
             inputRowObservers: [],
-            outputRowObservers: [output.rowObserver])
+            outputRowObservers: [output.rowObserver],
+            unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+            unpackedPortIndex: unpackedPortIndex)
         
-        output.canvasObserver?.initializeDelegate(node)
+        output.canvasObserver?.initializeDelegate(node,
+                                                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                  unpackedPortIndex: unpackedPortIndex)
         
         // Subscribe inspector row ui data to the row data's canvas item
         output.inspectorRowViewModel.canvasItemDelegate = output.canvasObserver
@@ -183,17 +201,5 @@ extension GraphState {
         self.graphUI.propertySidebar.selectedProperty = nil
         
         self.maybeCreateLLMAddLayerOutput(node.id, portId)
-    }
-}
-
-extension GraphUIState {
-    func layerPropertyTapped(_ property: LayerInspectorRowId) {
-        let alreadySelected = self.propertySidebar.selectedProperty == property
-                
-        if alreadySelected {
-            self.propertySidebar.selectedProperty = nil
-        } else {
-            self.propertySidebar.selectedProperty = property
-        }
     }
 }

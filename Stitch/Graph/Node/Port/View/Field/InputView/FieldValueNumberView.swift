@@ -13,13 +13,12 @@ struct FieldValueNumberView: View {
     
     @Bindable var graph: GraphState
     @Bindable var fieldViewModel: InputFieldViewModel
-    let inputLayerNodeRowData: InputLayerNodeRowData?
+    let layerInputObserver: LayerInputObserver?
     let fieldValue: FieldValue
     let fieldValueNumberType: FieldValueNumberType
     let fieldCoordinate: FieldCoordinate
     let rowObserverCoordinate: NodeIOCoordinate
     let isCanvasItemSelected: Bool
-    let hasIncomingEdge: Bool
     let choices: [String]?
     let adjustmentBarSessionId: AdjustmentBarSessionId
     let forPropertySidebar: Bool
@@ -39,11 +38,10 @@ struct FieldValueNumberView: View {
     // Bad: do not want this running constantly when we're not inside a
     @MainActor
     var fieldHasHeterogenousValues: Bool {
-        if let inputLayerNodeRowData = inputLayerNodeRowData {
-            @Bindable var inputLayerNodeRowData = inputLayerNodeRowData
-            return inputLayerNodeRowData.fieldHasHeterogenousValues(
+        if let layerInputObserver = layerInputObserver {
+            @Bindable var layerInputObserver = layerInputObserver
+            return layerInputObserver.fieldHasHeterogenousValues(
                 fieldIndex,
-                //                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
                 // should be same as `forPropertySidebar`
                 isFieldInsideLayerInspector: forPropertySidebar)
         } else {
@@ -77,12 +75,10 @@ struct FieldValueNumberView: View {
             
             CommonEditingViewWrapper(graph: graph,
                                      fieldViewModel: fieldViewModel,
-                                     inputLayerNodeRowData: inputLayerNodeRowData,
+                                     layerInputObserver: layerInputObserver,
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
-                                     rowObserverCoordinate: rowObserverCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
-                                     hasIncomingEdge: hasIncomingEdge,
                                      choices: nil,
                                      adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
