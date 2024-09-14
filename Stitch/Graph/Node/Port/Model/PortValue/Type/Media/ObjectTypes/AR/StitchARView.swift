@@ -21,6 +21,7 @@ final class StitchARView: ARView {
     @MainActor var currentImage: UIImage? {
         self.bufferDelegate.convertedImage
     }
+    
     var bufferDelegate = StitchARViewCaptureDelegate()
 
     // Non-zero rect import for preventing warning that sometimes appears

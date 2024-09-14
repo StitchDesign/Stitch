@@ -15,9 +15,11 @@ extension AVCaptureSession: @unchecked Sendable { }
 /// Camera library used when AR is not available.
 final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     weak var actor: CameraFeedActor?
+    
     @MainActor var currentImage: UIImage? {
         self.bufferDelegate.convertedImage
     }
+    
     var bufferDelegate = CaptureSessionBufferDelegate()
 
     init(actor: CameraFeedActor) {
