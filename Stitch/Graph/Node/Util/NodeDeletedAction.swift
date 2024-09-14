@@ -93,10 +93,19 @@ extension GraphState {
                 return
             }
 
+            let inputPort = layerNode[keyPath: x.keyPath.layerInput.layerNodeKeyPath]
+            let prevPackMode = inputPort.mode
+            
             layerNode[keyPath: x.keyPath.layerNodeKeyPath].canvasObserver = nil
             
             // Remove conection
             layerNode[keyPath: x.keyPath.layerNodeKeyPath].rowObserver.upstreamOutputCoordinate = nil
+            
+            // Check if packed mode changed
+            let newPackMode = inputPort.mode
+            if prevPackMode != newPackMode {
+                inputPort.wasPackModeToggled()
+            }
             
         case .layerOutput(let x):
             // Set the canvas-ui-data on the layer node's input = nil
