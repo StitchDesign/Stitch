@@ -210,8 +210,7 @@ extension InputLayerNodeRowData {
                 layerNode: LayerNodeViewModel,
                 nodeId: NodeId,
                 unpackedPortParentFieldGroupType: FieldGroupType?,
-                unpackedPortIndex: Int?,
-                nodeDelegate: NodeDelegate? = nil) {
+                unpackedPortIndex: Int?) {
         self.rowObserver.id.nodeId = nodeId
                 
         if let canvas = schema.canvasItem {
@@ -235,7 +234,7 @@ extension InputLayerNodeRowData {
             self.canvasObserver = nil
         }
         
-        if let node = nodeDelegate {
+        if let node = layerNode.nodeDelegate {
             self.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                     unpackedPortIndex: unpackedPortIndex)
@@ -268,7 +267,7 @@ extension LayerInputObserver {
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
-                nodeId: NodeId) {
+                nodeId: NodeId) {        
         let portObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
         let unpackedObservers = portObserver._unpackedData.allPorts
 
