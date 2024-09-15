@@ -57,7 +57,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     
     @MainActor
     var receivesPin: Bool {
-        self.graph.visibleNodesViewModel.pinMap.get(viewModel.id.layerNodeId).isDefined
+        self.graph.documentDelegate?.pinMap.get(viewModel.id.layerNodeId).isDefined ?? false
     }
     
     @MainActor

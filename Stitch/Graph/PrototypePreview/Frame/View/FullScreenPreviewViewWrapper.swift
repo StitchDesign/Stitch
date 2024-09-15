@@ -26,7 +26,7 @@ struct FullScreenPreviewViewWrapper: View {
     let animationCompleted: Bool
 
     var previewWindowSize: CGSize {
-        graphState.previewWindowSize
+        graphState.documentDelegate?.previewWindowSize ?? .init()
     }
 
     var previewView: some View {
