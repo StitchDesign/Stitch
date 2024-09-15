@@ -375,7 +375,6 @@ struct MediaPickerChanged: ProjectEnvironmentEvent {
     let isFieldInsideLayerInspector: Bool
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // Commit the new media to the selector input
         graphState.handleInputEditCommitted(input: input,
@@ -391,7 +390,6 @@ struct MediaPickerNoneChanged: ProjectEnvironmentEvent {
     let isFieldInsideLayerInspector: Bool
     
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         let emptyPortValue = PortValue.asyncMedia(nil)
         graphState.handleInputEditCommitted(input: input,

@@ -59,7 +59,6 @@ struct LayerHovered: ProjectEnvironmentEvent {
     let velocity: CGPoint
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         // log("LayerHovered: called")
@@ -87,7 +86,6 @@ struct LayerHovered: ProjectEnvironmentEvent {
 
 struct LayerHoverEnded: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // log("LayerHoverEnded: called")
 

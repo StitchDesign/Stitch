@@ -41,7 +41,6 @@ struct LocationAddress: Equatable {
 struct LocationUpdateReceived: ProjectEnvironmentEvent {
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         log("LocationUpdateReceived called")
 

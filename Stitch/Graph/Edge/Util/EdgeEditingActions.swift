@@ -131,7 +131,6 @@ struct PossibleEdgeCommitmentCompleted: ProjectEnvironmentEvent {
     let edge: PortEdgeUI
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         log("PossibleEdgeCommitmentCompleted: possibleEdgeId: \(possibleEdgeId)")

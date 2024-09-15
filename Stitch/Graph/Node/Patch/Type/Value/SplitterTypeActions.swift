@@ -17,7 +17,6 @@ struct SplitterTypeChanged: ProjectEnvironmentEvent {
     let splitterNodeId: NodeId
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         //        log("SplitterOptionSelected called: newType: \(newType)")
         //        log("SplitterOptionSelected called: currentType: \(currentType)")

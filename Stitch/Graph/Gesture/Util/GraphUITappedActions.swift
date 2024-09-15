@@ -12,7 +12,6 @@ import StitchSchemaKit
 // More like: `ResetGraphUIEdits`
 struct GraphTappedAction: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // log("GraphTappedAction called")
         graphState.resetAlertAndSelectionState()

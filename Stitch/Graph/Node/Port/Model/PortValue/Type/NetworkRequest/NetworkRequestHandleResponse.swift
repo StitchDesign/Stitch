@@ -150,7 +150,6 @@ struct NetworkRequestCompleted: ProjectEnvironmentEvent {
     let result: StitchNetworkRequestResult
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         // log("NetworkRequestCompleted called")

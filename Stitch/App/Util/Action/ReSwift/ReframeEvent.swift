@@ -41,7 +41,6 @@ protocol GraphActionWithResponseHandler {
 protocol ProjectEnvironmentActionHandler {
     @MainActor
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse
 }
 

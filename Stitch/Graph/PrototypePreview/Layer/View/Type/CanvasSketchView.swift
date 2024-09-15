@@ -156,7 +156,6 @@ struct DrawingViewDragEnded: ProjectEnvironmentEvent {
     let parentSize: CGSize
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         // log("DrawingViewDragEnded called: id: \(id)")
@@ -189,7 +188,6 @@ struct DrawingViewDragged: ProjectEnvironmentEvent {
     let parentSize: CGSize
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         //        log("DrawingViewDragged called: id: \(id)")
