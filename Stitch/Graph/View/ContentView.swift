@@ -27,6 +27,8 @@ struct ContentView: View, KeyboardReadable {
     // Controls the animation of newly created node from the insert node menu
     @State private var previewingNodeChoice: InsertNodeMenuOption?
 
+    @Bindable var store: StitchStore
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
 
@@ -139,9 +141,9 @@ struct ContentView: View, KeyboardReadable {
         
         .stitchSheet(isPresented: alertState.showProjectSettings,
                      titleLabel: "Settings",
-                     hideAction: HideProjectSettingsSheet()) {
-            ProjectSettingsView(previewWindowSize: graph.previewWindowSize,
-                                previewSizeDevice: graph.previewSizeDevice,
+                     hideAction: store.hideProjectSettingsSheet) {
+            ProjectSettingsView(previewWindowSize: document.previewWindowSize,
+                                previewSizeDevice: document.previewSizeDevice,
                                 previewWindowBackgroundColor: graph.previewWindowBackgroundColor,
                                 graph: graph) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
@@ -151,15 +153,15 @@ struct ContentView: View, KeyboardReadable {
                 self.showFullScreenAnimateCompleted = true
             }
         })
-        .stitchSheet(isPresented: graph.graphUI.llmRecording.promptState.showModal,
+        .stitchSheet(isPresented: document.llmRecording.promptState.showModal,
                      titleLabel: "LLM Recording",
-                     hideAction: LLMRecordingPromptClosed(),
+                     hideAction: document.closedLLMRecordingPrompt,
                      sheetBody: {
-            LLMPromptModalView(actionsAsDisplay: graph.graphUI.llmRecording.promptState.actionsAsDisplayString)
+            LLMPromptModalView(actionsAsDisplay: document.llmRecording.promptState.actionsAsDisplayString)
         })
-        .stitchSheet(isPresented: graph.graphUI.llmRecording.jsonEntryState.showModal,
+        .stitchSheet(isPresented: document.llmRecording.jsonEntryState.showModal,
                      titleLabel: "LLM JSON Entry",
-                     hideAction: LLMActionsJSONEntryModalClosed(),
+                     hideAction: document.closedLLMActionsJSONEntryModal,
                      sheetBody: {
             LLMActionsJSONEntryModalView()
         })

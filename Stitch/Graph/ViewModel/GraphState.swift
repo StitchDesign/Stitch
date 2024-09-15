@@ -436,6 +436,15 @@ extension GraphState {
         self.graphUI.activeIndex
     }
     
+    var graphStepManager: GraphStepManager {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
+        return document.graphStepManager
+    }
+    
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)

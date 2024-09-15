@@ -166,7 +166,7 @@ extension GraphState {
         
         if let newlyCreatedNodeId = immediatelyCreatedLayerNode ?? self.graphUI.insertNodeMenuState.hiddenNodeId {
             
-            self.maybeCreateLLMAddNode(newlyCreatedNodeId)
+            self.documentDelegate?.maybeCreateLLMAddNode(newlyCreatedNodeId)
         } else {
             log("nodeCreationCompleted: finished creating node, but had neither id of immediately created layer node nor id of the node during animation")
             fatalErrorIfDebug()

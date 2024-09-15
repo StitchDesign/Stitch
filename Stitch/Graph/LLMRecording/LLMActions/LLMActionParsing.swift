@@ -66,7 +66,7 @@ extension StitchDocumentViewModel {
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let node = self.graph.nodeCreated(choice: nodeKind) {
-                self.graphUI.llmNodeIdMapping.updateValue(node.id,
+                self.llmNodeIdMapping.updateValue(node.id,
                                                           forKey: llmNodeId)
             }
             
@@ -76,7 +76,7 @@ extension StitchDocumentViewModel {
             if let canvasItemId = getCanvasIdFromLLMMoveNodeAction(
                 llmNode: x.node,
                 llmPort: x.port,
-                self.graphUI.llmNodeIdMapping),
+                self.llmNodeIdMapping),
                
                 // canvas item must exist
                let canvasItem = self.graph.getCanvasItem(canvasItemId) {
@@ -87,14 +87,14 @@ extension StitchDocumentViewModel {
         case .addEdge(let x):
             
             // Both to node and from node must exist
-            guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   self.graph.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
                 fatalErrorIfDebug()
                 return
             }
             
-            guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   self.graph.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
                 fatalErrorIfDebug()
@@ -121,7 +121,7 @@ extension StitchDocumentViewModel {
             
         case .setInput(let x):
             
-            guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   let node = self.graph.getNode(nodeId) else {
                 log("handleLLMAction: .setField: No node id or node")
                 return
@@ -147,7 +147,7 @@ extension StitchDocumentViewModel {
             // The new value for that entire input, not just for some field
             guard let value: PortValue = x.value.asPortValueForLLMSetField(
                 nodeType,
-                with: self.graphUI.llmNodeIdMapping
+                with: self.llmNodeIdMapping
             ) else {
                 log("handleLLMAction: .setField: No port value")
                 return
@@ -162,7 +162,7 @@ extension StitchDocumentViewModel {
         case .changeNodeType(let x):
             
             // Node must already exist
-            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
                   self.graph.getNode(nodeId).isDefined else {
                 log("handleLLMAction: .changeNodeType: No node id or node")
                 return
@@ -195,9 +195,9 @@ extension StitchDocumentViewModel {
                                           isInput: Bool) {
         
         // Layer node must already exist
-//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
               
-        guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+        guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
               let node = self.graph.getNode(nodeId) else {
             log("handleLLMLayerInputOrOutputAdded: No node id or node")
             return
