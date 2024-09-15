@@ -72,7 +72,7 @@ extension StitchMediaObject: Hashable {
 }
 
 extension StitchMediaObject {
-    mutating func transferData(from otherMediaObject: StitchMediaObject) {
+    mutating func transferData(from otherMediaObject: StitchMediaObject) async {
         switch self {
         case .image(let uIImage):
             guard let clone = uIImage.clone() else {
@@ -91,8 +91,10 @@ extension StitchMediaObject {
                 return
             }
 
-            soundFilePlayer.isEnabled = otherSoundFilePlayer.isEnabled
-            soundFilePlayer.delegate.isLooping = otherSoundFilePlayer.delegate.isLooping
+            await MainActor.run { [weak soundFilePlayer] in
+                soundFilePlayer?.isEnabled = otherSoundFilePlayer.isEnabled
+                soundFilePlayer?.delegate.isLooping = otherSoundFilePlayer.delegate.isLooping
+            }
             self = .soundfile(soundFilePlayer)
 
         case .mic(let micPlayer):
@@ -100,7 +102,9 @@ extension StitchMediaObject {
                 return
             }
 
-            micPlayer.isEnabled = otherMic.isEnabled
+            await MainActor.run { [weak micPlayer] in
+                micPlayer?.isEnabled = otherMic.isEnabled
+            }
             self = .mic(micPlayer)
 
         case .model3D(let stitchEntity):
@@ -232,7 +236,7 @@ extension StitchMediaObject {
         }
 
         // Copy other metadata from source media object
-        copiedMediaObject?.transferData(from: self)
+        await copiedMediaObject?.transferData(from: self)
         return copiedMediaObject
     }
 }

@@ -76,7 +76,7 @@ final class StitchVideoImportPlayer: Sendable {
         self.stitchVideoDelegate.audio.delegate.peakVolume
     }
 
-    func play() {
+    @MainActor func play() {
         self.stitchVideoDelegate.play(with: self.video)
     }
 }

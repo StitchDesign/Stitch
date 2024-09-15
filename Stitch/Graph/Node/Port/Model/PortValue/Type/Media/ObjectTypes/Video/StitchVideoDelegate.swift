@@ -61,12 +61,12 @@ class StitchVideoDelegate: NSObject {
         }
     }
 
-    func play(with currentPlayer: AVPlayer) {
+    @MainActor func play(with currentPlayer: AVPlayer) {
         currentPlayer.play()
         self.audio.isEnabled = true
     }
 
-    func pause(with currentPlayer: AVPlayer) {
+    @MainActor func pause(with currentPlayer: AVPlayer) {
         currentPlayer.pause()
         self.audio.isEnabled = false
     }
@@ -103,7 +103,7 @@ class StitchVideoDelegate: NSObject {
     /// Adds support for video looping:
     /// * If true, create an observer that listens to AVPlayer playback ending.
     /// * If false, tear down the observer.
-    private func updateLoopSetting(on currentPlayer: AVPlayer, to isLooped: Bool, isScrubbing: Bool) {
+    @MainActor private func updateLoopSetting(on currentPlayer: AVPlayer, to isLooped: Bool, isScrubbing: Bool) {
         // Enabled scrubbing should prevent video looping
         guard isValidVideoLoop(isLoopedSetting: isLooped, isScrubbing: isScrubbing) else {
             removeLoopObserver()
@@ -137,6 +137,7 @@ class StitchVideoDelegate: NSObject {
         }
     }
 
+    @MainActor
     func updateIsPlay(on currentPlayer: AVPlayer, _ isPlay: Bool) {
         if didToggleToPause(on: currentPlayer, isPlaySettingOn: isPlay) {
             self.pause(with: currentPlayer)

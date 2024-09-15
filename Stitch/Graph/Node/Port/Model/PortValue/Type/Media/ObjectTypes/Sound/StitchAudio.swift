@@ -14,8 +14,7 @@ import StitchSchemaKit
 final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable {
     let delegate: Player
 
-    @Published var isEnabled: Bool {
-        @MainActor
+    @MainActor var isEnabled: Bool {
         didSet(oldValue) {
             if oldValue != isEnabled {
                 if isEnabled && !isRunning {
@@ -122,7 +121,7 @@ final class StitchSoundPlayer<Player: StitchSoundPlayerDelegate>: Sendable {
     //    }
 }
 
-protocol StitchSoundPlayerDelegate: AnyObject {
+protocol StitchSoundPlayerDelegate: AnyObject, Sendable {
     @MainActor func play()
     
     @MainActor func pause()
