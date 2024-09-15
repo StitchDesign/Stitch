@@ -26,21 +26,21 @@ extension NodeSelectionGestureRecognizer {
         
         case .began:
             
-            if graph?.graphUI.llmRecording.isRecording ?? false {
+            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
-            self.graph?.graphScrollBegan()
+            self.graph?.documentDelegate?.graphScrollBegan()
             
         case .changed:
             
-            if graph?.graphUI.llmRecording.isRecording ?? false {
+            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
             // Should only have a single touch
             if gestureRecognizer.numberOfTouches == 1 {
-                self.graph?.graphDragged(
+                self.graph?.documentDelegate?.graphDragged(
                     // not an accurate translation?
                     translation: translation.toCGSize,
                     location: location)
@@ -48,7 +48,7 @@ extension NodeSelectionGestureRecognizer {
         
         case .ended, .cancelled:
             
-            if graph?.graphUI.llmRecording.isRecording ?? false {
+            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
@@ -58,7 +58,7 @@ extension NodeSelectionGestureRecognizer {
             //        log("handleScreenGraphPanGesture: screenPanInView: velocity: \(velocity)")
             // should have no touches
             if gestureRecognizer.numberOfTouches == 0 {
-                self.graph?.graphDragEnded(
+                self.graph?.documentDelegate?.graphDragEnded(
                     location: location,
                     velocity: velocity,
                     wasScreenDrag: true)
@@ -81,7 +81,7 @@ extension GraphGestureDelegate {
         let translation = gestureRecognizer.translation(in: view)
 
         // Check if Command key is pressed
-        if self.graph?.graphUI.keypressState.isCommandPressed == true {
+        if self.graph?.documentDelegate?.keypressState.isCommandPressed == true {
             // Determine zoom direction based on the y-direction of the translation
             switch gestureRecognizer.state {
             case .changed:
@@ -100,23 +100,23 @@ extension GraphGestureDelegate {
             if gestureRecognizer.numberOfTouches == 0 {
                 switch gestureRecognizer.state {
                 case .began:
-                    if graph?.graphUI.llmRecording.isRecording ?? false {
+                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.graphScrollBegan()
+                    self.graph?.documentDelegate?.graphScrollBegan()
                 case .changed:
-                    if graph?.graphUI.llmRecording.isRecording ?? false {
+                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.graphScrolled(translation: translation)
+                    self.graph?.documentDelegate?.graphScrolled(translation: translation)
                 case .ended, .cancelled:
-                    if graph?.graphUI.llmRecording.isRecording ?? false {
+                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.graphDragEnded(
+                    self.graph?.documentDelegate?.graphDragEnded(
                         location: nil,
                         // `nil` vs `view` doesn't make a difference?
                         // velocity: gestureRecognizer.velocity(in: view),

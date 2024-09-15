@@ -22,7 +22,7 @@ struct PulseValueButtonView: View {
     let hasIncomingEdge: Bool
 
     private var graphStep: GraphStepManager {
-        self.graph.graphStepManager
+        self.graph.documentDelegate?.graphStepManager ?? .init()
     }
 
     var pulseColor: PulseColor {
