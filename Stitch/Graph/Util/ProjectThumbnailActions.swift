@@ -19,7 +19,7 @@ extension StitchStore {
         documentViewModel.calculate(from: documentViewModel.allNodesToCalculate)
         
         // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
-        let generatedPreview = GeneratePreview(graph: documentViewModel.graph)
+        let generatedPreview = GeneratePreview(document: documentViewModel)
         
         let view = generatedPreview
             .frame(documentViewModel.previewWindowSize)

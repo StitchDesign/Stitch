@@ -40,7 +40,7 @@ struct ContentView: View, KeyboardReadable {
     }
     
     var previewWindowSizing: PreviewWindowSizing {
-        self.graph.previewWindowSizingObserver
+        self.document.previewWindowSizingObserver
     }
 
     /// Shows menu wrapper view while node animation takes place
@@ -118,7 +118,7 @@ struct ContentView: View, KeyboardReadable {
                     // Floating preview kept outside NavigationSplitView for animation purposes
                     if !showFullScreen.isTrue {
                         FloatingWindowView(
-                            graph: graph,
+                            document: document,
                             deviceScreenSize: graphUI.frame.size,
                             showPreviewWindow: showPreviewWindow,
                             namespace: graphNamespace)

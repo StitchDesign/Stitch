@@ -40,6 +40,8 @@ final class StitchDocumentViewModel: Sendable {
     // Updated when connections, new nodes etc change
     var topologicalData = GraphTopologicalData<NodeViewModel>()
     
+    let previewWindowSizingObserver = PreviewWindowSizing()
+    
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
     var cachedOrderedPreviewLayers: LayerDataList = .init()
@@ -256,8 +258,6 @@ final class GraphState: Sendable {
     var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-    
-    let previewWindowSizingObserver = PreviewWindowSizing()
 
     let visibleNodesViewModel = VisibleNodesViewModel()
     let edgeDrawingObserver = EdgeDrawingObserver()

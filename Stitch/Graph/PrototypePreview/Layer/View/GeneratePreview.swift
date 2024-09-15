@@ -11,23 +11,27 @@ import StitchSchemaKit
 
 /// The top-level preview window view encompassing all views.
 struct GeneratePreview: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
+    
+    var graph: GraphState {
+        document.graph
+    }
     
     var visibleNodes: VisibleNodesViewModel {
-        graph.visibleNodesViewModel
+        document.graph.visibleNodesViewModel
     }
     
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
-        self.graph.documentDelegate?.cachedOrderedPreviewLayers ?? .init()
+        document.cachedOrderedPreviewLayers
     }
     
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
-        PreviewLayersView(graph: graph,
+        PreviewLayersView(graph: document.graph,
                           layers: sortedLayerDataList,
-                          parentSize: graph.previewWindowSize,
+                          parentSize: document.previewWindowSize,
                           parentId: nil,
                           parentOrientation: .none,
                           parentPadding: .zero,
@@ -40,7 +44,7 @@ struct GeneratePreview: View {
             // Invisible views used for reporting pinning position data
             PreviewLayersView(graph: graph,
                               layers: sortedLayerDataList,
-                              parentSize: graph.previewWindowSize,
+                              parentSize: document.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
                               parentPadding: .zero,

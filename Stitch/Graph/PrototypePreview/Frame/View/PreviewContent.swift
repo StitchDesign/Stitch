@@ -15,11 +15,11 @@ extension Color {
 struct PreviewContent: View {
     static let prototypeCoordinateSpace = "STITCH_PROTOTYPE_COORDINATE"
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let isFullScreen: Bool
     
     var previewWindowSizing: PreviewWindowSizing {
-        graph.previewWindowSizingObserver
+        document.previewWindowSizingObserver
     }
     
     var previewDeviceWidth: CGFloat {
@@ -54,13 +54,13 @@ struct PreviewContent: View {
     
     var body: some View {
         
-        let generatedPreview = GeneratePreview(graph: graph)
+        let generatedPreview = GeneratePreview(document: document)
         
         UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
             generatedPreview
                 .frame(finalSize)
                 .coordinateSpace(name: Self.prototypeCoordinateSpace)
-                .background(graph.previewWindowBackgroundColor)
+                .background(document.previewWindowBackgroundColor)
                 .contentShape(Rectangle())
                 // Keeps layers rendered within preview window
                 .clipped()

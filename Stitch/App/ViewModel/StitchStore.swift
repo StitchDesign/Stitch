@@ -86,6 +86,6 @@ extension StitchStore {
     }
     
     var currentGraph: GraphState? {
-        self.currentDocument
+        self.currentDocument?.graph
     }
 }

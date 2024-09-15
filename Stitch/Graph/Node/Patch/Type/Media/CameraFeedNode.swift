@@ -84,11 +84,11 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 }
 
 @MainActor
-func createCameraFeedManager(graphState: GraphDelegate,
+func createCameraFeedManager(document: StitchDocumentViewModel,
                              nodeId: NodeId) -> StitchSingletonMediaObject {
-    let nodeKind = graphState.getNodeViewModel(nodeId)?.kind
-    let camera = graphState.createCamera(for: nodeKind ?? .patch(.cameraFeed),
-                                         newNode: nodeId)
+    let nodeKind = document.getNodeViewModel(nodeId)?.kind
+    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
+                                       newNode: nodeId)
     return .cameraFeedManager(camera)
 }
 
@@ -106,7 +106,8 @@ func cameraManagerEval(node: PatchNode,
 
     // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
     // to possibly tear down camera
-    guard isNodeEnabled else {
+    guard isNodeEnabled,
+          let document = graph.documentDelegate else {
         if let enabledNodeIds = graph.cameraFeed?.enabledNodeIds,
            enabledNodeIds.contains(node.id) {
             graph.removeCameraNode(id: node.id)
@@ -121,7 +122,7 @@ func cameraManagerEval(node: PatchNode,
     }
 
     return asyncSingletonMediaEval(node: node,
-                                   graph: graph,
+                                   document: document,
                                    mediaCreation: createCameraFeedManager,
                                    mediaManagerKeyPath: \.cameraFeedManager,
                                    mediaOp: mediaOp)
