@@ -12,13 +12,17 @@ struct StitchProjectView: View {
     @Namespace var routerNamespace
     
     @Bindable var store: StitchStore
-    @Bindable var graphState: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
 
     let alertState: ProjectAlertState
 
     // Re-render views in navigation bar.
     @State var isFullScreen = false
+    
+    var graphState: GraphState {
+        self.document.graph
+    }
 
     var activeIndex: ActiveIndex {
         graphUI.activeIndex
@@ -42,7 +46,7 @@ struct StitchProjectView: View {
             .modifier(ProjectToolbarViewModifier(graph: graphState,
                                                  graphUI: graphState.graphUI,
                                                  // In reality this won't be nil
-                                                 projectName: graphState.projectName,
+                                                 projectName: graphState.name,
                                                  projectId: graphState.projectId,
                                                  isFullScreen: $isFullScreen))
             .onDisappear {

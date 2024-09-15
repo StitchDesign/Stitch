@@ -31,7 +31,7 @@ extension GraphState: Hashable {
 
 // TODO: move
 @Observable
-final class StitchDocumentViewModel {
+final class StitchDocumentViewModel: Hashable {
     let graph: GraphState
     @MainActor let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -422,6 +422,10 @@ extension GraphState {
 }
 
 extension GraphState {
+    var mouseNodes: NodeIdSet {
+        self.documentDelegate?.mouseNodes ?? .init()
+    }
+    
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
