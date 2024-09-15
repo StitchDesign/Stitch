@@ -50,7 +50,7 @@ struct SoundImportNode: PatchNodeDefinition {
                     type: .media
                 ),
                 .init(
-                    label: "Volume",
+                    label: "Overall Volume",
                     type: .number
                 ),
                 .init(
@@ -66,7 +66,7 @@ struct SoundImportNode: PatchNodeDefinition {
                     type: .number
                 ),
                 .init(
-                    label: "Hz Amplitudes",
+                    label: "Volume Spectrum",
                     type: .number
                 )
             ]
