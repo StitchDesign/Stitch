@@ -19,19 +19,19 @@ import Vision
 let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
 
 // TODO: put in separate file called `GraphStateExtensions.swift` ?
-extension GraphState: Hashable {
-    static func == (lhs: GraphState, rhs: GraphState) -> Bool {
-        lhs.projectId == rhs.projectId
+extension StitchDocumentViewModel: Hashable {
+    static func == (lhs: StitchDocumentViewModel, rhs: StitchDocumentViewModel) -> Bool {
+        lhs.graph.id == rhs.graph.id
     }
 
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self.projectId)
+        hasher.combine(self.graph.id)
     }
 }
 
 // TODO: move
 @Observable
-final class StitchDocumentViewModel: Hashable {
+final class StitchDocumentViewModel {
     let graph: GraphState
     @MainActor let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -211,7 +211,7 @@ extension StitchDocumentViewModel {
         self.calculateFullGraph()
     }
     
-    func createSchema() -> StitchDocument {
+    @MainActor func createSchema() -> StitchDocument {
         self.graph.createSchema()
     }
     

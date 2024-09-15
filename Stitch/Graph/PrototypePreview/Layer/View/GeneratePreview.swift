@@ -20,7 +20,7 @@ struct GeneratePreview: View {
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
-        self.graph.cachedOrderedPreviewLayers
+        self.graph.documentDelegate?.cachedOrderedPreviewLayers ?? .init()
     }
     
     var body: some View {
