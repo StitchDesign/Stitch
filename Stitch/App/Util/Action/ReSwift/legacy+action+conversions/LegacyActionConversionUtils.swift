@@ -15,7 +15,8 @@ func _getResponse(from legacyAction: Action,
                   store: StitchStore) -> AppResponse {
 
     let getState: () -> AppState = store.getState
-    let graphState: GraphState? = store.currentGraph
+    let document = store.currentDocument
+    let graphState: GraphState? = document?.graph
     let environment: StitchEnvironment = store.environment
     
     let fileManager = environment.fileManager
@@ -52,6 +53,14 @@ func _getResponse(from legacyAction: Action,
             .toAppResponse()
 
         return response
+    }
+    
+    // StitchDocumentEvents
+    else if let documentAction = (legacyAction as? StitchDocumentEvent),
+            let document = document {
+        // Mutates GraphState in-place
+        documentAction.handle(state: document)
+        return .noChange
     }
 
     // GraphEvents

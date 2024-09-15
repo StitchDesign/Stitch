@@ -76,7 +76,7 @@ struct SheetViewModifier<T: View>: ViewModifier {
             HStack {
                 Spacer()
                 StitchButton {
-                    dispatch(hideAction)
+                    hideAction()
                 } label: {
                     Text("Done")
                         .fontWeight(.bold)

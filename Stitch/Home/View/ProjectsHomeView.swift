@@ -82,7 +82,7 @@ struct ProjectsHomeView: View {
                onExpireAction: store.projectDeleteToastExpired)
         .stitchSheet(isPresented: alertState.showAppSettings,
                      titleLabel: "Settings",
-                     hideAction: HideAppSettingsSheet()) {
+                     hideAction: store.hideProjectSettingsSheet) {
             AppSettingsView()
         }
         .onTapGesture {

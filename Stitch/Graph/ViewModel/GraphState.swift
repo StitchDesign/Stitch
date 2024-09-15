@@ -31,7 +31,7 @@ extension StitchDocumentViewModel: Hashable {
 
 // TODO: move
 @Observable
-final class StitchDocumentViewModel {
+final class StitchDocumentViewModel: Sendable {
     let graph: GraphState
     @MainActor let graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -118,6 +118,10 @@ extension StitchDocumentViewModel {
         self.graphUI.activeIndex
     }
     
+    @MainActor var graphStepState: GraphStepState {
+        self.graphStepManager.graphStepState
+    }
+    
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     func updateGraphData(document: StitchDocument? = nil) {
@@ -189,8 +193,12 @@ extension StitchDocumentViewModel: GraphCalculatable {
         }
     }
     
-    func getNodeViewModel(id: UUID) -> NodeViewModel? {
+    func getNodeViewModel(_ id: UUID) -> NodeViewModel? {
         self.graph.getNodeViewModel(id)
+    }
+    
+    func getNodeViewModel(id: UUID) -> NodeViewModel? {
+        self.getNodeViewModel(id)
     }
 }
 

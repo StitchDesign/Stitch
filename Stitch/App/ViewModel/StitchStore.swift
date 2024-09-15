@@ -81,7 +81,11 @@ extension StitchStore {
         currentGraph?.projectId
     }
 
-    var currentGraph: GraphState? {
+    var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
+    }
+    
+    var currentGraph: GraphState? {
+        self.currentDocument
     }
 }
