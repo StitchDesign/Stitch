@@ -44,11 +44,6 @@ Want to help? Either open up a PR, Issue, or [email us](mailto:bricks.muzzle_0t@
 
 Join in and help us, we’ll be keeping this list up to date.
 
-## Prototype Gallery
-![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
-
-
-
 ### Getting Started with Local Development
 
 After you've cloned the repository, you'll need to make sure to update the project with your Development Team, and edit the Bundle ID to be something unique. Make sure to do this for both the `Stitch` and `StitchQuickLookExtension` targets; ensuring that the extension bundle prefix matches the main bundle ID.
@@ -57,5 +52,5 @@ Make sure that your development team has entitlements for CloudKit and Push Noti
 
 Once you've done that, you should be good to go for running and developing locally!
 
-
-
+## Prototype Gallery
+![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
