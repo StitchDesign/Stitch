@@ -65,17 +65,22 @@ struct SidebarListItemSwipeInnerView: View {
                             selection: selection,
                             isBeingEdited: isBeingEdited,
                             isHidden: isHidden)
+                        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                     }
             }
 
             if swipeX > 0 {
+                
+                // How tall should this be? As tall as the color area ?
                 SidebarListItemSwipeMenu(
                     item: item,
                     swipeOffset: swipeX,
                     visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
                     gestureViewModel: self.gestureViewModel)
+//                .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
             }
         }
+//        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
 
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.

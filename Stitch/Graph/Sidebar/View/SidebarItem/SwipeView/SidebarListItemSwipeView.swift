@@ -74,6 +74,7 @@ struct SidebarListItemSwipeView: View {
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
         #endif
+        .border(.red, width: 2)
 
         .onChange(of: activeSwipeId) { _ in
             gestureViewModel.resetSwipePosition()
@@ -93,6 +94,7 @@ struct SidebarListItemSwipeView: View {
         }
     }
 
+    // TODO: retrieve sidebar-width via a GeometryReader on whole sidebar rather than each individual item
     var customSwipeItem: some View {
         GeometryReader { geometry in
             SidebarListItemSwipeInnerView(

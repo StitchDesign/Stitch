@@ -18,7 +18,11 @@ struct SidebarListItemLeftLabelView: View {
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
     let isBeingEdited: Bool
+    let isGroup: Bool
+    let isClosed: Bool
    
+    @State private var isBeingEditedAnimated = false
+    
     var color: Color {
         selection.color(isHidden)
     }
@@ -63,22 +67,31 @@ struct SidebarListItemLeftLabelView: View {
 //#endif
     }
     
+    var font: Font {
+        stitchFont(13)
+    }
+    
     var label: some View {
-            Group {
-                if isBeingEdited {
-                    Text(_name)
-                        .truncationMode(.tail)
-                        #if targetEnvironment(macCatalyst)
-                        .padding(.trailing, 44)
-                        #else
-                        .padding(.trailing, 60)
-                        #endif
-                } else {
-                    Text(_name)
-                        .frame(maxHeight: .infinity, alignment: .center)
-                }
+        Group {
+            if isBeingEdited {
+//                StitchTextView(string: _name,
+//                               font: font)
+                StitchTextView(string: _name)
+                .truncationMode(.tail)
+#if targetEnvironment(macCatalyst)
+                .padding(.trailing, 44)
+#else
+                .padding(.trailing, 60)
+#endif
+            } else {
+//                StitchTextView(string: _name,
+//                               font: font)
+                StitchTextView(string: _name)
+//                .frame(maxHeight: .infinity, alignment: .center)
+//                    .border(.brown)
             }
-            .lineLimit(1)
+        }
+        .lineLimit(1)
     }
 
     var body: some View {
@@ -96,7 +109,8 @@ struct SidebarListItemLeftLabelView: View {
     
     @MainActor
     var labelHStack: some View {
-        HStack {
+        HStack(spacing: 4) {
+            
             if masks {
                 Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
                     .scaleEffect(1.2) // previously: 1.0 or 1.4
@@ -104,16 +118,40 @@ struct SidebarListItemLeftLabelView: View {
                     .opacity(masks ? 1 : 0)
                     .animation(.linear, value: masks)
             }
+            
+            if isGroup {
+                SidebarListItemChevronView(isClosed: isClosed,
+                                           parentId: nodeId,
+                                           selection: selection,
+                                           isHidden: isHidden)
+//                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
+//                    .padding(.trailing, isBeingEditedAnimated ? 4 : 0)
+//                    .stitchAnimated(willAnimateBinding: $isBeingEditedAnimated,
+//                                    willAnimateState: isBeingEdited,
+//                                    animation: .stitchAnimation(duration: 0.25))
+                    .border(.green)
+                
+            }
   
             Image(systemName: layer.sidebarLeftSideIcon)
-                .scaleEffect(1.2) // previously: 1.0 or 1.4
+                .resizable()
+//                .padding(4)
+                .padding(2)
+//                .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
+//                       height: SIDEBAR_ITEM_ICON_LENGTH)
+//                .scaleEffect(0.8)
+                .frame(width: 20, height: 20)
+                // .scaleEffect(1.2) // previously: 1.0 or 1.4
                 .foregroundColor(color)
+                .border(.yellow)
             
             label
-                .font(SwiftUI.Font.system(size: 18))
-                .fontWeight(.bold)
+//                .font(SwiftUI.Font.system(size: 18))
+//                .fontWeight(.bold)
                 .foregroundColor(color)
         }
+        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+        .border(.orange)
     }
 }
 
@@ -127,19 +165,21 @@ struct SidebarListItemRightLabelView: View {
     let isHidden: Bool
 
     @State private var isBeingEditedAnimated = false
-
+    
     var body: some View {
 
         let id = item.id.asLayerNodeId
 
         HStack(spacing: .zero) {
-            if isGroup {
-                SidebarListItemChevronView(isClosed: isClosed,
-                                           parentId: id,
-                                           selection: selection,
-                                           isHidden: isHidden)
-                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
-            }
+            
+            // Moved to left-side now
+//            if isGroup {
+//                SidebarListItemChevronView(isClosed: isClosed,
+//                                           parentId: id,
+//                                           selection: selection,
+//                                           isHidden: isHidden)
+//                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
+//            }
 
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
@@ -160,6 +200,7 @@ struct SidebarListItemRightLabelView: View {
         .stitchAnimated(willAnimateBinding: $isBeingEditedAnimated,
                         willAnimateState: isBeingEdited,
                         animation: .stitchAnimation(duration: 0.25))
+        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
     }
 }
 

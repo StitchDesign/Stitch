@@ -28,12 +28,24 @@ struct SidebarListItemChevronView: View {
         let rotationZ: CGFloat = isClosed ? 0 : 90
 
         Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+            .resizable()
+//            .border(.yellow)
+//            .padding(4)
+            
+            .scaleEffect(0.8)
+            .padding(2)
+            .frame(width: 20, height: 20)
             .foregroundColor(color)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
-            .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
-                   height: SIDEBAR_ITEM_ICON_LENGTH)
-            .padding(4)
+        
+        // per the Figma, it's almost like the padding is on the inside?
+  
+            
+//            .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
+//                   height: SIDEBAR_ITEM_ICON_LENGTH)
+//            .padding(4)
+        
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {

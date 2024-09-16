@@ -10,6 +10,9 @@ import SwiftUI
 // Entire Figma sidebar is 320 pixels wide
 let SIDEBAR_WIDTH: CGFloat = 320
 
+let SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT: CGFloat = 20.0
+let SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT: CGFloat = 28.0
+
 struct SidebarListView: View {
 
     @Bindable var graph: GraphState
@@ -118,7 +121,7 @@ struct SidebarListView: View {
                    alignment: .top)
         
 //            #if DEV_DEBUG
-//            .border(.purple)
+            .border(.purple)
 //            #endif
         } // ScrollView // added
 //        .scrollContentBackground(.hidden)
@@ -127,7 +130,7 @@ struct SidebarListView: View {
 //        }
         
 //        #if DEV_DEBUG
-//        .border(.green)
+        .border(.green)
 //        #endif
         
         .animation(.spring(), value: selections)

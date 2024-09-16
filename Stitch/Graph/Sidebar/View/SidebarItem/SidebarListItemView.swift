@@ -10,6 +10,8 @@ import StitchSchemaKit
 
 struct SidebarListItemView: View {
 
+    @Environment(\.appTheme) var theme
+    
     @Bindable var graph: GraphState
     
     var item: SidebarListItem
@@ -42,7 +44,7 @@ struct SidebarListItemView: View {
         
     var body: some View {
 
-        HStack {
+        HStack(spacing: 0) {
             SidebarListItemLeftLabelView(
                 graph: graph,
                 name: name,
@@ -50,16 +52,41 @@ struct SidebarListItemView: View {
                 nodeId: layerNodeId,
                 selection: selection,
                 isHidden: isHidden,
-                isBeingEdited: isBeingEdited)
-                .padding(.leading)
+                isBeingEdited: isBeingEdited,
+                isGroup: item.isGroup,
+                isClosed: isClosed)
+            
+//            .padding(.leading)
+            
                 .offset(x: -swipeOffset)
             Spacer()
 
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//        .frame(maxWidth: .infinity, 
+////               maxHeight: .infinity)
+//               maxHeight: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+        
+        .border(.black)
+        
+//        .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+        
         .background(Color.white.opacity(0.001)) // for hit area
-        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
-        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+//        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+        
+//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+        
+        .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+        .background {
+            if isNonEditModeSelected || isBeingDragged {
+                ZStack {
+                    VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                    theme.fontColor.opacity(0.7)
+                }
+            }
+        }
+        
+        
         
         //        #if DEV_DEBUG
         //        .background(.blue.opacity(0.5)) // DEBUG
