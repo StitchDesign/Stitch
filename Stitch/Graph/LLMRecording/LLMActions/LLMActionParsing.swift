@@ -65,7 +65,7 @@ extension StitchDocumentViewModel {
             
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
-               let node = self.graph.nodeCreated(choice: nodeKind) {
+               let node = self.nodeCreated(choice: nodeKind) {
                 self.llmNodeIdMapping.updateValue(node.id,
                                                           forKey: llmNodeId)
             }

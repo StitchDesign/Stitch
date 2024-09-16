@@ -20,7 +20,7 @@ struct SelectedGraphItemsCut: GraphEvent {
     func handle(state: GraphState) {
         log("SelectedGraphNodesCut called")
         
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Cut disabled during LLM Recording")
             return
         }

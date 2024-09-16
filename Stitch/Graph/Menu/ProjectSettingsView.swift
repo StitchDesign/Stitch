@@ -128,13 +128,13 @@ struct ProjectSettingsView: View {
     }
 }
 
-struct PreviewWindowBackgroundColorSet: GraphEventWithResponse {
+struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 
     let color: Color
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         state.previewWindowBackgroundColor = color
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 

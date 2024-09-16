@@ -247,7 +247,8 @@ struct InsertNodeMenuWrapper: View {
 
         if let node = self.animatedNode,
            let canvas = node.patchCanvasItem {
-            NodeTypeView(graph: document.visibleGraph,
+            NodeTypeView(document: document,
+                         graph: document.visibleGraph,
                          node: node,
                          canvasNode: canvas,
                          atleastOneCommentBoxSelected: false,

@@ -28,10 +28,10 @@ struct PreviewRealityLayer: View {
         let anchoring = viewModel.anchoring.getAnchoring ?? .defaultAnchoring
         let scale = viewModel.scale.asCGFloat
         
-        switch graph.cameraFeedManager {
+        switch document.cameraFeedManager {
         case .loaded(let cameraFeedManager):
             if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-               let node = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
+               let node = document.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
                 @Bindable var node = node
                 
                 RealityLayerView(document: document,
@@ -132,7 +132,7 @@ struct RealityLayerView: View {
     var body: some View {
         Group {
             if let arView = cameraFeedManager.arView,
-               !graph.isGeneratingProjectThumbnail {
+               !document.isGeneratingProjectThumbnail {
                 RealityView(arView: arView,
                             size: layerSize,
                             scale: scale,

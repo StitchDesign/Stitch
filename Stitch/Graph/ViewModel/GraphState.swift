@@ -452,6 +452,10 @@ extension GraphState {
         self.graphUI.activeIndex
     }
     
+    var llmRecording: LLMRecordingState {
+        self.documentDelegate?.llmRecording ?? .init()
+    }
+    
     @MainActor
     func updateOrderedPreviewLayers() {
         self.documentDelegate?.updateOrderedPreviewLayers()

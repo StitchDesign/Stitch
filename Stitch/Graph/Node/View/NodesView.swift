@@ -11,6 +11,8 @@ import StitchSchemaKit
 struct NodesView: View {
     static let coordinateNameSpace = "NODESVIEW"
     
+    @Bindable var document: StitchDocumentViewModel
+    
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
     let groupNodeFocused: GroupNodeId?
@@ -72,8 +74,8 @@ struct NodesView: View {
                                         graph: self.graph)
                         
                         EdgeInputLabelsView(inputs: inputs,
-                                            graph: graph,
-                                            graphUI: graph.graphUI)
+                                            document: document,
+                                            graphUI: document.graphUI)
                     }
                     .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                                nodeLocation: groupNodeLocation,
