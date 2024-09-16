@@ -88,7 +88,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             // See GroupNodeView for group node double tap
                 .simultaneousGesture(TapGesture(count: 1).onEnded({
                     log("NodeView: node \(stitch.id) .simultaneousGesture(TapGesture(count: 1)")
-                    node.isTapped(graph: graph)
+                    node.isTapped(document: document)
                 }))
         } // ZStack
         
@@ -218,9 +218,9 @@ func getFakeNode(choice: NodeKind,
                  _ zIndex: ZIndex = 1,
                  customName: String? = nil) -> NodeViewModel? {
 
-    let graphState = GraphState(id: .fakeId, store: nil)
+    let document = StitchDocumentViewModel(id: .fakeId, store: nil)
     
-    if let node = graphState.nodeCreated(choice: choice) {
+    if let node = document.nodeCreated(choice: choice) {
                 
         if let customName = customName {
             node.title = customName

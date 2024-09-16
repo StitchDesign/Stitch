@@ -63,21 +63,22 @@ struct LayerHovered: StitchDocumentEvent {
 
         // log("LayerHovered: called")
 
-        let mouseNodeIds: NodeIdSet = self.mouseNodes
+        let mouseNodeIds: NodeIdSet = state.visibleGraph.mouseNodes
 
         guard !mouseNodeIds.isEmpty else {
             // log("LayerHovered: no mouse nodes")
             return
         }
 
-        self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+        state
+            .updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
                                       gestureLocation: location,
                                       velocity: velocity,
-                                      previewWindowSize: self.previewWindowSize,
-                                      graphTime: self.graphStepState.graphTime)
+                                      previewWindowSize: state.previewWindowSize,
+                                      graphTime: state.graphStepState.graphTime)
 
         // Recalculate the graph
-        self.calculate(mouseNodeIds)
+        state.calculate(mouseNodeIds)
     }
 }
 
@@ -85,19 +86,20 @@ struct LayerHoverEnded: StitchDocumentEvent {
     func handle(state: StitchDocumentViewModel) {
         // log("LayerHoverEnded: called")
 
-        let mouseNodeIds: NodeIdSet = self.mouseNodes
+        let mouseNodeIds: NodeIdSet = state.visibleGraph.mouseNodes
 
         guard !mouseNodeIds.isEmpty else {
             // log("LayerHoverEnded: no mouse nodes")
             return
         }
 
-        self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+        state
+            .updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
                                       gestureLocation: nil, // hover-ended
-                                      previewWindowSize: self.previewWindowSize,
-                                      graphTime: self.graphStepState.graphTime)
+                                      previewWindowSize: state.previewWindowSize,
+                                      graphTime: state.graphStepState.graphTime)
 
         // Recalculate the graph
-        self.calculate(mouseNodeIds)
+        state.calculate(mouseNodeIds)
     }
 }

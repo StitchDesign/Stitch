@@ -58,7 +58,7 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
 }
 
 @MainActor
-func handleLayerInputAddedToGraph(state: GraphState,
+func handleLayerInputAddedToGraph(state: StitchDocumentViewModel,
                                   nodeId: NodeId,
                                   coordinate: LayerInputType) {
     
@@ -84,7 +84,7 @@ func handleLayerInputAddedToGraph(state: GraphState,
 
 
 @MainActor
-func addLayerInputToGraph(state: GraphState,
+func addLayerInputToGraph(state: StitchDocumentViewModel,
                           nodeId: NodeId,
                           coordinate: LayerInputType) {
     
@@ -110,14 +110,19 @@ extension GraphState {
         
         let nodeId = node.id
         
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         input.canvasObserver = CanvasItemViewModel(
             id: .layerInput(.init(
                 node: nodeId,
                 keyPath: coordinate)),
-            position: self.newLayerPropertyLocation,
-            zIndex: self.highestZIndex + 1,
+            position: document.newLayerPropertyLocation,
+            zIndex: document.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: self.groupNodeFocused,
+            parentGroupNodeId: document.groupNodeFocused,
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [])
         
@@ -126,9 +131,9 @@ extension GraphState {
         // Subscribe inspector row ui data to the row data's canvas item
         input.inspectorRowViewModel.canvasItemDelegate = input.canvasObserver
         
-        self.graphUI.propertySidebar.selectedProperty = nil
+        document.graphUI.propertySidebar.selectedProperty = nil
         
-        self.maybeCreateLLMAddLayerInput(nodeId, coordinate)
+        document.maybeCreateLLMAddLayerInput(nodeId, coordinate)
     }
 }
 
@@ -165,10 +170,15 @@ extension GraphState {
                                  output: OutputLayerNodeRowData,
                                  portId: Int) {
         
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         output.canvasObserver = CanvasItemViewModel(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
-            position: self.newLayerPropertyLocation,
+            position: self.visibleGraph.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,
@@ -180,9 +190,9 @@ extension GraphState {
         // Subscribe inspector row ui data to the row data's canvas item
         output.inspectorRowViewModel.canvasItemDelegate = output.canvasObserver
         
-        self.graphUI.propertySidebar.selectedProperty = nil
+        document.graphUI.propertySidebar.selectedProperty = nil
         
-        self.maybeCreateLLMAddLayerOutput(node.id, portId)
+        document.maybeCreateLLMAddLayerOutput(node.id, portId)
     }
 }
 

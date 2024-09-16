@@ -85,11 +85,10 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
 
 
 struct PreviewSFSymbolLayer: View {
-    var graph: GraphState // doesn't need to be @Bindable ?
+    let document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
-let interactiveLayer: InteractiveLayer
-    
+    let interactiveLayer: InteractiveLayer
     let sfSymbol: String
     let color: Color
     let position: StitchPosition
@@ -125,7 +124,7 @@ let interactiveLayer: InteractiveLayer
             .foregroundColor(color)
             .opacity(opacity)
             .modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

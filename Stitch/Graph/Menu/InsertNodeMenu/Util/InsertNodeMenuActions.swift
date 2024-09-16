@@ -89,7 +89,7 @@ struct AddNodeButtonPressed: GraphEventWithResponse {
         // Immediately create a LayerNode; do not animate.
         if let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind,
            nodeKind.isLayer {
-            guard let newNode = state.nodeCreated(choice: nodeKind) else {
+            guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
                 fatalErrorIfDebug() // should not fail to return
                 return .noChange
             }
@@ -123,7 +123,7 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
         
         // Create the real node, but hide it until animation has completed.
         // (Versus the "animated node" which is really just a NodeView created from activeSelection.)
-        guard let node = state.nodeCreated(choice: nodeKind) else {
+        guard let node = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
             fatalErrorIfDebug()
             return
         }

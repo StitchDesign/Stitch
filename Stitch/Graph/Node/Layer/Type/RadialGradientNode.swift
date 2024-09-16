@@ -64,7 +64,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
 
 
 struct PreviewRadialGradientLayer: View {
-    var graph: GraphState
+    let document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -99,7 +99,7 @@ struct PreviewRadialGradientLayer: View {
                               endRadius: endRadius)
             .opacity(enabled ? opacity : 0.0)
             .modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

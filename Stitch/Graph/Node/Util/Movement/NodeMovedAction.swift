@@ -128,7 +128,7 @@ extension GraphState {
          Normally this is fine, except when we hold command:
          long press would fire and see that the node was not yet selected, so it would select it; then tap would fire and see that the node was already selected, so it would de-select that same node.
          */
-        if !wasDrag && graphState.graphUI.keypressState.isCommandPressed {
+        if !wasDrag && (self.documentDelegate?.keypressState.isCommandPressed ?? false) {
             #if DEV_DEBUG
             log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
             #endif
@@ -208,17 +208,17 @@ extension GraphState {
 }
 
 // Drag.onEnded
-struct NodeMoveEndedAction: GraphEventWithResponse {
+struct NodeMoveEndedAction: StitchDocumentEvent {
 //    let id: NodeId // id of node or rectangle
     let id: CanvasItemId // id of node or rectangle
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         state.handleNodeMoveEnded(id: id)
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     // `handleNodeMoveEnded`
     // mutates GraphState, but also has to update GraphSchema
     @MainActor
@@ -256,16 +256,16 @@ extension GraphState {
                                         diff: diff)
         }
         
-        self.selectedCanvasItems.forEach { _update($0) }
+        self.visibleGraph.selectedCanvasItems.forEach { _update($0) }
         
-        self.nodeIsMoving = false
-        self.outputDragStartedCount = 0
+        self.visibleGraph.nodeIsMoving = false
+        self.visibleGraph.outputDragStartedCount = 0
         
         // reset
         self.graphUI.dragDuplication = false
         
         // Rebuild comment boxes
-        self.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes()
     }
 }
 

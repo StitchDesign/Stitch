@@ -93,7 +93,7 @@ final class StitchDocumentViewModel: Sendable {
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
-        self.localPosition = schema.localPosition
+        self.graphMovement.localPosition = schema.localPosition
         self.graph = .init(from: schema)
         
         self.graphStepManager.delegate = self
@@ -329,7 +329,7 @@ extension GraphState: GraphDelegate {
         return graphUI
     }
     
-    var storeDelegate: StitchStore? {
+    var storeDelegate: StoreDelegate? {
         self.documentDelegate?.storeDelegate
     }
     
@@ -367,19 +367,19 @@ extension GraphState: GraphDelegate {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor convenience init(id: ProjectId,
-                     projectName: String = STITCH_PROJECT_DEFAULT_NAME,
-                     previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                     previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
-                     previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
-                     localPosition: CGPoint = .zero,
-                     zoomData: CGFloat = 1,
-                     nodes: [NodeEntity] = [],
-                     orderedSidebarLayers: [SidebarLayerData] = [],
-                     commentBoxes: [CommentBoxData] = .init(),
-                     cameraSettings: CameraSettings = CameraSettings(),
-                     store: StoreDelegate?) {
+                                projectName: String = STITCH_PROJECT_DEFAULT_NAME,
+                                previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+                                previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
+                                previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
+                                localPosition: CGPoint = .zero,
+                                zoomData: CGFloat = 1,
+                                nodes: [NodeEntity] = [],
+                                orderedSidebarLayers: [SidebarLayerData] = [],
+                                commentBoxes: [CommentBoxData] = .init(),
+                                cameraSettings: CameraSettings = CameraSettings(),
+                                store: StoreDelegate?) {
         let document = StitchDocument(projectId: id,
                                       name: projectName,
                                       previewWindowSize: previewWindowSize,
@@ -391,9 +391,11 @@ extension GraphState {
                                       orderedSidebarLayers: orderedSidebarLayers,
                                       commentBoxes: commentBoxes,
                                       cameraSettings: cameraSettings)
-        self.init(from: document)
+        self.init(from: document, store: store)
     }
-    
+}
+
+extension GraphState {
     @MainActor
     func update(from schema: StitchDocument) {
         // Sync project attributes
