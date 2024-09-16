@@ -155,6 +155,11 @@ extension StitchDocumentViewModel {
         // Update preview layers
         self.updateOrderedPreviewLayers()
     }
+    
+    var cameraFeed: CameraFeedManager? {
+        self.cameraFeedManager?.loadedInstance?.cameraFeedManager
+    }
+
 }
 
 extension StitchDocumentViewModel: GraphCalculatable {
