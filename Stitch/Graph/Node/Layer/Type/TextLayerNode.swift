@@ -75,7 +75,7 @@ struct TextLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

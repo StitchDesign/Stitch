@@ -52,7 +52,7 @@ struct MapLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewMapLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel, 
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -86,10 +86,10 @@ struct MapLayerNode: LayerNodeDefinition {
 let DEFAULT_MAP_LAYER_IMAGE_NAME = "defaultMapLayerImage"
 
 struct PreviewMapLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
-let interactiveLayer: InteractiveLayer
+    let interactiveLayer: InteractiveLayer
 
     // Map-specific
     let mapType: StitchMapType
@@ -121,7 +121,7 @@ let interactiveLayer: InteractiveLayer
 
     @ViewBuilder
     var mapView: some View {
-        if graph.isGeneratingProjectThumbnail {
+        if documenet.isGeneratingProjectThumbnail {
             // TODO: use default map, e.g. Mercator projection?
             
             if let image = UIImage(named: "defaultMapLayerImage") {
@@ -140,7 +140,7 @@ let interactiveLayer: InteractiveLayer
     
     var body: some View {
         mapView.modifier(PreviewCommonModifier(
-            graph: graph,
+            documenet: documenet,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

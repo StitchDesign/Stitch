@@ -34,7 +34,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewColorFillLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

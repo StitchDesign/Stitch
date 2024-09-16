@@ -41,7 +41,7 @@ struct VideoLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
-        VisualMediaLayerView(graph: graph,
+        VisualMediaLayerView(document: document,
                              viewModel: viewModel,
                              isPinnedViewRendering: isPinnedViewRendering,
                              parentSize: parentSize,

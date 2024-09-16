@@ -59,7 +59,7 @@ extension LayerViewModel {
 // the third does not.
 struct ShapeLayerView: View {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -72,7 +72,7 @@ struct ShapeLayerView: View {
         let coordinateSystem = viewModel.coordinateSystem.getShapeCoordinates ?? .relative
 
         PreviewShapeLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

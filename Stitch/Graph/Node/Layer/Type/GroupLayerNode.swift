@@ -94,7 +94,7 @@ struct GroupLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewGroupLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,

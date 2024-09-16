@@ -51,7 +51,7 @@ struct SFSymbolLayerNode: LayerNodeDefinition {
         let stroke = viewModel.getLayerStrokeData()
         
         return PreviewSFSymbolLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

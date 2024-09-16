@@ -13,10 +13,6 @@ import StitchSchemaKit
 struct GeneratePreview: View {
     @Bindable var document: StitchDocumentViewModel
     
-    var graph: GraphState {
-        document.graph
-    }
-    
     var visibleNodes: VisibleNodesViewModel {
         document.graph.visibleNodesViewModel
     }
@@ -29,7 +25,7 @@ struct GeneratePreview: View {
     
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
-        PreviewLayersView(graph: document.graph,
+        PreviewLayersView(document: document,
                           layers: sortedLayerDataList,
                           parentSize: document.previewWindowSize,
                           parentId: nil,
@@ -42,7 +38,7 @@ struct GeneratePreview: View {
                           isGhostView: false)
         .background {
             // Invisible views used for reporting pinning position data
-            PreviewLayersView(graph: graph,
+            PreviewLayersView(document: document,
                               layers: sortedLayerDataList,
                               parentSize: document.previewWindowSize,
                               parentId: nil,
@@ -59,14 +55,13 @@ struct GeneratePreview: View {
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
-        .modifier(HoverGestureModifier(graph: graph,
-                                       previewWindowSize: graph.previewWindowSize))
+        .modifier(HoverGestureModifier(previewWindowSize: document.previewWindowSize))
     }
 }
 
 /// Similar to `GeneratePreview` but can be called recursively for group layers.
 struct PreviewLayersView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layers: LayerDataList
         
     /*
@@ -142,7 +137,7 @@ struct PreviewLayersView: View {
         // `LayerDataId` distinguishes between { layerViewModel, pinnedView } and { layerViewModel, ghostView }
         ForEach(presentedLayers) { layerData in
             
-            LayerDataView(graph: graph,
+            LayerDataView(document: document,
                           layerData: layerData,
                           parentSize: parentSize,
                           parentDisablesPosition: parentDisablesPosition,
@@ -175,7 +170,7 @@ struct PreviewLayersView: View {
                     .padding(.trailing, parentPadding.right)
 
                 ForEach(pinsInOrientationView) { layerData in
-                    LayerDataView(graph: graph,
+                    LayerDataView(document: document,
                                   layerData: layerData,
                                   parentSize: parentSize,
                                   parentDisablesPosition: parentDisablesPosition,
@@ -185,7 +180,7 @@ struct PreviewLayersView: View {
             
         } // Group
         .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: graph.hasInteraction(parentId),
+            hasLayerInteraction: document.visibleGraph.hasInteraction(parentId),
             cornerRadius: parentCornerRadius))
     }
     
@@ -263,7 +258,7 @@ struct PreviewLayersView: View {
 }
 
 struct LayerDataView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerData: LayerData
     let parentSize: CGSize
     let parentDisablesPosition: Bool
@@ -287,7 +282,7 @@ struct LayerDataView: View {
                     
                     // Turn masked LayerData into a single view
                     let masked: some View = LayerDataView(
-                        graph: graph,
+                        document: document,
                         layerData: maskedLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
@@ -295,7 +290,7 @@ struct LayerDataView: View {
                     
                     // Turn masker LayerData into a single view
                     let masker: some View = LayerDataView(
-                        graph: graph,
+                        document: document,
                         layerData: maskerLayerData,
                         parentSize: parentSize,
                         parentDisablesPosition: parentDisablesPosition,
@@ -309,9 +304,9 @@ struct LayerDataView: View {
             }
             
         case .nongroup(let layerViewModel, _):
-            if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
+            if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
-                NonGroupPreviewLayersView(graph: graph,
+                NonGroupPreviewLayersView(document: document,
                                           layerNode: layerNode,
                                           layerViewModel: layerViewModel,
                                           isPinnedViewRendering: !isGhostView,
@@ -322,9 +317,9 @@ struct LayerDataView: View {
             }
                         
         case .group(let layerViewModel, let childrenData, _):
-            if let node = graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
+            if let node = document.graph.getLayerNode(id: layerViewModel.id.layerNodeId.id),
                let layerNode = node.layerNode {
-                GroupPreviewLayersView(graph: graph,
+                GroupPreviewLayersView(document: document,
                                        layerNode: layerNode,
                                        layerViewModel: layerViewModel,
                                        childrenData: childrenData,
@@ -339,7 +334,7 @@ struct LayerDataView: View {
 }
 
 struct NonGroupPreviewLayersView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerNode: LayerNodeViewModel
     @Bindable var layerViewModel: LayerViewModel
 
@@ -349,7 +344,7 @@ struct NonGroupPreviewLayersView: View {
     
     var body: some View {
         if layerNode.hasSidebarVisibility {
-            PreviewLayerView(graph: graph,
+            PreviewLayerView(document: document,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,
@@ -362,7 +357,7 @@ struct NonGroupPreviewLayersView: View {
 }
 
 struct GroupPreviewLayersView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerNode: LayerNodeViewModel
     let layerViewModel: LayerViewModel
     let childrenData: LayerDataList
@@ -372,7 +367,7 @@ struct GroupPreviewLayersView: View {
     
     var body: some View {
         if layerNode.hasSidebarVisibility {
-            GroupLayerNode.content(graph: graph,
+            GroupLayerNode.content(document: document,
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,

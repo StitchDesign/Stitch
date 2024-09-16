@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct PreviewColorFillLayer: View {
-    @Bindable var docuemnt: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let position: CGPoint = .zero
 

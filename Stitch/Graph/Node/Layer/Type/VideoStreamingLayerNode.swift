@@ -47,7 +47,7 @@ struct VideoStreamingLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewVideoStreamLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel, 
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

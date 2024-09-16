@@ -61,7 +61,7 @@ struct OvalLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
-        ShapeLayerView(graph: graph,
+        ShapeLayerView(document: document,
                        viewModel: viewModel,
                        isPinnedViewRendering: isPinnedViewRendering,
                        parentSize: parentSize,

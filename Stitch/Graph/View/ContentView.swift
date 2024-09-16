@@ -110,7 +110,7 @@ struct ContentView: View, KeyboardReadable {
             if !GraphUIState.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
-                ProjectNavigationView(graph: graph,
+                ProjectNavigationView(document: document,
                                       insertNodeMenuHiddenNodeId: graphUI.insertNodeMenuState.hiddenNodeId,
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)

@@ -12,7 +12,7 @@ import StitchSchemaKit
 // Note: used by many but not all layers; e.g. Group Layer does not use this
 struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
-    @Bindable var docuemnt: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer

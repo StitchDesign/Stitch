@@ -15,7 +15,7 @@ typealias ImportedURLs = [MediaKey]
 struct VideoDisplayView: View {
     let videoPlayer: StitchVideoImportPlayer
     
-    @Bindable var docuemnt: StitchDocumentViewModel
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
 
     // come from videoLayer node,

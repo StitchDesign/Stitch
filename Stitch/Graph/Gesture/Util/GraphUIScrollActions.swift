@@ -731,7 +731,7 @@ extension StitchDocumentViewModel {
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
         // TODO: What happens if we zoom in or out *while momentum is running*?
-        let momentumOrigin = self
+        let momentumOrigin = self.visibleGraph
             .graphBounds(graphMovement.zoomData.zoom,
                          graphView: graphUIState.frame,
                          graphOffset: graphMovement.localPosition,
