@@ -99,9 +99,15 @@ extension FieldValue {
     }
 
     var layerDimensionField: LayerDimensionField? {
+                
         switch self {
+        
+        case .layerDimension(let x):
+            return x
+            
         case .number(let fieldValueNumber):
             return .number(fieldValueNumber)
+            
         case .string(let stitchString):
             let stringValue = stitchString.string
             
@@ -130,8 +136,8 @@ extension FieldValue {
                 return .number(Double(stringValue) ?? .zero)
                 
             }
-            
-        default:
+
+        case .bool, .color, .dropdown, .layerDropdown, .pinTo, .anchorPopover, .media, .pulse, .json, .readOnly, .textFontDropdown, .spacing:
             return nil
         }
     }
