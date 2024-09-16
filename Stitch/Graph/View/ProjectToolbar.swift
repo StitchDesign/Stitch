@@ -121,12 +121,12 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
-                        graphUI: graphUI,
+                        document: document,
                         hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
                         isFullscreen: graphUI.isFullScreenMode,
                         isPreviewWindowShown: graphUI.showPreviewWindow,
                         llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: graphUI.llmRecording.isRecording)
+                        llmRecordingModeActive: document.llmRecording.isRecording)
                 }
                 #endif
 

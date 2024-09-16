@@ -40,7 +40,7 @@ struct GraphBaseView: View {
             .onAppear {
 
                 #if targetEnvironment(macCatalyst)
-                if self.spaceHeld || graphUI.keypressState.isSpacePressed {
+                if self.spaceHeld || document.keypressState.isSpacePressed {
                     NSCursor.openHand.push()
                 }
                 #endif
@@ -58,7 +58,7 @@ struct GraphBaseView: View {
 
         #if targetEnvironment(macCatalyst)
             .modifier(GraphHoverViewModifier(spaceHeld: self.$spaceHeld,
-                                             graphUI: graphUI))
+                                             document: document))
         #endif
     }
 
@@ -152,7 +152,7 @@ struct GraphBaseView: View {
 
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     func body(content: Content) -> some View {
         content
@@ -170,7 +170,7 @@ struct GraphHoverViewModifier: ViewModifier {
                 }
             })
         
-            .onChange(of: graphUI.keypressState.isSpacePressed, initial: true) { _, newValue in
+            .onChange(of: document.keypressState.isSpacePressed, initial: true) { _, newValue in
                 // log("GraphBaseView: onChange: keypressState.isSpacePressed: oldValue: \(oldValue)")
                 // log("GraphBaseView: onChange: keypressState.isSpacePressed: newValue: \(newValue)")
                 
