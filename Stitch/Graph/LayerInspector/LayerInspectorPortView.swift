@@ -182,6 +182,9 @@ extension GraphUIState {
         
         // Else select/de-select the property
         else {
+
+            // On Catalyst, use hover-only, never row-selection.
+            #if !targetEnvironment(macCatalyst)
             let alreadySelected = self.propertySidebar.selectedProperty == layerInspectorRowId
             
             withAnimation {
@@ -191,6 +194,7 @@ extension GraphUIState {
                     self.propertySidebar.selectedProperty = layerInspectorRowId
                 }
             }
+            #endif
         }
     }
 }
