@@ -136,10 +136,10 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     }
 }
 
-struct CameraFeedNodeDeleted: GraphEvent {
+struct CameraFeedNodeDeleted: StitchDocumentEvent {
     let nodeId: NodeId
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         state.removeCameraNode(id: nodeId)
     }
 }

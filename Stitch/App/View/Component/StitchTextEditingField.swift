@@ -190,10 +190,10 @@ struct StitchTextEditingBindingField: View {
     }
 }
 
-struct TextFieldDisappeared: GraphEvent {
+struct TextFieldDisappeared: StitchDocumentEvent {
     let focusedField: FocusedUserEditField
     
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         if state.graphUI.reduxFocusedField == focusedField {
             state.graphUI.reduxFocusedField = nil
         }
@@ -204,8 +204,8 @@ struct TextFieldDisappeared: GraphEvent {
          TAB and SHIFT are the only key presses that could trigger the disappearance of the TextField.
          */
         #if !targetEnvironment(macCatalyst)
-        state.graphUI.keypressState.modifiers.remove(.tab)
-        state.graphUI.keypressState.modifiers.remove(.shift)
+        state.keypressState.modifiers.remove(.tab)
+        state.keypressState.modifiers.remove(.shift)
         #endif
     }
 }

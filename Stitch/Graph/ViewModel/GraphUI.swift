@@ -156,7 +156,7 @@ final class GraphUIState {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func adjustedDoubleTapLocation(_ localPosition: CGPoint) -> CGPoint? {
         self.graphUI.doubleTapLocation.map {

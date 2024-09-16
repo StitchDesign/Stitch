@@ -29,7 +29,6 @@ struct ContentView: View, KeyboardReadable {
 
     @Bindable var store: StitchStore
     @Bindable var document: StitchDocumentViewModel
-    @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
 
     let alertState: ProjectAlertState
@@ -54,7 +53,7 @@ struct ContentView: View, KeyboardReadable {
             contentView // the graph
             
             if showMenu {
-                InsertNodeMenuWrapper(graph: graph,
+                InsertNodeMenuWrapper(document: document,
                                       graphUI: graphUI,
                                       menuHeight: $menuHeight,
                                       screenSize: $screenSize) // node menu + other animating views
@@ -66,7 +65,7 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
-                                    previewWindowSize: graph.previewWindowSize,
+                                    previewWindowSize: document.previewWindowSize,
                                     isFullScreen: graphUI.isFullScreenMode,
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
@@ -100,7 +99,7 @@ struct ContentView: View, KeyboardReadable {
                     
                 // for modal background, use preview windw background color + a couple shades darker
                     .background {
-                        graph.previewWindowBackgroundColor.overlay {
+                        document.previewWindowBackgroundColor.overlay {
                             Color.black.opacity(0.2)
                         }
                     }
@@ -144,8 +143,8 @@ struct ContentView: View, KeyboardReadable {
                      hideAction: store.hideProjectSettingsSheet) {
             ProjectSettingsView(previewWindowSize: document.previewWindowSize,
                                 previewSizeDevice: document.previewSizeDevice,
-                                previewWindowBackgroundColor: graph.previewWindowBackgroundColor,
-                                graph: graph) }
+                                previewWindowBackgroundColor: document.previewWindowBackgroundColor,
+                                graph: document.graph) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
@@ -179,7 +178,7 @@ struct ContentView: View, KeyboardReadable {
         
     @ViewBuilder
     var flyout: some View {
-        OpenFlyoutView(graph: graph)
+        OpenFlyoutView(graph: document.visibleGraph)
     }
 }
 

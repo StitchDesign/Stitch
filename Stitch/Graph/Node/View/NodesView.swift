@@ -132,13 +132,13 @@ struct NodesView: View {
 
 struct EdgeInputLabelsView: View {
     let inputs: [InputNodeRowViewModel]
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
 
     var body: some View {
-        let showLabels = graph.graphUI.edgeEditingState?.labelsShown ?? false
+        let showLabels = document.graphUI.edgeEditingState?.labelsShown ?? false
         
-        if let nearbyCanvasItem: CanvasItemId = graph.graphUI.edgeEditingState?.nearbyCanvasItem {
+        if let nearbyCanvasItem: CanvasItemId = document.graphUI.edgeEditingState?.nearbyCanvasItem {
             ForEach(inputs) { inputRowViewModel in
                 
                 

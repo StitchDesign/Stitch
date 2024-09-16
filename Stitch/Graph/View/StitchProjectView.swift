@@ -44,14 +44,14 @@ struct StitchProjectView: View {
             #endif
 
             .modifier(ProjectToolbarViewModifier(graph: graphState,
-                                                 graphUI: graphState.graphUI,
+                                                 graphUI: document.graphUI,
                                                  // In reality this won't be nil
                                                  projectName: graphState.name,
                                                  projectId: graphState.projectId,
                                                  isFullScreen: $isFullScreen))
             .onDisappear {
                 // Create new thumbnail image
-                store.createThumbnail(from: graphState)
+                store.createThumbnail(from: document)
                 
                 // TODO: listen to presses of the NavigationStack's back button instead?
                 dispatch(CloseGraph())
@@ -87,8 +87,9 @@ struct StitchProjectView: View {
 
     @ViewBuilder @MainActor
     func projectView() -> some View {
-        ContentView(graph: graphState,
-                    graphUI: graphState.graphUI,
+        ContentView(store: store,
+                    document: document,
+                    graphUI: document.graphUI,
                     alertState: alertState,
                     routerNamespace: routerNamespace)
     }

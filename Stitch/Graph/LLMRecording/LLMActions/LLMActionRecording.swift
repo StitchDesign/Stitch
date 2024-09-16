@@ -57,7 +57,7 @@ extension StitchDocumentViewModel {
     }
     
     // When prompt modal is closed, we write the JSON of prompt + actions to file.
-    @MainActor func closedLLMRecordingPrompt(state: GraphState) {
+    @MainActor func closedLLMRecordingPrompt() {
         
         // log("LLMRecordingPromptClosed called")
         
