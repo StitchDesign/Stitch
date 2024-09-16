@@ -71,7 +71,8 @@ struct GraphBaseView: View {
     @MainActor
     var nodesView: some View {
         GraphGestureView(graph: graph) {
-            NodesView(graph: graph,
+            NodesView(document: document,
+                      graph: graph,
                       groupNodeFocused: graphUI.groupNodeFocused,
                       groupTraversedToChild: graphUI.groupTraversedToChild,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
@@ -80,7 +81,7 @@ struct GraphBaseView: View {
                 // (rather than before; eg inside the NodesView)
 
                 .background {
-                    GraphGestureBackgroundView(documnet: document) {
+                    GraphGestureBackgroundView(document: document) {
                         Stitch.APP_BACKGROUND_COLOR
                             .edgesIgnoringSafeArea(.all)
                             // TODO: Location seems more accurate placed outside the UIKit wrapper,

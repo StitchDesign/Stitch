@@ -72,7 +72,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
 }
 
 struct PreviewProgressIndicatorLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -115,7 +115,7 @@ struct PreviewProgressIndicatorLayer: View {
         }
         .opacity(opacity)
         .modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

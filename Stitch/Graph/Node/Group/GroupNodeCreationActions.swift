@@ -144,7 +144,7 @@ struct GroupNodeCreatedEvent: StitchDocumentEvent {
         let newGroupNodeId = GroupNodeId(id: NodeId())
 //        let selectedNodeIds = state.selectedNodeIds
         let selectedCanvasItems = state.visibleGraph.selectedCanvasItems
-        let edges = state.visibleGraph.createEdges()
+        let edges = state.createEdges()
 
 //        #if DEV || DEV_DEBUG
 //        // Every selected node must belong to this traversal level.

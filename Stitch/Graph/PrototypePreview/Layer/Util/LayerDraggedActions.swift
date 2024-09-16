@@ -42,13 +42,12 @@ extension StitchDocumentViewModel {
         interactiveLayer.childSize = childSize
         interactiveLayer.parentSize = parentSize
 
-        updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
-                                 gestureLocation: location,
-                                 velocity: velocity.toCGPoint,
-                                 leftClick: true,
-                                 previewWindowSize: self.previewWindowSize,
-                                 graphState: self,
-                                 graphTime: self.graphStepState.graphTime)
+        self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+                                      gestureLocation: location,
+                                      velocity: velocity.toCGPoint,
+                                      leftClick: true,
+                                      previewWindowSize: self.previewWindowSize,
+                                      graphTime: self.graphStepState.graphTime)
         
         nodesToRecalculate = nodesToRecalculate.union(mouseNodeIds)
         

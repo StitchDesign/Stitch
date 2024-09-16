@@ -115,7 +115,8 @@ struct NodesView: View {
     
     @MainActor
     func nodesOnlyView(nodePageData: NodePageData) -> some View {
-        NodesOnlyView(graph: graph,
+        NodesOnlyView(document: document,
+                      graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData,
                       canvasNodes: visibleNodesViewModel.allViewModels,

@@ -121,7 +121,7 @@ struct PreviewMapLayer: View {
 
     @ViewBuilder
     var mapView: some View {
-        if documenet.isGeneratingProjectThumbnail {
+        if document.isGeneratingProjectThumbnail {
             // TODO: use default map, e.g. Mercator projection?
             
             if let image = UIImage(named: "defaultMapLayerImage") {
@@ -140,7 +140,7 @@ struct PreviewMapLayer: View {
     
     var body: some View {
         mapView.modifier(PreviewCommonModifier(
-            documenet: documenet,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,
@@ -166,7 +166,7 @@ struct PreviewMapLayer: View {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             frameAlignment: .topLeading,
-            clipForMapLayerProjetThumbnailCreation: graph.isGeneratingProjectThumbnail))
+            clipForMapLayerProjetThumbnailCreation: document.isGeneratingProjectThumbnail))
     }
 }
 

@@ -101,7 +101,7 @@ struct VisualMediaLayerView: View {
         }
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,
-                                         graph: document.visibleGraph,
+                                         document: document,
                                          mediaRowObserver: mediaRowObserver))
     }
 }
