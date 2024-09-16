@@ -223,7 +223,7 @@ struct FloatingWindowView: View {
         VStack {
             HStack(spacing: .zero) {
                 Spacer()
-                PreviewContent(graph: graph,
+                PreviewContent(document: document,
                                isFullScreen: false)
                 .frame(self.previewWindowSizing.dimensions)
             }
@@ -238,7 +238,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(graph: .init(id: .init(), store: nil),
+        FloatingWindowView(document: .init(from: .init(), store: nil),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)

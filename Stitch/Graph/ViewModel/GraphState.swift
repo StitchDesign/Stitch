@@ -98,8 +98,12 @@ final class StitchDocumentViewModel: Sendable {
 }
 
 extension StitchDocumentViewModel {
-    var projectId: UUID {
+    var id: UUID {
         self.graph.id
+    }
+    
+    var projectId: UUID {
+        self.id
     }
     
     var projectName: String {
@@ -430,6 +434,10 @@ extension GraphState {
 }
 
 extension GraphState {
+    @MainActor func updateTopologicalData() {
+        self.documentDelegate?.updateTopologicalData()
+    }
+    
     var mouseNodes: NodeIdSet {
         self.documentDelegate?.mouseNodes ?? .init()
     }

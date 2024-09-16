@@ -15,9 +15,13 @@ struct GraphBaseView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets: SafeAreaInsets
     @State private var spaceHeld = false
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
     let insertNodeMenuHiddenNodeId: NodeId?
+    
+    var graph: GraphState {
+        self.document.graph
+    }
 
     var body: some View {
         // Our screen device measurements ignore the safe area,
@@ -27,10 +31,10 @@ struct GraphBaseView: View {
             .simultaneousGesture(
                 MagnifyGesture()
                     .onChanged { value in
-                        self.graph.graphPinchToZoom(amount: value.magnification)
+                        self.document.graphPinchToZoom(amount: value.magnification)
                     }
                     .onEnded { _ in
-                        self.graph.graphZoomEnded()
+                        self.document.graphZoomEnded()
                     }
             )
             .onAppear {
@@ -76,7 +80,7 @@ struct GraphBaseView: View {
                 // (rather than before; eg inside the NodesView)
 
                 .background {
-                    GraphGestureBackgroundView(graph: graph) {
+                    GraphGestureBackgroundView(documnet: document) {
                         Stitch.APP_BACKGROUND_COLOR
                             .edgesIgnoringSafeArea(.all)
                             // TODO: Location seems more accurate placed outside the UIKit wrapper,
