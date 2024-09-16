@@ -25,12 +25,6 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
-//    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-//    
-//    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-//    
-//    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-    
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
     @MainActor var selectedEdges: Set<PortEdgeUI> { get }
@@ -68,6 +62,34 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
 
 extension GraphDelegate {
     var projectId: UUID { self.id }
+    
+    
+    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.dragInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.dragInteractionNodes = newValue
+        }
+    }
+
+    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.pressInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.pressInteractionNodes = newValue
+        }
+    }
+
+    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] {
+        get {
+            self.documentDelegate?.scrollInteractionNodes ?? .init()
+        }
+        set(newValue) {
+            self.documentDelegate?.scrollInteractionNodes = newValue
+        }
+    }
     
     @MainActor var graphStepState: GraphStepState {
         self.documentDelegate?.graphStepManager.graphStepState ??

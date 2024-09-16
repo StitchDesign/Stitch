@@ -127,7 +127,6 @@ final class GraphUIState {
          colorScheme: ColorScheme = defaultColorScheme,
          dragDuplication: Bool = false,
          doubleTapLocation: CGPoint? = nil,
-         keypressState: KeyPressState = .init(),
          activeIndex: ActiveIndex = .defaultActiveIndex,
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
@@ -144,7 +143,6 @@ final class GraphUIState {
         self.colorScheme = colorScheme
         self.dragDuplication = dragDuplication
         self.doubleTapLocation = doubleTapLocation
-        self.keypressState = keypressState
         self.activeIndex = activeIndex
         self.frame = frame
         self.selection = selection

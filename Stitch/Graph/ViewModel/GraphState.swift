@@ -452,6 +452,11 @@ extension GraphState {
         self.graphUI.activeIndex
     }
     
+    @MainActor
+    func updateOrderedPreviewLayers() {
+        self.documentDelegate?.updateOrderedPreviewLayers()
+    }
+    
     var graphStepManager: GraphStepManager {
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()

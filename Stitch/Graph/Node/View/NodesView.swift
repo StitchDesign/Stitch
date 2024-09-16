@@ -149,7 +149,7 @@ struct EdgeInputLabelsView: View {
                 let isInputOnNearbyCanvasItem = inputRowViewModel.canvasItemDelegate?.id == nearbyCanvasItem
                 let isVisible = isInputOnNearbyCanvasItem && showLabels
                 
-                EdgeEditModeLabelsView(graph: graph,
+                EdgeEditModeLabelsView(document: document,
                                        portId: inputRowViewModel.id.portId)
                 .position(inputRowViewModel.anchorPoint ?? .zero)
                 .opacity(isVisible ? 1 : 0)
