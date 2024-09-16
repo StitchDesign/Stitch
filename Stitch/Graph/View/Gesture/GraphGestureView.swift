@@ -68,11 +68,11 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
 class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     static let zoomScrollRate = 0.04
     
-    weak var graph: GraphState?
+    weak var document: StitchDocumentViewModel?
 
-    init(graph: GraphState) {
+    init(document: StitchDocumentViewModel) {
         super.init()
-        self.graph = graph
+        self.document = document
     }
 
     // Enables simultaneous gestures with SwiftUI gesture handlers

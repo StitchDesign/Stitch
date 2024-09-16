@@ -396,6 +396,32 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState {
+    @MainActor convenience init(id: ProjectId,
+                                projectName: String = STITCH_PROJECT_DEFAULT_NAME,
+                                previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+                                previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
+                                previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
+                                localPosition: CGPoint = .zero,
+                                zoomData: CGFloat = 1,
+                                nodes: [NodeEntity] = [],
+                                orderedSidebarLayers: [SidebarLayerData] = [],
+                                commentBoxes: [CommentBoxData] = .init(),
+                                cameraSettings: CameraSettings = CameraSettings(),
+                                store: StoreDelegate?) {
+        let document = StitchDocument(projectId: id,
+                                      name: projectName,
+                                      previewWindowSize: previewWindowSize,
+                                      previewSizeDevice: previewSizeDevice,
+                                      previewWindowBackgroundColor: previewWindowBackgroundColor,
+                                      localPosition: localPosition,
+                                      zoomData: zoomData,
+                                      nodes: nodes,
+                                      orderedSidebarLayers: orderedSidebarLayers,
+                                      commentBoxes: commentBoxes,
+                                      cameraSettings: cameraSettings)
+        self.init(from: document)
+    }
+    
     @MainActor
     func update(from schema: StitchDocument) {
         // Sync project attributes

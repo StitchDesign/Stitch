@@ -26,21 +26,21 @@ extension NodeSelectionGestureRecognizer {
         
         case .began:
             
-            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+            if document?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
-            self.graph?.documentDelegate?.graphScrollBegan()
+            self.document?.graphScrollBegan()
             
         case .changed:
             
-            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+            if document?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
             // Should only have a single touch
             if gestureRecognizer.numberOfTouches == 1 {
-                self.graph?.documentDelegate?.graphDragged(
+                self.document?.graphDragged(
                     // not an accurate translation?
                     translation: translation.toCGSize,
                     location: location)
@@ -48,7 +48,7 @@ extension NodeSelectionGestureRecognizer {
         
         case .ended, .cancelled:
             
-            if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+            if document?.llmRecording.isRecording ?? false {
                 log("Graph pan disabled during LLM Recording")
                 return
             }
@@ -58,7 +58,7 @@ extension NodeSelectionGestureRecognizer {
             //        log("handleScreenGraphPanGesture: screenPanInView: velocity: \(velocity)")
             // should have no touches
             if gestureRecognizer.numberOfTouches == 0 {
-                self.graph?.documentDelegate?.graphDragEnded(
+                self.document?.graphDragEnded(
                     location: location,
                     velocity: velocity,
                     wasScreenDrag: true)
@@ -81,16 +81,16 @@ extension GraphGestureDelegate {
         let translation = gestureRecognizer.translation(in: view)
 
         // Check if Command key is pressed
-        if self.graph?.documentDelegate?.keypressState.isCommandPressed == true {
+        if self.document?.keypressState.isCommandPressed == true {
             // Determine zoom direction based on the y-direction of the translation
             switch gestureRecognizer.state {
             case .changed:
                 if translation.y > 0 {
                     // Scrolling up, zoom in
-                    self.graph?.graphZoomedIn(rate: Self.zoomScrollRate)
+                    self.document?.graphZoomedIn(rate: Self.zoomScrollRate)
                 } else if translation.y < 0 {
                     // Scrolling down, zoom out
-                    self.graph?.graphZoomedOut(rate: Self.zoomScrollRate)
+                    self.document?.graphZoomedOut(rate: Self.zoomScrollRate)
                 }
             default:
                 break
@@ -100,23 +100,23 @@ extension GraphGestureDelegate {
             if gestureRecognizer.numberOfTouches == 0 {
                 switch gestureRecognizer.state {
                 case .began:
-                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+                    if document?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.documentDelegate?.graphScrollBegan()
+                    self.document?.graphScrollBegan()
                 case .changed:
-                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+                    if document?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.documentDelegate?.graphScrolled(translation: translation)
+                    self.document?.graphScrolled(translation: translation)
                 case .ended, .cancelled:
-                    if graph?.documentDelegate?.llmRecording.isRecording ?? false {
+                    if document?.llmRecording.isRecording ?? false {
                         log("Graph pan disabled during LLM Recording")
                         return
                     }
-                    self.graph?.documentDelegate?.graphDragEnded(
+                    self.document?.graphDragEnded(
                         location: nil,
                         // `nil` vs `view` doesn't make a difference?
                         // velocity: gestureRecognizer.velocity(in: view),
