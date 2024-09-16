@@ -70,7 +70,7 @@ struct GraphBaseView: View {
     @ViewBuilder
     @MainActor
     var nodesView: some View {
-        GraphGestureView(graph: graph) {
+        GraphGestureView(document: document) {
             NodesView(document: document,
                       graph: graph,
                       groupNodeFocused: graphUI.groupNodeFocused,

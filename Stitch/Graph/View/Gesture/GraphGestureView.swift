@@ -16,7 +16,7 @@ typealias GraphGestureViewController = StitchHostingController
 /// A wrapper view controller representable for the entire graph view. Handles scroll, pinch, and long press gestures.
 struct GraphGestureView<T: View>: UIViewControllerRepresentable {
     // Pass in reference to access handlers for graph movement
-    let graph: GraphState
+    let document: StitchDocumentViewModel
     @ViewBuilder var view: () -> T
 
     func makeUIViewController(context: Context) -> GraphGestureViewController<T> {
@@ -61,7 +61,7 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> GraphGestureDelegate {
-        GraphGestureDelegate(graph: graph)
+        GraphGestureDelegate(document: document)
     }
 }
 

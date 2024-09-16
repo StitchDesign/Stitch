@@ -32,14 +32,14 @@ extension GraphDelegate {
     }
 }
 
-struct LayerInputAddedToGraph: GraphEventWithResponse {
+struct LayerInputAddedToGraph: StitchDocumentEvent {
 
     // just pass in LayerInspectorRowId and switch on that;
     // don't need two actions
     let nodeId: NodeId
     let coordinate: LayerInputType
     
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         
         // log("LayerInputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
@@ -48,12 +48,12 @@ struct LayerInputAddedToGraph: GraphEventWithResponse {
               let layerNode = node.layerNode else {
             log("LayerInputAddedToGraph: could not add Layer Input to graph")
             fatalErrorIfDebug()
-            return .noChange
+            return
         }
         
         handleLayerInputAddedToGraph(state: state, nodeId: nodeId, coordinate: coordinate)
         
-        return .shouldPersist
+        state.graph.encodeProjectInBackground()
     }
 }
 
@@ -68,7 +68,7 @@ func handleLayerInputAddedToGraph(state: StitchDocumentViewModel,
        let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
         
         
-        layerMultiselectInput.multiselectObservers(state).forEach { observer in
+        layerMultiselectInput.multiselectObservers(state.visibleGraph).forEach { observer in
             addLayerInputToGraph(state: state,
                                  nodeId: observer.rowObserver.id.nodeId,
                                  coordinate: coordinate)
@@ -96,9 +96,9 @@ func addLayerInputToGraph(state: StitchDocumentViewModel,
     }
 
     let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-    state.layerInputAddedToGraph(node: node,
-                                 input: layerInputData,
-                                 coordinate: coordinate)
+    state.visibleGraph.layerInputAddedToGraph(node: node,
+                                              input: layerInputData,
+                                              coordinate: coordinate)
 }
 
 extension GraphState {
@@ -120,9 +120,9 @@ extension GraphState {
                 node: nodeId,
                 keyPath: coordinate)),
             position: document.newLayerPropertyLocation,
-            zIndex: document.highestZIndex + 1,
+            zIndex: document.visibleGraph.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
-            parentGroupNodeId: document.groupNodeFocused,
+            parentGroupNodeId: document.graphUI.groupNodeFocused?.asNodeId,
             inputRowObservers: [input.rowObserver],
             outputRowObservers: [])
         
@@ -178,7 +178,7 @@ extension GraphState {
         output.canvasObserver = CanvasItemViewModel(
             id: .layerOutput(.init(node: node.id,
                                    portId: portId)),
-            position: self.visibleGraph.newLayerPropertyLocation,
+            position: document.newLayerPropertyLocation,
             zIndex: self.highestZIndex + 1,
             // Put newly-created LIG into graph's current traversal level
             parentGroupNodeId: self.groupNodeFocused,

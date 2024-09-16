@@ -43,7 +43,8 @@ struct StitchProjectView: View {
             //                            })
             #endif
 
-            .modifier(ProjectToolbarViewModifier(graph: graphState,
+            .modifier(ProjectToolbarViewModifier(document: document,
+                                                 graph: graphState,
                                                  graphUI: document.graphUI,
                                                  // In reality this won't be nil
                                                  projectName: graphState.name,

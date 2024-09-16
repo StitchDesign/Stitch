@@ -67,7 +67,7 @@ extension StitchDocumentViewModel {
             self.graphUI.activeDragInteraction.activeDragInteractionNodes = self.graphUI.activeDragInteraction.activeDragInteractionNodes.union(dragInteractionIdSet)
             
             for dragInteractionId in dragInteractionIdSet {
-                if let node = self.getPatchNode(id: dragInteractionId),
+                if let node = self.visibleGraph.getPatchNode(id: dragInteractionId),
                    node.isDragNodeEnabled {
                     nodesToRecalculate.insert(node.id)
                 } // if let node
