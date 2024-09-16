@@ -48,7 +48,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         
     @MainActor
     func getPressInteractionIds() -> NodeIdSet? {
-        document.graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
+        document.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
     
     @MainActor
@@ -56,16 +56,16 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         TapGesture(count: 2)
             .onEnded {
                 if let pressIds = self.getPressInteractionIds() {
-                    self.interactiveLayer.secondPressEnded = graph.graphStepState.graphTime
-                    graph.calculate(pressIds)
+                    self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
+                    document.calculate(pressIds)
                 }
             }
             .exclusively(before:
                             TapGesture()
                 .onEnded {
                     if let pressIds = self.getPressInteractionIds() {
-                        self.interactiveLayer.firstPressEnded = graph.graphStepState.graphTime
-                        graph.calculate(pressIds)
+                        self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
+                        document.calculate(pressIds)
                     }
                 }
             )
@@ -87,7 +87,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 let location = CGPoint(x: $0.location.x - pos.x,
                                        y: $0.location.y - pos.y)
                                 
-                graph.layerDragged(interactiveLayer: interactiveLayer,
+                document.layerDragged(interactiveLayer: interactiveLayer,
                                    location: location, // // PRESS NODE ONLY
                                    translation: $0.translation,
                                    velocity: velocity,
@@ -97,7 +97,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
-                graph.layerDragEnded(interactiveLayer: interactiveLayer,
+                document.layerDragEnded(interactiveLayer: interactiveLayer,
                                      parentSize: parentSize,
                                      childSize: size)
             }

@@ -50,6 +50,11 @@ final class StitchDocumentViewModel: Sendable {
     // Checked at the end of graph calc for efficient updating
     var shouldResortPreviewLayers: Bool = false
     
+    // Keeps track of interaction nodes and their selected layer
+    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
+    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
+    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
+    
     // Used in rotation modifier to know whether view receives a pin;
     // updated whenever preview layers cache is updated.
     var pinMap = RootPinMap()
@@ -281,11 +286,6 @@ final class GraphState: Sendable {
 
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
-    
-    // Keeps track of interaction nodes and their selected layer
-    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
 
     // DEVICE MOTION
     var motionManagers = StitchMotionManagersDict()

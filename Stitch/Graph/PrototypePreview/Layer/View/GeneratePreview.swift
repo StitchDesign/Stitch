@@ -180,7 +180,7 @@ struct PreviewLayersView: View {
             
         } // Group
         .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: document.visibleGraph.hasInteraction(parentId),
+            hasLayerInteraction: document.hasInteraction(parentId),
             cornerRadius: parentCornerRadius))
     }
     
