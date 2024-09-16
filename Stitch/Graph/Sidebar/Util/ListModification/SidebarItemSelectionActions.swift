@@ -22,6 +22,7 @@ struct SidebarItemTapped: GraphEvent {
 //        if state.keypressState.isCommandPressed ||  state.keypressState.isShiftPressed {
         if state.keypressState.isCommandPressed {
             
+            // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
             if alreadySelected {
                 state.sidebarSelectionState.inspectorFocusedLayers.remove(id)
             } else {
@@ -29,11 +30,8 @@ struct SidebarItemTapped: GraphEvent {
             }
             
         } else {
-            if alreadySelected {
-                state.sidebarSelectionState.inspectorFocusedLayers = .init()
-            } else {
-                state.sidebarSelectionState.inspectorFocusedLayers = .init([id])
-            }
+            // Note: Click will not deselect an already-selected layer
+            state.sidebarSelectionState.inspectorFocusedLayers = .init([id])
         }
         
         state.updateInspectorFocusedLayers()
