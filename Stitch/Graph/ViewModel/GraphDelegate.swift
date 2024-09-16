@@ -96,6 +96,10 @@ extension GraphDelegate {
     @MainActor func calculate(_ id: NodeId) {
         self.documentDelegate?.calculate(id)
     }
+    
+    @MainActor func calculate(_ idSet: NodeIdSet) {
+        self.documentDelegate?.calculate(idSet)
+    }
       
     @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
                                      nodeId: NodeId,
