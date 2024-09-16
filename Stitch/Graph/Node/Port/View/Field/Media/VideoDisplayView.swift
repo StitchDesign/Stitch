@@ -42,7 +42,7 @@ struct VideoDisplayView: View {
 
     private var scrubbedVideoView: some View {
         Group {
-            if graph.isGeneratingProjectThumbnail,
+            if document.isGeneratingProjectThumbnail,
                let image = videoPlayer.thumbnail {
                 ImageDisplayView(
                     image: image,

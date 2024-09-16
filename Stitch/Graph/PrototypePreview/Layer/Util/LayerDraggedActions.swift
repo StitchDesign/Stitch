@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-extension GraphState {
+extension StitchDocumentViewModel {
     /**
      User dragged, pressed or tapped a layer in the preview window.
      (i.e. SwiftUI view corresponding to a layer node, visible in the prototype preview window)

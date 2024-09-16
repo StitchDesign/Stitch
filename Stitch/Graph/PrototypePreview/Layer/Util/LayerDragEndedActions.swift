@@ -17,7 +17,7 @@ import StitchSchemaKit
  Dispatched from SwiftUI DragGesture.onEnded;
  handles both drag and scroll interactions.
  */
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func layerDragEnded(interactiveLayer: InteractiveLayer,
                         parentSize: CGSize,
@@ -36,13 +36,12 @@ extension GraphState {
         // Nodes to recalculate initialize with mouse nodes
         let mouseNodeIds: NodeIdSet = self.mouseNodes
 
-        updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
-                                 gestureLocation: nil,
-                                 velocity: nil,
-                                 leftClick: false,
-                                 previewWindowSize: self.previewWindowSize,
-                                 graphState: self,
-                                 graphTime: self.graphStepState.graphTime)
+        self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+                                      gestureLocation: nil,
+                                      velocity: nil,
+                                      leftClick: false,
+                                      previewWindowSize: self.previewWindowSize,
+                                      graphTime: self.graphStepState.graphTime)
         
         nodesToRecalculate = nodesToRecalculate.union(mouseNodeIds)
         

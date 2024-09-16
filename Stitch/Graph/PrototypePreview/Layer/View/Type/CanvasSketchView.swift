@@ -23,7 +23,7 @@ extension Color {
 // TODO: rename to e.g. `PreviewCanvasSketchView` to match `PreviewText`
 struct CanvasSketchView: View {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -68,7 +68,7 @@ struct CanvasSketchView: View {
         // TODO: confirm these are okay with various .rotation, .position etc. changes
 
         return view.modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

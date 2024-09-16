@@ -144,7 +144,7 @@ struct CameraFeedNodeDeleted: GraphEvent {
     }
 }
 
-extension GraphDelegate {
+extension StitchDocumentViewModel {
     func removeCameraNode(id: NodeId) {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.enabledNodeIds.remove(id)
     }

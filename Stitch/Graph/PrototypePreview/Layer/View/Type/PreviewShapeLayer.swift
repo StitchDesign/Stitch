@@ -77,7 +77,7 @@ struct PreviewShapeLayer: View {
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     nodeId: interactiveLayer.id.layerNodeId,
-                    highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+                    highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
                     scale: scale))
             // order of .blur vs other modiifers doesn't matter?
                 .blur(radius: blurRadius)
@@ -85,7 +85,7 @@ struct PreviewShapeLayer: View {
             
             // TODO: revisit this
                 .modifier(PreviewAbsoluteShapeLayerModifier(
-                    graph: graph, 
+                    document: document,
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,

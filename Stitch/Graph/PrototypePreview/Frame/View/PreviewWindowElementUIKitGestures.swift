@@ -88,12 +88,12 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                                        y: $0.location.y - pos.y)
                                 
                 document.layerDragged(interactiveLayer: interactiveLayer,
-                                   location: location, // // PRESS NODE ONLY
-                                   translation: $0.translation,
-                                   velocity: velocity,
-                                   parentSize: parentSize,
-                                   childSize: size,
-                                   childPosition: position)
+                                      location: location, // // PRESS NODE ONLY
+                                      translation: $0.translation,
+                                      velocity: velocity,
+                                      parentSize: parentSize,
+                                      childSize: size,
+                                      childPosition: position)
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")

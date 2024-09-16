@@ -25,11 +25,11 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
-    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-    
-    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
-    
-    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+//    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+//    
+//    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+//    
+//    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
     
