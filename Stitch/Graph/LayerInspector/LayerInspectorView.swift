@@ -230,6 +230,8 @@ struct LayerInspectorInputsSectionView: View {
     let nodeId: NodeId
     
     @State private var expanded = true
+    
+    @State private var isHovered = false
       
     var body: some View {
         Section(isExpanded: $expanded) {
@@ -250,15 +252,15 @@ struct LayerInspectorInputsSectionView: View {
             }
             .transition(.slideInAndOut(edge: .top))
         } header: {
-            // TODO: use a button instead?
             HStack(spacing: LAYER_INSPECTOR_ROW_SPACING) { // spacing of 8 ?
-                let rotationZ: CGFloat = expanded ? 90 : 0
-                Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
-                    .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
-                           height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                    .rotation3DEffect(Angle(degrees: rotationZ),
-                                      axis: (x: 0, y: 0, z: rotationZ))
-                    .animation(.linear(duration: 0.2), value: rotationZ)
+//                let rotationZ: CGFloat = expanded ? 90 : 0
+//                Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+//                    .frame(width: LAYER_INSPECTOR_ROW_ICON_LENGTH,
+//                           height: LAYER_INSPECTOR_ROW_ICON_LENGTH)
+//                    .rotation3DEffect(Angle(degrees: rotationZ),
+//                                      axis: (x: 0, y: 0, z: rotationZ))
+//                    .animation(.linear(duration: 0.2), value: rotationZ)
+//                    .opacity(self.isHovered ? 1 : 0)
                 
                 StitchTextView(string: sectionName.rawValue).textCase(nil)
             }
@@ -268,6 +270,9 @@ struct LayerInspectorInputsSectionView: View {
                                       bottom: 0,
                                       trailing: 0))
             .contentShape(Rectangle())
+            .onHover {
+                self.isHovered = $0
+            }
             .onTapGesture {
                 withAnimation {
                     self.expanded.toggle()
