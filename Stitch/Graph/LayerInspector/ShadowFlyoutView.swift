@@ -8,6 +8,23 @@
 import SwiftUI
 import StitchSchemaKit
 
+
+extension LayerInputPort {
+    
+    // Should you switch on *every* input of a given "multiple inputs to one flyout", not just the proxy-inputs?
+    var isMultipleInputsForSingleFlyout: Bool {
+        if self == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+            return true
+        } else if self == STROKE_FLYOUT_LAYER_INPUT_PROXY {
+            return true
+        } else {
+            return false
+        }
+    }
+}
+
+let STROKE_FLYOUT_LAYER_INPUT_PROXY = LayerInputPort.strokePosition
+
 // Represents "packed" shadow
 let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputPort.shadowColor
 

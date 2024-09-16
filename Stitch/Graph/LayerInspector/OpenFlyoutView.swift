@@ -63,12 +63,12 @@ struct OpenFlyoutView: View, KeyboardReadable {
             - keyboardAdjustment // move flyout up a bit more if keyboard is open and we're near bottom
             
             let flyoutInput: LayerInputPort = flyoutState.flyoutInput
-            
+                        
             HStack {
                 Spacer()
                 Group {
                     // Multiple single-field inputs presented in one flyout
-                    if flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+                    if flyoutInput.isMultipleInputsForSingleFlyout {
                        ShadowFlyoutView(node: node,
                                         layerNode: layerNode,
                                         graph: graph)
