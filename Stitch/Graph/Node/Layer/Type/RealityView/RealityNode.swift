@@ -47,7 +47,7 @@ struct RealityViewLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
-        PreviewRealityLayer(graph: graph,
+        PreviewRealityLayer(doucment: doucment,
                             viewModel: viewModel,
                             isPinnedViewRendering: isPinnedViewRendering,
                             parentSize: parentSize,

@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var node: CanvasItemViewModel
     @Bindable var stitch: NodeViewModel
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
@@ -102,7 +103,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             CanvasItemTag(isSelected: isSelected,
                           nodeTagMenu: nodeTagMenu)
         }
-        .canvasItemPositionHandler(graph: graph,
+        .canvasItemPositionHandler(document: document,
                                    node: node,
                                    position: position,
                                    zIndex: zIndex,

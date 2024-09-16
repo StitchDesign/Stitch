@@ -37,13 +37,13 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
         
         // Ignore shift/tab if no node input field is focused.
         if let focusedField = state.graphUI.reduxFocusedField?.getTextInputEdit,
-           let node = state.getNode(focusedField.rowId.nodeId) {
+           let node = state.visibleGraph.getNode(focusedField.rowId.nodeId) {
             if shiftHeld, tabPressed {
-                state.shiftTabPressed(focusedField: focusedField, 
-                                      node: node)
+                state.visibleGraph.shiftTabPressed(focusedField: focusedField,
+                                                   node: node)
             } else if tabPressed {
-                state.tabPressed(focusedField: focusedField, 
-                                 node: node)
+                state.visibleGraph.tabPressed(focusedField: focusedField,
+                                              node: node)
             }
         }
     }
@@ -111,7 +111,7 @@ extension StitchStore {
         // we won't recalculate the graph (= won't update keyboard patch nodes).
 
         // TODO: edge-added and edge-removed logic still recalculate the graph
-        document.graphUI.keypressState.characters.insert(char)
+        document.keypressState.characters.insert(char)
 
         if document.graphUI.edgeEditingState.isDefined {
             document.keyCharPressedDuringEdgeEditingMode(char: char)
@@ -119,7 +119,7 @@ extension StitchStore {
 
         // Not in edge-edit-mode, so recalc the keyboard patch nodes
         else {
-            let keyboardNodes = self.keyboardNodes
+            let keyboardNodes = document.graph.keyboardNodes
             document.calculate(keyboardNodes)
         }
     }
@@ -142,12 +142,12 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         // NOTE: Always let key presses end, even if insert-node-menu or project settings modal is open
 
         // remove the key to the pressed-characters
-        state.graphUI.keypressState.characters.remove(char)
+        state.keypressState.characters.remove(char)
 
         // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed is now: \(graphState.graphUI.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        let keyboardNodes = state.keyboardNodes
+        let keyboardNodes = state.graph.keyboardNodes
         state.calculate(keyboardNodes)
     }
 }

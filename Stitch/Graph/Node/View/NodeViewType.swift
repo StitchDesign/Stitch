@@ -13,6 +13,7 @@ struct NodeTypeView: View {
     // Use state rather than computed variable due to perf cost
     @State private var sortedUserTypeChoices = [UserVisibleType]()
     
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     @Bindable var canvasNode: CanvasItemViewModel
@@ -51,6 +52,7 @@ struct NodeTypeView: View {
     var body: some View {
         NodeView(node: canvasNode,
                  stitch: node,
+                 document: document,
                  graph: graph,
                  isSelected: isSelected,
                  atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,

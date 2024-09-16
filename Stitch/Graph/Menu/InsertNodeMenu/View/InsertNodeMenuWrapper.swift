@@ -98,7 +98,7 @@ struct InsertNodeMenuWrapper: View {
     @MainActor
     func getNodeDestination() -> CGPoint {
         
-        let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(graph.localPosition)
+        let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
         let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
         

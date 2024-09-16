@@ -214,7 +214,7 @@ extension VisibleNodesViewModel {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func keyCharPressedDuringEdgeEditingMode(char: Character) {
         
@@ -231,7 +231,7 @@ extension GraphState {
             return
         }
         
-        guard let nearbyNode = self.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
+        guard let nearbyNode = self.visibleGraph.getCanvasItem(edgeEditingState.nearbyCanvasItem) else {
             log("keyCharPressedDuringEdgeEditingMode: could not retrieve \(edgeEditingState.nearbyCanvasItem)")
             return
         }
@@ -330,6 +330,6 @@ extension GraphState {
             }
         }
 
-        return self.removeEdgeAt(input: edge.to)
+        return self.visibleGraph.removeEdgeAt(input: edge.to)
     }
 }
