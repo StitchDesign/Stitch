@@ -131,10 +131,10 @@ extension GraphState {
  * 2. Creates input and output group nodes.
  * 3. Removes old edges and connections and updates them to new group nodes.
  */
-struct GroupNodeCreatedEvent: GraphEventWithResponse {
+struct GroupNodeCreatedEvent: StitchDocumentEvent {
 
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
 
         guard !state.graphUI.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
@@ -230,7 +230,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         // Recalculate graph
         state.initializeGraphComputation()
         
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 

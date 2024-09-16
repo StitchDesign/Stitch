@@ -257,10 +257,10 @@ extension NodeRowObserver {
     }
 }
 
-struct RealityViewCreatedWithoutCamera: GraphEvent {
+struct RealityViewCreatedWithoutCamera: StitchDocumentEvent {
     let nodeId: NodeId
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         if state.cameraFeedManager?.isLoading ?? false {
             log("RealityViewCreatedWithoutCamera: already loading")
             return
@@ -270,15 +270,15 @@ struct RealityViewCreatedWithoutCamera: GraphEvent {
     }
 }
 
-struct SingletonMediaTeardown: GraphEvent {
+struct SingletonMediaTeardown: StitchDocumentEvent {
     let keyPath: MediaManagerSingletonKeyPath
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         state.teardownSingleton(keyPath: keyPath)
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     func teardownSingleton(keyPath: MediaManagerSingletonKeyPath) {
         self[keyPath: keyPath] = nil
     }

@@ -106,7 +106,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 scale: scale))
         
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -117,7 +117,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition, 
@@ -126,7 +126,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 
         //  SwiftUI gestures must come AFTER the .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
+                document: document,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,

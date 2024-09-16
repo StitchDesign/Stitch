@@ -14,7 +14,7 @@ import StitchSchemaKit
 // Discussion here: https://harshil.net/blog/swiftui-rotationeffect-is-kinda-funky
 struct PreviewLayerRotationModifier: ViewModifier {
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     
@@ -23,7 +23,7 @@ struct PreviewLayerRotationModifier: ViewModifier {
     let rotationZ: CGFloat
     
     @MainActor var pinReceiver: PinReceiverData? {
-        getPinReceiverData(for: viewModel, from: graph)
+        document.getPinReceiverData(for: viewModel)
     }
     
     static let defaultRotationAnchor = 0.5

@@ -95,6 +95,6 @@ struct TextFieldLayerNode: LayerNodeDefinition {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
-            focusedTextFieldLayer: graph.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit)
+            focusedTextFieldLayer: document.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit)
     }
 }

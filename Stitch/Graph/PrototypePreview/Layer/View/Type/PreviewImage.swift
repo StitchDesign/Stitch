@@ -283,7 +283,7 @@ struct PreviewImageLayer: View {
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: document.visibleNodesViewModel.pinMap))
+            pinMap: document.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
             document: document,
             layerViewModel: layerViewModel,
