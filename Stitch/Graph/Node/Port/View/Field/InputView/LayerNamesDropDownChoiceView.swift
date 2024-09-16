@@ -51,7 +51,7 @@ extension NodeViewModel {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
@@ -60,7 +60,7 @@ extension GraphState {
                               // specific use case of pinToId dropdown
                               isForPinTo: Bool) -> LayerDropdownChoices {
         
-        let viewsPinnedToThisLayerId = self.visibleNodesViewModel.pinMap.getLinkedPinnedLayers(from: isForNode.asLayerNodeId)
+        let viewsPinnedToThisLayerId = self.pinMap.getLinkedPinnedLayers(from: isForNode.asLayerNodeId)
         
         // includes self?
         var descendants = (isForLayerGroup ? self.getDescendants(for: isForNode.asLayerNodeId) : .init())

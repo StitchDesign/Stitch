@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct PreviewHitAreaLayer: View {
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -34,7 +34,7 @@ struct PreviewHitAreaLayer: View {
             EmptyView()
         } else {
             color.modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: layerViewModel, 
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

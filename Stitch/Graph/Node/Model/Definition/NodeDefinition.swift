@@ -51,7 +51,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     static var inputDefinitions: LayerInputTypeSet { get }
     
     @MainActor
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 

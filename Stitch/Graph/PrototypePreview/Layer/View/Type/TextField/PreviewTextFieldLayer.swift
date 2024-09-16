@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 struct PreviewTextFieldLayer: View {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -64,7 +64,7 @@ struct PreviewTextFieldLayer: View {
     @ViewBuilder @MainActor
     var previewTextField: some View {
         // SwiftUI TextField cannot be rendered
-        if graph.isGeneratingProjectThumbnail {
+        if document.isGeneratingProjectThumbnail {
             LayerTextView(value: viewModel.textFieldInput,
                           color: color,
                           alignment: getSwiftUIAlignment(textAlignment,
@@ -135,7 +135,7 @@ struct PreviewTextFieldLayer: View {
     var body: some View {
 
         previewTextField.modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

@@ -88,7 +88,7 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,

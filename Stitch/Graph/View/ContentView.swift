@@ -169,8 +169,8 @@ struct ContentView: View, KeyboardReadable {
 
     private var fullScreenPreviewView: some View {
         FullScreenPreviewViewWrapper(
-            graphState: graph, 
-            previewWindowSizing: self.previewWindowSizing, 
+            document: document,
+            previewWindowSizing: self.previewWindowSizing,
             showFullScreenPreviewSheet: alertState.showFullScreenPreviewSheet,
             graphNamespace: graphNamespace,
             routerNamespace: routerNamespace,
