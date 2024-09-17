@@ -99,7 +99,7 @@ struct ReversePulseCoercion: StitchDocumentEvent {
         // so we just update downstream nodes
         guard let node = state.getNodeViewModel(pulsedOutput.nodeId),
               let currentOutputs = node.getOutputRowObserver(for: pulsedOutput.portType)?.allLoopedValues else {
-                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
+//                  fatalErrorIfDebug("ReversePulseCoercion error: data not found.")
                   return
               }
         
