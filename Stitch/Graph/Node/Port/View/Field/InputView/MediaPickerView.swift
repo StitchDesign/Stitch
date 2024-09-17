@@ -62,6 +62,7 @@ struct MediaFieldValueView: View {
     }
     
     // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
+    // TODO: update FieldValueMedia (or even PortValue ?) to distinguish between visual media and other types?
     var usesVisualMediaPlaceholder: Bool {
         
         switch nodeKind {
