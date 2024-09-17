@@ -101,7 +101,7 @@ struct SidebarListItemLeftLabelView: View {
             Image(systemName: layer.sidebarLeftSideIcon)
                 .resizable()
                 .scaledToFit()
-//                .padding(2)
+                .padding(2)
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(color)

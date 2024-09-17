@@ -64,7 +64,6 @@ struct ProjectSidebarView: View {
             .zIndex(1)
         }
 //        .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
-//        .background(Color.cyan.ignoresSafeArea())
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)
@@ -76,7 +75,18 @@ struct ProjectSidebarView: View {
         .toolbar {
             SidebarEditButtonView(isEditing: $isEditing)
         }
+
+        // Allows scrolled up content to be visible underneath other nav-stack icons; not ideal.
+//        .toolbarBackground(.hidden, for: .automatic)
+        
+        // We can change the color of the sidebar's top-most section
         .toolbarBackground(.visible, for: .automatic)
+        .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
+        
+//        .toolbarBackground(WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
+        
+        // Change how navigation-title is dispalty
+//        .toolbarTitleDisplayMode(.inline)
 #endif
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))

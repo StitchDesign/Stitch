@@ -32,7 +32,7 @@ struct SidebarListItemSelectionCircleView: View {
         // See `SidebarListItemLeftLabelView` for note about animations
         if isBeingEdited {
             selectionCircle
-                .animation(.linear, value: iconName)
+//                .animation(.linear, value: iconName)
         } else {
             selectionCircle
         }
