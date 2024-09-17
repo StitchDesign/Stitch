@@ -29,11 +29,24 @@ struct SidebarListItemChevronView: View {
     var body: some View {
 
         Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+            .resizable()
+            .scaledToFit()
+        
+        #if targetEnvironment(macCatalyst)
+            .padding(2)
+            .padding(.horizontal, 2)
+        #else
+            .padding(4)
+            .padding(.horizontal, 4)
+        #endif
+        
+            .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                   height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+        
             .foregroundColor(color)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
-            .padding(2)
-            .frame(width: 16, height: 20)
+                
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {

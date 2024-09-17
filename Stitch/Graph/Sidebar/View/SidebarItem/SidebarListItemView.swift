@@ -67,20 +67,12 @@ struct SidebarListItemView: View {
             Spacer()
 
         }
-//        .frame(maxWidth: .infinity, 
-////               maxHeight: .infinity)
-//               maxHeight: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
-        
-//        .border(.black)
-        
-//        .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
-        
-        .background(Color.white.opacity(0.001)) // for hit area
+        .contentShape(Rectangle()) // for hit area
+
+        //        .background(Color.white.opacity(0.001)) // for hit area
 //        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
 //        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
-        
-//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
-        
+                
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         .background {
             if isNonEditModeSelected || isBeingDragged {

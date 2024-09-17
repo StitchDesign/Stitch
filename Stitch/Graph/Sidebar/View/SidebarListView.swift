@@ -10,8 +10,18 @@ import SwiftUI
 // Entire Figma sidebar is 320 pixels wide
 let SIDEBAR_WIDTH: CGFloat = 320
 
+let SIDEBAR_LIST_ITEM_ICON_AND_TEXT_SPACING: CGFloat = 4.0
+
+#if targetEnvironment(macCatalyst)
 let SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT: CGFloat = 20.0
 let SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT: CGFloat = 28.0
+let SIDEBAR_LIST_ITEM_FONT: Font = STITCH_FONT // 14.53
+#else
+let SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT: CGFloat = 24.0
+let SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT: CGFloat = 32.0
+let SIDEBAR_LIST_ITEM_FONT: Font = stitchFont(18)
+#endif
+
 
 struct SidebarListView: View {
 

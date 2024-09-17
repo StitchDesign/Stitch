@@ -20,7 +20,9 @@ let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = Int(SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_H
 
 // Per Figma, 12 pixels to east
 // (During DragTest dev was `VIEW_HEIGHT / 2`)
-let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 12
+//let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 12
+//let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 20
+let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
 extension SidebarListItem {
     static var fakeSidebarListItem: Self {

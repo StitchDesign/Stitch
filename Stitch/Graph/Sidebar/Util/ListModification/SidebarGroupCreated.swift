@@ -65,7 +65,7 @@ struct SidebarGroupCreated: GraphEventWithResponse {
         state.updateSidebarListStateAfterStateChange()
         
         // Reset selections
-        state.sidebarSelectionState.resetSelections()
+        state.sidebarSelectionState.resetEditModeSelections()
         
         // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
         
