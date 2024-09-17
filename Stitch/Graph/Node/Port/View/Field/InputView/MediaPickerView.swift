@@ -111,6 +111,7 @@ struct MediaFieldLabelView: View {
         
         if isMultiselectInspectorInputWithHeterogenousValues {
             NilImageView()
+                .border(.red, width: 2)
         } else {
             // For image and video media pickers,
             // show both dropdown and thumbnail
@@ -122,7 +123,9 @@ struct MediaFieldLabelView: View {
 
             // Other media types: don't show label.
             default:
-                EmptyView()
+//                EmptyView()
+                NilImageView()
+                    .border(.green, width: 2)
             }
         }
       
