@@ -23,8 +23,8 @@ struct ProjectsHomeView: View {
             return store.allProjectUrls
         } else {
             return store.allProjectUrls.filter { projectLoader in
-                if case .loaded(let data) = projectLoader.loadingDocument {
-                    return data.document.name.localizedCaseInsensitiveContains(searchQuery)
+                if case .loaded(let document) = projectLoader.loadingDocument {
+                    return document.name.localizedCaseInsensitiveContains(searchQuery)
                 }
                 return false
             }

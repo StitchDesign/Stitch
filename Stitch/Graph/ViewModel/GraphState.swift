@@ -623,6 +623,6 @@ extension GraphState {
                           nodes: [],
                           orderedSidebarLayers: [],
                           commentBoxes: [],
-                          draftedComponents: [])
+                          draftedComponents: []))
     }
 }

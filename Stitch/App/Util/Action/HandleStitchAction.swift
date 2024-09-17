@@ -44,7 +44,7 @@ struct KeyCharacterPressBegan: StitchStoreEvent {
 //}
 
 struct UndoManagerInvoked: StitchStoreEvent {
-    let newState: GraphEntity?
+    let newState: StitchDocument?
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.undoManagerInvoked(newState: newState)

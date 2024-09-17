@@ -76,7 +76,7 @@ struct FullScreenPreviewViewWrapper: View {
         .alert(actionSheetHeaderString,
                isPresented: showActionSheetBinding) {
             StitchDocumentShareButton(willPresentShareSheet: showActionSheetBinding,
-                                      data: document.createSchema())
+                                      document: document.createSchema())
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
             StitchButton(exitString, action: closeGraphBtnAction)

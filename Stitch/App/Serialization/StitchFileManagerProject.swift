@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 /// Helpers focused on reading/writing with a specific project URL.
-extension StitchFileManager {
+extension DocumentEncodable {
     static func getAllMediaURLs(in importedFilesDir: URL) async -> [URL] {
         let importedFiles = Self.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
 
@@ -20,15 +20,14 @@ extension StitchFileManager {
         return allMedia
     }
 
-    static func readMediaFilesDirectory<Document>(document: Document,
-                                                  forRecentlyDeleted: Bool) -> [URL] where Document: StitchDocumentEncodable {
+    func readMediaFilesDirectory(forRecentlyDeleted: Bool) -> [URL] {
         // Assumes usage of DocumentsURL
-        let mediaDirectory = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
-        return self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
+        let mediaDirectory = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
+        return Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
     }
 
     static func readMediaFilesDirectory(mediaDirectory: URL) -> [URL] {
-        let readContentsResult = readDirectoryContents(mediaDirectory)
+        let readContentsResult = StitchFileManager.readDirectoryContents(mediaDirectory)
         switch readContentsResult {
         case .success(let urls):
             return urls
@@ -38,11 +37,10 @@ extension StitchFileManager {
         }
     }
 
-    static func copyToMediaDirectory<Document>(originalURL: URL,
-                                               in document: Document,
-                                               forRecentlyDeleted: Bool,
-                                               customMediaKey: MediaKey? = nil) async -> URLResult where Document: StitchDocumentEncodable {
-        let importedFilesURL = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
+    func copyToMediaDirectory(originalURL: URL,
+                              forRecentlyDeleted: Bool,
+                              customMediaKey: MediaKey? = nil) async -> URLResult {
+        let importedFilesURL = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
         return await Self.copyToMediaDirectory(originalURL: originalURL,
                                                importedFilesURL: importedFilesURL,
                                                customMediaKey: customMediaKey)
@@ -97,7 +95,7 @@ extension StitchFileManager {
     static func createUniqueFilename(filename: String,
                                      mediaType: SupportedMediaFormat,
                                      mediaDirectory: URL) -> String {
-        let existingFileNames = StitchFileManager.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
+        let existingFileNames = Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
             .map { $0.filename }
 
         return Stitch.createUniqueFilename(filename: filename,

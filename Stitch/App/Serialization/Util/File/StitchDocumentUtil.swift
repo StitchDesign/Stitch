@@ -86,22 +86,17 @@ extension StitchDocumentEncodable {
         Self.getRootUrl(from: self.id)
     }
     
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        // Use param in case going to recently deleted temp directory
-        documentRootUrl
-    }
-
-    /// URL location for recently deleted project.
-    private var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
-    }
-
-    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
-        if forRecentlyDeleted {
-            return self.recentlyDeletedUrl
-        }
-        return self.rootUrl
-    }
+//    func getEncodingUrl(documentRootUrl: URL) -> URL {
+//        // Use param in case going to recently deleted temp directory
+//        documentRootUrl
+//    }
+//
+//    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
+//        if forRecentlyDeleted {
+//            return self.recentlyDeletedUrl
+//        }
+//        return self.rootUrl
+//    }
 }
 
 //protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
@@ -172,7 +167,7 @@ extension StitchDocument: Transferable, Sendable {
     static func exportDocument(_ document: StitchDocument) async -> SentTransferredFile {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
-        let projectURL = document.getUrl()
+        let projectURL = document.rootUrl
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
@@ -279,10 +274,10 @@ extension StitchDocument: Transferable, Sendable {
             // log("openDocument: successfully encoded item")
         }
         
-        // Find and migrate each installed component
-        let publishedDocumentComponentsDir = codableDoc.componentsDirUrl
-        // Components might not exist so fail quietly
-        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
+//        // Find and migrate each installed component
+//        let publishedDocumentComponentsDir = codableDoc.componentsDirUrl
+//        // Components might not exist so fail quietly
+//        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
         
         graphDataUrl.stopAccessingSecurityScopedResource()
 

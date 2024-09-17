@@ -160,7 +160,6 @@ extension StitchDocumentViewModel {
                     id: newNodeId,
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
-                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph) else {
                 #if DEBUG
                 fatalError()

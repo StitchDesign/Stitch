@@ -236,15 +236,15 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
 //        public var saveLocation: ComponentSaveLocation
         public var graph: GraphEntity
 //        public let lastModifiedDate: Date
-        public let version: Int
+//        public let version: Int
         
-        public init(graph: GraphEntity,
+        public init(graph: GraphEntity) {
 //                    lastModifiedDate: Date,
-                    version: Int) {
+//                    version: Int) {
 //            self.saveLocation = saveLocation
             self.graph = graph
 //            self.lastModifiedDate = lastModifiedDate
-            self.version = version
+//            self.version = version
         }
         
         public init(previousInstance: Self) {

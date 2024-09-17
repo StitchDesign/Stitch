@@ -86,13 +86,17 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let currentDoc = state.createSchema()
             let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
-            let mediaUrls = StitchFileManager
-                .readMediaFilesDirectory(mediaDirectory: importedFilesDir)
+            let mediaUrls = DocumentEncoder.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
 
-            let mediaEffects: AsyncCallbackList = mediaUrls.map { mediaUrl in {
-                switch await StitchFileManager.copyToMediaDirectory(originalURL: mediaUrl,
-                                                                    in: currentDoc,
-                                                                    forRecentlyDeleted: false) {
+            let mediaEffects: AsyncCallbackList = mediaUrls.map { mediaUrl in { [weak state] in
+                guard let state = state,
+                      let decoder = state.documentEncoderDelegate else {
+                    return
+                }
+                
+                switch await decoder
+                    .copyToMediaDirectory(originalURL: mediaUrl,
+                                          forRecentlyDeleted: false) {
                 case .success(let newMediaUrl):
                     // Update library in GraphState
                     state.mediaLibrary.updateValue(newMediaUrl, forKey: newMediaUrl.mediaKey)

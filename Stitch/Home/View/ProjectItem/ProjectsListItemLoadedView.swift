@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct ProjectThumbnailTextField: View {
     @FocusedValue(\.focusedField) private var focusedField
 
-    let data: StitchDocumentData
+    let document: StitchDocument
     let namespace: Namespace.ID
 
     @State private var contextMenuOpen: Bool = false
@@ -32,17 +32,17 @@ struct ProjectThumbnailTextField: View {
         .onSubmit {
             Task(priority: .background) {
                 do {
-                    var data = data
-                    data.document.name = projectName
+                    var document = document
+                    document.graph.name = projectName
                     // Must write a version of the project with an updated name
-                    try DocumentLoader.encodeDocument(data)
+                    try DocumentLoader.encodeDocument(document)
                 } catch {
                     log("editProjectName: onSubmit: error: \(error)")
                 }
             }
         }
-        .onChange(of: data.document.name, initial: true) {
-            self.projectName = data.document.name
+        .onChange(of: document.name, initial: true) {
+            self.projectName = document.name
         }
         .focusedValue(\.focusedField, .projectTitle)
         .focused($isFocused)
@@ -78,7 +78,7 @@ extension StitchStore {
         // TODO: loading state needed
         Task(priority: .userInitiated) {
             do {
-                guard let data = try await StitchDocumentData.openDocument(from: documentURL) else {
+                guard let document = try await StitchDocument.openDocument(from: documentURL) else {
                     await MainActor.run { [weak self] in
                         self?.displayError(error: .projectSchemaNotFound)
                     }
@@ -91,10 +91,10 @@ extension StitchStore {
                         return
                     }
                     
-                    log("handleProjectTapped: about to set \(data.projectId)")
-                    let document = StitchDocumentViewModel(from: data,
-                                                           store: store)
-                    store.navPath = [document]
+                    log("handleProjectTapped: about to set \(document.id)")
+                    let documentViewModel = StitchDocumentViewModel(from: data,
+                                                                    store: store)
+                    store.navPath = [documentViewModel]
                 }
             } catch {
                 await MainActor.run { [weak self] in

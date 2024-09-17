@@ -38,8 +38,9 @@ struct ImportFileToNewNode: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
         Task { [weak state] in
-            await state?.importFileToNewNode(fileURL: url,
-                                             droppedLocation: droppedLocation)
+            await state?.documentEncoderDelegate?
+                .importFileToNewNode(fileURL: url,
+                                     droppedLocation: droppedLocation)
         }
         
         // won't this run *before* the Task has completed?

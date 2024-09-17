@@ -96,7 +96,7 @@ struct ProjectsListItemView: View {
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: document.getProjectThumbnailImage(),
+                    projectThumbnail: DocumentEncoder.getProjectThumbnailImage(rootUrl: document.rootUrl),
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
@@ -106,8 +106,8 @@ struct ProjectsListItemView: View {
             }
         } labelView: {
             switch projectLoader.loadingDocument {
-            case .loaded(let data):
-                ProjectThumbnailTextField(data: data,
+            case .loaded(let document):
+                ProjectThumbnailTextField(document: document,
                                           namespace: namespace)
             default:
                 // Blank text view to copy height of loaded view

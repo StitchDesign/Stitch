@@ -391,11 +391,12 @@ extension GraphState {
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
         self.createComponent(groupNodeFocused: componentId,
                              selectedNodeIds: selectedNodeIds) {
-            StitchComponent(id: componentId,
-                            saveLocation: saveLocation,
-                            nodes: $0,
-                            orderedSidebarLayers: $1,
-                            lastModifiedDate: .now)
+            StitchComponent(graph: .init(id: componentId,
+                                         name: "My Component",
+                                         nodes: $0,
+                                         orderedSidebarLayers: $1,
+                                         commentBoxes: [],
+                                         draftedComponents: []))
         }
     }
     
@@ -404,6 +405,7 @@ extension GraphState {
     @MainActor
     func createComponent<T>(groupNodeFocused: NodeId?,
                             selectedNodeIds: NodeIdSet,
+                            rootUrl: URL,
                             createComponentable: @escaping (NodeEntities, SidebarLayerList) -> T) -> StitchComponentCopiedResult<T> where T: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
@@ -417,7 +419,7 @@ extension GraphState {
 
         let copiedComponent = createComponentable(selectedNodes, selectedSidebarLayers)
 
-        let newImportedFilesDirectory = copiedComponent.getEncodingUrl(documentRootUrl: self.createSchema().rootUrl)
+        let newImportedFilesDirectory = copiedComponent.getEncodingUrl(documentRootUrl: rootUrl)
             .appendingStitchMediaPath()
         
         let portValuesList: [PortValues?] = selectedNodes
@@ -428,17 +430,18 @@ extension GraphState {
         let portValues: PortValues = portValuesList
             .flatMap { $0 ?? [] }
             
-        let effects: [AsyncCallback] = portValues.compactMap { (value: PortValue) -> AsyncCallback? in
-                guard let media = value._asyncMedia,
+        let effects: [AsyncCallback] = portValues.compactMap { [weak self] (value: PortValue) -> AsyncCallback? in
+                guard let graph = self,
+                      let media = value._asyncMedia,
                       let mediaKey = media.mediaKey,
-                      let originalMediaUrl = self.getMediaUrl(forKey: mediaKey) else {
+                      let originalMediaUrl = graph.getMediaUrl(forKey: mediaKey) else {
                     return nil
                 }
 
                 // Create imported media
                 return {
-                    let _ = await StitchFileManager.copyToMediaDirectory(originalURL: originalMediaUrl,
-                                                                         importedFilesURL: newImportedFilesDirectory)
+                    let _ = await DocumentEncoder.copyToMediaDirectory(originalURL: originalMediaUrl,
+                                                                       importedFilesURL: newImportedFilesDirectory)
                 }
             }
 
@@ -462,7 +465,7 @@ extension SidebarLayerList {
 
 
 // TODO: move
-protocol StitchComponentable: Sendable, MediaDocumentEncodable, Transferable {
+protocol StitchComponentable: Sendable, StitchDocumentEncodable, Transferable {
     var nodes: [NodeEntity] { get set }
     var orderedSidebarLayers: SidebarLayerList { get set }
     static var fileType: UTType { get }
@@ -481,7 +484,7 @@ struct StitchClipboardContent: StitchComponentable {
     var orderedSidebarLayers: SidebarLayerList
 }
 
-extension StitchClipboardContent: MediaDocumentEncodable {
+extension StitchClipboardContent: StitchDocumentEncodable {
     var rootUrl: URL {
         StitchFileManager.tempDir
             .appendingPathComponent("copied-data",

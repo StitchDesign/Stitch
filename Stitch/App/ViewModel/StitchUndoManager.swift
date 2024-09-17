@@ -59,8 +59,8 @@ final class StitchUndoManager: MiddlewareService {
     }
 
     @MainActor
-    func prepareAndSaveUndoHistory(prevDocument: StitchDocumentData,
-                                   nextDocument: StitchDocumentData,
+    func prepareAndSaveUndoHistory(prevDocument: StitchDocument,
+                                   nextDocument: StitchDocument,
                                    undoEvents: Actions?,
                                    redoEvents: Actions?) {
         let undoFileEffects = createUndoEffects(undoEvents: undoEvents,
@@ -86,8 +86,8 @@ final class StitchUndoManager: MiddlewareService {
     }
 
     @MainActor
-    private func saveUndoHistory(prevState: StitchDocumentData,
-                                 nextState: StitchDocumentData,
+    private func saveUndoHistory(prevState: StitchDocument,
+                                 nextState: StitchDocument,
                                  undoFileEffects: UndoFileEffects? = nil) {
 
         undoManager.registerUndo(withTarget: self) { _ in
@@ -118,7 +118,7 @@ final class StitchUndoManager: MiddlewareService {
 
 extension StitchStore {
     @MainActor
-    func undoManagerInvoked(newState: StitchDocumentData? = nil) {
+    func undoManagerInvoked(newState: StitchDocument? = nil) {
         guard let document = self.currentDocument else {
             return
         }

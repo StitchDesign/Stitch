@@ -14,6 +14,8 @@ protocol DocumentEncodable: Actor {
     var lastEncodedDocument: CodableDocument { get set }
     
     var rootUrl: URL { get }
+    
+    var recentlyDeletedUrl: URL { get }
 }
 
 extension DocumentEncodable {
@@ -47,6 +49,10 @@ extension DocumentEncodable {
             return .failure(.versionableContainerEncodingFailed)
         }
     }
+    
+    var id: UUID {
+        self.lastEncodedDocument.id
+    }
 }
 
 //extension StitchDocument: StitchDocumentEncodable {
@@ -59,11 +65,20 @@ actor DocumentEncoder: DocumentEncodable {
     // Keeps track of last saved StitchDocument to disk
     @MainActor var lastEncodedDocument: StitchDocument
     
-    var rootUrl: URL
-    
     init(document: StitchDocument) {
         self.lastEncodedDocument = document
-        self.rootUrl = document.rootUrl
+    }
+}
+
+extension DocumentEncoder {
+    var rootUrl: URL {
+        StitchFileManager.documentsURL
+            .url
+            .appendingStitchProjectDataPath(self.id)
+    }
+    
+    var recentlyDeletedUrl: URL {
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
     }
 }
 

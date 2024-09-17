@@ -167,7 +167,6 @@ extension GraphState {
         let newNode = Layer.group.graphNode.createViewModel(id: groupLayerData.id,
                                                             position: position,
                                                             zIndex: zIndex,
-                                                            activeIndex: self.activeIndex,
                                                             graphDelegate: self)
         newNode.layerNode?.sizePort.updatePortValues([.size(layerGroupFit.size)])
         newNode.layerNode?.positionPort.updatePortValues([.position(layerGroupFit.position)])

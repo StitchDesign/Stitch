@@ -188,7 +188,7 @@ extension GraphState {
             self.mediaLibrary.removeValue(forKey: mediaKey)
             
             Task { [weak self] in
-                await self?.documentEncoder.deleteMediaFromNode(mediaKey: mediaKey)
+                await self?.documentEncoderDelegate?.deleteMediaFromNode(mediaKey: mediaKey)
             }
         }
     }

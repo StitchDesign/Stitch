@@ -284,7 +284,6 @@ extension NodeViewModel {
                      inputLabels: [String],
                      outputs: PortValuesList,
                      outputLabels: [String],
-                     activeIndex: ActiveIndex,
                      patch: Patch,
                      userVisibleType: UserVisibleType?,
                      splitterNode: SplitterNodeEntity? = nil) {
@@ -313,8 +312,7 @@ extension NodeViewModel {
                                     nodeTypeEntity: .patch(patchNodeEntity),
                                     title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
         
-        self.init(from: nodeEntity,
-                  activeIndex: activeIndex)
+        self.init(from: nodeEntity)
     }
     
     @MainActor
@@ -340,7 +338,6 @@ extension NodeViewModel {
                   inputLabels: inputs.map { $0.label ?? "" },
                   outputs: outputs.map { $0.values },
                   outputLabels: outputs.map { $0.label ?? "" },
-                  activeIndex: .init(.zero),
                   patch: patchName,
                   userVisibleType: userVisibleType)
     }

@@ -30,7 +30,7 @@ extension StitchStore {
         let projectId = document.id
 
         switch StitchFileManager.removeStitchProject(
-            url: document.getUrl(),
+            url: document.rootUrl,
             projectId: projectId) {
 
         case .success:
