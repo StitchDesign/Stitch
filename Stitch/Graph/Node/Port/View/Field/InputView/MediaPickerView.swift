@@ -40,6 +40,7 @@ struct MediaFieldValueView: View {
     let isNodeSelected: Bool
     let isFieldInsideLayerInspector: Bool
     let isSelectedInspectorRow: Bool
+
     
     @Bindable var graph: GraphState
 
@@ -55,6 +56,33 @@ struct MediaFieldValueView: View {
             return patch.isMediaImportInput
         case .layer(let layer):
             return layer.usesCustomValueSpaceWidth
+        default:
+            return false
+        }
+    }
+    
+    // An image/video input or output shows a placeholder 'blank image' if it currently contains no image/video.
+    var usesVisualMediaPlaceholder: Bool {
+        
+        switch nodeKind {
+            
+        case .patch(let patch):
+            switch patch {
+            case .model3DImport, .soundImport:
+                return false
+            default:
+                return true
+            }
+            
+        case .layer(let layer):
+            switch layer {
+            case .model3D, .realityView:
+                return false
+            default:
+                return true
+            }
+        
+        // Should a group node input/output use the placeholder image? Maybe not?
         default:
             return false
         }
@@ -84,7 +112,7 @@ struct MediaFieldValueView: View {
                                       isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues,
                                       isSelectedInspectorRow: isSelectedInspectorRow)
             }
-
+            
             if let mediaObject = mediaObject {
                 MediaFieldLabelView(mediaObject: mediaObject,
                                     inputCoordinate: inputCoordinate,
@@ -93,7 +121,12 @@ struct MediaFieldValueView: View {
                                     isNodeSelected: isNodeSelected,
                                     isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
             } else {
-                EmptyView()
+                if usesVisualMediaPlaceholder {
+                    NilImageView()
+                } else {
+                    EmptyView()
+                }
+                
             }
         }
     }
@@ -111,7 +144,6 @@ struct MediaFieldLabelView: View {
         
         if isMultiselectInspectorInputWithHeterogenousValues {
             NilImageView()
-                .border(.red, width: 2)
         } else {
             // For image and video media pickers,
             // show both dropdown and thumbnail
@@ -123,9 +155,7 @@ struct MediaFieldLabelView: View {
 
             // Other media types: don't show label.
             default:
-//                EmptyView()
-                NilImageView()
-                    .border(.green, width: 2)
+                EmptyView()
             }
         }
       
