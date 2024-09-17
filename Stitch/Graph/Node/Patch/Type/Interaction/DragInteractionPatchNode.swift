@@ -145,7 +145,11 @@ func dragInteractionEvalOp(values: PortValues,
     let min = values[safeIndex: DragNodeInputLocations.min]?.getPoint ?? .zero
     let max = values[safeIndex: DragNodeInputLocations.max]?.getPoint ?? .zero
     
-    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? interactiveLayer.layerPosition
+//    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? interactiveLayer.layerPosition
+    
+    // Note: If we can't find the output, it's because we reset the prototype, and so should be starting at 0,0 again anyway.
+    let previousStartingPoint: CGPoint = values[safeIndex: 8]?.getPoint ?? .zero
+    
     let prevVelocity: CGPoint = values[safeIndex: 9]?.getSize?.asCGSize?.toCGPoint ?? .zero
     let shouldMomentumStart = momentumEnabled &&
         interactiveLayer.dragStartingPoint == nil &&
