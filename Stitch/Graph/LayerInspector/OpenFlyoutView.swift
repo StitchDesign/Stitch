@@ -22,9 +22,6 @@ struct OpenFlyoutView: View, KeyboardReadable {
             
             let portObserver: LayerInputObserver = layerNode[keyPath: flyoutState.flyoutInput.layerNodeKeyPath]
             
-            // Can't assume this?
-            let inputData: InputLayerNodeRowData = portObserver._packedData
-            
             // If pseudo-modal-background placed here,
             // then we disable scroll
             #if DEV_DEBUG || DEBUG

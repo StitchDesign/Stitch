@@ -31,7 +31,7 @@ struct FlyoutHeader: View {
 
 struct ShadowFlyoutView: View {
     
-    static let SHADOW_FLYOUT_WIDTH = 256.0
+    static let SHADOW_FLYOUT_WIDTH: CGFloat = 256.0
 //    static let SHADOW_FLYOUT_HEIGHT = 200.0
     @State var height: CGFloat? = nil // 248.87 per GeometryReader measurements?
     
@@ -53,23 +53,8 @@ struct ShadowFlyoutView: View {
 //                         .padding()
 //                         .border(.red)
         }
-        .padding()
-        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
-        .cornerRadius(8)
-        .frame(width: Self.SHADOW_FLYOUT_WIDTH, 
-//               height: Self.SHADOW_FLYOUT_HEIGHT)
-               height: self.height)
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
-                              initial: true) { oldValue, newValue in
-                        log("Shadow flyout size: \(newValue.size)")
-                        self.height = newValue.size.height
-                        dispatch(UpdateFlyoutSize(size: newValue.size))
-                    }
-            }
-        }
+        .modifier(FlyoutBackgroundColorModifier(width: Self.SHADOW_FLYOUT_WIDTH,
+                                                height: self.$height))
     }
     
     @MainActor

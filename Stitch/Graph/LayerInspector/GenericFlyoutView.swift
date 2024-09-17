@@ -14,7 +14,7 @@ extension Color {
 
 struct GenericFlyoutView: View {
     
-    static let DEFAULT_FLYOUT_WIDTH = 256.0 // Per Figma
+    static let DEFAULT_FLYOUT_WIDTH: CGFloat = 256.0 // Per Figma
     
     // Note: added later, because a static height is required for UIKitWrapper (key press listening); may be able to replace
     //    static let PADDING_FLYOUT_HEIGHT = 170.0 // Calculated by Figma
@@ -50,22 +50,9 @@ struct GenericFlyoutView: View {
             flyoutRows
             //            }
         }
-        .padding()
-        .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
-        .cornerRadius(8)
-        .frame(width: Self.DEFAULT_FLYOUT_WIDTH,
-               height: self.height)
-        .background {
-            // TODO: this isn't quite accurate; read-height doesn't seem tall enough?
-            GeometryReader { geometry in
-                Color.clear
-                    .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
-                              initial: true) { oldValue, newValue in
-                        log("GenericFlyout size: \(newValue.size)")
-                        dispatch(UpdateFlyoutSize(size: newValue.size))
-                    }
-            }
-        }
+        .modifier(FlyoutBackgroundColorModifier(
+            width: Self.DEFAULT_FLYOUT_WIDTH,
+            height: self.$height))
     }
     
     @State var selectedFlyoutRow: Int? = nil
@@ -186,6 +173,39 @@ struct GenericFlyoutRowView: View {
         
     }
 }
+
+struct FlyoutBackgroundColorModifier: ViewModifier {
+    
+    let width: CGFloat
+    @Binding var height: CGFloat?
+    
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE)
+            .cornerRadius(8)
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                // TODO: better gray?
+                    .stroke(Color(.stepScaleButtonHighlighted), //.gray,
+                            lineWidth: 1)
+            }
+            .frame(width: width, height: height)
+            .background {
+                // TODO: this isn't quite accurate; read-height doesn't seem tall enough?
+                GeometryReader { geometry in
+                    Color.clear
+                        .onChange(of: geometry.frame(in: .named(NodesView.coordinateNameSpace)),
+                                  initial: true) { oldValue, newValue in
+                            log("FlyoutBackgroundColorModifier size: \(newValue.size)")
+                            self.height = newValue.size.height
+                            dispatch(UpdateFlyoutSize(size: newValue.size))
+                        }
+                }
+            }
+    }
+}
+
 
 struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
