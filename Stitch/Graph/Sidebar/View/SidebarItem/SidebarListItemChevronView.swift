@@ -22,7 +22,7 @@ struct SidebarListItemChevronView: View {
 
     let isHidden: Bool
     
-    var rotationz: CGFloat {
+    var rotationZ: CGFloat {
         isClosed ? 0 : 90
     }
     
