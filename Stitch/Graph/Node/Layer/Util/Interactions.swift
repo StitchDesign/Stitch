@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 
 // TODO: if we delete a patch node, we need to also potentially remove its id from a layer node whose interactionsDict contained that id
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func getDragInteractionIds(for layerNodeId: LayerNodeId) -> IdSet {
         self.dragInteractionNodes.get(layerNodeId) ?? .init()

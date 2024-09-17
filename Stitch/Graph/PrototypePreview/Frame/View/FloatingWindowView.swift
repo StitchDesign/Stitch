@@ -28,7 +28,7 @@ extension CGSize {
 }
 
 struct FloatingWindowView: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
 
     // the screen size of the device that Stitch is running on (e.g. iPad screen or Catalyst window)
     let deviceScreenSize: CGSize
@@ -44,7 +44,7 @@ struct FloatingWindowView: View {
     @State var shouldRenderPreview = true
     
     var previewWindowSizing: PreviewWindowSizing {
-        self.graph.previewWindowSizingObserver
+        document.previewWindowSizingObserver
     }
 
     var dimensions: CGSize {
@@ -52,13 +52,13 @@ struct FloatingWindowView: View {
     }
 
     var projectId: ProjectId {
-        graph.projectId
+        document.projectId
     }
 
     // the size of the device represented by the preview window
     // i.e. `pwDevice`
-    var previewWindowSize: CGSize {
-        graph.previewWindowSize
+    @MainActor var previewWindowSize: CGSize {
+        document.previewWindowSize
     }
 
     var body: some View {
@@ -215,7 +215,7 @@ struct FloatingWindowView: View {
     }
     
     var finalXOffset: CGFloat {
-        graph.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
     }
     
     @ViewBuilder
@@ -223,7 +223,7 @@ struct FloatingWindowView: View {
         VStack {
             HStack(spacing: .zero) {
                 Spacer()
-                PreviewContent(graph: graph,
+                PreviewContent(document: document,
                                isFullScreen: false)
                 .frame(self.previewWindowSizing.dimensions)
             }
@@ -238,7 +238,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(graph: .init(id: .init(), store: nil),
+        FloatingWindowView(document: .init(from: .init(), store: nil),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)

@@ -43,7 +43,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
             if enabledNodeIds.isEmpty {
                 // Tear down if no nodes enabled camera
-                self.graphDelegate?.deactivateCamera()
+                self.documentDelegate?.deactivateCamera()
 
                 DispatchQueue.main.async {
                     dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
@@ -52,7 +52,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
         }
     }
 
-    weak var graphDelegate: GraphDelegate?
+    weak var documentDelegate: StitchDocumentViewModel?
 
     @MainActor
     var currentCameraImage: UIImage? {
@@ -63,11 +63,11 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     init(cameraSettings: CameraSettings,
          enabledNodeIds: Set<NodeId>,
          isCameraFeedNode: Bool,
-         graphDelegate: GraphDelegate) {
+         documentDelegate: StitchDocumentViewModel) {
         let isEnabled = !enabledNodeIds.isEmpty
 
         self.enabledNodeIds = enabledNodeIds
-        self.graphDelegate = graphDelegate
+        self.documentDelegate = documentDelegate
 
         if isEnabled {
             self.session = Self.createSession(cameraSettings: cameraSettings,
@@ -136,15 +136,15 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     }
 }
 
-struct CameraFeedNodeDeleted: GraphEvent {
+struct CameraFeedNodeDeleted: StitchDocumentEvent {
     let nodeId: NodeId
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         state.removeCameraNode(id: nodeId)
     }
 }
 
-extension GraphDelegate {
+extension StitchDocumentViewModel {
     func removeCameraNode(id: NodeId) {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.enabledNodeIds.remove(id)
     }

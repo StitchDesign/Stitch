@@ -1,5 +1,5 @@
 //
-//  ComputedGraphState.swift
+//  NetworkRequestUtils.swift
 //  Stitch
 //
 //  Created by Christian J Clampitt on 8/16/22.
@@ -15,9 +15,3 @@ struct NetworkRequestTimeCoordinate: Equatable, Hashable {
 }
 
 typealias NetworkRequestLatestCompletedTimeDict = [NetworkRequestTimeCoordinate: TimeInterval]
-
-// TODO: move `ComputedGraphState`
-@Observable
-final class ComputedGraphState {
-    var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
-}

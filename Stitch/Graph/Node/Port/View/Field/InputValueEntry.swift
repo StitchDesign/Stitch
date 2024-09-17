@@ -262,11 +262,12 @@ struct InputValueView: View {
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 isSelectedInspectorRow: isSelectedInspectorRow,
-                choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                    isForLayerGroup: false, 
-                                                    isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                                    isForPinTo: false))
-        
+                choices: graph.documentDelegate?
+                    .layerDropdownChoices(isForNode: rowObserverId.nodeId,
+                                          isForLayerGroup: false,
+                                          isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                          isForPinTo: false) ?? .init())
+            
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
                            graph: graph,
@@ -276,10 +277,11 @@ struct InputValueView: View {
                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            isSelectedInspectorRow: isSelectedInspectorRow,
-                           choices: graph.layerDropdownChoices(isForNode: rowObserverId.nodeId,
-                                                               isForLayerGroup: isForLayerGroup,
-                                                               isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                                               isForPinTo: true))
+                           choices: graph.documentDelegate?
+                            .layerDropdownChoices(isForNode: rowObserverId.nodeId,
+                                                  isForLayerGroup: isForLayerGroup,
+                                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
+                                                  isForPinTo: true) ?? [])
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,

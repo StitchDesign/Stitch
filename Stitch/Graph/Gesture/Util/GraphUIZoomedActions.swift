@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func graphPinchToZoom( amount: CGFloat) {
 

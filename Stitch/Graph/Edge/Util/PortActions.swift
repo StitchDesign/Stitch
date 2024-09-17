@@ -125,7 +125,7 @@ extension GraphState {
         // Add edge
         self.addEdgeWithoutGraphRecalc(edge: edge)
         
-        self.maybeCreateLLMAddEdge(edge)
+        self.documentDelegate?.maybeCreateLLMAddEdge(edge)
 
         // Then recalculate the graph again, with new edge,
         // starting at the 'from' node downward:

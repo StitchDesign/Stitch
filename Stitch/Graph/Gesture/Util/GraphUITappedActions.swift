@@ -12,7 +12,6 @@ import StitchSchemaKit
 // More like: `ResetGraphUIEdits`
 struct GraphTappedAction: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         // log("GraphTappedAction called")
         graphState.resetAlertAndSelectionState()
@@ -20,16 +19,17 @@ struct GraphTappedAction: ProjectEnvironmentEvent {
     }
 }
 
-struct GraphDoubleTappedAction: GraphUIEvent {
+struct GraphDoubleTappedAction: StitchDocumentEvent {
     let location: CGPoint
 
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         // log("GraphDoubleTappedAction called")
-        state.toggleInsertNodeMenu()
+        
+        state.graphUI.toggleInsertNodeMenu()
         
         if !state.llmRecording.isRecording {
             // Do not set double-tap location if we're actively recording
-            state.doubleTapLocation = location
+            state.graphUI.doubleTapLocation = location
         }
         
         // log("GraphDoubleTappedAction: state.doubleTapLocation is now: \(state.doubleTapLocation)")

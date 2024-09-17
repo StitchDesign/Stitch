@@ -10,14 +10,14 @@ import StitchSchemaKit
 
 // Easier to find than `nodeTypeChanged` which shares same name as several protocol methods.
 // Also separates view model update logic from disk-reading/writing side-effects.
-struct NodeTypeChanged: GraphEventWithResponse {
+struct NodeTypeChanged: StitchDocumentEvent {
     let nodeId: NodeId
     let newNodeType: NodeType
     
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
-        let changedIds = state.nodeTypeChanged(nodeId: nodeId,
-                                               newNodeType: newNodeType)
+    func handle(state: StitchDocumentViewModel) {
+        let changedIds = state.visibleGraph.nodeTypeChanged(nodeId: nodeId,
+                                                            newNodeType: newNodeType)
         
         // if we successfully changed the node's type, create an LLMAction
         if changedIds.isDefined,
@@ -26,7 +26,7 @@ struct NodeTypeChanged: GraphEventWithResponse {
                                                 newNodeType: newNodeType)
         }
         
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 
@@ -63,7 +63,7 @@ extension GraphState {
 
         // Recalculate the graph from each of the changed nodes' incoming edges
         let ids = changedNodeIds
-            .flatMap { self.immediatelyUpstreamNodes(for: $0) }
+            .flatMap { self.documentDelegate?.immediatelyUpstreamNodes(for: $0) ?? [] }
             .toSet
             // Always add the node itself, in case node has no incoming edges
             .pureInsert(nodeId)

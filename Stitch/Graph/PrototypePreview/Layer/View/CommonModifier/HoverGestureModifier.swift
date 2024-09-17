@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 struct HoverGestureModifier: ViewModifier {
 
-    @Bindable var graph: GraphState
     let previewWindowSize: CGSize
 
     @State var lastDragPosition: CGPoint?

@@ -141,7 +141,7 @@ extension [LayerPinData] {
     }
 }
 
-extension VisibleNodesViewModel {
+extension StitchDocumentViewModel {
     // Note: PinMap is only for views with a PinToId that corresponds to some layer node; so e.g. `PinToId.root` needs to be handled separately
     @MainActor
     func getFlattenedPinMap() -> PinMap {
@@ -243,8 +243,8 @@ extension PinMap {
 
 // MARK: POSITIONING
 
-extension GraphState {
-    var rootPinReceiverData: PinReceiverData {
+extension StitchDocumentViewModel {
+    @MainActor var rootPinReceiverData: PinReceiverData {
         PinReceiverData(
             // anchoring
             size: self.previewWindowSize,
@@ -257,105 +257,99 @@ extension GraphState {
             rotationY: .zero,
             rotationZ: .zero)
     }
-}
-
-@MainActor func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel,
-                        from graph: GraphState) -> PinReceiverData? {
-
-//    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
-                
-    guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
-        log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
-        return graph.rootPinReceiverData
-    }
+    
+    @MainActor func getPinReceiverData(for pinnedLayerViewModel: LayerViewModel) -> PinReceiverData? {
         
-    switch pinnedTo {
-    
-    case .root:
-        return graph.rootPinReceiverData
-    
-        // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
-        // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
-    case .parent:
-        if let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
-              let parent = layerNode.layerGroupId {
-            return getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
-                                      for: pinnedLayerViewModel,
-                                      from: graph)
-        } else {
-            return graph.rootPinReceiverData
+        //    log("getPinReceiverData: pinned layer \(pinnedLayerViewModel.layer) had pinTo of \(pinnedLayerViewModel.pinTo)")
+        
+        guard let pinnedTo: PinToId = pinnedLayerViewModel.pinTo.getPinToId else {
+            log("getPinReceiverData: no pinnedTo for layer \(pinnedLayerViewModel.layer)")
+            return self.rootPinReceiverData
         }
         
-    case .layer(let x):
-        return getPinReceiverData(pinReceiverId: x,
-                                  for: pinnedLayerViewModel,
-                                  from: graph)
+        switch pinnedTo {
+            
+        case .root:
+            return self.rootPinReceiverData
+            
+            // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
+            // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
+        case .parent:
+            if let layerNode = graph.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
+               let parent = layerNode.layerGroupId {
+                return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
+                                               for: pinnedLayerViewModel)
+            } else {
+                return self.rootPinReceiverData
+            }
+            
+        case .layer(let x):
+            return self.getPinReceiverData(pinReceiverId: x,
+                                           for: pinnedLayerViewModel)
+        }
+    }
+    
+    @MainActor func getPinReceiverData(pinReceiverId: LayerNodeId,
+                                       for pinnedLayerViewModel: LayerViewModel) -> PinReceiverData? {
+        
+        guard let rootPinReceiverId = self.pinMap.findRootPinReceiver(from: pinReceiverId),
+              let pinReceiver = self.graph.layerNodes.get(rootPinReceiverId.id) else {
+            log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
+            return self.rootPinReceiverData
+        }
+        
+        // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
+        let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.id.loopIndex]
+        
+        let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
+        
+        guard let pinReceiverLayerViewModel = (pinReceiverAtSameLoopIndex ?? firstPinReceiver) else {
+            log("getPinReceiverData: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
+            return nil
+        }
+        
+        guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
+              let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
+              let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter,
+              let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
+              let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
+              let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
+            log("getPinReceiverData: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
+            return nil
+        }
+        
+        return PinReceiverData(
+            // anchoring
+            size: pinReceiverSize,
+            origin: pinReceiverOrigin,
+            
+            // rotation
+            center: pinReceiverCenter,
+            rotationX: pinReceiverRotationX,
+            rotationY: pinReceiverRotationY,
+            rotationZ: pinReceiverRotationZ)
     }
 }
 
 extension PinToId {
     // nil: either pinToId = root or  pinToId could not be found
     func asLayerNodeId(_ pinnedViewId: LayerNodeId,
-                       from graph: VisibleNodesViewModel) -> LayerNodeId? {
+                       from document: StitchDocumentViewModel) -> LayerNodeId? {
         switch self {
         case .root:
             return nil // root has no associated layer node id
         case .layer(let x):
             // Confirm that the layer exists; else return `nil`
-            guard (graph.getNode(x.asNodeId)?.layerNode.isDefined ?? false) else {
+            guard (document.getNodeViewModel(x.asNodeId)?.layerNode.isDefined ?? false) else {
                 log("PinToId.asLayerNodeId: did not have layer node for pinToId.layer \(x)")
                 return nil
             }
             return x
         case .parent:
-            return graph.getNode(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
+            return document.getNodeViewModel(pinnedViewId.asNodeId)?.layerNode?.layerGroupId?.asLayerNodeId
         }
     }
 }
-
-@MainActor func getPinReceiverData(pinReceiverId: LayerNodeId,
-                        for pinnedLayerViewModel: LayerViewModel,
-                        from graph: GraphState) -> PinReceiverData? {
-    
-    guard let rootPinReceiverId = graph.visibleNodesViewModel.pinMap.findRootPinReceiver(from: pinReceiverId),
-          let pinReceiver = graph.layerNodes.get(rootPinReceiverId.id) else {
-        log("getPinReceiverData: no pinReceiver for layer \(pinnedLayerViewModel.layer)")
-        return graph.rootPinReceiverData
-    }
-    
-    // TODO: suppose View A (pinned) has a loop of 5, but View B (pin-receiver) has a loop of only 2; which pin-receiver view model should we return?
-    let pinReceiverAtSameLoopIndex = pinReceiver.layerNodeViewModel?.previewLayerViewModels[safe: pinnedLayerViewModel.id.loopIndex]
-    
-    let firstPinReceiver = pinReceiver.layerNodeViewModel?.previewLayerViewModels.first
-    
-    guard let pinReceiverLayerViewModel = (pinReceiverAtSameLoopIndex ?? firstPinReceiver) else {
-        log("getPinReceiverData: no pinReceiver layer view model for layer \(pinnedLayerViewModel)")
-        return nil
-    }
-    
-    guard let pinReceiverSize = pinReceiverLayerViewModel.pinReceiverSize,
-          let pinReceiverOrigin = pinReceiverLayerViewModel.pinReceiverOrigin,
-          let pinReceiverCenter = pinReceiverLayerViewModel.pinReceiverCenter,
-          let pinReceiverRotationX = pinReceiverLayerViewModel.rotationX.getNumber,
-          let pinReceiverRotationY = pinReceiverLayerViewModel.rotationY.getNumber,
-          let pinReceiverRotationZ = pinReceiverLayerViewModel.rotationZ.getNumber else {
-        log("getPinReceiverData: missing pinReceiver size, origin and/or center for layer \(pinnedLayerViewModel.layer)")
-        return nil
-    }
-    
-    return PinReceiverData(
-        // anchoring
-        size: pinReceiverSize,
-        origin: pinReceiverOrigin,
-        
-        // rotation
-        center: pinReceiverCenter,
-        rotationX: pinReceiverRotationX,
-        rotationY: pinReceiverRotationY,
-        rotationZ: pinReceiverRotationZ)
-}
-
-
 
 func getPinnedViewPosition(pinnedLayerViewModel: LayerViewModel,
                            pinReceiverData: PinReceiverData) -> CGPoint {

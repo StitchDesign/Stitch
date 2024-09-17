@@ -11,6 +11,7 @@ import StitchSchemaKit
 // TODO: Are there really Project-level responses? eg persistence?
 
 typealias StitchStoreEvent = Action & StitchStoreActionHandler
+typealias StitchDocumentEvent = Action & StitchDocumentEventHandler
 typealias GraphEvent = Action & GraphActionHandler
 typealias GraphEventWithResponse = Action & GraphActionWithResponseHandler
 typealias ProjectEnvironmentEvent = Action & ProjectEnvironmentActionHandler
@@ -28,6 +29,11 @@ protocol StitchStoreActionHandler {
     func handle(store: StitchStore) -> ReframeResponse<NoState>
 }
 
+protocol StitchDocumentEventHandler {
+    @MainActor
+    func handle(state: StitchDocumentViewModel)
+}
+
 protocol GraphActionHandler {
     @MainActor
     func handle(state: GraphState)
@@ -41,7 +47,6 @@ protocol GraphActionWithResponseHandler {
 protocol ProjectEnvironmentActionHandler {
     @MainActor
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse
 }
 

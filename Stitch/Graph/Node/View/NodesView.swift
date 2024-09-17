@@ -11,6 +11,8 @@ import StitchSchemaKit
 struct NodesView: View {
     static let coordinateNameSpace = "NODESVIEW"
     
+    @Bindable var document: StitchDocumentViewModel
+    
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
     let groupNodeFocused: GroupNodeId?
@@ -72,8 +74,8 @@ struct NodesView: View {
                                         graph: self.graph)
                         
                         EdgeInputLabelsView(inputs: inputs,
-                                            graph: graph,
-                                            graphUI: graph.graphUI)
+                                            document: document,
+                                            graphUI: document.graphUI)
                     }
                     .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
                                                nodeLocation: groupNodeLocation,
@@ -113,7 +115,8 @@ struct NodesView: View {
     
     @MainActor
     func nodesOnlyView(nodePageData: NodePageData) -> some View {
-        NodesOnlyView(graph: graph,
+        NodesOnlyView(document: document,
+                      graph: graph,
                       graphUI: graphUI,
                       nodePageData: nodePageData,
                       canvasNodes: visibleNodesViewModel.allViewModels,
@@ -132,13 +135,13 @@ struct NodesView: View {
 
 struct EdgeInputLabelsView: View {
     let inputs: [InputNodeRowViewModel]
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
 
     var body: some View {
-        let showLabels = graph.graphUI.edgeEditingState?.labelsShown ?? false
+        let showLabels = document.graphUI.edgeEditingState?.labelsShown ?? false
         
-        if let nearbyCanvasItem: CanvasItemId = graph.graphUI.edgeEditingState?.nearbyCanvasItem {
+        if let nearbyCanvasItem: CanvasItemId = document.graphUI.edgeEditingState?.nearbyCanvasItem {
             ForEach(inputs) { inputRowViewModel in
                 
                 
@@ -149,7 +152,7 @@ struct EdgeInputLabelsView: View {
                 let isInputOnNearbyCanvasItem = inputRowViewModel.canvasItemDelegate?.id == nearbyCanvasItem
                 let isVisible = isInputOnNearbyCanvasItem && showLabels
                 
-                EdgeEditModeLabelsView(graph: graph,
+                EdgeEditModeLabelsView(document: document,
                                        portId: inputRowViewModel.id.portId)
                 .position(inputRowViewModel.anchorPoint ?? .zero)
                 .opacity(isVisible ? 1 : 0)

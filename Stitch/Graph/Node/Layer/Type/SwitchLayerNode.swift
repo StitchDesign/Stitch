@@ -41,14 +41,14 @@ struct SwitchLayerNode: LayerNodeDefinition {
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewSwitchLayer(
-            graph: graph,
+            document: document,
             viewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -86,7 +86,7 @@ struct PreviewSwitchLayer: View {
     // TODO: read the REAL, potentially dynamic size of SwiftUI Toggle Switch? Varies by iPad vs Mac?
     static let ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE = CGSize(width: 40, height: 40)
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -117,7 +117,7 @@ struct PreviewSwitchLayer: View {
 
         return view
             .modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: viewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

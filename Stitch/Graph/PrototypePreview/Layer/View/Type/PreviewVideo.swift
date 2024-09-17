@@ -11,7 +11,7 @@ import SwiftUI
 
 struct PreviewVideoLayer: View {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -50,7 +50,7 @@ struct PreviewVideoLayer: View {
         // let _size: CGSize = size.asAlgebraicCGSize
 
         VideoDisplayView(videoPlayer: videoPlayer,
-                         graph: graph,
+                         document: document,
                          layerViewModel: layerViewModel,
                          size: size, //_size,
                          opacity: opacity,
@@ -63,7 +63,7 @@ struct PreviewVideoLayer: View {
          
         // .frame is set VideoDisplayView
         .modifier(PreviewCommonModifierWithoutFrame(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

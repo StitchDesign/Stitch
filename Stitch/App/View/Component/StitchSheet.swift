@@ -12,7 +12,7 @@ extension View {
     /// Calls a view modifier providing a standard sheet view. Helps us abstract away common sheet actions and styling.
     func stitchSheet<T: View>(isPresented: Bool,
                               titleLabel: String,
-                              hideAction: Action,
+                              hideAction: @escaping () -> (),
                               @ViewBuilder sheetBody: () -> T) -> some View {
         return self.modifier(SheetViewModifier(isPresented: isPresented,
                                                titleLabel: titleLabel,
@@ -24,12 +24,12 @@ extension View {
 struct SheetViewModifier<T: View>: ViewModifier {
     let isPresented: Bool
     let titleLabel: String
-    let hideAction: Action
+    let hideAction: () -> ()
     let sheetBody: T
 
     init(isPresented: Bool,
          titleLabel: String,
-         hideAction: Action,
+         hideAction: @escaping () -> (),
          @ViewBuilder sheetBody: () -> T) {
         self.isPresented = isPresented
         self.titleLabel = titleLabel
@@ -41,7 +41,7 @@ struct SheetViewModifier<T: View>: ViewModifier {
     func body(content: Content) -> some View {
         let isPresentedBinding = createBinding(isPresented) {
             if !$0 {
-                dispatch(hideAction)
+                hideAction()
             }
         }
 
@@ -76,7 +76,7 @@ struct SheetViewModifier<T: View>: ViewModifier {
             HStack {
                 Spacer()
                 StitchButton {
-                    dispatch(hideAction)
+                    hideAction()
                 } label: {
                     Text("Done")
                         .fontWeight(.bold)

@@ -84,11 +84,11 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 }
 
 @MainActor
-func createCameraFeedManager(graphState: GraphDelegate,
+func createCameraFeedManager(document: StitchDocumentViewModel,
                              nodeId: NodeId) -> StitchSingletonMediaObject {
-    let nodeKind = graphState.getNodeViewModel(nodeId)?.kind
-    let camera = graphState.createCamera(for: nodeKind ?? .patch(.cameraFeed),
-                                         newNode: nodeId)
+    let nodeKind = document.getNodeViewModel(nodeId)?.kind
+    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
+                                       newNode: nodeId)
     return .cameraFeedManager(camera)
 }
 
@@ -96,7 +96,7 @@ func createCameraFeedManager(graphState: GraphDelegate,
 /// Used by the camera feed and raycast nodes.
 @MainActor
 func cameraManagerEval(node: PatchNode,
-                       graph: GraphDelegate,
+                       document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
                        mediaOp: @escaping AsyncSingletonMediaEvalOp) -> ImpureEvalResult {
     // Check if any instance is enabled
@@ -107,9 +107,9 @@ func cameraManagerEval(node: PatchNode,
     // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
     // to possibly tear down camera
     guard isNodeEnabled else {
-        if let enabledNodeIds = graph.cameraFeed?.enabledNodeIds,
+        if let enabledNodeIds = document.cameraFeed?.enabledNodeIds,
            enabledNodeIds.contains(node.id) {
-            graph.removeCameraNode(id: node.id)
+            document.removeCameraNode(id: node.id)
         }
 
         // Better: returns two separate outputs, where each output does not contain a loop
@@ -121,7 +121,7 @@ func cameraManagerEval(node: PatchNode,
     }
 
     return asyncSingletonMediaEval(node: node,
-                                   graph: graph,
+                                   document: document,
                                    mediaCreation: createCameraFeedManager,
                                    mediaManagerKeyPath: \.cameraFeedManager,
                                    mediaOp: mediaOp)
@@ -130,12 +130,12 @@ func cameraManagerEval(node: PatchNode,
 
 @MainActor
 func cameraFeedEval(node: PatchNode,
-                    graphState: GraphDelegate) -> ImpureEvalResult {
+                    document: StitchDocumentViewModel) -> ImpureEvalResult {
     cameraManagerEval(node: node,
-                      graph: graphState,
+                      document: document,
                       cameraEnabledInputIndex: 0) { values, _, loopIndex in
         
-        guard !graphState.isGeneratingProjectThumbnail else {
+        guard !document.isGeneratingProjectThumbnail else {
             log("cameraFeedEval: generating project thumbnail, so will not use camera image")
             return node.defaultOutputs
         }
@@ -149,7 +149,7 @@ func cameraFeedEval(node: PatchNode,
             return node.defaultOutputs
         }
 
-        guard let currentCamearaImage = graphState.cameraFeed?.currentCameraImage else {
+        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
             return node.defaultOutputs
         }
         

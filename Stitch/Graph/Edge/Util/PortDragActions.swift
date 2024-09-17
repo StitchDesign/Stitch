@@ -239,7 +239,6 @@ extension OutputNodeRowViewModel {
 
 struct EligibleInputReset: ProjectEnvironmentEvent {
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         graphState.edgeDrawingObserver.nearestEligibleInput = nil
         return .noChange

@@ -216,7 +216,7 @@ struct NilImageView: View {
 }
 
 struct PreviewImageLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -283,9 +283,9 @@ struct PreviewImageLayer: View {
         .modifier(PreviewWindowCoordinateSpaceReader(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.visibleNodesViewModel.pinMap))
+            pinMap: document.pinMap))
         .modifier(PreviewCommonModifierWithoutFrame(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

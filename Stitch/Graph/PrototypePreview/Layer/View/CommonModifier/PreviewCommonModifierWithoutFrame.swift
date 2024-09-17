@@ -12,7 +12,7 @@ import StitchSchemaKit
 // Note: used by many but not all layers; e.g. Group Layer does not use this
 struct PreviewCommonModifierWithoutFrame: ViewModifier {
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -102,11 +102,11 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+                highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
                 scale: scale))
         
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -117,7 +117,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition, 
@@ -126,7 +126,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
                 
         //  SwiftUI gestures must come AFTER the .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
+                document: document,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,

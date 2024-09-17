@@ -11,41 +11,41 @@ import SwiftUI
 
 // when a sidebar group is created from a selection of sidebar items,
 // we should insert the group at the location of the
-struct SidebarGroupCreated: GraphEventWithResponse {
+struct SidebarGroupCreated: StitchDocumentEvent {
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         log("_createLayerGroup called")
         
         // Create node view model for the new Layer Group
         
         let newNode = Layer.group.layerGraphNode.createViewModel(
             position: state.newNodeCenterLocation,
-            zIndex: state.highestZIndex + 1,
+            zIndex: state.visibleGraph.highestZIndex + 1,
             activeIndex: .defaultActiveIndex,
-            graphDelegate: state)
+            graphDelegate: state.visibleGraph)
         
-        let primarilySelectedLayers = state.sidebarSelectionState.primary.map { $0.asNodeId }.toSet
+        let primarilySelectedLayers = state.visibleGraph.sidebarSelectionState.primary.map { $0.asNodeId }.toSet
         
         // Are any of these selections already part of a group?
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
-        let existingParentForSelections = state.layerGroupForSelections(primarilySelectedLayers)
+        let existingParentForSelections = state.visibleGraph.layerGroupForSelections(primarilySelectedLayers)
         
         guard let newGroupData = state.orderedSidebarLayers
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {
             fatalErrorIfDebug()
-            return .noChange
+            return
         }
         
 //        newNode.adjustPosition(center: state.newNodeCenterLocation)
-        newNode.graphDelegate = state // redundant?
+        newNode.graphDelegate = state.visibleGraph // redundant?
                 
         // Add to state
         let _ = state.nodeCreated(node: newNode)
             
         // Update sidebar state
-        state.orderedSidebarLayers.insertGroup(group: newGroupData,
+        state.visibleGraph.orderedSidebarLayers.insertGroup(group: newGroupData,
                                                selections: primarilySelectedLayers)
         
         newNode.layerNode?.layerGroupId = existingParentForSelections
@@ -56,31 +56,31 @@ struct SidebarGroupCreated: GraphEventWithResponse {
         // Iterate through primarly selected layers,
         // assigning new LG as their layerGoupId.
         primarilySelectedLayers.forEach { layerId in
-            if let layerNode = state.getLayerNode(id: layerId)?.layerNode {
+            if let layerNode = state.visibleGraph.getLayerNode(id: layerId)?.layerNode {
                 layerNode.layerGroupId = newNode.id
             }
         }
         
         // Update legacy state
-        state.updateSidebarListStateAfterStateChange()
+        state.visibleGraph.updateSidebarListStateAfterStateChange()
         
         // Reset selections
-        state.sidebarSelectionState.resetSelections()
+        state.visibleGraph.sidebarSelectionState.resetSelections()
         
         // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
         
         // TODO: adjust position of children
         // TODO: determine real size of just-created LayerGroup
-        let groupFit: LayerGroupFit = state.getLayerGroupFit(
+        let groupFit: LayerGroupFit = state.visibleGraph.getLayerGroupFit(
             primarilySelectedLayers,
-            parentSize: state.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
+            parentSize: state.visibleGraph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
         
         let assumedLayerGroupSize: LayerSize = groupFit.size
         
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
                 
-        return .persistenceResponse
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

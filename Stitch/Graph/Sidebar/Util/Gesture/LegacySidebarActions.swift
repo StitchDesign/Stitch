@@ -65,7 +65,7 @@ struct SidebarListItemDragged: GraphEvent {
         state.sidebarSelectionState = .init()
         
         // Recalculate the ordered-preview-layers
-        state.updateOrderedPreviewLayers()
+        state.documentDelegate?.updateOrderedPreviewLayers()
     }
 }
 

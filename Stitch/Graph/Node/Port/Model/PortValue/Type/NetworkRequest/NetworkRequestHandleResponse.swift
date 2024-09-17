@@ -150,7 +150,6 @@ struct NetworkRequestCompleted: ProjectEnvironmentEvent {
     let result: StitchNetworkRequestResult
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
 
         // log("NetworkRequestCompleted called")
@@ -169,14 +168,14 @@ struct NetworkRequestCompleted: ProjectEnvironmentEvent {
             // log("NetworkRequestCompleted: thisRequestStartTime: \(thisRequestStartTime)")
             // log("NetworkRequestCompleted: computedGraphState.networkRequestCompletedTimes was: \(computedGraphState.networkRequestCompletedTimes)")
 
-            var latestCompleted: TimeInterval? = computedGraphState
+            var latestCompleted: TimeInterval? = graphState
                 .networkRequestCompletedTimes.get(.init(nodeId: nodeId, index: index))
 
             // log("NetworkRequestCompleted: latestCompleted was: \(latestCompleted)")
 
             if !latestCompleted.isDefined {
                 // log("NetworkRequestCompleted: latestCompleted.isDefined was not defined; will use thisRequestStartTime: \(thisRequestStartTime)")
-                computedGraphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
+                graphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
                 latestCompleted = thisRequestStartTime
                 // log("NetworkRequestCompleted: computedGraphState.networkRequestCompletedTimes is now: \(computedGraphState.networkRequestCompletedTimes)")
             }
@@ -186,7 +185,7 @@ struct NetworkRequestCompleted: ProjectEnvironmentEvent {
             if let latestCompleted = latestCompleted,
                thisRequestStartTime >= latestCompleted {
                 // log("NetworkRequestCompleted: thisRequestStartTime was greater than latestCompleted")
-                computedGraphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
+                graphState.networkRequestCompletedTimes[.init(nodeId: nodeId, index: index)] = thisRequestStartTime
             } else {
                 #if DEBUG
                 log("NetworkRequestCompleted: exiting early since this request was started earlier than the latest completed request")

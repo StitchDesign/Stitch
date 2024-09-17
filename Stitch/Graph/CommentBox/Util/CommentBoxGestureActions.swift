@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func commentBoxTapped(box: CommentBoxViewModel) {
         // If CMD held:
-        if self.graphUI.keypressState.isCommandPressed {
+        if self.keypressState.isCommandPressed {
             if self.graphUI.selection
                 .selectedCommentBoxes.contains(id) {
                 self.graphUI.selection.selectedCommentBoxes.remove(id)
@@ -29,9 +29,9 @@ extension GraphState {
             self.graphUI.selection.selectedCommentBoxes = Set([id])
         }
 
-        box.zIndex = self.highestZIndex + 1
+        box.zIndex = self.visibleGraph.highestZIndex + 1
 
-        self.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -39,22 +39,21 @@ extension GraphState {
                                    value: DragGesture.Value) {
 
         // log("CommentBoxPositionDragged called")
-        let graphState = self
-        let zoom: CGFloat = graphState.graphMovement.zoomData.zoom
+        let zoom: CGFloat = self.graphMovement.zoomData.zoom
 
         // log("CommentBoxPositionDragged: value.translation: \(value.translation)")
         // log("CommentBoxPositionDragged: value.translation / zoom: \(value.translation / zoom)")
 
-        graphState.graphUI.selection.selectedCommentBoxes.insert(id)
+        self.graphUI.selection.selectedCommentBoxes.insert(id)
 
-        let selectedBoxes = graphState.graphUI.selection.selectedCommentBoxes
-        graphState.graphUI.selection.selectedCommentBoxes = Set(selectedBoxes)
+        let selectedBoxes = self.graphUI.selection.selectedCommentBoxes
+        self.graphUI.selection.selectedCommentBoxes = Set(selectedBoxes)
 
         // log("CommentBoxPositionDragged: selectedBoxes: \(selectedBoxes)")
 
         for boxId in selectedBoxes {
 
-            if let box = self.commentBoxesDict.get(boxId) {
+            if let box = self.visibleGraph.commentBoxesDict.get(boxId) {
 
                 // log("CommentBoxPositionDragged: box.previousPosition: \(box.previousPosition)")
                 // log("CommentBoxPositionDragged: box.position was: \(box.position)")
@@ -73,13 +72,13 @@ extension GraphState {
                 box.expansionBox.startPoint = box.position
 
                 // update box's z-index
-                box.zIndex = graphState.highestZIndex + 1
+                box.zIndex = self.visibleGraph.highestZIndex + 1
 
-                self.commentBoxesDict.updateValue(box, forKey: boxId)
+                self.visibleGraph.commentBoxesDict.updateValue(box, forKey: boxId)
 
                 // update the positions of this comment box's nodes;
                 // note that we don't update the nodes' z-indices here
-                graphState.updatesNodesAfterCommentBoxDrag(
+                self.updatesNodesAfterCommentBoxDrag(
                     box,
                     translation: value.translation)
 
@@ -100,11 +99,11 @@ extension GraphState {
         // Update box's nodes:
         for nodeId in box.nodes {
             // During drag itself, we just update the node view model
-            if let node = self.getCanvasItem(nodeId) {
-                self.updateCanvasItemOnDragged(node,
+            if let node = self.visibleGraph.getCanvasItem(nodeId) {
+                self.visibleGraph.updateCanvasItemOnDragged(node,
                                                translation: translation)
 
-                self.nodeIsMoving = true
+                self.visibleGraph.nodeIsMoving = true
             }
         }
     }
@@ -114,7 +113,7 @@ extension GraphState {
         // log("CommentBoxPositionDragEnded called")
 
         for id in self.graphUI.selection.selectedCommentBoxes {
-            if let box = self.commentBoxesDict.get(id) {
+            if let box = self.visibleGraph.commentBoxesDict.get(id) {
 
                 box.previousPosition = box.position
 
@@ -127,7 +126,7 @@ extension GraphState {
                 self.updateNodesAfterCommentBoxDragEnded(box)
 
                 // Remove the bounds-dict entry so that view will repopulate/refresh the bounds-dict for that
-                self.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
+                self.visibleGraph.graphUI.commentBoxBoundsDict.removeValue(forKey: id)
 
             } else {
                 log("CommentBoxPositionDragEnded: could not retrieve comment box \(id)")
@@ -135,7 +134,7 @@ extension GraphState {
 
         } // for boxId in ...
 
-        self.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -143,7 +142,7 @@ extension GraphState {
         // Update box's nodes:
         for nodeId in box.nodes {
             // When drag ends, we update both the node view model and the node schema
-            if let node = self.getCanvasItem(nodeId) {
+            if let node = self.visibleGraph.getCanvasItem(nodeId) {
                 // update node view model
                 node.previousPosition = node.position
 
@@ -152,7 +151,7 @@ extension GraphState {
             }
         }
 
-        self.nodeIsMoving = false
+        self.visibleGraph.nodeIsMoving = false
     }
 
     @MainActor
@@ -166,7 +165,7 @@ extension GraphState {
         box.expansionBox.startPoint = box.position
         box.expansionBox.endPoint = value.location
 
-        box.zIndex = self.highestZIndex + 1
+        box.zIndex = self.visibleGraph.highestZIndex + 1
 
         //        let scaledTranslation = CGSize(
         //            width: value.translation.width/zoom,
@@ -206,9 +205,9 @@ extension GraphState {
 
         // RE-DETERMINE WHICH NODES FALL WITHIN THIS COMMENT BOX
         // Assumes this comment box's bounds were recently updated
-        self.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes()
 
-        guard let box = self.commentBoxesDict.get(id) else {
+        guard let box = self.visibleGraph.commentBoxesDict.get(id) else {
             log("CommentBoxExpansionDragEnded: could not retrieve comment box \(id)")
             return
         }
@@ -220,7 +219,7 @@ extension GraphState {
         box.position = box.expansionBox.anchorCorner
         box.previousPosition = box.position
 
-        self.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -237,8 +236,8 @@ extension GraphState {
 
         // Then redetermine which nodes fall into the boxes
         // TODO: only redetermine for this single box, not all boxes?
-        self.rebuildCommentBoxes()
+        self.visibleGraph.rebuildCommentBoxes()
 
-        self.encodeProjectInBackground()
+        self.graph.encodeProjectInBackground()
     }
 }

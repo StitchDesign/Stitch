@@ -10,40 +10,38 @@ import SwiftUI
 import StitchSchemaKit
 
 // formerly `SplitterOptionSelected`
-struct SplitterTypeChanged: ProjectEnvironmentEvent {
+struct SplitterTypeChanged: StitchDocumentEvent {
 
     let newType: SplitterType
     let currentType: SplitterType
     let splitterNodeId: NodeId
 
-    func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
-                environment: StitchEnvironment) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         //        log("SplitterOptionSelected called: newType: \(newType)")
         //        log("SplitterOptionSelected called: currentType: \(currentType)")
 
-        guard let activeGroupId = graphState.graphUI.groupNodeFocused else {
+        guard let activeGroupId = state.graphUI.groupNodeFocused else {
             log("SplitterOptionSelected: no active group")
-            return .noChange
+            return
         }
 
-        guard let splitterNode = graphState.getNodeViewModel(splitterNodeId) else {
+        guard let splitterNode = state.getNodeViewModel(splitterNodeId) else {
             log("SplitterOptionSelected: could not find GroupNode \(activeGroupId)")
-            return .noChange
+            return
         }
 
-        graphState.setSplitterType(
+        state.visibleGraph.setSplitterType(
             splitterNode: splitterNode,
             newType: newType,
             currentType: currentType)
         
         // Forces group port view models to update
-        graphState.updateGraphData()
+        state.updateGraphData()
 
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
-        graphState.calculateFullGraph()
+        state.calculateFullGraph()
         
-        return .init(willPersist: true)
+        state.graph.encodeProjectInBackground()
     }
 }
 

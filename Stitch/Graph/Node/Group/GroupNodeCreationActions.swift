@@ -131,31 +131,31 @@ extension GraphState {
  * 2. Creates input and output group nodes.
  * 3. Removes old edges and connections and updates them to new group nodes.
  */
-struct GroupNodeCreatedEvent: GraphEventWithResponse {
+struct GroupNodeCreatedEvent: StitchDocumentEvent {
 
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
 
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
-            return .noChange
+            return
         }
         
         let newGroupNodeId = GroupNodeId(id: NodeId())
 //        let selectedNodeIds = state.selectedNodeIds
-        let selectedCanvasItems = state.selectedCanvasItems
+        let selectedCanvasItems = state.visibleGraph.selectedCanvasItems
         let edges = state.createEdges()
 
 //        #if DEV || DEV_DEBUG
 //        // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = state.getVisibleCanvasItems().map(\.id).toSet
-        if state.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
+        let nodesAtThisLevel = state.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
+        if state.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
             fatalErrorIfDebug()
         }
 //        #endif
 
         let (inputEdgesToUpdate,
-             outputEdgesToUpdate) = state.getEdgesToUpdate(
+             outputEdgesToUpdate) = state.visibleGraph.getEdgesToUpdate(
                 selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
                 edges: edges)
 
@@ -165,7 +165,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         let center = state.graphUI.center(state.localPosition)
         
         //input splitters need to be west of the `to` node for the `edge`
-        var oldEdgeToNodeLocations = state.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
+        var oldEdgeToNodeLocations = state.visibleGraph.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
                                                                 
         inputEdgesToUpdate.forEach { edge in
             
@@ -173,7 +173,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
             let to = edge.to
             var nodePosition = oldEdgeToNodeLocations.get(to) ?? center
             
-            state.insertIntermediaryNode(
+            state.visibleGraph.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
                 splitterType: .input,
@@ -186,7 +186,8 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
             oldEdgeToNodeLocations[to] = nodePosition
         }
         
-        var oldEdgeFromNodeLocations = state.getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
+        var oldEdgeFromNodeLocations = state.visibleGraph
+            .getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
         
         // output edge = an edge going FROM a node in the group, TO a node outside the group
         outputEdgesToUpdate.forEach { edge in
@@ -195,7 +196,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
             let from = edge.from
             var nodePosition = oldEdgeFromNodeLocations.get(from) ?? center
             
-            state.insertIntermediaryNode(
+            state.visibleGraph.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
                 splitterType: .output,
@@ -212,13 +213,14 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         selectedCanvasItems.forEach { $0.parentGroupNodeId = newGroupNodeId.id }
         
         // Create the actual GroupNode itself
-        let newGroupNode = state.createGroupNode(newGroupNodeId: newGroupNodeId,
-                                                 center: center)
+        let newGroupNode = state.visibleGraph
+            .createGroupNode(newGroupNodeId: newGroupNodeId,
+                             center: center)
 
         // wipe selected edges and canvas items
         state.graphUI.selection = GraphUISelectionState()
-        state.selectedEdges = .init()
-        state.resetSelectedCanvasItems()
+        state.visibleGraph.selectedEdges = .init()
+        state.visibleGraph.resetSelectedCanvasItems()
         
         // ... then select the GroupNode and its edges
         // TODO: highlight new group node's incoming and outgoing edges
@@ -230,7 +232,7 @@ struct GroupNodeCreatedEvent: GraphEventWithResponse {
         // Recalculate graph
         state.initializeGraphComputation()
         
-        return .persistenceResponse
+        state.graph.encodeProjectInBackground()
     }
 }
 

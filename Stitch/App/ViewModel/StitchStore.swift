@@ -22,7 +22,7 @@ final class StitchStore: Sendable, StoreDelegate {
     //    var defaultComponents = ComponentsDict()
 
     // Navigation path for viewing documents
-    var navPath: [GraphState] = []
+    var navPath: [StitchDocumentViewModel] = []
 
     var isShowingDrawer = false
 
@@ -81,7 +81,11 @@ extension StitchStore {
         currentGraph?.projectId
     }
 
-    var currentGraph: GraphState? {
+    var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
+    }
+    
+    var currentGraph: GraphState? {
+        self.currentDocument?.graph
     }
 }

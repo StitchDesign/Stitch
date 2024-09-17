@@ -15,9 +15,13 @@ struct GraphBaseView: View {
     @Environment(\.safeAreaInsets) private var safeAreaInsets: SafeAreaInsets
     @State private var spaceHeld = false
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
     let insertNodeMenuHiddenNodeId: NodeId?
+    
+    var graph: GraphState {
+        self.document.graph
+    }
 
     var body: some View {
         // Our screen device measurements ignore the safe area,
@@ -27,16 +31,16 @@ struct GraphBaseView: View {
             .simultaneousGesture(
                 MagnifyGesture()
                     .onChanged { value in
-                        self.graph.graphPinchToZoom(amount: value.magnification)
+                        self.document.graphPinchToZoom(amount: value.magnification)
                     }
                     .onEnded { _ in
-                        self.graph.graphZoomEnded()
+                        self.document.graphZoomEnded()
                     }
             )
             .onAppear {
 
                 #if targetEnvironment(macCatalyst)
-                if self.spaceHeld || graphUI.keypressState.isSpacePressed {
+                if self.spaceHeld || document.keypressState.isSpacePressed {
                     NSCursor.openHand.push()
                 }
                 #endif
@@ -54,7 +58,7 @@ struct GraphBaseView: View {
 
         #if targetEnvironment(macCatalyst)
             .modifier(GraphHoverViewModifier(spaceHeld: self.$spaceHeld,
-                                             graphUI: graphUI))
+                                             document: document))
         #endif
     }
 
@@ -66,8 +70,9 @@ struct GraphBaseView: View {
     @ViewBuilder
     @MainActor
     var nodesView: some View {
-        GraphGestureView(graph: graph) {
-            NodesView(graph: graph,
+        GraphGestureView(document: document) {
+            NodesView(document: document,
+                      graph: graph,
                       groupNodeFocused: graphUI.groupNodeFocused,
                       groupTraversedToChild: graphUI.groupTraversedToChild,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
@@ -76,7 +81,7 @@ struct GraphBaseView: View {
                 // (rather than before; eg inside the NodesView)
 
                 .background {
-                    GraphGestureBackgroundView(graph: graph) {
+                    GraphGestureBackgroundView(document: document) {
                         Stitch.APP_BACKGROUND_COLOR
                             .edgesIgnoringSafeArea(.all)
                             // TODO: Location seems more accurate placed outside the UIKit wrapper,
@@ -147,7 +152,7 @@ struct GraphBaseView: View {
 
 struct GraphHoverViewModifier: ViewModifier {
     @Binding var spaceHeld: Bool
-    @Bindable var graphUI: GraphUIState
+    @Bindable var document: StitchDocumentViewModel
     
     func body(content: Content) -> some View {
         content
@@ -165,7 +170,7 @@ struct GraphHoverViewModifier: ViewModifier {
                 }
             })
         
-            .onChange(of: graphUI.keypressState.isSpacePressed, initial: true) { _, newValue in
+            .onChange(of: document.keypressState.isSpacePressed, initial: true) { _, newValue in
                 // log("GraphBaseView: onChange: keypressState.isSpacePressed: oldValue: \(oldValue)")
                 // log("GraphBaseView: onChange: keypressState.isSpacePressed: newValue: \(newValue)")
                 

@@ -40,7 +40,7 @@ struct InsertNodeMenuWrapper: View {
     @State private var nodeHeight: CGFloat = 200.0
     @State private var animatedNode: NodeViewModel?
 
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
     @Binding var menuHeight: CGFloat
     @Binding var screenSize: CGSize
@@ -66,7 +66,7 @@ struct InsertNodeMenuWrapper: View {
     }
     
     private var graphMovement: GraphMovementObserver {
-        self.graph.graphMovement
+        self.document.graphMovement
     }
     
     // GraphUI properties
@@ -98,11 +98,11 @@ struct InsertNodeMenuWrapper: View {
     @MainActor
     func getNodeDestination() -> CGPoint {
         
-        let adjustedDoubleTapLocation = graph.adjustedDoubleTapLocation(graph.localPosition)
+        let adjustedDoubleTapLocation = document.adjustedDoubleTapLocation(document.visibleGraph.localPosition)
         
-        let defaultCenter = graph.graphUI.center(graph.localPosition)
+        let defaultCenter = document.graphUI.center(document.visibleGraph.localPosition)
         
-        if graph.graphUI.llmRecording.isRecording {
+        if document.llmRecording.isRecording {
             return defaultCenter
         } else {
             return adjustedDoubleTapLocation ?? defaultCenter
@@ -247,7 +247,8 @@ struct InsertNodeMenuWrapper: View {
 
         if let node = self.animatedNode,
            let canvas = node.patchCanvasItem {
-            NodeTypeView(graph: graph,
+            NodeTypeView(document: document,
+                         graph: document.visibleGraph,
                          node: node,
                          canvasNode: canvas,
                          atleastOneCommentBoxSelected: false,
@@ -297,7 +298,7 @@ struct InsertNodeMenuWrapper: View {
         InsertNodeMenuView(
             cornerRadius: $menuCornerRadius,
             insertNodeMenuState: insertNodeMenuState,
-            isPortraitMode: graph.previewWindowSize.isPortrait,
+            isPortraitMode: document.previewWindowSize.isPortrait,
             showMenu: insertNodeMenuState.show,
             menuHeight: menuHeight,
             animatingNodeOpacity: self.nodeOpacity)

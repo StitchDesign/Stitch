@@ -16,7 +16,6 @@ struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
     let groupNodeId: GroupNodeId
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         log("GroupNodeDeletedAction called: groupNodeId: \(groupNodeId)")
 
@@ -32,7 +31,6 @@ struct GroupNodeUncreated: ProjectEnvironmentEvent {
     let groupId: GroupNodeId // the group that was deleted
 
     func handle(graphState: GraphState,
-                computedGraphState: ComputedGraphState,
                 environment: StitchEnvironment) -> GraphResponse {
         log("GroupNodeUncreated called for groupId: \(groupId)")
         graphState.handleGroupNodeUncreated(groupId.asNodeId)
@@ -78,7 +76,7 @@ extension GraphState {
         self.visibleNodesViewModel.nodes.removeValue(forKey: uncreatedGroupNodeId)
 
         // Process and encode changes
-        self.updateGraphData()
+        self.documentDelegate?.updateGraphData()
         self.encodeProjectInBackground()
     }
 }

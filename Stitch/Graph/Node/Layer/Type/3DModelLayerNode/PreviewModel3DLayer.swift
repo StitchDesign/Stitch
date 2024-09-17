@@ -13,7 +13,7 @@ struct Preview3DModelLayer: View {
     // State for media needed if we need to async load an import
     @State private var mediaObject: StitchMediaObject?
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -47,13 +47,13 @@ struct Preview3DModelLayer: View {
     }
     
     var layerNode: LayerNodeViewModel? {
-        self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
+        self.document.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
             .layerNode
     }
 
     var body: some View {
         Group {
-            if graph.isGeneratingProjectThumbnail {
+            if document.isGeneratingProjectThumbnail {
                 Color.clear
             } else if let entity = entity {
                 Model3DView(entity: entity,
@@ -71,10 +71,10 @@ struct Preview3DModelLayer: View {
         }
         .modifier(MediaLayerViewModifier(mediaValue: mediaValue,
                                          mediaObject: $mediaObject,
-                                         graph: graph,
+                                         document: document,
                                          mediaRowObserver: layerNode?.model3DPort.rowObserver))
         .modifier(PreviewCommonModifier(
-            graph: graph,
+            document: document,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,
