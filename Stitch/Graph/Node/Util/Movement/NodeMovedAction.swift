@@ -73,20 +73,44 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
     let translation: CGSize
 
     func handle(state: GraphState) -> GraphResponse {
-        log("NodeDuplicateDraggedAction called")
+        // log("NodeDuplicateDraggedAction called")
+        
+        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at start: \(state.selectedNodeIds)")
         
         guard state.graphUI.dragDuplication else {
+            
+            // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
+            guard let canvasItem = state.getCanvasItem(.node(id)) else {
+                // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
+                return .noChange
+            }
+            
+            // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
+            if !canvasItem.isSelected {
+                // log("NodeDuplicateDraggedAction: \(canvasItem.id) was NOT already selected")
+                // select the canvas item and de-select all the others
+                state.selectSingleCanvasItem(canvasItem)
+                // add node's edges to highlighted edges; wipe old highlighted edges
+                state.selectedEdges = .init()
+            }
+            
             // Copy nodes if no drag started yet
             state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            
             state.graphUI.dragDuplication = true
+            
+            // log("NodeDuplicateDraggedAction: copied nodes")
             return .persistenceResponse
         }
-
+            
+        
+        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at end: \(state.selectedNodeIds)")
+        
         // Drag all selected nodes if dragging already started
         state.selectedNodeIds
             .compactMap { state.getCanvasItem($0) }
             .forEach { draggedNode in
-                // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag")
+                // log("NodeDuplicateDraggedAction: already had dragged node id, so will do normal node drag for id \(draggedNode.id)")
                 state.canvasItemMoved(for: draggedNode,
                                       translation: translation,
                                       wasDrag: true)
@@ -105,17 +129,16 @@ extension GraphState {
                          // drag vs long-press
                          wasDrag: Bool) {
         
-        let graphState = self
 
         #if DEV_DEBUG
         log("canvasItemMoved: original id: \(id)")
         #endif
 
         // Edges should *never* animate when node is being dragged
-        graphState.graphUI.edgeAnimationEnabled = false
+        self.graphUI.edgeAnimationEnabled = false
 
         // Dragging node exits edge-edit-mode
-        graphState.graphUI.edgeEditingState = nil
+        self.graphUI.edgeEditingState = nil
 
         /*
          HACK:
@@ -139,7 +162,7 @@ extension GraphState {
         // Note: do this check AFTER we've set our 'currently dragged id' to be the option-duplicated node's id.
         // TODO: duplicate-node-drag should also update the `draggedNode` in GraphState ?
         // Overall, node duplication logic needs to be thought through with multigestures in mind.
-        if let draggedCanvasItem = graphState.graphMovement.draggedCanvasItem,
+        if let draggedCanvasItem = self.graphMovement.draggedCanvasItem,
            draggedCanvasItem != canvasItem.id {
             #if DEV_DEBUG
             log("canvasItemMoved: some other node is already dragged: \(draggedCanvasItem)")
@@ -149,27 +172,27 @@ extension GraphState {
 
         // Updating for dual-drag; must set before
 
-        graphState.graphMovement.draggedCanvasItem = canvasItem.id
-        graphState.graphMovement.lastCanvasItemTranslation = translation
+        self.graphMovement.draggedCanvasItem = canvasItem.id
+        self.graphMovement.lastCanvasItemTranslation = translation
 
         // If we don't have an active first gesture,
         // and graph isn't already dragging,
         // then set node-drag as active first gesture
-        if graphState.graphMovement.firstActive == .none {
-            if !graphState.graphMovement.graphIsDragged {
+        if self.graphMovement.firstActive == .none {
+            if !self.graphMovement.graphIsDragged {
                 // log("canvasItemMoved: will set .node as active first gesture")
-                graphState.graphMovement.firstActive = .node
+                self.graphMovement.firstActive = .node
             }
         }
-        if graphState.graphMovement.firstActive == .graph {
+        if self.graphMovement.firstActive == .graph {
 
-            if !graphState.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
+            if !self.graphMovement.runningGraphTranslationBeforeNodeDragged.isDefined {
                 #if DEV_DEBUG
-                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be graphState.graphMovement.runningGraphTranslation: \(graphState.graphMovement.runningGraphTranslation)")
+                log("canvasItemMoved: setting runningGraphTranslationBeforeNodeDragged to be self.graphMovement.runningGraphTranslation: \(self.graphMovement.runningGraphTranslation)")
                 #endif
-                graphState.graphMovement
+                self.graphMovement
                     .runningGraphTranslationBeforeNodeDragged = (
-                        graphState.graphMovement.runningGraphTranslation ?? .zero) / graphState.graphMovement.zoomData.zoom
+                        self.graphMovement.runningGraphTranslation ?? .zero) / self.graphMovement.zoomData.zoom
             }
         }
 
@@ -185,25 +208,25 @@ extension GraphState {
             self.updateCanvasItemOnDragged(canvasItem, translation: translation)
 
             // select the canvas item and de-select all the others
-            graphState.selectSingleCanvasItem(canvasItem)
+            self.selectSingleCanvasItem(canvasItem)
 
             // add node's edges to highlighted edges; wipe old highlighted edges
-            graphState.selectedEdges = .init()
+            self.selectedEdges = .init()
         }
 
         // If we're dragging a node that's already selected,
         // then just update positions of all selected nodes.
         else {
-            graphState.selectedCanvasItems
+            self.selectedCanvasItems
             // need to sort by z index to retain order
                 .sorted { $0.zIndex < $1.zIndex }
                 .forEach { self.updateCanvasItemOnDragged($0, translation: translation) }
         }
 
         // end any edge-drawing
-        graphState.edgeDrawingObserver.reset()
-        graphState.nodeIsMoving = true
-        graphState.outputDragStartedCount = 0
+        self.edgeDrawingObserver.reset()
+        self.nodeIsMoving = true
+        self.outputDragStartedCount = 0
     }
 }
 
