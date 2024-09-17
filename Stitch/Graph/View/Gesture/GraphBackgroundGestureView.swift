@@ -15,7 +15,7 @@ typealias GraphGestureBackgroundViewController = NoKeyPressHostingController
 /// using a bounding box.
 struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
     // Passes in reference to GraphState to access gesture handlers
-    let graph: GraphState
+    let document: StitchDocumentViewModel
     @ViewBuilder var view: () -> T
 
     func makeUIViewController(context: Context) -> GraphGestureBackgroundViewController<T> {
@@ -75,16 +75,16 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> NodeSelectionGestureRecognizer {
-        NodeSelectionGestureRecognizer(graph: graph)
+        NodeSelectionGestureRecognizer(document: document)
     }
 }
 
-class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
-    weak var graph: GraphState?
+final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
+    weak var document: StitchDocumentViewModel?
 
-    init(graph: GraphState) {
+    init(document: StitchDocumentViewModel) {
         super.init()
-        self.graph = graph
+        self.document = document
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -96,10 +96,10 @@ class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
         case .began:
             if let view = gestureRecognizer.view {
                 let location = gestureRecognizer.location(in: view)
-                self.graph?.screenLongPressed(location: location)
+                self.document?.screenLongPressed(location: location)
             }
         case .ended, .cancelled:
-            self.graph?.screenLongPressEnded()
+            self.document?.screenLongPressEnded()
         default:
             break
         }
@@ -117,7 +117,7 @@ class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
         let location = gestureRecognizer.location(in: gestureRecognizer.view)
         let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
 
-        self.graph?.trackpadClickDrag(
+        self.document?.trackpadClickDrag(
             translation: translation.toCGSize,
             location: location,
             velocity: velocity,
@@ -130,9 +130,9 @@ class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
 
         switch gestureRecognizer.state {
         case .changed:
-            self.graph?.graphPinchToZoom(amount: gestureRecognizer.scale)
+            self.document?.graphPinchToZoom(amount: gestureRecognizer.scale)
         case .cancelled, .ended:
-            self.graph?.graphZoomEnded()
+            self.document?.graphZoomEnded()
         default:
             break
         }

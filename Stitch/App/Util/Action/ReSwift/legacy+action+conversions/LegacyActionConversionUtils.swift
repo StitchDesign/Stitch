@@ -15,13 +15,13 @@ func _getResponse(from legacyAction: Action,
                   store: StitchStore) -> AppResponse {
 
     let getState: () -> AppState = store.getState
-    let graphState: GraphState? = store.currentGraph
+    let document = store.currentDocument
+    let graphState: GraphState? = document?.graph
     let environment: StitchEnvironment = store.environment
     
     let fileManager = environment.fileManager
     let logListener = environment.logListener
     let undoManager = environment.undoManager
-    let computedGraphState = graphState?.computedGraphState
 
     if let stitchStoreAction = (legacyAction as? StitchStoreEvent) {
         let response = stitchStoreAction.handle(store: store)
@@ -45,16 +45,22 @@ func _getResponse(from legacyAction: Action,
 
     // ProjectLibraryEvent
     else if let projectLibraryAction = (legacyAction as? ProjectEnvironmentEvent),
-            let graphState = graphState,
-            let computedGraph = computedGraphState {
+            let graphState = graphState {
 
         let response = projectLibraryAction
             .handle(graphState: graphState,
-                    computedGraphState: computedGraph,
                     environment: environment)
             .toAppResponse()
 
         return response
+    }
+    
+    // StitchDocumentEvents
+    else if let documentAction = (legacyAction as? StitchDocumentEvent),
+            let document = document {
+        // Mutates GraphState in-place
+        documentAction.handle(state: document)
+        return .noChange
     }
 
     // GraphEvents

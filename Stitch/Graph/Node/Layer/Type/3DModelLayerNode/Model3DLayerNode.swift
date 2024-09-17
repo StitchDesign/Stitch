@@ -61,13 +61,13 @@ struct Model3DLayerNode: LayerNodeDefinition {
         MediaEvalOpObserver()
     }
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         Preview3DModelLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

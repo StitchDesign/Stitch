@@ -187,7 +187,7 @@ struct GenericFlyoutRowView: View {
     }
 }
 
-struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
+struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
     
     let layerInput: LayerInputPort
     let nodeId: NodeId
@@ -196,7 +196,8 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
         
         guard let node = state.getNode(nodeId),
-              let layerNode = node.layerNode else {
+              let layerNode = node.layerNode,
+              let document = state.documentDelegate else {
             return .noChange
         }
         
@@ -207,7 +208,7 @@ struct  LayerInputFieldAddedToGraph: GraphEventWithResponse {
             let parentGroupNodeId = state.groupNodeFocused
             
             var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: state.newLayerPropertyLocation,
+            unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
                                             zIndex: state.highestZIndex + 1,
                                             parentGroupNodeId: parentGroupNodeId)
 

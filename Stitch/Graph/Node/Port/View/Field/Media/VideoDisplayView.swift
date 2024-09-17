@@ -15,7 +15,7 @@ typealias ImportedURLs = [MediaKey]
 struct VideoDisplayView: View {
     let videoPlayer: StitchVideoImportPlayer
     
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
 
     // come from videoLayer node,
@@ -42,7 +42,7 @@ struct VideoDisplayView: View {
 
     private var scrubbedVideoView: some View {
         Group {
-            if graph.isGeneratingProjectThumbnail,
+            if document.isGeneratingProjectThumbnail,
                let image = videoPlayer.thumbnail {
                 ImageDisplayView(
                     image: image,
@@ -63,7 +63,7 @@ struct VideoDisplayView: View {
         .modifier(PreviewCommonSizeModifier(
             viewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
-            pinMap: graph.visibleNodesViewModel.pinMap,
+            pinMap: document.pinMap,
             aspectRatio: layerViewModel.getAspectRatioData(),
             size: size,
             minWidth: layerViewModel.getMinWidth,

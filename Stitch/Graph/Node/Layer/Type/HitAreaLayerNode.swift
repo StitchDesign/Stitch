@@ -26,14 +26,14 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewHitAreaLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

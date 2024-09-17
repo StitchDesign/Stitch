@@ -10,17 +10,17 @@ import StitchSchemaKit
 import SwiftUI
 import CoreMotion
 
-struct NodeCreatedEvent: GraphEventWithResponse {
+struct NodeCreatedEvent: StitchDocumentEvent {
     
     let choice: NodeKind
     
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: StitchDocumentViewModel) {
         let _ = state.nodeCreated(choice: choice)
-        return .shouldPersist
+        state.graph.encodeProjectInBackground()
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     var newNodeCenterLocation: CGPoint {
         // `state.graphUI.center` is always proper center
@@ -45,7 +45,7 @@ extension GraphState {
         guard let node = self.createNode(
                 graphTime: self.graphStepManager.graphStepState.graphTime,
                 newNodeId: UUID(),
-                highestZIndex: self.highestZIndex,
+                highestZIndex: self.visibleGraph.highestZIndex,
                 choice: choice,
                 center: center) else {
             log("nodeCreated: could not create node for \(choice)")
@@ -71,7 +71,7 @@ extension GraphState {
         node.getAllCanvasObservers().forEach {
             $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId            
         }
-        self.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
+        self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         
         if node.kind.isLayer {
             log("had layer")
@@ -83,16 +83,16 @@ extension GraphState {
                 node.layerNode?.isExpandedInSidebar = true
             }
             
-            self.sidebarListState = getMasterListFrom(
-                layerNodes: self.visibleNodesViewModel.layerNodes,
-                expanded: self.getSidebarExpandedItems(),
+            self.visibleGraph.sidebarListState = getMasterListFrom(
+                layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
+                expanded: self.visibleGraph.getSidebarExpandedItems(),
                 orderedSidebarItems: self.orderedSidebarLayers)
             
             // TODO: why is this necessary?
             _updateStateAfterListChange(
-                updatedList: self.sidebarListState,
-                expanded: self.getSidebarExpandedItems(),
-                graphState: self)
+                updatedList: self.visibleGraph.sidebarListState,
+                expanded: self.visibleGraph.getSidebarExpandedItems(),
+                graphState: self.visibleGraph)
         }
 
         // Little hack to update node data so first render works proper
@@ -122,12 +122,12 @@ extension GraphState {
 
         let node = deviceMotionNode(id: newNodeId,
                                     position: center,
-                                    zIndex: self.highestZIndex + 1)
+                                    zIndex: self.visibleGraph.highestZIndex + 1)
 
-        self.updatePatchNode(node)
+        self.visibleGraph.updatePatchNode(node)
 
         // device motion requires a special item in state
-        self.motionManagers.updateValue(
+        self.visibleGraph.motionManagers.updateValue(
             createActiveCMMotionManager(),
             forKey: newNodeId)
 
@@ -161,7 +161,7 @@ extension GraphState {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     activeIndex: self.activeIndex,
-                    graphDelegate: self) else {
+                    graphDelegate: self.visibleGraph) else {
                 #if DEBUG
                 fatalError()
                 #endif
@@ -169,7 +169,7 @@ extension GraphState {
             }
 
             let sidebarLayerData = SidebarLayerData(id: layerNode.id)
-            self.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
+            self.visibleGraph.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
             
             return layerNode
 
@@ -188,7 +188,7 @@ extension GraphState {
                     zIndex: highestZIndex + 1,
                     graphTime: graphTime,
                     activeIndex: self.activeIndex,
-                    graphDelegate: self)
+                    graphDelegate: self.visibleGraph)
             } // choice
         }
     }

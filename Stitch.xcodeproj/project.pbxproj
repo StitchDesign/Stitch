@@ -162,6 +162,7 @@
 		B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */; };
 		B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */; };
 		B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		B58B5E0E2C9909C700AC519A /* StitchDocumentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */; };
 		B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B58E3FC82901AA2800700656 /* Music Player.stitch */; };
 		B58E3FCB290357E500700656 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E3FCA290357E500700656 /* ToastView.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
@@ -212,7 +213,7 @@
 		B5D7EC79298DDEF300549E80 /* StitchEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */; };
 		B5DB632E2C61A8C900B78B68 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B5DB632D2C61A8C900B78B68 /* StitchEngine */; };
 		B5DDF6FE293AD24C00D72220 /* GraphStepManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */; };
-		B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */; };
+		B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */; };
 		B5E0DDF828DA88090080BE71 /* StitchFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */; };
 		B5E0DDFA28DBF4B90080BE71 /* StitchFileManagerProject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */; };
 		B5E0DDFC28DBF6770080BE71 /* StitchFileManangerEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E0DDFB28DBF6770080BE71 /* StitchFileManangerEvents.swift */; };
@@ -1066,6 +1067,7 @@
 		B586D16627FE80B300E56106 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentUtil.swift; sourceTree = "<group>"; };
 		B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEntity.swift; sourceTree = "<group>"; };
+		B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentViewModel.swift; sourceTree = "<group>"; };
 		B58E3FC82901AA2800700656 /* Music Player.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Music Player.stitch"; sourceTree = "<group>"; };
 		B58E3FCA290357E500700656 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
@@ -1115,7 +1117,7 @@
 		B5D689BE275836390086C297 /* ProjectAlertActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectAlertActions.swift; sourceTree = "<group>"; };
 		B5D7EC78298DDEF300549E80 /* StitchEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchEnvironment.swift; sourceTree = "<group>"; };
 		B5DDF6FD293AD24C00D72220 /* GraphStepManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepManager.swift; sourceTree = "<group>"; };
-		B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputedGraphState.swift; sourceTree = "<group>"; };
+		B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkRequestUtils.swift; sourceTree = "<group>"; };
 		B5E0DDF728DA88090080BE71 /* StitchFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManager.swift; sourceTree = "<group>"; };
 		B5E0DDF928DBF4B90080BE71 /* StitchFileManagerProject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManagerProject.swift; sourceTree = "<group>"; };
 		B5E0DDFB28DBF6770080BE71 /* StitchFileManangerEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchFileManangerEvents.swift; sourceTree = "<group>"; };
@@ -2050,6 +2052,7 @@
 				EC28CC9D287E351100987792 /* PatchNodeTypeExtensions.swift */,
 				EC28CC9B287E348A00987792 /* PatchDefaultNodeExtensions.swift */,
 				EC4A7212274C5A460026B233 /* WirelessReceiver.swift */,
+				B5DDF6FF293BC69B00D72220 /* NetworkRequestUtils.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -3095,7 +3098,7 @@
 				8B77BA782713CED300255C40 /* GraphUI.swift */,
 				B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */,
 				B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */,
-				B5DDF6FF293BC69B00D72220 /* ComputedGraphState.swift */,
+				B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4557,6 +4560,7 @@
 				EC1E7A6B287CCC8A00144D05 /* NodeKindUtils.swift in Sources */,
 				EC83D8922926E1CB00255311 /* GraphUIScrollActions.swift in Sources */,
 				20308F9B25AD1721008CE3BE /* Redux.swift in Sources */,
+				B58B5E0E2C9909C700AC519A /* StitchDocumentViewModel.swift in Sources */,
 				ECFC975D29679930000414C4 /* BouncyConverterNode.swift in Sources */,
 				EC560E0D293A773D00350046 /* LoopDedupeNode.swift in Sources */,
 				B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */,
@@ -4668,7 +4672,7 @@
 				ECE639222C489C6900FB8D5F /* FlyoutUtils.swift in Sources */,
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
-				B5DDF700293BC69B00D72220 /* ComputedGraphState.swift in Sources */,
+				B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */,
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,

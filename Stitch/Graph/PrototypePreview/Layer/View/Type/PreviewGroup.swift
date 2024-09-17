@@ -29,7 +29,7 @@ extension LayerViewModel {
 }
 
 struct PreviewGroupLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var layerViewModel: LayerViewModel
     let layersInGroup: LayerDataList // child layers for THIS group
     let isPinnedViewRendering: Bool
@@ -112,7 +112,7 @@ struct PreviewGroupLayer: View {
             .modifier(PreviewCommonSizeModifier(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                pinMap: graph.visibleNodesViewModel.pinMap,
+                pinMap: document.pinMap,
                 aspectRatio: layerViewModel.getAspectRatioData(),
                 size: size,
                 minWidth: layerViewModel.getMinWidth,
@@ -134,11 +134,11 @@ struct PreviewGroupLayer: View {
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 nodeId: interactiveLayer.id.layerNodeId,
-                highlightedSidebarLayers: graph.graphUI.highlightedSidebarLayers,
+                highlightedSidebarLayers: document.graphUI.highlightedSidebarLayers,
                 scale: scale))
                 
             .modifier(PreviewLayerRotationModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 rotationX: rotationX,
@@ -161,7 +161,7 @@ struct PreviewGroupLayer: View {
                          anchor: pivot.toPivot)
                 
             .modifier(PreviewCommonPositionModifier(
-                graph: graph,
+                document: document,
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 parentDisablesPosition: parentDisablesPosition, 
@@ -170,7 +170,7 @@ struct PreviewGroupLayer: View {
         
         // SwiftUI gestures must be applied after .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
-                graph: graph,
+                document: document,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,
@@ -181,8 +181,8 @@ struct PreviewGroupLayer: View {
 
     @ViewBuilder
     private var groupLayer: some View {
-        PreviewLayersView(graph: graph,
-                          layers: layersInGroup, 
+        PreviewLayersView(document: document,
+                          layers: layersInGroup,
 //                          isPinnedViewRendering: isPinnedViewRendering,
                           // This Group's size will be the `parentSize` for the `layersInGroup`
                           parentSize: _size,

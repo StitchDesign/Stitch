@@ -13,14 +13,9 @@ struct EdgeEditModeLabelsView: View {
 
     // TODO: look at the perf implications here; ideally this view should be rendered only when output is hovered
     // Be careful about animations etc.
-    var graph: GraphState
+    var document: StitchDocumentViewModel
 
     let portId: Int
-
-    @MainActor
-    var graphUI: GraphUIState {
-        graph.graphUI
-    }
 
     var label: EdgeEditingModeInputLabel? {
         portId.toEdgeEditingModeInputLabel
@@ -28,7 +23,7 @@ struct EdgeEditModeLabelsView: View {
 
     @MainActor
     var isPressed: Bool {
-        label.map { graphUI.keypressState.characters.contains($0.display.toCharacter) }
+        label.map { document.keypressState.characters.contains($0.display.toCharacter) }
             ?? false
     }
 

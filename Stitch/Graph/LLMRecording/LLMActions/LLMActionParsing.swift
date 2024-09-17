@@ -13,26 +13,23 @@ import StitchSchemaKit
 
 let LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL = "rectangle.and.pencil.and.ellipsis"
 
-struct LLMActionsJSONEntryModalOpened: GraphUIEvent {
-    func handle(state: GraphUIState) {
-        state.llmRecording.jsonEntryState.showModal = true
-        state.reduxFocusedField = .llmModal
+extension StitchDocumentViewModel {
+    @MainActor func openedLLMActionsJSONEntryModal() {
+        self.llmRecording.jsonEntryState.showModal = true
+        self.graphUI.reduxFocusedField = .llmModal
     }
-}
 
-// When json-entry modal is closed, we turn the JSON of LLMActions into state changes
-struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
-    func handle(state: GraphState) -> GraphResponse {
-                
-        let jsonEntry = state.graphUI.llmRecording.jsonEntryState.jsonEntry
+    // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
+    @MainActor func closedLLMActionsJSONEntryModal() {
+        let jsonEntry = self.llmRecording.jsonEntryState.jsonEntry
         
-        state.graphUI.llmRecording.jsonEntryState.showModal = false
-        state.graphUI.llmRecording.jsonEntryState.jsonEntry = ""
-        state.graphUI.reduxFocusedField = nil
+        self.llmRecording.jsonEntryState.showModal = false
+        self.llmRecording.jsonEntryState.jsonEntry = ""
+        self.graphUI.reduxFocusedField = nil
         
         guard !jsonEntry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             log("LLMActionsJSONEntryModalClosed: json entry")
-            return .noChange
+            return
         }
         
         do {
@@ -40,26 +37,24 @@ struct LLMActionsJSONEntryModalClosed: GraphEventWithResponse {
             let data = try json.rawData()
             let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
                                                                from: data)
-            actions.forEach { state.handleLLMAction($0) }
-            state.graphUI.llmRecording.jsonEntryState = .init() // reset
-            return .shouldPersist
+            actions.forEach { self.handleLLMAction($0) }
+            self.llmRecording.jsonEntryState = .init() // reset
+            self.graph.encodeProjectInBackground()
         } catch {
             log("LLMActionsJSONEntryModalClosed: Error: \(error)")
             fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")
-            return .noChange
         }
     }
 }
 
-extension GraphState {
-    
+extension StitchDocumentViewModel {
     @MainActor
     func handleLLMAction(_ action: LLMAction) {
         
         log("handleLLMAction: action: \(action)")
         
         // Make sure we're not "recording", so that functions do
-        self.graphUI.llmRecording.isRecording = false
+        self.llmRecording.isRecording = false
                 
         switch action {
             
@@ -71,7 +66,7 @@ extension GraphState {
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let node = self.nodeCreated(choice: nodeKind) {
-                self.graphUI.llmNodeIdMapping.updateValue(node.id,
+                self.llmNodeIdMapping.updateValue(node.id,
                                                           forKey: llmNodeId)
             }
             
@@ -81,26 +76,26 @@ extension GraphState {
             if let canvasItemId = getCanvasIdFromLLMMoveNodeAction(
                 llmNode: x.node,
                 llmPort: x.port,
-                self.graphUI.llmNodeIdMapping),
+                self.llmNodeIdMapping),
                
                 // canvas item must exist
-               let canvasItem = self.getCanvasItem(canvasItemId) {
-                self.updateCanvasItemOnDragged(canvasItem,
+               let canvasItem = self.graph.getCanvasItem(canvasItemId) {
+                self.graph.updateCanvasItemOnDragged(canvasItem,
                                                translation: x.translation.asCGSize)
             }
                
         case .addEdge(let x):
             
             // Both to node and from node must exist
-            guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-                  self.getNode(fromNodeId).isDefined else  {
+            guard let (fromNodeId, fromNodeKind) = x.from.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
+                  self.graph.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
                 fatalErrorIfDebug()
                 return
             }
             
-            guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-                  self.getNode(toNodeId).isDefined else  {
+            guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
+                  self.graph.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
                 fatalErrorIfDebug()
                 return
@@ -122,12 +117,12 @@ extension GraphState {
                 from: .init(portType: fromPort, nodeId: fromNodeId),
                 to: .init(portType: toPort, nodeId: toNodeId))
             
-            self.edgeAdded(edge: portEdgeData)
+            self.graph.edgeAdded(edge: portEdgeData)
             
         case .setInput(let x):
             
-            guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-                  let node = self.getNode(nodeId) else {
+            guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
+                  let node = self.graph.getNode(nodeId) else {
                 log("handleLLMAction: .setField: No node id or node")
                 return
             }
@@ -144,7 +139,7 @@ extension GraphState {
                 return
             }
             
-            guard let input = self.getInputObserver(coordinate: inputCoordinate) else {
+            guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
                 log("handleLLMAction: .setField: No input")
                 return
             }
@@ -152,7 +147,7 @@ extension GraphState {
             // The new value for that entire input, not just for some field
             guard let value: PortValue = x.value.asPortValueForLLMSetField(
                 nodeType,
-                with: self.graphUI.llmNodeIdMapping
+                with: self.llmNodeIdMapping
             ) else {
                 log("handleLLMAction: .setField: No port value")
                 return
@@ -167,8 +162,8 @@ extension GraphState {
         case .changeNodeType(let x):
             
             // Node must already exist
-            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-                  self.getNode(nodeId).isDefined else {
+            guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
+                  self.graph.getNode(nodeId).isDefined else {
                 log("handleLLMAction: .changeNodeType: No node id or node")
                 return
             }
@@ -178,7 +173,7 @@ extension GraphState {
                 return
             }
             
-            let _ = self.nodeTypeChanged(nodeId: nodeId, newNodeType: nodeType)
+            let _ = self.graph.nodeTypeChanged(nodeId: nodeId, newNodeType: nodeType)
 
         
         case .addLayerInput(let x):
@@ -200,10 +195,10 @@ extension GraphState {
                                           isInput: Bool) {
         
         // Layer node must already exist
-//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.graphUI.llmNodeIdMapping),
+//        guard let nodeId = llmNode.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
               
-        guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.graphUI.llmNodeIdMapping),
-              let node = self.getNode(nodeId) else {
+        guard let (nodeId, nodeKind) = llmNode.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
+              let node = self.graph.getNode(nodeId) else {
             log("handleLLMLayerInputOrOutputAdded: No node id or node")
             return
         }
@@ -222,7 +217,7 @@ extension GraphState {
             }
             
             let input = layerNode[keyPath: layerInput.layerNodeKeyPath]
-            self.layerInputAddedToGraph(node: node,
+            self.graph.layerInputAddedToGraph(node: node,
                                         input: input,
                                         coordinate: layerInput)
         } else {
@@ -239,7 +234,7 @@ extension GraphState {
                 return
             }
             
-            self.layerOutputAddedToGraph(node: node,
+            self.graph.layerOutputAddedToGraph(node: node,
                                          output: output,
                                          portId: portId)
         }

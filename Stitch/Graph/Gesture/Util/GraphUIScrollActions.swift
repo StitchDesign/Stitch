@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
+extension StitchDocumentViewModel {
     // this is 'graph panned via screen finger'
     @MainActor
     func graphDragged(translation: CGSize,
@@ -469,7 +469,7 @@ extension GraphMovementObserver {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func handleGraphDraggedDuringSelection(_ gestureLocation: CGPoint) {
         guard let gestureStartLocation = self.graphUI.selection.dragStartLocation else {
@@ -560,11 +560,11 @@ extension GraphState {
         // so that node stays under our finger:
         if self.graphMovement.canvasItemIsDragged {
 
-            self.selectedCanvasItems.forEach { node in
+            self.visibleGraph.selectedCanvasItems.forEach { node in
             // self.getSelectedNodeViewModels().forEach { node in
                 node.updateNodeOnGraphDragged(
                     translation,
-                    self.highestZIndex + 1,
+                    self.visibleGraph.highestZIndex + 1,
                     zoom: self.graphMovement.zoomData.zoom,
                     state: self.graphMovement)
             }
@@ -610,7 +610,55 @@ extension GraphMovementObserver {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
+    @MainActor
+    var localPositionToPersist: CGPoint {
+        /*
+         TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
+
+         Ideally, we remember (serialize) each traversal level's graph-offset.
+         Currently, we only remember the root level's graph-offset.
+         So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
+         */
+
+        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
+
+        let _rootLevelGraphOffset = self.visibleGraph
+            .visibleNodesViewModel
+            .nodePageDataAtCurrentTraversalLevel(nil)?
+            .localPosition
+
+        if !_rootLevelGraphOffset.isDefined {
+            #if DEV || DEV_DEBUG
+            log("GraphState.localPositionToPersists: no root level graph offset")
+            #endif
+        }
+        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
+
+        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
+
+        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
+        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
+
+        return graphOffset
+    }
+
+    var localPosition: CGPoint {
+        get {
+            self.graphMovement.localPosition
+        } set {
+            self.graphMovement.localPosition = newValue
+        }
+    }
+
+    var localPreviousPosition: CGPoint {
+        get {
+            self.graphMovement.localPreviousPosition
+        } set {
+            self.graphMovement.localPreviousPosition = newValue
+        }
+    }
+    
     @MainActor
     func handleTrackpadGraphDragEnded() {
 
@@ -683,7 +731,7 @@ extension GraphState {
         graphMovement.resetGraphOffsetBorderDataAfterDragEnded()
 
         // TODO: What happens if we zoom in or out *while momentum is running*?
-        let momentumOrigin = self
+        let momentumOrigin = self.visibleGraph
             .graphBounds(graphMovement.zoomData.zoom,
                          graphView: graphUIState.frame,
                          graphOffset: graphMovement.localPosition,
@@ -721,7 +769,7 @@ extension GraphState {
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     @MainActor
     func wipeCommentBoxBounds() {
         self.graphUI.wipeCommentBoxBounds()

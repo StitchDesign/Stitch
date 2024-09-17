@@ -84,7 +84,7 @@ struct TopBarImageButton: View {
 
 struct iPadGraphTopBarButtons: View {
 
-    let graphUI: GraphUIState
+    let document: StitchDocumentViewModel
     let hasActiveGroupFocused: Bool
     let isFullscreen: Bool // = false
     let isPreviewWindowShown: Bool // = true
@@ -98,7 +98,7 @@ struct iPadGraphTopBarButtons: View {
         // TODO: why does `Group` but not `HStack` work here? Something to do with `Menu`?
         Group {
             
-            iPadNavBarButton(action: { dispatch(LLMActionsJSONEntryModalOpened()) },
+            iPadNavBarButton(action: { document.openedLLMActionsJSONEntryModal() },
                              iconName: .sfSymbol(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL))
             
             iPadNavBarButton(action: { dispatch(LLMRecordingToggled()) },

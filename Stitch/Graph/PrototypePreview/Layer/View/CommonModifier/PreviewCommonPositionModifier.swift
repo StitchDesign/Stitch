@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct PreviewCommonPositionModifier: ViewModifier {
     
     // Needed so that Pinned View A can retrieve View B's position, size, center and Ghost View A's
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     
     /*
     Need more information for pinning.
@@ -46,7 +46,7 @@ struct PreviewCommonPositionModifier: ViewModifier {
         
         // The PinnedView rendering of a layer relies on information about the layer it is pinned to.
         if isPinnedView,
-           let pinReceiverData = getPinReceiverData(for: viewModel, from: graph) {
+           let pinReceiverData = document.getPinReceiverData(for: viewModel) {
             
              // logInView("PreviewCommonPositionModifier: view model \(viewModel.layer) \(viewModel.id) is pinned and had pin receiver")
             

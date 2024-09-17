@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 
 struct PreviewColorFillLayer: View {
-    @Bindable var graph: GraphState
+    @Bindable var document: StitchDocumentViewModel
     let layerViewModel: LayerViewModel
     let position: CGPoint = .zero
 
@@ -39,7 +39,7 @@ struct PreviewColorFillLayer: View {
         return color.opacity(enabled ? opacity : 0.0)
             //            .frame(parentSize)
             .modifier(PreviewCommonModifier(
-                graph: graph,
+                document: document,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

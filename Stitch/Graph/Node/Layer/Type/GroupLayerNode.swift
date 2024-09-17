@@ -88,13 +88,13 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewGroupLayer(
-            graph: graph,
+            document: document,
             layerViewModel: viewModel,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,

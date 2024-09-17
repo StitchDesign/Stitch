@@ -55,14 +55,14 @@ struct TextFieldLayerNode: LayerNodeDefinition {
         .union(.aspectRatio)
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
-    static func content(graph: GraphState,
+    static func content(document: StitchDocumentViewModel,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextFieldLayer(
-            graph: graph,
+            document: document,
             viewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -95,6 +95,6 @@ struct TextFieldLayerNode: LayerNodeDefinition {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
-            focusedTextFieldLayer: graph.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit)
+            focusedTextFieldLayer: document.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit)
     }
 }

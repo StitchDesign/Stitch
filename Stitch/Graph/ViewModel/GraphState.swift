@@ -11,28 +11,11 @@ import CoreML
 import CoreMotion
 import Foundation
 import StitchSchemaKit
-import StitchEngine
 import SwiftUI
 import Vision
 
-
-let STITCH_PROJECT_DEFAULT_NAME = StitchDocument.defaultName
-
-// TODO: put in separate file called `GraphStateExtensions.swift` ?
-extension GraphState: Hashable {
-    static func == (lhs: GraphState, rhs: GraphState) -> Bool {
-        lhs.projectId == rhs.projectId
-    }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(self.projectId)
-    }
-}
-
 @Observable
 final class GraphState: Sendable {
-    
-    var isGeneratingProjectThumbnail = false
     
     // TODO: wrap in a new data structure like `SidebarUIState`
     var sidebarListState: SidebarListState = .init()
@@ -42,40 +25,17 @@ final class GraphState: Sendable {
     //    var sidebarExpandedItems = LayerIdSet() // should be persisted
     
     let documentEncoder: DocumentEncoder
-    
-    let computedGraphState = ComputedGraphState()
-    let graphStepManager = GraphStepManager()
 
-    var projectId = ProjectId()
-    var projectName: String = STITCH_PROJECT_DEFAULT_NAME
-        
-    // used tons of places; the raw size we pass to GeneratePreview etc.
-    var previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE
-    
-    // Changed by e.g. project-settings modal, e.g. UpdatePreviewCanvasDevice;
-    // Not changed by user's manual drag on the preview window handle.
-    var previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION
-    
-    var previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR
-    
+    var id = UUID()
+    var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-    var cameraSettings = CameraSettings()
-
-    // View models
-    @MainActor let graphUI: GraphUIState
-    
-    let previewWindowSizingObserver = PreviewWindowSizing()
 
     let visibleNodesViewModel = VisibleNodesViewModel()
-    let graphMovement = GraphMovementObserver()
     let edgeDrawingObserver = EdgeDrawingObserver()
 
     // Loading status for media
     var libraryLoadingStatus = LoadingState.loading
-
-    // Updated when connections, new nodes etc change
-    var topologicalData = GraphTopologicalData<NodeViewModel>()
 
     var selectedEdges = Set<PortEdgeUI>()
 
@@ -86,52 +46,22 @@ final class GraphState: Sendable {
 
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
-    
-    // Cache of ordered list of preview layer view models;
-    // updated in various scenarious, e.g. sidebar list item dragged
-    var cachedOrderedPreviewLayers: LayerDataList = .init()
-    
-    // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
-    // Checked at the end of graph calc for efficient updating
-    var shouldResortPreviewLayers: Bool = false
 
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
-    
-    // Keeps track of interaction nodes and their selected layer
-    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
 
     // DEVICE MOTION
     var motionManagers = StitchMotionManagersDict()
     
-    // Singleton instances
-    var locationManager: LoadingStatus<StitchSingletonMediaObject>?
-    var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
+    var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
-    // Keeps reference to store
-    weak var storeDelegate: StoreDelegate?
+    weak var documentDelegate: StitchDocumentViewModel?
 
-    @MainActor init(from schema: StitchDocument,
-         store: StoreDelegate?) {
-        // MARK: do not populate ordered sidebar layers until effect below is dispatched!
-        // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
-        // but nodes haven't yet populated
-
-        self.graphUI = GraphUIState()
+    init(from schema: StitchDocument) {
         self.documentEncoder = .init(document: schema)
-        self.projectId = schema.id
-        self.projectName = schema.name
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
+        self.id = schema.id
+        self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
-        self.cameraSettings = schema.cameraSettings
-        self.localPosition = schema.localPosition
-        
-        self.graphStepManager.delegate = self
-        self.storeDelegate = store
 
         // MARK: important we don't initialize nodes until after media is estbalished
         DispatchQueue.main.async { [weak self] in
@@ -141,9 +71,26 @@ final class GraphState: Sendable {
             }
         }
     }
+    
+    func initializeDelegate(document: StitchDocumentViewModel) {
+        self.documentDelegate = document
+    }
 }
 
-extension GraphState: GraphCalculatable {
+extension GraphState: GraphDelegate {
+    @MainActor var graphUI: GraphUIState {
+        guard let graphUI = self.documentDelegate?.graphUI else {
+            fatalErrorIfDebug()
+            return GraphUIState()
+        }
+        
+        return graphUI
+    }
+    
+    var storeDelegate: StoreDelegate? {
+        self.documentDelegate?.storeDelegate
+    }
+    
     var nodes: [UUID : NodeViewModel] {
         get {
             self.visibleNodesViewModel.nodes
@@ -153,22 +100,12 @@ extension GraphState: GraphCalculatable {
         }
     }
     
-    func getNodeViewModel(id: UUID) -> NodeViewModel? {
-        self.getNodeViewModel(id)
-    }
-}
-
-extension GraphState: GraphDelegate {
     var groupNodeFocused: NodeId? {
         self.graphUI.groupNodeFocused?.asNodeId
     }
     
     var nodesDict: NodesViewModelDict {
         self.nodes
-    }
-    
-    var keypressState: KeyPressState {
-        self.graphUI.keypressState
     }
 
     var safeAreaInsets: SafeAreaInsets {
@@ -188,21 +125,19 @@ extension GraphState: GraphDelegate {
     }
 }
 
-extension GraphState: SchemaObserver {
-    var id: ProjectId { self.projectId }
-
+extension StitchDocumentViewModel {
     @MainActor convenience init(id: ProjectId,
-                     projectName: String = STITCH_PROJECT_DEFAULT_NAME,
-                     previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-                     previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
-                     previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
-                     localPosition: CGPoint = .zero,
-                     zoomData: CGFloat = 1,
-                     nodes: [NodeEntity] = [],
-                     orderedSidebarLayers: [SidebarLayerData] = [],
-                     commentBoxes: [CommentBoxData] = .init(),
-                     cameraSettings: CameraSettings = CameraSettings(),
-                     store: StoreDelegate?) {
+                                projectName: String = STITCH_PROJECT_DEFAULT_NAME,
+                                previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+                                previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
+                                previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
+                                localPosition: CGPoint = .zero,
+                                zoomData: CGFloat = 1,
+                                nodes: [NodeEntity] = [],
+                                orderedSidebarLayers: [SidebarLayerData] = [],
+                                commentBoxes: [CommentBoxData] = .init(),
+                                cameraSettings: CameraSettings = CameraSettings(),
+                                store: StoreDelegate?) {
         let document = StitchDocument(projectId: id,
                                       name: projectName,
                                       previewWindowSize: previewWindowSize,
@@ -216,166 +151,118 @@ extension GraphState: SchemaObserver {
                                       cameraSettings: cameraSettings)
         self.init(from: document, store: store)
     }
+}
 
-    @MainActor
-    static func createObject(from entity: CurrentStitchDocument.StitchDocument) -> Self {
-        // Unused
-        fatalErrorIfDebug()
-        
-        return self.init(from: entity, store: nil)
-    }
-
-    @MainActor
-    func update(from schema: StitchDocument) {
-
-        // Sync project attributes
-        self.projectId = schema.projectId
-        self.projectName = schema.name
-
-        // Sync preview window attributes
-        self.previewWindowSize = schema.previewWindowSize
-        self.previewSizeDevice = schema.previewSizeDevice
-        self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
-
-        // Sync node view models + cached data
-        self.updateGraphData(document: schema)
-
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
-        
-        // No longer needed, since sidebar-expanded-items handled by node schema
-//        self.sidebarExpandedItems = self.allGroupLayerNodes()
-        self.calculateFullGraph()
-    }
-
-    /// Syncs visible nodes and topological data when persistence actions take place.
-    @MainActor
-    func updateGraphData(document: StitchDocument? = nil) {
-        let document = document ?? self.createSchema()
-
-        self.visibleNodesViewModel.updateSchemaData(newNodes: document.nodes,
-                                                    activeIndex: self.activeIndex,
-                                                    graphDelegate: self)
-        
-        self.updateTopologicalData()
-
-        // MARK: must be called after connections are established in both visible nodes and topolological data
-        self.visibleNodesViewModel.updateAllNodeViewData()
-        
-        // Update preview layers
-        self.updateOrderedPreviewLayers()
+extension GraphState {
+    @MainActor convenience init(id: ProjectId,
+                                projectName: String = STITCH_PROJECT_DEFAULT_NAME,
+                                previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
+                                previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
+                                previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
+                                localPosition: CGPoint = .zero,
+                                zoomData: CGFloat = 1,
+                                nodes: [NodeEntity] = [],
+                                orderedSidebarLayers: [SidebarLayerData] = [],
+                                commentBoxes: [CommentBoxData] = .init(),
+                                cameraSettings: CameraSettings = CameraSettings(),
+                                store: StoreDelegate?) {
+        let document = StitchDocument(projectId: id,
+                                      name: projectName,
+                                      previewWindowSize: previewWindowSize,
+                                      previewSizeDevice: previewSizeDevice,
+                                      previewWindowBackgroundColor: previewWindowBackgroundColor,
+                                      localPosition: localPosition,
+                                      zoomData: zoomData,
+                                      nodes: nodes,
+                                      orderedSidebarLayers: orderedSidebarLayers,
+                                      commentBoxes: commentBoxes,
+                                      cameraSettings: cameraSettings)
+        self.init(from: document)
     }
     
-    @MainActor
-    func updateOrderedPreviewLayers() {
-        // Cannot use Equality check here since LayerData does not conform to Equatable;
-        // so instead we should be smart about only calling this when layer nodes actually change.
-        
-        let flattenedPinMap = self.visibleNodesViewModel.getFlattenedPinMap()
-        let rootPinMap = self.visibleNodesViewModel.getRootPinMap(pinMap: flattenedPinMap)
-        
-        let previewLayers = self.visibleNodesViewModel
-            .recursivePreviewLayers(sidebarLayersGlobal: self.orderedSidebarLayers,
-                                    pinMap: rootPinMap)
-        
-        self.cachedOrderedPreviewLayers = previewLayers
-        self.visibleNodesViewModel.flattenedPinMap = flattenedPinMap
-        self.visibleNodesViewModel.pinMap = rootPinMap
-    }
+//    @MainActor
+//    func update(from schema: StitchDocument) {
+//        // Sync project attributes
+//        self.id = schema.projectId
+//        self.name = schema.name
+//        self.orderedSidebarLayers = schema.orderedSidebarLayers
+//        
+//        
+//    }
 
-    func createSchema() -> StitchDocument {
+    @MainActor func createSchema() -> StitchDocument {
+        assertInDebug(self.documentDelegate != nil)
+        let documentDelegate = self.documentDelegate ?? .init(from: .init(),
+                                                              store: self.storeDelegate)
+        
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
 
         return StitchDocument(projectId: self.projectId,
-                              name: self.projectName,
-                              previewWindowSize: self.previewWindowSize,
-                              previewSizeDevice: self.previewSizeDevice,
+                              name: documentDelegate.projectName,
+                              previewWindowSize: documentDelegate.previewWindowSize,
+                              previewSizeDevice: documentDelegate.previewSizeDevice,
                               previewWindowBackgroundColor: self.previewWindowBackgroundColor,
                               // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
-                              localPosition: self.localPositionToPersist,
+                              localPosition: documentDelegate.localPositionToPersist,
                               zoomData: self.graphMovement.zoomData.zoom,
                               nodes: nodes,
                               orderedSidebarLayers: self.orderedSidebarLayers,
                               commentBoxes: commentBoxes,
-                              cameraSettings: self.cameraSettings)
+                              cameraSettings: documentDelegate.cameraSettings)
     }
     
-    func onPrototypeRestart() {
-        self.graphStepManager.resetGraphStepState()
-        
+    @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
-        
-        // Defocus the preview window's TextField layer
-        if self.graphUI.reduxFocusedField?.getTextFieldLayerInputEdit.isDefined ?? false {
-            self.graphUI.reduxFocusedField = nil
-        }
-        
-        // Update animation value for restart-prototype icon;
-        self.graphUI.restartPrototypeWindowIconRotationZ += 360
-
-        self.initializeGraphComputation()
+    }
+    
+    var localPosition: CGPoint {
+        self.documentDelegate?.localPosition ?? .init()
+    }
+    
+    var previewWindowBackgroundColor: Color {
+        self.documentDelegate?.previewWindowBackgroundColor ?? .LAYER_DEFAULT_COLOR
     }
 }
 
 extension GraphState {
+    @MainActor func updateTopologicalData() {
+        self.documentDelegate?.updateTopologicalData()
+    }
+    
+    var mouseNodes: NodeIdSet {
+        self.documentDelegate?.mouseNodes ?? .init()
+    }
+    
     @MainActor
     func getInputRowObserver(_ id: NodeIOCoordinate) -> InputNodeRowObserver? {
         self.getNodeViewModel(id.nodeId)?.getInputRowObserver(for: id.portType)
     }
     
     @MainActor
-    var localPositionToPersist: CGPoint {
-        /*
-         TODO: serialize graph-offset by traversal level; introduce centroid/find-node button
-
-         Ideally, we remember (serialize) each traversal level's graph-offset.
-         Currently, we only remember the root level's graph-offset.
-         So if we were inside a group, we save not the group's graph-offset (graphState.localPosition), but the root graph-offset
-         */
-
-        // log("GraphState.localPositionToPersists: self.localPosition: \(self.localPosition)")
-
-        let _rootLevelGraphOffset = self.visibleNodesViewModel
-            .nodePageDataAtCurrentTraversalLevel(nil)?
-            .localPosition
-
-        if !_rootLevelGraphOffset.isDefined {
-            #if DEV || DEV_DEBUG
-            log("GraphState.localPositionToPersists: no root level graph offset")
-            #endif
-        }
-        let rootLevelGraphOffset = _rootLevelGraphOffset ?? .zero
-
-        let graphOffset = self.graphUI.groupNodeFocused.isDefined ? rootLevelGraphOffset : self.localPosition
-
-        // log("GraphState.localPositionToPersists: rootLevelGraphOffset: \(rootLevelGraphOffset)")
-        // log("GraphState.localPositionToPersists: graphOffset: \(graphOffset)")
-
-        return graphOffset
-    }
-
-    var localPosition: CGPoint {
-        get {
-            self.graphMovement.localPosition
-        } set {
-            self.graphMovement.localPosition = newValue
-        }
-    }
-
-    var localPreviousPosition: CGPoint {
-        get {
-            self.graphMovement.localPreviousPosition
-        } set {
-            self.graphMovement.localPreviousPosition = newValue
-        }
-    }
-
-    @MainActor
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
     }
-
+    
+    var llmRecording: LLMRecordingState {
+        self.documentDelegate?.llmRecording ?? .init()
+    }
+    
+    @MainActor
+    func updateOrderedPreviewLayers() {
+        self.documentDelegate?.updateOrderedPreviewLayers()
+    }
+    
+    var graphStepManager: GraphStepManager {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
+        return document.graphStepManager
+    }
+    
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
         self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
@@ -383,11 +270,11 @@ extension GraphState {
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
                 }
-
+                
                 return node
             }
     }
-
+    
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
     @MainActor
     var highestZIndex: Double {
@@ -397,7 +284,7 @@ extension GraphState {
             .map { $0.zIndex }
         return zIndices.max() ?? 0
     }
-
+    
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
         guard let documentLoader = self.storeDelegate?.documentLoader else {
@@ -417,14 +304,14 @@ extension GraphState {
                                                               documentLoader: documentLoader)
         }
     }
-
+    
     @MainActor
     func encodeProject(temporaryURL: DocumentsURL? = nil) {
         let document = self.createSchema()
-
+        
         // Update nodes data
         self.updateGraphData(document: document)
-
+        
         Task(priority: .background) { [weak self] in
             guard let documentLoader = self?.storeDelegate?.documentLoader else {
                 return
@@ -440,26 +327,26 @@ extension GraphState {
             }
         }
     }
-
+    
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
     }
-
+    
     var patchNodes: NodesViewModelDict {
         self.visibleNodesViewModel.patchNodes
     }
-
+    
     var layerNodes: NodesViewModelDict {
         self.visibleNodesViewModel.layerNodes
     }
-
+    
     var groupNodes: NodesViewModelDict {
         self.visibleNodesViewModel.groupNodes
     }
-
+    
     /*
      Primarily used for NodeViewModels, which are used in UI and during graph eval
-
+     
      Secondarily used in some helpers for creating a GraphState that we then feed into GraphSchema
      - second use-case ideally removed in the future
      */
@@ -467,20 +354,20 @@ extension GraphState {
         self.visibleNodesViewModel.nodes
             .updateValue(node, forKey: node.id)
     }
-
+    
     func updatePatchNode(_ patchNode: PatchNode) {
         self.updateNode(patchNode)
     }
-
+    
     // MISC HELPERS
-
+    
     @MainActor
     func getInputValues(coordinate: InputCoordinate) -> PortValues? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
             .getInputRowObserver(for: coordinate.portType)?
             .allLoopedValues
     }
-
+    
     @MainActor
     func getInputObserver(coordinate: InputCoordinate) -> InputNodeRowObserver? {
         self.visibleNodesViewModel.getViewModel(coordinate.nodeId)?
@@ -510,7 +397,7 @@ extension GraphState {
         
         return node.getOutputRowViewModel(for: rowId)
     }
-
+    
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
@@ -609,20 +496,20 @@ extension GraphState {
             return [canvas]
         }
     }
-
+    
     func getLayerNode(id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
-
+    
     // id = NodeId for GroupNode
     func getGroupNode(id: GroupNodeId) -> NodeViewModel? {
         self.getNodeViewModel(id.asNodeId)
     }
-
+    
     func getGroupNodeBreadcrumb(id: GroupNodeId) -> NodeId? {
         getGroupNode(id: id)?.id
     }
-
+    
     @MainActor
     func getVisibleNodes() -> [NodeDelegate] {
         self.visibleNodesViewModel
@@ -639,38 +526,22 @@ extension GraphState {
     func getCanvasItems() -> CanvasItemViewModels {
         self.visibleNodesViewModel.getCanvasItems()
     }
-
-    func getNodesToAlwaysRun() -> NodeIdSet {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.willAlwaysRunEval ?? false }
-                .map(\.id))
-            .toSet
-    }
-
-    func getAnimationNodes() -> NodeIdSet {
-        Array(self.nodes
-                .values
-                .filter { $0.patch?.isAnimationNode ?? false }
-                .map(\.id))
-            .toSet
-    }
-
+    
     var keyboardNodes: NodeIdSet {
         Array(self.nodes
-                .values
-                .filter { $0.patch == .keyboard }
-                .map(\.id))
-            .toSet
+            .values
+            .filter { $0.patch == .keyboard }
+            .map(\.id))
+        .toSet
     }
-
+    
     func getLayerChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
             .filter { $0.layerNode?.layerGroupId == groupId }
             .map { $0.id }
             .toSet
     }
-
+    
     @MainActor
     func getGroupChildren(for groupId: NodeId) -> NodeIdSet {
         self.nodes.values
@@ -698,54 +569,5 @@ extension GraphState {
         }
         
         return outputRow.id
-    }
-    
-    /// Updates values at a specific output loop index.
-    @MainActor
-    func updateOutputs(at loopIndex: Int,
-                       node: NodeViewModel,
-                       portValues: PortValues) {
-        let nodeId = node.id
-        var outputsToUpdate = node.outputs
-        var nodeIdsToRecalculate = NodeIdSet()
-        let graphTime = self.graphStepManager.graphTime
-        
-        for (portId, newOutputValue) in portValues.enumerated() {
-            let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
-            var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
-            
-            // Lengthen outputs if loop index exceeds count
-            if outputValuesToUpdate.count < loopIndex + 1 {
-                outputValuesToUpdate = outputValuesToUpdate.lengthenArray(loopIndex + 1)
-            }
-            
-            // Insert new output value at correct loop index
-            outputValuesToUpdate[loopIndex] = newOutputValue
-            
-            // Update output state
-            var outputToUpdate = outputsToUpdate[portId]
-            outputToUpdate = outputValuesToUpdate
-            
-            outputsToUpdate[portId] = outputToUpdate
-            
-            // Update downstream node's inputs
-            let changedNodeIds = self.updateDownstreamInputs(
-                flowValues: outputToUpdate,
-                outputCoordinate: outputCoordinate)
-            
-            nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
-        } // (portId, newOutputValue) in portValues.enumerated()
-     
-        node.updateOutputsObservers(newOutputsValues: outputsToUpdate,
-                                    activeIndex: self.activeIndex)
-        
-        // Must also run pulse reversion effects
-        node.outputs
-            .getPulseReversionEffects(nodeId: nodeId,
-                                      graphTime: graphTime)
-            .processEffects()
-        
-        // Recalculate graph
-        self.calculate(nodeIdsToRecalculate)
     }
 }

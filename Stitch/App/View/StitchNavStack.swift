@@ -14,10 +14,10 @@ struct StitchNavStack: View {
     var body: some View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
-                .navigationDestination(for: GraphState.self) { graphState in
+                .navigationDestination(for: StitchDocumentViewModel.self) { document in
                     StitchProjectView(store: store,
-                                      graphState: graphState,
-                                      graphUI: graphState.graphUI,
+                                      document: document,
+                                      graphUI: document.graphUI,
                                       alertState: store.alertState)
                 }
                 .onChange(of: store.isCurrentProjectSelected) {

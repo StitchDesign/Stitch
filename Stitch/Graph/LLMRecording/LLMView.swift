@@ -34,18 +34,18 @@ struct LLMPromptModalView: View {
     }
 }
 
-struct LLMPromptEdited: GraphUIEvent {
+struct LLMPromptEdited: StitchDocumentEvent {
     let prompt: String
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         state.llmRecording.promptState.prompt = prompt
     }
 }
 
-struct LLMJsonEdited: GraphUIEvent {
+struct LLMJsonEdited: StitchDocumentEvent {
     let jsonEntry: String
     
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         state.llmRecording.jsonEntryState.jsonEntry = jsonEntry
     }
 }

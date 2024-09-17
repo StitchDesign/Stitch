@@ -15,7 +15,7 @@ let appResetString = "Reset Prototype"
 let cancelString = "Cancel"
 
 struct FullScreenPreviewViewWrapper: View {
-    @Bindable var graphState: GraphState
+    @Bindable var document: StitchDocumentViewModel
     @State private var showDeleteAlert: Bool = false
 
     let previewWindowSizing: PreviewWindowSizing
@@ -26,11 +26,11 @@ struct FullScreenPreviewViewWrapper: View {
     let animationCompleted: Bool
 
     var previewWindowSize: CGSize {
-        graphState.previewWindowSize
+        document.previewWindowSize
     }
 
     var previewView: some View {
-        PreviewContent(graph: graphState,
+        PreviewContent(document: document,
                        isFullScreen: true)
         #if !targetEnvironment(macCatalyst)
         .ignoresSafeArea()
@@ -63,8 +63,8 @@ struct FullScreenPreviewViewWrapper: View {
         FullScreenGestureRecognizerView(showFullScreenPreviewSheet: showFullScreenPreviewSheet) {
             previewView
         }
-        .matchedGeometryEffect(id: graphState.id, in: routerNamespace)
-        .matchedGeometryEffect(id: graphState.id, in: graphNamespace)
+        .matchedGeometryEffect(id: document.id, in: routerNamespace)
+        .matchedGeometryEffect(id: document.id, in: graphNamespace)
 
         // Only ignore safe areas on iPad/iPhone
         #if !targetEnvironment(macCatalyst)
@@ -76,7 +76,7 @@ struct FullScreenPreviewViewWrapper: View {
         .alert(actionSheetHeaderString,
                isPresented: showActionSheetBinding) {
             StitchDocumentShareButton(willPresentShareSheet: showActionSheetBinding,
-                                      document: graphState.createSchema())
+                                      document: document.createSchema())
             StitchButton(changeScaleString, action: showProjectSettingsAction)
             StitchButton(appResetString, action: appResetAction)
             StitchButton(exitString, action: closeGraphBtnAction)

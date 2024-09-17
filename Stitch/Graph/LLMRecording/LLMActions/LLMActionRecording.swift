@@ -18,19 +18,24 @@ let LLM_STOP_RECORDING_SF_SYMBOL = "stop.fill"
 struct LLMRecordingToggled: GraphEvent {
     
     func handle(state: GraphState) {
-        if state.graphUI.llmRecording.isRecording {
-            state.llmRecordingEnded()
+        guard let document = state.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        if document.llmRecording.isRecording {
+            document.llmRecordingEnded()
         } else {
-            state.llmRecordingStarted()
+            document.llmRecordingStarted()
         }
     }
 }
 
-extension GraphState {
+extension StitchDocumentViewModel {
     
     @MainActor
     func llmRecordingStarted() {
-        self.graphUI.llmRecording.isRecording = true
+        self.llmRecording.isRecording = true
         
         // Jump back to center, so the LLMMoveNde.position can be diff'd against 0,0
         self.graphMovement.localPosition = .zero
@@ -39,40 +44,37 @@ extension GraphState {
     
     @MainActor
     func llmRecordingEnded() {
-        self.graphUI.llmRecording.isRecording = false
+        self.llmRecording.isRecording = false
         
         // Cache the json of the actions; else TextField changes cause constant encoding and thus json-order changes
-        self.graphUI.llmRecording.promptState.actionsAsDisplayString = self.graphUI.llmRecording.actions.asJSONDisplay()
+        self.llmRecording.promptState.actionsAsDisplayString = self.llmRecording.actions.asJSONDisplay()
         
         // If we stopped recording and have LLMActions, show the prompt
-        if !self.graphUI.llmRecording.actions.isEmpty {
-            self.graphUI.llmRecording.promptState.showModal = true
+        if !self.llmRecording.actions.isEmpty {
+            self.llmRecording.promptState.showModal = true
             self.graphUI.reduxFocusedField = .llmModal
         }
     }
-}
-
-// When prompt modal is closed, we write the JSON of prompt + actions to file.
-struct LLMRecordingPromptClosed: GraphEvent {
     
-    func handle(state: GraphState) {
+    // When prompt modal is closed, we write the JSON of prompt + actions to file.
+    @MainActor func closedLLMRecordingPrompt() {
         
         // log("LLMRecordingPromptClosed called")
         
-        state.graphUI.llmRecording.promptState.showModal = false
-        state.graphUI.reduxFocusedField = nil
+        self.llmRecording.promptState.showModal = false
+        self.graphUI.reduxFocusedField = nil
         
-        let actions = state.graphUI.llmRecording.actions
+        let actions = self.llmRecording.actions
         
         // TODO: somehow we're getting this called twice
         guard !actions.isEmpty else {
-            state.graphUI.llmRecording = .init()
+            self.llmRecording = .init()
             return
         }
         
         // Write the JSONL/YAML to file
         let recordedData = LLMRecordingData(actions: actions,
-                                            prompt: state.graphUI.llmRecording.promptState.prompt)
+                                            prompt: self.llmRecording.promptState.prompt)
         
         // log("LLMRecordingPromptClosed: recordedData: \(recordedData)")
         
@@ -84,7 +86,7 @@ struct LLMRecordingPromptClosed: GraphEvent {
                     // need to create a directory
                     let docsURL = StitchFileManager.documentsURL.url
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
-                    let filename = "\(state.projectName)_\(state.projectId)_\(Date().description).json"
+                    let filename = "\(self.graph.name)_\(self.graph.id)_\(Date().description).json"
                     let url = dataCollectionURL.appending(path: filename)
                     
                     // log("LLMRecordingPromptClosed: docsURL: \(docsURL)")
@@ -109,7 +111,7 @@ struct LLMRecordingPromptClosed: GraphEvent {
         }
         
         // Reset LLMRecordingState
-        state.graphUI.llmRecording = .init()
+        self.llmRecording = .init()
     }
 }
 

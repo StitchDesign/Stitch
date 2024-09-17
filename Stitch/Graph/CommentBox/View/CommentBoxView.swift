@@ -79,13 +79,13 @@ struct CommentBoxView: View {
         .overlay(selectionBorder)
         .simultaneousGesture(TapGesture().onEnded({ _ in
             log("simultaneousGesture: TapGesture: onEnded")
-            graph.commentBoxTapped(box: self.box)
+            graph.documentDelegate?.commentBoxTapped(box: self.box)
         }))
         .onChange(of: self.boundsDictEntry) { _, newValue in
             log("CommentBoxView: onChange of: self.boundsDictEntry")
             if newValue == nil {
                 log("CommentBoxView: onChange of: self.boundsDictEntry: will dispatch UpdateCommentBoxBounds")
-                graph.updateCommentBoxBounds(
+                graph.documentDelegate?.updateCommentBoxBounds(
                     box: box,
                     bounds: self.boxBounds)
             }
@@ -219,7 +219,7 @@ struct CommentBoxView: View {
                     // then update the state with the box's current bounds:
                     //                    if !self.commentBoxBoundsDict.hasKey(id) {
                     // log("CommentBoxView: boxBoundsReader: onAppear: will dispatch UpdateCommentBoxBounds")
-                    graph.updateCommentBoxBounds(
+                    graph.documentDelegate?.updateCommentBoxBounds(
                         box: box,
                         bounds: self.boxBounds)
                 }
@@ -249,7 +249,7 @@ struct CommentBoxView: View {
                     // then update the state with the box's current bounds:
                     //                    if !self.commentBoxBoundsDict.hasKey(id) {
                     // log("CommentBoxView: titleBoundsReader: onAppear: will dispatch UpdateCommentBoxBounds")
-                    graph.updateCommentBoxBounds(
+                    graph.documentDelegate?.updateCommentBoxBounds(
                         box: box,
                         bounds: self.boxBounds)
                 }
@@ -295,11 +295,11 @@ struct CommentBoxView: View {
                 redPosition.width = redPreviousPosition.width + value.translation.width
                 redPosition.height = redPreviousPosition.height + value.translation.height
 
-                graph.commentBoxPositionDragged(id: id, value: value)
+                graph.documentDelegate?.commentBoxPositionDragged(id: id, value: value)
             }
             .onEnded { _ in
                 redPreviousPosition = redPosition
-                graph.commentBoxPositionDragEnded()
+                graph.documentDelegate?.commentBoxPositionDragEnded()
             }
     }
 
@@ -316,11 +316,11 @@ struct CommentBoxView: View {
         DragGesture(coordinateSpace: .named(GraphBaseView.coordinateNamespace))
             .onChanged { newValue in
                 // print("expansionDrag: dragged")
-                graph.commentBoxExpansionDragged(box: box, value: newValue)
+                graph.documentDelegate?.commentBoxExpansionDragged(box: box, value: newValue)
             }
             .onEnded({ value in
                 // print("expansionDrag: drag ended")
-                graph.commentBoxExpansionDragEnded(
+                graph.documentDelegate?.commentBoxExpansionDragEnded(
                     box: box,
                     value: value,
                     newestBoxBounds: self.boxBounds)

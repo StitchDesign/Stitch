@@ -20,7 +20,7 @@ struct SelectedGraphItemsCut: GraphEvent {
     func handle(state: GraphState) {
         log("SelectedGraphNodesCut called")
         
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Cut disabled during LLM Recording")
             return
         }
@@ -55,7 +55,7 @@ struct SelectedGraphItemsCopied: GraphEvent {
     func handle(state: GraphState) {
         log("SelectedGraphNodesCopied called")
         
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Copy disabled during LLM Recording")
             return
         }
@@ -70,7 +70,7 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
         
-        guard !state.graphUI.llmRecording.isRecording else {
+        guard !state.llmRecording.isRecording else {
             log("Paste disabled during LLM Recording")
             return .noChange
         }

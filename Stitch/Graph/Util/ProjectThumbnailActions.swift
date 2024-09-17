@@ -11,23 +11,23 @@ import StitchSchemaKit
 
 extension StitchStore {
     @MainActor
-    func createThumbnail(from graph: GraphState) {
+    func createThumbnail(from documentViewModel: StitchDocumentViewModel) {
         // Note: we need to modify some views
-        graph.isGeneratingProjectThumbnail = true
+        documentViewModel.isGeneratingProjectThumbnail = true
         
         // Recalculate the entire graph immediately, so that e.g. camera evals run with their image taking setting "off":
-        graph.calculate(from: graph.allNodesToCalculate)
+        documentViewModel.calculate(from: documentViewModel.allNodesToCalculate)
         
         // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
-        let generatedPreview = GeneratePreview(graph: graph)
+        let generatedPreview = GeneratePreview(document: documentViewModel)
         
         let view = generatedPreview
-            .frame(graph.previewWindowSize)
-            .background(graph.previewWindowBackgroundColor)
+            .frame(documentViewModel.previewWindowSize)
+            .background(documentViewModel.previewWindowBackgroundColor)
             .clipped()
         
-        let document = graph.createSchema()
-        let rootUrl = graph.rootUrl
+        let document = documentViewModel.createSchema()
+        let rootUrl = documentViewModel.graph.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
         
         Task { [weak self] in

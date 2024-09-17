@@ -17,6 +17,7 @@ let isCatalyst = false
 
 struct ProjectToolbarViewModifier: ViewModifier {
     @Environment(StitchStore.self) private var store
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
     let projectName: String
@@ -39,7 +40,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
             .toolbarRole(.editor) // no "Back" text on back button
 
             #if !targetEnvironment(macCatalyst)
-            .navigationTitle(self.$graph.projectName)
+            .navigationTitle(self.$graph.name)
             .navigationBarTitleDisplayMode(.inline)
 
             // Note: an empty string hides .navigationTitle
@@ -47,7 +48,7 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
             // Note: native .navigationTitle editing only triggers this onChange *when we submit the change*
             // So this is actually an `.onSubmit` for .navigationTitle
-            .onChange(of: self.graph.projectName) { _, newValue in
+            .onChange(of: self.graph.name) { _, newValue in
                 log(".onChange(of: graph.projectName): newValue: \(newValue)")
                 // Encode name changes to disk
                 graph.encodeProjectInBackground()
@@ -84,13 +85,13 @@ struct ProjectToolbarViewModifier: ViewModifier {
                 // .secondaryAction = center
                 ToolbarItemGroup(placement: .primaryAction) {
                     iPadGraphTopBarButtons(
-                        graphUI: graphUI,
+                        document: document,
                         hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
                         isFullscreen: graphUI.isFullScreenMode,
                         isPreviewWindowShown: graphUI.showPreviewWindow,
                         restartPrototypeWindowIconRotationZ: graphUI.restartPrototypeWindowIconRotationZ,
                         llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: graphUI.llmRecording.isRecording)
+                        llmRecordingModeActive: document.llmRecording.isRecording)
                 }
 
                 #else
@@ -120,12 +121,12 @@ struct ProjectToolbarViewModifier: ViewModifier {
 
                 ToolbarItemGroup(placement: .primaryAction) {
                     CatalystTopBarGraphButtons(
-                        graphUI: graphUI,
+                        document: document,
                         hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
                         isFullscreen: graphUI.isFullScreenMode,
                         isPreviewWindowShown: graphUI.showPreviewWindow,
                         llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: graphUI.llmRecording.isRecording)
+                        llmRecordingModeActive: document.llmRecording.isRecording)
                 }
                 #endif
 

@@ -27,7 +27,8 @@ struct ContentView: View, KeyboardReadable {
     // Controls the animation of newly created node from the insert node menu
     @State private var previewingNodeChoice: InsertNodeMenuOption?
 
-    @Bindable var graph: GraphState
+    @Bindable var store: StitchStore
+    @Bindable var document: StitchDocumentViewModel
     @Bindable var graphUI: GraphUIState
 
     let alertState: ProjectAlertState
@@ -38,7 +39,7 @@ struct ContentView: View, KeyboardReadable {
     }
     
     var previewWindowSizing: PreviewWindowSizing {
-        self.graph.previewWindowSizingObserver
+        self.document.previewWindowSizingObserver
     }
 
     /// Shows menu wrapper view while node animation takes place
@@ -52,7 +53,7 @@ struct ContentView: View, KeyboardReadable {
             contentView // the graph
             
             if showMenu {
-                InsertNodeMenuWrapper(graph: graph,
+                InsertNodeMenuWrapper(document: document,
                                       graphUI: graphUI,
                                       menuHeight: $menuHeight,
                                       screenSize: $screenSize) // node menu + other animating views
@@ -64,7 +65,7 @@ struct ContentView: View, KeyboardReadable {
         ZStack {
             // Must respect keyboard safe-area
             ProjectWindowSizeReader(previewWindowSizing: previewWindowSizing,
-                                    previewWindowSize: graph.previewWindowSize,
+                                    previewWindowSize: document.previewWindowSize,
                                     isFullScreen: graphUI.isFullScreenMode,
                                     showFullScreenAnimateCompleted: $showFullScreenAnimateCompleted,
                                     showFullScreenObserver: showFullScreen,
@@ -98,7 +99,7 @@ struct ContentView: View, KeyboardReadable {
                     
                 // for modal background, use preview windw background color + a couple shades darker
                     .background {
-                        graph.previewWindowBackgroundColor.overlay {
+                        document.previewWindowBackgroundColor.overlay {
                             Color.black.opacity(0.2)
                         }
                     }
@@ -108,7 +109,7 @@ struct ContentView: View, KeyboardReadable {
             if !GraphUIState.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
-                ProjectNavigationView(graph: graph,
+                ProjectNavigationView(document: document,
                                       insertNodeMenuHiddenNodeId: graphUI.insertNodeMenuState.hiddenNodeId,
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
@@ -116,7 +117,7 @@ struct ContentView: View, KeyboardReadable {
                     // Floating preview kept outside NavigationSplitView for animation purposes
                     if !showFullScreen.isTrue {
                         FloatingWindowView(
-                            graph: graph,
+                            document: document,
                             deviceScreenSize: graphUI.frame.size,
                             showPreviewWindow: showPreviewWindow,
                             namespace: graphNamespace)
@@ -139,11 +140,11 @@ struct ContentView: View, KeyboardReadable {
         
         .stitchSheet(isPresented: alertState.showProjectSettings,
                      titleLabel: "Settings",
-                     hideAction: HideProjectSettingsSheet()) {
-            ProjectSettingsView(previewWindowSize: graph.previewWindowSize,
-                                previewSizeDevice: graph.previewSizeDevice,
-                                previewWindowBackgroundColor: graph.previewWindowBackgroundColor,
-                                graph: graph) }
+                     hideAction: store.hideProjectSettingsSheet) {
+            ProjectSettingsView(previewWindowSize: document.previewWindowSize,
+                                previewSizeDevice: document.previewSizeDevice,
+                                previewWindowBackgroundColor: document.previewWindowBackgroundColor,
+                                graph: document.graph) }
         .modifier(FileImportView(fileImportState: alertState.fileImportModalState))
         .modifier(AnimateCompletionHandler(percentage: showFullScreen.value) {
             // only set this state to true when we're animating into full screen mode
@@ -151,15 +152,15 @@ struct ContentView: View, KeyboardReadable {
                 self.showFullScreenAnimateCompleted = true
             }
         })
-        .stitchSheet(isPresented: graph.graphUI.llmRecording.promptState.showModal,
+        .stitchSheet(isPresented: document.llmRecording.promptState.showModal,
                      titleLabel: "LLM Recording",
-                     hideAction: LLMRecordingPromptClosed(),
+                     hideAction: document.closedLLMRecordingPrompt,
                      sheetBody: {
-            LLMPromptModalView(actionsAsDisplay: graph.graphUI.llmRecording.promptState.actionsAsDisplayString)
+            LLMPromptModalView(actionsAsDisplay: document.llmRecording.promptState.actionsAsDisplayString)
         })
-        .stitchSheet(isPresented: graph.graphUI.llmRecording.jsonEntryState.showModal,
+        .stitchSheet(isPresented: document.llmRecording.jsonEntryState.showModal,
                      titleLabel: "LLM JSON Entry",
-                     hideAction: LLMActionsJSONEntryModalClosed(),
+                     hideAction: document.closedLLMActionsJSONEntryModal,
                      sheetBody: {
             LLMActionsJSONEntryModalView()
         })
@@ -167,8 +168,8 @@ struct ContentView: View, KeyboardReadable {
 
     private var fullScreenPreviewView: some View {
         FullScreenPreviewViewWrapper(
-            graphState: graph, 
-            previewWindowSizing: self.previewWindowSizing, 
+            document: document,
+            previewWindowSizing: self.previewWindowSizing,
             showFullScreenPreviewSheet: alertState.showFullScreenPreviewSheet,
             graphNamespace: graphNamespace,
             routerNamespace: routerNamespace,
@@ -177,7 +178,7 @@ struct ContentView: View, KeyboardReadable {
         
     @ViewBuilder
     var flyout: some View {
-        OpenFlyoutView(graph: graph)
+        OpenFlyoutView(graph: document.visibleGraph)
     }
 }
 

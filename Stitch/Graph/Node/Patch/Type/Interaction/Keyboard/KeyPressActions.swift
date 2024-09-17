@@ -9,10 +9,10 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct KeyModifierPressEnded: GraphUIEvent {
+struct KeyModifierPressEnded: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
-    func handle(state: GraphUIState) {
+    func handle(state: StitchDocumentViewModel) {
         // log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
             state.keypressState.modifiers.remove(modifier)
@@ -20,38 +20,38 @@ struct KeyModifierPressEnded: GraphUIEvent {
     }
 }
 
-struct KeyModifierPressBegan: GraphEvent {
+struct KeyModifierPressBegan: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
          // log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
-        state.graphUI.keypressState.modifiers = state.graphUI.keypressState.modifiers.union(modifiers)
+        state.keypressState.modifiers = state.keypressState.modifiers.union(modifiers)
         
         // if TAB pressed and  move forward one foucsed , or SHIFT + TAB,
-        let shiftHeld = state.graphUI.keypressState.isShiftPressed
-        let tabPressed = state.graphUI.keypressState.isTabPressed
+        let shiftHeld = state.keypressState.isShiftPressed
+        let tabPressed = state.keypressState.isTabPressed
         
         // log("KeyModifierPressBegan: shiftHeld: \(shiftHeld)")
         // log("KeyModifierPressBegan: tabPressed: \(tabPressed)")
         
         // Ignore shift/tab if no node input field is focused.
         if let focusedField = state.graphUI.reduxFocusedField?.getTextInputEdit,
-           let node = state.getNode(focusedField.rowId.nodeId) {
+           let node = state.visibleGraph.getNode(focusedField.rowId.nodeId) {
             if shiftHeld, tabPressed {
-                state.shiftTabPressed(focusedField: focusedField, 
-                                      node: node)
+                state.visibleGraph.shiftTabPressed(focusedField: focusedField,
+                                                   node: node)
             } else if tabPressed {
-                state.tabPressed(focusedField: focusedField, 
-                                 node: node)
+                state.visibleGraph.tabPressed(focusedField: focusedField,
+                                              node: node)
             }
         }
     }
 }
 
 // TODO: more like?: `RemoveCommandKeyModifier`
-struct KeyModifierReset: GraphUIEvent {
-    func handle(state: GraphUIState) {
+struct KeyModifierReset: StitchDocumentEvent {
+    func handle(state: StitchDocumentViewModel) {
         // BAD: resets all key press state, including isSpacePressed etc.
         //        state.keypressState = .init()
 
@@ -85,18 +85,18 @@ extension StitchStore {
                         
         // log("KEY: KeyCharacterPressBegan: char: \(char)")
                 
-        guard let graphState = self.currentGraph else {
+        guard let document = self.currentDocument else {
             // log("KEY: KeyCharacterPressBegan: no graphState")
             return
         }
     
-        if graphState.graphUI.reduxFocusedField.isDefined {
+        if document.graphUI.reduxFocusedField.isDefined {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since some field is focused")
             return
         }
         
         // if insert node menu is open, ignore key presses:
-        if graphState.graphUI.insertNodeMenuState.show {
+        if document.graphUI.insertNodeMenuState.show {
             // log("KEY: KeyCharacterPressBegan: ignoring key press for char \(char) since insert node menu is open")
             return
         }
@@ -111,24 +111,24 @@ extension StitchStore {
         // we won't recalculate the graph (= won't update keyboard patch nodes).
 
         // TODO: edge-added and edge-removed logic still recalculate the graph
-        graphState.graphUI.keypressState.characters.insert(char)
+        document.keypressState.characters.insert(char)
 
-        if graphState.graphUI.edgeEditingState.isDefined {
-            graphState.keyCharPressedDuringEdgeEditingMode(char: char)
+        if document.graphUI.edgeEditingState.isDefined {
+            document.keyCharPressedDuringEdgeEditingMode(char: char)
         }
 
         // Not in edge-edit-mode, so recalc the keyboard patch nodes
         else {
-            let keyboardNodes = graphState.keyboardNodes
-            graphState.calculate(keyboardNodes)
+            let keyboardNodes = document.graph.keyboardNodes
+            document.calculate(keyboardNodes)
         }
     }
 }
 
-struct KeyCharacterPressEnded: GraphEvent {
+struct KeyCharacterPressEnded: StitchDocumentEvent {
     let char: Character
 
-    func handle(state: GraphState) {
+    func handle(state: StitchDocumentViewModel) {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
         
@@ -142,12 +142,12 @@ struct KeyCharacterPressEnded: GraphEvent {
         // NOTE: Always let key presses end, even if insert-node-menu or project settings modal is open
 
         // remove the key to the pressed-characters
-        state.graphUI.keypressState.characters.remove(char)
+        state.keypressState.characters.remove(char)
 
         // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed is now: \(graphState.graphUI.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        let keyboardNodes = state.keyboardNodes
+        let keyboardNodes = state.graph.keyboardNodes
         state.calculate(keyboardNodes)
     }
 }
