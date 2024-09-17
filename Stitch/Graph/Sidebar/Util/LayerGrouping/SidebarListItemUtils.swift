@@ -11,11 +11,18 @@ import StitchSchemaKit
 import OrderedCollections
 
 // the total height of the view, ie including padding etc.
-let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = 44
+//let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = 44
+
+// 28 is colored background; but need 4 padding?
+//let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = 28
+//let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = 32
+let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = Int(SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
 
 // Per Figma, 12 pixels to east
 // (During DragTest dev was `VIEW_HEIGHT / 2`)
-let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 12
+//let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 12
+//let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 20
+let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
 extension SidebarListItem {
     static var fakeSidebarListItem: Self {

@@ -35,7 +35,12 @@ struct SidebarListItemSwipeButton: View {
 
     private var buttonView: some View {
         HStack {
-            Image(systemName: sfImageName).padding()
+            Image(systemName: sfImageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+            
             if willLeftAlign {
                 Spacer()
             }

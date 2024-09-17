@@ -15,14 +15,18 @@ struct SidebarListItemLeftLabelView: View {
     let name: String
     let layer: Layer
     let nodeId: LayerNodeId // debug
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
     let isBeingEdited: Bool
+    let isGroup: Bool
+    let isClosed: Bool
    
-    var color: Color {
-        selection.color(isHidden)
-    }
-    
+    @State private var isBeingEditedAnimated = false
+        
     // TODO: perf: will this GraphState-reading computed variable cause SidebarListItemLeftLabelView to render too often?
     
     // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
@@ -63,57 +67,73 @@ struct SidebarListItemLeftLabelView: View {
 //#endif
     }
     
-    var label: some View {
-            Group {
-                if isBeingEdited {
-                    Text(_name)
-                        .truncationMode(.tail)
-                        #if targetEnvironment(macCatalyst)
-                        .padding(.trailing, 44)
-                        #else
-                        .padding(.trailing, 60)
-                        #endif
-                } else {
-                    Text(_name)
-                        .frame(maxHeight: .infinity, alignment: .center)
-                }
-            }
-            .lineLimit(1)
-    }
-
     var body: some View {
-      
-        if isBeingEdited {
-            labelHStack
-            // Note: color animation when resetting swipe causes the text-label to lag behind; most important color-animation case is for selecting layer-groups in sidebar, so we just limit color animation to edit-mode.
-            // TODO: how to animate color when user hides layer node via graph?
-                .animation(.linear, value: color)
-        } else {
-            labelHStack
-        }
-        
-    }
-    
-    @MainActor
-    var labelHStack: some View {
-        HStack {
+        HStack(spacing: 4) {
+//        HStack(spacing: 0) {
+            
             if masks {
                 Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
-                    .scaleEffect(1.2) // previously: 1.0 or 1.4
+//                    .scaleEffect(1.2) // previously: 1.0 or 1.4
+                    .resizable()
+                    .scaledToFit()
+                #if targetEnvironment(macCatalyst)
+                    .padding(2)
+                #else
+                    .padding(4)
+                #endif
+                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                     .foregroundColor(color)
                     .opacity(masks ? 1 : 0)
                     .animation(.linear, value: masks)
+                    // .border(.red)
             }
+            
+//            if isGroup {
+                SidebarListItemChevronView(isClosed: isClosed,
+                                           parentId: nodeId,
+                                           color: color,
+                                           isHidden: isHidden)
+                .opacity(isGroup ? 1 : 0)
+                // .border(.green)
+//            }
   
             Image(systemName: layer.sidebarLeftSideIcon)
-                .scaleEffect(1.2) // previously: 1.0 or 1.4
+                .resizable()
+                .scaledToFit()
+                .padding(2)
+                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(color)
+                // .border(.yellow)
             
             label
-                .font(SwiftUI.Font.system(size: 18))
-                .fontWeight(.bold)
                 .foregroundColor(color)
         }
+        .padding(.leading, 4)
+//        .padding(.leading, isGroup ? 4 : 0)
+        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+    }
+    
+    var label: some View {
+        Group {
+            if isBeingEdited {
+                StitchTextView(string: _name,
+                               font: SIDEBAR_LIST_ITEM_FONT,
+                               fontColor: color)
+                .truncationMode(.tail)
+#if targetEnvironment(macCatalyst)
+                .padding(.trailing, 44)
+#else
+                .padding(.trailing, 60)
+#endif
+            } else {
+                StitchTextView(string: _name,
+                               font: SIDEBAR_LIST_ITEM_FONT,
+                               fontColor: color)
+            }
+        }
+        .lineLimit(1)
     }
 }
 
@@ -122,28 +142,26 @@ struct SidebarListItemRightLabelView: View {
     let item: SidebarListItem
     let isGroup: Bool
     let isClosed: Bool
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool // is sidebar being edited?
     let isHidden: Bool
 
     @State private var isBeingEditedAnimated = false
-
+    
     var body: some View {
 
         let id = item.id.asLayerNodeId
 
         HStack(spacing: .zero) {
-            if isGroup {
-                SidebarListItemChevronView(isClosed: isClosed,
-                                           parentId: id,
-                                           selection: selection,
-                                           isHidden: isHidden)
-                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
-            }
-
+            
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(id: id,
+                                                       color: color,
                                                        selection: selection,
                                                        isHidden: isHidden,
                                                        isBeingEdited: isBeingEdited)
@@ -160,6 +178,7 @@ struct SidebarListItemRightLabelView: View {
         .stitchAnimated(willAnimateBinding: $isBeingEditedAnimated,
                         willAnimateState: isBeingEdited,
                         animation: .stitchAnimation(duration: 0.25))
+        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
     }
 }
 
@@ -173,6 +192,7 @@ struct SidebarListDragIconView: View {
 
     var body: some View {
         Image(systemName: EDIT_MODE_HAMBURGER_DRAG_ICON)
+        // TODO: Should use white if this sidebar layer is selected?
             .foregroundColor(EDIT_MODE_HAMBURGER_DRAG_ICON_COLOR)
             .scaleEffect(1.2)
             .frame(width: SIDEBAR_ITEM_ICON_LENGTH,

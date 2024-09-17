@@ -14,14 +14,14 @@ struct SidebarListItemSelectionCircleView: View {
     static let SELECTION_CIRCLE = "circle"
 
     let id: LayerNodeId
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
     let isBeingEdited: Bool
-    
-    var color: Color {
-        selection.color(isHidden)
-    }
-    
+        
     var iconName: String {
         selection.isSelected
               ? Self.SELECTION_CIRCLE_SELECTED
@@ -32,8 +32,7 @@ struct SidebarListItemSelectionCircleView: View {
         // See `SidebarListItemLeftLabelView` for note about animations
         if isBeingEdited {
             selectionCircle
-                .animation(.linear, value: color)
-                .animation(.linear, value: iconName)
+//                .animation(.linear, value: iconName)
         } else {
             selectionCircle
         }

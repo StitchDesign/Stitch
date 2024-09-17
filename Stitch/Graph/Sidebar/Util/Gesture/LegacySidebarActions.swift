@@ -62,7 +62,8 @@ struct SidebarListItemDragged: GraphEvent {
             graphState: state)
         
         // Wipe selection state
-        state.sidebarSelectionState = .init()
+//        state.sidebarSelectionState = .init()
+        state.sidebarSelectionState.resetEditModeSelections()
         
         // Recalculate the ordered-preview-layers
         state.documentDelegate?.updateOrderedPreviewLayers()

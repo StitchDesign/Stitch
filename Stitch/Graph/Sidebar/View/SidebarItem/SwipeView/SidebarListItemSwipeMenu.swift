@@ -41,6 +41,7 @@ struct SidebarListItemSwipeMenu: View {
         .animation(.stitchAnimation(duration: 0.25), value: showNonDefaultOptions)
         .disabled(swipeOffset == 0)
         .width(showNonDefaultOptions ? swipeOffset : .infinity)
+        .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
     }
 }

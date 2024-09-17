@@ -93,6 +93,7 @@ struct SidebarListItemSwipeView: View {
         }
     }
 
+    // TODO: retrieve sidebar-width via a GeometryReader on whole sidebar rather than each individual item
     var customSwipeItem: some View {
         GeometryReader { geometry in
             SidebarListItemSwipeInnerView(

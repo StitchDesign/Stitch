@@ -16,24 +16,37 @@ struct SidebarListItemChevronView: View {
 
     let isClosed: Bool
     let parentId: LayerNodeId
-    let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
 
-    var color: Color {
-        selection.color(isHidden)
+    let isHidden: Bool
+    
+    var rotationZ: CGFloat {
+        isClosed ? 0 : 90
     }
     
     var body: some View {
 
-        let rotationZ: CGFloat = isClosed ? 0 : 90
-
         Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
+            .resizable()
+            .scaledToFit()
+        
+        #if targetEnvironment(macCatalyst)
+            .padding(4)
+            .padding(.horizontal, 2)
+        #else
+            .padding(4)
+            .padding(.horizontal, 4)
+        #endif
+        
+            .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                   height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+        
             .foregroundColor(color)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
-            .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
-                   height: SIDEBAR_ITEM_ICON_LENGTH)
-            .padding(4)
+                
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {
@@ -43,7 +56,6 @@ struct SidebarListItemChevronView: View {
                 }
             }
             .animation(.linear, value: rotationZ)
-            .animation(.linear, value: color)
     }
 }
 

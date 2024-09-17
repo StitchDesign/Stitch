@@ -263,7 +263,7 @@ struct LayerInspectorInputsSectionView: View {
                     .opacity(self.isHovered ? 1 : 0)
                 
                 StitchTextView(string: sectionName.rawValue,
-                               font: stitchFont(16))
+                               font: stitchFont(18))
                     .textCase(nil)
                     .bold()
             }

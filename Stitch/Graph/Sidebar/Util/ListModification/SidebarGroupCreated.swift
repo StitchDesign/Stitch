@@ -65,7 +65,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         state.visibleGraph.updateSidebarListStateAfterStateChange()
         
         // Reset selections
-        state.visibleGraph.sidebarSelectionState.resetSelections()
+        state.visibleGraph.sidebarSelectionState.resetEditModeSelections()
         
         // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
         

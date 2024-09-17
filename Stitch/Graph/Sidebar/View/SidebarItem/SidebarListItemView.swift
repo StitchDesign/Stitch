@@ -10,6 +10,8 @@ import StitchSchemaKit
 
 struct SidebarListItemView: View {
 
+    @Environment(\.appTheme) var theme
+    
     @Bindable var graph: GraphState
     
     var item: SidebarListItem
@@ -18,6 +20,10 @@ struct SidebarListItemView: View {
     var current: SidebarDraggedItem?
     var proposedGroup: ProposedGroup?
     var isClosed: Bool
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
     let isHidden: Bool
@@ -42,28 +48,38 @@ struct SidebarListItemView: View {
         
     var body: some View {
 
-        HStack {
+        HStack(spacing: 0) {
             SidebarListItemLeftLabelView(
                 graph: graph,
                 name: name,
                 layer: layer,
                 nodeId: layerNodeId,
+                color: color,
                 selection: selection,
                 isHidden: isHidden,
-                isBeingEdited: isBeingEdited)
-                .padding(.leading)
+                isBeingEdited: isBeingEdited,
+                isGroup: item.isGroup,
+                isClosed: isClosed)
+            
+//            .padding(.leading)
+            
                 .offset(x: -swipeOffset)
             Spacer()
 
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.opacity(0.001)) // for hit area
-        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
-        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+        .contentShape(Rectangle()) // for hit area
+
+        //        .background(Color.white.opacity(0.001)) // for hit area
+//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+//        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+                
+        .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+        .background {
+            if isNonEditModeSelected || isBeingDragged {
+                theme.fontColor
+            }
+        }
         
-        //        #if DEV_DEBUG
-        //        .background(.blue.opacity(0.5)) // DEBUG
-        //        #endif
         .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
         // Note: given that we apparently must use the UIKitTappableWrapper on the swipe menu buttons,
@@ -76,7 +92,7 @@ struct SidebarListItemView: View {
         
         .overlay {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
-                .stroke(isProposedGroup ? STITCH_TITLE_FONT_COLOR : Color.clear,
+                .stroke(isProposedGroup ? theme.fontColor : Color.clear,
                         lineWidth: isProposedGroup ? 1 : 0)
         }
         .animation(.default, value: isProposedGroup)

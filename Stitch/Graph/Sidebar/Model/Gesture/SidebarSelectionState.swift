@@ -43,7 +43,7 @@ struct SidebarSelectionState: Codable, Equatable, Hashable {
         all.contains(id)
     }
 
-    mutating func resetSelections() {
+    mutating func resetEditModeSelections() {
         self.primary = SidebarSelections()
         self.secondary = SidebarSelections()
     }

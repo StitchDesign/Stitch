@@ -147,7 +147,7 @@ struct SidebarItemSelected: GraphEvent {
             // if the parent is currently selected,
             // then deselect the parent and all other children
             if state.sidebarSelectionState.isSelected(parent) {
-                state.sidebarSelectionState.resetSelections()
+                state.sidebarSelectionState.resetEditModeSelections()
                 state.sidebarSelectionState = addExclusivelyToPrimary(id, state.sidebarSelectionState)
             }
 
