@@ -83,10 +83,6 @@ struct ProjectSidebarView: View {
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
         
-//        .toolbarBackground(WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
-        
-        // Change how navigation-title is dispalty
-//        .toolbarTitleDisplayMode(.inline)
 #endif
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))
