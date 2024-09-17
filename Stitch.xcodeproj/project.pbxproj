@@ -162,6 +162,7 @@
 		B58723BB2B27894700EAB0E5 /* StitchDocumentUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */; };
 		B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */; };
 		B58AB69D2C152E4C002C63E2 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		B58B5E0E2C9909C700AC519A /* StitchDocumentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */; };
 		B58E3FC92901AA2800700656 /* Music Player.stitch in Resources */ = {isa = PBXBuildFile; fileRef = B58E3FC82901AA2800700656 /* Music Player.stitch */; };
 		B58E3FCB290357E500700656 /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58E3FCA290357E500700656 /* ToastView.swift */; };
 		B58F9C24294AE0AA00FFBF2C /* KeyPressState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */; };
@@ -1066,6 +1067,7 @@
 		B586D16627FE80B300E56106 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		B58723BA2B27894700EAB0E5 /* StitchDocumentUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentUtil.swift; sourceTree = "<group>"; };
 		B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeEntity.swift; sourceTree = "<group>"; };
+		B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchDocumentViewModel.swift; sourceTree = "<group>"; };
 		B58E3FC82901AA2800700656 /* Music Player.stitch */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Music Player.stitch"; sourceTree = "<group>"; };
 		B58E3FCA290357E500700656 /* ToastView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToastView.swift; sourceTree = "<group>"; };
 		B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyPressState.swift; sourceTree = "<group>"; };
@@ -3096,6 +3098,7 @@
 				8B77BA782713CED300255C40 /* GraphUI.swift */,
 				B57F3A7F2946CE4700DFC0AE /* VisibleNodesViewModel.swift */,
 				B57967512B5F2BF8007F5F24 /* SchemaObserver.swift */,
+				B58B5E0D2C9909C700AC519A /* StitchDocumentViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4557,6 +4560,7 @@
 				EC1E7A6B287CCC8A00144D05 /* NodeKindUtils.swift in Sources */,
 				EC83D8922926E1CB00255311 /* GraphUIScrollActions.swift in Sources */,
 				20308F9B25AD1721008CE3BE /* Redux.swift in Sources */,
+				B58B5E0E2C9909C700AC519A /* StitchDocumentViewModel.swift in Sources */,
 				ECFC975D29679930000414C4 /* BouncyConverterNode.swift in Sources */,
 				EC560E0D293A773D00350046 /* LoopDedupeNode.swift in Sources */,
 				B5EFD61A2C1134EC006F5E7F /* MediaLayerViewModifier.swift in Sources */,
