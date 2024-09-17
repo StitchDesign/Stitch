@@ -233,22 +233,18 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
     
     public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
         // Share location, saved here due to static helpers for sharing
-        public var saveLocation: ComponentSaveLocation
-        public var id = UUID()
-        public var nodes: [NodeEntity]
-        public var orderedSidebarLayers: [SidebarLayerData]
-        public let lastModifiedDate: Date
+//        public var saveLocation: ComponentSaveLocation
+        public var graph: GraphEntity
+//        public let lastModifiedDate: Date
+        public let version: Int
         
-        public init(id: UUID = UUID(),
-                    saveLocation: ComponentSaveLocation,
-                    nodes: [NodeEntity],
-                    orderedSidebarLayers: [SidebarLayerData],
-                    lastModifiedDate: Date) {
-            self.id = id
-            self.saveLocation = saveLocation
-            self.nodes = nodes
-            self.orderedSidebarLayers = orderedSidebarLayers
-            self.lastModifiedDate = lastModifiedDate
+        public init(graph: GraphEntity,
+//                    lastModifiedDate: Date,
+                    version: Int) {
+//            self.saveLocation = saveLocation
+            self.graph = graph
+//            self.lastModifiedDate = lastModifiedDate
+            self.version = version
         }
         
         public init(previousInstance: Self) {
@@ -257,13 +253,36 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
     }
 }
 
+public struct GraphEntity: Codable, Equatable {
+    public var id: UUID
+    public var name: String
+    public var nodes: [NodeEntity]
+    public var orderedSidebarLayers: [SidebarLayerData]
+    public let commentBoxes: [CommentBoxData]
+    public let draftedComponents: [StitchComponent]
+    
+    init(id: UUID,
+         name: String,
+         nodes: [NodeEntity],
+         orderedSidebarLayers: [SidebarLayerData],
+         commentBoxes: [CommentBoxData],
+         draftedComponents: [StitchComponent]) {
+        self.id = id
+        self.name = name
+        self.nodes = nodes
+        self.orderedSidebarLayers = orderedSidebarLayers
+        self.commentBoxes = commentBoxes
+        self.draftedComponents = draftedComponents
+    }
+}
+
 public enum StitchDocument_V24: StitchSchemaVersionable {
     public static let version = StitchSchemaVersion._V24
     
     public struct StitchDocument: StitchVersionedCodable, Equatable {
-        public var projectId: ProjectId
-        public var name: String
-        
+        // Node data
+        public var graph: GraphEntity
+
         // Preview window
         public let previewWindowSize: CGSize
         public let previewSizeDevice: PreviewSize
@@ -273,34 +292,21 @@ public enum StitchDocument_V24: StitchSchemaVersionable {
         public let localPosition: CGPoint
         public let zoomData: CGFloat
         
-        // Node data
-        public var nodes: [NodeEntity]
-        public var orderedSidebarLayers: [SidebarLayerData]
-        public let commentBoxes: [CommentBoxData]
-        
         public let cameraSettings: CameraSettings
         
-        public init(projectId: ProjectId,
-                    name: String,
+        public init(graph: GraphEntity,
                     previewWindowSize: CGSize,
                     previewSizeDevice: PreviewSize,
                     previewWindowBackgroundColor: Color,
                     localPosition: CGPoint,
                     zoomData: CGFloat,
-                    nodes: [NodeEntity],
-                    orderedSidebarLayers: [SidebarLayerData],
-                    commentBoxes: [CommentBoxData],
                     cameraSettings: CameraSettings) {
-            self.projectId = projectId
-            self.name = name
+            self.graph = graph
             self.previewWindowSize = previewWindowSize
             self.previewSizeDevice = previewSizeDevice
             self.previewWindowBackgroundColor = previewWindowBackgroundColor
             self.localPosition = localPosition
             self.zoomData = zoomData
-            self.nodes = nodes
-            self.orderedSidebarLayers = orderedSidebarLayers
-            self.commentBoxes = commentBoxes
             self.cameraSettings = cameraSettings
         }
         

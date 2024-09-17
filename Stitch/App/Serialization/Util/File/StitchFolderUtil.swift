@@ -28,7 +28,7 @@ struct DocumentsURL: Equatable, Codable {
     typealias Id = Tagged<DocumentsURL, URL>
 }
 
-extension StitchDocumentIdentifiable {
+extension StitchDocumentEncodable {
     var componentsDirUrl: URL {
         self.rootUrl.appending(component: URL.componentsDirPath)
     }

@@ -18,7 +18,7 @@ enum DocumentLoadingStatus: Sendable {
     case initialized
     case failed
     case loading
-    case loaded(StitchDocumentData)
+    case loaded(StitchDocument)
 }
 
 extension DocumentLoadingStatus: Hashable {

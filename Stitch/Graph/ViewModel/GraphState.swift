@@ -14,6 +14,29 @@ import StitchSchemaKit
 import SwiftUI
 import Vision
 
+// TODO: move
+final class ComponentGraphState {
+    let saveLocation: ComponentSaveLocation
+    let graph: GraphState
+    let version: Int
+    
+    let documentEncoder: ComponentEncoder
+    
+    @MainActor
+    init(from schema: StitchComponent,
+         saveLocation: ComponentSaveLocation) {
+        self.saveLocation = saveLocation
+        self.version = schema.version
+        self.graph = .init(from: schema.graph)
+        self.documentEncoder = .init(component: schema,
+                                     saveLocation: saveLocation)
+    }
+}
+
+extension ComponentGraphState {
+    
+}
+
 @Observable
 final class GraphState: Sendable {
     
@@ -24,7 +47,7 @@ final class GraphState: Sendable {
     // Should be added to StitchDocument, since we remember which groups are open vs collapsed.
     //    var sidebarExpandedItems = LayerIdSet() // should be persisted
     
-    let documentEncoder: DocumentEncoder
+//    let documentEncoder: DocumentEncoder
 
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME
@@ -48,7 +71,10 @@ final class GraphState: Sendable {
     var orderedSidebarLayers: SidebarLayerList = []
     
     // Encoded copies of local published components
-    var publishedDocumentComponents: [StitchComponent]
+    var publishedDocumentComponents: [StitchComponent] = []
+    
+    // Drafted copies of components
+    var draftedComponents: [UUID: ComponentGraphState] = [:]
 
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
@@ -59,27 +85,45 @@ final class GraphState: Sendable {
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
     weak var documentDelegate: StitchDocumentViewModel?
+    weak var documentEncoderDelegate: (any DocumentEncodable)?
 
-    init(from data: StitchDocumentData) {
-        let schema = data.document
-
-        self.documentEncoder = .init(data: data)
+    @MainActor init(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
-        self.publishedDocumentComponents = data.publishedDocumentComponents
         self.commentBoxesDict.sync(from: schema.commentBoxes)
-
-        // MARK: important we don't initialize nodes until after media is estbalished
-        DispatchQueue.main.async { [weak self] in
-            if let graph = self {
-                dispatch(GraphInitialized(graph: graph,
-                                          data: data))
+        self.draftedComponents = schema.draftedComponents
+            .reduce(into: [UUID: ComponentGraphState]()) { result, componentEntity in
+                let componentGraph = ComponentGraphState(from: componentEntity,
+                                                         saveLocation: .document)
             }
-        }
+        
+        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes)
+        
+//        // MARK: important we don't initialize nodes until after media is estbalished
+//        DispatchQueue.main.async { [weak self] in
+//            if let graph = self {
+//                dispatch(GraphInitialized(graph: graph,
+//                                          data: data))
+//            }
+//        }
     }
     
-    func initializeDelegate(document: StitchDocumentViewModel) {
+    @MainActor func initializeDelegate(document: StitchDocumentViewModel,
+                                       documentEncoderDelegate: any DocumentEncodable) {
         self.documentDelegate = document
+        self.documentEncoderDelegate = documentEncoderDelegate
+        self.nodes.values.forEach { $0.initializeDelegate(graph: self) }
+        
+        // Set up component graphs
+        self.draftedComponents.values.forEach {
+            $0.graph.initializeDelegate(document: document,
+                                        documentEncoderDelegate: $0.documentEncoder)
+        }
+        
+        // Get media + encoded component files after view models are established
+        Task(priority: .high) { [weak self] in
+            await self?.documentEncoderDelegate?.graphInitialized()
+        }
     }
 }
 
@@ -197,7 +241,7 @@ extension GraphState: GraphDelegate {
 //    }
 
 extension GraphState {
-    @MainActor func createSchema() -> StitchDocumentData {
+    @MainActor func createSchema() -> GraphEntity {
         assertInDebug(self.documentDelegate != nil)
         let documentDelegate = self.documentDelegate ?? .createEmpty()
         
@@ -205,20 +249,30 @@ extension GraphState {
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
 
-        let doc =  StitchDocument(projectId: self.projectId,
+        let draftedComponents = self.draftedComponents.values
+            .map { componentGraph in
+                let graphEntity = componentGraph.graph.createSchema()
+                let component = StitchComponent(graph: graphEntity,
+                                                version: componentGraph.version)
+                return component
+        }
+        
+        let graph = GraphEntity(id: self.projectId,
                                 name: documentDelegate.projectName,
-                                previewWindowSize: documentDelegate.previewWindowSize,
-                                previewSizeDevice: documentDelegate.previewSizeDevice,
-                                previewWindowBackgroundColor: documentDelegate.previewWindowBackgroundColor,
-                                // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
-                                localPosition: documentDelegate.localPositionToPersist,
-                                zoomData: documentDelegate.graphMovement.zoomData.zoom,
                                 nodes: nodes,
                                 orderedSidebarLayers: self.orderedSidebarLayers,
                                 commentBoxes: commentBoxes,
-                                cameraSettings: documentDelegate.cameraSettings)
-        return .init(document: doc,
-                     publishedDocumentComponents: self.publishedDocumentComponents)
+                                draftedComponents: draftedComponents)
+        return graph
+    }
+    
+    @MainActor func update(from schema: GraphEntity) {
+        self.id = schema.id
+        self.name = schema.name
+        self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes)
+        
+        // TODO: comment boxes
     }
     
     @MainActor func onPrototypeRestart() {
@@ -282,6 +336,12 @@ extension GraphState {
             }
     }
     
+    var allGraphs: [GraphState] {
+        [self] + self.draftedComponents.values.flatMap {
+            $0.graph.allGraphs
+        }
+    }
+    
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
     @MainActor
     var highestZIndex: Double {
@@ -294,46 +354,22 @@ extension GraphState {
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
-        guard let documentLoader = self.storeDelegate?.documentLoader else {
+        guard let documentViewModel = self.documentDelegate else {
             fatalErrorIfDebug()
             return
         }
         
-        let data = self.createSchema()
-        
-        Task(priority: .background) { [weak documentLoader, weak self] in
-            guard let documentLoader = documentLoader else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            let _ = await self?.documentEncoder.encodeProject(data,
-                                                              temporaryURL: temporaryURL,
-                                                              documentLoader: documentLoader)
-        }
+        documentViewModel.encodeProjectInBackground()
     }
     
     @MainActor
     func encodeProject(temporaryURL: DocumentsURL? = nil) {
-        let data = self.createSchema()
-
-        // Update nodes data
-        self.updateGraphData(document: data.document)
-
-        Task(priority: .background) { [weak self] in
-            guard let documentLoader = self?.storeDelegate?.documentLoader else {
-                return
-            }
-            
-            switch await self?.documentEncoder.encodeProject(data,
-                                                             temporaryURL: temporaryURL,
-                                                             documentLoader: documentLoader) {
-            case .success, .none:
-                return
-            case .failure(let error):
-                log("GraphState.encodeProject error: \(error)")
-            }
+        guard let documentViewModel = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
         }
+        
+        documentViewModel.encodeProject(temporaryURL: temporaryURL)
     }
     
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
@@ -582,7 +618,11 @@ extension GraphState {
     }
     
     @MainActor static func createEmpty() -> GraphState {
-        .init(from: .init(document: .init(),
-                          publishedDocumentComponents: []))
+        .init(from: .init(id: .init(),
+                          name: STITCH_PROJECT_DEFAULT_NAME,
+                          nodes: [],
+                          orderedSidebarLayers: [],
+                          commentBoxes: [],
+                          draftedComponents: [])
     }
 }

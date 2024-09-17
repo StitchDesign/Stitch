@@ -73,7 +73,7 @@ struct ProjectsListItemView: View {
     let documentLoader: DocumentLoader
     let namespace: Namespace.ID
 
-    var data: StitchDocumentData? {
+    var document: StitchDocument? {
         switch projectLoader.loadingDocument {
         case .loaded(let data):
             return data
@@ -91,13 +91,13 @@ struct ProjectsListItemView: View {
                 ProjectsListItemIconView(projectThumbnail: nil,
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
-            case .loaded(let data):
+            case .loaded(let document):
                 #if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: data.document.getProjectThumbnailImage(),
-                    previewWindowBackgroundColor: data.document.previewWindowBackgroundColor,
+                    projectThumbnail: document.getProjectThumbnailImage(),
+                    previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
                         dispatch(ProjectTapped(documentURL: projectLoader.url))
@@ -126,7 +126,7 @@ struct ProjectsListItemView: View {
         .onDisappear {
             self.projectLoader.loadingDocument = .initialized
         }
-        .projectContextMenu(data: data,
+        .projectContextMenu(document: document,
                             url: projectLoader.url)
         .animation(.stitchAnimation, value: projectLoader.loadingDocument)
     }

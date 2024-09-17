@@ -61,9 +61,7 @@ extension VisibleNodesViewModel {
     /// 1. Create, update, and delete all node view models
     /// 2. Returns the specific list of view models to be visible.
     @MainActor
-    func updateSchemaData(newNodes: [NodeEntity],
-                          activeIndex: ActiveIndex,
-                          graphDelegate: GraphDelegate) {
+    func updateNodeSchemaData(newNodes: [NodeEntity]) {
 
         let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
             result.updateValue(schema, forKey: schema.id)
@@ -82,17 +80,13 @@ extension VisibleNodesViewModel {
 
         // Initialize node view data starting with groups
         self.updateNodesPagingDict(nodesDict: allNodesDict,
-                                   existingNodePages: existingNodePages,
-                                   activeIndex: activeIndex,
-                                   graphDelegate: graphDelegate)
+                                   existingNodePages: existingNodePages)
     }
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
     func updateNodesPagingDict(nodesDict: NodeEntityDict,
-                               existingNodePages: NodesPagingDict,
-                               activeIndex: ActiveIndex,
-                               graphDelegate: GraphDelegate) {
+                               existingNodePages: NodesPagingDict) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
@@ -117,11 +111,7 @@ extension VisibleNodesViewModel {
                     $0.containsDownstreamConnection = false
                 }
             } else {
-                let newNode: NodeViewModel = .createNodeViewModelFromSchema(
-                    schema,
-                    activeIndex: activeIndex,
-                    graphDelegate: graphDelegate)
-
+                let newNode = NodeViewModel(from: schema)
                 nodes.updateValue(newNode,
                                   forKey: newNode.id)
             }

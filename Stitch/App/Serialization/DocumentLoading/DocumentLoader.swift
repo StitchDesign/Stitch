@@ -63,7 +63,7 @@ actor DocumentLoader {
                                   isNonICloudDocumentsFile: Bool = false) async -> DocumentLoadingStatus {
         // Need to be kept for when first renders on screen.
         do {
-            guard let document = try await StitchDocumentData.openDocument(
+            guard let document = try await StitchDocument.openDocument(
                 from: url,
                 isImport: isImport,
                 isNonICloudDocumentsFile: isNonICloudDocumentsFile) else {
@@ -110,12 +110,12 @@ extension DocumentLoader {
 //        try Self.encodeDocument(document, to: directoryUrl)
 //    }
     
-    static func encodeDocument(_ document: StitchDocumentData) throws {
-        try Self.encodeDocument(document, to: document.document.rootUrl)
+    static func encodeDocument(_ document: StitchDocument) throws {
+        try Self.encodeDocument(document, to: document.rootUrl)
     }
     
     static func encodeDocument<Document>(_ document: Document,
-                                         to directoryURL: URL) throws where Document: MediaDocumentEncodable {
+                                         to directoryURL: URL) throws where Document: StitchDocumentEncodable {
         // Default directory is known by document, sometimes we use a temp URL
         let directoryURL = document.getEncodingUrl(documentRootUrl: directoryURL)
         

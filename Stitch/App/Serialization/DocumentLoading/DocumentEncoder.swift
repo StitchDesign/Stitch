@@ -8,36 +8,34 @@
 import SwiftUI
 import StitchSchemaKit
 
-actor DocumentEncoder {
-    // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedData: StitchDocumentData
+protocol DocumentEncodable: Actor {
+    associatedtype CodableDocument: StitchDocumentEncodable & Sendable
     
-    init(data: StitchDocumentData) {
-        self.lastEncodedData = data
-    }
+    var lastEncodedDocument: CodableDocument { get set }
     
-    func encodeProject(_ data: StitchDocumentData,
-                       temporaryURL: DocumentsURL? = nil,
-                       documentLoader: DocumentLoader) async -> StitchFileVoidResult {
-        let rootDocUrl = temporaryURL?.url ?? data.document.rootUrl
+    var rootUrl: URL { get }
+}
+
+extension DocumentEncodable {
+    func encodeProject(_ document: Self.CodableDocument,
+                       temporaryURL: DocumentsURL? = nil) async -> StitchFileVoidResult {
+        let rootDocUrl = temporaryURL?.url ?? self.rootUrl
         
         do {
             // Encode document
-            try DocumentLoader.encodeDocument(data.document,
+            try DocumentLoader.encodeDocument(document,
                                               to: rootDocUrl)
             
-            // Encode document-level published components
-            for component in data.publishedDocumentComponents {
-                try DocumentLoader.encodeDocument(component,
-                                                        to: rootDocUrl)
-            }
+//            // Encode document-level published components
+//            for component in data.publishedDocumentComponents {
+//                try DocumentLoader.encodeDocument(component,
+//                                                  to: rootDocUrl)
+//            }
             
             log("encodeProject success")
 
             // Save data for last encoded document
-            await MainActor.run { [weak self] in
-                self?.lastEncodedData = data
-            }
+            self.lastEncodedDocument = document
             
             // Gets home screen to update with latest doc version
             await dispatch(DirectoryUpdated())
@@ -48,5 +46,36 @@ actor DocumentEncoder {
             fatalErrorIfDebug()
             return .failure(.versionableContainerEncodingFailed)
         }
+    }
+}
+
+//extension StitchDocument: StitchDocumentEncodable {
+//    func getEncodingUrl(documentRootUrl: URL) -> URL {
+//        <#code#>
+//    }
+//}
+
+actor DocumentEncoder: DocumentEncodable {
+    // Keeps track of last saved StitchDocument to disk
+    @MainActor var lastEncodedDocument: StitchDocument
+    
+    var rootUrl: URL
+    
+    init(document: StitchDocument) {
+        self.lastEncodedDocument = document
+        self.rootUrl = document.rootUrl
+    }
+}
+
+actor ComponentEncoder: DocumentEncodable {
+    // Keeps track of last saved StitchDocument to disk
+    @MainActor var lastEncodedDocument: StitchComponent
+    
+    var rootUrl: URL
+    
+    init(component: StitchComponent,
+         saveLocation: ComponentSaveLocation) {
+        self.lastEncodedDocument = component
+        self.rootUrl = saveLocation.rootUrl
     }
 }

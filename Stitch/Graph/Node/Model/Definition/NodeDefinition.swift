@@ -82,14 +82,12 @@ extension NodeDefinition {
                                 position: CGPoint,
                                 zIndex: CGFloat,
                                 parentGroupNodeId: GroupNodeId? = nil,
-                                activeIndex: ActiveIndex,
                                 graphDelegate: GraphDelegate?) -> NodeViewModel {
         NodeViewModel(from: Self.self,
                       id: id,
                       position: position,
                       zIndex: zIndex,
                       parentGroupNodeId: parentGroupNodeId,
-                      activeIndex: activeIndex,
                       graphDelegate: graphDelegate)
     }
 

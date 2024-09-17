@@ -22,7 +22,6 @@ final class NodeViewModel: Sendable {
     static let nilChoice = SplitterPatchNode.createViewModel(
         position: .zero,
         zIndex: .zero,
-        activeIndex: .init(.zero),
         graphDelegate: nil)
 
     var id: NodeEntity.ID
@@ -51,16 +50,6 @@ final class NodeViewModel: Sendable {
     // aka reference to a limited subset of GraphState properties
     weak var graphDelegate: GraphDelegate?
 
-    @MainActor
-    static func createNodeViewModelFromSchema(_ nodeSchema: NodeEntity,
-                                              activeIndex: ActiveIndex,
-                                              graphDelegate: GraphDelegate) -> NodeViewModel {
-        let node = NodeViewModel(from: nodeSchema,
-                                 activeIndex: activeIndex)
-        node.initializeDelegate(graph: graphDelegate)
-        return node
-    }
-
     /// Called on initialization or prototype restart.
     @MainActor
     func createEphemeralObservers() {
@@ -71,8 +60,7 @@ final class NodeViewModel: Sendable {
     
     // i.e. "create node view model from schema
     @MainActor
-    init(from schema: NodeEntity,
-         activeIndex: ActiveIndex) {
+    init(from schema: NodeEntity) {
         self.id = schema.id
         self.title = schema.title
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
@@ -83,10 +71,8 @@ final class NodeViewModel: Sendable {
     
     @MainActor
     convenience init(from schema: NodeEntity,
-                     activeIndex: ActiveIndex,
                      graphDelegate: GraphDelegate) {
-        self.init(from: schema,
-                  activeIndex: activeIndex)
+        self.init(from: schema)
         self.initializeDelegate(graph: graphDelegate)
     }
 }

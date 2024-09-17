@@ -33,7 +33,8 @@ struct CloseGraph: StitchStoreEvent {
 extension GraphState {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        data: StitchDocumentData) {
+                                        publishedComponents: [URL],
+                                        data: StitchDocument) {
 
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded

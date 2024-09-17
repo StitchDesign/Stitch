@@ -39,9 +39,9 @@ final class StitchFileManager: FileManager, MiddlewareService {
         return .success
     }
 
-    static func removeStitchMedia(at URL: URL,
-                                  currentProject: StitchDocumentIdentifiable,
-                                  permanently: Bool = false) async -> StitchFileVoidResult {
+    static func removeStitchMedia<Document>(at URL: URL,
+                                            currentProject: Document,
+                                            permanently: Bool = false) async -> StitchFileVoidResult where Document: StitchDocumentEncodable {
         if !permanently {
             // Copy file to recentely deleted URL
             let _ = await self.copyToMediaDirectory(originalURL: URL,
@@ -111,9 +111,9 @@ final class StitchFileManager: FileManager, MiddlewareService {
         return .success
     }
 
-    static func getMediaURL(for mediaKey: MediaKey,
-                            document: StitchDocumentIdentifiable,
-                            forRecentlyDeleted: Bool) -> URLResult {
+    static func getMediaURL<Document>(for mediaKey: MediaKey,
+                                      document: Document,
+                                      forRecentlyDeleted: Bool) -> URLResult where Document: StitchDocumentEncodable {
 
         let importedFiles = Self.readMediaFilesDirectory(document: document,
                                                          forRecentlyDeleted: forRecentlyDeleted)

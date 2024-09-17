@@ -10,27 +10,25 @@ import StitchSchemaKit
 
 //extension GraphState: StitchDocumentIdentifiable { }
 
-extension DocumentEncoder {
+extension DocumentEncodable {
     func deleteMediaFromNode(mediaKey: MediaKey) async {
         switch await StitchFileManager.getMediaURL(for: mediaKey,
-                                                   document: self.lastEncodedData.document,
+                                                   document: self.lastEncodedDocument,
                                                    forRecentlyDeleted: false) {
         case .success(let url):
             let _ = await StitchFileManager.removeStitchMedia(at: url,
-                                                              currentProject: self.lastEncodedData.document)
+                                                              currentProject: self.lastEncodedDocument)
 
         case .failure(let error):
             // Silently report error
             log("deleteMediaFromNodeEffect error: could not find library substate with error: \(error)")
         }
     }
-}
 
-extension GraphState {
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func graphInitialized(data: StitchDocumentData) async {
+    func graphInitialized() async {
         let importedFilesDir = await StitchFileManager
-            .getAllMediaURLs(in: data.document.getImportedFilesURL())
+            .getAllMediaURLs(in: self.lastEncodedDocument.getImportedFilesURL())
 
         // Start graph once library is built
         await MainActor.run { [weak self] in

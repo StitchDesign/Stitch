@@ -7,13 +7,15 @@
 
 import Foundation
 
-protocol MediaDocumentEncodable: Codable {
+/// Used for `StitchDocument` and `StitchComponent`
+protocol StitchDocumentEncodable: Codable, Identifiable {
 //    var rootUrl: URL { get }
+    var id: UUID { get }
     func getEncodingUrl(documentRootUrl: URL) -> URL
     static var fileWrapper: FileWrapper { get }
 }
 
-extension MediaDocumentEncodable {
+extension StitchDocumentEncodable {
     /// Initializer used for a new project, which creates file paths for contents like media.
     func encodeDocumentContents(documentRootUrl: URL) async {
         // Creates new paths with subfolders if relevant (i.e. components)

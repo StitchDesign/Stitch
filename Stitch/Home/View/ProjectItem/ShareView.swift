@@ -13,7 +13,7 @@ import StitchSchemaKit
 struct ShareViewModifier: ViewModifier {
     @State private var isProjectLoaded = false
     @State private var sharableURL: URL?
-    let data: StitchDocumentData?
+    let document: StitchDocument?
     @Binding var willPresent: Bool
 
     func body(content: Content) -> some View {
@@ -27,7 +27,7 @@ struct ShareViewModifier: ViewModifier {
                     ]
                 )
             }
-            .onChange(of: data) {
+            .onChange(of: document) {
                 self.updateShareSheet()
             }
             .onChange(of: willPresent) {
@@ -39,10 +39,10 @@ struct ShareViewModifier: ViewModifier {
     } // var body
 
     func updateShareSheet() {
-        if let document = self.data,
+        if let document = self.document,
            willPresent {
             Task(priority: .high) {
-                let newUrl = await StitchDocumentData.exportDocument(document).file
+                let newUrl = await StitchDocument.exportDocument(document).file
 
                 await MainActor.run {
                     self.sharableURL = newUrl
@@ -79,13 +79,13 @@ struct ActivityViewController: UIViewControllerRepresentable {
 
 struct StitchDocumentShareButton: View {
     @Binding var willPresentShareSheet: Bool
-    let data: StitchDocumentData
+    let document: StitchDocument
 
     var body: some View {
         // MARK: ShareLink broken on iPad
         #if targetEnvironment(macCatalyst)
-        ShareLink(item: data,
-                  preview: SharePreview(data.document.name)) {
+        ShareLink(item: document,
+                  preview: SharePreview(document.name)) {
             Label("Share", systemImage: "square.and.arrow.up")
         }
         #else
@@ -126,21 +126,21 @@ extension StitchStore {
     } // do
      ```
      */
-    func copyExistingProject(_ data: StitchDocumentData) async -> StitchFileVoidResult {
-        var data = data
-        data.document.projectId = .init()
-        data.document.name += " copy"
+    func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
+        var document = document
+        document.graph.id = .init()
+        document.graph.name += " copy"
         
         let subfolders: [URL] = [
-            data.document.getProjectThumbnailURL(),
-            data.document.getImportedFilesURL(),
-            data.document.componentsDirUrl
+            document.getProjectThumbnailURL(),
+            document.getImportedFilesURL(),
+            document.componentsDirUrl
         ]
 
         do {
             // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-            try await self.documentLoader.installDocument(document: data.document)
-            try DocumentLoader.encodeDocument(data)
+            try await self.documentLoader.installDocument(document: document)
+            try DocumentLoader.encodeDocument(document)
             
             try subfolders.forEach {
                 try FileManager.default.copyItem(at: $0, to: $0)
@@ -158,19 +158,19 @@ struct ProjectContextMenuModifer: ViewModifier {
     @Environment(StitchStore.self) private var store
     @State var willPresentShareSheet = false
 
-    let data: StitchDocumentData?
+    let document: StitchDocument?
     let url: URL
 
     func body(content: Content) -> some View {
         return content
             .contextMenu {
-                if let data = data {
+                if let document = document {
                     StitchDocumentShareButton(willPresentShareSheet: $willPresentShareSheet,
-                                              data: data)
+                                              document: document)
                     
                     StitchButton(action: {
                         Task { [weak store] in
-                            await store?.copyExistingProject(data)
+                            await store?.copyExistingProject(document)
                         }
                     }, label: {
                         Text("Duplicate")
@@ -182,7 +182,7 @@ struct ProjectContextMenuModifer: ViewModifier {
                     StitchButton(role: .destructive,
                                  action: {
                         // log("ProjectContextMenuModifier: will attempt to delete URL: \(projectURL)")
-                        dispatch(ProjectDeleted(data: data))
+                        dispatch(ProjectDeleted(document: document))
                     }, label: {
                         Text("Delete")
                         Image(systemName: "trash")
@@ -206,9 +206,9 @@ struct ProjectContextMenuModifer: ViewModifier {
 }
 
 extension View {
-    func projectContextMenu(data: StitchDocumentData?,
+    func projectContextMenu(document: StitchDocument?,
                             url: URL) -> some View {
-        self.modifier(ProjectContextMenuModifer(data: data,
+        self.modifier(ProjectContextMenuModifer(document: document,
                                                 url: url))
     }
 }

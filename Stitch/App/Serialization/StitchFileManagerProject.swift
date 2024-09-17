@@ -20,8 +20,8 @@ extension StitchFileManager {
         return allMedia
     }
 
-    static func readMediaFilesDirectory(document: StitchDocumentIdentifiable,
-                                        forRecentlyDeleted: Bool) -> [URL] {
+    static func readMediaFilesDirectory<Document>(document: Document,
+                                                  forRecentlyDeleted: Bool) -> [URL] where Document: StitchDocumentEncodable {
         // Assumes usage of DocumentsURL
         let mediaDirectory = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
         return self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
@@ -38,10 +38,10 @@ extension StitchFileManager {
         }
     }
 
-    static func copyToMediaDirectory(originalURL: URL,
-                                     in document: StitchDocumentIdentifiable,
-                                     forRecentlyDeleted: Bool,
-                                     customMediaKey: MediaKey? = nil) async -> URLResult {
+    static func copyToMediaDirectory<Document>(originalURL: URL,
+                                               in document: Document,
+                                               forRecentlyDeleted: Bool,
+                                               customMediaKey: MediaKey? = nil) async -> URLResult where Document: StitchDocumentEncodable {
         let importedFilesURL = document.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
         return await Self.copyToMediaDirectory(originalURL: originalURL,
                                                importedFilesURL: importedFilesURL,

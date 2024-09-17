@@ -39,7 +39,7 @@ struct StitchRootModifier: ViewModifier {
                 
                 else if url.pathExtension == UTType.stitchDocument.preferredFilenameExtension {
                     Task { [weak store] in
-                        guard let importedDoc = try? await StitchDocumentData
+                        guard let importedDoc = try? await StitchDocument
                             .openDocument(from: url,
                                           isImport: true) else {
                             return
@@ -48,7 +48,7 @@ struct StitchRootModifier: ViewModifier {
                     }
                 }
             } // .onOpenURL
-            .dropDestination(for: StitchDocumentData.self) { docs, _ in
+            .dropDestination(for: StitchDocument.self) { docs, _ in
                 // Only open document if one is imported
                 if docs.count == 1,
                    let firstDoc = docs.first {

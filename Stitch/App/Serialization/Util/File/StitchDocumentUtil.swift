@@ -12,7 +12,9 @@ import UniformTypeIdentifiers
 import ZIPFoundation
 
 extension StitchDocument: Identifiable {
-    public var id: ProjectId { self.projectId }
+    public var id: ProjectId { self.graph.id }
+    
+    var name: String { self.graph.name}
 }
 
 enum StitchDocumentError: Error {
@@ -27,31 +29,37 @@ extension UTType {
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
-extension StitchDocumentData: StitchDocumentIdentifiable {
-    var projectId: UUID {
-        self.document.projectId
-    }
-}
+//extension StitchDocumentData: StitchDocumentIdentifiable {
+//    var projectId: UUID {
+//        self.document.projectId
+//    }
+//}
 
-extension StitchDocument: StitchDocumentIdentifiable {
+extension StitchDocument: StitchDocumentEncodable {
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Don't append anything to parameter
+        documentRootUrl
+    }
+    
     init(nodes: [NodeEntity] = []) {
-        self.init(projectId: ProjectId(),
-                  name: STITCH_PROJECT_DEFAULT_NAME,
+        self.init(graph: .init(id: .init(),
+                               name: STITCH_PROJECT_DEFAULT_NAME,
+                               nodes: nodes,
+                               orderedSidebarLayers: [],
+                               commentBoxes: [],
+                               draftedComponents: []),
                   previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                   previewSizeDevice: PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
                   previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR,
                   localPosition: .zero,
                   zoomData: 1,
-                  nodes: nodes,
-                  orderedSidebarLayers: [],
-                  commentBoxes: .init(),
                   cameraSettings: .init())
     }
     
     static let graphDataFileName = "data"
 }
 
-extension StitchDocumentIdentifiable {
+extension StitchDocumentEncodable {
     static func getUniqueInternalDirectoryName(from id: UUID) -> String {
         Self.getFileName(projectId: id)
     }
@@ -75,7 +83,7 @@ extension StitchDocumentIdentifiable {
 
     /// URL location for document contents, i.e. imported media
     var rootUrl: URL {
-        Self.getRootUrl(from: self.projectId)
+        Self.getRootUrl(from: self.id)
     }
     
     func getEncodingUrl(documentRootUrl: URL) -> URL {
@@ -85,7 +93,7 @@ extension StitchDocumentIdentifiable {
 
     /// URL location for recently deleted project.
     private var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.projectId)
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
     }
 
     func getUrl(forRecentlyDeleted: Bool = false) -> URL {
@@ -96,21 +104,25 @@ extension StitchDocumentIdentifiable {
     }
 }
 
-protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
-    var projectId: UUID { get }
-}
+//protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
+//    var projectId: UUID { get }
+//}
 
 // TODO: move
 /// Data structure representing all saved files for some project.
 /// Components are not defined in `StitchDocument` as they are managed in separate files.
-struct StitchDocumentData: Equatable {
-    var document: StitchDocument
-    
-    // final copies of components--only updated on user publish
-    let publishedDocumentComponents: [StitchComponent]
-}
+//struct StitchDocumentData: Equatable {
+//    var document: StitchDocument
+//    
+//    // final copies of components--only updated on user publish
+//    let publishedDocumentComponents: [StitchComponent]
+//}
 
-extension StitchComponent: MediaDocumentEncodable {
+extension StitchComponent: StitchDocumentEncodable {
+    public var id: UUID {
+        self.graph.id
+    }
+    
     func getEncodingUrl(documentRootUrl: URL) -> URL {
         documentRootUrl.appendingComponentsPath()
     }
@@ -142,14 +154,14 @@ extension StitchComponent {
     }
 }
 
-extension StitchDocumentData: MediaDocumentEncodable {
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        // Don't append anything to parameter
-        documentRootUrl
-    }
-}
+//extension GraphEntity: MediaDocumentEncodable {
+//    func getEncodingUrl(documentRootUrl: URL) -> URL {
+//        // Don't append anything to parameter
+//        documentRootUrl
+//    }
+//}
 
-extension StitchDocumentData: Transferable, Sendable {
+extension StitchDocument: Transferable, Sendable {
     public static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(contentType: .stitchDocument,
                            exporting: Self.exportDocument,
@@ -157,11 +169,10 @@ extension StitchDocumentData: Transferable, Sendable {
     }
 
     @Sendable
-    static func exportDocument(_ data: StitchDocumentData) async -> SentTransferredFile {
+    static func exportDocument(_ document: StitchDocument) async -> SentTransferredFile {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
 
-        let document = data.document
-        let projectURL = data.getUrl()
+        let projectURL = document.getUrl()
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
@@ -198,7 +209,7 @@ extension StitchDocumentData: Transferable, Sendable {
     }
 
     @Sendable
-    static func importDocument(_ received: ReceivedTransferredFile) async -> StitchDocumentData {
+    static func importDocument(_ received: ReceivedTransferredFile) async -> StitchDocument {
         do {
             guard let data = try await Self.openDocument(from: received.file,
                                                         isImport: true) else {
@@ -208,21 +219,19 @@ extension StitchDocumentData: Transferable, Sendable {
                 DispatchQueue.main.async {
                     dispatch(DisplayError(error: .unsupportedProject))
                 }
-                return .init(document: .init(),
-                             publishedDocumentComponents: [])
+                return .init()
             }
 
             return data
         } catch {
             fatalErrorIfDebug()
-            return .init(document: .init(),
-                         publishedDocumentComponents: [])
+            return .init()
         }
     }
 
     static func openDocument(from importedUrl: URL,
                              isImport: Bool = false,
-                             isNonICloudDocumentsFile: Bool = false) async throws -> StitchDocumentData? {
+                             isNonICloudDocumentsFile: Bool = false) async throws -> StitchDocument? {
         
         // log("openDocument importedUrl: \(importedUrl)")
                 
@@ -259,7 +268,7 @@ extension StitchDocumentData: Transferable, Sendable {
 
         if isImport {
             // Change ID as to not overwrite possibly existing document
-            codableDoc.projectId = .init()
+            codableDoc.graph.id = .init()
 
             // Move imported project contents to application sandbox
             try FileManager.default.moveItem(at: projectDataUrl, to: codableDoc.rootUrl)
@@ -278,13 +287,11 @@ extension StitchDocumentData: Transferable, Sendable {
         graphDataUrl.stopAccessingSecurityScopedResource()
 
         log("openDocument: returning codable doc")
-        let data = StitchDocumentData(document: codableDoc,
-                                      publishedDocumentComponents: components)
-        return data
+        return codableDoc
     }
 }
 
-extension StitchDocumentData {
+extension StitchDocument {
     /// Unzips document contents on project import, returning the URL of the unzipped contents.
     static func getUnzippedProjectData(importedUrl: URL) throws -> URL? {
         // .stitchproject is already unzipped so we just return this

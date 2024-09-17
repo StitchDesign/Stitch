@@ -15,7 +15,6 @@ extension NodeViewModel {
                                         position: CGPoint = .zero,
                                         zIndex: CGFloat = .zero,
                                         parentGroupNodeId: GroupNodeId? = nil,
-                                        activeIndex: ActiveIndex,
                                         graphDelegate: GraphDelegate?) {
         var nodeType: NodeTypeEntity
         let kind = T.graphKind.kind
@@ -71,8 +70,7 @@ extension NodeViewModel {
         let nodeEntity = NodeEntity(id: id,
                                     nodeTypeEntity: nodeType,
                                     title: graphNode.defaultTitle)
-        self.init(from: nodeEntity,
-                  activeIndex: activeIndex)
+        self.init(from: nodeEntity)
         
         if let graphDelegate = graphDelegate {
             self.initializeDelegate(graph: graphDelegate)
@@ -117,7 +115,6 @@ extension NodeViewModel {
     @MainActor
     static var mock: NodeViewModel {
         NodeViewModel(from: SplitterPatchNode.self,
-                      activeIndex: .init(.zero),
                       graphDelegate: nil)
     }
 

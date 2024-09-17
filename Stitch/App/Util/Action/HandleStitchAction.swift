@@ -31,20 +31,20 @@ struct KeyCharacterPressBegan: StitchStoreEvent {
     }
 }
 
-struct GraphInitialized: StitchStoreEvent {
-    let graph: GraphState
-    let data: StitchDocumentData
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        Task { [weak graph] in
-            await graph?.graphInitialized(data: data)
-        }
-        return .noChange
-    }
-}
+//struct GraphInitialized: StitchStoreEvent {
+//    let graph: GraphState
+//    let data: GraphEntity
+//    
+//    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+//        Task { [weak graph] in
+//            await graph?.graphInitialized(data: data)
+//        }
+//        return .noChange
+//    }
+//}
 
 struct UndoManagerInvoked: StitchStoreEvent {
-    let newState: StitchDocumentData?
+    let newState: GraphEntity?
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.undoManagerInvoked(newState: newState)
@@ -78,10 +78,10 @@ struct DisplayError: StitchStoreEvent {
 
 struct ProjectDeleted: StitchStoreEvent {
     
-    let data: StitchDocumentData
+    let document: StitchDocument
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.deleteProject(data: data)
+        store.deleteProject(document: document)
         return .shouldPersist
     }
 }

@@ -72,16 +72,16 @@ final class StitchDocumentViewModel: Sendable {
     var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
+    let documentEncoder: DocumentEncoder
+    
     // Keeps reference to store
     weak var storeDelegate: StoreDelegate?
     
-    @MainActor init(from data: StitchDocumentData,
+    @MainActor init(from schema: StitchDocument,
                     store: StoreDelegate?) {
         // MARK: do not populate ordered sidebar layers until effect below is dispatched!
         // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
         // but nodes haven't yet populated
-        
-        let schema = data.document
         
         self.graphUI = GraphUIState()
         self.previewWindowSize = schema.previewWindowSize
@@ -89,11 +89,12 @@ final class StitchDocumentViewModel: Sendable {
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
-        self.graph = .init(from: data)
+        self.graph = .init(from: schema.graph)
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store
-        self.graph.initializeDelegate(document: self)
+        self.graph.initializeDelegate(document: self,
+                                      documentEncoderDelegate: documentEncoder)
     }
 }
 
@@ -115,9 +116,8 @@ extension StitchDocumentViewModel {
         self.graph
     }
     
-    // TODO: update with components
     var allGraphs: [GraphState] {
-        [self.graph]
+        self.graph.allGraphs
     }
     
     var activeIndex: ActiveIndex {
@@ -131,14 +131,7 @@ extension StitchDocumentViewModel {
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     func updateGraphData(document: StitchDocument? = nil) {
-        let document = document ?? self.createSchema().document
-
-        self.allGraphs.forEach {
-            // TODO: update visible nodes updater for specific nodes
-            $0.visibleNodesViewModel.updateSchemaData(newNodes: document.nodes,
-                                                      activeIndex: self.activeIndex,
-                                                      graphDelegate: $0)
-        }
+        let document = document ?? self.createSchema()
         
         self.updateTopologicalData()
 
@@ -155,6 +148,38 @@ extension StitchDocumentViewModel {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
     }
 
+    @MainActor
+    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
+        let data = self.createSchema()
+        
+        Task(priority: .background) { [weak self] in
+            let _ = await self?.documentEncoder
+                .encodeProject(data,
+                               temporaryURL: temporaryURL)
+        }
+    }
+    
+    @MainActor
+    func encodeProject(temporaryURL: DocumentsURL? = nil) {
+        let data = self.createSchema()
+
+        // Update nodes data
+        self.updateGraphData(document: data)
+
+        Task(priority: .background) { [weak self] in
+            guard let documentLoader = self?.storeDelegate?.documentLoader else {
+                return
+            }
+            
+            switch await self?.documentEncoder.encodeProject(data,
+                                                             temporaryURL: temporaryURL) {
+            case .success, .none:
+                return
+            case .failure(let error):
+                log("StitchDocumentViewModel.encodeProject error: \(error)")
+            }
+        }
+    }
 }
 
 extension StitchDocumentViewModel: GraphCalculatable {
@@ -215,19 +240,14 @@ extension StitchDocumentViewModel: GraphCalculatable {
 
 extension StitchDocumentViewModel {
     @MainActor
-    func update(from data: StitchDocumentData) {
-        let schema = data.document
-        
+    func update(from schema: StitchDocument) {
         // Sync preview window attributes
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
 
         // Sync node view models + cached data
-        self.graph.id = schema.projectId
-        self.graph.name = schema.name
-        self.graph.orderedSidebarLayers = schema.orderedSidebarLayers
-        self.graph.publishedDocumentComponents = data.publishedDocumentComponents
+        self.graph.update(from: schema.graph)
         self.updateGraphData(document: schema)
         
         // No longer needed, since sidebar-expanded-items handled by node schema
@@ -235,8 +255,15 @@ extension StitchDocumentViewModel {
         self.calculateFullGraph()
     }
     
-    @MainActor func createSchema() -> StitchDocumentData {
-        self.graph.createSchema()
+    @MainActor func createSchema() -> StitchDocument {
+        StitchDocument(graph: self.graph.createSchema(),
+                       previewWindowSize: self.previewWindowSize,
+                       previewSizeDevice: self.previewSizeDevice,
+                       previewWindowBackgroundColor: self.previewWindowBackgroundColor,
+                       // Important: `StitchDocument.localPosition` currently represents only the root level's graph-offset
+                       localPosition: self.localPositionToPersist,
+                       zoomData: self.graphMovement.zoomData.zoom,
+                       cameraSettings: self.cameraSettings)
     }
     
     @MainActor func onPrototypeRestart() {
@@ -305,8 +332,7 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor static func createEmpty() -> StitchDocumentViewModel {
-        .init(from: .init(document: .init(),
-                          publishedDocumentComponents: []),
+        .init(from: .init(nodes: []),
               store: nil)
     }
 }

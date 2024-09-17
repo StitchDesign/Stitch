@@ -21,7 +21,6 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         let newNode = Layer.group.layerGraphNode.createViewModel(
             position: state.newNodeCenterLocation,
             zIndex: state.visibleGraph.highestZIndex + 1,
-            activeIndex: .defaultActiveIndex,
             graphDelegate: state.visibleGraph)
         
         let primarilySelectedLayers = state.visibleGraph.sidebarSelectionState.primary.map { $0.asNodeId }.toSet
