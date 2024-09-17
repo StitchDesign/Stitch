@@ -134,7 +134,9 @@ struct SidebarListView: View {
 //            .border(.purple)
 //            #endif
         } // ScrollView // added
-//        .scrollContentBackground(.hidden)
+        .scrollContentBackground(.hidden)
+//        .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+        
 //        .background {
 //            Color.yellow.opacity(0.5)
 //        }

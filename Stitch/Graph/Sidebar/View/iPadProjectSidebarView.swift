@@ -49,8 +49,9 @@ struct ProjectSidebarView: View {
                 }
             }
             //            .padding(.bottom)
-            .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
+//            .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
             // Higher z-index here for scroll view
+//            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
             .zIndex(2)
 #endif
             
@@ -62,7 +63,8 @@ struct ProjectSidebarView: View {
             //#endif
             .zIndex(1)
         }
-        .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
+//        .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
+//        .background(Color.cyan.ignoresSafeArea())
         
         // Needed so that sidebar-footer does not rise up when iPad full keyboard on-screen
         .edgesIgnoringSafeArea(.bottom)
@@ -70,11 +72,13 @@ struct ProjectSidebarView: View {
         // iPad only
         // TODO: why is .navigationTitle ignored on Catalyst?
 #if !targetEnvironment(macCatalyst)
-        .navigationTitle("Stitch")
+//        .navigationTitle("Stitch")
+//        .navigationTitle("")
         .toolbar {
             SidebarEditButtonView(isEditing: $isEditing)
         }
-        .toolbarBackground(.visible, for: .automatic)
+//        .toolbarBackground(.visible, for: .automatic)
+        .toolbarBackground(.hidden, for: .tabBar, .navigationBar, .bottomBar)
 #endif
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))

@@ -33,7 +33,7 @@ struct SidebarListItemChevronView: View {
             .scaledToFit()
         
         #if targetEnvironment(macCatalyst)
-            .padding(2)
+            .padding(4)
             .padding(.horizontal, 2)
         #else
             .padding(4)

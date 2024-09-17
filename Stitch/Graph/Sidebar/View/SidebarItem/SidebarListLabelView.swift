@@ -75,13 +75,15 @@ struct SidebarListItemLeftLabelView: View {
                 Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
 //                    .scaleEffect(1.2) // previously: 1.0 or 1.4
                     .resizable()
+                    .scaledToFit()
                     .padding(4)
-                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT, 
+//                    .padding(2)
+                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                            height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                     .foregroundColor(color)
                     .opacity(masks ? 1 : 0)
                     .animation(.linear, value: masks)
-//                    .border(.red)
+                    // .border(.red)
             }
             
 //            if isGroup {
@@ -90,16 +92,17 @@ struct SidebarListItemLeftLabelView: View {
                                            color: color,
                                            isHidden: isHidden)
                 .opacity(isGroup ? 1 : 0)
-//                .border(.green)
+                // .border(.green)
 //            }
   
             Image(systemName: layer.sidebarLeftSideIcon)
                 .resizable()
-                .padding(2)
+                .scaledToFit()
+//                .padding(2)
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(color)
-//                .border(.yellow)
+                // .border(.yellow)
             
             label
                 .foregroundColor(color)
