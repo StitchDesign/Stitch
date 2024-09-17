@@ -22,19 +22,18 @@ struct SidebarListItemChevronView: View {
 
     let isHidden: Bool
     
+    var rotationz: CGFloat {
+        isClosed ? 0 : 90
+    }
+    
     var body: some View {
 
-        let rotationZ: CGFloat = isClosed ? 0 : 90
-
         Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
-//            .frame(width: 8, height: 11)
             .foregroundColor(color)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
             .padding(2)
-//            .frame(width: 20, height: 20) // bigger hit area
-            .frame(width: 16, height: 20) // bigger hit area
-            .border(.green)
+            .frame(width: 16, height: 20)
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {

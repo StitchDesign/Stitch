@@ -90,7 +90,6 @@ struct SidebarListItemLeftLabelView: View {
                 .padding(2)
                 .frame(width: 20, height: 20)
                 .foregroundColor(color)
-                .border(.yellow)
             
             label
                 .foregroundColor(color)
