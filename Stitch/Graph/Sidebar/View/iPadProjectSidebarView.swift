@@ -72,13 +72,11 @@ struct ProjectSidebarView: View {
         // iPad only
         // TODO: why is .navigationTitle ignored on Catalyst?
 #if !targetEnvironment(macCatalyst)
-//        .navigationTitle("Stitch")
-//        .navigationTitle("")
+        .navigationTitle("Stitch")
         .toolbar {
             SidebarEditButtonView(isEditing: $isEditing)
         }
-//        .toolbarBackground(.visible, for: .automatic)
-        .toolbarBackground(.hidden, for: .tabBar, .navigationBar, .bottomBar)
+        .toolbarBackground(.visible, for: .automatic)
 #endif
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))

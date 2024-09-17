@@ -76,8 +76,11 @@ struct SidebarListItemLeftLabelView: View {
 //                    .scaleEffect(1.2) // previously: 1.0 or 1.4
                     .resizable()
                     .scaledToFit()
+                #if targetEnvironment(macCatalyst)
+                    .padding(2)
+                #else
                     .padding(4)
-//                    .padding(2)
+                #endif
                     .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                            height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                     .foregroundColor(color)
