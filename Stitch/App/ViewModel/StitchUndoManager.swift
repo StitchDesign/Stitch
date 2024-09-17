@@ -119,19 +119,19 @@ final class StitchUndoManager: MiddlewareService {
 extension StitchStore {
     @MainActor
     func undoManagerInvoked(newState: StitchDocument? = nil) {
-        guard let graph = self.currentGraph else {
+        guard let document = self.currentDocument else {
             return
         }
 
         // HACK: see notes in `GraphUIState.adjustmentBarSessionId`
-        graph.graphUI.adjustmentBarSessionId = .init(id: .init())
+        document.graphUI.adjustmentBarSessionId = .init(id: .init())
 
         // Update schema data
         if let newState = newState {
-            graph.update(from: newState)
+            document.update(from: newState)
 
             // Persist graph
-            graph.encodeProjectInBackground()
+            document.graph.encodeProjectInBackground()
             
         }
     }

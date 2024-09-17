@@ -227,7 +227,9 @@ extension StitchDocumentViewModel {
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
 
         // Sync node view models + cached data
-        self.graph.update(from: schema)
+        self.graph.id = schema.projectId
+        self.graph.name = schema.name
+        self.graph.orderedSidebarLayers = schema.orderedSidebarLayers
         self.updateGraphData(document: schema)
         
         // No longer needed, since sidebar-expanded-items handled by node schema
@@ -422,13 +424,15 @@ extension GraphState {
         self.init(from: document)
     }
     
-    @MainActor
-    func update(from schema: StitchDocument) {
-        // Sync project attributes
-        self.id = schema.projectId
-        self.name = schema.name
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
-    }
+//    @MainActor
+//    func update(from schema: StitchDocument) {
+//        // Sync project attributes
+//        self.id = schema.projectId
+//        self.name = schema.name
+//        self.orderedSidebarLayers = schema.orderedSidebarLayers
+//        
+//        
+//    }
 
     @MainActor func createSchema() -> StitchDocument {
         assertInDebug(self.documentDelegate != nil)

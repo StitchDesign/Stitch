@@ -56,7 +56,8 @@ extension GraphState {
         self.graphStepManager.start()
 
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
-        self.update(from: document)
+        // TODO: need a separate updater for graph
+        self.documentDelegate?.update(from: document)
         
         self.updateSidebarListStateAfterStateChange()
         

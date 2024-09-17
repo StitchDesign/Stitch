@@ -107,7 +107,7 @@ extension GraphState {
         // Add new nodes
         document.nodes += newNodes
         document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.update(from: document)
+        self.documentDelegate?.update(from: document)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
