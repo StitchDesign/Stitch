@@ -16,36 +16,25 @@ struct SidebarListItemChevronView: View {
 
     let isClosed: Bool
     let parentId: LayerNodeId
-    let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
 
-    var color: Color {
-        selection.color(isHidden)
-    }
+    let isHidden: Bool
     
     var body: some View {
 
         let rotationZ: CGFloat = isClosed ? 0 : 90
 
         Image(systemName: CHEVRON_GROUP_TOGGLE_ICON)
-            .resizable()
-//            .border(.yellow)
-//            .padding(4)
-            
-            .scaleEffect(0.8)
-            .padding(2)
-            .frame(width: 20, height: 20)
+//            .frame(width: 8, height: 11)
             .foregroundColor(color)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
-        
-        // per the Figma, it's almost like the padding is on the inside?
-  
-            
-//            .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
-//                   height: SIDEBAR_ITEM_ICON_LENGTH)
-//            .padding(4)
-        
+            .padding(2)
+//            .frame(width: 20, height: 20) // bigger hit area
+            .frame(width: 16, height: 20) // bigger hit area
+            .border(.green)
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {
@@ -55,7 +44,6 @@ struct SidebarListItemChevronView: View {
                 }
             }
             .animation(.linear, value: rotationZ)
-            .animation(.linear, value: color)
     }
 }
 

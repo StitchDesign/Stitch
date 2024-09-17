@@ -15,6 +15,10 @@ struct SidebarListItemLeftLabelView: View {
     let name: String
     let layer: Layer
     let nodeId: LayerNodeId // debug
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
     let isBeingEdited: Bool
@@ -22,11 +26,7 @@ struct SidebarListItemLeftLabelView: View {
     let isClosed: Bool
    
     @State private var isBeingEditedAnimated = false
-    
-    var color: Color {
-        selection.color(isHidden)
-    }
-    
+        
     // TODO: perf: will this GraphState-reading computed variable cause SidebarListItemLeftLabelView to render too often?
     
     // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
@@ -67,48 +67,7 @@ struct SidebarListItemLeftLabelView: View {
 //#endif
     }
     
-    var font: Font {
-        stitchFont(13)
-    }
-    
-    var label: some View {
-        Group {
-            if isBeingEdited {
-//                StitchTextView(string: _name,
-//                               font: font)
-                StitchTextView(string: _name)
-                .truncationMode(.tail)
-#if targetEnvironment(macCatalyst)
-                .padding(.trailing, 44)
-#else
-                .padding(.trailing, 60)
-#endif
-            } else {
-//                StitchTextView(string: _name,
-//                               font: font)
-                StitchTextView(string: _name)
-//                .frame(maxHeight: .infinity, alignment: .center)
-//                    .border(.brown)
-            }
-        }
-        .lineLimit(1)
-    }
-
     var body: some View {
-      
-        if isBeingEdited {
-            labelHStack
-            // Note: color animation when resetting swipe causes the text-label to lag behind; most important color-animation case is for selecting layer-groups in sidebar, so we just limit color animation to edit-mode.
-            // TODO: how to animate color when user hides layer node via graph?
-                .animation(.linear, value: color)
-        } else {
-            labelHStack
-        }
-        
-    }
-    
-    @MainActor
-    var labelHStack: some View {
         HStack(spacing: 4) {
             
             if masks {
@@ -122,36 +81,41 @@ struct SidebarListItemLeftLabelView: View {
             if isGroup {
                 SidebarListItemChevronView(isClosed: isClosed,
                                            parentId: nodeId,
-                                           selection: selection,
+                                           color: color,
                                            isHidden: isHidden)
-//                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
-//                    .padding(.trailing, isBeingEditedAnimated ? 4 : 0)
-//                    .stitchAnimated(willAnimateBinding: $isBeingEditedAnimated,
-//                                    willAnimateState: isBeingEdited,
-//                                    animation: .stitchAnimation(duration: 0.25))
-                    .border(.green)
-                
             }
   
             Image(systemName: layer.sidebarLeftSideIcon)
                 .resizable()
-//                .padding(4)
                 .padding(2)
-//                .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
-//                       height: SIDEBAR_ITEM_ICON_LENGTH)
-//                .scaleEffect(0.8)
                 .frame(width: 20, height: 20)
-                // .scaleEffect(1.2) // previously: 1.0 or 1.4
                 .foregroundColor(color)
                 .border(.yellow)
             
             label
-//                .font(SwiftUI.Font.system(size: 18))
-//                .fontWeight(.bold)
                 .foregroundColor(color)
         }
+        .padding(.leading, 4)
         .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-        .border(.orange)
+    }
+    
+    var label: some View {
+        Group {
+            if isBeingEdited {
+                StitchTextView(string: _name,
+                               fontColor: color)
+                .truncationMode(.tail)
+#if targetEnvironment(macCatalyst)
+                .padding(.trailing, 44)
+#else
+                .padding(.trailing, 60)
+#endif
+            } else {
+                StitchTextView(string: _name,
+                               fontColor: color)
+            }
+        }
+        .lineLimit(1)
     }
 }
 
@@ -160,6 +124,10 @@ struct SidebarListItemRightLabelView: View {
     let item: SidebarListItem
     let isGroup: Bool
     let isClosed: Bool
+    
+    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
+    let color: Color
+    
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool // is sidebar being edited?
     let isHidden: Bool
@@ -172,18 +140,10 @@ struct SidebarListItemRightLabelView: View {
 
         HStack(spacing: .zero) {
             
-            // Moved to left-side now
-//            if isGroup {
-//                SidebarListItemChevronView(isClosed: isClosed,
-//                                           parentId: id,
-//                                           selection: selection,
-//                                           isHidden: isHidden)
-//                    .padding(.trailing, isBeingEditedAnimated ? 0 : 4)
-//            }
-
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(id: id,
+                                                       color: color,
                                                        selection: selection,
                                                        isHidden: isHidden,
                                                        isBeingEdited: isBeingEdited)
@@ -214,6 +174,7 @@ struct SidebarListDragIconView: View {
 
     var body: some View {
         Image(systemName: EDIT_MODE_HAMBURGER_DRAG_ICON)
+        // TODO: Should use white if this sidebar layer is selected?
             .foregroundColor(EDIT_MODE_HAMBURGER_DRAG_ICON_COLOR)
             .scaleEffect(1.2)
             .frame(width: SIDEBAR_ITEM_ICON_LENGTH,

@@ -74,7 +74,6 @@ struct SidebarListItemSwipeView: View {
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
         #endif
-        .border(.red, width: 2)
 
         .onChange(of: activeSwipeId) { _ in
             gestureViewModel.resetSwipePosition()

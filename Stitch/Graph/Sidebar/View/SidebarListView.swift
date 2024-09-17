@@ -121,7 +121,7 @@ struct SidebarListView: View {
                    alignment: .top)
         
 //            #if DEV_DEBUG
-            .border(.purple)
+//            .border(.purple)
 //            #endif
         } // ScrollView // added
 //        .scrollContentBackground(.hidden)
@@ -130,7 +130,7 @@ struct SidebarListView: View {
 //        }
         
 //        #if DEV_DEBUG
-        .border(.green)
+//        .border(.green)
 //        #endif
         
         .animation(.spring(), value: selections)

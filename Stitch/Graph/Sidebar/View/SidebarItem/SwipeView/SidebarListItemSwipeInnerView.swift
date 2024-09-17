@@ -36,23 +36,36 @@ struct SidebarListItemSwipeInnerView: View {
         graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
     }
 
+    var isNonEditModeSelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.contains(item.id.asLayerNodeId)
+    }
+    
+    var color: Color {
+        if isNonEditModeSelected {
+            return .white
+        }
+        
+        return selection.color(isHidden)
+    }
+
     var body: some View {
         HStack(spacing: .zero) {
 
             // Main row hides if swipe menu exceeds threshold
             if showMainItem {
-                SidebarListItemView(
-                    graph: graph,
-                    item: item,
-                    name: name,
-                    layer: layer,
-                    current: current,
-                    proposedGroup: proposedGroup,
-                    isClosed: isClosed,
-                    selection: selection,
-                    isBeingEdited: isBeingEdited,
-                    isHidden: isHidden,
-                    swipeOffset: swipeX)
+                SidebarListItemView(graph: graph,
+                                    item: item,
+                                    name: name,
+                                    layer: layer,
+                                    current: current,
+                                    proposedGroup: proposedGroup,
+                                    isClosed: isClosed,
+                                    color: color,
+                                    selection: selection,
+                                    isBeingEdited: isBeingEdited,
+                                    isHidden: isHidden,
+                                    swipeOffset: swipeX)
+                
                     .padding(.leading, itemIndent + 5)
 
                     // right-side label overlay comes AFTER x-placement of item,
@@ -62,25 +75,24 @@ struct SidebarListItemSwipeInnerView: View {
                             item: item,
                             isGroup: item.isGroup,
                             isClosed: isClosed,
+                            color: color,
                             selection: selection,
                             isBeingEdited: isBeingEdited,
                             isHidden: isHidden)
                         .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                     }
+                    .padding(.trailing, 2)
+                
             }
 
             if swipeX > 0 {
-                
-                // How tall should this be? As tall as the color area ?
                 SidebarListItemSwipeMenu(
                     item: item,
                     swipeOffset: swipeX,
                     visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
                     gestureViewModel: self.gestureViewModel)
-//                .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
             }
         }
-//        .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
 
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
