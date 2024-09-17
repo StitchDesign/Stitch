@@ -1,14 +1,5 @@
-//
-//  StitchVideoPlayer.swift
-//  Stitch
-//
-//  Created by Elliot Boschwitz on 8/5/22.
-//
-
 import AVKit
 
-/// A class for managing `AVPlayer` instances for non-layer scenarios. For video layers,
-/// `StitchVideoViewController` is used.
 @Observable
 final class StitchVideoImportPlayer: Sendable {
     var video: AVPlayer
@@ -17,9 +8,7 @@ final class StitchVideoImportPlayer: Sendable {
     var metadata: VideoMetadata {
         @MainActor
         didSet(newValue) {
-            // Need to compare old vs new else publishers get called unnecessarily
             if metadata != newValue {
-                // Dispatch fixes issue where background thread could cause crash on AudioKit engine
                 self.stitchVideoDelegate.updateMetadata(for: video, videoData: metadata)
             }
         }
@@ -48,7 +37,6 @@ final class StitchVideoImportPlayer: Sendable {
             self?.thumbnail = await player?.currentItem?.asset.getThumbnail()
         }
 
-        // Video muted by default, only unmuted by video layer
         self.muteSound()
     }
 
@@ -56,7 +44,6 @@ final class StitchVideoImportPlayer: Sendable {
     func resetPlayer() {
         self.stitchVideoDelegate.seek(on: self.video,
                                       to: .zero,
-                                      // Can be false here since it's just a reset
                                       isScrubbing: false)
     }
 
@@ -70,6 +57,16 @@ final class StitchVideoImportPlayer: Sendable {
 
     var volume: Double {
         self.stitchVideoDelegate.audio.delegate.volume
+    }
+    
+    @MainActor func setVolume(volume: Double) {
+        guard volume >= 0.0 && volume <= 1.0 else {
+            print("Volume must be between 0.0 and 1.0")
+            return
+        }
+        self.video.volume = Float(volume) // Set the volume of the AVPlayer
+        // Assuming there's a method to update the delegate's volume
+        self.stitchVideoDelegate.audio.updateVolume(volume) // Update volume through a method
     }
 
     var peakVolume: Double {

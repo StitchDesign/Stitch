@@ -32,6 +32,8 @@ struct VideoDisplayView: View {
     let position: StitchPosition
     let parentSize: CGSize
 
+    let volume: Double
+    
     var body: some View {
         if isClipped {
             scrubbedVideoView.clipped()
@@ -56,7 +58,8 @@ struct VideoDisplayView: View {
                     isClipped: isClipped)
             } else {
                 ScrubbedVideoView(videoPlayer: videoPlayer,
-                                  fitStyle: fitStyle)
+                                  fitStyle: fitStyle,
+                                  volume: volume)
             }
         }
         .opacity(opacity)

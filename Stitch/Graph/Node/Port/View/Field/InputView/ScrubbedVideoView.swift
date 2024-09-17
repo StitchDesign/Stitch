@@ -14,6 +14,7 @@ import StitchSchemaKit
 struct ScrubbedVideoView: UIViewControllerRepresentable {
     let videoPlayer: StitchVideoImportPlayer
     let fitStyle: VisualMediaFitStyle
+    let volume: Double
 
     func makeUIViewController(context: Context) -> StitchVideoViewController {
         let vc = StitchVideoViewController(videoPlayer: videoPlayer)
@@ -21,7 +22,8 @@ struct ScrubbedVideoView: UIViewControllerRepresentable {
 
         // Sound disabled until layer is created for video
         self.videoPlayer.enableSound()
-
+        self.videoPlayer.setVolume(volume: volume)
+        
         return vc
     }
 

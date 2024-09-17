@@ -41,9 +41,10 @@ struct PreviewVideoLayer: View {
     
     let parentSize: CGSize
     let parentDisablesPosition: Bool
-    
+        
     let isClipped: Bool
-    
+    let volume: Double
+
     var body: some View {
 
         // TODO: handle video auto-sizing properly
@@ -59,8 +60,9 @@ struct PreviewVideoLayer: View {
                          isPinnedViewRendering: isPinnedViewRendering,
                          id: interactiveLayer.id,
                          position: position,
-                         parentSize: parentSize)
-         
+                         parentSize: parentSize,
+                         volume: volume)
+            
         // .frame is set VideoDisplayView
         .modifier(PreviewCommonModifierWithoutFrame(
             document: document,

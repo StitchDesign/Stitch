@@ -28,7 +28,8 @@ struct VideoLayerNode: LayerNodeDefinition {
         .anchoring,
         .zIndex,
         .clipped,
-        .masks
+        .masks,
+        .volume 
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
