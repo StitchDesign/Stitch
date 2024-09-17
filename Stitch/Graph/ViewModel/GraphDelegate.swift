@@ -134,9 +134,9 @@ extension GraphDelegate {
     @MainActor func updateOutputs(at loopIndex: Int,
                                   node: NodeViewModel,
                                   portValues: PortValues) {
-        self.updateOutputs(at: loopIndex,
-                           node: node,
-                           portValues: portValues)
+        self.documentDelegate?.updateOutputs(at: loopIndex,
+                                             node: node,
+                                             portValues: portValues)
     }
     
     @MainActor var shouldResortPreviewLayers: Bool {
