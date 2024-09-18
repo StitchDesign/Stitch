@@ -15,8 +15,16 @@ final class LayerInputObserver {
     // Variables here necessary to ensure keypaths logic works
     
     // TODO: use `private` to prevent access?
-    var _packedData: InputLayerNodeRowData
-    var _unpackedData: LayerInputUnpackedPortObserver
+    
+    // Needed for schema paths: helpful for building the LayerInputObserver view model (+ other helpers) etc.
+    
+    // Helpers that use KeyPath (NodeIO coordinate?)
+    // Either have port-index or keypath;
+    // keypath helpers ALWAYS return something;
+    // and cannot use enum with a keypath.
+    
+    private var _packedData: InputLayerNodeRowData
+    private var _unpackedData: LayerInputUnpackedPortObserver
     
     let layer: Layer
     var port: LayerInputPort

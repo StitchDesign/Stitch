@@ -101,20 +101,20 @@ extension LayerInputPort {
         var acc = Set<Int>()
         
         // build a dictionary of `fieldCoordinate -> [value]` and if the list of `value`s in the end are all the same, then that field coordinate is NOT heterogenous
-        self.multiselectObservers(graph).forEach { (observer: LayerInputObserver) in
-            observer
-                ._packedData // TODO: do not assume packed
-                .inspectorRowViewModel // Only interested in inspector view models
-                .fieldValueTypes.first? // .first = ignore the shape command case
-            
-            // "Does every multi-selected layer have the same value at this input-field?"
-            // (Note: NOT "Does every field in this input have same value?")
-                .fieldObservers.forEach({ (field: InputFieldViewModel) in
-                    var existing = fieldIndexToFieldValues.get(field.fieldIndex) ?? []
-                    existing.append(field.fieldValue)
-                    fieldIndexToFieldValues.updateValue(existing, forKey: field.fieldIndex)
-                })
-        }
+//        self.multiselectObservers(graph).forEach { (observer: LayerInputObserver) in
+//            observer
+//                ._packedData // TODO: do not assume packed
+//                .inspectorRowViewModel // Only interested in inspector view models
+//                .fieldValueTypes.first? // .first = ignore the shape command case
+//            
+//            // "Does every multi-selected layer have the same value at this input-field?"
+//            // (Note: NOT "Does every field in this input have same value?")
+//                .fieldObservers.forEach({ (field: InputFieldViewModel) in
+//                    var existing = fieldIndexToFieldValues.get(field.fieldIndex) ?? []
+//                    existing.append(field.fieldValue)
+//                    fieldIndexToFieldValues.updateValue(existing, forKey: field.fieldIndex)
+//                })
+//        }
         
         fieldIndexToFieldValues.forEach { (key: Int, values: [FieldValue]) in
             if let someValue = values.first,

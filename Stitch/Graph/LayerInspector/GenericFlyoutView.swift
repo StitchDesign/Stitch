@@ -223,27 +223,27 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
         
         let portObserver: LayerInputObserver = layerNode[keyPath: layerInput.layerNodeKeyPath]
         
-        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
-            
-            let parentGroupNodeId = state.groupNodeFocused
-            
-            var unpackSchema = unpackedPort.createSchema()
-            unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
-                                            zIndex: state.highestZIndex + 1,
-                                            parentGroupNodeId: parentGroupNodeId)
-
-            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
-                .getDefaultValue(for: layerNode.layer)
-                .getNodeRowType(nodeIO: .input)
-                .getFieldGroupTypeForLayerInput
-            
-            unpackedPort.update(from: unpackSchema,
-                                layerInputType: unpackedPort.id,
-                                layerNode: layerNode,
-                                nodeId: nodeId,
-                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                unpackedPortIndex: fieldIndex)
-        }
+//        if let unpackedPort: InputLayerNodeRowData = portObserver._unpackedData.allPorts[safe: fieldIndex] {
+//            
+//            let parentGroupNodeId = state.groupNodeFocused
+//            
+//            var unpackSchema = unpackedPort.createSchema()
+//            unpackSchema.canvasItem = .init(position: document.newLayerPropertyLocation,
+//                                            zIndex: state.highestZIndex + 1,
+//                                            parentGroupNodeId: parentGroupNodeId)
+//
+//            let unpackedPortParentFieldGroupType: FieldGroupType = layerInput
+//                .getDefaultValue(for: layerNode.layer)
+//                .getNodeRowType(nodeIO: .input)
+//                .getFieldGroupTypeForLayerInput
+//            
+//            unpackedPort.update(from: unpackSchema,
+//                                layerInputType: unpackedPort.id,
+//                                layerNode: layerNode,
+//                                nodeId: nodeId,
+//                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                unpackedPortIndex: fieldIndex)
+//        }
         
         return .persistenceResponse
     }

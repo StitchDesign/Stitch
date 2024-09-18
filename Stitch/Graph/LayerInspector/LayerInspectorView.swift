@@ -239,7 +239,7 @@ struct LayerInspectorInputsSectionView: View {
                 
                 
                 // TODO: only using packed data here
-                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                let allFieldsBlockedOut = layerPort.packed layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if !allFieldsBlockedOut {
                     LayerInspectorInputPortView(layerInputObserver: layerPort,
