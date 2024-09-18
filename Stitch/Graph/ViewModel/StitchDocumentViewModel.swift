@@ -89,6 +89,7 @@ final class StitchDocumentViewModel: Sendable {
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
+        self.documentEncoder = .init(document: schema)
         self.graph = .init(from: schema.graph)
         
         self.graphStepManager.delegate = self
@@ -110,17 +111,24 @@ extension StitchDocumentViewModel {
     var projectName: String {
         self.graph.name
     }
-    
-    // TODO: fix visible graph state to use graphUI selection
-    var visibleGraph: GraphState {
-        self.graph
+
+    /// Returns `GraphState` instance based on visited groups and components
+    @MainActor var visibleGraph: GraphState {
+        // Traverse in reverse order of view stack
+        for groupType in self.graphUI.groupNodeBreadcrumbs.reversed() {
+            switch groupType {
+            case .groupNode:
+                continue
+            case .component(let component):
+                return component.graph
+            }
+        }
+        
+        // No visited component
+        return self.graph
     }
     
-//    var allGraphs: [GraphState] {
-//        self.graph.allGraphs
-//    }
-    
-    var activeIndex: ActiveIndex {
+    @MainActor var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
     }
     
@@ -135,11 +143,6 @@ extension StitchDocumentViewModel {
         
         self.updateTopologicalData()
 
-        // MARK: must be called after connections are established in both visible nodes and topolological data
-//        self.allGraphs.forEach {
-//            $0.visibleNodesViewModel.updateAllNodeViewData()
-//        }
-        
         // Update preview layers
         self.updateOrderedPreviewLayers()
     }

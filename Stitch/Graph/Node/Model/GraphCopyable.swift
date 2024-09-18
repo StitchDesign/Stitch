@@ -326,7 +326,7 @@ extension StitchComponentable {
 
 extension NodeTypeEntity {
     /// Resets canvases in focused group to nil. Used for node copy/pasting.
-    mutating func resetGroupId(_ focusedGroupId: NodeId?) {
+    mutating func resetGroupId(_ focusedGroupId: GroupNodeType?) {
         switch self {
         case .patch(var patchNode):
             patchNode.canvasEntity.resetGroupId(focusedGroupId)
@@ -369,8 +369,8 @@ extension NodeTypeEntity {
 
 extension CanvasNodeEntity {
     /// Resets canvases in focused group to nil. Used for node copy/pasting.
-    mutating func resetGroupId(_ focusedGroupId: NodeId?) {
-        let isTopLevel = self.parentGroupNodeId == focusedGroupId
+    mutating func resetGroupId(_ focusedGroupId: GroupNodeType?) {
+        let isTopLevel = self.parentGroupNodeId == focusedGroupId?.groupNodeId
 
         // Set top-level copied nodes to parent nil
         if isTopLevel {
@@ -387,7 +387,7 @@ extension CanvasNodeEntity {
  */
 extension GraphState {
     @MainActor
-    func createCopiedComponent(groupNodeFocused: NodeId?,
+    func createCopiedComponent(groupNodeFocused: GroupNodeType?,
                                selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
         self.createComponent(groupNodeFocused: groupNodeFocused,
                              selectedNodeIds: selectedNodeIds) {
@@ -396,10 +396,11 @@ extension GraphState {
     }
     
     @MainActor func createNewStitchComponent(componentId: UUID,
+                                             groupNodeFocused: GroupNodeType?,
                                              saveLocation: ComponentSaveLocation,
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
-        self.createComponent(groupNodeFocused: componentId,
-                                    selectedNodeIds: selectedNodeIds) {
+        self.createComponent(groupNodeFocused: groupNodeFocused,
+                             selectedNodeIds: selectedNodeIds) {
             StitchComponent(graph: .init(id: componentId,
                                          name: "My Component",
                                          nodes: $0,
@@ -412,7 +413,7 @@ extension GraphState {
     /// For clipboard, `groupNodeFocused` represents the focused group node of the graph.
     /// For components, it must be defined and represent the ID of the newly created group node.
     @MainActor
-    func createComponent<Data>(groupNodeFocused: NodeId?,
+    func createComponent<Data>(groupNodeFocused: GroupNodeType?,
                                selectedNodeIds: NodeIdSet,
                                createComponentable: @escaping (NodeEntities, SidebarLayerList) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
@@ -542,7 +543,7 @@ extension GraphState {
     @MainActor
     func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId, 
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
         self.insertNewComponent(copiedComponentResult)
     }
@@ -551,7 +552,7 @@ extension GraphState {
     func copyToClipboard(selectedNodeIds: NodeIdSet) {
         // Copy selected nodes
         let copiedComponentResult = self
-            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused?.asNodeId,
+            .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in

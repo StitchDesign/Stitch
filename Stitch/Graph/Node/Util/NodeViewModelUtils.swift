@@ -205,6 +205,10 @@ extension NodeViewModel {
     var layerNode: LayerNodeViewModel? {
         nodeType.layerNode
     }
+    
+    var componentNode: StitchComponentViewModel? {
+        nodeType.componentNode
+    }
 
     @MainActor
     func getAsyncMediaOutputs(loopIndex: Int) -> AsyncMediaOutputs? {

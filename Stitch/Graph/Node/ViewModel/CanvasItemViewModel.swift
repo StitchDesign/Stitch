@@ -168,9 +168,21 @@ extension CanvasItemViewModel: SchemaObserver {
     }
     
     func createSchema() -> CanvasNodeEntity {
+//        guard let documentDelegate = self.graphDelegate?.documentDelegate else {
+//            fatalErrorIfDebug()
+//            
+//            return .init(position: self.position,
+//                         zIndex: self.zIndex,
+//                         parentGroupNodeId: self.parentGroupNodeId)
+//        }
+//        
+//        // Ignore parent group ID if node is running inside a component
+//        let isVisitingComponent = documentDelegate.graphUI.groupNodeFocused?.isComponent ?? false
+        
         .init(position: self.position,
               zIndex: self.zIndex,
-              parentGroupNodeId: self.parentGroupNodeId)
+              parentGroupNodeId:self.parentGroupNodeId)
+        //              parentGroupNodeId: isVisitingComponent ? nil : self.parentGroupNodeId)
     }
 
     @MainActor func update(from schema: CanvasNodeEntity) {        

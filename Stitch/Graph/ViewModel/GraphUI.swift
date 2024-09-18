@@ -28,6 +28,36 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
+// TODO: move
+enum GroupNodeType {
+    case groupNode(NodeId)
+    case component(StitchComponentViewModel)
+}
+
+extension GroupNodeType {
+    var component: StitchComponentViewModel? {
+        switch self {
+        case .groupNode:
+            return nil
+        case .component(let component):
+            return component
+        }
+    }
+    
+    var groupNodeId: NodeId? {
+        switch self {
+        case .groupNode(let id):
+            return id
+        case .component:
+            return nil
+        }
+    }
+    
+    var isComponent: Bool {
+        self.component != nil
+    }
+}
+
 @Observable
 final class GraphUIState {
 
@@ -83,9 +113,6 @@ final class GraphUIState {
 
     var selection = GraphUISelectionState()
 
-    // If there's a group in focus
-    var groupNodeFocused: GroupNodeId?
-
     // Control animation direction when group nodes are traversed
     var groupTraversedToChild = false
 
@@ -104,7 +131,7 @@ final class GraphUIState {
     var leftSidebarOpen = false 
 
     // Tracks group breadcrumbs when group nodes are visited
-    var groupNodeBreadcrumbs: NodeIdList = []
+    var groupNodeBreadcrumbs: [GroupNodeType] = []
 
     var showPreviewWindow = PREVIEW_SHOWN_DEFAULT_STATE
 
@@ -130,10 +157,9 @@ final class GraphUIState {
          activeIndex: ActiveIndex = .defaultActiveIndex,
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
-         groupNodeFocused: GroupNodeId? = nil,
          groupTraversedToChild: Bool = false,
          isFullScreenMode: Bool = GraphUIState.isPhoneDevice,
-         groupNodeBreadcrumbs: NodeIdList = .init(),
+         groupNodeBreadcrumbs: [GroupNodeType] = .init(),
          showPreviewWindow: Bool = PREVIEW_SHOWN_DEFAULT_STATE,
          insertNodeMenuState: InsertNodeMenuState = .init(),
          activeDragInteraction: ActiveDragInteractionNodeVelocityData = .init()) {
@@ -146,7 +172,6 @@ final class GraphUIState {
         self.activeIndex = activeIndex
         self.frame = frame
         self.selection = selection
-        self.groupNodeFocused = groupNodeFocused
         self.groupTraversedToChild = groupTraversedToChild
         self.isFullScreenMode = isFullScreenMode
         self.groupNodeBreadcrumbs = groupNodeBreadcrumbs
@@ -171,6 +196,11 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphUIState {
+    // If there's a group in focus
+    var groupNodeFocused: GroupNodeType? {
+        self.groupNodeBreadcrumbs.last
+    }
+    
     @MainActor
     var isPortraitMode: Bool {
         #if targetEnvironment(macCatalyst)

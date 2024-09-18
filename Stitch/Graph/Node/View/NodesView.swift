@@ -32,26 +32,26 @@ struct NodesView: View {
         self.graph.graphUI
     }
     
-    @MainActor var isComponent: Bool {
-        self.component != nil
-    }
+//    @MainActor var isComponent: Bool {
+//        self.component != nil
+//    }
     
     // Recursively traverse up groups to find closest component parent
-    @MainActor var component: StitchComponent? {
-        var traversedGroupNode = groupNodeFocused?.asNodeId
-        
-        while let groupId = traversedGroupNode,
-              // Assume one canvas item for group nodes
-              let node = graph.getCanvasNodeViewModels(from: groupId).first {
-            if let discoveredComponent = self.graph.publishedDocumentComponents.first(where: { $0.id == groupId }) {
-                return discoveredComponent
-            }
-            
-            traversedGroupNode = node.parentGroupNodeId
-        }
-        
-        return nil
-    }
+//    @MainActor var component: StitchComponent? {
+//        var traversedGroupNode = groupNodeFocused?.asNodeId
+//        
+//        while let groupId = traversedGroupNode,
+//              // Assume one canvas item for group nodes
+//              let node = graph.getCanvasNodeViewModels(from: groupId).first {
+//            if let discoveredComponent = self.graph.publishedDocumentComponents.first(where: { $0.id == groupId }) {
+//                return discoveredComponent
+//            }
+//            
+//            traversedGroupNode = node.parentGroupNodeId
+//        }
+//        
+//        return nil
+//    }
     
     // Finds a group node's offset from center, used for animating
     // group node traversals
@@ -79,7 +79,7 @@ struct NodesView: View {
                     }
                 
                 VStack {
-                    if let component {
+                    if let component = graphUI.groupNodeFocused?.component {
                         Rectangle()
                             .foregroundColor(.red)
                     }

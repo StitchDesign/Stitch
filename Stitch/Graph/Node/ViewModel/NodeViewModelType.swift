@@ -58,6 +58,9 @@ extension StitchComponentViewModel {
         self.componentId = schema.componentId
         self.canvas.update(from: schema.canvasEntity)
         
+        // TODO: zip schema inputs with computed input row observers
+        fatalError()
+        
         guard let masterComponent = components.get(self.id) else {
             fatalErrorIfDebug()
             return
@@ -250,6 +253,15 @@ extension NodeViewModelType {
         switch self {
         case .group(let canvas):
             return canvas
+        default:
+            return nil
+        }
+    }
+    
+    var componentNode: StitchComponentViewModel? {
+        switch self {
+        case .component(let component):
+            return component
         default:
             return nil
         }
