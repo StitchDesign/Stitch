@@ -246,11 +246,18 @@ extension StitchDocumentViewModel {
         if isComponent {
             let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
             let result = self.visibleGraph.createNewStitchComponent(componentId: newGroupNodeId.asNodeId,
-                                                                    saveLocation: .document(self.id),
+                                                                    saveLocation: .document,
                                                                     selectedNodeIds: selectedNodeIds)
             
-            Task { [weak self] in
-                await self?.graph.documentEncoder.encodeComponent(result)
+            // Create drafted component graph state
+            let componentGraphState = ComponentGraphState(from: result.component,
+                                                          saveLocation: .document)
+            self.visibleGraph.draftedComponents.updateValue(componentGraphState,
+                                                            forKey: result.component.id)
+            
+            // Copy to disk
+            Task { [weak componentGraphState] in
+                await componentGraphState?.documentEncoder.encodeComponent(result)
             }
         }
         
@@ -296,7 +303,6 @@ extension GraphState {
             position: position,
             zIndex: self.highestZIndex + 1,
             parentGroupNodeId: newGroupNodeId,
-            activeIndex: self.activeIndex,
             graphDelegate: self)
 
         newSplitterNode.patchCanvasItem?.position = position

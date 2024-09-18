@@ -252,8 +252,7 @@ extension GraphState {
         let draftedComponents = self.draftedComponents.values
             .map { componentGraph in
                 let graphEntity = componentGraph.graph.createSchema()
-                let component = StitchComponent(graph: graphEntity,
-                                                version: componentGraph.version)
+                let component = StitchComponent(graph: graphEntity)
                 return component
         }
         

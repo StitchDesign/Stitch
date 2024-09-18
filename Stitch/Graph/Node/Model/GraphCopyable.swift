@@ -274,16 +274,25 @@ extension SidebarLayerList {
 
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
+typealias ComponentAsyncCallback = @Sendable (any DocumentEncodable) async -> Void
 
 struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
     let component: T
-    let effects: AsyncCallbackList
+    let effects: [ComponentAsyncCallback]
 }
 
 extension Array where Element == AsyncCallback {
     func processEffects() async {
         for effect in self {
             await effect()
+        }
+    }
+}
+
+extension Array where Element == ComponentAsyncCallback {
+    func processEffects(_ encoder: any DocumentEncodable) async {
+        for effect in self {
+            await effect(encoder)
         }
     }
 }
@@ -390,7 +399,7 @@ extension GraphState {
                                              saveLocation: ComponentSaveLocation,
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
         self.createComponent(groupNodeFocused: componentId,
-                             selectedNodeIds: selectedNodeIds) {
+                                    selectedNodeIds: selectedNodeIds) {
             StitchComponent(graph: .init(id: componentId,
                                          name: "My Component",
                                          nodes: $0,
@@ -403,10 +412,9 @@ extension GraphState {
     /// For clipboard, `groupNodeFocused` represents the focused group node of the graph.
     /// For components, it must be defined and represent the ID of the newly created group node.
     @MainActor
-    func createComponent<T>(groupNodeFocused: NodeId?,
-                            selectedNodeIds: NodeIdSet,
-                            rootUrl: URL,
-                            createComponentable: @escaping (NodeEntities, SidebarLayerList) -> T) -> StitchComponentCopiedResult<T> where T: StitchComponentable {
+    func createComponent<Data>(groupNodeFocused: NodeId?,
+                               selectedNodeIds: NodeIdSet,
+                               createComponentable: @escaping (NodeEntities, SidebarLayerList) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
@@ -418,9 +426,6 @@ extension GraphState {
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
 
         let copiedComponent = createComponentable(selectedNodes, selectedSidebarLayers)
-
-        let newImportedFilesDirectory = copiedComponent.getEncodingUrl(documentRootUrl: rootUrl)
-            .appendingStitchMediaPath()
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in
@@ -430,7 +435,7 @@ extension GraphState {
         let portValues: PortValues = portValuesList
             .flatMap { $0 ?? [] }
             
-        let effects: [AsyncCallback] = portValues.compactMap { [weak self] (value: PortValue) -> AsyncCallback? in
+        let effects: [ComponentAsyncCallback] = portValues.compactMap { [weak self] (value: PortValue) -> ComponentAsyncCallback? in
                 guard let graph = self,
                       let media = value._asyncMedia,
                       let mediaKey = media.mediaKey,
@@ -439,9 +444,9 @@ extension GraphState {
                 }
 
                 // Create imported media
-                return {
-                    let _ = await DocumentEncoder.copyToMediaDirectory(originalURL: originalMediaUrl,
-                                                                       importedFilesURL: newImportedFilesDirectory)
+                return { encoder in
+                    let _ = await encoder.copyToMediaDirectory(originalURL: originalMediaUrl,
+                                                               forRecentlyDeleted: false)
                 }
             }
 
@@ -550,12 +555,12 @@ extension GraphState {
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in
-            await self?.documentEncoder.processGraphCopyAction(copiedComponentResult)
+            await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
     }
 }
 
-extension DocumentEncoder {
+extension DocumentEncodable {
     func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
         await self.encodeComponent(copiedComponentResult)
         
@@ -567,6 +572,6 @@ extension DocumentEncoder {
         let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await result.effects.processEffects()
+        await result.effects.processEffects(self)
     }
 }

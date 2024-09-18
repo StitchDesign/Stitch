@@ -40,7 +40,7 @@ extension GraphState {
 
     @MainActor
     func insertNewComponent<T>(component: T,
-                               effects: AsyncCallbackList) where T: StitchComponentable {
+                               effects: [ComponentAsyncCallback]) where T: StitchComponentable {
         let hasEffectsToRun = !effects.isEmpty
 
         // Change all IDs
