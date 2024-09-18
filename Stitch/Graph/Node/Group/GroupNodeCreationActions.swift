@@ -177,6 +177,12 @@ extension StitchDocumentViewModel {
                                           componentId: newGroupNodeId)
         }
         
+        // Create the actual GroupNode itself
+        let newGroupNode = self.visibleGraph
+            .createGroupNode(newGroupNodeId: newGroupNodeId,
+                             center: center,
+                             isComponent: isComponent)
+        
         //input splitters need to be west of the `to` node for the `edge`
         self.visibleGraph.createSplitterForNewGroup(splitterType: .input,
                                                     edges: edges,
@@ -190,13 +196,6 @@ extension StitchDocumentViewModel {
                                                     newGroupNodeId: newGroupNodeId,
                                                     isComponent: isComponent,
                                                     center: center)
-        
-        // Create the actual GroupNode itself
-        // MARK: must be created after splitter nodes are made to instantiate ports correctly
-        let newGroupNode = self.visibleGraph
-            .createGroupNode(newGroupNodeId: newGroupNodeId,
-                             center: center,
-                             isComponent: isComponent)
 
         // wipe selected edges and canvas items
         self.graphUI.selection = GraphUISelectionState()
@@ -296,8 +295,8 @@ extension GraphState {
         let newSplitterNodeId = NodeId()
         
         // Ignores connections from new splitter node to new component
-        let willCreateNewInputConnection = !(isComponent && splitterType == .output)
-        let willCreateNewOutputConnection = !(isComponent && splitterType == .input)
+//        let willCreateNewInputConnection = !(isComponent && splitterType == .output)
+//        let willCreateNewOutputConnection = !(isComponent && splitterType == .input)
         
         // Components create connections to parent group node
         let newConnectionPortId: NodeIOCoordinate = isComponent ?
@@ -361,18 +360,18 @@ extension GraphState {
         self.removeEdgeAt(input: oldEdge.to)
 
         // Create edge from source patch node to new splitter node
-        if willCreateNewInputConnection {
+//        if willCreateNewInputConnection {
             self.addEdgeWithoutGraphRecalc(
                 from: oldEdge.from,
                 to: newConnectionPortId)
-        }
+//        }
 
         // Create edge from new splitter node to downstream node of old connection
-        if willCreateNewOutputConnection {
+//        if willCreateNewOutputConnection {
             self.addEdgeWithoutGraphRecalc(
                 from: newConnectionPortId,
                 to: oldEdge.to)
-        }
+//        }
     }
 
     @MainActor
