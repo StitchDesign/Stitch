@@ -15,26 +15,25 @@ import SwiftUI
 import Vision
 
 // TODO: move
-final class ComponentGraphState {
+/// Tracks drafted and persisted versions of components, used to populate copies in graph.
+final class StitchMasterComponent {
     let saveLocation: ComponentSaveLocation
-    let graph: GraphState
-    let version: Int
+    let publishedComponent: StitchComponent?
+    let draftedComponent: StitchComponent
     
+    // Encoded copy of drafted component
     let documentEncoder: ComponentEncoder
     
     @MainActor
-    init(from schema: StitchComponent,
+    init(draftedComponent: StitchComponent,
+         publishedComponent: StitchComponent? = nil,
          saveLocation: ComponentSaveLocation) {
         self.saveLocation = saveLocation
-        self.version = schema.version
-        self.graph = .init(from: schema.graph)
-        self.documentEncoder = .init(component: schema,
+        self.draftedComponent = draftedComponent
+        self.publishedComponent = publishedComponent
+        self.documentEncoder = .init(component: draftedComponent,
                                      saveLocation: saveLocation)
     }
-}
-
-extension ComponentGraphState {
-    
 }
 
 @Observable
@@ -70,11 +69,8 @@ final class GraphState: Sendable {
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
     
-    // Encoded copies of local published components
-    var publishedDocumentComponents: [StitchComponent] = []
-    
-    // Drafted copies of components
-    var draftedComponents: [UUID: ComponentGraphState] = [:]
+    // Tracks all created and imported components
+    var components: [UUID: StitchMasterComponent] = [:]
 
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
@@ -91,10 +87,11 @@ final class GraphState: Sendable {
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
-        self.draftedComponents = schema.draftedComponents
-            .reduce(into: [UUID: ComponentGraphState]()) { result, componentEntity in
-                let componentGraph = ComponentGraphState(from: componentEntity,
-                                                         saveLocation: .document)
+        self.components = schema.draftedComponents
+            .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
+                let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
+                                                           saveLocation: .document)
+                result.updateValue(componentGraph, forKey: componentEntity.graph.id)
             }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes)
@@ -115,10 +112,10 @@ final class GraphState: Sendable {
         self.nodes.values.forEach { $0.initializeDelegate(graph: self) }
         
         // Set up component graphs
-        self.draftedComponents.values.forEach {
-            $0.graph.initializeDelegate(document: document,
-                                        documentEncoderDelegate: $0.documentEncoder)
-        }
+//        self.components.values.forEach {
+//            $0.graph.initializeDelegate(document: document,
+//                                        documentEncoderDelegate: $0.documentEncoder)
+//        }
         
         // Get media + encoded component files after view models are established
         Task(priority: .high) { [weak self] in
@@ -172,6 +169,10 @@ extension GraphState: GraphDelegate {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? {
         self.graphUI.propertySidebar.inputsCommonToSelectedLayers
+    }
+    
+    func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
+        await self.documentEncoderDelegate?.undoDeletedMedia(mediaKey: mediaKey) ?? .failure(.copyFileFailed)
     }
 }
 
@@ -249,11 +250,9 @@ extension GraphState {
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
 
-        let draftedComponents = self.draftedComponents.values
+        let draftedComponents = self.components.values
             .map { componentGraph in
-                let graphEntity = componentGraph.graph.createSchema()
-                let component = StitchComponent(graph: graphEntity)
-                return component
+                componentGraph.draftedComponent
         }
         
         let graph = GraphEntity(id: self.projectId,
@@ -335,11 +334,11 @@ extension GraphState {
             }
     }
     
-    var allGraphs: [GraphState] {
-        [self] + self.draftedComponents.values.flatMap {
-            $0.graph.allGraphs
-        }
-    }
+//    var allGraphs: [GraphState] {
+//        [self] + self.components.values.flatMap {
+//            $0.graph.allGraphs
+//        }
+//    }
     
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
     @MainActor

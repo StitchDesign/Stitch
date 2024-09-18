@@ -88,13 +88,12 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
             let mediaUrls = DocumentEncoder.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
 
-            let mediaEffects: AsyncCallbackList = mediaUrls.map { mediaUrl in { [weak state] in
-                guard let state = state,
-                      let decoder = state.documentEncoderDelegate else {
+            let mediaEffects: [ComponentAsyncCallback] = mediaUrls.map { mediaUrl in { [weak state] documentEncoder in
+                guard let state = state else {
                     return
                 }
                 
-                switch await decoder
+                switch await documentEncoder
                     .copyToMediaDirectory(originalURL: mediaUrl,
                                           forRecentlyDeleted: false) {
                 case .success(let newMediaUrl):

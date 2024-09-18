@@ -201,7 +201,7 @@ public enum NodeTypeEntity: Equatable, Codable {
 }
 
 public struct ComponentEntity: Codable, Equatable {
-    var id: UUID
+    var componentId: UUID
     var canvasEntity: CanvasNodeEntity_V24.CanvasNodeEntity
 }
 

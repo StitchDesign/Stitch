@@ -28,7 +28,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     }
     
     /// File removal abstraction which enables possible usage of temporary storage for recently deleted items, enabling undo/redo support on deleted files.
-    private static func removeItem(at URL: URL) -> StitchFileVoidResult {
+    static func removeItem(at URL: URL) -> StitchFileVoidResult {
         do {
             try Self.default.removeItem(at: URL)
         } catch {

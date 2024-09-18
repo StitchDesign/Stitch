@@ -26,7 +26,6 @@ extension NodeInfo {
             let node = patch.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         activeIndex: .init(.zero),
                                          graphDelegate: nil)!
             var supportedTypes = Set<UserVisibleType>()
             switch patch {
@@ -49,7 +48,6 @@ extension NodeInfo {
             let node = layer.defaultNode(id: .init(),
                                          position: .zero,
                                          zIndex: .zero,
-                                         activeIndex: .init(.zero),
                                          graphDelegate: nil)!
 
             return NodeInfo(name: node.displayTitle,

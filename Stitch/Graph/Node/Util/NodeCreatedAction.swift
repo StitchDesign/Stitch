@@ -186,7 +186,6 @@ extension StitchDocumentViewModel {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     graphTime: graphTime,
-                    activeIndex: self.activeIndex,
                     graphDelegate: self.visibleGraph)
             } // choice
         }

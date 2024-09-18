@@ -16,7 +16,6 @@ extension Patch {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         activeIndex: .init(.zero),
                          graphDelegate: graph)!
     }
 }
@@ -27,7 +26,6 @@ extension Layer {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         activeIndex: .init(.zero),
                          graphDelegate: graph)!
     }
 
@@ -70,7 +68,6 @@ extension NodeDefinition {
                              position: .zero,
                              zIndex: .zero,
                              parentGroupNodeId: nil,
-                             activeIndex: .init(.zero),
                              graphDelegate: nil)
     }
 }

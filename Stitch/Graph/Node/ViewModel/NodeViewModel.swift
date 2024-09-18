@@ -60,11 +60,13 @@ final class NodeViewModel: Sendable {
     
     // i.e. "create node view model from schema
     @MainActor
-    init(from schema: NodeEntity) {
+    init(from schema: NodeEntity,
+         components: [UUID : StitchMasterComponent]) {
         self.id = schema.id
         self.title = schema.title
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
-                                          nodeId: schema.id)
+                                          nodeId: schema.id,
+                                          components: components)
         
         self._cachedDisplayTitle = self.getDisplayTitle()
     }
@@ -72,7 +74,7 @@ final class NodeViewModel: Sendable {
     @MainActor
     convenience init(from schema: NodeEntity,
                      graphDelegate: GraphDelegate) {
-        self.init(from: schema)
+        self.init(from: schema, components: graphDelegate.components)
         self.initializeDelegate(graph: graphDelegate)
     }
 }
@@ -580,17 +582,18 @@ extension NodeViewModel: NodeDelegate {
 }
 
 
-extension NodeViewModel: SchemaObserver {
-    @MainActor
-    static func createObject(from entity: NodeEntity) -> Self {
-        return .init(from: entity,
-                     activeIndex: .init(.zero))
-    }
+extension NodeViewModel {
+//    @MainActor
+//    static func createObject(from entity: NodeEntity) -> Self {
+//        return .init(from: entity)
+//    }
 
     // MARK: main actor needed to prevent view updates from background thread
     @MainActor
-    func update(from schema: NodeEntity) {
-        self.nodeType.update(from: schema.nodeTypeEntity)
+    func update(from schema: NodeEntity,
+                components: [UUID : StitchMasterComponent]) {
+        self.nodeType.update(from: schema.nodeTypeEntity,
+                             components: components)
 
         if self.title != schema.title {
             self.title = schema.title
@@ -601,13 +604,13 @@ extension NodeViewModel: SchemaObserver {
         }
     }
 
-    func createSchema() -> NodeEntity {
+    @MainActor func createSchema() -> NodeEntity {
         NodeEntity(id: self.id,
                    nodeTypeEntity: self.nodeType.createSchema(),
                    title: self.title)
     }
     
-    func onPrototypeRestart() {
+    @MainActor func onPrototypeRestart() {
         // Reset ephemeral observers
         self.createEphemeralObservers()
         

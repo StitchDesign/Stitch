@@ -116,9 +116,9 @@ extension StitchDocumentViewModel {
         self.graph
     }
     
-    var allGraphs: [GraphState] {
-        self.graph.allGraphs
-    }
+//    var allGraphs: [GraphState] {
+//        self.graph.allGraphs
+//    }
     
     var activeIndex: ActiveIndex {
         self.graphUI.activeIndex
@@ -136,9 +136,9 @@ extension StitchDocumentViewModel {
         self.updateTopologicalData()
 
         // MARK: must be called after connections are established in both visible nodes and topolological data
-        self.allGraphs.forEach {
-            $0.visibleNodesViewModel.updateAllNodeViewData()
-        }
+//        self.allGraphs.forEach {
+//            $0.visibleNodesViewModel.updateAllNodeViewData()
+//        }
         
         // Update preview layers
         self.updateOrderedPreviewLayers()

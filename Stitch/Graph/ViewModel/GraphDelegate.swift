@@ -19,6 +19,8 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var groupNodeFocused: NodeId? { get }
     
+    var components: [UUID : StitchMasterComponent] { get }
+    
     @MainActor var mediaLibrary: MediaLibrary { get set }
     
     var motionManagers: StitchMotionManagersDict { get set }

@@ -16,7 +16,6 @@ extension Patch {
         self.defaultNode(id: .init(),
                          position: .zero,
                          zIndex: .zero,
-                         activeIndex: .init(.zero),
                          graphDelegate: nil)?
             .outputs ?? []
     }
@@ -30,7 +29,6 @@ extension Patch {
                      // TODO: separate 'first creation of node' from 'recreation of node via schema'
                      //                     firstCreation: Bool = true,
                      graphTime: TimeInterval = .zero,
-                     activeIndex: ActiveIndex,
                      graphDelegate: GraphDelegate?) -> NodeViewModel? {
 
         // Preferred newer method for node creation
@@ -38,7 +36,6 @@ extension Patch {
             return GraphNodeType.createViewModel(id: id,
                                                  position: position.toCGPoint,
                                                  zIndex: zIndex,
-                                                 activeIndex: activeIndex,
                                                  graphDelegate: graphDelegate)
         }
 

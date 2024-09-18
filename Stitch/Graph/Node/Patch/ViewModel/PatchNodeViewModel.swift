@@ -312,7 +312,7 @@ extension NodeViewModel {
                                     nodeTypeEntity: .patch(patchNodeEntity),
                                     title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
         
-        self.init(from: nodeEntity)
+        self.init(from: nodeEntity, components: [:])
     }
     
     @MainActor
