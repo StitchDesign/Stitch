@@ -14,15 +14,23 @@ struct PortValuesPreviewData<FieldType: FieldViewModel>: Identifiable {
     let fields: [FieldType]
 }
 
-struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserver {
+struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
     // Pin `NodeRowData` via `@ValuesObserver` so that this view re-renders as `NodeRowData.values` changes
-    @Bindable var data: RowObserver
-    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
+    @Bindable var data: NodeRowObserverType
+    
+    @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
+    
+    // these aren't bindable ?
+//    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
+    var fieldValueTypes: [FieldGroupTypeViewModel<NodeRowObserverType.RowViewModelType.FieldType>] {
+        rowViewModel.fieldValueTypes
+    }
+    
     let coordinate: NodeIOCoordinate
     let nodeIO: NodeIO
 
-    @State private var tableData: [PortValuesPreviewData<RowObserver.RowViewModelType.FieldType>] = []
+    @State private var tableData: [PortValuesPreviewData<NodeRowObserverType.RowViewModelType.FieldType>] = []
 
     var values: PortValues {
         self.data.allLoopedValues
@@ -39,6 +47,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
                     .monospaced()
                     .frame(minWidth: 40)    // necessary to prevent overflow scenarios
                     .gridCellAnchor(UnitPoint(x: 0.5, y: 0.5))
+               
                 StitchTextView(string: "Values", lineLimit: 1)
                     .monospaced()
                     .gridCellAnchor(UnitPoint(x: 0, y: 0.5))
@@ -46,7 +55,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
             }
             .padding(.bottom, 2)
 
-            ForEach(tableData) { data in
+            ForEach(tableData, id: \.id) { data in
                 GridRow {
                     StitchTextView(string: "\(data.loopIndex)")
                         .monospaced()
@@ -78,7 +87,9 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
         ScrollView {
             valueGrid
         }
+        // if this is constantly updating then the expensive `updateTableData` runs anyway
         .onChange(of: self.data.allLoopedValues, initial: true) {
+            log("onChange: self.data.allLoopedValues: \(self.data.allLoopedValues)")
             self.updateTableData(with: self.data.allLoopedValues)
         }
         .padding()
@@ -86,11 +97,53 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
 
     @MainActor
     func updateTableData(with values: PortValues) {
+        
         let enumerated = Array(zip(values.indices, values))
-        self.tableData = enumerated.map { index, _ in
-            .init(loopIndex: index,
-                  fields: fieldValueTypes.flatMap { $0.fieldObservers })
+        log("updateTableData: enumerated: \(enumerated)")
+        
+        log("updateTableData: self.tableData was: \(self.tableData)")
+        
+        self.tableData = enumerated.map { (index: Int, value: PortValue) in
+                        
+            // Create new field values,
+            
+//            let _fieldValueTypes: [FieldGroupTypeViewModel<NodeRowObserverType.RowViewModelType.FieldType>] = getFieldValueTypes(
+//                initialValue: value,
+//                nodeIO: NodeRowObserverType.nodeIOType,
+//                unpackedPortParentFieldGroupType: nil,
+//                unpackedPortIndex: nil,
+//                importedMediaObject: nil,
+//                rowViewModel: rowViewModel)
+            
+            
+//            // Can't update the field observers via `rowObserver.activeValueChanged`, because that would affect other views that are using the rowObserver;
+//            // But can't rely
+//            // But how to get fields' labels otherwise?
+//            let fields = fieldValueTypes.flatMap {
+//                let observer = $0.fieldObservers.first!
+//                $0.fieldObservers.flatMap { (fieldViewModel: FieldViewModel) in
+//                    
+//                }
+//            }
+//            
+//            let fieldsValues = fields.map(\.fieldValue)
+//            log("updateTableData: index: \(index), fields: \(fields)")
+//            log("updateTableData: index: \(index), fieldsValues: \(fieldsValues)")
+//            return .init(loopIndex: index,
+//                         fields: fields)
+            fatalError()
         }
+        
+//        self.tableData = enumerated.map { index, _ in
+//            let fields = fieldValueTypes.flatMap { $0.fieldObservers }
+//            let fieldsValues = fields.map(\.fieldValue)
+//            log("updateTableData: index: \(index), fields: \(fields)")
+//            log("updateTableData: index: \(index), fieldsValues: \(fieldsValues)")
+//            return .init(loopIndex: index,
+//                         fields: fields)
+//        }
+        
+        log("updateTableData: self.tableData is now: \(self.tableData)")
     }
 }
 

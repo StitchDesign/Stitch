@@ -412,7 +412,8 @@ struct NodeRowPortView<NodeRowObserverType: NodeRowObserver>: View {
             // Conditional is a hack that cuts down on perf
             if showPopover {
                 PortValuesPreviewView(data: rowObserver,
-                                      fieldValueTypes: rowViewModel.fieldValueTypes,
+//                                      fieldValueTypes: rowViewModel.fieldValueTypes,
+                                      rowViewModel: rowViewModel,
                                       coordinate: self.rowObserver.id,
                                       nodeIO: nodeIO)
             }
