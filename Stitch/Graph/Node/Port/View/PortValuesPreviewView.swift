@@ -106,6 +106,8 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
         self.tableData = enumerated.map { (index: Int, value: PortValue) in
                         
             // Create new field values,
+
+            
             
 //            let _fieldValueTypes: [FieldGroupTypeViewModel<NodeRowObserverType.RowViewModelType.FieldType>] = getFieldValueTypes(
 //                initialValue: value,
@@ -114,6 +116,17 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 //                unpackedPortIndex: nil,
 //                importedMediaObject: nil,
 //                rowViewModel: rowViewModel)
+            
+            // ugh but then this is a method on row view model;
+//           these should be pure functions; use pure functions to create the view models with the appropriate data AND THEN set them in the owner-class
+            
+            // Don't want to create a bunch of new field view models on the row observer; just want the information about field labes
+            let _fieldValueTypes = rowViewModel.createFieldValueTypes(
+                initialValue: value,
+                nodeIO: NodeRowObserverType.nodeIOType,
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                importedMediaObject: nil)
             
             
 //            // Can't update the field observers via `rowObserver.activeValueChanged`, because that would affect other views that are using the rowObserver;
