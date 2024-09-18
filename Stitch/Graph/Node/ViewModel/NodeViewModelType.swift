@@ -69,7 +69,6 @@ extension StitchComponentViewModel {
 extension StitchComponentViewModel: NodeCalculatable {
     typealias InputRow = InputNodeRowObserver
     typealias OutputRow = OutputNodeRowObserver
-    typealias EvalResult = Stitch.EvalResult
     
     var id: NodeId {
         get {
@@ -160,6 +159,7 @@ extension NodeViewModelType {
                                                                             commentBoxes: [],
                                                                             draftedComponents: [])),
                                         canvas: componentCanvas))
+                return
             }
             
             let component = StitchComponentViewModel(
