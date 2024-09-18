@@ -41,8 +41,46 @@ final class InputFieldViewModel: FieldViewModel {
     var fieldIndex: Int
     var fieldLabel: String
     var isBlockedOut: Bool = false
-
+    
     weak var rowViewModelDelegate: InputNodeRowViewModel?
+    
+    var fieldLabelIndex: Int {
+        guard let rowViewModelDelegate = rowViewModelDelegate else {
+            fatalErrorIfDebug()
+            return fieldIndex
+        }
+        
+        switch rowViewModelDelegate.id.portType {
+        
+        case .portIndex:
+            // leverage patch node definition to get label
+            return fieldIndex
+            
+        case .keyPath(let layerInputType):
+            
+            switch layerInputType.portType {
+            case .packed:
+                // if it is packed, then field index is correct,
+                // so can use proper label list etc.
+                return fieldIndex
+                
+            case .unpacked(let unpackedPortType):
+                let index = unpackedPortType.rawValue
+                return index
+            }
+        }
+    }
+    
+    //
+    var label: String {
+        // leverage the node definition to get the proper label
+        
+        let fieldGroupType: FieldGroupType? = nil
+        fieldGroupType!.labels
+        
+        fatalError()
+        return ""
+    }
     
     init(fieldValue: FieldValue,
          fieldIndex: Int,
@@ -89,12 +127,28 @@ extension FieldViewModel {
 
 // i.e. `createFieldObservers`
 extension Array where Element: FieldViewModel {
+    
+    /*
+    I'm creating a field view model for an unpacked Size input's Height field
+     
+    with our fieldLabelIndex logic, we can get the index of 1
+     
+     pass down an enum, for handling how field indices:
+     - normal case: patch node inputs, packed layer node inputs
+     - unpacked layer input (field index FOR LABEL PURPOSES)
+     
+     also pass in a Size FieldGroupType
+     */
+    
     init(_ fieldGroupType: FieldGroupType,
+         
          // Unpacked ports need special logic for grabbing their proper label
          // e.g. the `y-field` of an unpacked `Position` layer input would otherwise have a field group type of `number` and a field index of 0, resulting in no label at all
          unpackedPortParentFieldGroupType: FieldGroupType?,
          unpackedPortIndex: Int?,
+         
          startingFieldIndex: Int,
+         
          rowViewModel: Element.NodeRowType?) {
         
         // If this is a field for an unpacked layer input, we must look at the unpacked's parent label-list
@@ -102,6 +156,18 @@ extension Array where Element: FieldViewModel {
                 
         // Default value still uses original, proper field group type
         let defaultValues = fieldGroupType.defaultFieldValues
+        
+        
+        
+        
+        /*
+         Maybe?
+         
+         When creating single field view model for unpacked Size input's Height field, pass in a PortValue.Size, but then chop down the defaultValues list to be only of length
+         
+         to chop down the defaultValues in the case of the Height field view model creation,
+         switch on the enum and only grab the SPECIFIC INDEX 
+         */
         
         self = defaultValues.enumerated().map { fieldIndex, fieldValue in
             
