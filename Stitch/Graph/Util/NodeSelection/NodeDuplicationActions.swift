@@ -21,10 +21,11 @@ struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
         }
         
         let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-            groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
+            groupNodeFocused: state.graphUI.groupNodeFocused,
             selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
         
-        state.visibleGraph.insertNewComponent(copiedComponentResult)
+        state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                              encoder: state.visibleGraph.documentEncoderDelegate)
         
         state.graph.encodeProjectInBackground()
     }
@@ -33,13 +34,16 @@ struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
 extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
-    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>) where T: StitchComponentable {
+    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
+                               encoder: (any DocumentEncodable)?) where T: StitchComponentable {
         self.insertNewComponent(component: copiedComponentResult.component,
+                                encoder: encoder,
                                 effects: copiedComponentResult.effects)
     }
 
     @MainActor
     func insertNewComponent<T>(component: T,
+                               encoder: (any DocumentEncodable)?,
                                effects: [ComponentAsyncCallback]) where T: StitchComponentable {
         let hasEffectsToRun = !effects.isEmpty
 
@@ -69,8 +73,12 @@ extension GraphState {
         // Display loading status for imported media effects
         self.libraryLoadingStatus = .loading
 
-        Task {
-            await effects.processEffects()
+        Task(priority: .high) { [weak encoder] in
+            guard let encoder = encoder else {
+                return
+            }
+            
+            await effects.processEffects(encoder)
 
             await MainActor.run { [weak self] in
                 self?._insertNewComponent(newComponent)

@@ -73,7 +73,6 @@ struct GraphBaseView: View {
         GraphGestureView(document: document) {
             NodesView(document: document,
                       graph: graph,
-                      groupNodeFocused: graphUI.groupNodeFocused,
                       groupTraversedToChild: graphUI.groupTraversedToChild,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
 

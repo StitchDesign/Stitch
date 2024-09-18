@@ -148,7 +148,7 @@ extension GraphState: GraphDelegate {
     }
     
     var groupNodeFocused: NodeId? {
-        self.graphUI.groupNodeFocused?.asNodeId
+        self.graphUI.groupNodeFocused?.groupNodeId
     }
     
     var nodesDict: NodesViewModelDict {
@@ -324,7 +324,7 @@ extension GraphState {
     
     @MainActor
     func getBroadcasterNodesAtThisTraversalLevel() -> [NodeDelegate] {
-        self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
+        self.visibleNodesViewModel.getVisibleNodes(at: self.graphUI.groupNodeFocused?.groupNodeId)
             .compactMap { node in
                 guard node.kind == .patch(.wirelessBroadcaster) else {
                     return nil
@@ -545,25 +545,16 @@ extension GraphState {
         self.getNodeViewModel(id)
     }
     
-    // id = NodeId for GroupNode
-    func getGroupNode(id: GroupNodeId) -> NodeViewModel? {
-        self.getNodeViewModel(id.asNodeId)
-    }
-    
-    func getGroupNodeBreadcrumb(id: GroupNodeId) -> NodeId? {
-        getGroupNode(id: id)?.id
-    }
-    
     @MainActor
     func getVisibleNodes() -> [NodeDelegate] {
         self.visibleNodesViewModel
-            .getVisibleNodes(at: self.graphUI.groupNodeFocused?.asNodeId)
+            .getVisibleNodes(at: self.graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor
     func getVisibleCanvasItems() -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.asNodeId)
+            .getVisibleCanvasItems(at: self.graphUI.groupNodeFocused?.groupNodeId)
     }
     
     @MainActor

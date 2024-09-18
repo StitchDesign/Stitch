@@ -69,7 +69,7 @@ extension StitchDocumentViewModel {
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
 
         node.getAllCanvasObservers().forEach {
-            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.asNodeId            
+            $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
         

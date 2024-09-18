@@ -53,6 +53,15 @@ extension StitchComponentViewModel {
                                       documentEncoderDelegate: masterComponent.documentEncoder)
     }
     
+    @MainActor func createSchema() -> ComponentEntity {
+        let inputs = self.getAllInputsObservers()
+            .map { $0.createSchema().portData }
+        
+        return .init(componentId: self.componentId,
+                     inputs: inputs,
+                     canvasEntity: self.canvas.createSchema())
+    }
+    
     @MainActor func update(from schema: ComponentEntity,
                            components: [UUID : StitchMasterComponent]) {
         self.componentId = schema.componentId
@@ -224,8 +233,7 @@ extension NodeViewModelType {
         case .group(let canvasNodeViewModel):
             return .group(canvasNodeViewModel.createSchema())
         case .component(let component):
-            return .component(.init(componentId: component.componentId,
-                                    canvasEntity: component.canvas.createSchema()))
+            return .component(component.createSchema())
         }
     }
 }

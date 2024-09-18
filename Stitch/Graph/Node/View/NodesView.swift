@@ -15,7 +15,6 @@ struct NodesView: View {
     
     // Manages visible nodes array to animate instances when a group node changes
     @Bindable var graph: GraphState
-    let groupNodeFocused: GroupNodeId?
     
     // animation state for group node traversals
     let groupTraversedToChild: Bool
@@ -70,7 +69,7 @@ struct NodesView: View {
     var body: some View {
         Group {
             if let nodePageData = visibleNodesViewModel
-                .getViewData(groupNodeFocused: groupNodeFocused) {
+                .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
                                 
                 let inputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
@@ -109,7 +108,7 @@ struct NodesView: View {
                 .coordinateSpace(name: Self.coordinateNameSpace)
                 .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                     currentNodePage: nodePageData,
-                                                    groupNodeFocused: groupNodeFocused))
+                                                    groupNodeFocused: graphUI.groupNodeFocused))
             } else {
                 EmptyView()
             }

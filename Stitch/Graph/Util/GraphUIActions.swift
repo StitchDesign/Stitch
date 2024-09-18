@@ -46,23 +46,16 @@ struct SafeAreaInsetsReceived: GraphUIEvent {
 
 struct GroupNodeDoubleTapped: GraphEvent {
 
-    let id: GroupNodeId
+    let id: NodeId
 
     func handle(state: GraphState) {
 
         log("GroupNodeDoubleTapped: id: \(id)")
 
-        guard let crumb = state.getGroupNodeBreadcrumb(id: id) else {
-            log("GroupNodeDoubleTapped: could not find group node \(id)")
-            return
-        }
-        
-        state.graphUI.groupNodeFocused = id
-
         // De-select any nodes once new parent is shown
         state.resetAlertAndSelectionState()
 
-        state.graphUI.groupNodeBreadcrumbs.append(crumb)
+        state.graphUI.groupNodeBreadcrumbs.append(.groupNode(id))
 
         // Animate to child
         state.graphUI.groupTraversedToChild = true

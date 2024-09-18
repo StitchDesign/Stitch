@@ -109,6 +109,7 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             }
 
             state.insertNewComponent(component: newComponent,
+                                     encoder: state.documentEncoderDelegate,
                                      effects: mediaEffects)
             return .persistenceResponse
         } catch {

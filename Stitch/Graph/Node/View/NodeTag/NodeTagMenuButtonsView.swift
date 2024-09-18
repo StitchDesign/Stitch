@@ -19,7 +19,7 @@ struct NodeTagMenuButtonsView: View {
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
-    var activeGroupId: GroupNodeId?
+    var activeGroupId: NodeId?
     var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
@@ -322,7 +322,7 @@ struct NodeTagMenuButtonsView: View {
     var visitGroupButton: some View {
         nodeTagMenuButton(label: "Visit Group") {
             if let nodeId = canvasItemId.nodeCase {
-                dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
+                dispatch(GroupNodeDoubleTapped(id: nodeId))
             }
         }
     }

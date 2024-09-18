@@ -32,7 +32,7 @@ extension VisibleNodesViewModel {
     }
 
     /// Returns list of view models to display given the actively selected group (or lack thereof).
-    func getViewData(groupNodeFocused: GroupNodeId?) -> NodePageData? {
+    func getViewData(groupNodeFocused: NodeId?) -> NodePageData? {
         self.nodesByPage.get(groupNodeFocused.nodePageType)
     }
 

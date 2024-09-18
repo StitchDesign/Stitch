@@ -56,6 +56,10 @@ extension GroupNodeType {
     var isComponent: Bool {
         self.component != nil
     }
+    
+    var asNodeId: NodeId? {
+        self.groupNodeId
+    }
 }
 
 @Observable

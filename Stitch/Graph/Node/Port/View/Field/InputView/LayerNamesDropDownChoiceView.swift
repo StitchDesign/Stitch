@@ -90,7 +90,7 @@ extension StitchDocumentViewModel {
         return initialChoices + layers
     }
     
-    func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+    @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
         getDescendantsIds(id: layer,
                           groups: self.visibleGraph.getSidebarGroupsDict(),
                           acc: .init())

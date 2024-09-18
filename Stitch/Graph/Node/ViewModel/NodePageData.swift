@@ -29,7 +29,7 @@ final class NodePageData {
 /// or visiting some group.
 enum NodePageType: Hashable {
     case root
-    case group(GroupNodeId)
+    case group(NodeId)
 }
 
 extension NodePageType {
@@ -43,7 +43,7 @@ extension NodePageType {
     }
 }
 
-extension GroupNodeId? {
+extension NodeId? {
     var nodePageType: NodePageType {
         guard let groupNodeId = self else {
             return .root

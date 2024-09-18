@@ -92,7 +92,7 @@ extension StitchStore {
                     }
                     
                     log("handleProjectTapped: about to set \(document.id)")
-                    let documentViewModel = StitchDocumentViewModel(from: data,
+                    let documentViewModel = StitchDocumentViewModel(from: document,
                                                                     store: store)
                     store.navPath = [documentViewModel]
                 }
