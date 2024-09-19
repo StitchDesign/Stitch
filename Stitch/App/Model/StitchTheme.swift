@@ -33,6 +33,8 @@ enum StitchTheme: String, CaseIterable, Codable, Equatable, Hashable {
             return "AppIconOrange"
         case .pink:
             return "AppIconPink"
+        case .red:
+            return "AppIconRed"
         default:
             // nil = default app icon
             return nil
