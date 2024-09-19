@@ -40,12 +40,17 @@ struct SidebarListItemSwipeInnerView: View {
         graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(item.id.asLayerNodeId)
     }
     
-    var color: Color {
+    var fontColor: Color {
+        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
         if isNonEditModeSelected {
             return .white
         }
-        
-        return selection.color(isHidden)
+            
+        else if isBeingEdited {
+            return selection.color(isHidden)
+        } else {
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+        }
     }
 
     var body: some View {
@@ -60,7 +65,7 @@ struct SidebarListItemSwipeInnerView: View {
                                     current: current,
                                     proposedGroup: proposedGroup,
                                     isClosed: isClosed,
-                                    color: color,
+                                    fontColor: fontColor,
                                     selection: selection,
                                     isBeingEdited: isBeingEdited,
                                     isHidden: isHidden,
@@ -75,7 +80,7 @@ struct SidebarListItemSwipeInnerView: View {
                             item: item,
                             isGroup: item.isGroup,
                             isClosed: isClosed,
-                            color: color,
+                            fontColor: fontColor,
                             selection: selection,
                             isBeingEdited: isBeingEdited,
                             isHidden: isHidden)

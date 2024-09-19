@@ -20,11 +20,11 @@ struct DeleteShortcutKeyPressed: GraphEventWithResponse {
         
         if !activelySelectedLayers.isEmpty {
             
-            // "Deleting actively selected layers" means we need to treat those layers as if they were deleted via the SidebarFooter "Delete" button in Sidebar Edit Mode.
-            // So, add each actively-selected-layer as if it were an edit mode selection.
-            activelySelectedLayers.forEach { activelySelectedLayer in
-                state.sidebarItemSelectedViaEditMode(activelySelectedLayer)
-            }
+//            // "Deleting actively selected layers" means we need to treat those layers as if they were deleted via the SidebarFooter "Delete" button in Sidebar Edit Mode.
+//            // So, add each actively-selected-layer as if it were an edit mode selection.
+//            activelySelectedLayers.forEach { activelySelectedLayer in
+//                state.sidebarItemSelectedViaEditMode(activelySelectedLayer)
+//            }
             
             // ... Then delete the layers.
             state.sidebarSelectedItemsDeletingViaEditMode()

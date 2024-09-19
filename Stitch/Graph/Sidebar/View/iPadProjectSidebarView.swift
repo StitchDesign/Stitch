@@ -34,7 +34,8 @@ struct ProjectSidebarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            
+         
+            // TODO: REMOVE ONCE OTHER BEHAVIOR COMPARISONS ETC. ARE FINSHED
             // Catalyst only
 #if targetEnvironment(macCatalyst)
             VStack {
@@ -103,7 +104,7 @@ struct SidebarEditModeToggled: GraphEvent {
     func handle(state: GraphState) {
         // Reset selection-state, but preserve inspector's focused layers
         let inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers
-        state.sidebarSelectionState = .init()
+        state.sidebarSelectionState.resetEditModeSelections()
         state.sidebarSelectionState.inspectorFocusedLayers = inspectorFocusedLayers
         
         // Do not set until the end; otherwise selection-state resets loses the change.

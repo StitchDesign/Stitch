@@ -18,7 +18,7 @@ struct SidebarListItemChevronView: View {
     let parentId: LayerNodeId
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
 
     let isHidden: Bool
     
@@ -43,7 +43,7 @@ struct SidebarListItemChevronView: View {
             .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                    height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
         
-            .foregroundColor(color)
+            .foregroundColor(fontColor)
             .rotation3DEffect(Angle(degrees: rotationZ),
                               axis: (x: 0, y: 0, z: rotationZ))
                 

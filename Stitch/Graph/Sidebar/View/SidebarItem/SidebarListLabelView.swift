@@ -17,7 +17,7 @@ struct SidebarListItemLeftLabelView: View {
     let nodeId: LayerNodeId // debug
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
@@ -83,7 +83,7 @@ struct SidebarListItemLeftLabelView: View {
                 #endif
                     .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                            height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                    .foregroundColor(color)
+                    .foregroundColor(fontColor)
                     .opacity(masks ? 1 : 0)
                     .animation(.linear, value: masks)
                     // .border(.red)
@@ -92,7 +92,7 @@ struct SidebarListItemLeftLabelView: View {
 //            if isGroup {
                 SidebarListItemChevronView(isClosed: isClosed,
                                            parentId: nodeId,
-                                           color: color,
+                                           fontColor: fontColor,
                                            isHidden: isHidden)
                 .opacity(isGroup ? 1 : 0)
                 // .border(.green)
@@ -104,11 +104,11 @@ struct SidebarListItemLeftLabelView: View {
                 .padding(2)
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                .foregroundColor(color)
+                .foregroundColor(fontColor)
                 // .border(.yellow)
             
             label
-                .foregroundColor(color)
+                .foregroundColor(fontColor)
         }
         .padding(.leading, 4)
 //        .padding(.leading, isGroup ? 4 : 0)
@@ -120,7 +120,7 @@ struct SidebarListItemLeftLabelView: View {
             if isBeingEdited {
                 StitchTextView(string: _name,
                                font: SIDEBAR_LIST_ITEM_FONT,
-                               fontColor: color)
+                               fontColor: fontColor)
                 .truncationMode(.tail)
 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, 44)
@@ -130,7 +130,7 @@ struct SidebarListItemLeftLabelView: View {
             } else {
                 StitchTextView(string: _name,
                                font: SIDEBAR_LIST_ITEM_FONT,
-                               fontColor: color)
+                               fontColor: fontColor)
             }
         }
         .lineLimit(1)
@@ -144,7 +144,7 @@ struct SidebarListItemRightLabelView: View {
     let isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool // is sidebar being edited?
@@ -161,7 +161,7 @@ struct SidebarListItemRightLabelView: View {
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(id: id,
-                                                       color: color,
+                                                       fontColor: fontColor,
                                                        selection: selection,
                                                        isHidden: isHidden,
                                                        isBeingEdited: isBeingEdited)

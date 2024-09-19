@@ -42,16 +42,30 @@ struct SidebarItemTapped: GraphEvent {
             if alreadySelected {
                 state.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
                 state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
+                state.sidebarItemDeselectedViaEditMode(id)
             } else {
                 state.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                 state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+                state.sidebarItemSelectedViaEditMode(id)
                 state.deselectAllCanvasItems()
             }
             
         } else {
+            
+            state.sidebarSelectionState.resetEditModeSelections()
+            
             // Note: Click will not deselect an already-selected layer
+            
+            
             state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
             state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
+            
+            
+            state.sidebarItemSelectedViaEditMode(id)
+            
+            // But also need to deselect all other
+            
+            
             state.deselectAllCanvasItems()
         }
         
@@ -201,10 +215,16 @@ struct SidebarItemDeselected: GraphEvent {
     let id: LayerNodeId
 
     func handle(state: GraphState) {
+        state.sidebarItemDeselectedViaEditMode(id)
+    }
+}
 
-        // if we deselected a group,
+extension GraphState {
+    @MainActor
+    func sidebarItemDeselectedViaEditMode(_ id: LayerNodeId) {
+        // If we deselected a group,
         // then we should also deselect all its children.
-        let groups = state.getSidebarGroupsDict()
+        let groups = self.getSidebarGroupsDict()
         
         var idsToDeselect = LayerIdSet([id])
 
@@ -223,11 +243,11 @@ struct SidebarItemDeselected: GraphEvent {
         // now that we've gathered all the ids (ie directly de-selected item + its descendants),
         // we can remove them
         idsToDeselect.forEach { idToRemove in
-            state.sidebarSelectionState = removeFromSelections(
+            self.sidebarSelectionState = removeFromSelections(
                 idToRemove,
-                state.sidebarSelectionState)
+                self.sidebarSelectionState)
         }
         
-        state.updateInspectorFocusedLayers()
+        self.updateInspectorFocusedLayers()
     }
 }

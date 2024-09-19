@@ -20,9 +20,19 @@ struct SidebarFooterView: View {
     let syncStatus: iCloudSyncStatus
     let layerNodes: LayerNodesForSidebarDict
 
+    var showEditModeFooter: Bool {
+        #if targetEnvironment(macCatalyst)
+        // on Catalyst, show edit mode footer if we're in edit-mode or have at least one edit-mode-selection
+        return !selections.primary.isEmpty
+        #else
+        // on iPad, only show edit mode footer in edit-mode
+        return isBeingEdited
+        #endif
+    }
+    
     var body: some View {
         HStack {
-            if isBeingEdited {
+            if showEditModeFooter {
                 editModeFooter
                     .animation(.default, value: isBeingEdited)
             } else {
@@ -31,7 +41,7 @@ struct SidebarFooterView: View {
             }
         }
         .padding()
-        .animation(.default, value: isBeingEdited)
+        .animation(.default, value: showEditModeFooter)
         .animation(.default, value: selections)
         .animation(.default, value: groups)
         .animation(.default, value: layerNodes)

@@ -22,7 +22,7 @@ struct SidebarListItemView: View {
     var isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
@@ -63,7 +63,7 @@ struct SidebarListItemView: View {
                 name: name,
                 layer: layer,
                 nodeId: layerNodeId,
-                color: color,
+                fontColor: fontColor,
                 selection: selection,
                 isHidden: isHidden,
                 isBeingEdited: isBeingEdited,
