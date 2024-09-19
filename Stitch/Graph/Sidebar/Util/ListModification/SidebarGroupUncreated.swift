@@ -14,39 +14,45 @@ import SwiftUI
 // note: see `_SidebarGroupUncreated` for new stuff to do e.g. `syncSidebarDataWithNodes`
 struct SidebarGroupUncreated: GraphEventWithResponse {
     func handle(state: GraphState) -> GraphResponse {
-        
+        state.sidebarGroupUncreatedViaEditMode()
+        return .init(willPersist: true)
+    }
+}
+
+extension GraphState {
+    
+    @MainActor
+    func sidebarGroupUncreatedViaEditMode() {
         log("_SidebarGroupUncreated called")
 
-        let primarilySelectedGroups = state.sidebarSelectionState.primary
+        let primarilySelectedGroups = self.sidebarSelectionState.primary
         
         guard let group = primarilySelectedGroups.first else {
             // Expected group here
             fatalErrorIfDebug()
-            return .noChange
+            return
         }
         
-        let children = state.orderedSidebarLayers.get(group.id)?.children ?? []
-        let newParentId = state.getNodeViewModel(group.asNodeId)?.layerNode?.layerGroupId
+        let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
+        let newParentId = self.getNodeViewModel(group.asNodeId)?.layerNode?.layerGroupId
 
-        // Update sidebar state
-        state.orderedSidebarLayers = state.orderedSidebarLayers.ungroup(selectedGroupId: group.asNodeId)
+        // Update sidebar self
+        self.orderedSidebarLayers = self.orderedSidebarLayers.ungroup(selectedGroupId: group.asNodeId)
 
         // find each child of the group, set its layer group id to the parent of the selected group
         children.forEach { child in
-            if let layerNode = state.getNodeViewModel(child.id) {
+            if let layerNode = self.getNodeViewModel(child.id) {
                 layerNode.layerNode?.layerGroupId = newParentId
             }
         }
 
         // finally, delete layer group node itself (but not its children)
-        state.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
+        self.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
-        state.updateSidebarListStateAfterStateChange()
+        self.updateSidebarListStateAfterStateChange()
         
         // reset selection-state
-        state.sidebarSelectionState = .init()
-        
-        return .init(willPersist: true)
+        self.sidebarSelectionState = .init()
     }
 }

@@ -44,12 +44,16 @@ struct SidebarListView: View {
         graph.sidebarListState
     }
     
+    var groups: SidebarGroupsDict {
+        graph.getSidebarGroupsDict()
+    }
+        
     var sidebarDeps: SidebarDeps {
         SidebarDeps(
             layerNodes: .fromLayerNodesDict(
                 nodes: graph.layerNodes,
                 orderedSidebarItems: graph.orderedSidebarLayers),
-            groups: graph.getSidebarGroupsDict(),
+            groups: groups,
             expandedItems: graph.getSidebarExpandedItems())
     }
 
@@ -118,6 +122,13 @@ struct SidebarListView: View {
                         isBeingEdited: isBeingEditedAnimated,
                         activeGesture: $activeGesture,
                         activeSwipeId: $activeSwipeId)
+                    // Would `primaryAction` help with right click?: https://developer.apple.com/documentation/swiftui/view/contextmenu(forselectiontype:menu:primaryaction:)#Add-a-primary-action
+                    .contextMenu(ContextMenu(menuItems: {
+                        SidebarFooterButtonsView(groups: groups,
+                                                 selections: selections,
+                                                 isBeingEdited: isBeingEdited,
+                                                 layerNodes: layerNodesForSidebarDict)
+                    }))
                     .zIndex(item.zIndex)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach

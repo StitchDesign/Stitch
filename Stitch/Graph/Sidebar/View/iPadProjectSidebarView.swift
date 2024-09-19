@@ -35,26 +35,26 @@ struct ProjectSidebarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
          
-            // TODO: REMOVE ONCE OTHER BEHAVIOR COMPARISONS ETC. ARE FINSHED
-            // Catalyst only
-#if targetEnvironment(macCatalyst)
-            VStack {
-                HStack(spacing: .zero) {
-                    // Padding HStack
-                    HStack {
-                        titleView
-                        Spacer()
-                        SidebarEditButtonView(isEditing: $isEditing)
-                    }
-                    .padding([.top, .horizontal])
-                }
-            }
-            //            .padding(.bottom)
-//            .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
-            // Higher z-index here for scroll view
-//            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-            .zIndex(2)
-#endif
+//            // TODO: REMOVE ONCE OTHER BEHAVIOR COMPARISONS ETC. ARE FINSHED
+//            // Catalyst only
+//#if targetEnvironment(macCatalyst)
+//            VStack {
+//                HStack(spacing: .zero) {
+//                    // Padding HStack
+//                    HStack {
+//                        titleView
+//                        Spacer()
+//                        SidebarEditButtonView(isEditing: $isEditing)
+//                    }
+//                    .padding([.top, .horizontal])
+//                }
+//            }
+//            //            .padding(.bottom)
+////            .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
+//            // Higher z-index here for scroll view
+////            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+//            .zIndex(2)
+//#endif
             
             SidebarListView(graph: graph,
                             isBeingEdited: isEditing,

@@ -20,11 +20,18 @@ struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
             return
         }
         
-        let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-            groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
-            selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+        // TODO: `graph` vs `visibleGraph` ?
+        let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
         
-        state.visibleGraph.insertNewComponent(copiedComponentResult)
+        if !activelySelectedLayers.isEmpty {
+            state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
+        } else {
+            let copiedComponentResult = state.visibleGraph.createCopiedComponent(
+                groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
+                selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            
+            state.visibleGraph.insertNewComponent(copiedComponentResult)
+        }
         
         state.graph.encodeProjectInBackground()
     }

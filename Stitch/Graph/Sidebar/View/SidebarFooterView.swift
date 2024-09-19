@@ -59,6 +59,82 @@ struct SidebarFooterView: View {
     
     @MainActor
     var editModeFooter: some View {
+        
+        HStack(spacing: 10) {
+            Spacer()
+            SidebarFooterButtonsView(groups: groups,
+                                     selections: selections,
+                                     isBeingEdited: isBeingEdited,
+                                     layerNodes: layerNodes)
+        }
+        
+        
+        
+//        let allButtonsDisabled = selections.all.isEmpty
+//        
+//        let ungroupButtonEnabled = canUngroup(selections.primary,
+//                                              nodes: layerNodes)
+//
+//        let groupButtonEnabled = selections
+//            .nonEmptyPrimary
+//            .map { canBeGrouped($0, groups: groups) } ?? false
+//
+//        let duplicateButtonEnabled = canDuplicate(selections.primary)
+//
+//        return HStack(spacing: 10) {
+//            Spacer()
+//            StitchButton {
+//                dispatch(SidebarGroupUncreated())
+//            } label: {
+//                Text("Ungroup")
+//                    .modifier(DisabledButtonModifier(buttonEnabled: ungroupButtonEnabled))
+//            }.disabled(!ungroupButtonEnabled)
+//            
+//            StitchButton {
+//                dispatch(SidebarGroupCreated())
+//            } label: {
+//                Text("Group")
+//                    .modifier(DisabledButtonModifier(buttonEnabled: groupButtonEnabled))
+//            }
+//            .disabled(!groupButtonEnabled)
+//            
+//            StitchButton {
+//                log("SidebarFooterView duplicate tapped")
+//                dispatch(SidebarSelectedItemsDuplicated())
+//            } label: {
+//                Text("Duplicate")
+//                    .modifier(DisabledButtonModifier(buttonEnabled: duplicateButtonEnabled))
+//            }.disabled(!duplicateButtonEnabled)
+//            
+//            StitchButton {
+//                log("SidebarFooterView delete tapped")
+//                dispatch(SidebarSelectedItemsDeleted())
+//            } label: {
+//                Text("Delete")
+//                    .modifier(DisabledButtonModifier(buttonEnabled: !allButtonsDisabled))
+//            }.disabled(allButtonsDisabled)
+//        }
+    } // editModeFooter
+}
+
+// TODO: apply `.foregroundColor(Color(.titleFont))` in `StitchButton` messes with SwiftUI's native gray-out of disabled buttons?
+struct DisabledButtonModifier: ViewModifier {
+    let buttonEnabled: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(buttonEnabled ? Color(.titleFont) : Color.gray.opacity(0.8))
+    }
+}
+
+struct SidebarFooterButtonsView: View {
+    
+    let groups: SidebarGroupsDict
+    let selections: SidebarSelectionState
+    let isBeingEdited: Bool
+    let layerNodes: LayerNodesForSidebarDict
+    
+    var body: some View {
         let allButtonsDisabled = selections.all.isEmpty
         
         let ungroupButtonEnabled = canUngroup(selections.primary,
@@ -70,8 +146,9 @@ struct SidebarFooterView: View {
 
         let duplicateButtonEnabled = canDuplicate(selections.primary)
 
-        return HStack(spacing: 10) {
-            Spacer()
+//        return HStack(spacing: 10) {
+        return Group {
+//            Spacer()
             StitchButton {
                 dispatch(SidebarGroupUncreated())
             } label: {
@@ -103,15 +180,5 @@ struct SidebarFooterView: View {
                     .modifier(DisabledButtonModifier(buttonEnabled: !allButtonsDisabled))
             }.disabled(allButtonsDisabled)
         }
-    } // editModeFooter
-}
-
-// TODO: apply `.foregroundColor(Color(.titleFont))` in `StitchButton` messes with SwiftUI's native gray-out of disabled buttons?
-struct DisabledButtonModifier: ViewModifier {
-    let buttonEnabled: Bool
-    
-    func body(content: Content) -> some View {
-        content
-            .foregroundColor(buttonEnabled ? Color(.titleFont) : Color.gray.opacity(0.8))
     }
 }
