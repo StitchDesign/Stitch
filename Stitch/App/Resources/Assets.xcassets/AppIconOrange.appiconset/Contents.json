@@ -1,172 +1,91 @@
 {
   "images" : [
     {
-      "filename" : "iPhone_Notifications_20_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "iPhone_Notifications_20_3x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "iPad_Mini_Settings_29_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "iPhone_Settings_29_3x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "iPad_App_76_1x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "38x38"
-    },
-    {
-      "filename" : "38x3.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "38x38"
-    },
-    {
-      "filename" : "iPhone_Spotlight_40_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "iPhone_Spotlight_40_3x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "iPhone_App_60_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "iPhone_App_60_3x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "64x2.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "64x64"
-    },
-    {
-      "filename" : "64x3.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "3x",
-      "size" : "64x64"
-    },
-    {
-      "filename" : "68x2.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "68x68"
-    },
-    {
-      "filename" : "iPad_App_76_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "76x76"
-    },
-    {
-      "filename" : "iPad_Pro_App_83.5_2x.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "scale" : "2x",
-      "size" : "83.5x83.5"
-    },
-    {
-      "filename" : "App_store_1024_1x.png",
+      "filename" : "iOSOrangeRegular.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
     },
     {
-      "filename" : "16.png",
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "iOSOrangeDark.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "Tinted.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "filename" : "MacOrange16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "16@2x.png",
+      "filename" : "MacOrange32 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "32.png",
+      "filename" : "MacOrange32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "32@2x.png",
+      "filename" : "MacOrange64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "128.png",
+      "filename" : "MacOrange128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "128@2x.png",
+      "filename" : "MacOrange256 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "256.png",
+      "filename" : "MacOrange256.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "256@2x.png",
+      "filename" : "MacOrange512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "512.png",
+      "filename" : "MacOrange512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "512@2x.png",
+      "filename" : "MacOrange1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

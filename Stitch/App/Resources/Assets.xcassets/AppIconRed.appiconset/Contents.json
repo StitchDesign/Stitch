@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "iOSPinkRegular.png",
+      "filename" : "iOSRedRegular.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "iOSPinkDark.png",
+      "filename" : "iOSRedDark.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -31,61 +31,61 @@
       "size" : "1024x1024"
     },
     {
-      "filename" : "MacPink16.png",
+      "filename" : "MacRed16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "MacPink32.png",
+      "filename" : "MacRed32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "MacPink32 1.png",
+      "filename" : "MacRed32 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "MacPink64.png",
+      "filename" : "MacRed64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "MacPink128.png",
+      "filename" : "MacRed128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "MacPink256.png",
+      "filename" : "MacRed256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "MacPink256 1.png",
+      "filename" : "MacRed256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacPink512.png",
+      "filename" : "MacRed512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacPink512 1.png",
+      "filename" : "MacRed512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "MacPink1024.png",
+      "filename" : "MacRedAnyAppStore.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
