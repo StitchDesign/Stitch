@@ -65,9 +65,9 @@ extension StitchStore {
         self.alertState = alertState
     }
     
-    @MainActor func showAppSettingsSheet() {
+    @MainActor func hideAppSettingsSheet() {
         var alertState = self.alertState
-        alertState.showAppSettings = true
+        alertState.showAppSettings = false
         self.alertState = alertState
     }
 }
