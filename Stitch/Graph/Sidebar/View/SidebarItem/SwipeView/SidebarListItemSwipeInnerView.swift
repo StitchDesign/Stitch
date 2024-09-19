@@ -37,7 +37,7 @@ struct SidebarListItemSwipeInnerView: View {
     }
 
     var isNonEditModeSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.contains(item.id.asLayerNodeId)
+        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(item.id.asLayerNodeId)
     }
     
     var color: Color {

@@ -42,8 +42,17 @@ struct SidebarListItemView: View {
         item.id.asLayerNodeId
     }
     
+    var isNonEditModeFocused: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+    }
+    
+    var isNonEditModeActivelySelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+    }
+    
+    // TODO: SEPT 18
     var isNonEditModeSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.contains(layerNodeId)
+        isNonEditModeFocused || isNonEditModeActivelySelected
     }
         
     var body: some View {
@@ -76,7 +85,7 @@ struct SidebarListItemView: View {
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         .background {
             if isNonEditModeSelected || isBeingDragged {
-                theme.fontColor
+                theme.fontColor.opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
             }
         }
         

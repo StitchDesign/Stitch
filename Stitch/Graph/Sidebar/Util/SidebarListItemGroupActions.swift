@@ -39,7 +39,8 @@ extension GraphState {
                                                 self.sidebarListState.masterList.items)
         
         for childen in descendants {
-            self.sidebarSelectionState.inspectorFocusedLayers.remove(childen.id.asLayerNodeId)
+            self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(childen.id.asLayerNodeId)
+            self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(childen.id.asLayerNodeId)
         }
     }
 }
