@@ -18,8 +18,8 @@ import Vision
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
     let saveLocation: ComponentSaveLocation
-    let publishedComponent: StitchComponent?
-    let draftedComponent: StitchComponent
+    var publishedComponent: StitchComponent?
+    var draftedComponent: StitchComponent
     
     // Encoded copy of drafted component
     let documentEncoder: ComponentEncoder
@@ -30,7 +30,7 @@ final class StitchMasterComponent {
     init(draftedComponent: StitchComponent,
          publishedComponent: StitchComponent? = nil,
          saveLocation: ComponentSaveLocation,
-         parentGraph: GraphState) {
+         parentGraph: GraphState?) {
         self.saveLocation = saveLocation
         self.draftedComponent = draftedComponent
         self.publishedComponent = publishedComponent
@@ -41,6 +41,30 @@ final class StitchMasterComponent {
         self.documentEncoder.delegate = self
     }
 }
+
+extension StitchMasterComponent: SchemaObserverIdentifiable {
+    func update(from schema: StitchComponent) {
+        self.draftedComponent = schema
+    }
+    
+    func createSchema() -> StitchComponent {
+        self.draftedComponent
+    }
+    
+    static func createObject(from entity: StitchComponent) -> Self {
+        .init(draftedComponent: entity,
+              saveLocation: .document,
+              parentGraph: nil)
+    }
+    
+    func onPrototypeRestart() { }
+    
+    func initializeDelegate(parentGraph: GraphState) {
+        self.parentGraph = parentGraph
+    }
+}
+
+typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate {
     var id: UUID {
@@ -177,10 +201,9 @@ final class GraphState: Sendable {
         self.nodes.values.forEach { $0.initializeDelegate(graph: self) }
         
         // Set up component graphs
-//        self.components.values.forEach {
-//            $0.graph.initializeDelegate(document: document,
-//                                        documentEncoderDelegate: $0.documentEncoder)
-//        }
+        self.components.values.forEach {
+            $0.initializeDelegate(parentGraph: self)
+        }
         
         // Get media + encoded component files after view models are established
         Task(priority: .high) { [weak self] in
@@ -333,6 +356,15 @@ extension GraphState {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.components.sync(with: schema.draftedComponents)
+        
+        if let documentViewModel = self.documentDelegate {
+            self.initializeDelegate(document: documentViewModel,
+                                    documentEncoderDelegate: documentViewModel.documentEncoder)
+        } else {
+            fatalErrorIfDebug()
+        }
+        
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
                                                         components: self.components)
         

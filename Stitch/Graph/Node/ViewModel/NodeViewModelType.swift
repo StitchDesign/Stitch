@@ -34,6 +34,7 @@ final class StitchComponentViewModel {
     }
 }
 
+// TODO: move
 extension StitchComponentViewModel {
     @MainActor func initializeDelegate(node: NodeDelegate,
                                        components: [UUID: StitchMasterComponent],
@@ -234,6 +235,28 @@ extension NodeViewModelType {
             return .group(canvasNodeViewModel.createSchema())
         case .component(let component):
             return .component(component.createSchema())
+        }
+    }
+    
+    @MainActor func onPrototypeRestart() {
+        switch self {
+        case .patch(let patchNode):
+            // Flatten interaction nodes' outputs when graph reset
+            if patchNode.patch.isInteractionPatchNode {
+                patchNode.outputsObservers.flattenOutputs()
+            }
+            
+        case .layer(let layerNode):
+            layerNode.previewLayerViewModels.forEach {
+                // Rest interaction state values
+                $0.interactiveLayer.onPrototypeRestart()
+            }
+            
+        case .component(let component):
+            component.graph.onPrototypeRestart()
+            
+        case .group:
+            return
         }
     }
 }

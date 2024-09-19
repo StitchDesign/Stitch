@@ -13,7 +13,7 @@ import StitchSchemaKit
 /// Delegate pattern used because it allows us to re-use common video functionality without the
 /// class itself owning the video. This is especially useful for StitchVideoViewController which owns
 /// its own video object.
-class StitchVideoDelegate: NSObject {
+final class StitchVideoDelegate: NSObject {
     var loopObserver: NSObjectProtocol?
     var videoData: VideoMetadata
 

@@ -23,19 +23,32 @@ protocol SchemaObserver: AnyObject, Identifiable {
     func onPrototypeRestart()
 }
 
-protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable {
+protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: CodableIdentifiable,
+                                                          Self.ID == Self.CodableSchema.ID {
     /// Static function initializer.
     @MainActor
     static func createObject(from entity: CodableSchema) -> Self
 }
 
-extension NodePortInputEntity: Identifiable { }
+//extension NodePortInputEntity: Identifiable { }
 
 typealias CodableIdentifiable = StitchVersionedCodable & Identifiable
 
+extension Dictionary where Value: SchemaObserverIdentifiable, Key == Value.ID {
+    @MainActor
+    mutating func sync(with newEntities: [Value.CodableSchema]) {
+        var values = Array(self.values)
+        values.sync(with: newEntities)
+        
+        self = values.reduce(into: Self.init()) { result, observer in
+            result.updateValue(observer, forKey: observer.id)
+        }
+    }
+}
+
 extension Array where Element: SchemaObserverIdentifiable {
     @MainActor
-    mutating func sync(with newEntities: [Element.CodableSchema]) where Element.ID == Element.CodableSchema.ID {
+    mutating func sync(with newEntities: [Element.CodableSchema]) {
         let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
         let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)

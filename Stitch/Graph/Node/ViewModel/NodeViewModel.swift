@@ -619,15 +619,7 @@ extension NodeViewModel {
         self.getAllInputsObservers().onPrototypeRestart()
         self.getAllOutputsObservers().forEach { $0.onPrototypeRestart() }
         
-        // Flatten interaction nodes' outputs when graph reset
-        if patchNode?.patch.isInteractionPatchNode ?? false {
-            self.flattenOutputs()
-        }
-        
-        self.layerNode?.previewLayerViewModels.forEach {
-            // Rest interaction state values
-            $0.interactiveLayer.onPrototypeRestart()
-        }
+        self.nodeType.onPrototypeRestart()
     }
 }
 
@@ -771,11 +763,7 @@ extension NodeViewModel {
     }
     
     @MainActor func flattenOutputs() {
-        self.getAllOutputsObservers().forEach { output in
-            if let firstValue = output.allLoopedValues.first {
-                output.allLoopedValues = [firstValue]
-            }
-        }
+        self.getAllOutputsObservers().flattenOutputs()
     }
     
     func appendInputRowObserver(_ rowObserver: InputNodeRowObserver) {
@@ -785,5 +773,15 @@ extension NodeViewModel {
         }
         
         patchNode.inputsObservers.append(rowObserver)
+    }
+}
+
+extension Array where Element: NodeRowObserver {
+    @MainActor func flattenOutputs() {
+        self.forEach { output in
+            if let firstValue = output.allLoopedValues.first {
+                output.allLoopedValues = [firstValue]
+            }
+        }
     }
 }
