@@ -30,12 +30,28 @@ struct CloseGraph: StitchStoreEvent {
 }
 
 /// Starts a graph after first loading
-extension GraphState {
+extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        publishedComponents: [URL],
-                                        data: StitchDocument) {
+                                        publishedComponents: [URL]) {
+        // Must initialize on main thread
+        self.graphStepManager.start()
 
+        self.graph.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
+                                                  publishedComponents: publishedComponents)
+                
+        // Calculate graph
+        self.initializeGraphComputation()
+        
+        // Initialize preview layers
+        self.updateOrderedPreviewLayers()
+    }
+}
+
+extension GraphState: DocumentEncodableDelegate {
+    @MainActor
+    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+                                        publishedComponents: [URL]) {
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded
 
@@ -52,13 +68,10 @@ extension GraphState {
         }
 
         self.mediaLibrary = mediaLibrary
-
-        // Must initialize on main thread!
-        self.graphStepManager.start()
-
+        
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
         // TODO: need a separate updater for graph
-        self.documentDelegate?.update(from: data)
+//        self.documentDelegate?.update(from: <#T##StitchDocument#>)
         
         self.updateSidebarListStateAfterStateChange()
         
@@ -68,16 +81,7 @@ extension GraphState {
 //            expanded: self.sidebarExpandedItems,
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
-                
-        // Calculate graph
-        self.documentDelegate?.initializeGraphComputation()
-        
-        // Initialize preview layers
-        self.updateOrderedPreviewLayers()
     }
-}
-
-extension GraphState {
    
     func updateSidebarListStateAfterStateChange() {
         self.sidebarListState = getMasterListFrom(

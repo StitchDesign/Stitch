@@ -9,11 +9,22 @@ import SwiftUI
 import StitchSchemaKit
 
 protocol DocumentEncodable: Actor {
+    associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
+//    typealias CodableDocument = DocumentDelegate.CodableDocument
     
     var lastEncodedDocument: CodableDocument { get set }
     
     var rootUrl: URL { get }
+    
+    @MainActor var delegate: DocumentDelegate? { get }
+}
+
+protocol DocumentEncodableDelegate: AnyObject {
+    @MainActor
+    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+                                        publishedComponents: [URL])
+//                                        data: CodableDocument)
 }
 
 extension DocumentEncodable {
@@ -63,9 +74,10 @@ extension DocumentEncodable {
 //    }
 //}
 
-actor DocumentEncoder: DocumentEncodable {
+final actor DocumentEncoder: DocumentEncodable {
     // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedDocument: StitchDocument
+    var lastEncodedDocument: StitchDocument
+    @MainActor weak var delegate: StitchDocumentViewModel?
     
     init(document: StitchDocument) {
         self.lastEncodedDocument = document
@@ -80,11 +92,11 @@ extension DocumentEncoder {
     }
 }
 
-actor ComponentEncoder: DocumentEncodable {    
+final actor ComponentEncoder: DocumentEncodable {
     // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedDocument: StitchComponent
-    
+    var lastEncodedDocument: StitchComponent
     var rootUrl: URL
+    @MainActor weak var delegate: StitchMasterComponent?
     
     init(component: StitchComponent,
          saveLocation: ComponentSaveLocation) {

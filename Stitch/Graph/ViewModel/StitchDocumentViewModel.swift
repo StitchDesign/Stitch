@@ -94,6 +94,7 @@ final class StitchDocumentViewModel: Sendable {
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store
+        self.documentEncoder.delegate = self
         self.graph.initializeDelegate(document: self,
                                       documentEncoderDelegate: documentEncoder)
     }

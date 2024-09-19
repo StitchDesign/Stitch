@@ -24,15 +24,52 @@ final class StitchMasterComponent {
     // Encoded copy of drafted component
     let documentEncoder: ComponentEncoder
     
+    weak var parentGraph: GraphState?
+    
     @MainActor
     init(draftedComponent: StitchComponent,
          publishedComponent: StitchComponent? = nil,
-         saveLocation: ComponentSaveLocation) {
+         saveLocation: ComponentSaveLocation,
+         parentGraph: GraphState) {
         self.saveLocation = saveLocation
         self.draftedComponent = draftedComponent
         self.publishedComponent = publishedComponent
         self.documentEncoder = .init(component: draftedComponent,
                                      saveLocation: saveLocation)
+        self.parentGraph = parentGraph
+        
+        self.documentEncoder.delegate = self
+    }
+}
+
+extension StitchMasterComponent: DocumentEncodableDelegate {
+    var id: UUID {
+        self.draftedComponent.id
+    }
+    
+    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+                                        publishedComponents: [URL]) {
+        guard let parentGraph = parentGraph else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // Find all graph states leveraging this component
+        let componentGraphStates = parentGraph.nodes.values
+            .compactMap { node -> GraphState? in
+                guard let component = node.nodeType.componentNode,
+                component.componentId == self.id else {
+                    return nil
+                }
+                return component.graph
+            }
+        
+        componentGraphStates.forEach { graphState in
+            graphState.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
+                                                      publishedComponents: publishedComponents)
+        }
+        
+        fatalError()
     }
 }
 
@@ -90,7 +127,8 @@ final class GraphState: Sendable {
         self.components = schema.draftedComponents
             .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
                 let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
-                                                           saveLocation: .document)
+                                                           saveLocation: .document,
+                                                           parentGraph: self)
                 result.updateValue(componentGraph, forKey: componentEntity.graph.id)
             }
         

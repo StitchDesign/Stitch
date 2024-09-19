@@ -472,8 +472,8 @@ extension SidebarLayerList {
 
 // TODO: move
 protocol StitchComponentable: Sendable, StitchDocumentEncodable, Transferable {
-    var nodes: [NodeEntity] { get set }
-    var orderedSidebarLayers: SidebarLayerList { get set }
+    var nodes: [NodeEntity] { get }
+    var orderedSidebarLayers: SidebarLayerList { get }
     static var fileType: UTType { get }
     var rootUrl: URL { get }
     var dataJsonUrl: URL { get }
@@ -545,7 +545,8 @@ extension GraphState {
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
-        self.insertNewComponent(copiedComponentResult)
+        self.insertNewComponent(copiedComponentResult,
+                                encoder: self.documentEncoderDelegate)
     }
 
     @MainActor

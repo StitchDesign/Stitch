@@ -12,12 +12,10 @@ import StitchSchemaKit
 
 extension DocumentEncodable {
     func deleteMediaFromNode(mediaKey: MediaKey) async {
-        switch await StitchFileManager.getMediaURL(for: mediaKey,
-                                                   document: self.lastEncodedDocument,
-                                                   forRecentlyDeleted: false) {
+        switch self.getMediaURL(for: mediaKey,
+                                forRecentlyDeleted: false) {
         case .success(let url):
-            let _ = await StitchFileManager.removeStitchMedia(at: url,
-                                                              currentProject: self.lastEncodedDocument)
+            let _ = await self.removeStitchMedia(at: url)
 
         case .failure(let error):
             // Silently report error
@@ -27,13 +25,21 @@ extension DocumentEncodable {
 
     /// Called when GraphState is initialized to build library data and then run first calc.
     func graphInitialized() async {
-        let importedFilesDir = await StitchFileManager
-            .getAllMediaURLs(in: self.lastEncodedDocument.getImportedFilesURL())
+        let importedFilesDir = await DocumentEncoder
+            .getAllMediaURLs(in: self.getImportedFilesURL())
 
+        let lastEncodedDocument = self.lastEncodedDocument
+        
+        fatalError("need published components")
+        
         // Start graph once library is built
         await MainActor.run { [weak self] in
-            self?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
-                                                 data: data)
+            guard let encoder = self else {
+                return
+            }
+            
+            encoder.delegate?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
+                                                             publishedComponents: [])
         }
     }
 }
