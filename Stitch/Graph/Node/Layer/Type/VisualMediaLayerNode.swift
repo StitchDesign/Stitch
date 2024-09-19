@@ -189,7 +189,7 @@ struct VideoLayerView: View {
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             isClipped: viewModel.isClipped.getBool ?? false,
-            volume: viewModel.volume.getNumber ?? 0.5
+            volume: viewModel.volume.getNumber ?? StitchVideoImportPlayer.DEFAULT_VIDEO_PLAYER_VOLUME
         )
     }
 }

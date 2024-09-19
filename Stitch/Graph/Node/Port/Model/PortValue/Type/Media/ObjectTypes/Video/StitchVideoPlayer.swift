@@ -1,9 +1,9 @@
 import AVKit
 
-var DEFAULT_VIDEO_PLAYER_VOLUME = 0.5
-
 @Observable
 final class StitchVideoImportPlayer: Sendable {
+    static let DEFAULT_VIDEO_PLAYER_VOLUME: Double = 1
+
     var video: AVPlayer
     var stitchVideoDelegate: StitchVideoDelegate
     var thumbnail: UIImage?
