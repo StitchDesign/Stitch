@@ -222,10 +222,8 @@ struct GoUpOneTraversalLevel: GraphEvent {
             return
         }
         
-        state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
-
         // Set new active parent
-        state.graphUI.groupNodeFocused = state.graphUI.groupNodeBreadcrumbs.last?.asGroupNodeId
+        state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
 
         // Reset any active selections
         state.resetAlertAndSelectionState()

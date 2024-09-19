@@ -29,18 +29,25 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 }
 
 // TODO: move
-enum GroupNodeType {
+enum GroupNodeType: Equatable {
     case groupNode(NodeId)
-    case component(StitchComponentViewModel)
+    case component(ComponentGroupNodeId) // id of component
+}
+
+struct ComponentGroupNodeId: Equatable {
+    // Maps to component instance
+    let component: UUID
+    // Maps to node entity so we can grab specific graphstate instance
+    let nodeId: UUID
 }
 
 extension GroupNodeType {
-    var component: StitchComponentViewModel? {
+    var component: ComponentGroupNodeId? {
         switch self {
         case .groupNode:
             return nil
-        case .component(let component):
-            return component
+        case .component(let id):
+            return id
         }
     }
     

@@ -61,7 +61,8 @@ extension VisibleNodesViewModel {
     /// 1. Create, update, and delete all node view models
     /// 2. Returns the specific list of view models to be visible.
     @MainActor
-    func updateNodeSchemaData(newNodes: [NodeEntity]) {
+    func updateNodeSchemaData(newNodes: [NodeEntity],
+                              components: [UUID: StitchMasterComponent]) {
 
         let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
             result.updateValue(schema, forKey: schema.id)
@@ -80,19 +81,21 @@ extension VisibleNodesViewModel {
 
         // Initialize node view data starting with groups
         self.updateNodesPagingDict(nodesDict: allNodesDict,
-                                   existingNodePages: existingNodePages)
+                                   existingNodePages: existingNodePages,
+                                   components: components)
     }
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
     func updateNodesPagingDict(nodesDict: NodeEntityDict,
-                               existingNodePages: NodesPagingDict) {
+                               existingNodePages: NodesPagingDict,
+                               components: [UUID: StitchMasterComponent]) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
         let incomingGroupIds = nodesDict
             .flatMap { $0.value.canvasEntities }
-            .compactMap { $0.parentGroupNodeId?.asGroupNodeId }
+            .compactMap { $0.parentGroupNodeId }
             .toSet
 
         // Check for groups (traversal levels) to add for position/zoom data
@@ -104,14 +107,16 @@ extension VisibleNodesViewModel {
         // Create node view models (if not yet created), establishing connection data later
         nodesDict.values.forEach { schema in
             if let node = self.nodes.get(schema.id) {
-                node.update(from: schema)
+                node.update(from: schema,
+                            components: components)
 
                 // Toggle output downstream connections to false, will correct below
                 node.getAllOutputsObservers().forEach {
                     $0.containsDownstreamConnection = false
                 }
             } else {
-                let newNode = NodeViewModel(from: schema)
+                let newNode = NodeViewModel(from: schema,
+                                            components: components)
                 nodes.updateValue(newNode,
                                   forKey: newNode.id)
             }

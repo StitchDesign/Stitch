@@ -33,7 +33,7 @@ enum NodePageType: Hashable {
 }
 
 extension NodePageType {
-    var getGroupNodePage: GroupNodeId? {
+    var getGroupNodePage: NodeId? {
         switch self {
         case .root:
             return nil

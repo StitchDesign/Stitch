@@ -120,8 +120,13 @@ extension StitchDocumentViewModel {
             switch groupType {
             case .groupNode:
                 continue
-            case .component(let component):
-                return component.graph
+            case .component(let componentId):
+                guard let componentGraph = self.graph.findComponentGraphState(componentId) else {
+                    fatalErrorIfDebug()
+                    return self.graph
+                }
+                
+                return componentGraph
             }
         }
         
@@ -140,8 +145,6 @@ extension StitchDocumentViewModel {
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
     func updateGraphData(document: StitchDocument? = nil) {
-        let document = document ?? self.createSchema()
-        
         self.updateTopologicalData()
 
         // Update preview layers
@@ -171,10 +174,6 @@ extension StitchDocumentViewModel {
         self.updateGraphData(document: data)
 
         Task(priority: .background) { [weak self] in
-            guard let documentLoader = self?.storeDelegate?.documentLoader else {
-                return
-            }
-            
             switch await self?.documentEncoder.encodeProject(data,
                                                              temporaryURL: temporaryURL) {
             case .success, .none:

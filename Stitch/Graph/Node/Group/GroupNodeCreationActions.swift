@@ -226,7 +226,8 @@ extension StitchDocumentViewModel {
         
         // Create drafted component graph state
         let masterComponent = StitchMasterComponent(draftedComponent: result.component,
-                                                    saveLocation: .document)
+                                                    saveLocation: .document,
+                                                    parentGraph: self.visibleGraph)
         self.visibleGraph.components.updateValue(masterComponent,
                                                  forKey: result.component.id)
         

@@ -73,6 +73,32 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
     }
 }
 
+extension GraphState {
+    /// Recursively checks node component's `GraphState`'s until a match is found.
+    func findComponentGraphState(_ id: ComponentGroupNodeId) -> GraphState? {
+        for node in self.nodes.values {
+            guard let nodeComponent = node.nodeType.componentNode else {
+                continue
+            }
+            
+            if node.id == id.nodeId {
+                if nodeComponent.componentId == id.component {
+                    return nodeComponent.graph
+                } else {
+                    return nil
+                }
+            }
+            
+            // Recursive check
+            if let matchedGraph = nodeComponent.graph.findComponentGraphState(id) {
+                return matchedGraph
+            }
+        }
+        
+        return nil
+    }
+}
+
 @Observable
 final class GraphState: Sendable {
     
@@ -132,7 +158,8 @@ final class GraphState: Sendable {
                 result.updateValue(componentGraph, forKey: componentEntity.graph.id)
             }
         
-        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes)
+        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
+                                                        components: self.components)
         
 //        // MARK: important we don't initialize nodes until after media is estbalished
 //        DispatchQueue.main.async { [weak self] in
@@ -306,7 +333,8 @@ extension GraphState {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes)
+        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
+                                                        components: self.components)
         
         // TODO: comment boxes
     }
