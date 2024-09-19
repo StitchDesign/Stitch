@@ -31,61 +31,61 @@
       "size" : "1024x1024"
     },
     {
-      "filename" : "macos 8.png",
+      "filename" : "MacMint16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "macos 9.png",
+      "filename" : "MacMint32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "macos 6.png",
+      "filename" : "MacMint32 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "macos 7.png",
+      "filename" : "MacMint64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "macos 4.png",
+      "filename" : "MacMint128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "macos 5.png",
+      "filename" : "MacMint256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "macos 2.png",
+      "filename" : "MacMint256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "macos 3.png",
+      "filename" : "MacMint512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "macos.png",
+      "filename" : "MacMint512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "macos 1.png",
+      "filename" : "MacMint1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

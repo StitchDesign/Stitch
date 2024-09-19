@@ -61,25 +61,25 @@
       "size" : "128x128"
     },
     {
-      "filename" : "MacRed256 1.png",
+      "filename" : "MacRed256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "MacRed.png",
+      "filename" : "MacRed256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacRedAny 1.png",
+      "filename" : "MacRed512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacRedAny.png",
+      "filename" : "MacRed512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"

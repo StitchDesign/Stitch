@@ -31,61 +31,61 @@
       "size" : "1024x1024"
     },
     {
-      "filename" : "macos 6.png",
+      "filename" : "MacPurple16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "macos 7.png",
+      "filename" : "MacPurple32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "macos 4.png",
+      "filename" : "MacPurple32 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "macos 5.png",
+      "filename" : "MacPurple64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "macos 2.png",
+      "filename" : "MacPurple128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "macos 3.png",
+      "filename" : "MacPurple256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "AppIcon-256.png",
+      "filename" : "MacPurple256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "AppIcon-256@2x.png",
+      "filename" : "MacPurple512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "macos.png",
+      "filename" : "MacPurple512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "macos 1.png",
+      "filename" : "MacPurple1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
