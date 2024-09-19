@@ -40,13 +40,13 @@ final class LogListener {
         inputPipe.fileHandleForReading.readabilityHandler = { [weak self] fileHandle in
             guard let strongSelf = self else { return }
 
-            let data = fileHandle.availableData
-            if let string = String(data: data, encoding: String.Encoding.utf8) {
+            let rowObserver = fileHandle.availableData
+            if let string = String(rowObserver: rowObserver, encoding: String.Encoding.utf8) {
                 strongSelf.contents += string
             }
 
             // Write input back to stdout
-            strongSelf.outputPipe.fileHandleForWriting.write(data)
+            strongSelf.outputPipe.fileHandleForWriting.write(rowObserver)
         }
 
         self.openConsolePipe()

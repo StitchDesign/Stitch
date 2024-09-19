@@ -8,30 +8,65 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct PortValuesPreviewData<FieldType: FieldViewModel>: Identifiable {
-    let id = UUID()
+struct PortPreviewData: Identifiable {
     let loopIndex: Int
-    let fields: [FieldType]
+    let fields: [(fieldIndex: Int,
+                  fieldLabel: String,
+                  fieldValue: FieldValue)]
+    
+    var id: Int {
+        self.loopIndex
+    }
 }
 
-struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserver {
+struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
-    // Pin `NodeRowData` via `@ValuesObserver` so that this view re-renders as `NodeRowData.values` changes
-    @Bindable var data: RowObserver
-    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
-    let coordinate: NodeIOCoordinate
+    @Bindable var rowObserver: NodeRowObserverType
+        
     let nodeIO: NodeIO
 
-    @State private var tableData: [PortValuesPreviewData<RowObserver.RowViewModelType.FieldType>] = []
-
-    var values: PortValues {
-        self.data.allLoopedValues
+    var tableRows: [PortPreviewData] {
+        
+        let loopedValues: PortValues = rowObserver.allLoopedValues
+        
+        // TODO: handle ShapeCommand port-preview ?
+        guard let labels = loopedValues.first?.getNodeRowType(nodeIO: nodeIO).fieldGroupTypes.first?.labels else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        let _tableData: [PortPreviewData] = loopedValues.enumerated().compactMap { index, value in
+            
+            // Most PortValues only use a single field grouping
+            // TODO: handle ShapeCommand port-preview ?
+            guard let fieldValues = value.createFieldValuesList(
+                nodeIO: nodeIO,
+                // Don't display media object?
+                importedMediaObject: nil).first else {
+                
+                fatalErrorIfDebug()
+                return nil
+            }
+                        
+            return PortPreviewData(
+                loopIndex: index,
+                fields: fieldValues.enumerated().map { (fieldIndex: Int, fieldValue: FieldValue) in
+                    return (fieldIndex: fieldIndex,
+                            fieldLabel: labels[fieldIndex],
+                            fieldValue: fieldValue)
+            })
+        }
+        
+        return _tableData
     }
-
-    var nodeId: NodeId {
-        self.coordinate.nodeId
+    
+    var body: some View {
+        ScrollView {
+            valueGrid
+        }
+        .padding()
     }
-
+    
     var valueGrid: some View {
         Grid {
             GridRow {
@@ -39,6 +74,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
                     .monospaced()
                     .frame(minWidth: 40)    // necessary to prevent overflow scenarios
                     .gridCellAnchor(UnitPoint(x: 0.5, y: 0.5))
+               
                 StitchTextView(string: "Values", lineLimit: 1)
                     .monospaced()
                     .gridCellAnchor(UnitPoint(x: 0, y: 0.5))
@@ -46,13 +82,13 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
             }
             .padding(.bottom, 2)
 
-            ForEach(tableData) { data in
+            ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
                 GridRow {
                     StitchTextView(string: "\(data.loopIndex)")
                         .monospaced()
                         .gridCellAnchor(UnitPoint(x: 0.5, y: 0)) // aligns middle, top
 
-                    ForEach(data.fields) { field in
+                    ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
 
                         Group {
@@ -64,7 +100,7 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
                         }
                         .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns right, top
 
-                        PortValuesPreviewValueView(field: field)
+                        PortValuesPreviewValueView(fieldValue: field.fieldValue)
                             .fixedSize(horizontal: true, vertical: false) // make sure
                             .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns left, top
                     }
@@ -73,34 +109,16 @@ struct PortValuesPreviewView<RowObserver>: View where RowObserver: NodeRowObserv
             }
         }
     }
-
-    var body: some View {
-        ScrollView {
-            valueGrid
-        }
-        .onChange(of: self.data.allLoopedValues, initial: true) {
-            self.updateTableData(with: self.data.allLoopedValues)
-        }
-        .padding()
-    }
-
-    @MainActor
-    func updateTableData(with values: PortValues) {
-        let enumerated = Array(zip(values.indices, values))
-        self.tableData = enumerated.map { index, _ in
-            .init(loopIndex: index,
-                  fields: fieldValueTypes.flatMap { $0.fieldObservers })
-        }
-    }
 }
 
-struct PortValuesPreviewValueView<FieldType>: View where FieldType: FieldViewModel {
+// just pass the FieldValue and
+struct PortValuesPreviewValueView: View {
 
-    let field: FieldType
+    let fieldValue: FieldValue
 
     var body: some View {
 
-        switch field.fieldValue {
+        switch fieldValue {
 
         case .color(let color):
             Circle().fill(color).frame(width: 18,
@@ -109,35 +127,10 @@ struct PortValuesPreviewValueView<FieldType>: View where FieldType: FieldViewMod
 
         default:
             // Every other value
-            StitchTextView(string: "\(field.fieldValue.portValuePreview)",
+            StitchTextView(string: "\(fieldValue.portValuePreview)",
                            truncationMode: .tail)
                 .monospaced()
                 .frame(minWidth: 40) // necessary to prevent overflow scenarios
-
         }
-
     }
 }
-
-// struct PortValuesPreviewView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let values1 = PortValuesObserver([
-//            .position(.zero),
-//            .position(.init(width: 30.999122, height: 30000))
-//        ],
-//        Coordinate.input(InputCoordinate(portId: 0, nodeId: .init()))
-//        )
-//        //        let values2: PortValues = [
-//        //            .number(.zero),
-//        //            .number(30.999122)
-//        //        ]
-//
-//        VStack {
-//            PortValuesPreviewView(valuesObserver: values1, isInput: true)
-//            //            Divider()
-//            //            PortValuesPreviewView(values: values2)
-//
-//        }
-//
-//    }
-// }

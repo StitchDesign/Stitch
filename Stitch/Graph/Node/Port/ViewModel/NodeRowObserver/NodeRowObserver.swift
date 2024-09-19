@@ -413,7 +413,7 @@ extension NodeRowViewModel {
             return
         }
         
-        let newFieldsByGroup = newValue.createFieldValues(nodeIO: nodeIO,
+        let newFieldsByGroup = newValue.createFieldValuesList(nodeIO: nodeIO,
                                                           importedMediaObject: importedMediaObject)
         
         // Assert equal array counts
