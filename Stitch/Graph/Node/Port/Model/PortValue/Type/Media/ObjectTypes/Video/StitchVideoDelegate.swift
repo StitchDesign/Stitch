@@ -13,7 +13,7 @@ import StitchSchemaKit
 /// Delegate pattern used because it allows us to re-use common video functionality without the
 /// class itself owning the video. This is especially useful for StitchVideoViewController which owns
 /// its own video object.
-class StitchVideoDelegate: NSObject {
+final class StitchVideoDelegate: NSObject, Sendable {
     var loopObserver: NSObjectProtocol?
     var videoData: VideoMetadata
 
@@ -183,13 +183,14 @@ class StitchVideoDelegate: NSObject {
         isSeekInProgress = true
         let seekTimeInProgress = chaseTime
 
-        player.seek(to: seekTimeInProgress, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
-            guard let `self` = self else { return }
+        player.seek(to: seekTimeInProgress, toleranceBefore: .zero, toleranceAfter: .zero) { [weak player, weak self] _ in
+            guard let player = player else { return }
+            guard let videoDelegate = self else { return }
 
-            if CMTimeCompare(seekTimeInProgress, self.chaseTime) == 0 {
-                self.isSeekInProgress = false
+            if CMTimeCompare(seekTimeInProgress, videoDelegate.chaseTime) == 0 {
+                videoDelegate.isSeekInProgress = false
             } else {
-                self.trySeekToChaseTime(player: player)
+                videoDelegate.trySeekToChaseTime(player: player)
             }
         }
     }
