@@ -108,6 +108,11 @@ struct SidebarListView: View {
                 }
                 
                 ForEach(masterList.items, id: \.id.value) { (item: SidebarListItem) in
+                    
+                    let selection = getSelectionStatus(
+                        item.id.asLayerNodeId,
+                        selections)
+                    
                     SidebarListItemSwipeView(
                         graph: $graph,
                         item: item,
@@ -116,19 +121,24 @@ struct SidebarListView: View {
                         current: current,
                         proposedGroup: sidebarListState.proposedGroup,
                         isClosed: masterList.collapsedGroups.contains(item.id),
-                        selection: getSelectionStatus(
-                            item.id.asLayerNodeId,
-                            selections),
+                        selection: selection,
                         isBeingEdited: isBeingEditedAnimated,
                         activeGesture: $activeGesture,
                         activeSwipeId: $activeSwipeId)
                     // Would `primaryAction` help with right click?: https://developer.apple.com/documentation/swiftui/view/contextmenu(forselectiontype:menu:primaryaction:)#Add-a-primary-action
+                    // TODO: enable on iPad?
+                    #if targetEnvironment(macCatalyst)
                     .contextMenu(ContextMenu(menuItems: {
-                        SidebarFooterButtonsView(groups: groups,
-                                                 selections: selections,
-                                                 isBeingEdited: isBeingEdited,
-                                                 layerNodes: layerNodesForSidebarDict)
+                        // TODO: select the layer on right click; cannot use `NSViewRepresentable` and `primaryAction` is fired on double-click, not right click
+                        if selection.isSelected {
+                            SidebarFooterButtonsView(groups: groups,
+                                                     selections: selections,
+                                                     isBeingEdited: isBeingEdited,
+                                                     layerNodes: layerNodesForSidebarDict)
+                        }
                     }))
+                    #endif
+                    
                     .zIndex(item.zIndex)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
