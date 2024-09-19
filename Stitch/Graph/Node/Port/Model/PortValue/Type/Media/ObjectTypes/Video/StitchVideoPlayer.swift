@@ -64,10 +64,7 @@ final class StitchVideoImportPlayer: Sendable {
     
     @MainActor
     func setVolume(volume: Double) {
-        guard volume >= 0.0 && volume <= 1.0 else {
-            print("Volume must be between 0.0 and 1.0")
-            return
-        }
+        let volume = min(1, max(0, volume))
         self.video.volume = Float(volume)
         self.stitchVideoDelegate.audio.updateVolume(volume)
     }
