@@ -70,25 +70,30 @@ struct SidebarListItemView: View {
                 isClosed: isClosed)
             
 //            .padding(.leading)
-            
                 .offset(x: -swipeOffset)
             Spacer()
 
         }
+        
         .contentShape(Rectangle()) // for hit area
 
-        //        .background(Color.white.opacity(0.001)) // for hit area
         //        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
         //        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
                 
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
-        .background {
-            if isNonEditModeSelected || isBeingDragged {
-                theme.fontColor.opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
-            }
-        }
         
-        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
+        // To have color limited by indentation level etc.:
+        
+//        .background {
+//            if isNonEditModeSelected || isBeingDragged {
+//                theme.fontColor
+//                    .opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
+////                    .frame(maxWidth: .infinity)
+////                    .border(.green, width: 4)
+//            }
+//        }
+        
+//        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
         // Note: given that we apparently must use the UIKitTappableWrapper on the swipe menu buttons,
         // we need to place the SwiftUI TapGesture below the swipe menu.

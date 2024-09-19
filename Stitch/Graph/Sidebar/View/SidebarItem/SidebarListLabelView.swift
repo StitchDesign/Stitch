@@ -69,25 +69,6 @@ struct SidebarListItemLeftLabelView: View {
     
     var body: some View {
         HStack(spacing: 4) {
-//        HStack(spacing: 0) {
-            
-            if masks {
-                Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
-//                    .scaleEffect(1.2) // previously: 1.0 or 1.4
-                    .resizable()
-                    .scaledToFit()
-                #if targetEnvironment(macCatalyst)
-                    .padding(2)
-                #else
-                    .padding(4)
-                #endif
-                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
-                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                    .foregroundColor(fontColor)
-                    .opacity(masks ? 1 : 0)
-                    .animation(.linear, value: masks)
-                    // .border(.red)
-            }
             
 //            if isGroup {
                 SidebarListItemChevronView(isClosed: isClosed,
@@ -100,18 +81,34 @@ struct SidebarListItemLeftLabelView: View {
   
             Image(systemName: layer.sidebarLeftSideIcon)
                 .resizable()
-                .scaledToFit()
                 .padding(2)
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(fontColor)
-                // .border(.yellow)
+                .overlay(alignment: .bottomLeading) {
+                    ZStack {
+                        
+                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                        
+                        Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
+                            .resizable()
+                            .scaledToFit()
+                            .padding(2)
+                            .offset(x: -0.5)
+                            .foregroundColor(fontColor)
+                    }
+                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2,
+                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2)
+                    .foregroundColor(fontColor)
+                    .opacity(masks ? 1 : 0)
+                    .animation(.linear, value: masks)
+                    .cornerRadius(4)
+                }
             
             label
                 .foregroundColor(fontColor)
         }
         .padding(.leading, 4)
-//        .padding(.leading, isGroup ? 4 : 0)
         .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
     }
     

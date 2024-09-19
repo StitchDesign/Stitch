@@ -125,6 +125,7 @@ struct SidebarListView: View {
                         isBeingEdited: isBeingEditedAnimated,
                         activeGesture: $activeGesture,
                         activeSwipeId: $activeSwipeId)
+                    
 #if targetEnvironment(macCatalyst)
                     .modifier(SidebarListItemContextMenuModifier(layerNodeId: item.id.asLayerNodeId,
                                                                  groups: groups,
@@ -132,6 +133,7 @@ struct SidebarListView: View {
                                                                  isBeingEdited: isBeingEdited,
                                                                  layerNodes: layerNodesForSidebarDict))
 #endif
+                    
                     .zIndex(item.zIndex)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
