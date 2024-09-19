@@ -64,7 +64,7 @@ struct ProjectsHomeCommands: Commands {
                 SwiftUIShortcutView(title: "Duplicate",
                                     key: DUPLICATE_SELECTED_NODES_SHORTCUT) {
                     // duplicates both selected nodes and selected comments
-                    dispatch(SelectedGraphItemsDuplicated())
+                    dispatch(DuplicateShortcutKeyPressed())
                 }
 
 //                SwiftUIShortcutView(title: "Delete Node(s)",

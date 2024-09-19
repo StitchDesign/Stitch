@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
+struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     
     // Duplicates BOTH nodes AND comments
     @MainActor
@@ -119,14 +119,30 @@ extension GraphState {
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 
+        // Reset edit mode selections + inspector focus and actively-selected
+        self.sidebarSelectionState.resetEditModeSelections()
+        self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
+        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+        
+        // NOTE: we can either duplicate layers OR patch nodes; but NEVER both
         // Update selected nodes
         newNodes
             .forEach { nodeEntity in
                 switch nodeEntity.nodeTypeEntity {
                 case .layer(let layerNode):
+                    
+                    // Actively-select the new layer node
+                    let id = nodeEntity.id.asLayerNodeId
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+                    self.sidebarItemSelectedViaEditMode(id)
+                    
                     layerNode.layer.layerGraphNode.inputDefinitions.forEach { inputType in
+                        
                         let portData = layerNode[keyPath: inputType.schemaPortKeyPath]
+                        
                         let isPacked = portData.mode == .packed
+                        
                         portData.allInputData.enumerated().forEach { portId, inputData in
                             let unpackedId = UnpackedPortType(rawValue: portId)
                             
@@ -142,7 +158,6 @@ extension GraphState {
                                 canvasItem.select()
                             }
                         }
-                        
                     }
                     
                 case .patch, .group:
@@ -161,9 +176,6 @@ extension GraphState {
             updatedList: self.sidebarListState,
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
-        
-        // Also wipe sidebar selection state
-        self.sidebarSelectionState = .init()
         
         self.calculateFullGraph() // not needed?
         self.updateOrderedPreviewLayers()

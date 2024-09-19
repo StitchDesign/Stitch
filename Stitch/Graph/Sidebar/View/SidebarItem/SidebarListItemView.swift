@@ -50,7 +50,6 @@ struct SidebarListItemView: View {
         graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
     }
     
-    // TODO: SEPT 18
     var isNonEditModeSelected: Bool {
         isNonEditModeFocused || isNonEditModeActivelySelected
     }
@@ -79,8 +78,8 @@ struct SidebarListItemView: View {
         .contentShape(Rectangle()) // for hit area
 
         //        .background(Color.white.opacity(0.001)) // for hit area
-//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
-//        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+        //        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+        //        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
                 
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         .background {
@@ -108,10 +107,3 @@ struct SidebarListItemView: View {
         .animation(.default, value: isBeingDragged)
     }
 }
-
-// struct CustomListItemView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        //        CustomListItemView()
-//        TEST_CustomListItemBaseView()
-//    }
-// }
