@@ -1,5 +1,7 @@
 import AVKit
 
+var DEFAULT_VIDEO_PLAYER_VOLUME = 0.5
+
 @Observable
 final class StitchVideoImportPlayer: Sendable {
     var video: AVPlayer
@@ -25,7 +27,7 @@ final class StitchVideoImportPlayer: Sendable {
     var url: URL? { video.url }
 
     @MainActor
-    init(url: URL, videoData: VideoMetadata) {
+    init(url: URL, videoData: VideoMetadata, initialVolume: Double) {
         let player = AVPlayer(url: url)
         self.stitchVideoDelegate = StitchVideoDelegate(url: url,
                                                        videoData: videoData,
@@ -37,7 +39,8 @@ final class StitchVideoImportPlayer: Sendable {
             self?.thumbnail = await player?.currentItem?.asset.getThumbnail()
         }
 
-        self.muteSound()
+        self.muteSound() // Mute initially or customize if needed.
+        self.setVolume(volume: initialVolume) // Set initial volume here
     }
 
     @MainActor
@@ -59,14 +62,14 @@ final class StitchVideoImportPlayer: Sendable {
         self.stitchVideoDelegate.audio.delegate.volume
     }
     
-    @MainActor func setVolume(volume: Double) {
+    @MainActor
+    func setVolume(volume: Double) {
         guard volume >= 0.0 && volume <= 1.0 else {
             print("Volume must be between 0.0 and 1.0")
             return
         }
-        self.video.volume = Float(volume) // Set the volume of the AVPlayer
-        // Assuming there's a method to update the delegate's volume
-        self.stitchVideoDelegate.audio.updateVolume(volume) // Update volume through a method
+        self.video.volume = Float(volume)
+        self.stitchVideoDelegate.audio.updateVolume(volume)
     }
 
     var peakVolume: Double {

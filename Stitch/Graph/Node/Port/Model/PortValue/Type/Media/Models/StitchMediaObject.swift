@@ -169,7 +169,8 @@ extension StitchMediaObject {
                 return nil
             }
             let newPlayer = await StitchVideoImportPlayer(url: url,
-                                                          videoData: videoPlayer.stitchVideoDelegate.videoData)
+                                                          videoData: videoPlayer.stitchVideoDelegate.videoData,
+                                                          initialVolume: DEFAULT_VIDEO_PLAYER_VOLUME)
             copiedMediaObject = .video(newPlayer)
 
         case .soundfile(let soundFilePlayer):

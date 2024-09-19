@@ -23,6 +23,8 @@ struct ScrubbedVideoView: UIViewControllerRepresentable {
         // Sound disabled until layer is created for video
         self.videoPlayer.enableSound()
         self.videoPlayer.setVolume(volume: volume)
+        // Set volume when the view is created
+        videoPlayer.setVolume(volume: volume)
         
         return vc
     }
@@ -31,6 +33,9 @@ struct ScrubbedVideoView: UIViewControllerRepresentable {
         // Create new AVPlayer if incoming URL has changed
         controller.updatePlayer(videoPlayer: videoPlayer)
         controller.updateVideoGravity(with: fitStyle)
+
+        // Update volume when view is updated
+        videoPlayer.setVolume(volume: volume)
     }
 }
 
