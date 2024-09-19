@@ -135,6 +135,8 @@ extension GraphState {
                     let id = nodeEntity.id.asLayerNodeId
                     self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+                    
+                    // This doesn't quite work to go through
                     self.sidebarItemSelectedViaEditMode(id)
                     
                     layerNode.layer.layerGraphNode.inputDefinitions.forEach { inputType in

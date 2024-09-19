@@ -82,11 +82,13 @@ extension GraphState {
     @MainActor
     func updateInspectorFocusedLayers() {
         
+        #if !targetEnvironment(macCatalyst)
         // If left sidebar is in edit-mode, "primary selections" become inspector-focused
         if self.sidebarSelectionState.isEditMode {
             self.sidebarSelectionState.inspectorFocusedLayers.focused = self.sidebarSelectionState.primary
             self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.primary
         }
+        #endif
         
         if self.sidebarSelectionState.inspectorFocusedLayers.focused.count > 1 {
             self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()

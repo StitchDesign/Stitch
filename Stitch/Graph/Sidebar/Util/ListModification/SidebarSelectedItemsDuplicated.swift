@@ -11,7 +11,7 @@ import Foundation
 struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        state.sidebarSelectedItemsDeletingViaEditMode()
+        state.sidebarSelectedItemsDuplicatedViaEditMode()
         return .persistenceResponse
     }
 }
