@@ -64,53 +64,82 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     }
 }
 
+extension ShapeCommandFieldType {
+    var fieldGroupTypes: [FieldGroupType] {
+        switch self {
+        case .closePath:
+            return [.dropdown]
+        case .lineTo: // i.e. .moveTo or .lineTo
+            return [.dropdown, .xY]
+        case .curveTo:
+            return [.dropdown, .xY, .xY, .xY]
+        case .output:
+            return [.readOnly]
+        }
+    }
+}
+
 extension NodeRowType {
-    // TODO: must be some better way to get this information and/or tie it to `getFieldValueTypes`
-    var getFieldGroupTypeForLayerInput: FieldGroupType {
+    
+    var fieldGroupTypes: [FieldGroupType] {
         switch self {
         case .size:
-            return .hW
+            return [.hW]
         case .position:
-            return .xY
+            return [.xY]
         case .point3D:
-            return .xYZ
+            return [.xYZ]
         case .point4D:
-            return .xYZW
+            return [.xYZW]
         case .padding:
-            return .padding
+            return [.padding]
         case .shapeCommand(let shapeCommand):
-            // No layer input uses shape command
-            fatalErrorIfDebug()
-            return .dropdown
-        case .singleDropdown, .textFontDropdown:
-            return .dropdown
+            return shapeCommand.fieldGroupTypes
         case .bool:
-            return .bool
+            return [.bool]
         case .asyncMedia:
-            return .asyncMedia
+            return [.asyncMedia]
         case .number:
-            return .number
+            return [.number]
         case .string:
-            return .string
+            return [.string]
         case .layerDimension:
-            return .layerDimension
+            return [.layerDimension]
         case .pulse:
-            return .pulse
+            return [.pulse]
         case .color:
-            return .color
+            return [.color]
         case .json:
-            return .json
+            return [.json]
         case .assignedLayer:
-            return .assignedLayer
+            return [.assignedLayer]
         case .pinTo:
-            return .pinTo
+            return [.pinTo]
         case .anchoring:
-            return .anchoring
-        case .readOnly:
-            return .readOnly
+            return [.anchoring]
         case .spacing:
-            return .spacing
+            return [.spacing]
+        case .singleDropdown, .textFontDropdown:
+            return [.dropdown]
+        case .readOnly:
+            return [.readOnly]
         }
+    }
+    
+    // TODO: must be some better way to get this information and/or tie it to `getFieldValueTypes`
+    var getFieldGroupTypeForLayerInput: FieldGroupType {
+        let fieldGroupTypes = self.fieldGroupTypes
+        
+        // LayerInput can never use ShapeCommand,
+        // and so we should only have a single group of fields.
+        assertInDebug(fieldGroupTypes.count == 1)
+        
+        guard let fieldGroupType = fieldGroupTypes.first else {
+            fatalErrorIfDebug()
+            return .number
+        }
+        
+        return fieldGroupType
     }
 }
 
@@ -122,7 +151,7 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                                                    importedMediaObject: StitchMediaObject?,
                                                    rowViewModel: FieldType.NodeRowType?) -> [FieldGroupTypeViewModel<FieldType>] {
     
-    let fieldValuesList: [FieldValues] = value.createFieldValues(
+    let fieldValuesList: [FieldValues] = value.createFieldValuesList(
         nodeIO: nodeIO,
         importedMediaObject: importedMediaObject)
 

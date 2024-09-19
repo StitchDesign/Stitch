@@ -8,38 +8,65 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct PortValuesPreviewData<FieldType: FieldViewModel>: Identifiable {
-    let id = UUID()
+struct PortPreviewData: Identifiable {
     let loopIndex: Int
-    let fields: [FieldType]
+    let fields: [(fieldIndex: Int,
+                  fieldLabel: String,
+                  fieldValue: FieldValue)]
+    
+    var id: Int {
+        self.loopIndex
+    }
 }
 
 struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
 
-    // Pin `NodeRowData` via `@ValuesObserver` so that this view re-renders as `NodeRowData.values` changes
-    @Bindable var data: NodeRowObserverType
-    
-    @Bindable var rowViewModel: NodeRowObserverType.RowViewModelType
-    
-    // these aren't bindable ?
-//    let fieldValueTypes: [FieldGroupTypeViewModel<RowObserver.RowViewModelType.FieldType>]
-    var fieldValueTypes: [FieldGroupTypeViewModel<NodeRowObserverType.RowViewModelType.FieldType>] {
-        rowViewModel.fieldValueTypes
-    }
-    
-    let coordinate: NodeIOCoordinate
+    @Bindable var rowObserver: NodeRowObserverType
+        
     let nodeIO: NodeIO
 
-    @State private var tableData: [PortValuesPreviewData<NodeRowObserverType.RowViewModelType.FieldType>] = []
-
-    var values: PortValues {
-        self.data.allLoopedValues
+    var tableRows: [PortPreviewData] {
+        
+        let loopedValues: PortValues = rowObserver.allLoopedValues
+        
+        // TODO: handle ShapeCommand port-preview ?
+        guard let labels = loopedValues.first?.getNodeRowType(nodeIO: nodeIO).fieldGroupTypes.first?.labels else {
+            fatalErrorIfDebug()
+            return []
+        }
+        
+        let _tableData: [PortPreviewData] = loopedValues.enumerated().compactMap { index, value in
+            
+            // Most PortValues only use a single field grouping
+            // TODO: handle ShapeCommand port-preview ?
+            guard let fieldValues = value.createFieldValuesList(
+                nodeIO: nodeIO,
+                // Don't display media object?
+                importedMediaObject: nil).first else {
+                
+                fatalErrorIfDebug()
+                return nil
+            }
+                        
+            return PortPreviewData(
+                loopIndex: index,
+                fields: fieldValues.enumerated().map { (fieldIndex: Int, fieldValue: FieldValue) in
+                    return (fieldIndex: fieldIndex,
+                            fieldLabel: labels[fieldIndex],
+                            fieldValue: fieldValue)
+            })
+        }
+        
+        return _tableData
     }
-
-    var nodeId: NodeId {
-        self.coordinate.nodeId
+    
+    var body: some View {
+        ScrollView {
+            valueGrid
+        }
+        .padding()
     }
-
+    
     var valueGrid: some View {
         Grid {
             GridRow {
@@ -55,13 +82,13 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             }
             .padding(.bottom, 2)
 
-            ForEach(tableData, id: \.id) { data in
+            ForEach(tableRows, id: \.id) { (data: PortPreviewData) in
                 GridRow {
                     StitchTextView(string: "\(data.loopIndex)")
                         .monospaced()
                         .gridCellAnchor(UnitPoint(x: 0.5, y: 0)) // aligns middle, top
 
-                    ForEach(data.fields) { field in
+                    ForEach(data.fields, id: \.0) { field in
                         let label = field.fieldLabel
 
                         Group {
@@ -73,7 +100,7 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
                         }
                         .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns right, top
 
-                        PortValuesPreviewValueView(field: field)
+                        PortValuesPreviewValueView(fieldValue: field.fieldValue)
                             .fixedSize(horizontal: true, vertical: false) // make sure
                             .gridCellAnchor(UnitPoint(x: 0, y: 0)) // aligns left, top
                     }
@@ -82,91 +109,16 @@ struct PortValuesPreviewView<NodeRowObserverType: NodeRowObserver>: View {
             }
         }
     }
-
-    var body: some View {
-        ScrollView {
-            valueGrid
-        }
-        // if this is constantly updating then the expensive `updateTableData` runs anyway
-        .onChange(of: self.data.allLoopedValues, initial: true) {
-            log("onChange: self.data.allLoopedValues: \(self.data.allLoopedValues)")
-            self.updateTableData(with: self.data.allLoopedValues)
-        }
-        .padding()
-    }
-
-    @MainActor
-    func updateTableData(with values: PortValues) {
-        
-        let enumerated = Array(zip(values.indices, values))
-        log("updateTableData: enumerated: \(enumerated)")
-        
-        log("updateTableData: self.tableData was: \(self.tableData)")
-        
-        self.tableData = enumerated.map { (index: Int, value: PortValue) in
-                        
-            // Create new field values,
-
-            
-            
-//            let _fieldValueTypes: [FieldGroupTypeViewModel<NodeRowObserverType.RowViewModelType.FieldType>] = getFieldValueTypes(
-//                initialValue: value,
-//                nodeIO: NodeRowObserverType.nodeIOType,
-//                unpackedPortParentFieldGroupType: nil,
-//                unpackedPortIndex: nil,
-//                importedMediaObject: nil,
-//                rowViewModel: rowViewModel)
-            
-            // ugh but then this is a method on row view model;
-//           these should be pure functions; use pure functions to create the view models with the appropriate data AND THEN set them in the owner-class
-            
-            // Don't want to create a bunch of new field view models on the row observer; just want the information about field labes
-            let _fieldValueTypes = rowViewModel.createFieldValueTypes(
-                initialValue: value,
-                nodeIO: NodeRowObserverType.nodeIOType,
-                unpackedPortParentFieldGroupType: nil,
-                unpackedPortIndex: nil,
-                importedMediaObject: nil)
-            
-            
-//            // Can't update the field observers via `rowObserver.activeValueChanged`, because that would affect other views that are using the rowObserver;
-//            // But can't rely
-//            // But how to get fields' labels otherwise?
-//            let fields = fieldValueTypes.flatMap {
-//                let observer = $0.fieldObservers.first!
-//                $0.fieldObservers.flatMap { (fieldViewModel: FieldViewModel) in
-//                    
-//                }
-//            }
-//            
-//            let fieldsValues = fields.map(\.fieldValue)
-//            log("updateTableData: index: \(index), fields: \(fields)")
-//            log("updateTableData: index: \(index), fieldsValues: \(fieldsValues)")
-//            return .init(loopIndex: index,
-//                         fields: fields)
-            fatalError()
-        }
-        
-//        self.tableData = enumerated.map { index, _ in
-//            let fields = fieldValueTypes.flatMap { $0.fieldObservers }
-//            let fieldsValues = fields.map(\.fieldValue)
-//            log("updateTableData: index: \(index), fields: \(fields)")
-//            log("updateTableData: index: \(index), fieldsValues: \(fieldsValues)")
-//            return .init(loopIndex: index,
-//                         fields: fields)
-//        }
-        
-        log("updateTableData: self.tableData is now: \(self.tableData)")
-    }
 }
 
-struct PortValuesPreviewValueView<FieldType>: View where FieldType: FieldViewModel {
+// just pass the FieldValue and
+struct PortValuesPreviewValueView: View {
 
-    let field: FieldType
+    let fieldValue: FieldValue
 
     var body: some View {
 
-        switch field.fieldValue {
+        switch fieldValue {
 
         case .color(let color):
             Circle().fill(color).frame(width: 18,
@@ -175,35 +127,10 @@ struct PortValuesPreviewValueView<FieldType>: View where FieldType: FieldViewMod
 
         default:
             // Every other value
-            StitchTextView(string: "\(field.fieldValue.portValuePreview)",
+            StitchTextView(string: "\(fieldValue.portValuePreview)",
                            truncationMode: .tail)
                 .monospaced()
                 .frame(minWidth: 40) // necessary to prevent overflow scenarios
-
         }
-
     }
 }
-
-// struct PortValuesPreviewView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        let values1 = PortValuesObserver([
-//            .position(.zero),
-//            .position(.init(width: 30.999122, height: 30000))
-//        ],
-//        Coordinate.input(InputCoordinate(portId: 0, nodeId: .init()))
-//        )
-//        //        let values2: PortValues = [
-//        //            .number(.zero),
-//        //            .number(30.999122)
-//        //        ]
-//
-//        VStack {
-//            PortValuesPreviewView(valuesObserver: values1, isInput: true)
-//            //            Divider()
-//            //            PortValuesPreviewView(values: values2)
-//
-//        }
-//
-//    }
-// }

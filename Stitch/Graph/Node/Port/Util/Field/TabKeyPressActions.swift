@@ -400,7 +400,7 @@ extension NodeViewModel {
 extension LayerInputType {
     func maxFieldIndex(_ layer: Layer) -> Int {
         let fieldCount = self.getDefaultValue(for: layer)
-            .createFieldValues(nodeIO: .input,
+            .createFieldValuesList(nodeIO: .input,
                                importedMediaObject: nil)
             .first?.count ?? 1
         
