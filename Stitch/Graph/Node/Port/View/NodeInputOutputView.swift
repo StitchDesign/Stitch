@@ -97,7 +97,7 @@ struct LayerInspectorRowButton: View {
         // Only show the dot / plus button if we're hovering or row is selected or ...
         .opacity(showButton ? 1 : 0)
         
-        .animation(.default, value: showButton)
+        .animation(.linear(duration: 0.1), value: showButton)
     }
     
     @MainActor
