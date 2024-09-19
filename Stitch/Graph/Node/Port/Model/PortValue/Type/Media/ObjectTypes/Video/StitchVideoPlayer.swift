@@ -39,7 +39,6 @@ final class StitchVideoImportPlayer: Sendable {
             self?.thumbnail = await player?.currentItem?.asset.getThumbnail()
         }
 
-        self.muteSound() // Mute initially or customize if needed.
         self.setVolume(volume: initialVolume) // Set initial volume here
     }
 
