@@ -224,8 +224,12 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
         // Do the selection action in here
-        self.graph.sidebarItemTapped(id: self.layerNodeId)
         
+        // Only select the layer if not already actively-selected; otherwise just open the menu
+        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
+            self.graph.sidebarItemTapped(id: self.layerNodeId)
+        }
+                
         let selections = self.graph.sidebarSelectionState
         let groups = self.graph.getSidebarGroupsDict()
         let sidebarDeps =  SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
