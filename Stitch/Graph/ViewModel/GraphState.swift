@@ -71,7 +71,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
     }
     
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        publishedComponents: [URL]) {
+                                        publishedComponents: [StitchComponent]) {
         guard let parentGraph = parentGraph else {
             fatalErrorIfDebug()
             return

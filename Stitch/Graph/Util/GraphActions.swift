@@ -33,7 +33,7 @@ struct CloseGraph: StitchStoreEvent {
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        publishedComponents: [URL]) {
+                                        publishedComponents: [StitchComponent]) {
         // Must initialize on main thread
         self.graphStepManager.start()
 
@@ -51,9 +51,19 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 extension GraphState: DocumentEncodableDelegate {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        publishedComponents: [URL]) {
+                                        publishedComponents: [StitchComponent]) {
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded
+        
+        // Update published components from disk
+        publishedComponents.forEach { publishedComponent in
+            guard let masterComponent = self.components.get(publishedComponent.id) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            masterComponent.publishedComponent = publishedComponent
+        }
 
         // Add urls to library
         var mediaLibrary = importedFilesDir.reduce(MediaLibrary()) { partialResult, url in

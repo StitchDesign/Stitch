@@ -23,11 +23,18 @@ protocol DocumentEncodable: Actor {
 protocol DocumentEncodableDelegate: AnyObject {
     @MainActor
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
-                                        publishedComponents: [URL])
-//                                        data: CodableDocument)
+                                        publishedComponents: [StitchComponent])
 }
 
 extension DocumentEncodable {
+    var id: UUID {
+        self.lastEncodedDocument.id
+    }
+    
+    var recentlyDeletedUrl: URL {
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
+    }
+    
     func encodeProject(_ document: Self.CodableDocument,
                        temporaryURL: DocumentsURL? = nil) async -> StitchFileVoidResult {
         let rootDocUrl = temporaryURL?.url ?? self.rootUrl
@@ -57,14 +64,6 @@ extension DocumentEncodable {
             fatalErrorIfDebug()
             return .failure(.versionableContainerEncodingFailed)
         }
-    }
-    
-    var id: UUID {
-        self.lastEncodedDocument.id
-    }
-    
-    var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
     }
 }
 

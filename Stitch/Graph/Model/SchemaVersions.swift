@@ -288,7 +288,7 @@ public struct GraphEntity: Codable, Equatable {
 public enum StitchDocument_V24: StitchSchemaVersionable {
     public static let version = StitchSchemaVersion._V24
     
-    public struct StitchDocument: StitchVersionedCodable, Equatable {
+    public struct StitchDocument: StitchVersionedCodable, Equatable, Sendable {
         // Node data
         public var graph: GraphEntity
 

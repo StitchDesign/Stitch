@@ -28,9 +28,13 @@ extension DocumentEncodable {
         let importedFilesDir = await DocumentEncoder
             .getAllMediaURLs(in: self.getImportedFilesURL())
 
+        // Find and migrate each installed component
+        let publishedDocumentComponentsDir = self.componentsDirUrl
+        // Components might not exist so fail quietly
+        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
+
         let lastEncodedDocument = self.lastEncodedDocument
         
-        fatalError("need published components")
         
         // Start graph once library is built
         await MainActor.run { [weak self] in
@@ -39,7 +43,7 @@ extension DocumentEncodable {
             }
             
             encoder.delegate?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
-                                                             publishedComponents: [])
+                                                             publishedComponents: components)
         }
     }
 }

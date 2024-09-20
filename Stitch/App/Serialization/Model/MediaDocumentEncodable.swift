@@ -6,13 +6,23 @@
 //
 
 import Foundation
+import SwiftUI
+import UniformTypeIdentifiers
+import StitchSchemaKit
 
 /// Used for `StitchDocument` and `StitchComponent`
-protocol StitchDocumentEncodable: Codable, Identifiable {
-//    var rootUrl: URL { get }
-    var id: UUID { get }
-    func getEncodingUrl(documentRootUrl: URL) -> URL
+protocol StitchDocumentEncodable: Codable, Identifiable, Transferable where VersionType.NewestVersionType == Self {
+    associatedtype VersionType: StitchSchemaVersionType
+    
+    static var fileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
+
+    init()
+    var rootUrl: URL { get }
+    var id: UUID { get set }
+    var name: String { get }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL
 }
 
 extension StitchDocumentEncodable {
@@ -43,4 +53,9 @@ extension StitchDocumentEncodable {
     static var fileWrapper: FileWrapper {
         FileWrapper(directoryWithFileWrappers: [:])
     }
+}
+
+struct StitchDocumentSubdirectoryFiles {
+    let importedMediaUrls: [URL]
+    let componentUrls: [URL]
 }
