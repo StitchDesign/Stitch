@@ -59,7 +59,6 @@ struct SidebarFooterView: View {
     
     @MainActor
     var editModeFooter: some View {
-        
         HStack(spacing: 10) {
             Spacer()
             SidebarFooterButtonsView(groups: groups,
@@ -67,53 +66,6 @@ struct SidebarFooterView: View {
                                      isBeingEdited: isBeingEdited,
                                      layerNodes: layerNodes)
         }
-        
-        
-        
-//        let allButtonsDisabled = selections.all.isEmpty
-//        
-//        let ungroupButtonEnabled = canUngroup(selections.primary,
-//                                              nodes: layerNodes)
-//
-//        let groupButtonEnabled = selections
-//            .nonEmptyPrimary
-//            .map { canBeGrouped($0, groups: groups) } ?? false
-//
-//        let duplicateButtonEnabled = canDuplicate(selections.primary)
-//
-//        return HStack(spacing: 10) {
-//            Spacer()
-//            StitchButton {
-//                dispatch(SidebarGroupUncreated())
-//            } label: {
-//                Text("Ungroup")
-//                    .modifier(DisabledButtonModifier(buttonEnabled: ungroupButtonEnabled))
-//            }.disabled(!ungroupButtonEnabled)
-//            
-//            StitchButton {
-//                dispatch(SidebarGroupCreated())
-//            } label: {
-//                Text("Group")
-//                    .modifier(DisabledButtonModifier(buttonEnabled: groupButtonEnabled))
-//            }
-//            .disabled(!groupButtonEnabled)
-//            
-//            StitchButton {
-//                log("SidebarFooterView duplicate tapped")
-//                dispatch(SidebarSelectedItemsDuplicated())
-//            } label: {
-//                Text("Duplicate")
-//                    .modifier(DisabledButtonModifier(buttonEnabled: duplicateButtonEnabled))
-//            }.disabled(!duplicateButtonEnabled)
-//            
-//            StitchButton {
-//                log("SidebarFooterView delete tapped")
-//                dispatch(SidebarSelectedItemsDeleted())
-//            } label: {
-//                Text("Delete")
-//                    .modifier(DisabledButtonModifier(buttonEnabled: !allButtonsDisabled))
-//            }.disabled(allButtonsDisabled)
-//        }
     } // editModeFooter
 }
 

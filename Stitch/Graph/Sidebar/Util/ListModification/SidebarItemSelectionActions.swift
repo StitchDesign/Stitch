@@ -10,21 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
-//extension InspectorFocusedLayers {
-//    func layerActivelySelected(_ id: LayerNodeId) -> Self {
-//        var layerSet = self
-//        layerSet.focused.insert(id)
-//        layerSet.activelySelected.insert(id)
-//        return layerSet
-//    }
-//    
-//    func layerActivelyDeselected(_ id: LayerNodeId) -> Self {
-//        var layerSet = self
-//        layerSet.focused.remove(id)
-//        layerSet.activelySelected.remove(id)
-//        return layerSet
-//    }
-//}
 
 // Sidebar layer 'tapped' while not in
 struct SidebarItemTapped: GraphEvent {
@@ -51,21 +36,12 @@ struct SidebarItemTapped: GraphEvent {
             }
             
         } else {
-            
             state.sidebarSelectionState.resetEditModeSelections()
             
             // Note: Click will not deselect an already-selected layer
-            
-            
             state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
             state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
-            
-            
             state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
-            
-            // But also need to deselect all other
-            
-            
             state.deselectAllCanvasItems()
         }
         
@@ -199,18 +175,8 @@ extension GraphState {
             // if the parent is currently selected,
             // then deselect the parent and all other children
             if self.sidebarSelectionState.isSelected(parent) {
-                
-//                if isSidebarItemTapped {
-//                    // Special case: if we're actively-selecting this layer,
-//                    // but the parent is already selected, then do not change
-//
-//                } else {
                     self.sidebarSelectionState.resetEditModeSelections()
                     self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
-//                }
-                
-//                self.sidebarSelectionState.resetEditModeSelections()
-//                self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
             }
 
             // ... otherwise, just primarily select the child
