@@ -37,7 +37,7 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     }
 
     // https://developer.apple.com/documentation/avfoundation/avcapturesession
-    func configureSession(device: StitchCameraDevice,
+    @MainActor func configureSession(device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
                           cameraOrientation: StitchCameraOrientation) {
         self.beginConfiguration()
@@ -61,66 +61,53 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
         videoOutput.setSampleBufferDelegate(self.bufferDelegate, queue: DispatchQueue(label: "sample buffer"))
 
         self.addOutput(videoOutput)
-        //            self.commitConfiguration() // ORIGINAL
 
-        guard let connection: AVCaptureConnection = videoOutput.connection(with: CAMERA_FEED_MEDIA_TYPE),
-              connection.isVideoOrientationSupported,
-              connection.isVideoMirroringSupported else {
+        guard let connection: AVCaptureConnection = videoOutput.connection(with: CAMERA_FEED_MEDIA_TYPE) else {
             log("FrameExtractor: configureSession: Cannot establish connection")
-            self.commitConfiguration() // commit configuration if we must exit
+            self.commitConfiguration()
             return
         }
 
         // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
         // e.g. Mac device, or iPad with front camera direction
-        if let videoOrientation = self.getCameraOrientation(
+        let isIPhone = UIDevice.current.userInterfaceIdiom == .phone
+        let isIPad = UIDevice.current.userInterfaceIdiom == .pad
+
+        if isIPhone {
+            connection.videoRotationAngle = 90
+        }
+        //Matches default behavior on Main
+        //TODO: Support rotation during session
+        else if isIPad {
+            connection.videoRotationAngle = 180
+        } else if let rotationAngle = self.getCameraRotationAngle(
             device: device,
             cameraOrientation: cameraOrientation) {
-            connection.videoOrientation = videoOrientation
+            connection.videoRotationAngle = rotationAngle
         }
 
         connection.isVideoMirrored = position == .front
 
-        // Commit configuration only at the very end?
         self.commitConfiguration()
-
-        // NOT NEEDED?
-        //            let settings: [String: Any] = [kCVPixelBufferPixelFormatTypeKey as String: NSNumber(value: kCVPixelFormatType_32BGRA) ]
-        //            videoOutput.videoSettings = settings
-        //            videoOutput.alwaysDiscardsLateVideoFrames = true
-        //        })
     }
 
-    // iPad front camera needs landscapeRight setting (which also applies to rear camera.
-    // Normal webcams on Mac don't need orientation set.
-    private func getCameraOrientation(device: StitchCameraDevice,
-                                      cameraOrientation: StitchCameraOrientation) -> AVCaptureVideoOrientation? {
-        // Previously on Catalyst we always returned `nil`, i.e. never specificed camera orientation
-        return cameraOrientation
-            .convertOrientation
-            .toAVCaptureVideoOrientation
-
-        // TODO: WIP:
-        //                #if targetEnvironment(macCatalyst)
-        //                return nil
-        //                #else
-        //        return cameraOrientation.toAVCaptureVideoOrientation
-        //        //
-        //        //        // If not on Mac, use the specified camera orientation:
-        //        //        if let cameraOrientation = cameraOrientation {
-        //        //            return cameraOrientation
-        //        //        }
-        //        //        // Orientation changes needed on iPhone built-in camera
-        //        //        else if isPhoneDevice() && device.isBuiltInCamera {
-        //        //            return .portrait
-        //        //        }
-        //        //        // iPad defaults to .portrait
-        //        //        else {
-        //        //            //        return .landscapeRight
-        //        //                    return .portrait
-        //        //        }
-        //        #endif
-    }
+    @MainActor
+    private func getCameraRotationAngle(device: StitchCameraDevice,
+                                        cameraOrientation: StitchCameraOrientation) -> Double? {
+            // Convert StitchCameraOrientation to rotation angle
+            switch cameraOrientation.convertOrientation {
+            case .portrait:
+                return 0
+            case .portraitUpsideDown:
+                return 180
+            case .landscapeRight:
+                return 90
+            case .landscapeLeft:
+                return 270
+            @unknown default:
+                return nil
+            }
+        }
 }
 
 /// Delegate class for managing image buffer from `AVCaptureSession`.
