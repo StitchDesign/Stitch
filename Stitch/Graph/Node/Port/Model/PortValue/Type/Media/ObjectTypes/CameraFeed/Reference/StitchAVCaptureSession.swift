@@ -13,7 +13,7 @@ import UIKit
 extension AVCaptureSession: @unchecked Sendable { }
 
 /// Camera library used when AR is not available.
-final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCameraSession {
+final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     weak var actor: CameraFeedActor?
     
     @MainActor var currentImage: UIImage? {
