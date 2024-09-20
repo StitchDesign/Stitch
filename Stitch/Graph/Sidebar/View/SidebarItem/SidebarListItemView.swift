@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 struct SidebarListItemView: View {
 
-    
     // Move this ... elsewhere? Globally?
     @State var keyboardObserver: KeyboardObserver = .init()
     
@@ -114,7 +113,8 @@ struct SidebarListItemView: View {
                 
                 log("shiftIsPressed: \(shiftIsPressed)")
                 
-                dispatch(SidebarItemTapped(id: layerNodeId))
+                dispatch(SidebarItemTapped(id: layerNodeId,
+                                           shiftHeld: shiftIsPressed))
             }
         }))
         

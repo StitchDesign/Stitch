@@ -10,22 +10,96 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
+import StitchViewKit
+
 
 // Sidebar layer 'tapped' while not in
 struct SidebarItemTapped: GraphEvent {
     
     let id: LayerNodeId
+    let shiftHeld: Bool
     
     func handle(state: GraphState) {
-        state.sidebarItemTapped(id: id)
+                
+        state.sidebarItemTapped(id: id,
+                                shiftHeld: shiftHeld)
     }
 }
+
+extension Array where Element: StitchNestedListElement {
+    public func _get(_ id: Element.ID) -> Element? {
+        for item in self {
+            if id == item.id {
+                return item
+            }
+            
+            // Recursively check children
+            return item.children?._get(id)
+        }
+        
+        return nil
+    }
+}
+
 
 
 extension GraphState {
     
     @MainActor
-    func sidebarItemTapped(id: LayerNodeId) {
+    func sidebarItemTapped(id: LayerNodeId, shiftHeld: Bool) {
+        log("sidebarItemTapped: id: \(id)")
+        log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
+        
+    
+        if shiftHeld {
+           // god damnit, this is has that same bug as before -- we didn't update the framework yet
+//            guard let clickedItem = self.orderedSidebarLayers._get(id.id) else {
+            guard let clickedItem = self.orderedSidebarLayers.first(where: { $0.id == id.id
+            }) else {
+                log("sidebarItemTapped: could not get clicked data")
+                fatalErrorIfDebug()
+                return 
+            }
+            
+            let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+                        
+            if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
+                in: self.orderedSidebarLayers,
+                clickedItem: clickedItem,
+                // Look at focused layers
+                selections: originalSelections) {
+                
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween)")
+                let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
+                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
+                
+                if clickedEarlierThanStart {
+                    log("sidebarItemTapped: clickedEarlierThanStart")
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
+                    return
+                } else {
+                    log("sidebarItemTapped: had NOT clickedEarlierThanStart")
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused =
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                    return 
+                }
+                
+                
+            } else {
+                log("sidebarItemTapped: did not have itemsBetween")
+            }
+        } else {
+            log("sidebarItemTapped: either shift not held or could not find clicked data")
+        }
+        
+        
+
+        
+        
+        
+        
         let alreadySelected = self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
         
         // TODO: why does shift-key seem to be interrupted so often?
