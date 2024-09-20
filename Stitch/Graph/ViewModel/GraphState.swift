@@ -208,6 +208,7 @@ final class GraphState: Sendable {
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
+        self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.components = schema.draftedComponents
             .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
                 let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
