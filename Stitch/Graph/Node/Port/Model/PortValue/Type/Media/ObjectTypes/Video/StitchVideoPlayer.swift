@@ -1,25 +1,16 @@
-//
-//  StitchVideoPlayer.swift
-//  Stitch
-//
-//  Created by Elliot Boschwitz on 8/5/22.
-//
-
 import AVKit
 
-/// A class for managing `AVPlayer` instances for non-layer scenarios. For video layers,
-/// `StitchVideoViewController` is used.
 @Observable
 final class StitchVideoImportPlayer: Sendable {
+    static let DEFAULT_VIDEO_PLAYER_VOLUME: Double = 1
+
     var video: AVPlayer
     var stitchVideoDelegate: StitchVideoDelegate
     var thumbnail: UIImage?
     var metadata: VideoMetadata {
         @MainActor
         didSet(newValue) {
-            // Need to compare old vs new else publishers get called unnecessarily
             if metadata != newValue {
-                // Dispatch fixes issue where background thread could cause crash on AudioKit engine
                 self.stitchVideoDelegate.updateMetadata(for: video, videoData: metadata)
             }
         }
@@ -36,7 +27,7 @@ final class StitchVideoImportPlayer: Sendable {
     var url: URL? { video.url }
 
     @MainActor
-    init(url: URL, videoData: VideoMetadata) {
+    init(url: URL, videoData: VideoMetadata, initialVolume: Double) {
         let player = AVPlayer(url: url)
         self.stitchVideoDelegate = StitchVideoDelegate(url: url,
                                                        videoData: videoData,
@@ -48,15 +39,13 @@ final class StitchVideoImportPlayer: Sendable {
             self?.thumbnail = await player?.currentItem?.asset.getThumbnail()
         }
 
-        // Video muted by default, only unmuted by video layer
-        self.muteSound()
+        self.setVolume(volume: initialVolume) // Set initial volume here
     }
 
     @MainActor
     func resetPlayer() {
         self.stitchVideoDelegate.seek(on: self.video,
                                       to: .zero,
-                                      // Can be false here since it's just a reset
                                       isScrubbing: false)
     }
 
@@ -70,6 +59,13 @@ final class StitchVideoImportPlayer: Sendable {
 
     var volume: Double {
         self.stitchVideoDelegate.audio.delegate.volume
+    }
+    
+    @MainActor
+    func setVolume(volume: Double) {
+        let volume = min(1, max(0, volume))
+        self.video.volume = Float(volume)
+        self.stitchVideoDelegate.audio.updateVolume(volume)
     }
 
     var peakVolume: Double {

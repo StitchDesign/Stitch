@@ -188,6 +188,8 @@ struct VideoLayerView: View {
             shadowOffset: viewModel.shadowOffset.getPosition ?? .defaultShadowOffset,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
-            isClipped: viewModel.isClipped.getBool ?? false)
+            isClipped: viewModel.isClipped.getBool ?? false,
+            volume: viewModel.volume.getNumber ?? StitchVideoImportPlayer.DEFAULT_VIDEO_PLAYER_VOLUME
+        )
     }
 }
