@@ -73,7 +73,11 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
 
         // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
         // e.g. Mac device, or iPad with front camera direction
-        if let videoOrientation = self.getCameraOrientation(
+        let isIPhone = UIDevice.current.userInterfaceIdiom == .phone
+
+        if isIPhone {
+            connection.videoRotationAngle = 90
+        } else if let videoOrientation = self.getCameraOrientation(
             device: device,
             cameraOrientation: cameraOrientation) {
             connection.videoOrientation = videoOrientation
@@ -96,9 +100,9 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     private func getCameraOrientation(device: StitchCameraDevice,
                                       cameraOrientation: StitchCameraOrientation) -> AVCaptureVideoOrientation? {
         // Previously on Catalyst we always returned `nil`, i.e. never specificed camera orientation
-        return cameraOrientation
-            .convertOrientation
-            .toAVCaptureVideoOrientation
+//        return cameraOrientation
+//            .convertOrientation
+//            .toAVCaptureVideoOrientation
 
         // TODO: WIP:
         //                #if targetEnvironment(macCatalyst)
@@ -120,6 +124,13 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
         //        //                    return .portrait
         //        //        }
         //        #endif
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            return .portrait
+        } else {
+            return cameraOrientation
+                .convertOrientation
+                .toAVCaptureVideoOrientation
+        }
     }
 }
 
