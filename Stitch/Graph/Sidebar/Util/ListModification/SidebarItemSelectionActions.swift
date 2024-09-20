@@ -156,15 +156,25 @@ struct SidebarItemSelected: GraphEvent {
     let id: LayerNodeId
     
     func handle(state: GraphState) {
-        state.sidebarItemSelectedViaEditMode(id)
+        state.sidebarItemSelectedViaEditMode(id,
+                                             isSidebarItemTapped: false)
     }
 }
 
 extension GraphState {
     
     @MainActor
-    func sidebarItemSelectedViaEditMode(_ id: LayerNodeId) {
+    func sidebarItemSelectedViaEditMode(_ id: LayerNodeId,
+                                        isSidebarItemTapped: Bool = true) {
         let sidebarGroups = self.getSidebarGroupsDict()
+        
+        // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
+        if isSidebarItemTapped,
+            self.sidebarSelectionState.secondary.contains(id) {
+            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
+            return
+        }
+        
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
@@ -181,19 +191,27 @@ extension GraphState {
             })
         }
 
-        // if we selected a child of a group,
+        // If we selected a child of a group,
         // then deselect that parent and all other children,
         // and primarily select the child.
         // ie deselect everything(?), and only select the child.
-
-        // TRICKY: what if eg
         else if let parent = findGroupLayerParentForLayerNode(id, sidebarGroups) {
 
             // if the parent is currently selected,
             // then deselect the parent and all other children
             if self.sidebarSelectionState.isSelected(parent) {
-                self.sidebarSelectionState.resetEditModeSelections()
-                self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
+                
+//                if isSidebarItemTapped {
+//                    // Special case: if we're actively-selecting this layer,
+//                    // but the parent is already selected, then do not change
+//
+//                } else {
+                    self.sidebarSelectionState.resetEditModeSelections()
+                    self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
+//                }
+                
+//                self.sidebarSelectionState.resetEditModeSelections()
+//                self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
             }
 
             // ... otherwise, just primarily select the child

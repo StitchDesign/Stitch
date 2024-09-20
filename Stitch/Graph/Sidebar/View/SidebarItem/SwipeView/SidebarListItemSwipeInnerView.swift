@@ -43,8 +43,13 @@ struct SidebarListItemSwipeInnerView: View {
         if isNonEditModeSelected {
             return .white
         }
-            
-        else if isBeingEdited {
+           
+        #if DEV_DEBUG
+        // Easier to see secondary selections for debug
+        return selection.color(isHidden)
+        #endif
+        
+        if isBeingEdited {
             return selection.color(isHidden)
         } else {
             return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
