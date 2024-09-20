@@ -18,7 +18,8 @@ enum StitchDocumentError: Error {
 extension UTType {
     static let stitchDocument: UTType = UTType(exportedAs: "app.stitchdesign.stitch.document")
     static let stitchProjectData: UTType = UTType(exportedAs: "app.stitchdesign.stitch.projectdata")
-    static let stitchComponent: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
+    static let stitchComponentZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
+    static let stitchComponentUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.componentdata")
     static let stitchClipboard: UTType = UTType(exportedAs: "app.stitchdesign.stitch.clipboard")
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
@@ -32,7 +33,8 @@ extension UTType {
 extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     typealias VersionType = StitchDocumentVersion
     
-    static let fileType: UTType = .stitchDocument
+    static let unzippedFileType: UTType = .stitchProjectData
+    static let zippedFileType: UTType = .stitchDocument
     
     init() {
         self.init(nodes: [])
@@ -201,9 +203,9 @@ extension GraphEntity {
     }
 }
 
-extension StitchDocumentEncodable {
+extension StitchDocumentMigratable {
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(contentType: Self.fileType,
+        FileRepresentation(contentType: Self.zippedFileType,
                            exporting: Self.exportDocument,
                            importing: Self.importDocument)
     }
@@ -211,10 +213,10 @@ extension StitchDocumentEncodable {
     @Sendable
     static func exportDocument(_ document: Self) async -> SentTransferredFile {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
-        assertInDebug(Self.fileType.preferredFilenameExtension != nil)
+        assertInDebug(Self.zippedFileType.preferredFilenameExtension != nil)
         
         let projectURL = document.rootUrl
-        let fileNameExt = Self.fileType.preferredFilenameExtension ?? ""
+        let fileNameExt = Self.zippedFileType.preferredFilenameExtension ?? ""
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
@@ -328,10 +330,8 @@ extension StitchDocumentEncodable {
 extension StitchDocumentEncodable {
     /// Unzips document contents on project import, returning the URL of the unzipped contents.
     static func getUnzippedProjectData(importedUrl: URL) throws -> URL? {
-        // TODO: consider better approaches to managing all folders (FILEWRAPPER)
-        
         // .stitchproject is already unzipped so we just return this
-        if importedUrl.pathExtension == Self.fileType.preferredFilenameExtension {
+        if importedUrl.pathExtension == Self.unzippedFileType.preferredFilenameExtension {
             return importedUrl
         }
         
@@ -348,7 +348,7 @@ extension StitchDocumentEncodable {
         let items = try FileManager.default.contentsOfDirectory(at: unzipDestinationURL,
                                                                 includingPropertiesForKeys: nil)
         let projectFile = items.first { file in
-            file.pathExtension == Self.fileType.preferredFilenameExtension
+            file.pathExtension == Self.unzippedFileType.preferredFilenameExtension
         }
         
         return projectFile

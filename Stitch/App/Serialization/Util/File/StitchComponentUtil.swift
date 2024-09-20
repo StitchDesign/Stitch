@@ -11,12 +11,13 @@ import StitchSchemaKit
 import UniformTypeIdentifiers
 
 extension StitchComponent: StitchComponentable {
-    static let fileType: UTType = .stitchComponent
+    static let zippedFileType: UTType = .stitchComponentZipped
+    static let unzippedFileType: UTType = .stitchComponentUnzipped
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
         self.path.reduce(into: self.saveLocation.rootUrl) { path, componentId in
-            path = path.appendingPathComponent("\(componentId)", conformingTo: .stitchComponent)
+            path = path.appendingPathComponent("\(componentId)", conformingTo: .stitchComponentUnzipped)
         }
         .appendingPathComponent("\(self.id)")
     }

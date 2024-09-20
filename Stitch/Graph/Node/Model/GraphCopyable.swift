@@ -500,7 +500,7 @@ protocol StitchComponentable: StitchDocumentEncodable {
 //extension StitchComponent: StitchComponentable { }
 
 struct StitchClipboardContent: StitchComponentable {
-    static let fileType = UTType.stitchClipboard
+    static let unzippedFileType = UTType.stitchClipboard
     static let dataJsonName = StitchDocument.graphDataFileName
     
     var graph: GraphEntity
@@ -520,7 +520,7 @@ extension StitchClipboardContent {
     var rootUrl: URL {
         StitchFileManager.tempDir
             .appendingPathComponent("copied-data",
-                                    conformingTo: Self.fileType)
+                                    conformingTo: Self.unzippedFileType)
     }
     
     var dataJsonUrl: URL {
@@ -535,25 +535,39 @@ extension StitchClipboardContent {
     }
 }
 
-extension StitchComponentable {
-    public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(exportedContentType: Self.fileType,
-                           exporting: Self.exportComponent)
-    }
+//extension StitchComponent {
+//    public static var transferRepresentation: some TransferRepresentation {
+//        FileRepresentation(exportedContentType: Self.zippedFileType,
+//                           exporting: Self.exportComponent)
+//    }
+//    
+//    @Sendable
+//    static func exportComponent(_ component: Self) async -> SentTransferredFile {
+//        let rootUrl = component.rootUrl
+//        // Create directories if it doesn't exist
+//        let _ = try? await StitchFileManager.createDirectories(at: rootUrl,
+//                                                               withIntermediate: true)
+//        await component.encodeDocumentContents(folderUrl: rootUrl)
+//        
+//        let url = component.dataJsonUrl
+//        await Self.exportComponent(component, url: url)
+//        return SentTransferredFile(url)
+//    }
+//}
 
+extension StitchComponentable {
     @Sendable
-    static func exportComponent(_ component: Self) async -> SentTransferredFile {
+    static func exportComponent(_ component: Self) async {
         let rootUrl = component.rootUrl
         // Create directories if it doesn't exist
         let _ = try? await StitchFileManager.createDirectories(at: rootUrl,
                                                                withIntermediate: true)
         await component.encodeDocumentContents(folderUrl: rootUrl)
-
+        
         let url = component.dataJsonUrl
         await Self.exportComponent(component, url: url)
-        return SentTransferredFile(url)
     }
-
+    
     @Sendable
     static func exportComponent(_ component: Self, url: URL) async {
         do {

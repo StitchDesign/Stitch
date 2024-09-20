@@ -10,8 +10,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 import StitchSchemaKit
 
-protocol StitchDocumentMigratable: StitchDocumentEncodable where VersionType.NewestVersionType == Self {
+protocol StitchDocumentMigratable: Transferable, StitchDocumentEncodable where VersionType.NewestVersionType == Self {
     associatedtype VersionType: StitchSchemaVersionType
+    
+    static var zippedFileType: UTType { get }
 }
 
 extension StitchDocumentMigratable {
@@ -29,8 +31,8 @@ extension StitchDocumentMigratable {
 }
 
 /// Used for `StitchDocument` and `StitchComponent`
-protocol StitchDocumentEncodable: Codable, Identifiable, Transferable {
-    static var fileType: UTType { get }
+protocol StitchDocumentEncodable: Codable, Identifiable {
+    static var unzippedFileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
 
     init()
