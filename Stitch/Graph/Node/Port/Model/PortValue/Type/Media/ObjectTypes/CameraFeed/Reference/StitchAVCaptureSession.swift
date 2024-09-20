@@ -54,7 +54,6 @@ final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCame
               self.canAddOutput(videoOutput) else {
             log("FrameExtractor error: could not setup input or output.")
             self.commitConfiguration() // commit configuration if we must exit
-            self.commitConfiguration()
             return
         }
 
