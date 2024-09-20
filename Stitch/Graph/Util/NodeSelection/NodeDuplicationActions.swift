@@ -48,12 +48,13 @@ extension GraphState {
         let hasEffectsToRun = !effects.isEmpty
 
         // Change all IDs
-        var newComponent = component.changeIds()
+        var newComponent = component
+        newComponent.graph = newComponent.graph.changeIds()
 
         // Update nodes in the follow ways:
         // 1. Stagger position
         // 2. Increment z-index
-        newComponent.nodes = newComponent.nodes.map { node in
+        newComponent.graph.nodes = newComponent.nodes.map { node in
             var node = node
             node.canvasEntityMap { node in
                 var node = node
@@ -114,7 +115,7 @@ extension GraphState {
 
         // Add new nodes
         graph.nodes += newNodes
-        graph.orderedSidebarLayers = component.orderedSidebarLayers + graph.orderedSidebarLayers
+        graph.orderedSidebarLayers = component.graph.orderedSidebarLayers + graph.orderedSidebarLayers
         self.update(from: graph)
 
         // Reset selected nodes

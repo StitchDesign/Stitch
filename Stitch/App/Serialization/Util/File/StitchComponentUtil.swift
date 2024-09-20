@@ -12,14 +12,6 @@ import UniformTypeIdentifiers
 
 extension StitchComponent: StitchComponentable {
     static let fileType: UTType = .stitchComponent
-    
-    var nodes: [NodeEntity] {
-        self.graph.nodes
-    }
-    
-    var orderedSidebarLayers: SidebarLayerList {
-        self.graph.orderedSidebarLayers
-    }
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
@@ -28,9 +20,19 @@ extension StitchComponent: StitchComponentable {
         }
         .appendingPathComponent("\(self.id)")
     }
-    
+}
+
+extension StitchComponentable {
     var dataJsonUrl: URL {
         self.rootUrl.appendingVersionedSchemaPath()
+    }
+    
+    var nodes: [NodeEntity] {
+        self.graph.nodes
+    }
+    
+    var orderedSidebarLayers: SidebarLayerList {
+        self.graph.orderedSidebarLayers
     }
 }
 

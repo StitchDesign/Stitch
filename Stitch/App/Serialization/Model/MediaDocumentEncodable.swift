@@ -10,10 +10,26 @@ import SwiftUI
 import UniformTypeIdentifiers
 import StitchSchemaKit
 
-/// Used for `StitchDocument` and `StitchComponent`
-protocol StitchDocumentEncodable: Codable, Identifiable, Transferable where VersionType.NewestVersionType == Self {
+protocol StitchDocumentMigratable: StitchDocumentEncodable where VersionType.NewestVersionType == Self {
     associatedtype VersionType: StitchSchemaVersionType
-    
+}
+
+extension StitchDocumentMigratable {
+    static func getDocument(from url: URL) throws -> Self? {
+        guard let doc = try Self.VersionType.migrate(versionedCodableUrl: url) else {
+            //                #if DEBUG
+            //                fatalError()
+            //                #endif
+            log("StitchDocumentMigratable.getDocument: could not migrate")
+            return nil
+        }
+        
+        return doc
+    }
+}
+
+/// Used for `StitchDocument` and `StitchComponent`
+protocol StitchDocumentEncodable: Codable, Identifiable, Transferable {
     static var fileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
 
@@ -23,6 +39,7 @@ protocol StitchDocumentEncodable: Codable, Identifiable, Transferable where Vers
     var name: String { get }
     
     func getEncodingUrl(documentRootUrl: URL) -> URL
+    static func getDocument(from url: URL) throws -> Self?
 }
 
 extension StitchDocumentEncodable {

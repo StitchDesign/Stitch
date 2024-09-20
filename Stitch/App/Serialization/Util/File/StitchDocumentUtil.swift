@@ -29,7 +29,7 @@ extension UTType {
 //    }
 //}
 
-extension StitchDocument: StitchDocumentEncodable {
+extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     typealias VersionType = StitchDocumentVersion
     
     static let fileType: UTType = .stitchDocument
@@ -128,20 +128,21 @@ extension StitchDocumentEncodable {
 //    let publishedDocumentComponents: [StitchComponent]
 //}
 
-extension StitchComponent: StitchDocumentEncodable {
+extension StitchComponent: StitchDocumentMigratable {
     typealias VersionType = StitchComonentVersion
     
     init() {
         self.init(saveLocation: .document(.init()),
                   path: [],
-                  graph: .init(id: .init(),
-                               name: "",
-                               nodes: [],
-                               orderedSidebarLayers: [],
-                               commentBoxes: [],
-                               draftedComponents: []))
+                  graph: GraphEntity.createEmpty())
     }
     
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        documentRootUrl.appendingComponentsPath()
+    }
+}
+
+extension StitchClipboardContent {
     var name: String {
         self.graph.name
     }
@@ -153,10 +154,6 @@ extension StitchComponent: StitchDocumentEncodable {
         set(newValue) {
             self.graph.id = newValue
         }
-    }
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl.appendingComponentsPath()
     }
 }
 
@@ -192,6 +189,17 @@ extension StitchComponent {
 //        documentRootUrl
 //    }
 //}
+
+extension GraphEntity {
+    static func createEmpty() -> Self {
+        .init(id: .init(),
+              name: "",
+              nodes: [],
+              orderedSidebarLayers: [],
+              commentBoxes: [],
+              draftedComponents: [])
+    }
+}
 
 extension StitchDocumentEncodable {
     public static var transferRepresentation: some TransferRepresentation {
@@ -292,10 +300,7 @@ extension StitchDocumentEncodable {
         }
 
         // Migrate document content given some URL
-        guard var codableDoc: Self = try Self.VersionType.migrate(versionedCodableUrl: graphDataUrl) else {
-            //                #if DEBUG
-            //                fatalError()
-            //                #endif
+        guard var codableDoc = try Self.getDocument(from: graphDataUrl) else {
             log("openDocument: could not migrate")
             return nil
         }

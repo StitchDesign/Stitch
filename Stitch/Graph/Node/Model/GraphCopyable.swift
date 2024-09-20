@@ -297,9 +297,9 @@ extension Array where Element == ComponentAsyncCallback {
     }
 }
 
-extension StitchComponentable {
+extension GraphEntity {
     /// Creates fresh IDs for all data in NodeEntities
-    func changeIds() -> StitchClipboardContent {
+    func changeIds() -> GraphEntity {
         let copiedNodeIds = self.nodes.map { $0.id }.toSet
 
         // Create mapping dictionary from old NodeID's to new NodeID's
@@ -318,9 +318,17 @@ extension StitchComponentable {
 
         let copiedSidebarLayers = self.orderedSidebarLayers
             .createCopy(mappableData: mappableData)
+        
+        if !self.commentBoxes.isEmpty {
+            fatalErrorIfDebug("Comment boxes need to have IDs changed here!")
+        }
 
-        return .init(nodes: copiedNodes,
-                     orderedSidebarLayers: copiedSidebarLayers)
+        return .init(id: self.id,
+                     name: self.name,
+                     nodes: copiedNodes,
+                     orderedSidebarLayers: copiedSidebarLayers,
+                     commentBoxes: self.commentBoxes,
+                     draftedComponents: self.draftedComponents)
     }
 }
 
@@ -421,7 +429,7 @@ extension GraphState {
     @MainActor
     func createComponent<Data>(groupNodeFocused: GroupNodeType?,
                                selectedNodeIds: NodeIdSet,
-                               createComponentable: @escaping (NodeEntities, SidebarLayerList) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
+                               createComponentable: @escaping (GraphEntity) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
             .map { node in
                 var node = node
@@ -477,11 +485,9 @@ extension SidebarLayerList {
 
 
 // TODO: move
-protocol StitchComponentable: Sendable, StitchDocumentEncodable, Transferable {
-    var nodes: [NodeEntity] { get }
-    var orderedSidebarLayers: SidebarLayerList { get }
-    static var fileType: UTType { get }
-    var rootUrl: URL { get }
+protocol StitchComponentable: StitchDocumentEncodable {
+    var graph: GraphEntity { get set }
+    
     var dataJsonUrl: URL { get }
 }
 
@@ -491,12 +497,20 @@ struct StitchClipboardContent: StitchComponentable {
     static let fileType = UTType.stitchClipboard
     static let dataJsonName = StitchDocument.graphDataFileName
     
-    var id = UUID()
-    var nodes: [NodeEntity]
-    var orderedSidebarLayers: SidebarLayerList
+    var graph: GraphEntity
 }
 
-extension StitchClipboardContent: StitchDocumentEncodable {
+extension StitchClipboardContent {
+    static func getDocument(from url: URL) throws -> StitchClipboardContent? {
+        let data = try Data(contentsOf: url)
+        let decoder = getStitchDecoder()
+        return try decoder.decode(StitchClipboardContent.self, from: data)
+    }
+    
+    init() {
+        self.init(graph: .createEmpty())
+    }
+    
     var rootUrl: URL {
         StitchFileManager.tempDir
             .appendingPathComponent("copied-data",
@@ -517,7 +531,7 @@ extension StitchClipboardContent: StitchDocumentEncodable {
 
 extension StitchComponentable {
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(exportedContentType: self.fileType,
+        FileRepresentation(exportedContentType: Self.fileType,
                            exporting: Self.exportComponent)
     }
 
