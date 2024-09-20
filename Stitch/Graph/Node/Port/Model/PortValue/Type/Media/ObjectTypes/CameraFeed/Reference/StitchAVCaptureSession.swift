@@ -71,9 +71,15 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
         // `StitchAVCaptureSession` is only used for devices / camera directions that DO NOT support Augmented Reality
         // e.g. Mac device, or iPad with front camera direction
         let isIPhone = UIDevice.current.userInterfaceIdiom == .phone
+        let isIPad = UIDevice.current.userInterfaceIdiom == .pad
 
         if isIPhone {
             connection.videoRotationAngle = 90
+        }
+        //Matches default behavior on Main
+        //TODO: Support rotation during session
+        else if isIPad {
+            connection.videoRotationAngle = 180
         } else if let rotationAngle = self.getCameraRotationAngle(
             device: device,
             cameraOrientation: cameraOrientation) {
@@ -88,9 +94,6 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     @MainActor
     private func getCameraRotationAngle(device: StitchCameraDevice,
                                         cameraOrientation: StitchCameraOrientation) -> Double? {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return 90 // Portrait orientation
-        } else {
             // Convert StitchCameraOrientation to rotation angle
             switch cameraOrientation.convertOrientation {
             case .portrait:
@@ -105,7 +108,6 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
                 return nil
             }
         }
-    }
 }
 
 /// Delegate class for managing image buffer from `AVCaptureSession`.
