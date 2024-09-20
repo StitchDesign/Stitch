@@ -35,26 +35,6 @@ struct ProjectSidebarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
             
-            // Catalyst only
-#if targetEnvironment(macCatalyst)
-            VStack {
-                HStack(spacing: .zero) {
-                    // Padding HStack
-                    HStack {
-                        titleView
-                        Spacer()
-                        SidebarEditButtonView(isEditing: $isEditing)
-                    }
-                    .padding([.top, .horizontal])
-                }
-            }
-            //            .padding(.bottom)
-//            .background(SIDEBAR_BODY_COLOR.ignoresSafeArea())
-            // Higher z-index here for scroll view
-//            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-            .zIndex(2)
-#endif
-            
             SidebarListView(graph: graph,
                             isBeingEdited: isEditing,
                             syncStatus: syncStatus)
@@ -69,7 +49,6 @@ struct ProjectSidebarView: View {
         .edgesIgnoringSafeArea(.bottom)
         
         // iPad only
-        // TODO: why is .navigationTitle ignored on Catalyst?
 #if !targetEnvironment(macCatalyst)
         .navigationTitle("Stitch")
         .toolbar {
@@ -82,18 +61,11 @@ struct ProjectSidebarView: View {
         // We can change the color of the sidebar's top-most section
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
-        
 #endif
+        
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))
         }
-    }
-
-    var titleView: some View {
-        Text("Stitch")
-            .font(.largeTitle)
-            .bold()
-
     }
 }
 
@@ -103,7 +75,10 @@ struct SidebarEditModeToggled: GraphEvent {
     func handle(state: GraphState) {
         // Reset selection-state, but preserve inspector's focused layers
         let inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers
-        state.sidebarSelectionState = .init()
+        
+        // Don't actually reset these?
+//        state.sidebarSelectionState.resetEditModeSelections()
+        
         state.sidebarSelectionState.inspectorFocusedLayers = inspectorFocusedLayers
         
         // Do not set until the end; otherwise selection-state resets loses the change.

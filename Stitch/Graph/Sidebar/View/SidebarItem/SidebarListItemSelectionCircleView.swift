@@ -16,7 +16,7 @@ struct SidebarListItemSelectionCircleView: View {
     let id: LayerNodeId
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
     let isHidden: Bool
@@ -41,7 +41,7 @@ struct SidebarListItemSelectionCircleView: View {
     @MainActor
     var selectionCircle: some View {
         Image(systemName: iconName)
-            .foregroundColor(color)
+            .foregroundColor(fontColor)
             .frame(width: SIDEBAR_ITEM_ICON_LENGTH,
                    height: SIDEBAR_ITEM_ICON_LENGTH)
             .padding(4)

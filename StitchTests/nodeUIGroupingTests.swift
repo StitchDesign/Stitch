@@ -93,7 +93,7 @@ class GroupNodeTests: XCTestCase {
         XCTAssertEqual(graphState.selectedNodeIds.count, 1)
         XCTAssertEqual(graphState.selectedNodeIds.first!, canvasItem.id)
         
-        let _ = SelectedGraphItemsDuplicated().handle(state: graphState)
+        let _ = DuplicateShortcutKeyPressed().handle(state: graphState)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 2)
         

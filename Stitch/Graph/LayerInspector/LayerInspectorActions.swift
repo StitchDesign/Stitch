@@ -14,7 +14,7 @@ extension GraphDelegate {
     // TODO: cache these for perf
     @MainActor
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.inspectorFocusedLayers.first?.id
+        self.sidebarSelectionState.inspectorFocusedLayers.focused.first?.id
     }
     
     // TODO: cache these for perf

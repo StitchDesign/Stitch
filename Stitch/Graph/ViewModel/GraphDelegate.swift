@@ -54,7 +54,7 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
     @MainActor
-    var sidebarSelectionState: SidebarSelectionState { get }
+    var sidebarSelectionState: SidebarSelectionState { get set }
     
     @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }

@@ -13,13 +13,25 @@ typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 typealias SidebarSelections = LayerIdSet
 typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
+/*
+ 
+ */
+struct InspectorFocusedLayers: Codable, Equatable, Hashable {
+    
+    // Focused = what we see focused in the inspector
+    var focused = LayerIdSet()
+    
+    // Actively Selected = what we see focused in inspector + what user has recently tapped on
+    var activelySelected = LayerIdSet()
+}
+
 // if a group is selected,
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
     var isEditMode: Bool = false
         
     // Layers focused in the inspector
-    var inspectorFocusedLayers = LayerIdSet()
+    var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()

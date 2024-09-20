@@ -59,7 +59,7 @@ struct DuplicateNodesButton: View {
 
     var body: some View {
         TagMenuButtonView(label: label) {
-            dispatch(SelectedGraphItemsDuplicated())
+            dispatch(DuplicateShortcutKeyPressed())
         }
     }
 }

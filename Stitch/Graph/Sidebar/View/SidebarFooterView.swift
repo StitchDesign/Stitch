@@ -20,9 +20,19 @@ struct SidebarFooterView: View {
     let syncStatus: iCloudSyncStatus
     let layerNodes: LayerNodesForSidebarDict
 
+    var showEditModeFooter: Bool {
+        #if targetEnvironment(macCatalyst)
+        // on Catalyst, show edit mode footer if we're in edit-mode or have at least one edit-mode-selection
+        return !selections.primary.isEmpty
+        #else
+        // on iPad, only show edit mode footer in edit-mode
+        return isBeingEdited
+        #endif
+    }
+    
     var body: some View {
         HStack {
-            if isBeingEdited {
+            if showEditModeFooter {
                 editModeFooter
                     .animation(.default, value: isBeingEdited)
             } else {
@@ -31,7 +41,7 @@ struct SidebarFooterView: View {
             }
         }
         .padding()
-        .animation(.default, value: isBeingEdited)
+        .animation(.default, value: showEditModeFooter)
         .animation(.default, value: selections)
         .animation(.default, value: groups)
         .animation(.default, value: layerNodes)
@@ -49,6 +59,34 @@ struct SidebarFooterView: View {
     
     @MainActor
     var editModeFooter: some View {
+        HStack(spacing: 10) {
+            Spacer()
+            SidebarFooterButtonsView(groups: groups,
+                                     selections: selections,
+                                     isBeingEdited: isBeingEdited,
+                                     layerNodes: layerNodes)
+        }
+    } // editModeFooter
+}
+
+// TODO: apply `.foregroundColor(Color(.titleFont))` in `StitchButton` messes with SwiftUI's native gray-out of disabled buttons?
+struct DisabledButtonModifier: ViewModifier {
+    let buttonEnabled: Bool
+    
+    func body(content: Content) -> some View {
+        content
+            .foregroundColor(buttonEnabled ? Color(.titleFont) : Color.gray.opacity(0.8))
+    }
+}
+
+struct SidebarFooterButtonsView: View {
+    
+    let groups: SidebarGroupsDict
+    let selections: SidebarSelectionState
+    let isBeingEdited: Bool
+    let layerNodes: LayerNodesForSidebarDict
+    
+    var body: some View {
         let allButtonsDisabled = selections.all.isEmpty
         
         let ungroupButtonEnabled = canUngroup(selections.primary,
@@ -60,8 +98,9 @@ struct SidebarFooterView: View {
 
         let duplicateButtonEnabled = canDuplicate(selections.primary)
 
-        return HStack(spacing: 10) {
-            Spacer()
+//        return HStack(spacing: 10) {
+        return Group {
+//            Spacer()
             StitchButton {
                 dispatch(SidebarGroupUncreated())
             } label: {
@@ -93,15 +132,5 @@ struct SidebarFooterView: View {
                     .modifier(DisabledButtonModifier(buttonEnabled: !allButtonsDisabled))
             }.disabled(allButtonsDisabled)
         }
-    } // editModeFooter
-}
-
-// TODO: apply `.foregroundColor(Color(.titleFont))` in `StitchButton` messes with SwiftUI's native gray-out of disabled buttons?
-struct DisabledButtonModifier: ViewModifier {
-    let buttonEnabled: Bool
-    
-    func body(content: Content) -> some View {
-        content
-            .foregroundColor(buttonEnabled ? Color(.titleFont) : Color.gray.opacity(0.8))
     }
 }

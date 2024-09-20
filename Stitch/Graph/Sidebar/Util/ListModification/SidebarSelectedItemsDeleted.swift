@@ -14,22 +14,25 @@ import SwiftUI
 struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        // Does deletion order matter?
-        let deletedIds = state.sidebarSelectionState.all.map(\.id)
+        state.sidebarSelectedItemsDeletingViaEditMode()
+        return .shouldPersist
+    }
+}
+
+extension GraphState {
+    func sidebarSelectedItemsDeletingViaEditMode() {
+        let deletedIds = self.sidebarSelectionState.all.map(\.id)
         
         deletedIds.forEach {
-            state.visibleNodesViewModel.nodes.removeValue(forKey: $0)
+            self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
         }
-        
 
-        state.updateSidebarListStateAfterStateChange()
+        self.updateSidebarListStateAfterStateChange()
         
         // TODO: why is this necessary?
         _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
-
-        return .shouldPersist
+            updatedList: self.sidebarListState,
+            expanded: self.getSidebarExpandedItems(),
+            graphState: self)
     }
 }

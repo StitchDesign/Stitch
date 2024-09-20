@@ -44,12 +44,16 @@ struct SidebarListView: View {
         graph.sidebarListState
     }
     
+    var groups: SidebarGroupsDict {
+        graph.getSidebarGroupsDict()
+    }
+        
     var sidebarDeps: SidebarDeps {
         SidebarDeps(
             layerNodes: .fromLayerNodesDict(
                 nodes: graph.layerNodes,
                 orderedSidebarItems: graph.orderedSidebarLayers),
-            groups: graph.getSidebarGroupsDict(),
+            groups: groups,
             expandedItems: graph.getSidebarExpandedItems())
     }
 
@@ -104,6 +108,11 @@ struct SidebarListView: View {
                 }
                 
                 ForEach(masterList.items, id: \.id.value) { (item: SidebarListItem) in
+                    
+                    let selection = getSelectionStatus(
+                        item.id.asLayerNodeId,
+                        selections)
+                    
                     SidebarListItemSwipeView(
                         graph: $graph,
                         item: item,
@@ -112,12 +121,19 @@ struct SidebarListView: View {
                         current: current,
                         proposedGroup: sidebarListState.proposedGroup,
                         isClosed: masterList.collapsedGroups.contains(item.id),
-                        selection: getSelectionStatus(
-                            item.id.asLayerNodeId,
-                            selections),
+                        selection: selection,
                         isBeingEdited: isBeingEditedAnimated,
                         activeGesture: $activeGesture,
                         activeSwipeId: $activeSwipeId)
+                    
+#if targetEnvironment(macCatalyst)
+                    .modifier(SidebarListItemContextMenuModifier(layerNodeId: item.id.asLayerNodeId,
+                                                                 groups: groups,
+                                                                 selections: selections,
+                                                                 isBeingEdited: isBeingEdited,
+                                                                 layerNodes: layerNodesForSidebarDict))
+#endif
+                    
                     .zIndex(item.zIndex)
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
@@ -144,12 +160,17 @@ struct SidebarListView: View {
 //        #if DEV_DEBUG
 //        .border(.green)
 //        #endif
+
         
+#if !targetEnvironment(macCatalyst)
         .animation(.spring(), value: selections)
+#endif
+        // TODO: remove some of these animations ?
         .animation(.spring(), value: isBeingEdited)
         .animation(.spring(), value: sidebarListState.proposedGroup)
         .animation(.spring(), value: sidebarDeps)
         .animation(.easeIn, value: sidebarListState.masterList.items)
+        
         .onChange(of: isBeingEdited) { newValue in
             // This handler enables all animations
             isBeingEditedAnimated = newValue
@@ -177,5 +198,40 @@ struct SidebarListView: View {
             activeGesture: $activeGesture,
             activeSwipeId: $activeSwipeId)
             .opacity(0)
+    }
+}
+
+struct SidebarListItemContextMenuModifier: ViewModifier {
+    
+    let layerNodeId: LayerNodeId
+    let groups: SidebarGroupsDict
+    let selections: SidebarSelectionState
+    let isBeingEdited: Bool
+    let layerNodes: LayerNodesForSidebarDict
+    
+    var canShowContextMenu: Bool {
+#if targetEnvironment(macCatalyst)
+        return getSelectionStatus(layerNodeId, selections).isSelected
+#else
+        return false
+#endif
+    }
+    
+    func body(content: Content) -> some View {
+        if canShowContextMenu {
+            content
+            // TODO: enable on iPad?
+#if targetEnvironment(macCatalyst)
+                .contextMenu(ContextMenu(menuItems: {
+                    // TODO: select the layer on right click; cannot use `NSViewRepresentable` and `primaryAction` is fired on double-click, not right click
+                    SidebarFooterButtonsView(groups: groups,
+                                             selections: selections,
+                                             isBeingEdited: isBeingEdited,
+                                             layerNodes: layerNodes)
+                }))
+#endif
+        } else {
+            content
+        }
     }
 }

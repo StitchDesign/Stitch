@@ -11,6 +11,8 @@ import StitchSchemaKit
 
 struct SidebarListItemSwipeInnerView: View {
     
+    @Environment(\.appTheme) var theme
+    
     @Bindable var graph: GraphState
     
     var item: SidebarListItem
@@ -35,18 +37,45 @@ struct SidebarListItemSwipeInnerView: View {
     var isHidden: Bool {
         graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
     }
-
-    var isNonEditModeSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.contains(item.id.asLayerNodeId)
-    }
     
-    var color: Color {
+    var fontColor: Color {
+        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
         if isNonEditModeSelected {
             return .white
         }
-        
+           
+        #if DEV_DEBUG
+        // Easier to see secondary selections for debug
         return selection.color(isHidden)
+        #endif
+        
+        if isBeingEdited {
+            return selection.color(isHidden)
+        } else {
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+        }
     }
+    
+    var layerNodeId: LayerNodeId {
+        item.id.asLayerNodeId
+    }
+    
+    var isBeingDragged: Bool {
+        current.map { $0.current == item.id } ?? false
+    }
+    
+    var isNonEditModeFocused: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+    }
+    
+    var isNonEditModeActivelySelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+    }
+    
+    var isNonEditModeSelected: Bool {
+        isNonEditModeFocused || isNonEditModeActivelySelected
+    }
+        
 
     var body: some View {
         HStack(spacing: .zero) {
@@ -60,13 +89,23 @@ struct SidebarListItemSwipeInnerView: View {
                                     current: current,
                                     proposedGroup: proposedGroup,
                                     isClosed: isClosed,
-                                    color: color,
+                                    fontColor: fontColor,
                                     selection: selection,
                                     isBeingEdited: isBeingEdited,
                                     isHidden: isHidden,
                                     swipeOffset: swipeX)
-                
+//                .background {
+//                    Color.yellow.opacity(0.5)
+//                }
                     .padding(.leading, itemIndent + 5)
+                    .background {
+                        if isNonEditModeSelected || isBeingDragged {
+                            theme.fontColor
+                                .opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
+            //                    .frame(maxWidth: .infinity)
+            //                    .border(.green, width: 4)
+                        }
+                    }
 
                     // right-side label overlay comes AFTER x-placement of item,
                     // so as not to be affected by x-placement.
@@ -75,7 +114,7 @@ struct SidebarListItemSwipeInnerView: View {
                             item: item,
                             isGroup: item.isGroup,
                             isClosed: isClosed,
-                            color: color,
+                            fontColor: fontColor,
                             selection: selection,
                             isBeingEdited: isBeingEdited,
                             isHidden: isHidden)

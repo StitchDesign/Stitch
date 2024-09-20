@@ -348,7 +348,7 @@ extension GraphState {
             return nil
         }
 
-        var selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers
+        var selectedLayers = self.sidebarSelectionState.inspectorFocusedLayers.focused
         
         #if DEV_DEBUG
         // For debug
@@ -379,7 +379,7 @@ extension GraphState {
         
         // else had 0 or 1 layers selected:
         else {
-            guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.first?.id,
+            guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.focused.first?.id,
                   let node = self.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
                 log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
@@ -395,20 +395,3 @@ extension GraphState {
         }
     }
 }
-
-
-
-
-//#Preview {
-//    let graph = GraphState(from: .init(), store: nil)
-//    let nodeTest = TextLayerNode.createViewModel(position: .zero,
-//                                                 zIndex: .zero,
-//                                                 activeIndex: .init(.zero),
-//                                                 graphDelegate: graph)
-//    nodeTest.isSelected = true
-//    
-//    graph.nodes.updateValue(nodeTest, forKey: nodeTest.id)
-//    
-//    return LayerInspectorView(graph: graph)
-//}
-

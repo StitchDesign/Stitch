@@ -10,13 +10,14 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
+
 // Sidebar layer 'tapped' while not in
 struct SidebarItemTapped: GraphEvent {
     
     let id: LayerNodeId
     
     func handle(state: GraphState) {
-        let alreadySelected = state.sidebarSelectionState.inspectorFocusedLayers.contains(id)
+        let alreadySelected = state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
         
         // TODO: why does shift-key seem to be interrupted so often?
 //        if state.keypressState.isCommandPressed ||  state.keypressState.isShiftPressed {
@@ -24,14 +25,24 @@ struct SidebarItemTapped: GraphEvent {
             
             // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
             if alreadySelected {
-                state.sidebarSelectionState.inspectorFocusedLayers.remove(id)
+                state.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
+                state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
+                state.sidebarItemDeselectedViaEditMode(id)
             } else {
-                state.sidebarSelectionState.inspectorFocusedLayers.insert(id)
+                state.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
+                state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+                state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+                state.deselectAllCanvasItems()
             }
             
         } else {
+            state.sidebarSelectionState.resetEditModeSelections()
+            
             // Note: Click will not deselect an already-selected layer
-            state.sidebarSelectionState.inspectorFocusedLayers = .init([id])
+            state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
+            state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
+            state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+            state.deselectAllCanvasItems()
         }
         
         state.updateInspectorFocusedLayers()
@@ -47,12 +58,15 @@ extension GraphState {
     @MainActor
     func updateInspectorFocusedLayers() {
         
+        #if !targetEnvironment(macCatalyst)
         // If left sidebar is in edit-mode, "primary selections" become inspector-focused
         if self.sidebarSelectionState.isEditMode {
-            self.sidebarSelectionState.inspectorFocusedLayers = self.sidebarSelectionState.primary
+            self.sidebarSelectionState.inspectorFocusedLayers.focused = self.sidebarSelectionState.primary
+            self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.primary
         }
+        #endif
         
-        if self.sidebarSelectionState.inspectorFocusedLayers.count > 1 {
+        if self.sidebarSelectionState.inspectorFocusedLayers.focused.count > 1 {
             self.graphUI.propertySidebar.inputsCommonToSelectedLayers = self.multipleSidebarLayersSelected()
         } else {
             self.graphUI.propertySidebar.inputsCommonToSelectedLayers = nil
@@ -67,17 +81,17 @@ extension GraphState {
         
         let selectedSidebarLayers = self.sidebarSelectionState.inspectorFocusedLayers
                 
-        let selectedNodes: [NodeViewModel] = selectedSidebarLayers.compactMap {
+        let selectedNodes: [NodeViewModel] = selectedSidebarLayers.focused.compactMap {
             self.getNode($0.asNodeId)
         }
         
-        guard selectedNodes.count == selectedSidebarLayers.count else {
+        guard selectedNodes.count == selectedSidebarLayers.focused.count else {
             // Can happen when we delete a node that is technically still selected
             log("multipleSidebarLayersSelected: could not retrieve nodes for some layers?")
             return nil
         }
         
-        guard let firstSelectedLayer = selectedSidebarLayers.first,
+        guard let firstSelectedLayer = selectedSidebarLayers.focused.first,
               let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer.asNodeId),
               let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
@@ -118,53 +132,67 @@ struct SidebarItemSelected: GraphEvent {
     let id: LayerNodeId
     
     func handle(state: GraphState) {
+        state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: false)
+    }
+}
+
+extension GraphState {
+    
+    @MainActor
+    func sidebarItemSelectedViaEditMode(_ id: LayerNodeId,
+                                        isSidebarItemTapped: Bool) {
+        let sidebarGroups = self.getSidebarGroupsDict()
         
-        let sidebarGroups = state.getSidebarGroupsDict()
+        // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
+        if isSidebarItemTapped,
+            self.sidebarSelectionState.secondary.contains(id) {
+            log("sidebarItemSelectedViaEditMode: \(id) was already secondarily selected")
+            return
+        }
+        
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
-        if state.getNodeViewModel(id.id)?.kind.getLayer == .group {
+        if self.getNodeViewModel(id.id)?.kind.getLayer == .group {
 
-            state.sidebarSelectionState = addExclusivelyToPrimary(
-                id, state.sidebarSelectionState)
+            self.sidebarSelectionState = addExclusivelyToPrimary(
+                id, self.sidebarSelectionState)
 
             sidebarGroups[id]?.forEach({ (childId: LayerNodeId) in
-                state.sidebarSelectionState = secondarilySelectAllChildren(
+                self.sidebarSelectionState = secondarilySelectAllChildren(
                     id: childId,
                     groups: sidebarGroups,
-                    acc: state.sidebarSelectionState)
+                    acc: self.sidebarSelectionState)
             })
         }
 
-        // if we selected a child of a group,
+        // If we selected a child of a group,
         // then deselect that parent and all other children,
         // and primarily select the child.
         // ie deselect everything(?), and only select the child.
-
-        // TRICKY: what if eg
         else if let parent = findGroupLayerParentForLayerNode(id, sidebarGroups) {
 
             // if the parent is currently selected,
             // then deselect the parent and all other children
-            if state.sidebarSelectionState.isSelected(parent) {
-                state.sidebarSelectionState.resetEditModeSelections()
-                state.sidebarSelectionState = addExclusivelyToPrimary(id, state.sidebarSelectionState)
+            if self.sidebarSelectionState.isSelected(parent) {
+                    self.sidebarSelectionState.resetEditModeSelections()
+                    self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
             }
 
             // ... otherwise, just primarily select the child
             else {
-                state.sidebarSelectionState = addExclusivelyToPrimary(
+                self.sidebarSelectionState = addExclusivelyToPrimary(
                     id,
-                    state.sidebarSelectionState)
+                    self.sidebarSelectionState)
             }
         }
 
         // else: simple case?:
         else {
-            state.sidebarSelectionState = addExclusivelyToPrimary(id, state.sidebarSelectionState)
+            self.sidebarSelectionState = addExclusivelyToPrimary(id, self.sidebarSelectionState)
         }
                 
-        state.updateInspectorFocusedLayers()
+        self.updateInspectorFocusedLayers()
     }
 }
 
@@ -172,10 +200,16 @@ struct SidebarItemDeselected: GraphEvent {
     let id: LayerNodeId
 
     func handle(state: GraphState) {
+        state.sidebarItemDeselectedViaEditMode(id)
+    }
+}
 
-        // if we deselected a group,
+extension GraphState {
+    @MainActor
+    func sidebarItemDeselectedViaEditMode(_ id: LayerNodeId) {
+        // If we deselected a group,
         // then we should also deselect all its children.
-        let groups = state.getSidebarGroupsDict()
+        let groups = self.getSidebarGroupsDict()
         
         var idsToDeselect = LayerIdSet([id])
 
@@ -194,11 +228,11 @@ struct SidebarItemDeselected: GraphEvent {
         // now that we've gathered all the ids (ie directly de-selected item + its descendants),
         // we can remove them
         idsToDeselect.forEach { idToRemove in
-            state.sidebarSelectionState = removeFromSelections(
+            self.sidebarSelectionState = removeFromSelections(
                 idToRemove,
-                state.sidebarSelectionState)
+                self.sidebarSelectionState)
         }
         
-        state.updateInspectorFocusedLayers()
+        self.updateInspectorFocusedLayers()
     }
 }

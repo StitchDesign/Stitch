@@ -378,11 +378,16 @@ extension GraphState {
     }
     
     @MainActor
+    func deselectAllCanvasItems() {
+        self.graphUI.selection = GraphUISelectionState()
+        self.resetSelectedCanvasItems()
+    }
+    
+    @MainActor
     func selectSingleCanvasItem(_ canvasItem: CanvasItemViewModel) {
         // ie expansionBox, isSelecting, selected-comments etc.
         // get reset when we select a single canvasItem.
-        self.graphUI.selection = GraphUISelectionState()
-        self.resetSelectedCanvasItems()
+        self.deselectAllCanvasItems()
         canvasItem.select()
     }
     
@@ -401,6 +406,11 @@ extension CanvasItemViewModel {
     @MainActor
     func select() {
         self.isSelected = true
+        
+        // Anytime we select a canvas item,
+        // we "de-actively-select" any sidebar layers,
+        // but do not touch the "focused" layers.
+        self.graphDelegate?.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
     }
     
     @MainActor

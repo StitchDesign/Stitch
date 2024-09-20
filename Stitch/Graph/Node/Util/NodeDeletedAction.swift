@@ -10,16 +10,29 @@ import SwiftUI
 import StitchSchemaKit
 
 // Used for Delete key shortcut
-struct SelectedGraphItemsDeleted: GraphEventWithResponse {
+struct DeleteShortcutKeyPressed: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
 
-        // delete comment boxes
-        state.deleteSelectedCommentBoxes()
+        // Check which we have focused: layers or canvas items
+        
+        let activelySelectedLayers = state.sidebarSelectionState.inspectorFocusedLayers.activelySelected
+        
+        if !activelySelectedLayers.isEmpty {
+            state.sidebarSelectedItemsDeletingViaEditMode()
+            state.updateInspectorFocusedLayers()
+        }
+        
+        // If no layers actively selected, then assume canvas items may be selected
+        else {
+            
+            // delete comment boxes
+            state.deleteSelectedCommentBoxes()
 
-        // delete nodes
-        state.selectedGraphNodesDeleted(
-            selectedNodes: state.selectedNodeIds)
+            // delete nodes
+            state.selectedGraphNodesDeleted(
+                selectedNodes: state.selectedNodeIds)
+        }
                 
         return .shouldPersist
     }

@@ -19,6 +19,13 @@ struct ProjectsHomeCommands: Commands {
     var activeProject: Bool {
         store.currentGraph.isDefined
     }
+    
+    var layersActivelySelected: Bool {
+        if let graph = store.currentGraph {
+            return !graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.isEmpty
+        }
+        return false
+    }
 
     var textFieldFocused: Bool {
         let k = activeReduxFocusedField.isDefined || focusedField.isDefined
@@ -47,29 +54,33 @@ struct ProjectsHomeCommands: Commands {
 
                 Divider()
 
-                SwiftUIShortcutView(title: "Insert Node",
+//                SwiftUIShortcutView(title: "Insert Node",
+                SwiftUIShortcutView(title: "Insert",
                                     key: .return) {
                     INSERT_NODE_ACTION()
                 }
 
-                SwiftUIShortcutView(title: "Duplicate Node(s)",
+//                SwiftUIShortcutView(title: "Duplicate Node(s)",
+                SwiftUIShortcutView(title: "Duplicate",
                                     key: DUPLICATE_SELECTED_NODES_SHORTCUT) {
                     // duplicates both selected nodes and selected comments
-                    dispatch(SelectedGraphItemsDuplicated())
+                    dispatch(DuplicateShortcutKeyPressed())
                 }
 
-                SwiftUIShortcutView(title: "Delete Node(s)",
+//                SwiftUIShortcutView(title: "Delete Node(s)",
+                SwiftUIShortcutView(title: "Delete",
                                     key: DELETE_SELECTED_NODES_SHORTCUT,
                                     // empty list = do not require CMD
                                     eventModifiers: DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS) {
                     // deletes both selected nodes and selected comments
-                    dispatch(SelectedGraphItemsDeleted())
+                    dispatch(DeleteShortcutKeyPressed())
                 }
 
                 // Not shown in menu when no active project;
                 // Disabled when we have focused text input
                 //            if activeProject {
-                SwiftUIShortcutView(title: "Cut Node(s)",
+//                SwiftUIShortcutView(title: "Cut Node(s)",
+                SwiftUIShortcutView(title: "Cut",
                                     key: CUT_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("cut shortcut")
@@ -79,7 +90,8 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(SelectedGraphItemsCut())
                 }
 
-                SwiftUIShortcutView(title: "Copy Node(s)",
+//                SwiftUIShortcutView(title: "Copy Node(s)",
+                SwiftUIShortcutView(title: "Copy",
                                     key: COPY_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("copy shortcut")
@@ -89,7 +101,8 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(SelectedGraphItemsCopied())
                 }
                 
-                SwiftUIShortcutView(title: "Paste Node(s)",
+//                SwiftUIShortcutView(title: "Paste Node(s)",
+                SwiftUIShortcutView(title: "Paste",
                                     key: PASTE_SELECTED_NODES_SHORTCUT,
                                     disabled: textFieldFocused) {
                     log("paste shortcut")

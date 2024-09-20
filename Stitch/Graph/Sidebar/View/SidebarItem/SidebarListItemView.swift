@@ -22,7 +22,7 @@ struct SidebarListItemView: View {
     var isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let color: Color
+    let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
@@ -42,8 +42,16 @@ struct SidebarListItemView: View {
         item.id.asLayerNodeId
     }
     
+    var isNonEditModeFocused: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+    }
+    
+    var isNonEditModeActivelySelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+    }
+    
     var isNonEditModeSelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.contains(layerNodeId)
+        isNonEditModeFocused || isNonEditModeActivelySelected
     }
         
     var body: some View {
@@ -54,7 +62,7 @@ struct SidebarListItemView: View {
                 name: name,
                 layer: layer,
                 nodeId: layerNodeId,
-                color: color,
+                fontColor: fontColor,
                 selection: selection,
                 isHidden: isHidden,
                 isBeingEdited: isBeingEdited,
@@ -62,25 +70,30 @@ struct SidebarListItemView: View {
                 isClosed: isClosed)
             
 //            .padding(.leading)
-            
                 .offset(x: -swipeOffset)
             Spacer()
 
         }
+        
         .contentShape(Rectangle()) // for hit area
 
-        //        .background(Color.white.opacity(0.001)) // for hit area
-//        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
-//        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
+        //        .background(.ultraThinMaterial.opacity(isBeingDragged ? 1 : 0))
+        //        .background(.thinMaterial.opacity(isNonEditModeSelected ? 1 : 0))
                 
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
-        .background {
-            if isNonEditModeSelected || isBeingDragged {
-                theme.fontColor
-            }
-        }
         
-        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
+        // To have color limited by indentation level etc.:
+        
+//        .background {
+//            if isNonEditModeSelected || isBeingDragged {
+//                theme.fontColor
+//                    .opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
+////                    .frame(maxWidth: .infinity)
+////                    .border(.green, width: 4)
+//            }
+//        }
+        
+//        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
         // Note: given that we apparently must use the UIKitTappableWrapper on the swipe menu buttons,
         // we need to place the SwiftUI TapGesture below the swipe menu.
@@ -99,10 +112,3 @@ struct SidebarListItemView: View {
         .animation(.default, value: isBeingDragged)
     }
 }
-
-// struct CustomListItemView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        //        CustomListItemView()
-//        TEST_CustomListItemBaseView()
-//    }
-// }
