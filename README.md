@@ -50,7 +50,7 @@ After you've cloned the repository, you'll need to make sure to update the proje
 
 Make sure that your development team has entitlements for CloudKit and Push Notifications. Then, create a new CloudKit container from Xcode; this [guide](https://developer.apple.com/documentation/cloudkit/enabling_cloudkit_in_your_app#3403299) from Apple shows you how. 
 
-Once you've done that, you should be good to go for running and developing locally!
+Once you've done that, you should be good to go for running and developing locally! [Email us](mailto:bricks.muzzle_0t@icloud.com) if you have any questions!
 
 ## Prototype Gallery
-![header](README_Assets/CleanShot2024-06-25at23.07.52.gif)
+![prototype](README_Assets/CleanShot2024-06-25at23.07.52.gif)
