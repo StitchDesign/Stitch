@@ -124,14 +124,6 @@ struct FlyoutToggled: GraphUIEvent {
     }
 }
 
-struct LeftSidebarToggled: GraphUIEvent {
-    
-    func handle(state: GraphUIState) {
-        // Reset flyout
-        state.closeFlyout()
-    }
-}
-
 struct LeftSidebarSet: GraphUIEvent {
     
     let open: Bool

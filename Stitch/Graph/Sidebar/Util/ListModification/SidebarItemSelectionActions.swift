@@ -46,7 +46,7 @@ struct SidebarItemTapped: GraphEvent {
             } else {
                 state.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                 state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
-                state.sidebarItemSelectedViaEditMode(id)
+                state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
                 state.deselectAllCanvasItems()
             }
             
@@ -61,7 +61,7 @@ struct SidebarItemTapped: GraphEvent {
             state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
             
             
-            state.sidebarItemSelectedViaEditMode(id)
+            state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
             
             // But also need to deselect all other
             
@@ -156,8 +156,7 @@ struct SidebarItemSelected: GraphEvent {
     let id: LayerNodeId
     
     func handle(state: GraphState) {
-        state.sidebarItemSelectedViaEditMode(id,
-                                             isSidebarItemTapped: false)
+        state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: false)
     }
 }
 
@@ -165,7 +164,7 @@ extension GraphState {
     
     @MainActor
     func sidebarItemSelectedViaEditMode(_ id: LayerNodeId,
-                                        isSidebarItemTapped: Bool = true) {
+                                        isSidebarItemTapped: Bool) {
         let sidebarGroups = self.getSidebarGroupsDict()
         
         // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the

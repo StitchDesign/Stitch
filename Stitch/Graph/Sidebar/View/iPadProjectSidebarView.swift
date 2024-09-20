@@ -75,7 +75,10 @@ struct SidebarEditModeToggled: GraphEvent {
     func handle(state: GraphState) {
         // Reset selection-state, but preserve inspector's focused layers
         let inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers
-        state.sidebarSelectionState.resetEditModeSelections()
+        
+        // Don't actually reset these?
+//        state.sidebarSelectionState.resetEditModeSelections()
+        
         state.sidebarSelectionState.inspectorFocusedLayers = inspectorFocusedLayers
         
         // Do not set until the end; otherwise selection-state resets loses the change.

@@ -20,6 +20,7 @@ struct DeleteShortcutKeyPressed: GraphEventWithResponse {
         
         if !activelySelectedLayers.isEmpty {
             state.sidebarSelectedItemsDeletingViaEditMode()
+            state.updateInspectorFocusedLayers()
         }
         
         // If no layers actively selected, then assume canvas items may be selected
