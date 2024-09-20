@@ -29,6 +29,9 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
     @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
 
     var instantDrag: Bool = false
+    
+    var graph: GraphState
+    var layerNodeId: LayerNodeId
 
     func makeUIViewController(context: Context) -> GestureHostingController<T> {
         let vc = GestureHostingController(
@@ -60,6 +63,13 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
+        // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
+        #if targetEnvironment(macCatalyst)
+        // We define the
+        let interaction = UIContextMenuInteraction(delegate: delegate)
+        vc.view.addInteraction(interaction)
+        #endif
+        
         vc.delegate = delegate
         return vc
     }
@@ -69,12 +79,17 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         uiViewController.rootView = view
 
         delegate.instantDrag = instantDrag
+        
+        delegate.graph = graph
+        delegate.layerNodeId = layerNodeId
     }
 
     func makeCoordinator() -> SidebarListGestureRecognizer {
         SidebarListGestureRecognizer(
             gestureViewModel: gestureViewModel,
-            instantDrag: instantDrag)
+            instantDrag: instantDrag,
+            graph: graph,
+            layerNodeId: layerNodeId)
     }
 }
 
@@ -91,11 +106,20 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     let gestureViewModel: SidebarItemGestureViewModel
 
     var instantDrag: Bool
+    
+    var graph: GraphState
+    var layerNodeId: LayerNodeId
 
     init(gestureViewModel: SidebarItemGestureViewModel,
-         instantDrag: Bool) {
+         instantDrag: Bool,
+         graph: GraphState,
+         layerNodeId: LayerNodeId) {
+        
         self.gestureViewModel = gestureViewModel
         self.instantDrag = instantDrag
+        
+        self.graph = graph
+        self.layerNodeId = layerNodeId
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
@@ -184,4 +208,69 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
             }
         }
     } // trackpadGestureHandler
+}
+
+
+
+extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
+        
+    // // Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
+    //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
+    //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
+    //    }
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, 
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        log("UIContextMenuInteractionDelegate: contextMenuInteraction")
+        
+        // Do the selection action in here
+        
+        // Only select the layer if not already actively-selected; otherwise just open the menu
+        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
+            self.graph.sidebarItemTapped(id: self.layerNodeId)
+        }
+                
+        let selections = self.graph.sidebarSelectionState
+        let groups = self.graph.getSidebarGroupsDict()
+        let sidebarDeps =  SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
+                                       groups: groups,
+                                       expandedItems: self.graph.getSidebarExpandedItems())
+        let layerNodes = sidebarDeps.layerNodes
+        
+        let primary = selections.primary
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+        
+            var buttons: [UIMenuElement] = []
+            
+            if canUngroup(primary, nodes: layerNodes) {
+                buttons.append(UIAction(title: "Ungroup", image: nil) { action in
+                    // Handle action here
+                    dispatch(SidebarGroupUncreated())
+                })
+            }
+            
+            let canGroup = primary.nonEmptyPrimary.map { canBeGrouped($0, groups: groups) } ?? false
+            if canGroup {
+                buttons.append(UIAction(title: "Group", image: nil) { action in
+                    dispatch(SidebarGroupCreated())
+                })
+            }
+            
+            if canDuplicate(primary) {
+                let groupButton = UIAction(title: "Duplicate", image: nil) { action in
+                    dispatch(SidebarSelectedItemsDuplicated())
+                }
+                buttons.append(groupButton)
+            }
+            
+            if !selections.all.isEmpty {
+                buttons.append(UIAction(title: "Delete", image: nil) { action in
+                    dispatch(SidebarSelectedItemsDeleted())
+                })
+            }
+                        
+            return UIMenu(title: "", children: buttons)
+        }
+    }
 }

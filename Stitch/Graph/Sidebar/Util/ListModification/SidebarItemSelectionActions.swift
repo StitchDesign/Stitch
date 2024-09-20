@@ -17,43 +17,48 @@ struct SidebarItemTapped: GraphEvent {
     let id: LayerNodeId
     
     func handle(state: GraphState) {
-        let alreadySelected = state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
-        
-        // TODO: why does shift-key seem to be interrupted so often?
-//        if state.keypressState.isCommandPressed ||  state.keypressState.isShiftPressed {
-        if state.keypressState.isCommandPressed {
-            
-            // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
-            if alreadySelected {
-                state.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
-                state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
-                state.sidebarItemDeselectedViaEditMode(id)
-            } else {
-                state.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
-                state.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
-                state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
-                state.deselectAllCanvasItems()
-            }
-            
-        } else {
-            state.sidebarSelectionState.resetEditModeSelections()
-            
-            // Note: Click will not deselect an already-selected layer
-            state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
-            state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
-            state.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
-            state.deselectAllCanvasItems()
-        }
-        
-        state.updateInspectorFocusedLayers()
-                
-        // Reset selected row in property sidebar when focused-layers changes
-        state.graphUI.propertySidebar.selectedProperty = nil
+        state.sidebarItemTapped(id: id)
     }
 }
 
 
 extension GraphState {
+    
+    @MainActor
+    func sidebarItemTapped(id: LayerNodeId) {
+        let alreadySelected = self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
+        
+        // TODO: why does shift-key seem to be interrupted so often?
+//        if self.keypressState.isCommandPressed ||  self.keypressState.isShiftPressed {
+        if self.keypressState.isCommandPressed {
+            
+            // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
+            if alreadySelected {
+                self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
+                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
+                self.sidebarItemDeselectedViaEditMode(id)
+            } else {
+                self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
+                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
+                self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+                self.deselectAllCanvasItems()
+            }
+            
+        } else {
+            self.sidebarSelectionState.resetEditModeSelections()
+            
+            // Note: Click will not deselect an already-selected layer
+            self.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
+            self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
+            self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+            self.deselectAllCanvasItems()
+        }
+        
+        self.updateInspectorFocusedLayers()
+                
+        // Reset selected row in property sidebar when focused-layers changes
+        self.graphUI.propertySidebar.selectedProperty = nil
+    }
     
     @MainActor
     func updateInspectorFocusedLayers() {
