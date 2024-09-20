@@ -92,6 +92,23 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
             layerNodeId: layerNodeId)
     }
 }
+//
+//
+//// THIS IS NOT FOR A RIGHT CLICK VIA TRACKPAD
+////class RightClickGestureRecognizer: UIGestureRecognizer {
+//extension UIGestureRecognizer {
+//    func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+//        log("UIGestureRecognizer: touchesBegan CALLED")
+//        if let touch = touches.first,
+//            touch.type == .indirectPointer {
+//            // Handle right-click or secondary click here
+//            if touch.tapCount == 1 && touch.phase == .began {
+//                print("Right click detected!")
+//            }
+//        }
+//    }
+//}
+
 
 final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
     // Handles:
@@ -126,6 +143,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
+    
+//    func touchesBegan
 
     // finger on screen
     @objc func screenGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -172,7 +191,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         //        }
 
     } // screenGestureHandler
-
+    
     @objc func trackpadGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
 
         //        log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: gestureRecognizer.numberOfTouches:  \(gestureRecognizer.numberOfTouches)")
@@ -184,6 +203,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
 
         // `touches == 0` = running our fingers on trackpad, but no click
         if gestureRecognizer.numberOfTouches == 0 {
+            
+                        
             switch gestureRecognizer.state {
             case .changed:
                 gestureViewModel.onItemSwipeChanged(translation.x)

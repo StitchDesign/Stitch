@@ -10,6 +10,10 @@ import StitchSchemaKit
 
 struct SidebarListItemView: View {
 
+    
+    // Move this ... elsewhere? Globally?
+    @State var keyboardObserver: KeyboardObserver = .init()
+    
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
@@ -99,6 +103,17 @@ struct SidebarListItemView: View {
         // we need to place the SwiftUI TapGesture below the swipe menu.
         .gesture(TapGesture().onEnded({ _ in
             if !isBeingEdited {
+                
+                let keyboardInput = keyboardObserver.keyboard?.keyboardInput
+        
+                let shiftIsPressed = keyboardInput?.button(
+                    forKeyCode: .leftShift
+                )?.isPressed ?? false || keyboardInput?.button(
+                    forKeyCode: .rightShift
+                )?.isPressed ?? false
+                
+                log("shiftIsPressed: \(shiftIsPressed)")
+                
                 dispatch(SidebarItemTapped(id: layerNodeId))
             }
         }))
@@ -110,5 +125,23 @@ struct SidebarListItemView: View {
         }
         .animation(.default, value: isProposedGroup)
         .animation(.default, value: isBeingDragged)
+    }
+}
+
+import GameController
+
+class KeyboardObserver: ObservableObject {
+    @Published var keyboard: GCKeyboard?
+    
+    var observer: Any? = nil
+    
+    init() {
+        observer = NotificationCenter.default.addObserver(
+            forName: .GCKeyboardDidConnect,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            self?.keyboard = notification.object as? GCKeyboard
+        }
     }
 }
