@@ -13,7 +13,7 @@ import UIKit
 extension AVCaptureSession: @unchecked Sendable { }
 
 /// Camera library used when AR is not available.
-final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
+final class StitchAVCaptureSession: AVCaptureSession, @preconcurrency StitchCameraSession {
     weak var actor: CameraFeedActor?
     
     @MainActor var currentImage: UIImage? {
@@ -37,7 +37,7 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
     }
 
     // https://developer.apple.com/documentation/avfoundation/avcapturesession
-    func configureSession(device: StitchCameraDevice,
+    @MainActor func configureSession(device: StitchCameraDevice,
                           position: AVCaptureDevice.Position,
                           cameraOrientation: StitchCameraOrientation) {
         self.beginConfiguration()
@@ -86,6 +86,7 @@ final class StitchAVCaptureSession: AVCaptureSession, StitchCameraSession {
         self.commitConfiguration()
     }
 
+    @MainActor
     private func getCameraRotationAngle(device: StitchCameraDevice,
                                         cameraOrientation: StitchCameraOrientation) -> Double? {
         if UIDevice.current.userInterfaceIdiom == .phone {
