@@ -401,15 +401,12 @@ extension StitchDocumentViewModel {
         let path = self.graph.getComponentPath(componentId)
         
         return self.visibleGraph.createComponent(groupNodeFocused: groupNodeFocused,
-                                                 selectedNodeIds: selectedNodeIds) {
-            StitchComponent(saveLocation: .document(self.id),
-                            path: path,
-                            graph: .init(id: componentId,
-                                         name: "My Component",
-                                         nodes: $0,
-                                         orderedSidebarLayers: $1,
-                                         commentBoxes: [],
-                                         draftedComponents: []))
+                                                 selectedNodeIds: selectedNodeIds) { graph in
+            var graph = graph
+            graph.id = componentId
+            return StitchComponent(saveLocation: .document(self.id),
+                                   path: path,
+                                   graph: graph)
         }
     }
 }
@@ -419,8 +416,8 @@ extension GraphState {
     func createCopiedComponent(groupNodeFocused: GroupNodeType?,
                                       selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
         self.createComponent(groupNodeFocused: groupNodeFocused,
-                             selectedNodeIds: selectedNodeIds) {
-            StitchClipboardContent(nodes: $0, orderedSidebarLayers: $1)
+                             selectedNodeIds: selectedNodeIds) { graph in
+            StitchClipboardContent(graph: graph)
         }
     }
     
@@ -439,8 +436,17 @@ extension GraphState {
         
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
+        
+        fatalError("Copy logic for nested components")
+        
+        let newGraph = GraphEntity(id: .init(),
+                                   name: "My Component",
+                                   nodes: selectedNodes,
+                                   orderedSidebarLayers: orderedSidebarLayers,
+                                   commentBoxes: [],
+                                   draftedComponents: [])
 
-        let copiedComponent = createComponentable(selectedNodes, selectedSidebarLayers)
+        let copiedComponent = createComponentable(newGraph)
         
         let portValuesList: [PortValues?] = selectedNodes
             .flatMap { nodeEntity in

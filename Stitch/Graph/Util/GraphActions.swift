@@ -57,7 +57,7 @@ extension GraphState: DocumentEncodableDelegate {
         
         // Update published components from disk
         publishedComponents.forEach { publishedComponent in
-            guard let masterComponent = self.components.get(publishedComponent.id) else {
+            guard let masterComponent = self.components.get(publishedComponent.graph.id) else {
                 fatalErrorIfDebug()
                 return
             }

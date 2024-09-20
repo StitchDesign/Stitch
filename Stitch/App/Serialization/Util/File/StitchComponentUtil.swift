@@ -23,6 +23,19 @@ extension StitchComponent: StitchComponentable {
 }
 
 extension StitchComponentable {
+    public var id: UUID {
+        get {
+            self.graph.id
+        }
+        set(newValue) {
+            self.graph.id = newValue
+        }
+    }
+    
+    var name: String {
+        self.graph.name
+    }
+    
     var dataJsonUrl: URL {
         self.rootUrl.appendingVersionedSchemaPath()
     }
