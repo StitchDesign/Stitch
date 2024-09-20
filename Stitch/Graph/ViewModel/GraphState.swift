@@ -17,7 +17,6 @@ import Vision
 // TODO: move
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
-    let saveLocation: ComponentSaveLocation
     var publishedComponent: StitchComponent?
     var draftedComponent: StitchComponent
     
@@ -29,13 +28,10 @@ final class StitchMasterComponent {
     @MainActor
     init(draftedComponent: StitchComponent,
          publishedComponent: StitchComponent? = nil,
-         saveLocation: ComponentSaveLocation,
          parentGraph: GraphState?) {
-        self.saveLocation = saveLocation
         self.draftedComponent = draftedComponent
         self.publishedComponent = publishedComponent
-        self.documentEncoder = .init(component: draftedComponent,
-                                     saveLocation: saveLocation)
+        self.documentEncoder = .init(component: draftedComponent)
         self.parentGraph = parentGraph
         
         self.documentEncoder.delegate = self
@@ -53,7 +49,6 @@ extension StitchMasterComponent: SchemaObserverIdentifiable {
     
     static func createObject(from entity: StitchComponent) -> Self {
         .init(draftedComponent: entity,
-              saveLocation: .document,
               parentGraph: nil)
     }
     
@@ -69,6 +64,10 @@ typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 extension StitchMasterComponent: DocumentEncodableDelegate {
     var id: UUID {
         self.draftedComponent.id
+    }
+    
+    var saveLocation: ComponentSaveLocation {
+        self.draftedComponent.saveLocation
     }
     
     func importedFilesDirectoryReceived(importedFilesDir: [URL],
@@ -98,7 +97,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
 }
 
 extension GraphState {
-    func findComponentGraphState(_ id: ComponentGroupNodeId) -> GraphState? {
+    func findComponentGraphState(_ id: UUID) -> GraphState? {
         for node in self.nodes.values {
             guard let nodeComponent = node.nodeType.componentNode else {
                 continue
@@ -114,7 +113,7 @@ extension GraphState {
         return nil
     }
     
-    func getComponentPath(_ id: ComponentGroupNodeId) -> [UUID] {
+    func getComponentPath(_ id: UUID) -> [UUID] {
         for node in self.nodes.values {
             guard let nodeComponent = node.nodeType.componentNode else {
                 continue
@@ -133,17 +132,17 @@ extension GraphState {
 
 extension StitchComponentViewModel {
     /// Recursively checks node component's `GraphState`'s until a match is found.
-    func getComponentPath(to id: ComponentGroupNodeId) -> [StitchComponentViewModel] {
+    func getComponentPath(to id: UUID) -> [StitchComponentViewModel] {
         for node in self.graph.nodes.values {
             guard let nodeComponent = node.nodeType.componentNode else {
                 continue
             }
             
-            if node.id == id.nodeId {
-                if nodeComponent.componentId == id.component {
+            if node.id == id {
+                if nodeComponent.componentId == id {
                     return [nodeComponent]
                 } else {
-                    return []
+                    fatalErrorIfDebug("Node ID should match component ID")
                 }
             }
             
@@ -212,7 +211,6 @@ final class GraphState: Sendable {
         self.components = schema.draftedComponents
             .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
                 let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
-                                                           saveLocation: .document,
                                                            parentGraph: self)
                 result.updateValue(componentGraph, forKey: componentEntity.graph.id)
             }

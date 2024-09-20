@@ -219,14 +219,12 @@ extension StitchDocumentViewModel {
     func createNewMasterComponent(selectedCanvasItems: [CanvasItemViewModel],
                                   componentId: NodeId) {
         let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
-        let result = self.visibleGraph.createNewStitchComponent(componentId: componentId,
-                                                                groupNodeFocused: self.graphUI.groupNodeFocused,
-                                                                saveLocation: .document,
-                                                                selectedNodeIds: selectedNodeIds)
+        let result = self.createNewStitchComponent(componentId: componentId,
+                                                   groupNodeFocused: self.graphUI.groupNodeFocused,
+                                                   selectedNodeIds: selectedNodeIds)
         
         // Create drafted component graph state
         let masterComponent = StitchMasterComponent(draftedComponent: result.component,
-                                                    saveLocation: .document,
                                                     parentGraph: self.visibleGraph)
         self.visibleGraph.components.updateValue(masterComponent,
                                                  forKey: result.component.id)

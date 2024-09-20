@@ -165,7 +165,9 @@ extension NodeViewModelType {
             guard let masterComponent = components.get(component.componentId) else {
                 fatalErrorIfDebug()
                 self = .component(.init(componentId: component.componentId,
-                                        componentEntity: .init(graph: .init(id: .init(),
+                                        componentEntity: .init(saveLocation: .document(.init()),
+                                                               path: [],
+                                                               graph: .init(id: .init(),
                                                                             name: "",
                                                                             nodes: [],
                                                                             orderedSidebarLayers: [],

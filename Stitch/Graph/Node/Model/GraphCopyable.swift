@@ -388,14 +388,14 @@ extension CanvasNodeEntity {
 extension StitchDocumentViewModel {
     @MainActor func createNewStitchComponent(componentId: UUID,
                                              groupNodeFocused: GroupNodeType?,
-                                             saveLocation: ComponentSaveLocation,
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
+        // Get path from root
         let path = self.graph.getComponentPath(componentId)
         
-        return self.createComponent(groupNodeFocused: groupNodeFocused,
-                             selectedNodeIds: selectedNodeIds) {
-            StitchComponent(saveLocation: .document(documentId),
-                            path: [UUID],
+        return self.visibleGraph.createComponent(groupNodeFocused: groupNodeFocused,
+                                                 selectedNodeIds: selectedNodeIds) {
+            StitchComponent(saveLocation: .document(self.id),
+                            path: path,
                             graph: .init(id: componentId,
                                          name: "My Component",
                                          nodes: $0,

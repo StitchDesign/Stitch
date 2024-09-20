@@ -98,9 +98,8 @@ final actor ComponentEncoder: DocumentEncodable {
     var rootUrl: URL
     @MainActor weak var delegate: StitchMasterComponent?
     
-    init(component: StitchComponent,
-         saveLocation: ComponentSaveLocation) {
+    init(component: StitchComponent) {
         self.lastEncodedDocument = component
-        self.rootUrl = saveLocation.rootUrl
+        self.rootUrl = component.saveLocation.rootUrl
     }
 }
