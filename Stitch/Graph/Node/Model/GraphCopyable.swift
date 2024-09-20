@@ -385,28 +385,34 @@ extension CanvasNodeEntity {
  - only layer nodes can be duplicated via the sidebar
  - we can NEVER duplicate both patch nodes AND layer nodes AT THE SAME TIME
  */
-extension GraphState {
-    @MainActor
-    func createCopiedComponent(groupNodeFocused: GroupNodeType?,
-                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
-        self.createComponent(groupNodeFocused: groupNodeFocused,
-                             selectedNodeIds: selectedNodeIds) {
-            StitchClipboardContent(nodes: $0, orderedSidebarLayers: $1)
-        }
-    }
-    
+extension StitchDocumentViewModel {
     @MainActor func createNewStitchComponent(componentId: UUID,
                                              groupNodeFocused: GroupNodeType?,
                                              saveLocation: ComponentSaveLocation,
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
-        self.createComponent(groupNodeFocused: groupNodeFocused,
+        let path = self.graph.getComponentPath(componentId)
+        
+        return self.createComponent(groupNodeFocused: groupNodeFocused,
                              selectedNodeIds: selectedNodeIds) {
-            StitchComponent(graph: .init(id: componentId,
+            StitchComponent(saveLocation: .document(documentId),
+                            path: [UUID],
+                            graph: .init(id: componentId,
                                          name: "My Component",
                                          nodes: $0,
                                          orderedSidebarLayers: $1,
                                          commentBoxes: [],
                                          draftedComponents: []))
+        }
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func createCopiedComponent(groupNodeFocused: GroupNodeType?,
+                                      selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
+        self.createComponent(groupNodeFocused: groupNodeFocused,
+                             selectedNodeIds: selectedNodeIds) {
+            StitchClipboardContent(nodes: $0, orderedSidebarLayers: $1)
         }
     }
     

@@ -98,28 +98,63 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
 }
 
 extension GraphState {
-    /// Recursively checks node component's `GraphState`'s until a match is found.
     func findComponentGraphState(_ id: ComponentGroupNodeId) -> GraphState? {
         for node in self.nodes.values {
             guard let nodeComponent = node.nodeType.componentNode else {
                 continue
             }
             
-            if node.id == id.nodeId {
-                if nodeComponent.componentId == id.component {
-                    return nodeComponent.graph
-                } else {
-                    return nil
-                }
-            }
-            
-            // Recursive check
-            if let matchedGraph = nodeComponent.graph.findComponentGraphState(id) {
+            // Recursive check--we found a match if path isn't empty
+            let recursivePath = nodeComponent.getComponentPath(to: id)
+            if let matchedGraph = recursivePath.last?.graph {
                 return matchedGraph
             }
         }
         
         return nil
+    }
+    
+    func getComponentPath(_ id: ComponentGroupNodeId) -> [UUID] {
+        for node in self.nodes.values {
+            guard let nodeComponent = node.nodeType.componentNode else {
+                continue
+            }
+            
+            // Recursive check--we found a match if path isn't empty
+            let recursivePath = nodeComponent.getComponentPath(to: id)
+            if !recursivePath.isEmpty {
+                return recursivePath.map { $0.id }
+            }
+        }
+        
+        return []
+    }
+}
+
+extension StitchComponentViewModel {
+    /// Recursively checks node component's `GraphState`'s until a match is found.
+    func getComponentPath(to id: ComponentGroupNodeId) -> [StitchComponentViewModel] {
+        for node in self.graph.nodes.values {
+            guard let nodeComponent = node.nodeType.componentNode else {
+                continue
+            }
+            
+            if node.id == id.nodeId {
+                if nodeComponent.componentId == id.component {
+                    return [nodeComponent]
+                } else {
+                    return []
+                }
+            }
+            
+            // Recursive check--we found a match if path isn't empty
+            let recursivePath = nodeComponent.getComponentPath(to: id)
+            if !recursivePath.isEmpty {
+                return [self] + recursivePath
+            }
+        }
+        
+        return []
     }
 }
 

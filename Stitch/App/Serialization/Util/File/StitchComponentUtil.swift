@@ -13,19 +13,30 @@ import UniformTypeIdentifiers
 extension StitchComponent: StitchComponentable {
     static let fileType: UTType = .stitchComponent
     
-//    var rootUrl: URL {
-//        self.saveLocation.rootUrl
-//            .appendingPathComponent("\(self.id)")
-//    }
+    var nodes: [NodeEntity] {
+        self.graph.nodes
+    }
     
-//    var dataJsonUrl: URL {
-//        self.rootUrl.appendingVersionedSchemaPath()
-//    }
+    var orderedSidebarLayers: SidebarLayerList {
+        self.graph.orderedSidebarLayers
+    }
+
+    /// Builds path given possible nesting inside other components
+    var rootUrl: URL {
+        self.path.reduce(into: self.saveLocation.rootUrl) { path, componentId in
+            path = path.appendingPathComponent("\(componentId)", conformingTo: .stitchComponent)
+        }
+        .appendingPathComponent("\(self.id)")
+    }
+    
+    var dataJsonUrl: URL {
+        self.rootUrl.appendingVersionedSchemaPath()
+    }
 }
 
 // TODO: move to SSK
 public enum ComponentSaveLocation: Codable, Equatable, Sendable {
-    case document
+    case document(UUID)
     case userLibrary
     // TODO: system
     //case system(UUID)
