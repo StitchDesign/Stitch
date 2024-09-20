@@ -25,6 +25,16 @@ struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     var activelySelected = LayerIdSet()
 }
 
+extension SidebarSelections {
+    var nonEmptyPrimary: NonEmptySidebarSelections? {
+        if self.isEmpty {
+            return nil
+        } else {
+            return NES(self)!
+        }
+    }
+}
+
 // if a group is selected,
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
@@ -44,11 +54,7 @@ struct SidebarSelectionState: Codable, Equatable, Hashable {
     }
 
     var nonEmptyPrimary: NonEmptySidebarSelections? {
-        if primary.isEmpty {
-            return nil
-        } else {
-            return NES(primary)!
-        }
+        self.primary.nonEmptyPrimary
     }
 
     func isSelected(_ id: LayerNodeId) -> Bool {

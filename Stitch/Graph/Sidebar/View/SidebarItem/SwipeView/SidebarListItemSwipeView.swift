@@ -60,7 +60,9 @@ struct SidebarListItemSwipeView: View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
             view: customSwipeItem,
-            gestureViewModel: gestureViewModel)
+            gestureViewModel: gestureViewModel,
+            graph: graph,
+            layerNodeId: item.id.asLayerNodeId)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
         .offset(y: item.location.y)
