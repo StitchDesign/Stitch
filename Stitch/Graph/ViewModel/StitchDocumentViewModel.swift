@@ -90,7 +90,8 @@ final class StitchDocumentViewModel: Sendable {
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
         self.documentEncoder = .init(document: schema)
-        self.graph = .init(from: schema.graph)
+        self.graph = .init(from: schema.graph,
+                           saveLocation: [])  // root of document
         
         self.graphStepManager.delegate = self
         self.storeDelegate = store

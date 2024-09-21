@@ -234,7 +234,7 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
     
     public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
         // Share location, saved here due to static helpers for sharing
-        public var saveLocation: ComponentSaveLocation
+        public var saveLocation: GraphSaveLocation
         
         // Saves path to this component--needed for export logic which is static
         // Path is represented as nested component IDs from the root, determiend by save location
@@ -244,7 +244,7 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
 //        public let lastModifiedDate: Date
 //        public let version: Int
         
-        public init(saveLocation: ComponentSaveLocation,
+        public init(saveLocation: GraphSaveLocation,
                     path: [UUID],
                     graph: GraphEntity) {
 //                    lastModifiedDate: Date,

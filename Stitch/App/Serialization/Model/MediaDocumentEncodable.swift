@@ -82,6 +82,10 @@ struct StitchDocumentSubdirectoryFiles: Equatable {
 extension StitchDocumentSubdirectoryFiles {
     static var empty: Self {
         self.init(importedMediaUrls: [],
-                  publishedComponents: [])
+                  publishedComponentUrls: [])
+    }
+    
+    var isEmpty: Bool {
+        self == .empty
     }
 }

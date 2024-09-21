@@ -89,8 +89,7 @@ extension GraphState {
                 return
             }
             
-            let newFiles = await encoder.copyFiles(from: copiedFiles)
-            await encoder.graphInitialized(importedFilesDir: newFiles) { [weak self] in
+            await encoder.importComponentFiles(copiedFiles) { [weak self] in
                 // Mutates graph before graph is recalcualted after processing new imported files
                 self?._insertNewComponent(newComponent)
             }

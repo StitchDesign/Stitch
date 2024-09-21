@@ -134,7 +134,8 @@ extension StitchComponent: StitchDocumentMigratable {
     typealias VersionType = StitchComonentVersion
     
     init() {
-        self.init(saveLocation: .document(.init()),
+        self.init(saveLocation: .document(.init(docId: .init(),
+                                                componentsPath: [])),
                   path: [],
                   graph: GraphEntity.createEmpty())
     }

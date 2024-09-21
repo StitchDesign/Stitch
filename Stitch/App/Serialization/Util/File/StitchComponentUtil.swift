@@ -16,10 +16,7 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        self.path.reduce(into: self.saveLocation.rootUrl) { path, componentId in
-            path = path.appendingPathComponent("\(componentId)", conformingTo: .stitchComponentUnzipped)
-        }
-        .appendingPathComponent("\(self.id)")
+        self.saveLocation.rootUrl
     }
 }
 
@@ -50,26 +47,45 @@ extension StitchComponentable {
     }
 }
 
+public struct GraphDocumentPath: Codable, Equatable, Sendable {
+    let docId: UUID
+    let componentsPath: [UUID]
+}
+
 // TODO: move to SSK
 public enum GraphSaveLocation: Codable, Equatable, Sendable {
-    case document([UUID])
+    case document(GraphDocumentPath)
     case userLibrary
     // TODO: system
     //case system(UUID)
 }
 
-extension ComponentSaveLocation {
+extension GraphSaveLocation {
     var rootUrl: URL {
         switch self {
-        case .document(let documentId):
-            StitchDocument.getRootUrl(from: documentId)
+        case .document(let graphDocumentPath):
+            var rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
                 .appendingComponentsPath()
+            
+            return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
+                url = url
+                    .appendingComponentsPath()
+                    .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
+            }
+            
         case .userLibrary:
             // TODO: come back to user library
             fatalError()
         }
     }
 }
+
+//extension GraphDocumentPath {
+//    func appendingComponent(_ id: UUID) -> Self {
+//        .init(docId: self.docId,
+//              componentsPath: componentsPath + [id])
+//    }
+//}
 
 // TODO: consider data structure here
 //struct ComponentSaveData {

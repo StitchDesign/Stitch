@@ -402,9 +402,9 @@ extension StitchDocumentViewModel {
         
         return self.visibleGraph.createComponent(groupNodeFocused: groupNodeFocused,
                                                  selectedNodeIds: selectedNodeIds) { graph in
-            var graph = graph
-            graph.id = componentId
-            return StitchComponent(saveLocation: .document(self.id),
+            let newPath = GraphDocumentPath(docId: self.id,
+                                            componentsPath: self.visibleGraph.saveLocation)
+            return StitchComponent(saveLocation: .document(newPath),
                                    path: path,
                                    graph: graph)
         }
@@ -457,36 +457,29 @@ extension GraphState {
         let portValues: PortValues = portValuesList
             .flatMap { $0 ?? [] }
             
-        let mediaEffects: [ComponentAsyncCallback] = portValues.compactMap { (value: PortValue) -> ComponentAsyncCallback? in
+        let mediaUrls: [URL] = portValues.compactMap { (value: PortValue) -> URL? in
                 guard let media = value._asyncMedia,
                       let mediaKey = media.mediaKey,
                       let originalMediaUrl = self.getMediaUrl(forKey: mediaKey) else {
                     return nil
                 }
 
-                // Create imported media
-                return { encoder in
-                    let _ = await encoder.copyToMediaDirectory(originalURL: originalMediaUrl,
-                                                               forRecentlyDeleted: false)
-                }
+                return originalMediaUrl
             }
         
         // Copy directory for selected components
-        let componentEffects: [ComponentAsyncCallback] = copiedDraftedComponents.compactMap { draftedComponent in
+        let componentUrls: [URL] = copiedDraftedComponents.compactMap { draftedComponent in
             guard let masterCompnent = self.components.get(draftedComponent.id) else {
                 fatalErrorIfDebug()
                 return nil
             }
             
-            let sourceComponentUrl = draftedComponent.rootUrl
-            
-            return { encoder in
-                let destinationUrl = await encoder.componentsDirUrl
-                try FileManager.default.copyItem(at: sourceComponentUrl, to: destinationUrl)
-            }
+            return draftedComponent.rootUrl
         }
 
-        return .init(component: copiedComponent, effects: mediaEffects + componentEffects)
+        return .init(component: copiedComponent,
+                     copiedSubdirectoryFiles: .init(importedMediaUrls: mediaUrls,
+                                                    publishedComponentUrls: componentUrls))
     }
 }
 
@@ -619,16 +612,28 @@ extension GraphState {
 
 extension DocumentEncodable {
     func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
-        await self.encodeComponent(copiedComponentResult)
+        await self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
         pasteboard.url = copiedComponentResult.component.rootUrl
     }
     
-    func encodeComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
+    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
         let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await result.effects.processEffects(self)
+        await self.importComponentFiles(result.copiedSubdirectoryFiles)
+    }
+    
+    func importComponentFiles(_ files: StitchDocumentSubdirectoryFiles,
+                              graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
+        guard !files.isEmpty else {
+            return
+        }
+        
+        let newFiles = self.copyFiles(from: files)
+        
+        await self.graphInitialized(importedFilesDir: newFiles,
+                                    graphMutation: graphMutation)
     }
 }
