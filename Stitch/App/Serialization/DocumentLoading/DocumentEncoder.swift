@@ -22,7 +22,7 @@ protocol DocumentEncodable: Actor {
 
 protocol DocumentEncodableDelegate: AnyObject {
     @MainActor
-    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+    func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent])
 }
 

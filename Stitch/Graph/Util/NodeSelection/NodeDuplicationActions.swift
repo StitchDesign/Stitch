@@ -38,14 +38,15 @@ extension GraphState {
                                encoder: (any DocumentEncodable)?) where T: StitchComponentable {
         self.insertNewComponent(component: copiedComponentResult.component,
                                 encoder: encoder,
-                                effects: copiedComponentResult.effects)
+                                copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
     }
 
     @MainActor
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
-                               effects: [ComponentAsyncCallback]) where T: StitchComponentable {
-        let hasEffectsToRun = !effects.isEmpty
+                               copiedFiles: StitchDocumentSubdirectoryFiles) where T: StitchComponentable {
+        // No encoding work if struct == empty
+        let hasEffectsToRun = copiedFiles != StitchDocumentSubdirectoryFiles.empty
 
         // Change all IDs
         var newComponent = component
@@ -56,13 +57,22 @@ extension GraphState {
         // 2. Increment z-index
         newComponent.graph.nodes = newComponent.nodes.map { node in
             var node = node
+            
+            // Update positional data
             node.canvasEntityMap { node in
                 var node = node
                 node.position.shiftNodePosition()
                 node.zIndex += 1
                 return node
             }
+
             return node
+        }
+        
+        // Update root URL for components
+        newComponent.graph.draftedComponents = newComponent.graph.draftedComponents.map {
+            var draftedComponent = $0
+            draftedComponent.saveLocation = self.saveLocation
         }
 
         guard hasEffectsToRun else {
@@ -79,13 +89,10 @@ extension GraphState {
                 return
             }
             
-            await effects.processEffects(encoder)
-
-            await MainActor.run { [weak self] in
+            let newFiles = await encoder.copyFiles(from: copiedFiles)
+            await encoder.graphInitialized(importedFilesDir: newFiles) { [weak self] in
+                // Mutates graph before graph is recalcualted after processing new imported files
                 self?._insertNewComponent(newComponent)
-
-                // Hide loading status
-                self?.libraryLoadingStatus = .loaded
             }
         }
     }
@@ -155,20 +162,8 @@ extension GraphState {
                 }
         }
         
-        // update sidebar UI data
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
         // Also wipe sidebar selection state
         self.sidebarSelectionState = .init()
-        
-        self.calculateFullGraph() // not needed?
-        self.updateOrderedPreviewLayers()
     }
     
     // Duplicate ONLY the selected comment boxes

@@ -159,6 +159,7 @@ extension StitchComponentViewModel {
 
 @Observable
 final class GraphState: Sendable {
+    let saveLocation: [UUID]
     
     // TODO: wrap in a new data structure like `SidebarUIState`
     var sidebarListState: SidebarListState = .init()
@@ -204,7 +205,9 @@ final class GraphState: Sendable {
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
-    @MainActor init(from schema: GraphEntity) {
+    @MainActor init(from schema: GraphEntity,
+                    saveLocation: [UUID]) {
+        self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)

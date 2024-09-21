@@ -74,7 +74,14 @@ extension StitchDocumentEncodable {
     }
 }
 
-struct StitchDocumentSubdirectoryFiles {
+struct StitchDocumentSubdirectoryFiles: Equatable {
     let importedMediaUrls: [URL]
-    let componentUrls: [URL]
+    let publishedComponentUrls: [URL]
+}
+
+extension StitchDocumentSubdirectoryFiles {
+    static var empty: Self {
+        self.init(importedMediaUrls: [],
+                  publishedComponents: [])
+    }
 }

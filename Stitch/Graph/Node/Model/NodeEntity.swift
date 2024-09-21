@@ -130,4 +130,22 @@ extension NodeTypeEntity {
             return nil
         }
     }
+    
+    var componentNodeEntity: ComponentEntity? {
+        switch self {
+        case .component(let componentNodeEntity):
+            return componentNodeEntity
+        default:
+            return nil
+        }
+    }
+}
+
+extension [NodeEntity] {
+    func getDraftedComponents(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponent] {
+        self
+            .compactMap { $0.nodeTypeEntity.componentNodeEntity?.componentId }
+            .toSet
+            .compactMap { masterComponentsDict.get($0)?.draftedComponent }
+    }
 }

@@ -91,7 +91,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     }
 
     // create the project dir, if it doesn't already exist
-    static func createDirectories(at url: URL, withIntermediate: Bool) async throws {
+    static func createDirectories(at url: URL, withIntermediate: Bool) throws {
         if !FileManager.default.fileExists(atPath: url.relativePath) {
             log("createDirectories: will create dir")
 

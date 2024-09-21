@@ -85,32 +85,33 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             )
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let currentDoc = state.createSchema()
-            let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
-            let mediaUrls = DocumentEncoder.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
+            let importedFiles = ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
 
-            let mediaEffects: [ComponentAsyncCallback] = mediaUrls.map { mediaUrl in { [weak state] documentEncoder in
-                guard let state = state else {
-                    return
-                }
-                
-                switch await documentEncoder
-                    .copyToMediaDirectory(originalURL: mediaUrl,
-                                          forRecentlyDeleted: false) {
-                case .success(let newMediaUrl):
-                    // Update library in GraphState
-                    state.mediaLibrary.updateValue(newMediaUrl, forKey: newMediaUrl.mediaKey)
-                case .failure(let error):
-                    log("SelectedGraphItemsPasted error: could not get imported media URL.")
-                    DispatchQueue.main.async {
-                        dispatch(DisplayError(error: error))
-                    }
-                }
-            }
-            }
-
+            // Copy selected media
+//            let mediaEffects: [ComponentAsyncCallback] = mediaUrls.map { mediaUrl in { [weak state] documentEncoder in
+//                guard let state = state else {
+//                    return
+//                }
+//                
+//                switch await documentEncoder
+//                    .copyToMediaDirectory(originalURL: mediaUrl,
+//                                          forRecentlyDeleted: false) {
+//                case .success(let newMediaUrl):
+//                    // Update library in GraphState
+//                    state.mediaLibrary.updateValue(newMediaUrl, forKey: newMediaUrl.mediaKey)
+//                case .failure(let error):
+//                    log("SelectedGraphItemsPasted error: could not get imported media URL.")
+//                    DispatchQueue.main.async {
+//                        dispatch(DisplayError(error: error))
+//                    }
+//                }
+//            }
+//            }
+            
+            
             state.insertNewComponent(component: newComponent,
                                      encoder: state.documentEncoderDelegate,
-                                     effects: mediaEffects)
+                                     copiedFiles: importedFiles)
             return .persistenceResponse
         } catch {
             log("SelectedGraphItemsPasted error: \(error)")

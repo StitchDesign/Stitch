@@ -268,7 +268,7 @@ public struct GraphEntity: Codable, Equatable {
     public var nodes: [NodeEntity]
     public var orderedSidebarLayers: [SidebarLayerData]
     public let commentBoxes: [CommentBoxData]
-    public let draftedComponents: [StitchComponent]
+    public var draftedComponents: [StitchComponent]
     
     init(id: UUID,
          name: String,

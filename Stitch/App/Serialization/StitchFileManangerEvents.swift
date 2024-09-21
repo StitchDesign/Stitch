@@ -25,16 +25,21 @@ extension DocumentEncodable {
 
     /// Called when GraphState is initialized to build library data and then run first calc.
     func graphInitialized() async {
-        let importedFilesDir = await DocumentEncoder
-            .getAllMediaURLs(in: self.getImportedFilesURL())
-
-        // Find and migrate each installed component
-        let publishedDocumentComponentsDir = self.componentsDirUrl
-        // Components might not exist so fail quietly
-        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
-
-        let lastEncodedDocument = self.lastEncodedDocument
-        
+        let importedFilesDir = self.readAllImportedFiles()
+        await self.graphInitialized(importedFilesDir: importedFilesDir)
+    }
+    
+    /// Called when GraphState is initialized to build library data and then run first calc.
+    func graphInitialized(importedFilesDir: StitchDocumentSubdirectoryFiles,
+                          graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
+        let migratedPublishedComponents = importedFilesDir.publishedComponentUrls.compactMap { componentUrl in
+            do {
+                return try StitchComponent.migrateEncodedComponent(from: componentUrl)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+                return nil
+            }
+        }
         
         // Start graph once library is built
         await MainActor.run { [weak self] in
@@ -42,8 +47,11 @@ extension DocumentEncodable {
                 return
             }
             
-            encoder.delegate?.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
-                                                             publishedComponents: components)
+            // Mutates graph before computation is called on importedFilesDirectoryReceived caller below
+            graphMutation?()
+            
+            encoder.delegate?.importedFilesDirectoryReceived(mediaFiles: importedFilesDir.importedMediaUrls,
+                                                             publishedComponents: migratedPublishedComponents)
         }
     }
 }

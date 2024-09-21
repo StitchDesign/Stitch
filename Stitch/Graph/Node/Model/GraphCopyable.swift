@@ -274,11 +274,11 @@ extension SidebarLayerList {
 
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
-typealias ComponentAsyncCallback = @Sendable (any DocumentEncodable) async -> Void
+//typealias ComponentAsyncCallback = @Sendable (any DocumentEncodable) async throws -> Void
 
 struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
     let component: T
-    let effects: [ComponentAsyncCallback]
+    let copiedSubdirectoryFiles: StitchDocumentSubdirectoryFiles
 }
 
 extension Array where Element == AsyncCallback {
@@ -289,13 +289,13 @@ extension Array where Element == AsyncCallback {
     }
 }
 
-extension Array where Element == ComponentAsyncCallback {
-    func processEffects(_ encoder: any DocumentEncodable) async {
-        for effect in self {
-            await effect(encoder)
-        }
-    }
-}
+//extension Array where Element == ComponentAsyncCallback {
+//    func processEffects(_ encoder: any DocumentEncodable) async {
+//        for effect in self {
+//            await effect(encoder)
+//        }
+//    }
+//}
 
 extension GraphEntity {
     /// Creates fresh IDs for all data in NodeEntities
@@ -437,14 +437,15 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
         
-        fatalError("Copy logic for nested components")
+        let copiedDraftedComponents: [StitchComponent] = selectedNodes
+            .getDraftedComponents(masterComponentsDict: self.components)
         
         let newGraph = GraphEntity(id: .init(),
                                    name: "My Component",
                                    nodes: selectedNodes,
                                    orderedSidebarLayers: orderedSidebarLayers,
                                    commentBoxes: [],
-                                   draftedComponents: [])
+                                   draftedComponents: copiedDraftedComponents)
 
         let copiedComponent = createComponentable(newGraph)
         
@@ -456,11 +457,10 @@ extension GraphState {
         let portValues: PortValues = portValuesList
             .flatMap { $0 ?? [] }
             
-        let effects: [ComponentAsyncCallback] = portValues.compactMap { [weak self] (value: PortValue) -> ComponentAsyncCallback? in
-                guard let graph = self,
-                      let media = value._asyncMedia,
+        let mediaEffects: [ComponentAsyncCallback] = portValues.compactMap { (value: PortValue) -> ComponentAsyncCallback? in
+                guard let media = value._asyncMedia,
                       let mediaKey = media.mediaKey,
-                      let originalMediaUrl = graph.getMediaUrl(forKey: mediaKey) else {
+                      let originalMediaUrl = self.getMediaUrl(forKey: mediaKey) else {
                     return nil
                 }
 
@@ -470,8 +470,23 @@ extension GraphState {
                                                                forRecentlyDeleted: false)
                 }
             }
+        
+        // Copy directory for selected components
+        let componentEffects: [ComponentAsyncCallback] = copiedDraftedComponents.compactMap { draftedComponent in
+            guard let masterCompnent = self.components.get(draftedComponent.id) else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            let sourceComponentUrl = draftedComponent.rootUrl
+            
+            return { encoder in
+                let destinationUrl = await encoder.componentsDirUrl
+                try FileManager.default.copyItem(at: sourceComponentUrl, to: destinationUrl)
+            }
+        }
 
-        return .init(component: copiedComponent, effects: effects)
+        return .init(component: copiedComponent, effects: mediaEffects + componentEffects)
     }
 }
 

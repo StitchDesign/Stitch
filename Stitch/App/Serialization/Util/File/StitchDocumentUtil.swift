@@ -160,28 +160,21 @@ extension StitchClipboardContent {
 }
 
 extension StitchComponent {
-    static func migrateEncodedComponents(at directory: URL) throws -> [StitchComponent] {
-        let componentDirectories = try FileManager.default.contentsOfDirectory(at: directory,
-                                                                               includingPropertiesForKeys: nil)
+    static func migrateEncodedComponent(from componentUrl: URL) throws -> StitchComponent? {
+        let versionedDataUrls = componentUrl.getVersionedDataUrls()
         
-        let components = componentDirectories.compactMap { componentUrl -> StitchComponent? in
-            let versionedDataUrls = componentUrl.getVersionedDataUrls()
-        
-            do {
-                // If multiple verisoned URLs found, delete the older documents
-                guard let graphDataUrl: URL = try versionedDataUrls.getAndCleanupVersions() else {
-                    log("StitchComponent.migrateEncodedComponents error: could not get versioned URL from package.")
-                    return nil
-                }
-                
-                return try StitchComonentVersion.migrate(versionedCodableUrl: graphDataUrl)
-            } catch {
-                fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
+        do {
+            // If multiple verisoned URLs found, delete the older documents
+            guard let graphDataUrl: URL = try versionedDataUrls.getAndCleanupVersions() else {
+                log("StitchComponent.migrateEncodedComponents error: could not get versioned URL from package.")
                 return nil
             }
+            
+            return try StitchComonentVersion.migrate(versionedCodableUrl: graphDataUrl)
+        } catch {
+            fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
+            return nil
         }
-        
-        return components
     }
 }
 

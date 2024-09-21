@@ -32,14 +32,16 @@ struct CloseGraph: StitchStoreEvent {
 /// Starts a graph after first loading
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor
-    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+    func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent]) {
         // Must initialize on main thread
         self.graphStepManager.start()
 
-        self.graph.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
+        self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
                                                   publishedComponents: publishedComponents)
                 
+        // TODO: move this down to graph
+        
         // Calculate graph
         self.initializeGraphComputation()
         
@@ -50,7 +52,7 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 
 extension GraphState: DocumentEncodableDelegate {
     @MainActor
-    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+    func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent]) {
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded
@@ -66,7 +68,7 @@ extension GraphState: DocumentEncodableDelegate {
         }
 
         // Add urls to library
-        var mediaLibrary = importedFilesDir.reduce(MediaLibrary()) { partialResult, url in
+        var mediaLibrary = mediaFiles.reduce(self.mediaLibrary) { partialResult, url in
             var partialResult = partialResult
             partialResult.updateValue(url, forKey: url.mediaKey)
             return partialResult

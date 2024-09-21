@@ -51,8 +51,8 @@ extension StitchComponentable {
 }
 
 // TODO: move to SSK
-public enum ComponentSaveLocation: Codable, Equatable, Sendable {
-    case document(UUID)
+public enum GraphSaveLocation: Codable, Equatable, Sendable {
+    case document([UUID])
     case userLibrary
     // TODO: system
     //case system(UUID)
