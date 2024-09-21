@@ -41,7 +41,8 @@ final class LogListener {
             guard let strongSelf = self else { return }
 
             let rowObserver = fileHandle.availableData
-            if let string = String(rowObserver: rowObserver, encoding: String.Encoding.utf8) {
+            if let string = String(data: rowObserver,
+                                   encoding: String.Encoding.utf8) {
                 strongSelf.contents += string
             }
 
