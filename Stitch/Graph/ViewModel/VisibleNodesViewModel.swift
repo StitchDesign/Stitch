@@ -62,7 +62,8 @@ extension VisibleNodesViewModel {
     /// 2. Returns the specific list of view models to be visible.
     @MainActor
     func updateNodeSchemaData(newNodes: [NodeEntity],
-                              components: [UUID: StitchMasterComponent]) {
+                              components: [UUID: StitchMasterComponent],
+                              parentGraphPath: [UUID]) {
 
         let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
             result.updateValue(schema, forKey: schema.id)
@@ -82,14 +83,16 @@ extension VisibleNodesViewModel {
         // Initialize node view data starting with groups
         self.updateNodesPagingDict(nodesDict: allNodesDict,
                                    existingNodePages: existingNodePages,
-                                   components: components)
+                                   components: components,
+                                   parentGraphPath: parentGraphPath)
     }
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
     func updateNodesPagingDict(nodesDict: NodeEntityDict,
                                existingNodePages: NodesPagingDict,
-                               components: [UUID: StitchMasterComponent]) {
+                               components: [UUID: StitchMasterComponent],
+                               parentGraphPath: [UUID]) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
@@ -116,7 +119,8 @@ extension VisibleNodesViewModel {
                 }
             } else {
                 let newNode = NodeViewModel(from: schema,
-                                            components: components)
+                                            components: components,
+                                            parentGraphPath: parentGraphPath)
                 nodes.updateValue(newNode,
                                   forKey: newNode.id)
             }

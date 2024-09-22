@@ -61,12 +61,14 @@ final class NodeViewModel: Sendable {
     // i.e. "create node view model from schema
     @MainActor
     init(from schema: NodeEntity,
-         components: [UUID : StitchMasterComponent]) {
+         components: [UUID : StitchMasterComponent],
+         parentGraphPath: [UUID]) {
         self.id = schema.id
         self.title = schema.title
         self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
                                           nodeId: schema.id,
-                                          components: components)
+                                          components: components,
+                                          parentGraphPath: parentGraphPath)
         
         self._cachedDisplayTitle = self.getDisplayTitle()
     }
@@ -74,7 +76,9 @@ final class NodeViewModel: Sendable {
     @MainActor
     convenience init(from schema: NodeEntity,
                      graphDelegate: GraphDelegate) {
-        self.init(from: schema, components: graphDelegate.components)
+        self.init(from: schema,
+                  components: graphDelegate.components,
+                  parentGraphPath: graphDelegate.saveLocation)
         self.initializeDelegate(graph: graphDelegate)
     }
 }

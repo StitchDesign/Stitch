@@ -70,7 +70,9 @@ extension NodeViewModel {
         let nodeEntity = NodeEntity(id: id,
                                     nodeTypeEntity: nodeType,
                                     title: graphNode.defaultTitle)
-        self.init(from: nodeEntity, components: [:])
+        self.init(from: nodeEntity,
+                  components: [:],
+                  parentGraphPath: [])
         
         if let graphDelegate = graphDelegate {
             self.initializeDelegate(graph: graphDelegate)

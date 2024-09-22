@@ -66,11 +66,11 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
         self.draftedComponent.id
     }
     
-    var saveLocation: ComponentSaveLocation {
+    var saveLocation: GraphSaveLocation {
         self.draftedComponent.saveLocation
     }
     
-    func importedFilesDirectoryReceived(importedFilesDir: [URL],
+    func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent]) {
         guard let parentGraph = parentGraph else {
             fatalErrorIfDebug()
@@ -88,7 +88,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
             }
         
         componentGraphStates.forEach { graphState in
-            graphState.importedFilesDirectoryReceived(importedFilesDir: importedFilesDir,
+            graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
                                                       publishedComponents: publishedComponents)
         }
         
@@ -220,7 +220,8 @@ final class GraphState: Sendable {
             }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-                                                        components: self.components)
+                                                        components: self.components,
+                                                        parentGraphPath: self.saveLocation)
         
 //        // MARK: important we don't initialize nodes until after media is estbalished
 //        DispatchQueue.main.async { [weak self] in
@@ -403,7 +404,8 @@ extension GraphState {
         }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-                                                        components: self.components)
+                                                        components: self.components,
+                                                        parentGraphPath: self.saveLocation)
         
         // TODO: comment boxes
     }
@@ -747,6 +749,7 @@ extension GraphState {
                           nodes: [],
                           orderedSidebarLayers: [],
                           commentBoxes: [],
-                          draftedComponents: []))
+                          draftedComponents: []),
+              saveLocation: [])
     }
 }

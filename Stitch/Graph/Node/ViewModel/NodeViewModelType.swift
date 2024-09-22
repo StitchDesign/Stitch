@@ -27,15 +27,39 @@ final class StitchComponentViewModel {
     
     @MainActor init(componentId: UUID,
                     componentEntity: StitchComponent,
-                    canvas: CanvasItemViewModel) {
+                    canvas: CanvasItemViewModel,
+                    parentGraphPath: [UUID]) {
         self.componentId = componentId
-        self.graph = .init(from: componentEntity.graph)
+        self.graph = .init(from: componentEntity.graph,
+                           saveLocation: parentGraphPath + [self.componentId])
         self.canvas = canvas
     }
 }
 
 // TODO: move
 extension StitchComponentViewModel {
+    @MainActor static func createEmpty() -> Self {
+        .init(componentId: .init(),
+              componentEntity: .init(saveLocation: .document(.init(docId: .init(),
+                                                                   componentsPath: [])),
+                                     path: [],
+                                     graph: .init(id: .init(),
+                                                  name: "",
+                                                  nodes: [],
+                                                  orderedSidebarLayers: [],
+                                                  commentBoxes: [],
+                                                  draftedComponents: [])),
+              canvas: .init(from: .init(position: .zero,
+                                        zIndex: .zero,
+                                        parentGroupNodeId: nil),
+                            id: .node(.init()),
+                            inputRowObservers: [],
+                            outputRowObservers: [],
+                            unpackedPortParentFieldGroupType: nil,
+                            unpackedPortIndex: nil),
+              parentGraphPath: [])
+    }
+    
     @MainActor func initializeDelegate(node: NodeDelegate,
                                        components: [UUID: StitchMasterComponent],
                                        document: StitchDocumentViewModel) {
@@ -136,7 +160,8 @@ extension NodeViewModelType {
     @MainActor
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
-         components: [UUID: StitchMasterComponent]) {
+         components: [UUID: StitchMasterComponent],
+         parentGraphPath: [UUID]) {
         switch nodeType {
         case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode)
@@ -164,23 +189,15 @@ extension NodeViewModelType {
             
             guard let masterComponent = components.get(component.componentId) else {
                 fatalErrorIfDebug()
-                self = .component(.init(componentId: component.componentId,
-                                        componentEntity: .init(saveLocation: .document(.init()),
-                                                               path: [],
-                                                               graph: .init(id: .init(),
-                                                                            name: "",
-                                                                            nodes: [],
-                                                                            orderedSidebarLayers: [],
-                                                                            commentBoxes: [],
-                                                                            draftedComponents: [])),
-                                        canvas: componentCanvas))
+                self = .component(.createEmpty())
                 return
             }
             
             let component = StitchComponentViewModel(
                 componentId: component.componentId,
                 componentEntity: masterComponent.draftedComponent,
-                canvas: componentCanvas)
+                canvas: componentCanvas,
+                parentGraphPath: parentGraphPath)
             self = .component(component)
         }
     }

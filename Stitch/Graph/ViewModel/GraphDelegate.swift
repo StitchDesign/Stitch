@@ -15,6 +15,8 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     var id: UUID { get }
     
+    var saveLocation: [UUID] { get }
+    
     @MainActor var activeIndex: ActiveIndex { get }
     
     @MainActor var groupNodeFocused: NodeId? { get }

@@ -231,7 +231,7 @@ extension StitchDocumentViewModel {
         
         // Copy to disk
         Task { [weak masterComponent] in
-            await masterComponent?.documentEncoder.encodeComponent(result)
+            await masterComponent?.documentEncoder.encodeNewComponent(result)
         }
     }
 }
