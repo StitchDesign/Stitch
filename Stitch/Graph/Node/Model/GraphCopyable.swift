@@ -404,8 +404,8 @@ extension StitchDocumentViewModel {
                                                  selectedNodeIds: selectedNodeIds) { graph in
             let newPath = GraphDocumentPath(docId: self.id,
                                             componentsPath: self.visibleGraph.saveLocation)
-            return StitchComponent(saveLocation: .document(newPath),
-                                   path: path,
+            return StitchComponent(id: componentId,
+                                   saveLocation: .document(newPath),
                                    graph: graph)
         }
     }

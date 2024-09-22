@@ -40,9 +40,9 @@ final class StitchComponentViewModel {
 extension StitchComponentViewModel {
     @MainActor static func createEmpty() -> Self {
         .init(componentId: .init(),
-              componentEntity: .init(saveLocation: .document(.init(docId: .init(),
+              componentEntity: .init(id: .init(),
+                                     saveLocation: .document(.init(docId: .init(),
                                                                    componentsPath: [])),
-                                     path: [],
                                      graph: .init(id: .init(),
                                                   name: "",
                                                   nodes: [],
