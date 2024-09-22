@@ -443,7 +443,7 @@ extension GraphState {
         let newGraph = GraphEntity(id: .init(),
                                    name: "My Component",
                                    nodes: selectedNodes,
-                                   orderedSidebarLayers: orderedSidebarLayers,
+                                   orderedSidebarLayers: selectedSidebarLayers,
                                    commentBoxes: [],
                                    draftedComponents: copiedDraftedComponents)
 
