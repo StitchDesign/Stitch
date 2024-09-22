@@ -105,6 +105,12 @@ extension GraphState {
 
     @MainActor
     func _insertNewComponent<T>(_ component: T) where T: StitchComponentable {
+        guard let document = self.documentDelegate,
+              let encoderDelegate = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         var graph = self.createSchema()
 
         // Update top-level nodes to match current focused group
@@ -130,6 +136,8 @@ extension GraphState {
         graph.nodes += newNodes
         graph.orderedSidebarLayers = component.graph.orderedSidebarLayers + graph.orderedSidebarLayers
         self.update(from: graph)
+        self.initializeDelegate(document: document,
+                                documentEncoderDelegate: encoderDelegate)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
