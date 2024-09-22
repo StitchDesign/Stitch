@@ -60,6 +60,7 @@ extension GraphState {
         
         // Update focused group
         if let newGroup = canvasItem.parentGroupNodeId {
+            // TODO: need panning logic for component
             self.graphUI.groupNodeBreadcrumbs.append(.groupNode(newGroup))
         }
     }

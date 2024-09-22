@@ -40,8 +40,7 @@ final class StitchComponentViewModel {
 extension StitchComponentViewModel {
     @MainActor static func createEmpty() -> Self {
         .init(componentId: .init(),
-              componentEntity: .init(id: .init(),
-                                     saveLocation: .document(.init(docId: .init(),
+              componentEntity: .init(saveLocation: .document(.init(docId: .init(),
                                                                    componentsPath: [])),
                                      graph: .init(id: .init(),
                                                   name: "",
@@ -140,11 +139,11 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     @MainActor func getAllInputsObservers() -> [InputNodeRowObserver] {
-        fatalError()
+        []
     }
     
     @MainActor func getAllOutputsObservers() -> [OutputNodeRowObserver] {
-        fatalError()
+        []
     }
     
     @MainActor func getInputRowObserver(for id: NodeIOPortType) -> InputNodeRowObserver? {

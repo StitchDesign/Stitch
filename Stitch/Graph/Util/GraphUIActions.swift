@@ -54,14 +54,37 @@ struct GroupNodeDoubleTapped: GraphEvent {
 
         // De-select any nodes once new parent is shown
         state.resetAlertAndSelectionState()
+        
+        guard let groupNodeType = state.getGroupNodeType(for: id) else {
+            return
+        }
 
-        state.graphUI.groupNodeBreadcrumbs.append(.groupNode(id))
+        state.graphUI.groupNodeBreadcrumbs.append(groupNodeType)
 
         // Animate to child
         state.graphUI.groupTraversedToChild = true
 
         // reset any active selections
         state.resetAlertAndSelectionState()
+    }
+}
+
+extension GraphState {
+    func getGroupNodeType(for nodeId: NodeId) -> GroupNodeType? {
+        guard let node = self.getNodeViewModel(nodeId) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        
+        switch node.nodeType {
+        case .group:
+            return .groupNode(nodeId)
+        case .component(let componentViewModel):
+            return .component(componentViewModel.componentId)
+        default:
+            fatalErrorIfDebug()
+            return nil
+        }
     }
 }
 

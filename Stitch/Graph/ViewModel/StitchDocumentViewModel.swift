@@ -123,7 +123,7 @@ extension StitchDocumentViewModel {
                 continue
             case .component(let componentId):
                 guard let componentGraph = self.graph.findComponentGraphState(componentId) else {
-                    fatalErrorIfDebug()
+//                    fatalErrorIfDebug()
                     return self.graph
                 }
                 

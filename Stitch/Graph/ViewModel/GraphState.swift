@@ -216,7 +216,7 @@ final class GraphState: Sendable {
             .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
                 let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
                                                            parentGraph: self)
-                result.updateValue(componentGraph, forKey: componentEntity.graph.id)
+                result.updateValue(componentGraph, forKey: componentEntity.id)
             }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,

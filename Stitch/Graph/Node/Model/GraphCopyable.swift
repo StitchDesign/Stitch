@@ -398,24 +398,24 @@ extension StitchDocumentViewModel {
                                              groupNodeFocused: GroupNodeType?,
                                              selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchComponent> {
         // Get path from root
-        let path = self.graph.getComponentPath(componentId)
-        
-        return self.visibleGraph.createComponent(groupNodeFocused: groupNodeFocused,
-                                                 selectedNodeIds: selectedNodeIds) { graph in
+        self.visibleGraph.createComponent(componentId: componentId,
+                                          groupNodeFocused: groupNodeFocused,
+                                          selectedNodeIds: selectedNodeIds) { graph in
             let newPath = GraphDocumentPath(docId: self.id,
                                             componentsPath: self.visibleGraph.saveLocation)
-            return StitchComponent(id: componentId,
-                                   saveLocation: .document(newPath),
+            return StitchComponent(saveLocation: .document(newPath),
                                    graph: graph)
         }
     }
 }
 
 extension GraphState {
+    /// Used for copy-and-paste scenarios.
     @MainActor
     func createCopiedComponent(groupNodeFocused: GroupNodeType?,
-                                      selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
-        self.createComponent(groupNodeFocused: groupNodeFocused,
+                               selectedNodeIds: NodeIdSet) -> StitchComponentCopiedResult<StitchClipboardContent> {
+        self.createComponent(componentId: .init(),
+                             groupNodeFocused: groupNodeFocused,
                              selectedNodeIds: selectedNodeIds) { graph in
             StitchClipboardContent(graph: graph)
         }
@@ -424,7 +424,8 @@ extension GraphState {
     /// For clipboard, `groupNodeFocused` represents the focused group node of the graph.
     /// For components, it must be defined and represent the ID of the newly created group node.
     @MainActor
-    func createComponent<Data>(groupNodeFocused: GroupNodeType?,
+    func createComponent<Data>(componentId: UUID,
+                               groupNodeFocused: GroupNodeType?,
                                selectedNodeIds: NodeIdSet,
                                createComponentable: @escaping (GraphEntity) -> Data) -> StitchComponentCopiedResult<Data> where Data: StitchComponentable {
         let selectedNodes = self.getSelectedNodeEntities(for: selectedNodeIds)
@@ -440,7 +441,7 @@ extension GraphState {
         let copiedDraftedComponents: [StitchComponent] = selectedNodes
             .getDraftedComponents(masterComponentsDict: self.components)
         
-        let newGraph = GraphEntity(id: .init(),
+        let newGraph = GraphEntity(id: componentId,
                                    name: "My Component",
                                    nodes: selectedNodes,
                                    orderedSidebarLayers: selectedSidebarLayers,
@@ -468,13 +469,8 @@ extension GraphState {
             }
         
         // Copy directory for selected components
-        let componentUrls: [URL] = copiedDraftedComponents.compactMap { draftedComponent in
-            guard let masterCompnent = self.components.get(draftedComponent.id) else {
-                fatalErrorIfDebug()
-                return nil
-            }
-            
-            return draftedComponent.rootUrl
+        let componentUrls: [URL] = copiedDraftedComponents.map { draftedComponent in
+            draftedComponent.rootUrl
         }
 
         return .init(component: copiedComponent,
