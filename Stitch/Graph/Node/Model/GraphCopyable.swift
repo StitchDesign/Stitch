@@ -564,8 +564,8 @@ extension StitchComponentable {
     static func exportComponent(_ component: Self) async {
         let rootUrl = component.rootUrl
         // Create directories if it doesn't exist
-        let _ = try? await StitchFileManager.createDirectories(at: rootUrl,
-                                                               withIntermediate: true)
+        let _ = try? StitchFileManager.createDirectories(at: rootUrl,
+                                                         withIntermediate: true)
         await component.encodeDocumentContents(folderUrl: rootUrl)
         
         let url = component.dataJsonUrl

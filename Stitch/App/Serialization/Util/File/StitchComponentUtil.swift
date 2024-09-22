@@ -16,7 +16,7 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        self.saveLocation.rootUrl
+        self.saveLocation.getRootUrl(componentId: self.id)
     }
 }
 
@@ -61,17 +61,20 @@ public enum GraphSaveLocation: Codable, Equatable, Sendable {
 }
 
 extension GraphSaveLocation {
-    var rootUrl: URL {
+    func getRootUrl(componentId: UUID) -> URL {
         switch self {
         case .document(let graphDocumentPath):
-            var rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
-                .appendingComponentsPath()
+            let rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
             
             return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
                     .appendingComponentsPath()
                     .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
             }
+            
+            // lastly append with direct parent folders
+            .appendingComponentsPath()
+            .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
             
         case .userLibrary:
             // TODO: come back to user library

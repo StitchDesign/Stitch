@@ -99,6 +99,6 @@ final actor ComponentEncoder: DocumentEncodable {
     
     init(component: StitchComponent) {
         self.lastEncodedDocument = component
-        self.rootUrl = component.saveLocation.rootUrl
+        self.rootUrl = component.rootUrl
     }
 }
