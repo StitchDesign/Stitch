@@ -70,41 +70,40 @@ struct NodesView: View {
         Group {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
-                                
+                
                 let inputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
                     }
                 
-                VStack {
+                // CommentBox needs to be affected by graph offset and zoom
+                // but can live somewhere else?
+                ZStack {
+                    //                        commentBoxes
+                    nodesOnlyView(nodePageData: nodePageData)
+                    
                     if let component = graphUI.groupNodeFocused?.component {
                         Rectangle()
                             .foregroundColor(.red)
+                            .frame(height: 40)
                     }
-                    
-                    // CommentBox needs to be affected by graph offset and zoom
-                    // but can live somewhere else?
-                    ZStack {
-//                        commentBoxes
-                        nodesOnlyView(nodePageData: nodePageData)
-                    }
-                    .background {
-                        // Using background ensures edges z-index are always behind ndoes
-                        connectedEdgesView(allInputs: inputs)
-                    }
-                    .overlay {
-                        edgeDrawingView(inputs: inputs, 
-                                        graph: self.graph)
-                        
-                        EdgeInputLabelsView(inputs: inputs,
-                                            document: document,
-                                            graphUI: document.graphUI)
-                    }
-                    .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
-                                               nodeLocation: groupNodeLocation,
-                                               graphOffset: .zero))
                 }
+                .background {
+                    // Using background ensures edges z-index are always behind ndoes
+                    connectedEdgesView(allInputs: inputs)
+                }
+                .overlay {
+                    edgeDrawingView(inputs: inputs,
+                                    graph: self.graph)
+                    
+                    EdgeInputLabelsView(inputs: inputs,
+                                        document: document,
+                                        graphUI: document.graphUI)
+                }
+                .transition(.groupTraverse(isVisitingChild: groupTraversedToChild,
+                                           nodeLocation: groupNodeLocation,
+                                           graphOffset: .zero))
                 .coordinateSpace(name: Self.coordinateNameSpace)
                 .modifier(GraphMovementViewModifier(graphMovement: graph.graphMovement,
                                                     currentNodePage: nodePageData,

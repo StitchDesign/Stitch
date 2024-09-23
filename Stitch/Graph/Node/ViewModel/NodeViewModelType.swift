@@ -92,7 +92,6 @@ extension StitchComponentViewModel {
         self.canvas.update(from: schema.canvasEntity)
         
         // TODO: zip schema inputs with computed input row observers
-        fatalError()
         
         guard let masterComponent = components.get(self.id) else {
             fatalErrorIfDebug()
