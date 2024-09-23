@@ -262,8 +262,6 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     } // trackpadGestureHandler
 }
 
-
-
 extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         
     // // NOTE: Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
@@ -274,16 +272,14 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, 
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         log("UIContextMenuInteractionDelegate: contextMenuInteraction")
-        
-        // Do the selection action in here
-        
+                
         // Only select the layer if not already actively-selected; otherwise just open the menu
         if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
             
+            // Note: we do the selection logic in here so that
             self.graph.sidebarItemTapped(
                 id: self.layerNodeId,
-                // TODO: SEPT 20: PASS THIS DOWN
-                shiftHeld: false)
+                shiftHeld: self.shiftHeldDown)
         }
                 
         let selections = self.graph.sidebarSelectionState

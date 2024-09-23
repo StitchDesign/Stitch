@@ -10,9 +10,6 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
-import StitchViewKit
-
-
 // Sidebar layer 'tapped' while not in
 struct SidebarItemTapped: GraphEvent {
     
@@ -20,7 +17,6 @@ struct SidebarItemTapped: GraphEvent {
     let shiftHeld: Bool
     
     func handle(state: GraphState) {
-                
         state.sidebarItemTapped(id: id,
                                 shiftHeld: shiftHeld)
     }

@@ -12,12 +12,9 @@ import SwiftUI
 typealias ListItem = SidebarLayerData
 
 // Function to find the closest selected item (start point) relative to an end item, excluding the end itself
-//func findClosestSelectedStart(in nestedList: [[ListItem]],
 func findClosestSelectedStart(in flatList: [ListItem],
                               to clickedItem: ListItem,
                               selections: LayerIdSet) -> ListItem? {
-    // Flatten the nested list
-//    let flatList = nestedList.flatMap { $0 }
     
     // Find the index of the end item
     guard let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
@@ -50,8 +47,7 @@ func findClosestSelectedStart(in flatList: [ListItem],
     return closestSelected
 }
 
-// Function to return all items between the closest selected start and end, ensuring start != end
-//func itemsBetweenClosestSelectedStart(in nestedList: [[ListItem]],
+// TODO: finalize this logic; it's not as simple as "the range between last-clicked and just-clicked" nor is it "the range between just-clicked and least-distant-currently-selected"
 func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
                                       clickedItem: ListItem,
                                       lastClickedItem: ListItem,
@@ -59,12 +55,9 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
                                                                   clickedEarlierThanStart: Bool)? {
     // Flatten the nested list: the item + its children
     let flatList: [ListItem] = nestedList.flatMap { [$0] + ($0.children ?? []) }
-//    let flatList: [ListItem] = nestedList
     
     log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
     
-    
-    // TODO: shift+select
     // Find the closest selected start item
 //    guard let start = findClosestSelectedStart(in: flatList,
 //                                               from: lastClickedItem,
@@ -113,7 +106,6 @@ extension GraphState {
      If a non-group is tapped, only edit-mode-select it if we do not already do so via some parent’s descendants.
 
      Iterating through the ordered sidebar layers provides the order and guarantees you don’t hit a child before its parent.
-
      */
     @MainActor
     func editModeSelectTappedItems(tappedItems: LayerIdSet) {
@@ -121,9 +113,7 @@ extension GraphState {
         // Wipe existing edit mode selections
         self.sidebarSelectionState.resetEditModeSelections()
         
-        let orderedSidebarLayers: SidebarLayerList = self.orderedSidebarLayers
-        
-        orderedSidebarLayers.forEach { (sidebarLayer: SidebarLayerData) in
+        self.orderedSidebarLayers.forEach { (sidebarLayer: SidebarLayerData) in
             
             let layerId = sidebarLayer.id.asLayerNodeId
             let wasTapped = tappedItems.contains(layerId)
