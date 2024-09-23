@@ -134,8 +134,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+        
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldReceive event: UIEvent) -> Bool {
         
         // log("event.modifierFlags: \(event.modifierFlags)")
@@ -151,11 +151,12 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         //        }
         
         // TODO: could also update global state from here? (but no point?)
+        // TODO: this is not fired when we right-click?
         if event.modifierFlags.contains(.shift) {
-            // log("had .shift")
+             log("had .shift")
             self.shiftHeldDown = true
         } else {
-            // log("did NOT have .shift")
+             log("did NOT have .shift")
             self.shiftHeldDown = false
         }
         
