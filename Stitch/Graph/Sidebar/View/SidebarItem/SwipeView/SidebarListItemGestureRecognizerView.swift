@@ -63,6 +63,12 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
+        let tapGesture = UITapGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.tapInView))
+        tapGesture.delegate = delegate
+        vc.view.addGestureRecognizer(tapGesture)
+        
         // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
         #if targetEnvironment(macCatalyst)
         // We define the
@@ -92,23 +98,6 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
             layerNodeId: layerNodeId)
     }
 }
-//
-//
-//// THIS IS NOT FOR A RIGHT CLICK VIA TRACKPAD
-////class RightClickGestureRecognizer: UIGestureRecognizer {
-//extension UIGestureRecognizer {
-//    func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
-//        log("UIGestureRecognizer: touchesBegan CALLED")
-//        if let touch = touches.first,
-//            touch.type == .indirectPointer {
-//            // Handle right-click or secondary click here
-//            if touch.tapCount == 1 && touch.phase == .began {
-//                print("Right click detected!")
-//            }
-//        }
-//    }
-//}
-
 
 final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
     // Handles:
@@ -126,6 +115,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     
     var graph: GraphState
     var layerNodeId: LayerNodeId
+    
+    var shiftHeldDown = false
 
     init(gestureViewModel: SidebarItemGestureViewModel,
          instantDrag: Bool,
@@ -144,7 +135,34 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         true
     }
     
-//    func touchesBegan
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+                           shouldReceive event: UIEvent) -> Bool {
+        log("event.modifierFlags: \(event.modifierFlags)")
+        if event.modifierFlags.contains(.control) {
+            log("had .control")
+        }
+        if event.modifierFlags.contains(.alternate) {
+            log("had .alternate")
+        }
+        if event.modifierFlags.contains(.command) {
+            log("had .command")
+        }
+        if event.modifierFlags.contains(.shift) {
+            log("had .shift")
+            self.shiftHeldDown = true
+        } else {
+            log("did NOT have .shift")
+            self.shiftHeldDown = false
+        }
+        
+        return true
+    }
+    
+    @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
+        print("tapInView")
+        dispatch(SidebarItemTapped(id: layerNodeId,
+                                   shiftHeld: shiftHeldDown))
+    }
 
     // finger on screen
     @objc func screenGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -247,14 +265,14 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         // Do the selection action in here
         
         // Only select the layer if not already actively-selected; otherwise just open the menu
-//        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
-//            
-//            self.graph.sidebarItemTapped(
-//                id: self.layerNodeId,
-//                // TODO: SEPT 20: PASS THIS DOWN
-//                shiftHeld: false)
-//        }
-//                
+        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
+            
+            self.graph.sidebarItemTapped(
+                id: self.layerNodeId,
+                // TODO: SEPT 20: PASS THIS DOWN
+                shiftHeld: false)
+        }
+                
         let selections = self.graph.sidebarSelectionState
         let groups = self.graph.getSidebarGroupsDict()
         let sidebarDeps =  SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),

@@ -13,6 +13,7 @@ let SIDEBAR_HEADER_COLOR: Color = Color(.sideBarHeader)
 
 struct StitchSidebarView: View {
     @Environment(StitchStore.self) var store
+//    @State var keyboardObserver: KeyboardObserver = .init()
 
     let syncStatus: iCloudSyncStatus
 
