@@ -61,16 +61,17 @@ extension GraphState {
                 log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
                 
                 // TODO: do you really need this distinction ?
-                if clickedEarlierThanStart {
-                    log("sidebarItemTapped: clickedEarlierThanStart")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
-                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
-                    self.deselectAllCanvasItems()
-                    
-                    // TODO: should not need to return early?
-                    return
-                } else {
+//                if clickedEarlierThanStart {
+//                    log("sidebarItemTapped: clickedEarlierThanStart")
+//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
+//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
+//                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+//                    self.deselectAllCanvasItems()
+//                    
+//                    // TODO: should not need to return early?
+//                    return
+//                } else {
+                
                     log("sidebarItemTapped: had NOT clickedEarlierThanStart")
                     self.sidebarSelectionState.inspectorFocusedLayers.focused =
                     self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
@@ -79,7 +80,7 @@ extension GraphState {
                     self.deselectAllCanvasItems()
                     // TODO: should not need to return early?
                     return
-                }
+//                }
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")

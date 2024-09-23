@@ -164,10 +164,16 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("tapInView")
         
-        if !graph.sidebarSelectionState.isEditMode {
-            dispatch(SidebarItemTapped(id: layerNodeId,
-                                       shiftHeld: shiftHeldDown))
+        let isEditMode = graph.sidebarSelectionState.isEditMode
+        let swipeMenuOpen = gestureViewModel.swipeSetting != .closed
+        
+        // Do not 'tap' a layer if we're in edit mode or the swipe menu is open
+        if isEditMode || swipeMenuOpen {
+            return
         }
+        
+        dispatch(SidebarItemTapped(id: layerNodeId,
+                                   shiftHeld: shiftHeldDown))
     }
 
     // finger on screen
