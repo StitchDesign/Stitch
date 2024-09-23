@@ -20,7 +20,7 @@ struct GraphBaseView: View {
     let insertNodeMenuHiddenNodeId: NodeId?
     
     var graph: GraphState {
-        self.document.graph
+        self.document.visibleGraph
     }
 
     var body: some View {
