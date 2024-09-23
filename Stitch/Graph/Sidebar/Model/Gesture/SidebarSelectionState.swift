@@ -13,9 +13,6 @@ typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 typealias SidebarSelections = LayerIdSet
 typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
-/*
- 
- */
 struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     
     // Focused = what we see focused in the inspector
@@ -25,7 +22,7 @@ struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     var activelySelected = LayerIdSet()
     
     // TODO: use an ordered set and do .last ?
-    var lastActivelySelectedLayer: LayerNodeId? = nil
+    var lastFocusedLayer: LayerNodeId? = nil
 }
 
 extension SidebarSelections {

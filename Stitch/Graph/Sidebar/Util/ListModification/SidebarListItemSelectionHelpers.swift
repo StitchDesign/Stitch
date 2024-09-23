@@ -54,28 +54,35 @@ func findClosestSelectedStart(in flatList: [ListItem],
 //func itemsBetweenClosestSelectedStart(in nestedList: [[ListItem]],
 func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
                                       clickedItem: ListItem,
+                                      lastClickedItem: ListItem,
                                       selections: LayerIdSet) -> (newSelections: [ListItem],
                                                                   clickedEarlierThanStart: Bool)? {
-    // Flatten the nested list
-//    let flatList = nestedList.flatMap { $0 }
-    
-    //
+    // Flatten the nested list: the item + its children
     let flatList: [ListItem] = nestedList.flatMap { [$0] + ($0.children ?? []) }
-    
-    // WORKS
 //    let flatList: [ListItem] = nestedList
     
-//    log("itemsBetweenClosestSelectedStart: flatList: \(flatList)")
     log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
     
+    
+    // TODO: shift+select
     // Find the closest selected start item
-    guard let start = findClosestSelectedStart(in: flatList,
-                                               to: clickedItem,
-                                               selections: selections),
-          let startIndex = flatList.firstIndex(of: start),
+//    guard let start = findClosestSelectedStart(in: flatList,
+//                                               from: lastClickedItem,
+//                                               to: clickedItem,
+//                                               selections: selections),
+//          let startIndex = flatList.firstIndex(of: start),
+//          let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
+//        log("itemsBetweenClosestSelectedStart: no start")
+//        return nil // Return nil if start or end not found
+//    }
+//    
+    
+    let start = lastClickedItem
+    
+    guard let startIndex = flatList.firstIndex(of: start),
           let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
-        log("itemsBetweenClosestSelectedStart: no start")
-        return nil // Return nil if start or end not found
+        log("itemsBetweenClosestSelectedStart: could not get index of start item and/or clicked item")
+        return nil
     }
     
     // Ensure that start and end are not the same
