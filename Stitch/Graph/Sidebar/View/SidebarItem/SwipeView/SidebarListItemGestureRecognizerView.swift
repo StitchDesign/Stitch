@@ -138,15 +138,18 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
                            shouldReceive event: UIEvent) -> Bool {
         log("event.modifierFlags: \(event.modifierFlags)")
-        if event.modifierFlags.contains(.control) {
-            log("had .control")
-        }
-        if event.modifierFlags.contains(.alternate) {
-            log("had .alternate")
-        }
-        if event.modifierFlags.contains(.command) {
-            log("had .command")
-        }
+        
+//        if event.modifierFlags.contains(.control) {
+//            log("had .control")
+//        }
+//        if event.modifierFlags.contains(.alternate) {
+//            log("had .alternate")
+//        }
+//        if event.modifierFlags.contains(.command) {
+//            log("had .command")
+//        }
+        
+        // TODO: could also update global state from here? (but no point?)
         if event.modifierFlags.contains(.shift) {
             log("had .shift")
             self.shiftHeldDown = true
@@ -160,8 +163,11 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     
     @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
         print("tapInView")
-        dispatch(SidebarItemTapped(id: layerNodeId,
-                                   shiftHeld: shiftHeldDown))
+        
+        if !graph.sidebarSelectionState.isEditMode {
+            dispatch(SidebarItemTapped(id: layerNodeId,
+                                       shiftHeld: shiftHeldDown))
+        }
     }
 
     // finger on screen

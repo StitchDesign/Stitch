@@ -10,9 +10,6 @@ import StitchSchemaKit
 
 struct SidebarListItemView: View {
 
-    // Move this ... elsewhere? Globally?
-    @State var keyboardObserver: KeyboardObserver = .init()
-    
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
@@ -85,7 +82,7 @@ struct SidebarListItemView: View {
                 
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         
-        // To have color limited by indentation level etc.:
+        // Note: to have color limited by indentation level etc.:
         
 //        .background {
 //            if isNonEditModeSelected || isBeingDragged {
@@ -98,44 +95,7 @@ struct SidebarListItemView: View {
         
 //        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
-        
-//        // REMOVED
-//
-//        // Note: given that we apparently must use the UIKitTappableWrapper on the swipe menu buttons,
-//        // we need to place the SwiftUI TapGesture below the swipe menu.
-//        .gesture(TapGesture().onEnded({ _ in
-//            if !isBeingEdited {
-//                
-//                let keyboardInput = keyboardObserver.keyboard?.keyboardInput
-//        
-//                log("KeyboardObserver: keyboardInput: \(keyboardInput)")
-//                
-////                let shiftIsPressed = keyboardInput?.button(
-////                    forKeyCode: .leftShift
-////                )?.isPressed ?? false || keyboardInput?.button(
-////                    forKeyCode: .rightShift
-////                )?.isPressed ?? false
-//                
-//                let leftShift = keyboardInput?.button(
-//                    forKeyCode: .leftShift
-//                )?.isPressed ?? false
-//                
-//                
-//                let rightShift = keyboardInput?.button(
-//                    forKeyCode: .rightShift
-//                )?.isPressed ?? false
-//                
-//                log("KeyboardObserver: leftShift: \(leftShift)")
-//                log("KeyboardObserver: rightShift: \(rightShift)")
-//                
-//                let shiftIsPressed = leftShift || rightShift
-//                
-//                log("KeyboardObserver: shiftIsPressed: \(shiftIsPressed)")
-//                
-//                dispatch(SidebarItemTapped(id: layerNodeId,
-//                                           shiftHeld: shiftIsPressed))
-//            }
-//        }))
+        // Note: we used to apply our SwiftUI .tapGesture here, but now we use a UITapGestureRecognizer in `SidebarListGestureRecognizer`
         
         .overlay {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
@@ -144,44 +104,5 @@ struct SidebarListItemView: View {
         }
         .animation(.default, value: isProposedGroup)
         .animation(.default, value: isBeingDragged)
-    }
-}
-
-import GameController
-
-class KeyboardObserver: ObservableObject {
-    @Published var keyboard: GCKeyboard?
-    
-//    var observer: Any? = nil
-    @Published var observer: Any? = nil
-//    @Published var observer: Any
-    
-    init() {
-        log("KeyboardObserver: init")
-        
-        observer = NotificationCenter.default.addObserver(
-            forName: .GCKeyboardDidConnect,
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            
-            log("KeyboardObserver: observer: init")
-            
-            let notificationObject = notification.object as? GCKeyboard
-            
-            
-            // these are never nil ? yet
-            
-            if self == nil {
-                log("KeyboardObserver: observer: init: did not have self")
-            }
-            
-            if notificationObject == nil {
-                log("KeyboardObserver: observer: init: did not have GCKeyboard")
-            }
-            
-            
-            self?.keyboard = notificationObject
-        }
     }
 }
