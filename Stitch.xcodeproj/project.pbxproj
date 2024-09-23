@@ -295,6 +295,7 @@
 		EC0B8A7F2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */; };
 		EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */; };
 		EC0B8A832953C63A00AA01B6 /* CirclePatchNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */; };
+		EC0CDC322C9E25B400678661 /* SidebarListItemSelectionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */; };
 		EC0DE03E2973A57D0026A39C /* PreviewElementTrackpadPanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */; };
 		EC0E392D29F9C6100076FE4B /* JSONSampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */; };
 		EC0E656426F3E7D1000E8997 /* ReframeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */; };
@@ -1214,6 +1215,7 @@
 		EC0B8A7E2953C4C500AA01B6 /* RoundedRectanglePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundedRectanglePatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A802953C5FE00AA01B6 /* OvalPatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvalPatchNode.swift; sourceTree = "<group>"; };
 		EC0B8A822953C63A00AA01B6 /* CirclePatchNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CirclePatchNode.swift; sourceTree = "<group>"; };
+		EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionHelpers.swift; sourceTree = "<group>"; };
 		EC0DE03D2973A57D0026A39C /* PreviewElementTrackpadPanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewElementTrackpadPanView.swift; sourceTree = "<group>"; };
 		EC0E392C29F9C6100076FE4B /* JSONSampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONSampleData.swift; sourceTree = "<group>"; };
 		EC0E656326F3E7D1000E8997 /* ReframeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReframeEvent.swift; sourceTree = "<group>"; };
@@ -2440,6 +2442,7 @@
 				EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */,
 				EC2942422BA13E4000D14CD1 /* SidebarSelectedItemsDuplicated.swift */,
 				EC2942442BA13E6100D14CD1 /* SidebarItemSelectionActions.swift */,
+				EC0CDC312C9E25B400678661 /* SidebarListItemSelectionHelpers.swift */,
 			);
 			path = ListModification;
 			sourceTree = "<group>";
@@ -4767,6 +4770,7 @@
 				ECD7FA8B29D73C010073ACAC /* InsertNodeMenuOption.swift in Sources */,
 				E4F7AC242974AF5300B7F55A /* RealityNode.swift in Sources */,
 				ECADA8B428FB5B5D0007748F /* UIImageExtensionUtils.swift in Sources */,
+				EC0CDC322C9E25B400678661 /* SidebarListItemSelectionHelpers.swift in Sources */,
 				B5CB82F4283D987F00FE29A6 /* StitchStore.swift in Sources */,
 				ECF6AEF6263CB7C70011C679 /* TransitionNode.swift in Sources */,
 				EC363D56294282FD0093C473 /* Triangle.swift in Sources */,

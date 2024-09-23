@@ -10,47 +10,115 @@ import StitchSchemaKit
 import SwiftUI
 import OrderedCollections
 
-
 // Sidebar layer 'tapped' while not in
 struct SidebarItemTapped: GraphEvent {
     
     let id: LayerNodeId
+    let shiftHeld: Bool
     
     func handle(state: GraphState) {
-        state.sidebarItemTapped(id: id)
+        state.sidebarItemTapped(id: id,
+                                shiftHeld: shiftHeld)
     }
 }
 
-
 extension GraphState {
-    
-    @MainActor
-    func sidebarItemTapped(id: LayerNodeId) {
-        let alreadySelected = self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
         
-        // TODO: why does shift-key seem to be interrupted so often?
-//        if self.keypressState.isCommandPressed ||  self.keypressState.isShiftPressed {
-        if self.keypressState.isCommandPressed {
+    @MainActor
+    func sidebarItemTapped(id: LayerNodeId, shiftHeld: Bool) {
+        log("sidebarItemTapped: id: \(id)")
+        log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
+        
+        let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+        
+        if shiftHeld,
+           // We must have at least one layer already selected / focused
+           !originalSelections.isEmpty,
+           let lastClickedItemId = self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer {
+            
+            log("sidebarItemTapped: shift select")
+            
+            guard let clickedItem: SidebarLayerData = self.orderedSidebarLayers.getSidebarLayerData(id.id),
+                  let lastClickedItem: SidebarLayerData = self.orderedSidebarLayers.getSidebarLayerData(lastClickedItemId.id) else {
+                log("sidebarItemTapped: could not get clicked data")
+                fatalErrorIfDebug()
+                return
+            }
+            
+            if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
+                in: self.orderedSidebarLayers,
+                clickedItem: clickedItem,
+                lastClickedItem: lastClickedItem,
+                // Look at focused layers
+                selections: originalSelections) {
+                
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween)")
+                let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
+                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
+                
+                // TODO: do you really need this distinction ?
+//                if clickedEarlierThanStart {
+//                    log("sidebarItemTapped: clickedEarlierThanStart")
+//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
+//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
+//                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+//                    self.deselectAllCanvasItems()
+//                    
+                //                } else {
+                log("sidebarItemTapped: had NOT clickedEarlierThanStart")
+                
+                self.sidebarSelectionState.inspectorFocusedLayers.focused =
+                self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                
+                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                
+                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                
+                self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
+                
+                self.deselectAllCanvasItems()
+                //                }
+                
+            } else {
+                log("sidebarItemTapped: did not have itemsBetween")
+            }
+        } 
+//        else {
+//            log("sidebarItemTapped: either shift not held or focused layers were empty")
+//        }
+                
+        else if self.keypressState.isCommandPressed {
+            
+            log("sidebarItemTapped: command select")
+            
+            let alreadySelected = self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
             
             // Note: Cmd + Click will select a currently-unselected layer or deselect an already-selected layer
             if alreadySelected {
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
                 self.sidebarItemDeselectedViaEditMode(id)
+                
+                // Don't set nil, but rather use `orderedSet.dropLast.last` ?
+                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = nil
             } else {
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
                 self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 self.deselectAllCanvasItems()
             }
             
         } else {
+            log("sidebarItemTapped: normal select")
+            
             self.sidebarSelectionState.resetEditModeSelections()
             
             // Note: Click will not deselect an already-selected layer
             self.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
             self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
             self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+            self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
             self.deselectAllCanvasItems()
         }
         

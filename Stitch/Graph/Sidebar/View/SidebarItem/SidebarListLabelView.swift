@@ -58,13 +58,13 @@ struct SidebarListItemLeftLabelView: View {
     
     
     var _name: String {
-        return name
+//        return name
         
-//#if DEV_DEBUG
-//        name + " \(nodeId.id.debugFriendlyId)"
-//#else
-//        name
-//#endif
+#if DEV_DEBUG
+        name + " \(nodeId.id.debugFriendlyId)"
+#else
+        name
+#endif
     }
     
     var body: some View {

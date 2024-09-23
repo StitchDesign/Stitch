@@ -63,6 +63,12 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
+        let tapGesture = UITapGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.tapInView))
+        tapGesture.delegate = delegate
+        vc.view.addGestureRecognizer(tapGesture)
+        
         // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
         #if targetEnvironment(macCatalyst)
         // We define the
@@ -102,13 +108,15 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     // Handled elsewhere:
     // - one finger long-press-drag item-dragging: see `SwiftUI .simultaneousGesture`
     // - two fingers on trackpad list scrolling
-
+    
     let gestureViewModel: SidebarItemGestureViewModel
 
     var instantDrag: Bool
     
     var graph: GraphState
     var layerNodeId: LayerNodeId
+    
+    var shiftHeldDown = false
 
     init(gestureViewModel: SidebarItemGestureViewModel,
          instantDrag: Bool,
@@ -125,6 +133,49 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
+    }
+        
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive event: UIEvent) -> Bool {
+        
+        // log("event.modifierFlags: \(event.modifierFlags)")
+        
+        //        if event.modifierFlags.contains(.control) {
+        //            log("had .control")
+        //        }
+        //        if event.modifierFlags.contains(.alternate) {
+        //            log("had .alternate")
+        //        }
+        //        if event.modifierFlags.contains(.command) {
+        //            log("had .command")
+        //        }
+        
+        // TODO: could also update global state from here? (but no point?)
+        // TODO: this is not fired when we right-click?
+        if event.modifierFlags.contains(.shift) {
+             log("had .shift")
+            self.shiftHeldDown = true
+        } else {
+             log("did NOT have .shift")
+            self.shiftHeldDown = false
+        }
+        
+        return true
+    }
+    
+    @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
+        log("tapInView")
+        
+        let isEditMode = graph.sidebarSelectionState.isEditMode
+        let swipeMenuOpen = gestureViewModel.swipeSetting != .closed
+        
+        // Do not 'tap' a layer if we're in edit mode or the swipe menu is open
+        if isEditMode || swipeMenuOpen {
+            return
+        }
+        
+        dispatch(SidebarItemTapped(id: layerNodeId,
+                                   shiftHeld: shiftHeldDown))
     }
 
     // finger on screen
@@ -147,7 +198,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                 if instantDrag {
                     gestureViewModel.onItemDragChanged(translation.toCGSize)
                 }
-                let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
+                // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
                 gestureViewModel.onItemSwipeChanged(translation.x)
             default:
                 break // do nothing
@@ -172,7 +223,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         //        }
 
     } // screenGestureHandler
-
+    
     @objc func trackpadGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
 
         //        log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: gestureRecognizer.numberOfTouches:  \(gestureRecognizer.numberOfTouches)")
@@ -184,6 +235,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
 
         // `touches == 0` = running our fingers on trackpad, but no click
         if gestureRecognizer.numberOfTouches == 0 {
+                        
             switch gestureRecognizer.state {
             case .changed:
                 gestureViewModel.onItemSwipeChanged(translation.x)
@@ -210,24 +262,25 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     } // trackpadGestureHandler
 }
 
-
-
 extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         
-    // // Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
+    // // NOTE: Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
     //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, 
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        log("UIContextMenuInteractionDelegate: contextMenuInteraction")
         
-        // Do the selection action in here
-        
+        // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
+                
         // Only select the layer if not already actively-selected; otherwise just open the menu
         if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
-            self.graph.sidebarItemTapped(id: self.layerNodeId)
+            
+            // Note: we do the selection logic in here so that
+            self.graph.sidebarItemTapped(
+                id: self.layerNodeId,
+                shiftHeld: self.shiftHeldDown)
         }
                 
         let selections = self.graph.sidebarSelectionState

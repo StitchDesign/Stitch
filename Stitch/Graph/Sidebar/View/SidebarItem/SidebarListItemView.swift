@@ -82,7 +82,7 @@ struct SidebarListItemView: View {
                 
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         
-        // To have color limited by indentation level etc.:
+        // Note: to have color limited by indentation level etc.:
         
 //        .background {
 //            if isNonEditModeSelected || isBeingDragged {
@@ -95,13 +95,7 @@ struct SidebarListItemView: View {
         
 //        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
-        // Note: given that we apparently must use the UIKitTappableWrapper on the swipe menu buttons,
-        // we need to place the SwiftUI TapGesture below the swipe menu.
-        .gesture(TapGesture().onEnded({ _ in
-            if !isBeingEdited {
-                dispatch(SidebarItemTapped(id: layerNodeId))
-            }
-        }))
+        // Note: we used to apply our SwiftUI .tapGesture here, but now we use a UITapGestureRecognizer in `SidebarListGestureRecognizer`
         
         .overlay {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
