@@ -51,6 +51,8 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 }
 
 extension GraphState: DocumentEncodableDelegate {
+    func willEncodeProject(schema: GraphEntity) { }
+    
     @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent]) {

@@ -140,7 +140,7 @@ extension StitchComponent: StitchDocumentMigratable {
     }
     
     func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl.appendingComponentsPath()
+        documentRootUrl//.appendingComponentsPath()
     }
 }
 

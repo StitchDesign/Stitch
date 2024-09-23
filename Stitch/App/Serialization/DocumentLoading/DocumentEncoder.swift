@@ -8,10 +8,9 @@
 import SwiftUI
 import StitchSchemaKit
 
-protocol DocumentEncodable: Actor {
+protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.CodableDocument {
     associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
-//    typealias CodableDocument = DocumentDelegate.CodableDocument
     
     var lastEncodedDocument: CodableDocument { get set }
     
@@ -21,12 +20,30 @@ protocol DocumentEncodable: Actor {
 }
 
 protocol DocumentEncodableDelegate: AnyObject {
+    associatedtype CodableDocument: Codable
+    
+    @MainActor func createSchema() -> CodableDocument
+    
+    @MainActor
+    func willEncodeProject(schema: CodableDocument)
+    
     @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         publishedComponents: [StitchComponent])
 }
 
 extension DocumentEncodable {
+    @MainActor func encodeProjectInBackground(temporaryUrl: DocumentsURL? = nil) {
+        guard let delegate = self.delegate else { return }
+        let newSchema = delegate.createSchema()
+        delegate.willEncodeProject(schema: newSchema)
+        
+        Task(priority: .background) {
+            await self.encodeProject(newSchema,
+                                     temporaryURL: temporaryUrl)
+        }
+    }
+    
     var id: UUID {
         self.lastEncodedDocument.id
     }
@@ -94,11 +111,15 @@ extension DocumentEncoder {
 final actor ComponentEncoder: DocumentEncodable {
     // Keeps track of last saved StitchDocument to disk
     var lastEncodedDocument: StitchComponent
-    var rootUrl: URL
     @MainActor weak var delegate: StitchMasterComponent?
     
     init(component: StitchComponent) {
         self.lastEncodedDocument = component
-        self.rootUrl = component.rootUrl
+    }
+}
+
+extension ComponentEncoder {
+    var rootUrl: URL {
+        lastEncodedDocument.rootUrl
     }
 }

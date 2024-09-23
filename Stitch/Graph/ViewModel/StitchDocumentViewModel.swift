@@ -173,22 +173,28 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func encodeProject(temporaryURL: DocumentsURL? = nil) {
-        let data = self.createSchema()
-
+    func willEncodeProject(schema: StitchDocument) {
         // Update nodes data
-        self.updateGraphData(document: data)
-
-        Task(priority: .background) { [weak self] in
-            switch await self?.documentEncoder.encodeProject(data,
-                                                             temporaryURL: temporaryURL) {
-            case .success, .none:
-                return
-            case .failure(let error):
-                log("StitchDocumentViewModel.encodeProject error: \(error)")
-            }
-        }
+        self.updateGraphData(document: schema)
     }
+    
+//    @MainActor
+//    func encodeProject(temporaryURL: DocumentsURL? = nil) {
+//        let data = self.createSchema()
+//
+//        // Update nodes data
+//        self.updateGraphData(document: data)
+//
+//        Task(priority: .background) { [weak self] in
+//            switch await self?.documentEncoder.encodeProject(data,
+//                                                             temporaryURL: temporaryURL) {
+//            case .success, .none:
+//                return
+//            case .failure(let error):
+//                log("StitchDocumentViewModel.encodeProject error: \(error)")
+//            }
+//        }
+//    }
 }
 
 extension StitchDocumentViewModel: GraphCalculatable {

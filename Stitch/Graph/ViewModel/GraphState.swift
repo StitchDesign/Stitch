@@ -62,6 +62,11 @@ extension StitchMasterComponent: SchemaObserverIdentifiable {
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate {
+    func willEncodeProject(schema: StitchComponent) {
+        self.draftedComponent = schema
+        self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
+    }
+    
     var id: UUID {
         self.draftedComponent.id
     }
@@ -493,23 +498,26 @@ extension GraphState {
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
-        guard let documentViewModel = self.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        documentViewModel.encodeProjectInBackground()
+        self.documentEncoderDelegate?.encodeProjectInBackground()
+//        guard let documentViewModel = self.documentDelegate else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+//        
+//        documentViewModel.encodeProjectInBackground()
     }
     
-    @MainActor
-    func encodeProject(temporaryURL: DocumentsURL? = nil) {
-        guard let documentViewModel = self.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        documentViewModel.encodeProject(temporaryURL: temporaryURL)
-    }
+//    @MainActor
+//    func encodeProject(temporaryURL: DocumentsURL? = nil) {
+//        self.documentEncoderDelegate?.encodeProject(temporaryURL: temporaryURL)
+//        
+////        guard let documentViewModel = self.documentDelegate else {
+////            fatalErrorIfDebug()
+////            return
+////        }
+////        
+////        documentViewModel.encodeProject(temporaryURL: temporaryURL)
+//    }
     
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
