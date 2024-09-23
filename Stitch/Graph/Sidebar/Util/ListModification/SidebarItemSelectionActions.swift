@@ -45,6 +45,19 @@ extension GraphState {
                 return
             }
             
+            log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
+            
+            let flatList = self.orderedSidebarLayers.getFlattenedList()
+            
+            let originalIsland = getIsland(in: flatList,
+                                           startItem: lastClickedItem,
+                                           selections: originalSelections)
+            
+            log("sidebarItemTapped: originalIsland around last clicked item \(originalIsland.map(\.id))")
+            
+            let originalIslandSet: LayerIdSet = originalIsland.map(\.id.asLayerNodeId).toSet
+            
+            
             if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
                 in: self.orderedSidebarLayers,
                 clickedItem: clickedItem,
@@ -52,9 +65,19 @@ extension GraphState {
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                log("sidebarItemTapped: itemsBetween: \(itemsBetween)")
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
-                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
+                
+                // "new island" is just the new range
+                
+                let megaIsland = itemsBetweenSet.union(originalIslandSet)
+                
+                log("sidebarItemTapped: megaIsland \(megaIsland.map(\.id))")
+                
+                // just deselect the old island?
+                
+                
+//                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
                 
                 // TODO: do you really need this distinction ?
 //                if clickedEarlierThanStart {
@@ -67,12 +90,30 @@ extension GraphState {
                 //                } else {
                 log("sidebarItemTapped: had NOT clickedEarlierThanStart")
                 
+                // Not as simple as `union`, since we may need to remove some
+                
+                
+                
+                // ORIGINAL
                 self.sidebarSelectionState.inspectorFocusedLayers.focused =
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+//                
                 
-                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                // Deselect the old island?:
+                originalIsland.forEach {
+                    if $0 != lastClickedItem && clickedEarlierThanStart {
+                        self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
+                        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
+                    }
+                }
+                
+                //                self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
+//                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
+                
+                // Shift click does NOT change the `lastFocusedLayer`
+//                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
                 

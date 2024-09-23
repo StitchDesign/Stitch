@@ -54,7 +54,7 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
                                       selections: LayerIdSet) -> (newSelections: [ListItem],
                                                                   clickedEarlierThanStart: Bool)? {
     // Flatten the nested list: the item + its children
-    let flatList: [ListItem] = nestedList.flatMap { [$0] + ($0.children ?? []) }
+    let flatList: [ListItem] = nestedList.getFlattenedList()  //nestedList.flatMap { [$0] + ($0.children ?? []) }
     
     log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
     
@@ -97,7 +97,23 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
 
 
 extension GraphState {
+    /*
+     Given a layer, find the smallest index and the largest index that
+     */
+//    func getIsland(for layerId: LayerNodeId) -> LayerIdList? {
+//        
+//        let flatList: [ListItem] = self.orderedSidebarLayers
+//            .flatMap { [$0] + ($0.children ?? []) }
+//        
+//        let currentSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+//        
+//        guard let index = flatList.first(where: { $0.id == layerId.id
+//        }) else {
+//            return nil
+//        }
+//    }
     
+
     /*
      Given an unordered set of tapped items,
      Start at top level of the ordered sidebar layers.
@@ -126,3 +142,68 @@ extension GraphState {
     }
 }
 
+
+extension SidebarLayerList {
+    func getFlattenedList() -> [ListItem] {
+        self.flatMap { [$0] + ($0.children ?? []) }
+    }
+}
+
+// Function to find all items between the smallest and largest consecutive selected items (inclusive)
+// `findItemsBetweenSmallestAndLargestSelected`
+func getIsland(in list: [ListItem],
+//               startIndex: Int,
+               startItem: ListItem,
+               selections: LayerIdSet) -> [ListItem] {
+    // Ensure the starting index is within bounds
+    
+    
+    
+    guard let startIndex = list.firstIndex(where: { $0.id == startItem.id
+    }),
+            startIndex >= 0 && startIndex < list.count else {
+        return []
+    }
+    
+    // Check if the starting item is selected
+    
+//    guard list[startIndex].isSelected else {
+    guard let startItem = list[safe: startIndex],
+          selections.contains(startItem.id.asLayerNodeId) else {
+        log("findItemsBetweenSmallestAndLargestSelected: starting index's item was not atually selected")
+        return []
+    }
+    
+    // Initialize variables to store the smallest and largest selected items
+    var smallestIndex = startIndex
+    var largestIndex = startIndex
+    
+    // Move backward to find the smallest consecutive selected item
+    for i in stride(from: startIndex - 1, through: 0, by: -1) {
+        
+//        if list[i].isSelected {
+        if let _i = list[safe: i],
+           selections.contains(_i.id.asLayerNodeId) {
+            smallestIndex = i
+        } else {
+            break
+        }
+    }
+    
+    // Move forward to find the largest consecutive selected item
+    for i in (startIndex + 1)..<list.count {
+//        if list[i].isSelected {
+        if let _i = list[safe: i],
+           selections.contains(_i.id.asLayerNodeId) {
+            largestIndex = i
+        } else {
+            break
+        }
+    }
+    
+    // Return all items between the smallest and largest indices, inclusive
+//    return Array(list[smallestIndex...largestIndex])
+    let island = Array(list[smallestIndex...largestIndex])
+    log("for startItem \(startItem.id), had island \(island.map(\.id))")
+    return island
+}
