@@ -70,17 +70,19 @@ extension GraphState {
 //                    
 //                    // TODO: should not need to return early?
 //                    return
-//                } else {
+                //                } else {
+                log("sidebarItemTapped: had NOT clickedEarlierThanStart")
+                self.sidebarSelectionState.inspectorFocusedLayers.focused =
+                self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
-                    log("sidebarItemTapped: had NOT clickedEarlierThanStart")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused =
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
-                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
-                    self.deselectAllCanvasItems()
-                    // TODO: should not need to return early?
-                    return
-//                }
+                self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
+                
+                self.deselectAllCanvasItems()
+                // TODO: should not need to return early?
+                //                    return
+                //                }
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")

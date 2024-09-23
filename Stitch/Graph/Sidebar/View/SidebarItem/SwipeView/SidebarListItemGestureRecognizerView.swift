@@ -137,6 +137,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
                            shouldReceive event: UIEvent) -> Bool {
+        
         log("event.modifierFlags: \(event.modifierFlags)")
         
 //        if event.modifierFlags.contains(.control) {
@@ -162,7 +163,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     }
     
     @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
-        print("tapInView")
+        log("tapInView")
         
         let isEditMode = graph.sidebarSelectionState.isEditMode
         let swipeMenuOpen = gestureViewModel.swipeSetting != .closed
@@ -265,7 +266,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
 
 extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         
-    // // Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
+    // // NOTE: Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
     //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }

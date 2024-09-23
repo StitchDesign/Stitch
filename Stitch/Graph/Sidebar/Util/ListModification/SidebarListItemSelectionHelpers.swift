@@ -103,3 +103,37 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
             clickedEarlierThanStart: clickedEarlierThanStart)
 }
 
+
+extension GraphState {
+    
+    /*
+     Given an unordered set of tapped items,
+     Start at top level of the ordered sidebar layers.
+     If a group is tapped, then edit-mode-select it and all its descendants.
+     If a non-group is tapped, only edit-mode-select it if we do not already do so via some parent’s descendants.
+
+     Iterating through the ordered sidebar layers provides the order and guarantees you don’t hit a child before its parent.
+
+     */
+    @MainActor
+    func editModeSelectTappedItems(tappedItems: LayerIdSet) {
+        
+        // Wipe existing edit mode selections
+        self.sidebarSelectionState.resetEditModeSelections()
+        
+        let orderedSidebarLayers: SidebarLayerList = self.orderedSidebarLayers
+        
+        orderedSidebarLayers.forEach { (sidebarLayer: SidebarLayerData) in
+            
+            let layerId = sidebarLayer.id.asLayerNodeId
+            let wasTapped = tappedItems.contains(layerId)
+            
+            // Only interested in items that were tapped
+            if wasTapped {
+                self.sidebarItemSelectedViaEditMode(layerId,
+                                                    isSidebarItemTapped: true)
+            } // if wasTapped
+        } // forEach
+    }
+}
+
