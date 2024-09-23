@@ -41,7 +41,7 @@ struct SplitterTypeChanged: StitchDocumentEvent {
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
         state.calculateFullGraph()
         
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

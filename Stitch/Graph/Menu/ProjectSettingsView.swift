@@ -134,7 +134,7 @@ struct PreviewWindowBackgroundColorSet: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
         state.previewWindowBackgroundColor = color
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

@@ -27,7 +27,7 @@ struct SelectedGraphItemsDuplicated: StitchDocumentEvent {
         state.visibleGraph.insertNewComponent(copiedComponentResult,
                                               encoder: state.visibleGraph.documentEncoderDelegate)
         
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

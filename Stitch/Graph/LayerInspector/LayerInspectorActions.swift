@@ -55,7 +55,7 @@ struct LayerInputAddedToGraph: StitchDocumentEvent {
                                      nodeId: nodeId,
                                      coordinate: coordinate)
         
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

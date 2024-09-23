@@ -117,7 +117,7 @@ struct PreviewWindowDimensionsSwapped: StitchDocumentEvent {
 
         log("PreviewWindowDimensionsSwapped: state.previewWindowSize is now: \(state.previewWindowSize)")
 
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 
@@ -148,7 +148,7 @@ struct UpdatePreviewCanvasDimension: StitchDocumentEvent {
             state.previewSizeDevice = .custom
         }
 
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

@@ -48,7 +48,7 @@ struct CatalystNavBarTitleEditField: View {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
                     // Commit project name to disk
-                    self.graph.encodeProjectInBackground()
+                    graph.encodeProjectInBackground()
                 }
             }
     }

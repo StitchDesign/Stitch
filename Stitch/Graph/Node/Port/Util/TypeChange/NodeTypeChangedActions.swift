@@ -26,7 +26,7 @@ struct NodeTypeChanged: StitchDocumentEvent {
                                                 newNodeType: newNodeType)
         }
         
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

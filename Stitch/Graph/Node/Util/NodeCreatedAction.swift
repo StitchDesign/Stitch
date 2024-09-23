@@ -16,7 +16,7 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     
     func handle(state: StitchDocumentViewModel) {
         let _ = state.nodeCreated(choice: choice)
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

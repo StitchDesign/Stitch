@@ -231,7 +231,7 @@ extension StitchDocumentViewModel {
         // Recalculate graph
         self.initializeGraphComputation()
         
-        self.graph.encodeProjectInBackground()
+        self.visibleGraph.encodeProjectInBackground()
     }
     
     /// Updates graph state with brand new component, not yet creating a node view model.

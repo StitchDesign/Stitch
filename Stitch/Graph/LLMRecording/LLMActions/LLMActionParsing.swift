@@ -39,7 +39,7 @@ extension StitchDocumentViewModel {
                                                                from: data)
             actions.forEach { self.handleLLMAction($0) }
             self.llmRecording.jsonEntryState = .init() // reset
-            self.graph.encodeProjectInBackground()
+            self.visibleGraph.encodeProjectInBackground()
         } catch {
             log("LLMActionsJSONEntryModalClosed: Error: \(error)")
             fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")

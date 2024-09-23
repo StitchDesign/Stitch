@@ -163,13 +163,7 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
-        let data = self.createSchema()
-        
-        Task(priority: .background) { [weak self] in
-            let _ = await self?.documentEncoder
-                .encodeProject(data,
-                               temporaryURL: temporaryURL)
-        }
+        self.documentEncoder.encodeProjectInBackground(temporaryUrl: temporaryURL)
     }
     
     @MainActor

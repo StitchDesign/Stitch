@@ -131,7 +131,7 @@ extension StitchStore {
             document.update(from: newState)
 
             // Persist graph
-            document.graph.encodeProjectInBackground()
+            document.visibleGraph.encodeProjectInBackground()
             
         }
     }
