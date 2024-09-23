@@ -121,9 +121,14 @@ extension StitchDocumentViewModel {
             switch groupType {
             case .groupNode:
                 continue
-            case .component(let componentId):
-                guard let componentGraph = self.graph.findComponentGraphState(componentId) else {
-//                    fatalErrorIfDebug()
+            case .component:
+                // TODO: bug with accessing ID
+                guard let nodeId = groupType.component else {
+                    fatalError()
+                }
+                
+                guard let componentGraph = self.graph.findComponentGraphState(nodeId) else {
+                    fatalErrorIfDebug()
                     return self.graph
                 }
                 

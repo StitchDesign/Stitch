@@ -79,8 +79,8 @@ extension GraphState {
         switch node.nodeType {
         case .group:
             return .groupNode(nodeId)
-        case .component(let componentViewModel):
-            return .component(componentViewModel.componentId)
+        case .component:
+            return .component(nodeId)
         default:
             fatalErrorIfDebug()
             return nil

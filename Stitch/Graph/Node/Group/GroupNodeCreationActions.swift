@@ -107,6 +107,11 @@ extension GraphState {
     func createGroupNode(newGroupNodeId: NodeId,
                          center: CGPoint,
                          isComponent: Bool) -> NodeViewModel {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return .createEmpty()
+        }
+        
         // If current focused group is component, make parent node ID nil as we're creating a new graph state
         let focusedGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         
@@ -125,7 +130,8 @@ extension GraphState {
                                 title: NodeKind.group.getDisplayTitle(customName: nil))
         
         let newGroupNode = NodeViewModel(from: schema,
-                                         graphDelegate: self)
+                                         graphDelegate: self,
+                                         document: document)
         
         self.visibleNodesViewModel.nodes.updateValue(newGroupNode, 
                                                      forKey: newGroupNode.id)
@@ -196,6 +202,20 @@ extension StitchDocumentViewModel {
                                                     newGroupNodeId: newGroupNodeId,
                                                     isComponent: isComponent,
                                                     center: center)
+        
+        // Delete items from original graph since selected items have been copied
+        // to new component graph
+        if isComponent {
+            selectedCanvasItems.forEach {
+                // TODO: consider layer behavior when selected layers are involved
+                guard let node = $0.nodeDelegate as? NodeViewModel else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                self.visibleGraph.deleteNode(id: node.id)
+            }
+        }
 
         // wipe selected edges and canvas items
         self.graphUI.selection = GraphUISelectionState()

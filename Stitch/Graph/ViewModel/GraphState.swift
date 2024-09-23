@@ -91,16 +91,19 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
             graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
                                                       publishedComponents: publishedComponents)
         }
-        
-        fatalError()
     }
 }
 
 extension GraphState {
-    func findComponentGraphState(_ id: UUID) -> GraphState? {
+    /// Finds graph state given a node ID of some component node.
+    func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
         for node in self.nodes.values {
             guard let nodeComponent = node.nodeType.componentNode else {
                 continue
+            }
+            
+            if nodeComponent.id == nodeId {
+                return nodeComponent.graph
             }
             
             // Recursive check--we found a match if path isn't empty
@@ -236,7 +239,8 @@ final class GraphState: Sendable {
                                        documentEncoderDelegate: any DocumentEncodable) {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
-        self.nodes.values.forEach { $0.initializeDelegate(graph: self) }
+        self.nodes.values.forEach { $0.initializeDelegate(graph: self,
+                                                          document: document) }
         
         // Set up component graphs
         self.components.values.forEach {

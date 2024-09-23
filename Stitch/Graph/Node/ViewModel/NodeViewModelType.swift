@@ -108,7 +108,12 @@ extension StitchComponentViewModel: NodeCalculatable {
     
     var id: NodeId {
         get {
-            self.nodeDelegate?.id ?? .init()
+            guard let node = self.nodeDelegate else {
+                fatalErrorIfDebug()
+                return .init()
+            }
+            
+            return node.id
         }
         set(newValue) {
             // This used?
@@ -177,8 +182,13 @@ extension NodeViewModelType {
                                 // Irrelevant
                                 unpackedPortParentFieldGroupType: nil,
                                 unpackedPortIndex: nil))
-        case .component(let component):
-            let componentCanvas = CanvasItemViewModel(from: component.canvasEntity,
+        case .component:
+            // TODO: unwrapping component changes the ID. no idea why.
+            guard let componentEntity = nodeType.componentNodeEntity else {
+                fatalError()
+            }
+            
+            let componentCanvas = CanvasItemViewModel(from: componentEntity.canvasEntity,
                                                       id: .node(nodeId),
                                                       // Initialize as empty since splitter row observers might not have yet been created
                                                       inputRowObservers: [],
@@ -186,14 +196,14 @@ extension NodeViewModelType {
                                                       unpackedPortParentFieldGroupType: nil,
                                                       unpackedPortIndex: nil)
             
-            guard let masterComponent = components.get(component.componentId) else {
+            guard let masterComponent = components.get(componentEntity.componentId) else {
                 fatalErrorIfDebug()
                 self = .component(.createEmpty())
                 return
             }
             
             let component = StitchComponentViewModel(
-                componentId: component.componentId,
+                componentId: componentEntity.componentId,
                 componentEntity: masterComponent.draftedComponent,
                 canvas: componentCanvas,
                 parentGraphPath: parentGraphPath)
@@ -201,7 +211,9 @@ extension NodeViewModelType {
         }
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    @MainActor func initializeDelegate(_ node: NodeDelegate,
+                                       components: [UUID: StitchMasterComponent],
+                                       document: StitchDocumentViewModel) {
         switch self {
         case .patch(let patchNodeViewModel):
             guard let patchDelegate = node as? PatchNodeViewModelDelegate else {
@@ -218,9 +230,9 @@ extension NodeViewModelType {
                                                    unpackedPortParentFieldGroupType: nil,
                                                    unpackedPortIndex: nil)
         case .component(let componentViewModel):
-            componentViewModel.canvas.initializeDelegate(node,
-                                                         unpackedPortParentFieldGroupType: nil,
-                                                         unpackedPortIndex: nil)
+            componentViewModel.initializeDelegate(node: node,
+                                                  components: components,
+                                                  document: document)
         }
     }
 

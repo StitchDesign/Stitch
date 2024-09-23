@@ -74,8 +74,10 @@ extension NodeViewModel {
                   components: [:],
                   parentGraphPath: [])
         
-        if let graphDelegate = graphDelegate {
-            self.initializeDelegate(graph: graphDelegate)
+        if let graphDelegate = graphDelegate,
+           let document = graphDelegate.documentDelegate {
+            self.initializeDelegate(graph: graphDelegate,
+                                    document: document)
         }
     }
 

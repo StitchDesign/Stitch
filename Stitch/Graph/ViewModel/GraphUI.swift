@@ -31,7 +31,7 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 // TODO: move
 enum GroupNodeType: Equatable {
     case groupNode(NodeId)
-    case component(UUID) // id of component
+    case component(UUID) // NodeID of component node
 }
 
 //struct ComponentGroupNodeId: Equatable {

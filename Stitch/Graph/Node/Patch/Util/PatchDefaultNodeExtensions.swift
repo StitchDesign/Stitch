@@ -243,8 +243,10 @@ extension Patch {
         //                                      graphNodes: .empty)
         //        }
         
-        if let graph = graphDelegate {
-            node.initializeDelegate(graph: graph)            
+        if let graph = graphDelegate,
+           let document = graphDelegate?.documentDelegate {
+            node.initializeDelegate(graph: graph,
+                                    document: document)
         }
 
         return node

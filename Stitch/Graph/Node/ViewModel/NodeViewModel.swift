@@ -75,11 +75,13 @@ final class NodeViewModel: Sendable {
     
     @MainActor
     convenience init(from schema: NodeEntity,
-                     graphDelegate: GraphDelegate) {
+                     graphDelegate: GraphDelegate,
+                     document: StitchDocumentViewModel) {
         self.init(from: schema,
                   components: graphDelegate.components,
                   parentGraphPath: graphDelegate.saveLocation)
-        self.initializeDelegate(graph: graphDelegate)
+        self.initializeDelegate(graph: graphDelegate,
+                                document: document)
     }
 }
 
@@ -214,9 +216,22 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
 }
 
 extension NodeViewModel {
-    @MainActor func initializeDelegate(graph: GraphDelegate) {
+    @MainActor static func createEmpty() -> Self {
+        .init(from: .init(id: .init(),
+                                 nodeTypeEntity: .group(.init(position: .zero,
+                                                              zIndex: .zero,
+                                                              parentGroupNodeId: nil)),
+                                 title: ""),
+                     components: [:],
+                     parentGraphPath: [])
+    }
+    
+    @MainActor func initializeDelegate(graph: GraphDelegate,
+                                       document: StitchDocumentViewModel) {
         self.graphDelegate = graph
-        self.nodeType.initializeDelegate(self)
+        self.nodeType.initializeDelegate(self,
+                                         components: graph.components,
+                                         document: document)
         self.createEphemeralObservers()
     }
     
