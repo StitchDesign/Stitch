@@ -54,8 +54,11 @@ extension GraphState {
         if shiftHeld {
            // god damnit, this is has that same bug as before -- we didn't update the framework yet
 //            guard let clickedItem = self.orderedSidebarLayers._get(id.id) else {
-            guard let clickedItem = self.orderedSidebarLayers.first(where: { $0.id == id.id
-            }) else {
+            
+            guard let clickedItem: SidebarLayerData = self.orderedSidebarLayers.getSidebarLayerData(id.id) else {
+                
+//            guard let clickedItem = self.orderedSidebarLayers.first(where: { $0.id == id.id
+//            }) else {
                 log("sidebarItemTapped: could not get clicked data")
                 fatalErrorIfDebug()
                 return 
@@ -83,7 +86,7 @@ extension GraphState {
                     self.sidebarSelectionState.inspectorFocusedLayers.focused =
                     self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
-                    return 
+                    return
                 }
                 
                 

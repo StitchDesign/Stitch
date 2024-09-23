@@ -58,8 +58,13 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
                                                                   clickedEarlierThanStart: Bool)? {
     // Flatten the nested list
 //    let flatList = nestedList.flatMap { $0 }
-//    let flatList: [ListItem] = nestedList.flatMap { $0.children ?? [] }
-    let flatList: [ListItem] = nestedList
+    
+    //
+    let flatList: [ListItem] = nestedList.flatMap { [$0] + ($0.children ?? []) }
+    
+    // WORKS
+//    let flatList: [ListItem] = nestedList
+    
 //    log("itemsBetweenClosestSelectedStart: flatList: \(flatList)")
     log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
     
