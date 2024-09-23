@@ -28,6 +28,8 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
     let view: T
     @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
 
+    @EnvironmentObject var keyboardObserver: KeyboardObserver
+    
     var instantDrag: Bool = false
     
     var graph: GraphState
@@ -93,6 +95,7 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
     func makeCoordinator() -> SidebarListGestureRecognizer {
         SidebarListGestureRecognizer(
             gestureViewModel: gestureViewModel,
+            keyboardObserver: keyboardObserver,
             instantDrag: instantDrag,
             graph: graph,
             layerNodeId: layerNodeId)
@@ -110,6 +113,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     // - two fingers on trackpad list scrolling
     
     let gestureViewModel: SidebarItemGestureViewModel
+    var keyboardObserver: KeyboardObserver
 
     var instantDrag: Bool
     
@@ -119,11 +123,13 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     var shiftHeldDown = false
 
     init(gestureViewModel: SidebarItemGestureViewModel,
+         keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          graph: GraphState,
          layerNodeId: LayerNodeId) {
         
         self.gestureViewModel = gestureViewModel
+        self.keyboardObserver = keyboardObserver
         self.instantDrag = instantDrag
         
         self.graph = graph
@@ -134,34 +140,35 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
-        
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                           shouldReceive event: UIEvent) -> Bool {
-        
-        // log("event.modifierFlags: \(event.modifierFlags)")
-        
-        //        if event.modifierFlags.contains(.control) {
-        //            log("had .control")
-        //        }
-        //        if event.modifierFlags.contains(.alternate) {
-        //            log("had .alternate")
-        //        }
-        //        if event.modifierFlags.contains(.command) {
-        //            log("had .command")
-        //        }
-        
-        // TODO: could also update global state from here? (but no point?)
-        // TODO: this is not fired when we right-click?
-        if event.modifierFlags.contains(.shift) {
-             log("had .shift")
-            self.shiftHeldDown = true
-        } else {
-             log("did NOT have .shift")
-            self.shiftHeldDown = false
-        }
-        
-        return true
-    }
+      
+    // Note: an alternative way to listen for Shift; seems less accurate for right-click + shift than GameController listener
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+//                           shouldReceive event: UIEvent) -> Bool {
+//        
+//        // log("event.modifierFlags: \(event.modifierFlags)")
+//        
+//        //        if event.modifierFlags.contains(.control) {
+//        //            log("had .control")
+//        //        }
+//        //        if event.modifierFlags.contains(.alternate) {
+//        //            log("had .alternate")
+//        //        }
+//        //        if event.modifierFlags.contains(.command) {
+//        //            log("had .command")
+//        //        }
+//        
+////        // TODO: could also update global state from here? (but no point?)
+////        // TODO: this is not fired when we right-click?
+////        if event.modifierFlags.contains(.shift) {
+////             log("had .shift")
+////            self.shiftHeldDown = true
+////        } else {
+////             log("did NOT have .shift")
+////            self.shiftHeldDown = false
+////        }
+////        
+//        return true
+//    }
     
     @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
         log("tapInView")
@@ -175,7 +182,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         }
         
         dispatch(SidebarItemTapped(id: layerNodeId,
-                                   shiftHeld: shiftHeldDown))
+                                   shiftHeld: self.isShiftDown))
     }
 
     // finger on screen
@@ -269,7 +276,27 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }
     
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, 
+    var isShiftDown: Bool {
+        guard let keyboardInput = keyboardObserver
+            .keyboard?.keyboardInput
+        else {
+            // default action, no keyboard found
+            log("SidebarListGestureRecognizer: isShiftDown: exit early")
+            return false
+        }
+        
+        let shiftIsPressed = keyboardInput.button(
+            forKeyCode: .leftShift
+        )?.isPressed ?? false || keyboardInput.button(
+            forKeyCode: .rightShift
+        )?.isPressed ?? false
+        
+        log("SidebarListGestureRecognizer: isShiftDown: shiftIsPressed: \(shiftIsPressed)")
+        
+        return shiftIsPressed
+    }
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
@@ -280,7 +307,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
             // Note: we do the selection logic in here so that
             self.graph.sidebarItemTapped(
                 id: self.layerNodeId,
-                shiftHeld: self.shiftHeldDown)
+                shiftHeld: self.isShiftDown)
         }
                 
         let selections = self.graph.sidebarSelectionState
@@ -324,6 +351,27 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
             }
                         
             return UIMenu(title: "", children: buttons)
+        }
+    }
+}
+
+import GameController
+
+// Note: a global GameController observer seems to be an accurate way to listen for Shift etc. key presses
+// TODO: use this approach more widely?
+class KeyboardObserver: ObservableObject {
+    @Published var keyboard: GCKeyboard?
+    
+    var observer: Any? = nil
+    
+    init() {
+        observer = NotificationCenter.default.addObserver(
+            forName: .GCKeyboardDidConnect,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            // TODO: warning about capture of `self` ?
+            self?.keyboard = notification.object as? GCKeyboard
         }
     }
 }
