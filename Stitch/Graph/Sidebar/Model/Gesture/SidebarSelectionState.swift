@@ -23,6 +23,9 @@ struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     
     // Actively Selected = what we see focused in inspector + what user has recently tapped on
     var activelySelected = LayerIdSet()
+    
+    // TODO: use an ordered set and do .last ?
+    var lastActivelySelectedLayer: LayerNodeId? = nil
 }
 
 extension SidebarSelections {

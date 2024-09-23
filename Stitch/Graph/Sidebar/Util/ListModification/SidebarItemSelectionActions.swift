@@ -50,8 +50,12 @@ extension GraphState {
         log("sidebarItemTapped: id: \(id)")
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
         
-    
-        if shiftHeld {
+        
+        let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+        
+        if shiftHeld,
+           // We must have at least one layer already selected / focused
+           !originalSelections.isEmpty {
            // god damnit, this is has that same bug as before -- we didn't update the framework yet
 //            guard let clickedItem = self.orderedSidebarLayers._get(id.id) else {
             
@@ -64,8 +68,7 @@ extension GraphState {
                 return 
             }
             
-            let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
-                        
+            
             if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
                 in: self.orderedSidebarLayers,
                 clickedItem: clickedItem,
@@ -76,16 +79,19 @@ extension GraphState {
                 let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
                 log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
                 
+                // TODO: do you really need this distinction ?
                 if clickedEarlierThanStart {
                     log("sidebarItemTapped: clickedEarlierThanStart")
                     self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
+                    self.sidebarSelectionState.inspectorFocusedLayers.lastActivelySelectedLayer = id
                     return
                 } else {
                     log("sidebarItemTapped: had NOT clickedEarlierThanStart")
                     self.sidebarSelectionState.inspectorFocusedLayers.focused =
                     self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
+                    self.sidebarSelectionState.inspectorFocusedLayers.lastActivelySelectedLayer = id
                     return
                 }
                 
@@ -94,13 +100,8 @@ extension GraphState {
                 log("sidebarItemTapped: did not have itemsBetween")
             }
         } else {
-            log("sidebarItemTapped: either shift not held or could not find clicked data")
+            log("sidebarItemTapped: either shift not held or focused layers were empty")
         }
-        
-        
-
-        
-        
         
         
         let alreadySelected = self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(id)
@@ -114,10 +115,14 @@ extension GraphState {
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(id)
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(id)
                 self.sidebarItemDeselectedViaEditMode(id)
+                
+                // Don't set nil, but rather use `orderedSet.dropLast.last` ?
+                self.sidebarSelectionState.inspectorFocusedLayers.lastActivelySelectedLayer = nil
             } else {
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(id)
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(id)
                 self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+                self.sidebarSelectionState.inspectorFocusedLayers.lastActivelySelectedLayer = id
                 self.deselectAllCanvasItems()
             }
             
@@ -128,6 +133,7 @@ extension GraphState {
             self.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
             self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
             self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
+            self.sidebarSelectionState.inspectorFocusedLayers.lastActivelySelectedLayer = id
             self.deselectAllCanvasItems()
         }
         
