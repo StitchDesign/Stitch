@@ -108,7 +108,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     // Handled elsewhere:
     // - one finger long-press-drag item-dragging: see `SwiftUI .simultaneousGesture`
     // - two fingers on trackpad list scrolling
-
+    
     let gestureViewModel: SidebarItemGestureViewModel
 
     var instantDrag: Bool
@@ -138,24 +138,24 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
                            shouldReceive event: UIEvent) -> Bool {
         
-        log("event.modifierFlags: \(event.modifierFlags)")
+        // log("event.modifierFlags: \(event.modifierFlags)")
         
-//        if event.modifierFlags.contains(.control) {
-//            log("had .control")
-//        }
-//        if event.modifierFlags.contains(.alternate) {
-//            log("had .alternate")
-//        }
-//        if event.modifierFlags.contains(.command) {
-//            log("had .command")
-//        }
+        //        if event.modifierFlags.contains(.control) {
+        //            log("had .control")
+        //        }
+        //        if event.modifierFlags.contains(.alternate) {
+        //            log("had .alternate")
+        //        }
+        //        if event.modifierFlags.contains(.command) {
+        //            log("had .command")
+        //        }
         
         // TODO: could also update global state from here? (but no point?)
         if event.modifierFlags.contains(.shift) {
-            log("had .shift")
+            // log("had .shift")
             self.shiftHeldDown = true
         } else {
-            log("did NOT have .shift")
+            // log("did NOT have .shift")
             self.shiftHeldDown = false
         }
         
@@ -197,7 +197,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
                 if instantDrag {
                     gestureViewModel.onItemDragChanged(translation.toCGSize)
                 }
-                let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
+                // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
                 gestureViewModel.onItemSwipeChanged(translation.x)
             default:
                 break // do nothing
@@ -234,7 +234,6 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
 
         // `touches == 0` = running our fingers on trackpad, but no click
         if gestureRecognizer.numberOfTouches == 0 {
-            
                         
             switch gestureRecognizer.state {
             case .changed:
@@ -271,7 +270,8 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction, 
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        log("UIContextMenuInteractionDelegate: contextMenuInteraction")
+        
+        // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
         if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {

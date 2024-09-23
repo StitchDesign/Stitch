@@ -68,8 +68,7 @@ func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
 //        log("itemsBetweenClosestSelectedStart: no start")
 //        return nil // Return nil if start or end not found
 //    }
-//    
-    
+      
     let start = lastClickedItem
     
     guard let startIndex = flatList.firstIndex(of: start),
