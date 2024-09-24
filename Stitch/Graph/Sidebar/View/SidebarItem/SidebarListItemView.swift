@@ -111,8 +111,9 @@ struct SidebarListItemView: View {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
                 .stroke(isProposedGroup ? theme.fontColor : Color.clear,
                         lineWidth: isProposedGroup ? 1 : 0)
+            // Preferably animate the smallest view possible; when this .animation was applied outside the .overlay, we undesiredly animated text color changes
+                .animation(.default, value: isProposedGroup)
         }
-        .animation(.default, value: isProposedGroup)
         .animation(.default, value: isBeingDragged)
     }
 }
