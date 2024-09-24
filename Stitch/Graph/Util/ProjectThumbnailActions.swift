@@ -16,7 +16,7 @@ extension StitchStore {
         documentViewModel.isGeneratingProjectThumbnail = true
         
         // Recalculate the entire graph immediately, so that e.g. camera evals run with their image taking setting "off":
-        documentViewModel.calculate(from: documentViewModel.allNodesToCalculate)
+        documentViewModel.graph.calculateFullGraph()
         
         // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
         let generatedPreview = GeneratePreview(document: documentViewModel)

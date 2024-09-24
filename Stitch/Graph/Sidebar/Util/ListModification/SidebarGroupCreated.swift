@@ -29,7 +29,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
         let existingParentForSelections = state.visibleGraph.layerGroupForSelections(primarilySelectedLayers)
         
-        guard let newGroupData = state.orderedSidebarLayers
+        guard let newGroupData = state.visibleGraph.orderedSidebarLayers
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {

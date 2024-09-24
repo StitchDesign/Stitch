@@ -35,6 +35,14 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var isFullScreenMode: Bool { get }
     
+    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+
+    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+
+    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+    
+    @MainActor var connections: GraphState.TopologicalData.Connections { get }
+    
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?
     
     // TODO: we can NEVER pass a keypath as part of retrieving an output
@@ -62,38 +70,23 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }
+    
+    func updateGraphData()
+    
+    // Calc
+    @MainActor func calculateFullGraph()
+    
+    @MainActor func calculate(_ id: NodeId)
+    
+    @MainActor func calculate(_ idSet: NodeIdSet)
+      
+    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
+                                     nodeId: NodeId,
+                                     loopIndex: Int)
 }
 
 extension GraphDelegate {
     var projectId: UUID { self.id }
-    
-    
-    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] {
-        get {
-            self.documentDelegate?.dragInteractionNodes ?? .init()
-        }
-        set(newValue) {
-            self.documentDelegate?.dragInteractionNodes = newValue
-        }
-    }
-
-    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] {
-        get {
-            self.documentDelegate?.pressInteractionNodes ?? .init()
-        }
-        set(newValue) {
-            self.documentDelegate?.pressInteractionNodes = newValue
-        }
-    }
-
-    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] {
-        get {
-            self.documentDelegate?.scrollInteractionNodes ?? .init()
-        }
-        set(newValue) {
-            self.documentDelegate?.scrollInteractionNodes = newValue
-        }
-    }
     
     @MainActor var graphStepState: GraphStepState {
         self.documentDelegate?.graphStepManager.graphStepState ??
@@ -104,52 +97,8 @@ extension GraphDelegate {
         self.documentDelegate?.cameraFeedManager
     }
     
-    
-    /// Invoked when nodes change on graph.
-    @MainActor func updateGraphData(document: StitchDocument?) {
-        self.documentDelegate?.updateGraphData(document: document)
-    }
-    
     var locationManager: LoadingStatus<StitchSingletonMediaObject>? {
         self.documentDelegate?.locationManager
-    }
-    
-    // Calc
-    @MainActor func calculateFullGraph() {
-        self.documentDelegate?.calculateFullGraph()
-    }
-    
-    @MainActor func calculate(_ id: NodeId) {
-        self.documentDelegate?.calculate(id)
-    }
-    
-    @MainActor func calculate(_ idSet: NodeIdSet) {
-        self.documentDelegate?.calculate(idSet)
-    }
-      
-    @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
-                                     nodeId: NodeId,
-                                     loopIndex: Int) {
-        self.documentDelegate?.recalculateGraph(outputValues: outputValues,
-                                                nodeId: nodeId,
-                                                loopIndex: loopIndex)
-    }
-    
-    @MainActor func updateOutputs(at loopIndex: Int,
-                                  node: NodeViewModel,
-                                  portValues: PortValues) {
-        self.documentDelegate?.updateOutputs(at: loopIndex,
-                                             node: node,
-                                             portValues: portValues)
-    }
-    
-    @MainActor var shouldResortPreviewLayers: Bool {
-        get {
-            self.documentDelegate?.shouldResortPreviewLayers ?? false
-        }
-        set(newValue) {
-            self.documentDelegate?.shouldResortPreviewLayers = newValue
-        }
     }
     
     @MainActor var keypressState: KeyPressState {
@@ -166,10 +115,6 @@ extension GraphDelegate {
     
     @MainActor var isGeneratingProjectThumbnail:  Bool {
         self.documentDelegate?.isGeneratingProjectThumbnail ?? false
-    }
-    
-    @MainActor var connections: StitchDocumentViewModel.TopologicalData.Connections {
-        self.documentDelegate?.connections ?? .init()
     }
     
     var cameraFeed: CameraFeedManager? {

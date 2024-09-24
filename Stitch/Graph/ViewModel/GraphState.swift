@@ -11,6 +11,7 @@ import CoreML
 import CoreMotion
 import Foundation
 import StitchSchemaKit
+import StitchEngine
 import SwiftUI
 import Vision
 
@@ -99,7 +100,36 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
     }
 }
 
+extension StitchDocumentViewModel {
+    /// Returns self and all graphs inside component instances.
+    var allGraphs: [GraphState] {
+        self.graph.allGraphs
+    }
+    
+    @MainActor func calculateAllKeyboardNodes() {
+        self.allGraphs.forEach { graph in
+            let keyboardNodes = graph.keyboardNodes
+            graph.calculate(keyboardNodes)
+        }
+    }
+}
+
 extension GraphState {
+    /// Returns self and all graphs inside component instances.
+    var allGraphs: [GraphState] {
+        [self] + allComponentGraphs
+    }
+    
+    var allComponentGraphs: [GraphState] {
+        self.nodes.values.flatMap { node -> [GraphState] in
+            guard let nodeComponent = node.nodeType.componentNode else {
+                return []
+            }
+            
+            return nodeComponent.graph.allGraphs
+        }
+    }
+    
     /// Finds graph state given a node ID of some component node.
     func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
         for node in self.nodes.values {
@@ -136,6 +166,15 @@ extension GraphState {
         
         return []
     }
+    
+    /// Syncs visible nodes and topological data when persistence actions take place.
+    @MainActor
+    func updateGraphData() {
+        self.updateTopologicalData()
+
+        // Update preview layers
+        self.updateOrderedPreviewLayers()
+    }
 }
 
 extension StitchComponentViewModel {
@@ -167,6 +206,9 @@ extension StitchComponentViewModel {
 
 @Observable
 final class GraphState: Sendable {
+    // Updated when connections, new nodes etc change
+    var topologicalData = GraphTopologicalData<NodeViewModel>()
+    
     let saveLocation: [UUID]
     
     // TODO: wrap in a new data structure like `SidebarUIState`
@@ -195,9 +237,27 @@ final class GraphState: Sendable {
     // UIKit node drag and SwiftUI port drag can happen at sometime.
     var nodeIsMoving = false
     var outputDragStartedCount = 0
+    
+    // Keeps track of interaction nodes and their selected layer
+    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
+    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
+    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
 
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
+    
+    // Cache of ordered list of preview layer view models;
+    // updated in various scenarious, e.g. sidebar list item dragged
+    var cachedOrderedPreviewLayers: LayerDataList = .init()
+    
+    // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
+    // Checked at the end of graph calc for efficient updating
+    var shouldResortPreviewLayers: Bool = false
+    
+    // Used in rotation modifier to know whether view receives a pin;
+    // updated whenever preview layers cache is updated.
+    var pinMap = RootPinMap()
+    var flattenedPinMap = PinMap()
     
     // Tracks all created and imported components
     var components: [UUID: StitchMasterComponent] = [:]
@@ -416,11 +476,20 @@ extension GraphState {
                                                         components: self.components,
                                                         parentGraphPath: self.saveLocation)
         
+        // Sync node view models + cached data
+        self.updateGraphData()
+        
+        // No longer needed, since sidebar-expanded-items handled by node schema
+//        self.sidebarExpandedItems = self.allGroupLayerNodes()
+        self.calculateFullGraph()
+        
         // TODO: comment boxes
     }
     
     @MainActor func onPrototypeRestart() {
         self.nodes.values.forEach { $0.onPrototypeRestart() }
+        
+        self.initializeGraphComputation()
     }
     
     var localPosition: CGPoint {
@@ -429,15 +498,6 @@ extension GraphState {
     
     var previewWindowBackgroundColor: Color {
         self.documentDelegate?.previewWindowBackgroundColor ?? .LAYER_DEFAULT_COLOR
-    }
-
-    @MainActor func updateTopologicalData() {
-        self.documentDelegate?.updateTopologicalData()
-    }
-    
-    var mouseNodes: NodeIdSet {
-        self.documentDelegate?.mouseNodes ?? .init()
-
     }
     
     @MainActor
@@ -452,11 +512,6 @@ extension GraphState {
     
     var llmRecording: LLMRecordingState {
         self.documentDelegate?.llmRecording ?? .init()
-    }
-    
-    @MainActor
-    func updateOrderedPreviewLayers() {
-        self.documentDelegate?.updateOrderedPreviewLayers()
     }
     
     var graphStepManager: GraphStepManager {
@@ -763,5 +818,54 @@ extension GraphState {
                           commentBoxes: [],
                           draftedComponents: []),
               saveLocation: [])
+    }
+    
+    /// Updates values at a specific output loop index.
+    @MainActor
+    func updateOutputs(at loopIndex: Int,
+                       node: NodeViewModel,
+                       portValues: PortValues) {
+        let nodeId = node.id
+        var outputsToUpdate = node.outputs
+        var nodeIdsToRecalculate = NodeIdSet()
+        let graphTime = self.graphStepManager.graphTime
+        
+        for (portId, newOutputValue) in portValues.enumerated() {
+            let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
+            var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
+            
+            // Lengthen outputs if loop index exceeds count
+            if outputValuesToUpdate.count < loopIndex + 1 {
+                outputValuesToUpdate = outputValuesToUpdate.lengthenArray(loopIndex + 1)
+            }
+            
+            // Insert new output value at correct loop index
+            outputValuesToUpdate[loopIndex] = newOutputValue
+            
+            // Update output state
+            var outputToUpdate = outputsToUpdate[portId]
+            outputToUpdate = outputValuesToUpdate
+            
+            outputsToUpdate[portId] = outputToUpdate
+            
+            // Update downstream node's inputs
+            let changedNodeIds = self.updateDownstreamInputs(
+                flowValues: outputToUpdate,
+                outputCoordinate: outputCoordinate)
+            
+            nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
+        } // (portId, newOutputValue) in portValues.enumerated()
+     
+        node.updateOutputsObservers(newOutputsValues: outputsToUpdate,
+                                    activeIndex: self.activeIndex)
+        
+        // Must also run pulse reversion effects
+        node.outputs
+            .getPulseReversionEffects(nodeId: nodeId,
+                                      graphTime: graphTime)
+            .processEffects()
+        
+        // Recalculate graph
+        self.calculate(nodeIdsToRecalculate)
     }
 }

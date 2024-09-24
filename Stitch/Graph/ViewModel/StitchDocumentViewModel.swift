@@ -29,28 +29,7 @@ final class StitchDocumentViewModel: Sendable {
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
     
-    // Updated when connections, new nodes etc change
-    var topologicalData = GraphTopologicalData<NodeViewModel>()
-    
     let previewWindowSizingObserver = PreviewWindowSizing()
-    
-    // Cache of ordered list of preview layer view models;
-    // updated in various scenarious, e.g. sidebar list item dragged
-    var cachedOrderedPreviewLayers: LayerDataList = .init()
-    
-    // Updates to true if a layer's input should re-sort preview layers (z-index, masks etc)
-    // Checked at the end of graph calc for efficient updating
-    var shouldResortPreviewLayers: Bool = false
-    
-    // Keeps track of interaction nodes and their selected layer
-    var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
-    var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
-    
-    // Used in rotation modifier to know whether view receives a pin;
-    // updated whenever preview layers cache is updated.
-    var pinMap = RootPinMap()
-    var flattenedPinMap = PinMap()
     
     var isGeneratingProjectThumbnail = false
     
@@ -148,15 +127,6 @@ extension StitchDocumentViewModel {
         self.graphStepManager.graphStepState
     }
     
-    /// Syncs visible nodes and topological data when persistence actions take place.
-    @MainActor
-    func updateGraphData(document: StitchDocument? = nil) {
-        self.updateTopologicalData()
-
-        // Update preview layers
-        self.updateOrderedPreviewLayers()
-    }
-    
     var cameraFeed: CameraFeedManager? {
         self.cameraFeedManager?.loadedInstance?.cameraFeedManager
     }
@@ -169,7 +139,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func willEncodeProject(schema: StitchDocument) {
         // Update nodes data
-        self.updateGraphData(document: schema)
+        self.graph.updateGraphData()
     }
     
 //    @MainActor
@@ -191,11 +161,7 @@ extension StitchDocumentViewModel {
 //    }
 }
 
-extension StitchDocumentViewModel: GraphCalculatable {
-    
-    var orderedSidebarLayers: SidebarLayerList {
-        self.graph.orderedSidebarLayers
-    }
+extension GraphState: GraphCalculatable {
     
     @MainActor
     func updateOrderedPreviewLayers() {
@@ -229,19 +195,6 @@ extension StitchDocumentViewModel: GraphCalculatable {
             .toSet
     }
     
-    var nodes: [UUID : NodeViewModel] {
-        get {
-            self.graph.nodes
-        }
-        set(newValue) {
-            self.graph.nodes = newValue
-        }
-    }
-    
-    func getNodeViewModel(_ id: UUID) -> NodeViewModel? {
-        self.graph.getNodeViewModel(id)
-    }
-    
     func getNodeViewModel(id: UUID) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
@@ -255,13 +208,7 @@ extension StitchDocumentViewModel {
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
 
-        // Sync node view models + cached data
         self.graph.update(from: schema.graph)
-        self.updateGraphData(document: schema)
-        
-        // No longer needed, since sidebar-expanded-items handled by node schema
-//        self.sidebarExpandedItems = self.allGroupLayerNodes()
-        self.calculateFullGraph()
     }
     
     @MainActor func createSchema() -> StitchDocument {
@@ -287,57 +234,6 @@ extension StitchDocumentViewModel {
         
         // Update animation value for restart-prototype icon;
         self.graphUI.restartPrototypeWindowIconRotationZ += 360
-
-        self.initializeGraphComputation()
-    }
-
-    /// Updates values at a specific output loop index.
-    @MainActor
-    func updateOutputs(at loopIndex: Int,
-                       node: NodeViewModel,
-                       portValues: PortValues) {
-        let nodeId = node.id
-        var outputsToUpdate = node.outputs
-        var nodeIdsToRecalculate = NodeIdSet()
-        let graphTime = self.graphStepManager.graphTime
-        
-        for (portId, newOutputValue) in portValues.enumerated() {
-            let outputCoordinate = OutputCoordinate(portId: portId, nodeId: nodeId)
-            var outputValuesToUpdate = outputsToUpdate[safe: portId] ?? []
-            
-            // Lengthen outputs if loop index exceeds count
-            if outputValuesToUpdate.count < loopIndex + 1 {
-                outputValuesToUpdate = outputValuesToUpdate.lengthenArray(loopIndex + 1)
-            }
-            
-            // Insert new output value at correct loop index
-            outputValuesToUpdate[loopIndex] = newOutputValue
-            
-            // Update output state
-            var outputToUpdate = outputsToUpdate[portId]
-            outputToUpdate = outputValuesToUpdate
-            
-            outputsToUpdate[portId] = outputToUpdate
-            
-            // Update downstream node's inputs
-            let changedNodeIds = self.updateDownstreamInputs(
-                flowValues: outputToUpdate,
-                outputCoordinate: outputCoordinate)
-            
-            nodeIdsToRecalculate = nodeIdsToRecalculate.union(changedNodeIds)
-        } // (portId, newOutputValue) in portValues.enumerated()
-     
-        node.updateOutputsObservers(newOutputsValues: outputsToUpdate,
-                                    activeIndex: self.activeIndex)
-        
-        // Must also run pulse reversion effects
-        node.outputs
-            .getPulseReversionEffects(nodeId: nodeId,
-                                      graphTime: graphTime)
-            .processEffects()
-        
-        // Recalculate graph
-        self.calculate(nodeIdsToRecalculate)
     }
     
     @MainActor static func createEmpty() -> StitchDocumentViewModel {

@@ -13,14 +13,10 @@ import StitchSchemaKit
 struct GeneratePreview: View {
     @Bindable var document: StitchDocumentViewModel
     
-    var visibleNodes: VisibleNodesViewModel {
-        document.graph.visibleNodesViewModel
-    }
-    
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
-        document.cachedOrderedPreviewLayers
+        document.graph.cachedOrderedPreviewLayers
     }
     
     var body: some View {
@@ -343,8 +339,10 @@ struct NonGroupPreviewLayersView: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+        if layerNode.hasSidebarVisibility,
+           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
             PreviewLayerView(document: document,
+                             graph: graph,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,

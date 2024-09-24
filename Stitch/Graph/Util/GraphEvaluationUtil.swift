@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 import StitchEngine
 
-extension StitchDocumentViewModel {
+extension GraphState {
     /// Gets all node IDs except for those in groups.
     var allNodesToCalculate: NodeIdSet {
         self.nodes.values

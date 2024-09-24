@@ -78,18 +78,20 @@ extension StitchDocumentViewModel {
             return
         }
         
-        guard let node = self.getNodeViewModel(input.nodeId),
-              node.kind.usesCamera else {
-            log("CameraOrientationUpdated: the updated input was not on a camera node; will exit early")
-            return
-        }
-        
-        log("CameraOrientationUpdated: cameraOrientation: \(cameraOrientation)")
-        
-        // Update graph schema's camera settings
-        self.cameraSettings.orientation = cameraOrientation
-        
-        self.refreshCamera(for: node.kind)
+        fatalError("// TODO: move camera feed to graph, keep session in document")
+//        
+//        guard let node = self.getNodeViewModel(input.nodeId),
+//              node.kind.usesCamera else {
+//            log("CameraOrientationUpdated: the updated input was not on a camera node; will exit early")
+//            return
+//        }
+//        
+//        log("CameraOrientationUpdated: cameraOrientation: \(cameraOrientation)")
+//        
+//        // Update graph schema's camera settings
+//        self.cameraSettings.orientation = cameraOrientation
+//        
+//        self.refreshCamera(for: node.kind)
     }
     
     @MainActor
@@ -123,25 +125,26 @@ extension StitchDocumentViewModel {
     @MainActor
     func cameraDirectionUpdated(input: InputCoordinate,
                                 cameraDirection: CameraDirection) {
-        
-        guard cameraDirection != self.cameraSettings.direction else {
-            log("CameraDirectionUpdated: already using cameraDirection \(cameraDirection); will exit early")
-            return
-        }
-        
-        guard let node = self.getNodeViewModel(input.nodeId),
-              node.kind.usesCamera else {
-            log("CameraDirectionUpdated: the updated input was not on a camera node; will exit early")
-            return
-        }
-        
-        log("CameraDirectionUpdated: cameraDirection: \(cameraDirection)")
-        
-        // Update graph schema's camera settings
-        self.cameraSettings.direction = cameraDirection
-        
-        // Update camera in media manager
-        self.refreshCamera(for: node.kind)
+        fatalError("// TODO: Camera direction change")
+//
+//        guard cameraDirection != self.cameraSettings.direction else {
+//            log("CameraDirectionUpdated: already using cameraDirection \(cameraDirection); will exit early")
+//            return
+//        }
+//        
+//        guard let node = self.getNodeViewModel(input.nodeId),
+//              node.kind.usesCamera else {
+//            log("CameraDirectionUpdated: the updated input was not on a camera node; will exit early")
+//            return
+//        }
+//        
+//        log("CameraDirectionUpdated: cameraDirection: \(cameraDirection)")
+//        
+//        // Update graph schema's camera settings
+//        self.cameraSettings.direction = cameraDirection
+//        
+//        // Update camera in media manager
+//        self.refreshCamera(for: node.kind)
     }
     
     @MainActor

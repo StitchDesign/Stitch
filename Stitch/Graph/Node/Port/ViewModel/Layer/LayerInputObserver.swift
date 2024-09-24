@@ -254,7 +254,7 @@ extension LayerInputObserver {
             self._packedData.rowObserver.updateValues(values)
         }
         
-        self.graphDelegate?.updateGraphData(document: nil)
+        self.graphDelegate?.updateGraphData()
     }
     
     /// Helper only intended for use with ports that don't support unpacked mode.

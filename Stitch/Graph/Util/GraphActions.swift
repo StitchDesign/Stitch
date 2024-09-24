@@ -39,14 +39,6 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 
         self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
                                                   publishedComponents: publishedComponents)
-                
-        // TODO: move this down to graph
-        
-        // Calculate graph
-        self.initializeGraphComputation()
-        
-        // Initialize preview layers
-        self.updateOrderedPreviewLayers()
     }
 }
 
@@ -85,6 +77,9 @@ extension GraphState: DocumentEncodableDelegate {
         
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
         // TODO: need a separate updater for graph
+        
+        // TODO: now get back here so we can update connections and stuff in components
+        
 //        self.documentDelegate?.update(from: <#T##StitchDocument#>)
         
         self.updateSidebarListStateAfterStateChange()
@@ -95,6 +90,12 @@ extension GraphState: DocumentEncodableDelegate {
 //            expanded: self.sidebarExpandedItems,
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
+        
+        // Calculate graph
+        self.initializeGraphComputation()
+        
+        // Initialize preview layers
+        self.updateOrderedPreviewLayers()
     }
    
     func updateSidebarListStateAfterStateChange() {

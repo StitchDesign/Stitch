@@ -279,7 +279,7 @@ extension StitchDocumentViewModel {
     }
 }
 
-extension StitchDocumentViewModel {
+extension GraphState {
     @MainActor
     /// Recalculates the graph when the **outputs** of a node need to be updated.
     /// This updates at a particular loop index rather than all values.

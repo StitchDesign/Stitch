@@ -86,7 +86,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.sidebarListState = getMasterListFrom(
                 layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
-                orderedSidebarItems: self.orderedSidebarLayers)
+                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
             
             // TODO: why is this necessary?
             _updateStateAfterListChange(

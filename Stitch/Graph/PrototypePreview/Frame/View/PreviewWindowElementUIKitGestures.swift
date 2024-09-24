@@ -51,13 +51,15 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         document.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
     
+    // TODO: interaction logic needs to start from top-level to and calculate nodes no matter where they are
+    
     @MainActor
     var tapGesture: some Gesture {
         TapGesture(count: 2)
             .onEnded {
                 if let pressIds = self.getPressInteractionIds() {
                     self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
-                    document.calculate(pressIds)
+                    document.graph.calculate(pressIds)
                 }
             }
             .exclusively(before:
@@ -65,7 +67,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 .onEnded {
                     if let pressIds = self.getPressInteractionIds() {
                         self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
-                        document.calculate(pressIds)
+                        document.graph.calculate(pressIds)
                     }
                 }
             )
