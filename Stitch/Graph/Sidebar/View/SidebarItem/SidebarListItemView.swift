@@ -100,8 +100,10 @@ struct SidebarListItemView: View {
         
         .onTapGesture {
             if !isBeingEdited {
+                // Note: seems better to query the keyboard observer in the actual on-tap-gesture ?
+                let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
                 dispatch(SidebarItemTapped(id: layerNodeId,
-                                           shiftHeld: self.isShiftDown))
+                                           shiftHeld: isShiftDown))
             }
         }
     
@@ -112,10 +114,6 @@ struct SidebarListItemView: View {
         }
         .animation(.default, value: isProposedGroup)
         .animation(.default, value: isBeingDragged)
-    }
-    
-    var isShiftDown: Bool {
-        keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
     }
 }
 

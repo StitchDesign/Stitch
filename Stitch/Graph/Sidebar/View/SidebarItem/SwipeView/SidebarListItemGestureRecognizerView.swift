@@ -196,7 +196,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
             switch gestureRecognizer.state {
             case .changed:
                 gestureViewModel.onItemSwipeChanged(translation.x)
-                let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
+                // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
             case .ended, .cancelled:
                 gestureViewModel.onItemSwipeEnded()
                 gestureViewModel.onItemDragEnded()
@@ -226,10 +226,6 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }
     
-    var isShiftDown: Bool {
-        keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
-    }
-    
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         
@@ -238,10 +234,12 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
         // Only select the layer if not already actively-selected; otherwise just open the menu
         if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
             
+            let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
+            
             // Note: we do the selection logic in here so that
             self.graph.sidebarItemTapped(
                 id: self.layerNodeId,
-                shiftHeld: self.isShiftDown)
+                shiftHeld: isShiftDown)
         }
                 
         let selections = self.graph.sidebarSelectionState
