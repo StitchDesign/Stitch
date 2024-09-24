@@ -60,7 +60,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             .onEnded {
                 if let pressIds = self.getPressInteractionIds() {
                     self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
-                    document.graph.calculate(pressIds)
+                    graph.calculate(pressIds)
                 }
             }
             .exclusively(before:
@@ -100,7 +100,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
-                document.layerDragEnded(interactiveLayer: interactiveLayer,
+                graph.layerDragEnded(interactiveLayer: interactiveLayer,
                                      parentSize: parentSize,
                                      childSize: size)
             }

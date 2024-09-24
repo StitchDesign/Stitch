@@ -24,6 +24,7 @@ extension Color {
 struct CanvasSketchView: View {
 
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -69,6 +70,7 @@ struct CanvasSketchView: View {
 
         return view.modifier(PreviewCommonModifier(
             document: document,
+            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

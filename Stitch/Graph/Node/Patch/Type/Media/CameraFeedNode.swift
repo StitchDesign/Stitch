@@ -86,10 +86,11 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 @MainActor
 func createCameraFeedManager(document: StitchDocumentViewModel,
                              nodeId: NodeId) -> StitchSingletonMediaObject {
-    let nodeKind = document.getNodeViewModel(nodeId)?.kind
-    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
-                                       newNode: nodeId)
-    return .cameraFeedManager(camera)
+    fatalError("ids in camera feed an issue")
+//    let nodeKind = document.getNodeViewModel(nodeId)?.kind
+//    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
+//                                       newNode: nodeId)
+//    return .cameraFeedManager(camera)
 }
 
 /// Logic that checks if we can run the eval for some camera node or if we should tear down this camera.
@@ -99,33 +100,35 @@ func cameraManagerEval(node: PatchNode,
                        document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
                        mediaOp: @escaping AsyncSingletonMediaEvalOp) -> ImpureEvalResult {
-    // Check if any instance is enabled
-    let isNodeEnabled = node.inputs[safe: cameraEnabledInputIndex]?
-        .compactMap { $0.getBool }
-        .contains(where: { $0 }) ?? false
-
-    // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
-    // to possibly tear down camera
-    guard isNodeEnabled else {
-        if let enabledNodeIds = document.cameraFeed?.enabledNodeIds,
-           enabledNodeIds.contains(node.id) {
-            document.removeCameraNode(id: node.id)
-        }
-
-        // Better: returns two separate outputs, where each output does not contain a loop
-        return ImpureEvalResult(
-            outputsValues: [
-                [mediaDefault],
-                [.size(.zero)]
-            ])
-    }
-
-    return asyncSingletonMediaEval(node: node,
-                                   document: document,
-                                   mediaCreation: createCameraFeedManager,
-                                   mediaManagerKeyPath: \.cameraFeedManager,
-                                   mediaOp: mediaOp)
-    .toImpureEvalResult()
+    fatalError("ids in camera feed an issue")
+//    
+//    // Check if any instance is enabled
+//    let isNodeEnabled = node.inputs[safe: cameraEnabledInputIndex]?
+//        .compactMap { $0.getBool }
+//        .contains(where: { $0 }) ?? false
+//
+//    // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
+//    // to possibly tear down camera
+//    guard isNodeEnabled else {
+//        if let enabledNodeIds = document.cameraFeed?.enabledNodeIds,
+//           enabledNodeIds.contains(node.id) {
+//            document.removeCameraNode(id: node.id)
+//        }
+//
+//        // Better: returns two separate outputs, where each output does not contain a loop
+//        return ImpureEvalResult(
+//            outputsValues: [
+//                [mediaDefault],
+//                [.size(.zero)]
+//            ])
+//    }
+//
+//    return asyncSingletonMediaEval(node: node,
+//                                   document: document,
+//                                   mediaCreation: createCameraFeedManager,
+//                                   mediaManagerKeyPath: \.cameraFeedManager,
+//                                   mediaOp: mediaOp)
+//    .toImpureEvalResult()
 }
 
 @MainActor
