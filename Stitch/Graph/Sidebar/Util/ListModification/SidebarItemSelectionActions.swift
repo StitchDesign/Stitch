@@ -101,9 +101,52 @@ extension GraphState {
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
 //                
                 
-                // Deselect the old island?:
+                var shrunk = false
+                
+                
+                if let originalIslandTop = originalIsland.first,
+                   let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
+                   
+                    let originalIslandBottom = originalIsland.last,
+                   let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom),
+                   
+                    
+                    
+                    let newIslandTop = itemsBetween.first,
+                   let newIslandTopIndex = flatList.firstIndex(of: newIslandTop),
+                   
+                    let newIslandBottom = itemsBetween.last,
+                   let newIslandBottomIndex = flatList.firstIndex(of: newIslandBottom),
+                   
+                    let lastClickedItemIndex = flatList.firstIndex(of: lastClickedItem) {
+                    
+                    if originalIslandBottomIndex > lastClickedItemIndex && newIslandBottomIndex > lastClickedItemIndex {
+                        // both original and new range expanded downward from the non-shift-click point,
+                        // so we expanded
+//                        expanded = true
+                        shrunk = false
+                    }
+                    
+                    else if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
+                        // both original and new range expanded upward from the non-shift-click point,
+                        // so we expanded
+//                        expanded = true
+                        shrunk = false
+                    }
+                    
+                    
+                    // else ...
+                    // assume we shrunk ?
+                    else {
+                        expanded = false
+                        shrunk = true
+                    }
+          
+                }
+                                
                 originalIsland.forEach {
-                    if $0 != lastClickedItem && clickedEarlierThanStart {
+//                    if $0 != lastClickedItem && clickedEarlierThanStart {
+                    if $0 != lastClickedItem && shrunk {
                         self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
                         self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
                     }
