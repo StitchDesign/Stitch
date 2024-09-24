@@ -28,6 +28,7 @@ struct LayerSizeReader: ViewModifier {
                 Color.clear
                     .onChange(of: frameData.size, initial: !isPinnedViewRendering) { _, newSize in
                         // log("LayerSizeReader: \(viewModel.layer), new size: \(newSize)")
+                        let newSize = newSize.handleNaN()
                         if viewModel.readSize != newSize {
                             viewModel.readSize = newSize
                         }
@@ -40,5 +41,20 @@ struct LayerSizeReader: ViewModifier {
                     }
             }
         }
+    }
+}
+
+// Apparently GeometryReader's frame.size height and width can be NaN in certain circumstances;
+// e.g. when reading the size of a LayerGroup created around a child whose scale = 0
+extension CGSize {
+    func handleNaN() -> Self {
+        var size = self
+        if size.width.isNaN {
+            size.width = .zero
+        }
+        if size.height.isNaN {
+            size.height = .zero
+        }
+        return size
     }
 }
