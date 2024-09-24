@@ -7,12 +7,15 @@
 
 import SwiftUI
 import StitchSchemaKit
+import GameController
 
 struct SidebarListItemView: View {
 
     @Environment(\.appTheme) var theme
     
     @Bindable var graph: GraphState
+    
+    @EnvironmentObject var keyboardObserver: KeyboardObserver
     
     var item: SidebarListItem
     let name: String
@@ -95,8 +98,13 @@ struct SidebarListItemView: View {
         
 //        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
-        // Note: we used to apply our SwiftUI .tapGesture here, but now we use a UITapGestureRecognizer in `SidebarListGestureRecognizer`
-        
+        .onTapGesture {
+            if !isBeingEdited {
+                dispatch(SidebarItemTapped(id: layerNodeId,
+                                           shiftHeld: self.isShiftDown))
+            }
+        }
+    
         .overlay {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
                 .stroke(isProposedGroup ? theme.fontColor : Color.clear,
@@ -104,5 +112,17 @@ struct SidebarListItemView: View {
         }
         .animation(.default, value: isProposedGroup)
         .animation(.default, value: isBeingDragged)
+    }
+    
+    var isShiftDown: Bool {
+        keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
+    }
+}
+
+extension GCKeyboardInput {
+    var isShiftPressed: Bool {
+        let leftShiftPressed = self.button(forKeyCode: .leftShift)?.isPressed ?? false
+        let rightShiftPressed = self.button(forKeyCode: .rightShift)?.isPressed ?? false
+        return leftShiftPressed || rightShiftPressed
     }
 }

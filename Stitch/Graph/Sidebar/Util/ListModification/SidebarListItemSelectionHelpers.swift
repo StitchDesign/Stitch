@@ -52,33 +52,21 @@ func findClosestSelectedStart(in flatList: [ListItem],
 func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
                                       clickedItem: ListItem,
                                       lastClickedItem: ListItem,
-                                      selections: LayerIdSet) -> (newSelections: [ListItem],
-                                                                  clickedEarlierThanStart: Bool)? {
+                                      selections: LayerIdSet) -> [ListItem]? {
     
-    log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
-    
-    // Find the closest selected start item
-//    guard let start = findClosestSelectedStart(in: flatList,
-//                                               from: lastClickedItem,
-//                                               to: clickedItem,
-//                                               selections: selections),
-//          let startIndex = flatList.firstIndex(of: start),
-//          let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
-//        log("itemsBetweenClosestSelectedStart: no start")
-//        return nil // Return nil if start or end not found
-//    }
-      
+    // log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
+  
     let start = lastClickedItem
     
     guard let startIndex = flatList.firstIndex(of: start),
           let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
-        log("itemsBetweenClosestSelectedStart: could not get index of start item and/or clicked item")
+        // log("itemsBetweenClosestSelectedStart: could not get index of start item and/or clicked item")
         return nil
     }
     
     // Ensure that start and end are not the same
     guard start != clickedItem else {
-        log("itemsBetweenClosestSelectedStart: start same as clicked item")
+        // log("itemsBetweenClosestSelectedStart: start same as clicked item")
         return nil // If start and end are the same, return nil or handle as needed
     }
     
@@ -90,8 +78,7 @@ func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
 //    let range = startIndex < clickedItemIndex ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
     
     // Return the items between start and end (inclusive)
-    return (newSelections: Array(flatList[range]),
-            clickedEarlierThanStart: clickedEarlierThanStart)
+    return Array(flatList[range])
 }
 
 

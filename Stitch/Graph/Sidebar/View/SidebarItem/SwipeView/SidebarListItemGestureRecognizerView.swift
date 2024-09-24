@@ -65,12 +65,6 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
-        let tapGesture = UITapGestureRecognizer(
-            target: delegate,
-            action: #selector(delegate.tapInView))
-        tapGesture.delegate = delegate
-        vc.view.addGestureRecognizer(tapGesture)
-        
         // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
         #if targetEnvironment(macCatalyst)
         // We define the
@@ -141,50 +135,6 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         true
     }
       
-    // Note: an alternative way to listen for Shift; seems less accurate for right-click + shift than GameController listener
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-//                           shouldReceive event: UIEvent) -> Bool {
-//        
-//        // log("event.modifierFlags: \(event.modifierFlags)")
-//        
-//        //        if event.modifierFlags.contains(.control) {
-//        //            log("had .control")
-//        //        }
-//        //        if event.modifierFlags.contains(.alternate) {
-//        //            log("had .alternate")
-//        //        }
-//        //        if event.modifierFlags.contains(.command) {
-//        //            log("had .command")
-//        //        }
-//        
-////        // TODO: could also update global state from here? (but no point?)
-////        // TODO: this is not fired when we right-click?
-////        if event.modifierFlags.contains(.shift) {
-////             log("had .shift")
-////            self.shiftHeldDown = true
-////        } else {
-////             log("did NOT have .shift")
-////            self.shiftHeldDown = false
-////        }
-////        
-//        return true
-//    }
-    
-    @objc func tapInView(_ gestureRecognizer: UIPanGestureRecognizer) {
-        log("tapInView")
-        
-        let isEditMode = graph.sidebarSelectionState.isEditMode
-        let swipeMenuOpen = gestureViewModel.swipeSetting != .closed
-        
-        // Do not 'tap' a layer if we're in edit mode or the swipe menu is open
-        if isEditMode || swipeMenuOpen {
-            return
-        }
-        
-        dispatch(SidebarItemTapped(id: layerNodeId,
-                                   shiftHeld: self.isShiftDown))
-    }
-
     // finger on screen
     @objc func screenGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
 
@@ -277,23 +227,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     //    }
     
     var isShiftDown: Bool {
-        guard let keyboardInput = keyboardObserver
-            .keyboard?.keyboardInput
-        else {
-            // default action, no keyboard found
-            log("SidebarListGestureRecognizer: isShiftDown: exit early")
-            return false
-        }
-        
-        let shiftIsPressed = keyboardInput.button(
-            forKeyCode: .leftShift
-        )?.isPressed ?? false || keyboardInput.button(
-            forKeyCode: .rightShift
-        )?.isPressed ?? false
-        
-        log("SidebarListGestureRecognizer: isShiftDown: shiftIsPressed: \(shiftIsPressed)")
-        
-        return shiftIsPressed
+        keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
     }
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
