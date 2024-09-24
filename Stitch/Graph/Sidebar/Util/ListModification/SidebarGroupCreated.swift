@@ -74,8 +74,11 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         let groupFit: LayerGroupFit = state.visibleGraph.getLayerGroupFit(
             primarilySelectedLayers,
             parentSize: state.visibleGraph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
-        
-        let assumedLayerGroupSize: LayerSize = groupFit.size
+
+        // TODO: any reason to not use .auto x .auto for a nearly created group? ... perhaps for .background, which can become too big in a group whose children use .position modifiers?
+        // TODO: how important is the LayerGroupFit.adjustment/offset etc. ?
+//        let assumedLayerGroupSize: LayerSize = groupFit.size
+        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
         
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
