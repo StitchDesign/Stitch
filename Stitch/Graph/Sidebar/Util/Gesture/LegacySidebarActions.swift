@@ -32,7 +32,7 @@ struct SidebarListItemDragged: GraphEvent {
 
     func handle(state: GraphState) {
         
-        // log("SidebarListItemDragged called: item \(itemId) ")
+         log("SidebarListItemDragged called: item \(itemId) ")
         
         var list = state.sidebarListState
 
@@ -65,7 +65,6 @@ struct SidebarListItemDragged: GraphEvent {
 //        state.sidebarSelectionState = .init()
         state.sidebarSelectionState.resetEditModeSelections()
         
-
         let layerNodeId = item.id.asLayerNodeId
         
         state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([layerNodeId])
@@ -152,7 +151,7 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
     
-        // log("SidebarListItemDragEnded called: itemId: \(itemId)")
+        log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
         var list = state.sidebarListState
         let item = list.masterList.items.first { $0.id == itemId }
