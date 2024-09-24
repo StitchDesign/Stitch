@@ -37,6 +37,7 @@ import StitchSchemaKit
 
 struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let interactiveLayer: InteractiveLayer
     let position: CGPoint
     let pos: StitchPosition // for factoring out .anchoring for press node
@@ -48,7 +49,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         
     @MainActor
     func getPressInteractionIds() -> NodeIdSet? {
-        document.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
+        graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
     
     // TODO: interaction logic needs to start from top-level to and calculate nodes no matter where they are

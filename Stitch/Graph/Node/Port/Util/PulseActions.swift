@@ -90,11 +90,11 @@ func shouldPulse(currentTime: TimeInterval,
 
 // TODO: recalculate the graph only once for all pulses outputs,
 // rather than recalculating the graph for every pulsed output.
-struct ReversePulseCoercion: StitchDocumentEvent {
+struct ReversePulseCoercion: GraphEvent {
     
     let pulsedOutput: OutputCoordinate
     
-    func handle(state: StitchDocumentViewModel) {
+    func handle(state: GraphState) {
         // Cannot recalculate full node in some examples (like delay node)
         // so we just update downstream nodes
         guard let node = state.getNodeViewModel(pulsedOutput.nodeId),

@@ -24,6 +24,7 @@ struct PreviewLayerView: View {
     
     var body: some View {
         layer.layerGraphNode.content(document: document,
+                                     graph: graph,
                                      viewModel: layerViewModel,
                                      parentSize: parentSize,
                                      layersInGroup: [],

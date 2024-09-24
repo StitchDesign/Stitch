@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 struct PreviewRealityLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -35,6 +36,7 @@ struct PreviewRealityLayer: View {
                 @Bindable var node = node
                 
                 RealityLayerView(document: document,
+                                 graph: graph,
                                  node: node,
                                  layerViewModel: viewModel,
                                  cameraFeedManager: cameraFeedManager, 
@@ -94,6 +96,7 @@ struct PreviewRealityLayer: View {
 
 struct RealityLayerView: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
     
@@ -152,6 +155,7 @@ struct RealityLayerView: View {
         }
         .modifier(PreviewCommonModifier(
             document: document,
+            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

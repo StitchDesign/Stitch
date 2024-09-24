@@ -32,6 +32,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 

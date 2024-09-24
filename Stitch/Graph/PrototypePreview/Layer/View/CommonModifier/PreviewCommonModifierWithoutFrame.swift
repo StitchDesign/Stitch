@@ -128,6 +128,7 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
         //  SwiftUI gestures must come AFTER the .position modifier
             .modifier(PreviewWindowElementSwiftUIGestures(
                 document: document,
+                graph: graph,
                 interactiveLayer: interactiveLayer,
                 position: position,
                 pos: pos,

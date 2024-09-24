@@ -27,6 +27,8 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     var motionManagers: StitchMotionManagersDict { get set }
     
+    var shouldResortPreviewLayers: Bool { get set }
+    
     @MainActor var edgeDrawingObserver: EdgeDrawingObserver { get }
     
     @MainActor var safeAreaInsets: SafeAreaInsets { get }
@@ -83,6 +85,11 @@ protocol GraphDelegate: AnyObject, Sendable {
     @MainActor func recalculateGraph(outputValues: AsyncMediaOutputs,
                                      nodeId: NodeId,
                                      loopIndex: Int)
+    
+    @MainActor
+    func updateOutputs(at loopIndex: Int,
+                       node: NodeViewModel,
+                       portValues: PortValues)
 }
 
 extension GraphDelegate {

@@ -65,7 +65,7 @@ extension GraphState {
 
         // BATCH OPERATION: Update sidebar state ONCE, after deleting all nodes
         // Recreate topological order
-        self.documentDelegate?.updateTopologicalData()
+        self.updateTopologicalData()
 
         self.graphMovement.draggedCanvasItem = nil
         

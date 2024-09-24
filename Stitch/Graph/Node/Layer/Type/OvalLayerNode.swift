@@ -56,6 +56,7 @@ struct OvalLayerNode: LayerNodeDefinition {
     
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
