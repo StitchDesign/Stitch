@@ -61,9 +61,21 @@ struct SidebarListItemDragged: GraphEvent {
             expanded: state.getSidebarExpandedItems(),
             graphState: state)
         
-        // Wipe selection state
+        // Update selection state
 //        state.sidebarSelectionState = .init()
         state.sidebarSelectionState.resetEditModeSelections()
+        
+
+        let layerNodeId = item.id.asLayerNodeId
+        
+        state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([layerNodeId])
+        
+        state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([layerNodeId])
+        
+        state.sidebarItemSelectedViaEditMode(layerNodeId,
+                                             isSidebarItemTapped: true)
+        
+        state.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = layerNodeId
         
         // Recalculate the ordered-preview-layers
         state.documentDelegate?.updateOrderedPreviewLayers()
