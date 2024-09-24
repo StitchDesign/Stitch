@@ -45,39 +45,45 @@ extension GraphState {
                 return
             }
             
+            log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
+            
+            let flatList = self.orderedSidebarLayers.getFlattenedList()
+            
+            let originalIsland = getIsland(in: flatList,
+                                           startItem: lastClickedItem,
+                                           selections: originalSelections)
+            
+            log("sidebarItemTapped: originalIsland around last clicked item \(originalIsland.map(\.id))")
+                        
             if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
-                in: self.orderedSidebarLayers,
+                in: flatList,
                 clickedItem: clickedItem,
                 lastClickedItem: lastClickedItem,
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                log("sidebarItemTapped: itemsBetween: \(itemsBetween)")
-                let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
-                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
+                let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
-                // TODO: do you really need this distinction ?
-//                if clickedEarlierThanStart {
-//                    log("sidebarItemTapped: clickedEarlierThanStart")
-//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
-//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
-//                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
-//                    self.deselectAllCanvasItems()
-//                    
-                //                } else {
-                log("sidebarItemTapped: had NOT clickedEarlierThanStart")
                 
+                
+                // ORIGINAL
                 self.sidebarSelectionState.inspectorFocusedLayers.focused =
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
-                
-                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                  
+                self.expandOrShrinkExpansions(flatList: flatList,
+                                              originalIsland: originalIsland,
+                                              newIsland: itemsBetween,
+                                              lastClickedItem: lastClickedItem)
+                                
+                // Shift click does NOT change the `lastFocusedLayer`
+                // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
                 
                 self.deselectAllCanvasItems()
-                //                }
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")
