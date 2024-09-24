@@ -45,7 +45,7 @@ extension GraphState {
                 return
             }
             
-            log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
+            // log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
             
             let flatList = self.orderedSidebarLayers.getFlattenedList()
             
@@ -53,16 +53,16 @@ extension GraphState {
                                            startItem: lastClickedItem,
                                            selections: originalSelections)
             
-            log("sidebarItemTapped: originalIsland around last clicked item \(originalIsland.map(\.id))")
+            // log("sidebarItemTapped: originalIsland around last clicked item \(originalIsland.map(\.id))")
                         
-            if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
+            if let itemsBetween = itemsBetweenClosestSelectedStart(
                 in: flatList,
                 clickedItem: clickedItem,
                 lastClickedItem: lastClickedItem,
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
+                // log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
                 
