@@ -54,43 +54,16 @@ extension GraphState {
                                            selections: originalSelections)
             
             log("sidebarItemTapped: originalIsland around last clicked item \(originalIsland.map(\.id))")
-            
-            let originalIslandSet: LayerIdSet = originalIsland.map(\.id.asLayerNodeId).toSet
-            
-            
+                        
             if let (itemsBetween, clickedEarlierThanStart) = itemsBetweenClosestSelectedStart(
-                in: self.orderedSidebarLayers,
+                in: flatList,
                 clickedItem: clickedItem,
                 lastClickedItem: lastClickedItem,
                 // Look at focused layers
                 selections: originalSelections) {
                 
                 log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
-                let itemsBetweenSet: LayerIdSet = Set(Array(itemsBetween.map(\.id.asLayerNodeId)))
-                
-                // "new island" is just the new range
-                
-                let megaIsland = itemsBetweenSet.union(originalIslandSet)
-                
-                log("sidebarItemTapped: megaIsland \(megaIsland.map(\.id))")
-                
-                // just deselect the old island?
-                
-                
-//                log("sidebarItemTapped: itemsBetweenSet: \(itemsBetweenSet)")
-                
-                // TODO: do you really need this distinction ?
-//                if clickedEarlierThanStart {
-//                    log("sidebarItemTapped: clickedEarlierThanStart")
-//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
-//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
-//                    self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
-//                    self.deselectAllCanvasItems()
-//                    
-                //                } else {
-                log("sidebarItemTapped: had NOT clickedEarlierThanStart")
-                
-                // Not as simple as `union`, since we may need to remove some
+                let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
                 
                 
@@ -99,69 +72,18 @@ extension GraphState {
                 self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
-//                
-                
-                var shrunk = false
-                
-                
-                if let originalIslandTop = originalIsland.first,
-                   let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
-                   
-                    let originalIslandBottom = originalIsland.last,
-                   let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom),
-                   
-                    
-                    
-                    let newIslandTop = itemsBetween.first,
-                   let newIslandTopIndex = flatList.firstIndex(of: newIslandTop),
-                   
-                    let newIslandBottom = itemsBetween.last,
-                   let newIslandBottomIndex = flatList.firstIndex(of: newIslandBottom),
-                   
-                    let lastClickedItemIndex = flatList.firstIndex(of: lastClickedItem) {
-                    
-                    if originalIslandBottomIndex > lastClickedItemIndex && newIslandBottomIndex > lastClickedItemIndex {
-                        // both original and new range expanded downward from the non-shift-click point,
-                        // so we expanded
-//                        expanded = true
-                        shrunk = false
-                    }
-                    
-                    else if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-                        // both original and new range expanded upward from the non-shift-click point,
-                        // so we expanded
-//                        expanded = true
-                        shrunk = false
-                    }
-                    
-                    
-                    // else ...
-                    // assume we shrunk ?
-                    else {
-                        expanded = false
-                        shrunk = true
-                    }
-          
-                }
+                  
+                self.expandOrShrinkExpansions(flatList: flatList,
+                                              originalIsland: originalIsland,
+                                              newIsland: itemsBetween,
+                                              lastClickedItem: lastClickedItem)
                                 
-                originalIsland.forEach {
-//                    if $0 != lastClickedItem && clickedEarlierThanStart {
-                    if $0 != lastClickedItem && shrunk {
-                        self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
-                        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
-                    }
-                }
-                
-                //                self.sidebarSelectionState.inspectorFocusedLayers.focused = itemsBetweenSet
-//                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = itemsBetweenSet
-                
                 // Shift click does NOT change the `lastFocusedLayer`
-//                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
                 
                 self.deselectAllCanvasItems()
-                //                }
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")
