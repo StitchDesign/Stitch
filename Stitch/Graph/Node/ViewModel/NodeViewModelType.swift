@@ -122,8 +122,7 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     var isGroupNode: Bool {
-        // TODO: is this right
-        true
+        false
     }
     
     var requiresOutputValuesChange: Bool {
@@ -135,7 +134,10 @@ extension StitchComponentViewModel: NodeCalculatable {
     }
     
     @MainActor func evaluate() -> EvalResult? {
-        fatalError()
+        self.graph.calculate(from: self.graph.allNodesToCalculate)
+        
+        // TODO: fix for splitters
+        return nil
     }
     
     @MainActor func outputsUpdated(evalResult: EvalResult) {

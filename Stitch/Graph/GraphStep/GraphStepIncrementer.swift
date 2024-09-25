@@ -39,10 +39,6 @@ extension GraphState {
     @MainActor func graphStepIncremented() {
         var nodesToRunOnGraphStep = self.nodesToRunOnGraphStep
         
-        // Tracks whether any graph-recalc changes were actually made.
-        // If no, we can return nil, which ensures no render cycles are made.
-        var shouldRunGraph = false
-        
         let graphTime = self.graphStepManager.graphTime
         let components = self.nodes.values
             .compactMap { $0.nodeType.componentNode }
@@ -69,7 +65,15 @@ extension GraphState {
             }
         }
         
-        if nodesToRunOnGraphStep.isEmpty && !shouldRunGraph {
+        // Check if any components need to be run
+        nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
+            if !component.graph.nodesToRunOnGraphStep.isEmpty,
+               let nodeId = component.nodeDelegate?.id {
+                nodesSet.insert(nodeId)
+            }
+        }
+        
+        if nodesToRunOnGraphStep.isEmpty {
             /*
              Usually we can return `nil` if there were no must run nodes
              or if we didn't need to recalculate the graph;
@@ -78,14 +82,6 @@ extension GraphState {
              *even if there are no keyboard nodes on the graph*.
              */
             return
-        }
-        
-        // Check if any components need to be run
-        nodesToRunOnGraphStep = components.reduce(into: nodesToRunOnGraphStep) { nodesSet, component in
-            if !component.graph.nodesToRunOnGraphStep.isEmpty,
-               let nodeId = component.nodeDelegate?.id {
-                nodesSet.insert(nodeId)
-            }
         }
         
         //        #if DEV_DEBUG
