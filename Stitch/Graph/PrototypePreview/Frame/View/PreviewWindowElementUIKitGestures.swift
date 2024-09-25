@@ -68,7 +68,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 .onEnded {
                     if let pressIds = self.getPressInteractionIds() {
                         self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
-                        document.graph.calculate(pressIds)
+                        graph.calculate(pressIds)
                     }
                 }
             )
@@ -90,13 +90,13 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 let location = CGPoint(x: $0.location.x - pos.x,
                                        y: $0.location.y - pos.y)
                                 
-                document.layerDragged(interactiveLayer: interactiveLayer,
-                                      location: location, // // PRESS NODE ONLY
-                                      translation: $0.translation,
-                                      velocity: velocity,
-                                      parentSize: parentSize,
-                                      childSize: size,
-                                      childPosition: position)
+                graph.layerDragged(interactiveLayer: interactiveLayer,
+                                   location: location, // // PRESS NODE ONLY
+                                   translation: $0.translation,
+                                   velocity: velocity,
+                                   parentSize: parentSize,
+                                   childSize: size,
+                                   childPosition: position)
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")

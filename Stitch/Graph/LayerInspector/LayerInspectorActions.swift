@@ -32,14 +32,14 @@ extension GraphDelegate {
     }
 }
 
-struct LayerInputAddedToGraph: StitchDocumentEvent {
+struct LayerInputAddedToGraph: GraphEvent {
 
     // just pass in LayerInspectorRowId and switch on that;
     // don't need two actions
     let nodeId: NodeId
     let coordinate: LayerInputType
     
-    func handle(state: StitchDocumentViewModel) {
+    func handle(state: GraphState) {
         
         // log("LayerInputAddedToGraph: nodeId: \(nodeId)")
         // log("LayerInputAddedToGraph: coordinate: \(coordinate)")
@@ -51,56 +51,53 @@ struct LayerInputAddedToGraph: StitchDocumentEvent {
             return
         }
         
-        handleLayerInputAddedToGraph(state: state, 
-                                     nodeId: nodeId,
-                                     coordinate: coordinate)
+        state.handleLayerInputAdded(nodeId: nodeId,
+                                    coordinate: coordinate)
         
-        state.visibleGraph.encodeProjectInBackground()
+        state.encodeProjectInBackground()
     }
 }
 
-@MainActor
-func handleLayerInputAddedToGraph(state: StitchDocumentViewModel,
-                                  nodeId: NodeId,
-                                  coordinate: LayerInputType) {
-    
-    let layerInput: LayerInputPort = coordinate.layerInput
-    
-    if let multiselectInputs = state.graphUI.propertySidebar.inputsCommonToSelectedLayers,
-       let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
+extension GraphState {
+    @MainActor
+    func handleLayerInputAdded(nodeId: NodeId,
+                               coordinate: LayerInputType) {
         
+        let layerInput: LayerInputPort = coordinate.layerInput
         
-        layerMultiselectInput.multiselectObservers(state.visibleGraph).forEach { observer in
-            addLayerInputToGraph(state: state,
-                                 nodeId: observer.rowObserver.id.nodeId,
-                                 coordinate: coordinate)
+        if let multiselectInputs = self.documentDelegate?.graphUI.propertySidebar.inputsCommonToSelectedLayers,
+           let layerMultiselectInput = multiselectInputs.first(where: { $0 == layerInput}) {
+            
+            
+            layerMultiselectInput.multiselectObservers(self).forEach { observer in
+                self.addLayerInputToGraph(nodeId: observer.rowObserver.id.nodeId,
+                                          coordinate: coordinate)
+            }
+        }
+        
+        else {
+            self.addLayerInputToGraph(nodeId: nodeId,
+                                      coordinate: coordinate)
         }
     }
     
-    else {
-        addLayerInputToGraph(state: state,
-                             nodeId: nodeId,
-                             coordinate: coordinate)
-    }
-}
-
-
-@MainActor
-func addLayerInputToGraph(state: StitchDocumentViewModel,
-                          nodeId: NodeId,
-                          coordinate: LayerInputType) {
     
-    guard let node = state.getNodeViewModel(nodeId),
-          let layerNode = node.layerNode else {
-        log("LayerInputAddedToGraph: could not add Layer Input to graph")
-        fatalErrorIfDebug()
-        return
+    @MainActor
+    func addLayerInputToGraph(nodeId: NodeId,
+                              coordinate: LayerInputType) {
+        
+        guard let node = self.getNodeViewModel(nodeId),
+              let layerNode = node.layerNode else {
+            log("LayerInputAddedToGraph: could not add Layer Input to graph")
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
+        self.layerInputAddedToGraph(node: node,
+                                    input: layerInputData,
+                                    coordinate: coordinate)
     }
-
-    let layerInputData = layerNode[keyPath: coordinate.layerNodeKeyPath]
-    state.visibleGraph.layerInputAddedToGraph(node: node,
-                                              input: layerInputData,
-                                              coordinate: coordinate)
 }
 
 extension GraphState {

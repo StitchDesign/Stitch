@@ -41,6 +41,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewProgressIndicatorLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -74,6 +75,7 @@ struct ProgressIndicatorLayerNode: LayerNodeDefinition {
 
 struct PreviewProgressIndicatorLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -117,6 +119,7 @@ struct PreviewProgressIndicatorLayer: View {
         .opacity(opacity)
         .modifier(PreviewCommonModifier(
             document: document,
+            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

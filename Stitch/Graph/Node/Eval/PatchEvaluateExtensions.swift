@@ -38,7 +38,7 @@ extension Patch {
             // DOES use GraphStep
             return .impure(.graphAndGraphStep(dragInteractionEval))
         case .cameraFeed:
-            return .impure(.document(cameraFeedEval))
+            return .impure(.graph(cameraFeedEval))
         case .loop:
             return .pure(.node(outputsOnlyEval(loopStartEval)))
         case .counter:

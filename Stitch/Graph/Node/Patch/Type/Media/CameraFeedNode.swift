@@ -133,36 +133,38 @@ func cameraManagerEval(node: PatchNode,
 
 @MainActor
 func cameraFeedEval(node: PatchNode,
-                    document: StitchDocumentViewModel) -> ImpureEvalResult {
-    cameraManagerEval(node: node,
-                      document: document,
-                      cameraEnabledInputIndex: 0) { values, _, loopIndex in
-        
-        guard !document.isGeneratingProjectThumbnail else {
-            log("cameraFeedEval: generating project thumbnail, so will not use camera image")
-            return node.defaultOutputs
-        }
-        
-        guard let isEnabled = values.first?.getBool else {
-            log("cameraFeedEval: issue decoding values")
-            return node.defaultOutputs
-        }
-
-        guard isEnabled else {
-            return node.defaultOutputs
-        }
-
-        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
-            return node.defaultOutputs
-        }
-        
-        let newId = UUID()
-        
-        return [
-            .asyncMedia(AsyncMediaValue(id: newId,
-                                        dataType: .computed,
-                                        mediaObject: .image(currentCamearaImage))),
-            .size(currentCamearaImage.layerSize)
-        ]
-    }
+                    graph: GraphDelegate) -> ImpureEvalResult {
+    fatalError("ids in camera feed an issue")
+    
+//    cameraManagerEval(node: node,
+//                      document: document,
+//                      cameraEnabledInputIndex: 0) { values, _, loopIndex in
+//        
+//        guard !document.isGeneratingProjectThumbnail else {
+//            log("cameraFeedEval: generating project thumbnail, so will not use camera image")
+//            return node.defaultOutputs
+//        }
+//        
+//        guard let isEnabled = values.first?.getBool else {
+//            log("cameraFeedEval: issue decoding values")
+//            return node.defaultOutputs
+//        }
+//
+//        guard isEnabled else {
+//            return node.defaultOutputs
+//        }
+//
+//        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
+//            return node.defaultOutputs
+//        }
+//        
+//        let newId = UUID()
+//        
+//        return [
+//            .asyncMedia(AsyncMediaValue(id: newId,
+//                                        dataType: .computed,
+//                                        mediaObject: .image(currentCamearaImage))),
+//            .size(currentCamearaImage.layerSize)
+//        ]
+//    }
 }

@@ -75,6 +75,7 @@ struct RectangleLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         ShapeLayerView(document: document,
+                       graph: graph,
                        viewModel: viewModel,
                        isPinnedViewRendering: isPinnedViewRendering,
                        parentSize: parentSize,

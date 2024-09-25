@@ -40,6 +40,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewRadialGradientLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -66,6 +67,7 @@ struct RadialGradientLayerNode: LayerNodeDefinition {
 
 struct PreviewRadialGradientLayer: View {
     let document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -101,6 +103,7 @@ struct PreviewRadialGradientLayer: View {
             .opacity(enabled ? opacity : 0.0)
             .modifier(PreviewCommonModifier(
                 document: document,
+                graph: graph,
                 layerViewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

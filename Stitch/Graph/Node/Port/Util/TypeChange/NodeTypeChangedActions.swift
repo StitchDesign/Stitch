@@ -63,7 +63,7 @@ extension GraphState {
 
         // Recalculate the graph from each of the changed nodes' incoming edges
         let ids = changedNodeIds
-            .flatMap { self.immediatlyUpstreamNodes(for: $0) }
+            .flatMap { self.immediatelyUpstreamNodes(for: $0) }
             .toSet
             // Always add the node itself, in case node has no incoming edges
             .pureInsert(nodeId)
