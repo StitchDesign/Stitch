@@ -28,6 +28,14 @@ extension URL {
     func appendingComponentsPath() -> URL {
         self.appendingPathComponent(Self.componentsDirPath)
     }
+    
+    func appendingComponentDraftPath() -> URL {
+        self.appendingPathComponent("Draft")
+    }
+    
+    func appendingComponentPublishedPath() -> URL {
+        self.appendingPathComponent("Published")
+    }
 
     func appendingDataJsonPath() -> URL {
         self.appendingPathComponent(StitchClipboardContent.dataJsonName,

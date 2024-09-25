@@ -16,7 +16,13 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        self.saveLocation.getRootUrl(componentId: self.id)
+        self.saveLocation.getRootUrl(componentId: self.id,
+                                     isPublished: false)
+    }
+    
+    var publishedRootUrl: URL {
+        self.saveLocation.getRootUrl(componentId: self.id,
+                                     isPublished: true)
     }
 }
 
@@ -61,20 +67,24 @@ public enum GraphSaveLocation: Codable, Equatable, Sendable {
 }
 
 extension GraphSaveLocation {
-    func getRootUrl(componentId: UUID) -> URL {
+    func getRootUrl(componentId: UUID,
+                    isPublished: Bool) -> URL {
         switch self {
         case .document(let graphDocumentPath):
             let rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
             
-            return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
+            let componentPath = graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
                     .appendingComponentsPath()
                     .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
+                    .appendingComponentDraftPath()     // Always use draft path
             }
             
             // lastly append with direct parent folders
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
+            
+            return isPublished ? componentPath.appendingComponentPublishedPath() : componentPath.appendingComponentDraftPath()
             
         case .userLibrary:
             // TODO: come back to user library
