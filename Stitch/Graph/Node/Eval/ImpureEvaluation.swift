@@ -14,7 +14,7 @@ import StitchSchemaKit
 typealias ImpureNodeEval = (PatchNode) -> ImpureEvalResult
 
 // SAME PATTERN: (PatchNode, T) -> ImpureEvalResult
-typealias ImpureDocumentEval = (PatchNode, StitchDocumentViewModel) -> ImpureEvalResult
+//typealias ImpureGraphStateEval = (PatchNode, GraphState) -> ImpureEvalResult
 typealias ImpureGraphEval = (PatchNode, GraphDelegate) -> ImpureEvalResult
 typealias ImpureGraphStepEval = (PatchNode, GraphStepState) -> ImpureEvalResult
 
@@ -23,15 +23,14 @@ typealias ImpureGraphStateAndGraphStep = (PatchNode, GraphDelegate, GraphStepSta
 
 enum ImpureEvals {
     case node(ImpureNodeEval)
-    case document(ImpureDocumentEval)
+//    case graphState(ImpureGraphStateEval)
     case graph(ImpureGraphEval)
     case graphStep(ImpureGraphStepEval)
     case graphAndGraphStep(ImpureGraphStateAndGraphStep)
 
     @MainActor
     func runEvaluation(node: PatchNode) -> ImpureEvalResult {
-        guard let graphState = node.graphDelegate,
-              let document = graphState.documentDelegate else {
+        guard let graphState = node.graphDelegate else {
             fatalErrorIfDebug()
             return .init(outputsValues: node.defaultOutputsList)
         }
@@ -41,8 +40,8 @@ enum ImpureEvals {
         switch self {
         case .node(let impureNodeEval):
             return impureNodeEval(node)
-        case .document(let impureDocumentEval):
-            return impureDocumentEval(node, document)
+//        case .graphState(let impureGraph):
+//            return impureGraph(node, graphState)
         case .graph(let impureGraphEval):
             return impureGraphEval(node, graphState)
         case .graphStep(let impureGraphStepEval):

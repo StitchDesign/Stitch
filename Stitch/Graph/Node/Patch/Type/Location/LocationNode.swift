@@ -44,14 +44,14 @@ struct LocationNode: PatchNodeDefinition {
     }
 }
 
-func createLocationManager(state: GraphState,
+func createLocationManager(state: GraphDelegate,
                            nodeId: NodeId) async -> StitchSingletonMediaObject {
     .locationManager(LocationManager())
 }
 
 @MainActor
 func locationEval(node: PatchNode,
-                  graph: GraphState) -> ImpureEvalResult {
+                  graph: GraphDelegate) -> ImpureEvalResult {
     asyncSingletonMediaEval(node: node,
                             graph: graph,
                             mediaCreation: createLocationManager,

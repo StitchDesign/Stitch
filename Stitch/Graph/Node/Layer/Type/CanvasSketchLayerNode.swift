@@ -61,6 +61,7 @@ struct CanvasSketchLayerNode: LayerNodeDefinition {
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         CanvasSketchView(document: document,
+                         graph: graph,
                          layerViewModel: viewModel,
                          isPinnedViewRendering: isPinnedViewRendering,
                          interactiveLayer: viewModel.interactiveLayer,

@@ -53,7 +53,7 @@ extension Patch {
         case .deviceTime:
             return .pure(.node(deviceTimeEval))
         case .location:
-            return .impure(.document(locationEval))
+            return .impure(.graph(locationEval))
         case .random:
             return .impure(.graphStep(randomEval))
         case .hslColor:

@@ -164,7 +164,7 @@ extension StitchDocumentViewModel {
         
         let newGroupNodeId = NodeId()
         let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
-        let edges = self.createEdges()
+        let edges = self.visibleGraph.createEdges()
         let center = self.graphUI.center(self.localPosition)
 
         // Every selected node must belong to this traversal level.
@@ -229,7 +229,7 @@ extension StitchDocumentViewModel {
         self.graphMovement.stopNodeMovement()
 
         // Recalculate graph
-        self.initializeGraphComputation()
+        self.visibleGraph.initializeGraphComputation()
         
         self.visibleGraph.encodeProjectInBackground()
     }
