@@ -153,10 +153,11 @@ extension NodeViewModel: NodeCalculatable {
                 return nil
             }
             
-        case .group, .component:
-#if DEBUG
+        case .component(let component):
+            return component.evaluate()
+            
+        case .group:
             fatalErrorIfDebug()
-#endif
             return nil
         }
     }
