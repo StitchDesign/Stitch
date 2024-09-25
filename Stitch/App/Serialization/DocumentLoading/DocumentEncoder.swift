@@ -110,10 +110,10 @@ extension DocumentEncoder {
 
 final actor ComponentEncoder: DocumentEncodable {
     // Keeps track of last saved StitchDocument to disk
-    var lastEncodedDocument: StitchComponent
+    var lastEncodedDocument: StitchComponentData
     @MainActor weak var delegate: StitchMasterComponent?
     
-    init(component: StitchComponent) {
+    init(component: StitchComponentData) {
         self.lastEncodedDocument = component
     }
 }

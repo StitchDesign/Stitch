@@ -44,14 +44,14 @@ extension GraphState {
     @MainActor
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
-                               copiedFiles: StitchDocumentSubdirectoryFiles) where T: StitchComponentable {
+                               copiedFiles: StitchDocumentDirectory) where T: StitchComponentable {
         guard let docId = self.documentDelegate?.id else {
             fatalErrorIfDebug()
             return
         }
         
         // No encoding work if struct == empty
-        let hasEffectsToRun = copiedFiles != StitchDocumentSubdirectoryFiles.empty
+        let hasEffectsToRun = copiedFiles != StitchDocumentDirectory.empty
 
         // Change all IDs
         var newComponent = component
@@ -74,13 +74,13 @@ extension GraphState {
             return node
         }
         
-        // Update root URL for components
-        newComponent.graph.draftedComponents = newComponent.graph.draftedComponents.map {
-            var draftedComponent = $0
-            draftedComponent.saveLocation = .document(.init(docId: docId,
-                                                            componentsPath: self.saveLocation))
-            return draftedComponent
-        }
+//        // Update root URL for components
+//        newComponent.graph.draftedComponents = newComponent.graph.draftedComponents.map {
+//            var draftedComponent = $0
+//            draftedComponent.saveLocation = .document(.init(docId: docId,
+//                                                            componentsPath: self.saveLocation))
+//            return draftedComponent
+//        }
 
         guard hasEffectsToRun else {
             // Update state synchronously

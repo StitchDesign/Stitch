@@ -243,8 +243,11 @@ extension StitchDocumentViewModel {
                                                    groupNodeFocused: self.graphUI.groupNodeFocused,
                                                    selectedNodeIds: selectedNodeIds)
         
-        // Create drafted component graph state
-        let masterComponent = StitchMasterComponent(draftedComponent: result.component,
+        let componentData = StitchComponentData(draft: result.component,
+                                                published: result.component)
+        
+        // Create new published component matching draft
+        let masterComponent = StitchMasterComponent(componentData: componentData,
                                                     parentGraph: self.visibleGraph)
         
         assertInDebug(result.component.id == componentId)

@@ -29,7 +29,7 @@ final class StitchMasterComponent {
     init(componentData: StitchComponentData,
          parentGraph: GraphState?) {
         self.componentData = componentData
-        self.documentEncoder = .init(component: draftedComponent)
+        self.documentEncoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
         self.documentEncoder.delegate = self
@@ -279,8 +279,7 @@ final class GraphState: Sendable {
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
     @MainActor init(from schema: GraphEntity,
-                    saveLocation: [UUID],
-                    draftedComponents: [StitchComponent]) {
+                    saveLocation: [UUID]) {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
@@ -459,12 +458,12 @@ extension GraphState {
         return graph
     }
     
-    @MainActor func update(from schema: GraphEntity,
-                           draftedComponents: [StitchComponent]) {
+    @MainActor func update(from schema: GraphEntity) {
+//                           componentData: [StitchComponentData]) {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-        self.components.sync(with: draftedComponents)
+//        self.components.sync(with: componentData)
         
         if let documentViewModel = self.documentDelegate {
             self.initializeDelegate(document: documentViewModel,
@@ -817,8 +816,7 @@ extension GraphState {
                           nodes: [],
                           orderedSidebarLayers: [],
                           commentBoxes: []),
-              saveLocation: [],
-              draftedComponents: [])
+              saveLocation: [])
     }
     
     /// Updates values at a specific output loop index.

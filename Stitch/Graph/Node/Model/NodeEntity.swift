@@ -142,10 +142,10 @@ extension NodeTypeEntity {
 }
 
 extension [NodeEntity] {
-    func getDraftedComponents(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponent] {
+    func getComponentData(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponentData] {
         self
             .compactMap { $0.nodeTypeEntity.componentNodeEntity?.componentId }
             .toSet
-            .compactMap { masterComponentsDict.get($0)?.draftedComponent }
+            .compactMap { masterComponentsDict.get($0)?.componentData }
     }
 }

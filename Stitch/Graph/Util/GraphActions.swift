@@ -43,12 +43,15 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
 }
 
 struct StitchComponentData: Codable {
-    let draft: StitchComponent
+    var draft: StitchComponent
     let published: StitchComponent
 }
 
 extension StitchComponentData: Identifiable {
-    var id: UUID { self.draft.id }
+    var id: UUID {
+        get { self.draft.id }
+        set(newValue) { self.draft.id = newValue }
+    }
 }
 
 extension GraphState: DocumentEncodableDelegate {

@@ -278,7 +278,7 @@ typealias AsyncCallbackList = [AsyncCallback]
 
 struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
     let component: T
-    let copiedSubdirectoryFiles: StitchDocumentSubdirectoryFiles
+    let copiedSubdirectoryFiles: StitchDocumentDirectory
 }
 
 extension Array where Element == AsyncCallback {
@@ -327,8 +327,7 @@ extension GraphEntity {
                      name: self.name,
                      nodes: copiedNodes,
                      orderedSidebarLayers: copiedSidebarLayers,
-                     commentBoxes: self.commentBoxes,
-                     draftedComponents: self.draftedComponents)
+                     commentBoxes: self.commentBoxes)
     }
 }
 
@@ -438,15 +437,14 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
         
-        let copiedDraftedComponents: [StitchComponent] = selectedNodes
-            .getDraftedComponents(masterComponentsDict: self.components)
+        let copiedComponentData: [StitchComponentData] = selectedNodes
+            .getComponentData(masterComponentsDict: self.components)
         
         let newGraph = GraphEntity(id: componentId,
                                    name: "My Component",
                                    nodes: selectedNodes,
                                    orderedSidebarLayers: selectedSidebarLayers,
-                                   commentBoxes: [],
-                                   draftedComponents: copiedDraftedComponents)
+                                   commentBoxes: [])
 
         let copiedComponent = createComponentable(newGraph)
         
@@ -469,13 +467,13 @@ extension GraphState {
             }
         
         // Copy directory for selected components
-        let componentUrls: [URL] = copiedDraftedComponents.map { draftedComponent in
+        let componentUrls: [URL] = copiedComponentData.map { draftedComponent in
             draftedComponent.rootUrl
         }
 
         return .init(component: copiedComponent,
                      copiedSubdirectoryFiles: .init(importedMediaUrls: mediaUrls,
-                                                    publishedComponentUrls: componentUrls))
+                                                    componentDirs: componentUrls))
     }
 }
 
@@ -498,12 +496,42 @@ extension SidebarLayerList {
 protocol StitchComponentable: StitchDocumentEncodable {
     var graph: GraphEntity { get set }
     
-    var dataJsonUrl: URL { get }
+//    var rootUrl: URL { get }
+//    var dataJsonUrl: URL { get }
+}
+
+extension StitchComponentData: StitchDocumentEncodable {
+    static var unzippedFileType: UTType {
+        StitchComponent.unzippedFileType
+    }
+    
+    init() {
+        self.init(draft: .init(),
+                  published: .init())
+    }
+    
+    var name: String {
+        self.draft.name
+    }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        self.draft.getEncodingUrl(documentRootUrl: documentRootUrl)
+    }
+    
+    static func getDocument(from url: URL) throws -> StitchComponentData? {
+        guard let draft = try StitchComponent.getDocument(from: url.appendingComponentDraftPath()),
+              let published =  try StitchComponent.getDocument(from: url.appendingComponentPublishedPath()) else {
+            fatalErrorIfDebug()
+            return nil
+        }
+        return .init(draft: draft,
+                     published: published)
+    }
 }
 
 //extension StitchComponent: StitchComponentable { }
 
-struct StitchClipboardContent: StitchComponentable {
+struct StitchClipboardContent: StitchComponentable, StitchDocumentEncodable {
     static let unzippedFileType = UTType.stitchClipboard
     static let dataJsonName = StitchDocument.graphDataFileName
     
@@ -621,7 +649,7 @@ extension DocumentEncodable {
         await self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
-    func importComponentFiles(_ files: StitchDocumentSubdirectoryFiles,
+    func importComponentFiles(_ files: StitchDocumentDirectory,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return

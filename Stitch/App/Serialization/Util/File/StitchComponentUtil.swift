@@ -10,6 +10,18 @@ import SwiftUI
 import StitchSchemaKit
 import UniformTypeIdentifiers
 
+extension StitchComponent: Identifiable {
+    public var id: UUID {
+        get {
+            self.graph.id
+        }
+        
+        set(newValue) {
+            self.graph.id = newValue
+        }
+    }
+}
+
 extension StitchComponent: StitchComponentable {
     static let zippedFileType: UTType = .stitchComponentZipped
     static let unzippedFileType: UTType = .stitchComponentUnzipped
