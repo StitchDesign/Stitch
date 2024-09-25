@@ -32,6 +32,8 @@ extension StitchComponent: StitchComponentable {
                                      isPublished: false)
     }
     
+    var draftRootUrl: URL { rootUrl }
+    
     var publishedRootUrl: URL {
         self.saveLocation.getRootUrl(componentId: self.id,
                                      isPublished: true)
@@ -52,9 +54,9 @@ extension StitchComponentable {
         self.graph.name
     }
     
-    var dataJsonUrl: URL {
-        self.rootUrl.appendingVersionedSchemaPath()
-    }
+//    var dataJsonUrl: URL {
+//        self.get.appendingVersionedSchemaPath()
+//    }
     
     var nodes: [NodeEntity] {
         self.graph.nodes

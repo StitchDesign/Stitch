@@ -254,9 +254,9 @@ extension StitchDocumentViewModel {
         self.visibleGraph.components.updateValue(masterComponent,
                                                  forKey: result.component.id)
         
-        // Copy to disk
+        // Copy to disk and publish
         Task { [weak masterComponent] in
-            await masterComponent?.documentEncoder.encodeNewComponent(result)
+            await masterComponent?.documentEncoder.publishNewStitchComponent(result)
         }
     }
 }

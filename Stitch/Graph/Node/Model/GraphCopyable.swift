@@ -589,14 +589,16 @@ extension StitchClipboardContent {
 
 extension StitchComponentable {
     @Sendable
-    static func exportComponent(_ component: Self) async {
-        let rootUrl = component.rootUrl
+    static func exportComponent(_ component: Self,
+                                rootUrl: URL? = nil) async {
+        let rootUrl = rootUrl ?? component.rootUrl
+        
         // Create directories if it doesn't exist
         let _ = try? StitchFileManager.createDirectories(at: rootUrl,
                                                          withIntermediate: true)
         await component.encodeDocumentContents(folderUrl: rootUrl)
         
-        let url = component.dataJsonUrl
+        let url = rootUrl.appendingVersionedSchemaPath()
         await Self.exportComponent(component, url: url)
     }
     
@@ -640,6 +642,16 @@ extension DocumentEncodable {
         
         let pasteboard = UIPasteboard.general
         pasteboard.url = copiedComponentResult.component.rootUrl
+    }
+    
+    func publishNewStitchComponent(_ result: StitchComponentCopiedResult<StitchComponent>) async {
+        let _ = await StitchComponent.exportComponent(result.component,
+                                                      rootUrl: result.component.publishedRootUrl)
+        let _ = await StitchComponent.exportComponent(result.component,
+                                                      rootUrl: result.component.draftRootUrl)
+
+        // Process imported media side effects
+        await self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
     func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
