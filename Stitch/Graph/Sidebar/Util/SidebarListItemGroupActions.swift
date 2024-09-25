@@ -29,6 +29,7 @@ extension GraphState {
     }
     
     // for non-edit-mode selections
+    @MainActor
     func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
@@ -152,6 +153,7 @@ func onSidebarListItemGroupOpened(openedId: SidebarListItemId,
 // - remove parent's children from `items`
 // - add removed children to ExcludedGroups dict
 // - move up the position of items below the now-closed parent
+@MainActor
 func onSidebarListItemGroupClosed(closedId: SidebarListItemId,
                                   _ masterList: MasterList) -> MasterList {
 

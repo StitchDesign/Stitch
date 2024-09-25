@@ -11,6 +11,7 @@ import SwiftUI
 
 // When dragging: set actively-dragged and dragged-along items' z-indices to be high
 // When drag ended: set all items z-indices = 0
+@MainActor
 func updateZIndices(_ items: SidebarListItems,
                     zIndex: ZIndex) -> SidebarListItems {
     items.map {
@@ -23,6 +24,7 @@ func updateZIndices(_ items: SidebarListItems,
 let SIDEBAR_LIST_ITEM_MAX_Z_INDEX: ZIndex = 9999
 let SIDEBAR_LIST_ITEM_MIN_Z_INDEX: ZIndex = 0
 
+@MainActor
 func updateAllZIndices(items: SidebarListItems,
                        itemId: SidebarListItemId,
                        draggedAlong: SidebarListItemIdSet) -> SidebarListItems {
@@ -42,6 +44,7 @@ func updateAllZIndices(items: SidebarListItems,
     return items
 }
 
+@MainActor
 func setItemsInGroupOrTopLevel(item: SidebarListItem,
                                masterList: MasterList,
                                draggedAlong: SidebarListItemIdSet,
@@ -66,6 +69,7 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
 
     //    log("setItemsInGroupOrTopLevel: beingDragged: \(beingDragged)")
 
+    // TODO: SEPT 24: revisit this once we're working in non-flat UIs
     if let proposed = proposed {
         //        log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
         masterList.items = moveSidebarListItemIntoGroup(item,
@@ -92,6 +96,7 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
 
 // We've moved the item up or down (along with its children);
 // did we move it enough to have a new index placement for it?
+@MainActor
 func calculateNewIndexOnDrag(item: SidebarListItem,
                              items: SidebarListItems,
                              draggedAlong: SidebarListItemIdSet,

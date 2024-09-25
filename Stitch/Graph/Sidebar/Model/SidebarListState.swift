@@ -69,6 +69,7 @@ struct SidebarDraggedItem: Equatable, Codable, Hashable {
     // directly dragged
     var current: SidebarListItemId
 
+    // // TODO: SEPT 24: expand to include ANY other selected (and stacked) dragged layers, not just children of a group
     // dragged along as part of children etc.
     var draggedAlong: SidebarListItemIdSet
 }
@@ -102,6 +103,7 @@ struct SidebarListItemsCoordinator: Codable, Equatable, Hashable {
 }
 
 extension SidebarListItemsCoordinator {
+    @MainActor
     func appendToExcludedGroup(for key: SidebarListItemId,
                                _ newItem: SidebarListItem) -> SidebarListItemsCoordinator {
         var masterList = self
@@ -125,6 +127,7 @@ struct SidebarCursorHorizontalDrag: Codable, Equatable, Hashable {
     var previousX: CGFloat
 
     // called at start of a drag gesture
+    @MainActor
     static func fromItem(_ item: SidebarListItem) -> SidebarCursorHorizontalDrag {
         SidebarCursorHorizontalDrag(x: item.location.x,
                                     previousX: item.previousLocation.x)
