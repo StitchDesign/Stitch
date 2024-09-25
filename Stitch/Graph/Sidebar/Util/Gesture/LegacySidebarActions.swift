@@ -25,6 +25,30 @@ struct SidebarListItemLongPressed: GraphEvent {
     }
 }
 
+import Foundation
+
+// Function to find the set item whose index in the list is the smallest
+func findSetItemWithSmallestIndex(from set: LayerIdSet,
+                                  in list: [ListItem]) -> LayerNodeId? {
+    var smallestIndex: Int? = nil
+    var smallestItem: LayerNodeId? = nil
+
+    // Iterate through each item in the set
+    for item in set {
+//        if let index = list.firstIndex(of: item) {
+        if let index = list.firstIndex(where: { $0.id == item.id }) {
+            // If it's the first item or if its index is smaller than the current smallest, update it
+            if smallestIndex == nil || index < smallestIndex! {
+                smallestIndex = index
+                smallestItem = item
+            }
+        }
+    }
+
+    // Return the item with the smallest index, or nil if no items from the set were found in the list
+    return smallestItem
+}
+
 extension GraphState {
     func getOtherDraggedItems(draggedItem: SidebarListItemId) -> SidebarListItemIdSet {
         
@@ -50,6 +74,17 @@ struct SidebarListItemDragged: GraphEvent {
          log("SidebarListItemDragged called: item \(itemId) ")
         
         var list = state.sidebarListState
+        
+        var itemId = itemId
+        if state.sidebarSelectionState.inspectorFocusedLayers.focused.count > 1,
+           let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
+            from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
+            in: state.orderedSidebarLayers.getFlattenedList()) {
+            // If we had mutiple layers focused, the "dragged item" should be the top item
+            // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
+            itemId = selectedItemWithSmallestIndex.asItemId
+            log("SidebarListItemDragged item is now \(itemId) ")
+        }
 
         guard let item = list.masterList.items.first(where: { $0.id == itemId }) else {
             // if we couldn't find the item, it's been deleted
@@ -153,6 +188,7 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     let calculatedIndex = calculateNewIndexOnDrag(
         item: item,
         items: masterList.items,
+        otherSelections: otherSelections,
         draggedAlong: draggedAlong,
         movingDown: translation.height > 0,
         originalItemIndex: originalItemIndex,

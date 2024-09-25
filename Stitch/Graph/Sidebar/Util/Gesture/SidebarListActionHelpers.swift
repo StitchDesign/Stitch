@@ -99,25 +99,30 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
 @MainActor
 func calculateNewIndexOnDrag(item: SidebarListItem,
                              items: SidebarListItems,
+                             otherSelections: SidebarListItemIdSet,
                              draggedAlong: SidebarListItemIdSet,
                              movingDown: Bool,
                              originalItemIndex: Int,
                              movedIndices: [Int]) -> Int {
 
+    
+    
     let maxMovedToIndex = getMaxMovedToIndex(
         item: item,
         items: items,
+        otherSelections: otherSelections,
         draggedAlong: draggedAlong)
 
     var calculatedIndex = getMovedtoIndex(
         item: item,
         items: items,
+        otherSelections: otherSelections,
         draggedAlong: draggedAlong,
         maxIndex: maxMovedToIndex,
         movingDown: movingDown)
 
-    //    print("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
-    //    print("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
+    print("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
+    print("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
 
     // Is this really correct?
     let maxIndex = items.count - 1
@@ -129,44 +134,64 @@ func calculateNewIndexOnDrag(item: SidebarListItem,
         movedIndices: movedIndices,
         maxIndex: maxIndex)
 
-    //    print("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
+    print("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
 
     return calculatedIndex
 }
+
+
+// TODO: SEPT 24: probably need to update this to also excluded the other-dragged layers
+// this is probably necessary because the children haven't had their indices changed yet?
+// highest index = last item in the list THAT IS NOT ACITVELY BEING DRAGGED (so excluded
+
 
 // the highest index we can have moved an item to;
 // based on item count but with special considerations
 // for whether we're dragging a group.
 func getMaxMovedToIndex(item: SidebarListItem,
                         items: SidebarListItems,
+                        otherSelections: SidebarListItemIdSet,
                         draggedAlong: SidebarListItemIdSet) -> Int {
 
     var maxIndex = items.count - 1
 
+    log("getMaxMovedToIndex: maxIndex was \(maxIndex)")
+    
     // special case: when moving a group,
     // ignore the children we're dragging along
-    if item.isGroup {
-        let itemsWithoutDraggedAlong = items.filter { x in !draggedAlong.contains(x.id) }
-        maxIndex = itemsWithoutDraggedAlong.count - 1
-    }
+//    if item.isGroup {
+    //        let itemsWithoutDraggedAlong = items.filter { x in !draggedAlong.contains(x.id) }
+    
+    // Presumably we don't actually need to trck whether the `dragged item` is a group or not; `draggedAlong` already represents the children that will be dragged along
+    let itemsWithoutDraggedAlongOrOtherSelections = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
+    
+    log("getMaxMovedToIndex: itemsWithoutDraggedAlongOrOtherSelections \(itemsWithoutDraggedAlongOrOtherSelections.map(\.id))")
+    
+    maxIndex = itemsWithoutDraggedAlongOrOtherSelections.count - 1
+    log("getMaxMovedToIndex: maxIndex is now \(maxIndex)")
+    
+    //    }
     return maxIndex
 }
 
 func getMovedtoIndex(item: SidebarListItem,
                      items: SidebarListItems,
+                     otherSelections: SidebarListItemIdSet,
                      draggedAlong: SidebarListItemIdSet,
                      maxIndex: Int,
                      movingDown: Bool) -> Int {
 
-    var maxIndex = items.count - 1
-
-    // special case:
-    // if we moved a parent to the end of the items (minus parents' own children),
-    // then don't adjust-by-indices while dragging.
-    if item.isGroup {
-        let itemsWithoutDraggedAlong = items.filter { x in !draggedAlong.contains(x.id) }
-        maxIndex = itemsWithoutDraggedAlong.count - 1
-    }
+    // The below should be unnecessary, since we already determined the maxIndex
+    
+//    var maxIndex = items.count - 1
+//
+//    // special case:
+//    // if we moved a parent to the end of the items (minus parents' own children),
+//    // then don't adjust-by-indices while dragging.
+//    if item.isGroup {
+//        let itemsWithoutDraggedAlong = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
+//        maxIndex = itemsWithoutDraggedAlong.count - 1
+//    }
 
     let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
 
@@ -204,8 +229,10 @@ func getMovedtoIndex(item: SidebarListItem,
             // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
             let ki = Int(k)
             if ki > maxIndex {
+                print("getMovedtoIndex: maxIndex: \(maxIndex)")
                 return maxIndex
             } else {
+                print("getMovedtoIndex: ki: \(ki)")
                 return ki
             }
         }
@@ -213,6 +240,6 @@ func getMovedtoIndex(item: SidebarListItem,
 
     // if didn't find anything, return the original index?
     let k = items.firstIndex { $0.id == item.id }!
-    //    print("getMovedtoIndex: k: \(k)")
+    print("getMovedtoIndex: k: \(k)")
     return k
 }

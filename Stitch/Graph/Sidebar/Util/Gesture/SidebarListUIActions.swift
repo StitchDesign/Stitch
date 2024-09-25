@@ -462,32 +462,32 @@ func adjustMoveToIndex(calculatedIndex: Int,
     // If we move blue down, `getMovedtoIndex` will give us a new index of 1 instead of 0.
     // But index 1 is the position of blue's child!
     // So we add the diff.
-
+    
     if calculatedIndex > originalItemIndex {
         let diff = calculatedIndex - originalItemIndex
-        //        print("diff: \(diff)")
-
+        print("adjustMoveToIndex: diff: \(diff)")
+        
         // movedIndices is never going to be empty!
         // it always has at least a single item
         if movedIndices.isEmpty {
             //            calculatedIndex = calculatedIndex + diff
             calculatedIndex += diff
-            //            print("empty movedIndices: calculatedIndex is now: \(calculatedIndex)")
+            print("adjustMoveToIndex: empty movedIndices: calculatedIndex is now: \(calculatedIndex)")
         } else {
             let maxMovedIndex = movedIndices.max()!
-            //            print("maxMovedIndex: \(maxMovedIndex)")
+            print("adjustMoveToIndex: maxMovedIndex: \(maxMovedIndex)")
             calculatedIndex = maxMovedIndex + diff
-            //            print("nonEmpty movedIndices: calculatedIndex is now: \(calculatedIndex)")
+            print("adjustMoveToIndex: nonEmpty movedIndices: calculatedIndex is now: \(calculatedIndex)")
         }
-
+        
         if calculatedIndex > maxIndex {
-            //            print("calculatedIndex was too large, will use max index instead")
+            print("adjustMoveToIndex: calculatedIndex was too large, will use max index instead")
             calculatedIndex = maxIndex
         }
         return calculatedIndex
 
     } else {
-        //        print("Will NOT adjust moveTo index")
+        print("adjustMoveToIndex: Will NOT adjust moveTo index")
         return calculatedIndex
     }
 }
