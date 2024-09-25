@@ -63,8 +63,7 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
                                name: STITCH_PROJECT_DEFAULT_NAME,
                                nodes: nodes,
                                orderedSidebarLayers: [],
-                               commentBoxes: [],
-                               draftedComponents: []),
+                               commentBoxes: []),
                   previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                   previewSizeDevice: PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
                   previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR,
@@ -191,8 +190,7 @@ extension GraphEntity {
               name: "",
               nodes: [],
               orderedSidebarLayers: [],
-              commentBoxes: [],
-              draftedComponents: [])
+              commentBoxes: [])
     }
 }
 

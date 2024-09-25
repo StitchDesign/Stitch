@@ -41,37 +41,21 @@ extension DocumentEncodable {
         }
     }
     
-    static func readPublishedComponentsDirectory(rootUrl: URL) -> [URL] {
+    static func readComponentsDirectory(rootUrl: URL) -> [URL] {
         (try? FileManager.default.contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
                                                     includingPropertiesForKeys: nil)) ?? []
     }
     
-//    static func __readPublishedComponentsDirectory(rootUrl: URL) -> [StitchComponent] {
-//        let publishedDocumentComponentsDir = rootUrl.appending(component: URL.componentsDirPath)
-//        
-//        // Components might not exist so fail quietly
-//        let components = (try? StitchComponent.migrateEncodedComponents(at: publishedDocumentComponentsDir)) ?? []
-//        
-//        return components
-//    }
-    
-//    func readPublishedComponentsDirectory() -> [StitchComponent] {
-//        Self.readPublishedComponentsDirectory(rootUrl: self.rootUrl)
-//    }
-    
-    func readAllImportedFiles() -> StitchDocumentSubdirectoryFiles {
+    func readAllImportedFiles() -> StitchDocumentDirectory {
         Self.readAllImportedFiles(rootUrl: self.rootUrl)
     }
     
-    static func readAllImportedFiles(rootUrl: URL) -> StitchDocumentSubdirectoryFiles {
+    static func readAllImportedFiles(rootUrl: URL) -> StitchDocumentDirectory {
         let importedFilesDir = Self.getAllMediaURLs(in: rootUrl.appendingStitchMediaPath())
-        let componentFilesDir = Self.readPublishedComponentsDirectory(rootUrl: rootUrl)
-        
-        // Find and migrate each installed component
-//        let publishedDocumentComponentsDir = Self.readPublishedComponentsDirectory(rootUrl: rootUrl)
+        let componentFilesDir = Self.readComponentsDirectory(rootUrl: rootUrl)
         
         return .init(importedMediaUrls: importedFilesDir,
-                     publishedComponentUrls: componentFilesDir)
+                     componentDirs: componentFilesDir)
     }
 
     func copyToMediaDirectory(originalURL: URL,
@@ -141,7 +125,7 @@ extension DocumentEncodable {
     }
     
     /// Copies files from another directory.
-    func copyFiles(from directory: StitchDocumentSubdirectoryFiles) -> StitchDocumentSubdirectoryFiles {
+    func copyFiles(from directory: StitchDocumentDirectory) -> StitchDocumentDirectory {
         // Copy selected media
         let newMediaUrls: [URL] = directory.importedMediaUrls.compactMap { mediaUrl in
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -158,7 +142,7 @@ extension DocumentEncodable {
             }
         }
         
-        let newComponentUrls = directory.publishedComponentUrls.compactMap { componentUrl in
+        let newComponentUrls = directory.componentDirs.compactMap { componentUrl in
             do {
                 let newComponentUrl = self.rootUrl.appendingComponentsPath()
                 try FileManager.default.copyItem(at: componentUrl, to: newComponentUrl)
@@ -170,6 +154,6 @@ extension DocumentEncodable {
         }
         
         return .init(importedMediaUrls: newMediaUrls,
-                     publishedComponentUrls: newComponentUrls)
+                     componentDirs: newComponentUrls)
     }
 }

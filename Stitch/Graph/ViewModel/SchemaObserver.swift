@@ -49,6 +49,36 @@ extension Dictionary where Value: SchemaObserverIdentifiable, Key == Value.ID {
 extension Array where Element: SchemaObserverIdentifiable {
     @MainActor
     mutating func sync(with newEntities: [Element.CodableSchema]) {
+        self.sync(with: newEntities,
+                   updateCallback: { viewModel, data in
+            viewModel.update(from: data)
+        }) { data in
+            Element.createObject(from: data)
+        }
+    }
+}
+
+extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
+    @MainActor
+    mutating func sync<DataElement>(with newEntities: [DataElement],
+                                    updateCallback: @escaping (Value, DataElement) -> (),
+                                    createCallback: @escaping (DataElement) -> Value) where DataElement: Identifiable, DataElement.ID == Value.ID {
+        var values = Array(self.values)
+        values.sync(with: newEntities,
+                    updateCallback: updateCallback,
+                    createCallback: createCallback)
+        
+        self = values.reduce(into: Self.init()) { result, observer in
+            result.updateValue(observer, forKey: observer.id)
+        }
+    }
+}
+
+extension Array where Element: Identifiable & AnyObject {
+    @MainActor
+    mutating func sync<DataElement>(with newEntities: [DataElement],
+                                    updateCallback: @escaping (Element, DataElement) -> (),
+                                    createCallback: @escaping (DataElement) -> Element) where DataElement: Identifiable, DataElement.ID == Element.ID {
         let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
         let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
@@ -65,10 +95,10 @@ extension Array where Element: SchemaObserverIdentifiable {
         // Create or update entities from new list
         self = newEntities.map { newEntity in
             if let entity = currentEntitiesMap.get(newEntity.id) {
-                entity.update(from: newEntity)
+                updateCallback(entity, newEntity)
                 return entity
             } else {
-                return Element.createObject(from: newEntity)
+                return createCallback(newEntity)
             }
         }
     }

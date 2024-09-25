@@ -18,8 +18,7 @@ import Vision
 // TODO: move
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
-    var publishedComponent: StitchComponent?
-    var draftedComponent: StitchComponent
+    var componentData: StitchComponentData
     
     // Encoded copy of drafted component
     let documentEncoder: ComponentEncoder
@@ -27,11 +26,9 @@ final class StitchMasterComponent {
     weak var parentGraph: GraphState?
     
     @MainActor
-    init(draftedComponent: StitchComponent,
-         publishedComponent: StitchComponent? = nil,
+    init(componentData: StitchComponentData,
          parentGraph: GraphState?) {
-        self.draftedComponent = draftedComponent
-        self.publishedComponent = publishedComponent
+        self.componentData = componentData
         self.documentEncoder = .init(component: draftedComponent)
         self.parentGraph = parentGraph
         
@@ -39,17 +36,25 @@ final class StitchMasterComponent {
     }
 }
 
-extension StitchMasterComponent: SchemaObserverIdentifiable {
-    func update(from schema: StitchComponent) {
-        self.draftedComponent = schema
+extension StitchMasterComponent {
+    var publishedComponent: StitchComponent? {
+        self.componentData.published
+    }
+       
+    var draftedComponent: StitchComponent {
+        self.componentData.draft
     }
     
-    func createSchema() -> StitchComponent {
-        self.draftedComponent
+    func update(from schema: StitchComponentData) {
+        self.componentData = schema
     }
     
-    static func createObject(from entity: StitchComponent) -> Self {
-        .init(draftedComponent: entity,
+    func createSchema() -> StitchComponentData {
+        self.componentData
+    }
+    
+    @MainActor static func createObject(from entity: StitchComponentData) -> Self {
+        .init(componentData: entity,
               parentGraph: nil)
     }
     
@@ -62,9 +67,9 @@ extension StitchMasterComponent: SchemaObserverIdentifiable {
 
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
-extension StitchMasterComponent: DocumentEncodableDelegate {
-    func willEncodeProject(schema: StitchComponent) {
-        self.draftedComponent = schema
+extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
+    @MainActor func willEncodeProject(schema: StitchComponentData) {
+        self.componentData = schema
         self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
     }
     
@@ -77,7 +82,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
     }
     
     func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        publishedComponents: [StitchComponent]) {
+                                        components: [StitchComponentData]) {
         guard let parentGraph = parentGraph else {
             fatalErrorIfDebug()
             return
@@ -95,7 +100,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate {
         
         componentGraphStates.forEach { graphState in
             graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-                                                      publishedComponents: publishedComponents)
+                                                      components: components)
         }
     }
 }
@@ -274,18 +279,19 @@ final class GraphState: Sendable {
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
     @MainActor init(from schema: GraphEntity,
-                    saveLocation: [UUID]) {
+                    saveLocation: [UUID],
+                    draftedComponents: [StitchComponent]) {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-        self.components = schema.draftedComponents
-            .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
-                let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
-                                                           parentGraph: self)
-                result.updateValue(componentGraph, forKey: componentEntity.id)
-            }
+//        self.components = draftedComponents
+//            .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
+//                let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
+//                                                           parentGraph: self)
+//                result.updateValue(componentGraph, forKey: componentEntity.id)
+//            }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
                                                         components: self.components,
@@ -444,26 +450,21 @@ extension GraphState {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
-
-        let draftedComponents = self.components.values
-            .map { componentGraph in
-                componentGraph.draftedComponent
-        }
         
         let graph = GraphEntity(id: self.projectId,
                                 name: documentDelegate.projectName,
                                 nodes: nodes,
                                 orderedSidebarLayers: self.orderedSidebarLayers,
-                                commentBoxes: commentBoxes,
-                                draftedComponents: draftedComponents)
+                                commentBoxes: commentBoxes)
         return graph
     }
     
-    @MainActor func update(from schema: GraphEntity) {
+    @MainActor func update(from schema: GraphEntity,
+                           draftedComponents: [StitchComponent]) {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-        self.components.sync(with: schema.draftedComponents)
+        self.components.sync(with: draftedComponents)
         
         if let documentViewModel = self.documentDelegate {
             self.initializeDelegate(document: documentViewModel,
@@ -815,9 +816,9 @@ extension GraphState {
                           name: STITCH_PROJECT_DEFAULT_NAME,
                           nodes: [],
                           orderedSidebarLayers: [],
-                          commentBoxes: [],
-                          draftedComponents: []),
-              saveLocation: [])
+                          commentBoxes: []),
+              saveLocation: [],
+              draftedComponents: [])
     }
     
     /// Updates values at a specific output loop index.

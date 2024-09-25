@@ -33,13 +33,22 @@ struct CloseGraph: StitchStoreEvent {
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
     @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        publishedComponents: [StitchComponent]) {
+                                        components: [StitchComponentData]) {
         // Must initialize on main thread
         self.graphStepManager.start()
 
         self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-                                                  publishedComponents: publishedComponents)
+                                                  components: components)
     }
+}
+
+struct StitchComponentData: Codable {
+    let draft: StitchComponent
+    let published: StitchComponent
+}
+
+extension StitchComponentData: Identifiable {
+    var id: UUID { self.draft.id }
 }
 
 extension GraphState: DocumentEncodableDelegate {
@@ -47,18 +56,18 @@ extension GraphState: DocumentEncodableDelegate {
     
     @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        publishedComponents: [StitchComponent]) {
+                                        components: [StitchComponentData]) {
         // Set loading status to loaded
         self.libraryLoadingStatus = .loaded
         
-        // Update published components from disk
-        publishedComponents.forEach { publishedComponent in
-            guard let masterComponent = self.components.get(publishedComponent.graph.id) else {
-                fatalErrorIfDebug()
-                return
-            }
-            
-            masterComponent.publishedComponent = publishedComponent
+        // Update draft and published components from disk
+        self.components.sync(with: components,
+                             updateCallback: { viewModel, data in
+            viewModel.update(from: data)
+        }) { data in
+            let newObject = StitchMasterComponent.createObject(from: data)
+            newObject.initializeDelegate(parentGraph: self)
+            return newObject
         }
 
         // Add urls to library

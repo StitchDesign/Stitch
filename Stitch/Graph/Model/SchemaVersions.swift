@@ -267,20 +267,17 @@ public struct GraphEntity: Codable, Equatable {
     public var nodes: [NodeEntity]
     public var orderedSidebarLayers: [SidebarLayerData]
     public let commentBoxes: [CommentBoxData]
-    public var draftedComponents: [StitchComponent]
     
     init(id: UUID,
          name: String,
          nodes: [NodeEntity],
          orderedSidebarLayers: [SidebarLayerData],
-         commentBoxes: [CommentBoxData],
-         draftedComponents: [StitchComponent]) {
+         commentBoxes: [CommentBoxData]) {
         self.id = id
         self.name = name
         self.nodes = nodes
         self.orderedSidebarLayers = orderedSidebarLayers
         self.commentBoxes = commentBoxes
-        self.draftedComponents = draftedComponents
     }
 }
 

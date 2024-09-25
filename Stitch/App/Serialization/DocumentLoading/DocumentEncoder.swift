@@ -29,7 +29,7 @@ protocol DocumentEncodableDelegate: AnyObject {
     
     @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        publishedComponents: [StitchComponent])
+                                        components: [StitchComponentData])
 }
 
 extension DocumentEncodable {
