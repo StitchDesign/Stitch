@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "iOSDefaultRegular.png",
+      "filename" : "iOS.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,7 +25,7 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "iOS.png",
+      "filename" : "iOS-tint.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
