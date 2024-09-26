@@ -53,16 +53,16 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor
-    func maybeCreateLLMAddNode(_ newlyCreatedNodeId: NodeId) {
-        // If we're LLM-recording, add an `LLMAddNode` action
-        if self.llmRecording.isRecording,
-           let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
-            
-            let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
-            
-            self.llmRecording.actions.append(.addNode(llmAddNode))
+        func maybeCreateLLMAddNode(_ newlyCreatedNodeId: NodeId) {
+            // If we're LLM-recording, add an `LLMAddNode` action
+            if self.llmRecording.isRecording,
+               let newlyCreatedNode = self.graph.getNodeViewModel(newlyCreatedNodeId) {
+                
+                let llmAddNode = LLMAddNode(node: newlyCreatedNode.llmNodeTitle)
+                
+                self.llmRecording.actions.append(.addNode(llmAddNode))
+            }
         }
-    }
 
     @MainActor
     func maybeCreateLLMMoveNode(canvasItem: CanvasItemViewModel,

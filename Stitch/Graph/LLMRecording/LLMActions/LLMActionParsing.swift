@@ -123,19 +123,19 @@ extension StitchDocumentViewModel {
             
             guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   let node = self.graph.getNode(nodeId) else {
-                log("handleLLMAction: .setField: No node id or node")
+                log("handleLLMAction: .setInput: No node id or node")
                 return
             }
             
             guard let portType = x.field.port.parseLLMPortAsPortType(nodeKind, .input) else {
-                log("handleLLMAction: .setField: No port")
+                log("handleLLMAction: .setInput: No port")
                 return
             }
             
             let inputCoordinate = InputCoordinate(portType: portType, nodeId: nodeId)
             
             guard let nodeType = x.nodeType.parseLLMNodeType else {
-                log("handleLLMAction: .setField: No node type")
+                log("handleLLMAction: .setInput: No node type")
                 return
             }
             
@@ -397,10 +397,13 @@ extension String {
         
         var s = self
         
-        // drop closing parens
+        // Normalize the input by replacing underscores with spaces and capitalizing words
+        s = s.replacingOccurrences(of: "_", with: " ").capitalized
+        
+        // Drop closing parentheses
         s.removeLast()
         
-        // split at and remove opening parens
+        // Split at and remove opening parentheses
         let _s = s.split(separator: "(")
         
         let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
