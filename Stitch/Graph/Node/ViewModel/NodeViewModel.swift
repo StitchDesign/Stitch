@@ -51,7 +51,6 @@ final class NodeViewModel: Sendable {
     weak var graphDelegate: GraphDelegate?
 
     /// Called on initialization or prototype restart.
-    @MainActor
     func createEphemeralObservers() {
         if let ephemeralObserver = self.createEphemeralObserver() {
             self.ephemeralObservers = [ephemeralObserver]
@@ -246,8 +245,8 @@ extension NodeViewModel {
                   )
     }
     
-    @MainActor func initializeDelegate(graph: GraphDelegate,
-                                       document: StitchDocumentViewModel) {
+    func initializeDelegate(graph: GraphDelegate,
+                            document: StitchDocumentViewModel) {
         self.graphDelegate = graph
         self.nodeType.initializeDelegate(self,
                                          components: graph.components,
@@ -261,7 +260,6 @@ extension NodeViewModel {
         }
     }
 
-    @MainActor
     func createEphemeralObserver() -> NodeEphemeralObservable? {
         let observer = self.kind.graphNode?.createEphemeralObserver()
         

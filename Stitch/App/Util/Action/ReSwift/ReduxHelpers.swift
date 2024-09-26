@@ -68,19 +68,19 @@ extension DocumentEncoder {
             return
         }
 
-        let lastEncodedData = self.lastEncodedDocument
-
         // TODO: can we ever write undo-history if we had undo-events but shouldPersist=false ?
         if StitchUndoManager.shouldUpdateUndo(
             willPersist: response.shouldPersist,
             containsUndoEvents: !(response.undoEvents ?? []).isEmpty) {
 
             // log("handleResponse: will update undo history")
-            await MainActor.run { [weak store, weak documentState] in
-                guard let documentState = documentState else {
+            await MainActor.run { [weak store, weak documentState, weak self] in
+                guard let documentState = documentState,
+                      let encoder = self else {
                     return
                 }
                 
+                let lastEncodedData = encoder.lastEncodedDocument
                 let nextData = documentState.createSchema()
                 
                 // Create copy of next state to be saved in the UndoManager stack

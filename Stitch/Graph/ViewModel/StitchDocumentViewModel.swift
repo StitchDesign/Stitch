@@ -69,11 +69,19 @@ final class StitchDocumentViewModel: Sendable {
         self.graphMovement.localPosition = schema.localPosition
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
+            
+        if let store = store {
+            self.initializeDelegate(store: store)
+        }
     }
     
-    @MainActor
     func initializeDelegate(store: StoreDelegate) {
-        self.documentEncoder.delegate = self
+        Task(priority: .high) {
+            await MainActor.run { [weak self] in
+                guard let doc = self else { return }
+                doc.documentEncoder.delegate = doc
+            }
+        }
         self.graphStepManager.delegate = self
         self.storeDelegate = store
         
@@ -94,12 +102,6 @@ final class StitchDocumentViewModel: Sendable {
                   documentEncoder: documentEncoder,
                   isPhoneDevice: isPhoneDevice,
                   store: store)
-        
-        await MainActor.run { [weak self, weak store] in
-            if let store = store {
-                self?.initializeDelegate(store: store)
-            }
-        }
     }
 }
 

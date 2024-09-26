@@ -12,7 +12,9 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
     
-    var lastEncodedDocument: CodableDocument { get set }
+    @MainActor var lastEncodedDocument: CodableDocument { get set }
+    
+    var id: UUID { get set }
     
     var rootUrl: URL { get }
     
@@ -44,10 +46,6 @@ extension DocumentEncodable {
         }
     }
     
-    var id: UUID {
-        self.lastEncodedDocument.id
-    }
-    
     var recentlyDeletedUrl: URL {
         StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
     }
@@ -70,7 +68,9 @@ extension DocumentEncodable {
             log("encodeProject success")
 
             // Save data for last encoded document
-            self.lastEncodedDocument = document
+            await MainActor.run { [weak self] in
+                self?.lastEncodedDocument = document
+            }
             
             // Gets home screen to update with latest doc version
             await dispatch(DirectoryUpdated())
@@ -91,11 +91,14 @@ extension DocumentEncodable {
 //}
 
 final actor DocumentEncoder: DocumentEncodable {
+    var id: UUID
+    
     // Keeps track of last saved StitchDocument to disk
-    var lastEncodedDocument: StitchDocument
+    @MainActor var lastEncodedDocument: StitchDocument
     @MainActor weak var delegate: StitchDocumentViewModel?
     
     init(document: StitchDocument) {
+        self.id = document.graph.id
         self.lastEncodedDocument = document
     }
 }
@@ -109,17 +112,16 @@ extension DocumentEncoder {
 }
 
 final actor ComponentEncoder: DocumentEncodable {
+    var id: UUID
+    var rootUrl: URL
+    
     // Keeps track of last saved StitchDocument to disk
-    var lastEncodedDocument: StitchComponentData
+    @MainActor var lastEncodedDocument: StitchComponentData
     @MainActor weak var delegate: StitchMasterComponent?
     
     init(component: StitchComponentData) {
+        self.id = component.id
         self.lastEncodedDocument = component
-    }
-}
-
-extension ComponentEncoder {
-    var rootUrl: URL {
-        lastEncodedDocument.rootUrl
+        self.rootUrl = component.rootUrl
     }
 }

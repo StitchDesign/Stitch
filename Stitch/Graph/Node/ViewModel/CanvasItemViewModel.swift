@@ -205,9 +205,9 @@ extension CanvasItemViewModel {
 }
 
 extension CanvasItemViewModel {
-    @MainActor func initializeDelegate(_ node: NodeDelegate,
-                                       unpackedPortParentFieldGroupType: FieldGroupType?,
-                                       unpackedPortIndex: Int?) {
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         self.nodeDelegate = node
         self.inputViewModels.forEach {
             $0.initializeDelegate(node,

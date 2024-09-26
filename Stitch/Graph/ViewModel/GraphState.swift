@@ -18,7 +18,12 @@ import Vision
 // TODO: move
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
-    var componentData: StitchComponentData
+    @MainActor var componentData: StitchComponentData {
+        self.documentEncoder.lastEncodedDocument
+    }
+    
+    let id: UUID
+    let saveLocation: GraphSaveLocation
     
     // Encoded copy of drafted component
     let documentEncoder: ComponentEncoder
@@ -27,7 +32,9 @@ final class StitchMasterComponent {
     
     init(componentData: StitchComponentData,
          parentGraph: GraphState?) {
-        self.componentData = componentData
+        self.id = componentData.draft.id
+        self.saveLocation = componentData.draft.saveLocation
+//        self.componentData = componentData
         self.documentEncoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
@@ -39,19 +46,19 @@ final class StitchMasterComponent {
 }
 
 extension StitchMasterComponent {
-    var publishedComponent: StitchComponent? {
+    @MainActor var publishedComponent: StitchComponent? {
         self.componentData.published
     }
        
-    var draftedComponent: StitchComponent {
+    @MainActor var draftedComponent: StitchComponent {
         self.componentData.draft
     }
     
-    func update(from schema: StitchComponentData) {
-        self.componentData = schema
-    }
+//    func update(from schema: StitchComponentData) {
+//        self.componentData = schema
+//    }
     
-    func createSchema() -> StitchComponentData {
+    @MainActor func createSchema() -> StitchComponentData {
         self.componentData
     }
     
@@ -62,9 +69,15 @@ extension StitchMasterComponent {
     
     func onPrototypeRestart() { }
     
-    @MainActor func initializeDelegate(parentGraph: GraphState) {
+    func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph
-        self.documentEncoder.delegate = self
+        
+        Task {
+            await MainActor.run { [weak self] in
+                guard let component = self else { return }
+                component.documentEncoder.delegate = component
+            }
+        }
     }
 }
 
@@ -72,16 +85,8 @@ typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     @MainActor func willEncodeProject(schema: StitchComponentData) {
-        self.componentData = schema
+//        self.componentData = schema
         self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
-    }
-    
-    var id: UUID {
-        self.draftedComponent.id
-    }
-    
-    var saveLocation: GraphSaveLocation {
-        self.draftedComponent.saveLocation
     }
     
     func importedFilesDirectoryReceived(mediaFiles: [URL],
@@ -295,10 +300,44 @@ final class GraphState: Sendable {
             mediaLibrary.updateValue(url, forKey: url.mediaKey)
         }
         
-        DispatchQueue.main.async { [weak self] in
-            self?.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
-                                                 components: graphDecodedFiles.components)
-        }
+        self.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
+                                             components: graphDecodedFiles.components)
+        
+//        Task(priority: .high) { [weak self] in
+//            guard let graph = self else { return }
+//            await graph.visibleNodesViewModel
+//                .updateNodeSchemaData(newNodes: schema.nodes,
+//                                      components: graph.components,
+//                                      parentGraphPath: graph.saveLocation)
+            
+//            await MainActor.run { [weak self] in
+//                guard let graph = self else { return }
+//                
+//                guard let document = graph.documentDelegate,
+//                      let documentEncoder = graph.documentEncoderDelegate else {
+//                    fatalErrorIfDebug()
+//                    return
+//                }
+//
+//                graph.initializeDelegate(document: document,
+//                                         documentEncoderDelegate: documentEncoder)
+//                
+//                graph.updateSidebarListStateAfterStateChange()
+//                
+//                // TODO: why is this necessary?
+//                _updateStateAfterListChange(
+//                    updatedList: graph.sidebarListState,
+//                    expanded: graph.getSidebarExpandedItems(),
+//                    graphState: graph)
+//                
+//                // Calculate graph
+//                graph.initializeGraphComputation()
+//                
+//                // Initialize preview layers
+//                graph.updateOrderedPreviewLayers()
+//            }
+//        }
+        
         
 //        // MARK: important we don't initialize nodes until after media is estbalished
 //        DispatchQueue.main.async { [weak self] in
@@ -321,12 +360,18 @@ final class GraphState: Sendable {
         self.init(from: schema,
                   saveLocation: saveLocation,
                   graphDecodedFiles: decodedFiles)
+        
+        await self.visibleNodesViewModel
+            .updateNodeSchemaData(newNodes: schema.nodes,
+                                  components: self.components,
+                                  parentGraphPath: self.saveLocation)
     }
     
-    @MainActor func initializeDelegate(document: StitchDocumentViewModel,
-                                       documentEncoderDelegate: any DocumentEncodable) {
+    func initializeDelegate(document: StitchDocumentViewModel,
+                            documentEncoderDelegate: any DocumentEncodable) {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
+        
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
         
@@ -335,9 +380,27 @@ final class GraphState: Sendable {
             $0.initializeDelegate(parentGraph: self)
         }
         
+        self.updateSidebarListStateAfterStateChange()
+        
+        // TODO: why is this necessary?
+        _updateStateAfterListChange(
+            updatedList: self.sidebarListState,
+            expanded: self.getSidebarExpandedItems(),
+            graphState: self)
+        
+        Task(priority: .high) {
+            await MainActor.run { [weak self] in
+                // Calculate graph
+                self?.initializeGraphComputation()
+    
+                // Initialize preview layers
+                self?.updateOrderedPreviewLayers()
+            }
+        }
+        
         // Get media + encoded component files after view models are established
 //        Task(priority: .high) { [weak self] in
-//            await self?.documentEncoderDelegate?.graphInitialized()
+//            await graph.documentEncoderDelegate?.graphInitialized()
 //        }
     }
 }
@@ -499,6 +562,12 @@ extension GraphState {
         await self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
                                                               components: self.components,
                                                               parentGraphPath: self.saveLocation)
+        
+        if let document = self.documentDelegate,
+           let documentEncoder = self.documentEncoderDelegate {
+            self.initializeDelegate(document: document,
+                                    documentEncoderDelegate: documentEncoder)
+        }
         
         self.updateSidebarListStateAfterStateChange()
         

@@ -88,7 +88,7 @@ extension NodeRowObserver {
         }
     }
     
-    @MainActor var activeValue: PortValue {
+    var activeValue: PortValue {
         guard let graph = self.nodeDelegate?.graphDelegate else {
             return self.allLoopedValues.first ?? .none
         }

@@ -58,7 +58,7 @@ extension MasterComponentsDict {
     mutating func sync(with data: [StitchComponentData]) {
         self.sync(with: data,
                   updateCallback: { viewModel, data in
-            viewModel.update(from: data)
+//            viewModel.update(from: data)
         }) { data in
             StitchMasterComponent.createObject(from: data)
         }

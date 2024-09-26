@@ -117,8 +117,7 @@ extension NodeRowViewModel {
     var computationNode: NodeDelegate? {
         self.rowDelegate?.nodeDelegate
     }
-    
-    @MainActor 
+     
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
@@ -128,6 +127,7 @@ extension NodeRowViewModel {
         }
         
         self.nodeDelegate = node
+        
         self.initializeValues(rowDelegate: rowDelegate,
                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                               unpackedPortIndex: unpackedPortIndex,

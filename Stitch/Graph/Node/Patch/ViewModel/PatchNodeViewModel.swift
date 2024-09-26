@@ -124,7 +124,7 @@ extension PatchNodeViewModel: SchemaObserver {
 }
 
 extension PatchNodeViewModel {
-    @MainActor func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
+    func initializeDelegate(_ node: PatchNodeViewModelDelegate) {
         self.delegate = node
         
         self.inputsObservers.forEach {

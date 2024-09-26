@@ -66,7 +66,7 @@ extension StitchComponentViewModel {
               graph: .init())
     }
     
-    @MainActor func initializeDelegate(node: NodeDelegate,
+    func initializeDelegate(node: NodeDelegate,
                                        components: [UUID: StitchMasterComponent],
                                        document: StitchDocumentViewModel) {
         self.nodeDelegate = node
@@ -220,9 +220,9 @@ extension NodeViewModelType {
         }
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate,
-                                       components: [UUID: StitchMasterComponent],
-                                       document: StitchDocumentViewModel) {
+    func initializeDelegate(_ node: NodeDelegate,
+                            components: [UUID: StitchMasterComponent],
+                            document: StitchDocumentViewModel) {
         switch self {
         case .patch(let patchNodeViewModel):
             guard let patchDelegate = node as? PatchNodeViewModelDelegate else {

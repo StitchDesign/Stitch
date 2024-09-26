@@ -346,7 +346,6 @@ extension LayerNodeViewModel: SchemaObserver {
         self.updateOutputData(from: schema.outputCanvasPorts)
     }
     
-    @MainActor
     /// Helper which discovers a layer node's inputs and passes its port into a callback.
     func forEachInput(_ callback: @escaping ((LayerInputObserver) -> ())) {
         self.layer.layerGraphNode.inputDefinitions.forEach {
@@ -424,7 +423,6 @@ extension LayerNodeViewModel: SchemaObserver {
 }
 
 extension LayerNodeViewModel {
-    @MainActor
     func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         

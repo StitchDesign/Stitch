@@ -128,7 +128,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
                                            canvasItemDelegate: nil)
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeDelegate) {
         self.rowObserver.initializeDelegate(node)
         self.canvasObserver?.initializeDelegate(node,
                                                 // Not relevant
@@ -142,9 +142,9 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
 }
 
 extension LayerNodeRowData {
-    @MainActor func initializeDelegate(_ node: NodeDelegate,
-                                       unpackedPortParentFieldGroupType: FieldGroupType?,
-                                       unpackedPortIndex: Int?) {
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         self.rowObserver.initializeDelegate(node)
         self.canvasObserver?.initializeDelegate(node,
                                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
