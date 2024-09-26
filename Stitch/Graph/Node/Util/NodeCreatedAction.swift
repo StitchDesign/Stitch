@@ -20,6 +20,13 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     }
 }
 
+extension GraphState {
+    @MainActor
+    func nodeCreated(choice: NodeKind) -> NodeViewModel? {
+        self.documentDelegate?.nodeCreated(choice: choice)
+    }
+}
+
 extension StitchDocumentViewModel {
     @MainActor
     var newNodeCenterLocation: CGPoint {

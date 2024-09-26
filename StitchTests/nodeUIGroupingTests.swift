@@ -27,9 +27,10 @@ class GroupNodeTests: XCTestCase {
     
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
     @MainActor
-    func createSimpleGroupNode() -> (GraphState, NodeViewModel) {
-        
-        let graphState = GraphState()
+    func createSimpleGroupNode() -> (StitchDocumentViewModel, NodeViewModel) {
+        let document = StitchDocumentViewModel(from: .init(nodes: []),
+                                               store: nil)
+        let graphState = document.graph
         
         // Create two Add nodes
         guard let node1 = graphState.nodeCreated(choice: .patch(.add)),
@@ -49,7 +50,7 @@ class GroupNodeTests: XCTestCase {
         graphState.addNodeToSelections(canvasNode2.id)
             
         // Create the group
-        let _ = GroupNodeCreatedEvent().handle(state: graphState)
+        let _ = GroupNodeCreatedEvent().handle(state: document)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 1)
         
@@ -67,7 +68,7 @@ class GroupNodeTests: XCTestCase {
         // There should only be two nodes in the group; no splitters etc.
         XCTAssertEqual(nodesInGroup.count, 2)
         
-        return (graphState, groupNode)
+        return (document, groupNode)
     }
     
     @MainActor
@@ -78,7 +79,8 @@ class GroupNodeTests: XCTestCase {
     
     @MainActor
     func testSimpleGroupNodeDuplication() throws {
-        let (graphState, groupNode) = createSimpleGroupNode()
+        let (document, groupNode) = createSimpleGroupNode()
+        let graphState = document.graph
         let groupNodeId = groupNode.id
         
         guard let canvasItem = groupNode.patchCanvasItem else {
@@ -93,7 +95,7 @@ class GroupNodeTests: XCTestCase {
         XCTAssertEqual(graphState.selectedNodeIds.count, 1)
         XCTAssertEqual(graphState.selectedNodeIds.first!, canvasItem.id)
         
-        let _ = DuplicateShortcutKeyPressed().handle(state: graphState)
+        let _ = DuplicateShortcutKeyPressed().handle(state: document)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 2)
         

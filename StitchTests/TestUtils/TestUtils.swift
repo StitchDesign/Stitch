@@ -10,6 +10,13 @@ import StitchSchemaKit
 import SwiftUI
 @testable import Stitch
 
+extension StitchDocumentViewModel {
+    @MainActor convenience init() {
+        self.init(from: .init(nodes: []),
+                  store: nil)
+    }
+}
+
 extension Patch {
     @MainActor
     func createDefaultTestNode(graph: GraphDelegate? = nil) -> NodeViewModel {
