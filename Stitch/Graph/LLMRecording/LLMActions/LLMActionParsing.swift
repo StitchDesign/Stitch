@@ -417,18 +417,31 @@ extension String {
         }
     }
     
-    var getNodeKind: NodeKind? {
-        // Assumes `self` is already "human-readable" patch/layer name,
-        // e.g. "Convert Position" not "convertPosition"
-        // TODO: update Patch and Layer enums to use human-readable names for their cases' raw string values; then can just use `Patch(rawValue: self)`
-        if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .layer(layer)
-        } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .patch(patch)
+        var getNodeKind: NodeKind? {
+            // Normalize the input by removing underscores and lowercasing
+            let normalizedInput = self.replacingOccurrences(of: "_", with: "").lowercased()
+            
+            // Check for special cases with 2-character sequences
+            let specialCases: [String: NodeKind] = [
+                "ar anchor": .patch(.arAnchor),
+                "arc tan2": .patch(.arcTan2),
+                "qr code detection": .patch(.qrCodeDetection),
+                "model 3d import": .patch(.model3DImport)
+            ]
+            
+            if let specialCase = specialCases[normalizedInput] {
+                return specialCase
+            }
+            
+            // If not a special case, proceed with the original logic
+            if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle().lowercased().replacingOccurrences(of: " ", with: "") == normalizedInput }) {
+                return .layer(layer)
+            } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle().lowercased().replacingOccurrences(of: " ", with: "") == normalizedInput }) {
+                return .patch(patch)
+            }
+            
+            return nil
         }
-        
-        return nil
-    }
 }
 
 extension PortValue {
