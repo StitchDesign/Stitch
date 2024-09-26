@@ -119,23 +119,20 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate = nodeDelegate
         
         // Instantiate input and output row view models
-        DispatchQueue.main.async { [weak self] in
-            self?.syncRowViewModels(inputRowObservers: inputRowObservers,
-                                    outputRowObservers: outputRowObservers,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: unpackedPortIndex)
-            
-            if let node = self?.nodeDelegate {
-                self?.initializeDelegate(node,
-                                         unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                         unpackedPortIndex: unpackedPortIndex)
-            }
-        }
+        self.syncRowViewModels(inputRowObservers: inputRowObservers,
+                               outputRowObservers: outputRowObservers,
+                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                               unpackedPortIndex: unpackedPortIndex)
+        
+//        if let node = self?.nodeDelegate {
+//            self?.initializeDelegate(node,
+//                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                     unpackedPortIndex: unpackedPortIndex)
+//        }
     }
 }
 
 extension CanvasItemViewModel {
-    @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
                            unpackedPortParentFieldGroupType: FieldGroupType?,

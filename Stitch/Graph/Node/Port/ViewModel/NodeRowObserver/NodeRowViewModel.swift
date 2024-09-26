@@ -360,7 +360,6 @@ extension OutputNodeRowViewModel {
 }
 
 extension Array where Element: NodeRowViewModel {
-    @MainActor
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
@@ -401,11 +400,11 @@ extension Array where Element: NodeRowViewModel {
                                            rowDelegate: newEntity,
                                            canvasItemDelegate: canvas)
                 
-                if let node = node {
-                    rowViewModel.initializeDelegate(node,
-                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                    unpackedPortIndex: unpackedPortIndex)
-                }
+//                if let node = node {
+//                    rowViewModel.initializeDelegate(node,
+//                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                                    unpackedPortIndex: unpackedPortIndex)
+//                }
                 
                 return rowViewModel
             }
