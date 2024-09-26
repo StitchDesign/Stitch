@@ -397,10 +397,13 @@ extension String {
         
         var s = self
         
-        // drop closing parens
+        // Normalize the input by replacing underscores with spaces and capitalizing words
+        s = s.replacingOccurrences(of: "_", with: " ").capitalized
+        
+        // Drop closing parentheses
         s.removeLast()
         
-        // split at and remove opening parens
+        // Split at and remove opening parentheses
         let _s = s.split(separator: "(")
         
         let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
