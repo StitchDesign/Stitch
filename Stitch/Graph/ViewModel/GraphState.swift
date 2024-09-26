@@ -558,7 +558,7 @@ extension GraphState {
     }
     
     func syncNodes(with entities: [NodeEntity]) async {
-        await self.visibleNodesViewModel.nodes
+        let newDictionary = await self.visibleNodesViewModel.nodes
             .sync(with: entities,
                   updateCallback: { nodeViewModel, nodeSchema in
             await nodeViewModel.update(from: nodeSchema,
@@ -567,6 +567,10 @@ extension GraphState {
             await NodeViewModel(from: nodeSchema,
                                 components: self.components,
                                 parentGraphPath: self.saveLocation)
+        }
+        
+        await MainActor.run { [weak self] in
+            self?.visibleNodesViewModel.nodes = newDictionary
         }
     }
     
@@ -779,6 +783,7 @@ extension GraphState {
         return node.getOutputRowViewModel(for: rowId)
     }
     
+    @MainActor
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }
@@ -856,6 +861,7 @@ extension GraphState {
                                           nodeId: id.node)
     }
     
+    @MainActor
     func getNodeViewModel(_ id: NodeId) -> NodeViewModel? {
         self.visibleNodesViewModel.getViewModel(id)
     }
@@ -880,6 +886,7 @@ extension GraphState {
         }
     }
     
+    @MainActor
     func getLayerNode(id: NodeId) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }

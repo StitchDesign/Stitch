@@ -36,11 +36,13 @@ extension VisibleNodesViewModel {
         self.nodesByPage.get(groupNodeFocused.nodePageType)
     }
 
+    @MainActor
     func getViewModel(_ id: NodeId) -> NodeViewModel? {
         self.nodes.get(id)
     }
     
     // Provide an API more consistent with GraphState, GraphDelegate
+    @MainActor
     func getNode(_ id: NodeId) -> NodeViewModel? {
         self.getViewModel(id)
     }
@@ -325,6 +327,7 @@ extension VisibleNodesViewModel {
         return splitterRowObservers
     }
 
+    @MainActor
     func isGroupNode(_ id: NodeId) -> Bool {
         self.getViewModel(id)?.kind.isGroup ?? false
     }

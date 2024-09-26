@@ -84,7 +84,8 @@ struct SidebarGroupCreated: StitchDocumentEvent {
 }
 
 extension GraphState {
-     func layerGroupForSelections(_ selections: NodeIdSet) -> NodeId? {
+    @MainActor
+    func layerGroupForSelections(_ selections: NodeIdSet) -> NodeId? {
 
          // Assumes `selections` all have single parent;
          // this is guaranteed by the way we select layers in the sidebar

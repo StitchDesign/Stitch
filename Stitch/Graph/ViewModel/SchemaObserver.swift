@@ -72,15 +72,15 @@ extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
         }
     }
     
-    mutating func sync<DataElement>(with newEntities: [DataElement],
-                                    updateCallback: @escaping (Value, DataElement) async -> (),
-                                    createCallback: @escaping (DataElement) async -> Value) async where DataElement: Identifiable, DataElement.ID == Value.ID {
-        var values = Array(self.values)
-        await values.sync(with: newEntities,
-                          updateCallback: updateCallback,
-                          createCallback: createCallback)
+    func sync<DataElement>(with newEntities: [DataElement],
+                           updateCallback: @escaping (Value, DataElement) async -> (),
+                           createCallback: @escaping (DataElement) async -> Value) async -> Self where DataElement: Identifiable, Element: Sendable, DataElement.ID == Value.ID {
+        let newValues = await Array(self.values)
+            .sync(with: newEntities,
+                  updateCallback: updateCallback,
+                  createCallback: createCallback)
         
-        self = values.reduce(into: Self.init()) { result, observer in
+        return newValues.reduce(into: Self.init()) { result, observer in
             result.updateValue(observer, forKey: observer.id)
         }
     }
@@ -114,9 +114,10 @@ extension Array where Element: Identifiable & AnyObject {
         }
     }
     
-    mutating func sync<DataElement>(with newEntities: [DataElement],
-                                    updateCallback: @escaping (Element, DataElement) async -> (),
-                                    createCallback: @escaping (DataElement) async -> Element) async where DataElement: Identifiable, DataElement.ID == Element.ID {
+    func sync<DataElement>(with newEntities: [DataElement],
+                           updateCallback: @escaping (Element, DataElement) async -> (),
+                           createCallback: @escaping (DataElement) async -> Element) async -> [Element] where DataElement: Identifiable, Element: Sendable, DataElement.ID == Element.ID {
+        
         let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
         let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
         let entitiesToRemove = currentIds.subtracting(incomingIds)
@@ -126,9 +127,9 @@ extension Array where Element: Identifiable & AnyObject {
         }
 
         // Remove element if no longer tracked by incoming list
-        entitiesToRemove.forEach { idToRemove in
-            self.removeAll { $0.id == idToRemove }
-        }
+//        entitiesToRemove.forEach { idToRemove in
+//            self.removeAll { $0.id == idToRemove }
+//        }
 
         // Create or update entities from new list
         var newValues = [Element]()
@@ -141,7 +142,7 @@ extension Array where Element: Identifiable & AnyObject {
             }
         }
         
-        self = newValues
+        return newValues
     }
 }
 

@@ -222,6 +222,7 @@ extension GraphState: GraphCalculatable {
             .toSet
     }
     
+    @MainActor
     func getNodeViewModel(id: UUID) -> NodeViewModel? {
         self.getNodeViewModel(id)
     }

@@ -10,6 +10,7 @@ import StitchSchemaKit
 import SwiftUI
 
 extension GraphState {
+    @MainActor
     func allShareSameParent(selections: Set<NodeId>) -> Bool {
         guard let parentId = selections.first else {
             return false

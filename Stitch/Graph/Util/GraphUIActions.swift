@@ -70,6 +70,7 @@ struct GroupNodeDoubleTapped: GraphEvent {
 }
 
 extension GraphState {
+    @MainActor
     func getGroupNodeType(for nodeId: NodeId) -> GroupNodeType? {
         guard let node = self.getNodeViewModel(nodeId) else {
             fatalErrorIfDebug()

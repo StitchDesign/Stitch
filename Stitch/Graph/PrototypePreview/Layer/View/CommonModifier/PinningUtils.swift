@@ -333,6 +333,7 @@ extension GraphState {
 
 extension PinToId {
     // nil: either pinToId = root or  pinToId could not be found
+    @MainActor
     func asLayerNodeId(_ pinnedViewId: LayerNodeId,
                        from graph: GraphState) -> LayerNodeId? {
         switch self {
