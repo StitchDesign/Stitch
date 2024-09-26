@@ -9,7 +9,6 @@ import Foundation
 import StitchSchemaKit
 
 extension [NodePortInputEntity] {
-    @MainActor
     func createInputObservers(nodeId: NodeId,
                               kind: NodeKind,
                               userVisibleType: UserVisibleType?) -> [InputNodeRowObserver] {
@@ -111,7 +110,6 @@ extension NodePortInputEntity {
 }
 
 extension NodeRowDefinitions {
-    @MainActor
     func createOutputObservers(nodeId: NodeId,
                                // Pass in values directly from eval
                                values: PortValuesList,

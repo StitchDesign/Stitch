@@ -261,7 +261,7 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
     }
 }
 
-public struct GraphEntity: Codable, Equatable {
+public struct GraphEntity: Codable, Equatable, Sendable {
     public var id: UUID
     public var name: String
     public var nodes: [NodeEntity]

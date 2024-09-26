@@ -102,7 +102,6 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate?.graphDelegate
     }
     
-    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
@@ -117,17 +116,20 @@ final class CanvasItemViewModel: Identifiable {
         self.previousPosition = position
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
+        self.nodeDelegate = nodeDelegate
         
         // Instantiate input and output row view models
-        self.syncRowViewModels(inputRowObservers: inputRowObservers,
-                               outputRowObservers: outputRowObservers,
-                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                               unpackedPortIndex: unpackedPortIndex)
-        
-        if let node = nodeDelegate {
-            self.initializeDelegate(node,
+        DispatchQueue.main.async { [weak self] in
+            self?.syncRowViewModels(inputRowObservers: inputRowObservers,
+                                    outputRowObservers: outputRowObservers,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                     unpackedPortIndex: unpackedPortIndex)
+            
+            if let node = self?.nodeDelegate {
+                self?.initializeDelegate(node,
+                                         unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                         unpackedPortIndex: unpackedPortIndex)
+            }
         }
     }
 }
@@ -150,7 +152,6 @@ extension CanvasItemViewModel: SchemaObserver {
                                    unpackedPortIndex: nil)
     }
     
-    @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],

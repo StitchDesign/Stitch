@@ -24,14 +24,14 @@ extension DocumentEncodable {
     }
 
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func graphInitialized() async {
+    func getDecodedFiles() async -> GraphDecodedFiles? {
         let importedFilesDir = self.readAllImportedFiles()
-        await self.graphInitialized(importedFilesDir: importedFilesDir)
+        return await self.getDecodedFiles(importedFilesDir: importedFilesDir)
     }
     
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func graphInitialized(importedFilesDir: StitchDocumentDirectory,
-                          graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
+    func getDecodedFiles(importedFilesDir: StitchDocumentDirectory,
+                         graphMutation: (@Sendable @MainActor () -> ())? = nil) async -> GraphDecodedFiles? {
         let migratedComponents = importedFilesDir.componentDirs.compactMap { componentUrl -> StitchComponentData? in
             do {
                 guard let draft = try StitchComponent.migrateEncodedComponent(from: componentUrl.appendingComponentDraftPath()),
@@ -48,17 +48,26 @@ extension DocumentEncodable {
             }
         }
         
-        // Start graph once library is built
-        await MainActor.run { [weak self] in
-            guard let encoder = self else {
-                return
-            }
-            
-            // Mutates graph before computation is called on importedFilesDirectoryReceived caller below
-            graphMutation?()
-            
-            encoder.delegate?.importedFilesDirectoryReceived(mediaFiles: importedFilesDir.importedMediaUrls,
-                                                             components: migratedComponents)
-        }
+        return .init(mediaFiles: importedFilesDir.importedMediaUrls,
+                     components: migratedComponents)
+        
+//        // Start graph once library is built
+//        await MainActor.run { [weak self] in
+//            guard let encoder = self else {
+//                return
+//            }
+//            
+//            // Mutates graph before computation is called on importedFilesDirectoryReceived caller below
+//            graphMutation?()
+//            
+//            encoder.delegate?.importedFilesDirectoryReceived(mediaFiles: importedFilesDir.importedMediaUrls,
+//                                                             components: migratedComponents)
+//        }
     }
+}
+
+// TODO: move
+struct GraphDecodedFiles {
+    let mediaFiles: [URL]
+    let components: [StitchComponentData]
 }

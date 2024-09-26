@@ -25,7 +25,7 @@ extension StitchDocumentViewModel: Hashable {
 @Observable
 final class StitchDocumentViewModel: Sendable {
     let graph: GraphState
-    @MainActor let graphUI: GraphUIState
+    var graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
     let graphMovement = GraphMovementObserver()
     
@@ -57,26 +57,45 @@ final class StitchDocumentViewModel: Sendable {
     weak var storeDelegate: StoreDelegate?
     
     @MainActor init(from schema: StitchDocument,
+                    graph: GraphState,
+                    documentEncoder: DocumentEncoder,
                     store: StoreDelegate?) {
-        // MARK: do not populate ordered sidebar layers until effect below is dispatched!
-        // This is to help GeneratePreview render correctly, which uses ordered sidebar layers to render
-        // but nodes haven't yet populated
-        
-        self.graphUI = GraphUIState()
+        self.documentEncoder = documentEncoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
-        self.documentEncoder = .init(document: schema)
-        self.graph = .init(from: schema.graph,
-                           saveLocation: [])  // root of document
+        self.graphUI = GraphUIState()
         
+        self.documentEncoder.delegate = self
         self.graphStepManager.delegate = self
         self.storeDelegate = store
-        self.documentEncoder.delegate = self
+        
         self.graph.initializeDelegate(document: self,
                                       documentEncoderDelegate: documentEncoder)
+    }
+    
+    static func create(from schema: StitchDocument,
+                       store: StoreDelegate?) async -> StitchDocumentViewModel? {
+        let documentEncoder = DocumentEncoder(document: schema)
+
+        let graph = await GraphState.create(from: schema.graph,
+                                            saveLocation: [],
+                                            encoder: documentEncoder)
+        
+        return await MainActor.run { [weak graph, weak documentEncoder, weak store] in
+            guard let graph = graph,
+                  let documentEncoder = documentEncoder else {
+                fatalErrorIfDebug()
+                return nil
+            }
+            
+            return StitchDocumentViewModel(from: schema,
+                                           graph: graph,
+                                           documentEncoder: documentEncoder,
+                                           store: store)
+        }
     }
 }
 

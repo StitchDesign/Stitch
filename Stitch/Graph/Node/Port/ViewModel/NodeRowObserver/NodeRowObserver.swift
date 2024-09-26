@@ -35,7 +35,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     @MainActor var containsUpstreamConnection: Bool { get }
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -84,7 +83,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
-    @MainActor
     convenience init(from schema: NodePortInputEntity,
                      activeIndex: ActiveIndex) {
         self.init(values: schema.portData.values ?? [],
@@ -95,7 +93,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
                   upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
@@ -144,7 +141,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,

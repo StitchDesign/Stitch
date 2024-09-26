@@ -54,6 +54,17 @@ extension StitchComponentData: Identifiable {
     }
 }
 
+extension MasterComponentsDict {
+    @MainActor mutating func sync(with data: [StitchComponentData]) {
+        self.sync(with: data,
+                  updateCallback: { viewModel, data in
+            viewModel.update(from: data)
+        }) { data in
+            StitchMasterComponent.createObject(from: data)
+        }
+    }
+}
+
 extension GraphState: DocumentEncodableDelegate {
     func willEncodeProject(schema: GraphEntity) { }
     
@@ -61,31 +72,16 @@ extension GraphState: DocumentEncodableDelegate {
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         components: [StitchComponentData]) {
         // Set loading status to loaded
-        self.libraryLoadingStatus = .loaded
+//        self.libraryLoadingStatus = .loaded
         
         // Update draft and published components from disk
-        self.components.sync(with: components,
-                             updateCallback: { viewModel, data in
-            viewModel.update(from: data)
-        }) { data in
-            let newObject = StitchMasterComponent.createObject(from: data)
-            newObject.initializeDelegate(parentGraph: self)
-            return newObject
-        }
+        self.components.sync(with: components)
 
-        // Add urls to library
-        var mediaLibrary = mediaFiles.reduce(self.mediaLibrary) { partialResult, url in
-            var partialResult = partialResult
-            partialResult.updateValue(url, forKey: url.mediaKey)
-            return partialResult
+        // Add default media and imported URLs
+        let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles
+        self.mediaLibrary = allMediaFiles.reduce(into: .init()) { result, url in
+            result.updateValue(url, forKey: url.mediaKey)
         }
-
-        // Add default URLs
-        MediaLibrary.getDefaultLibraryDeps().forEach { url in
-            mediaLibrary.updateValue(url, forKey: url.mediaKey)
-        }
-
-        self.mediaLibrary = mediaLibrary
         
         // Update GraphState with latest document data to calculate graph, now that media has been loaded
         // TODO: need a separate updater for graph
@@ -94,20 +90,24 @@ extension GraphState: DocumentEncodableDelegate {
         
 //        self.documentDelegate?.update(from: <#T##StitchDocument#>)
         
-        self.updateSidebarListStateAfterStateChange()
+//        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: nodes,
+//                                                        components: self.components,
+//                                                        parentGraphPath: self.saveLocation)
         
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-//            expanded: self.sidebarExpandedItems,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
-        // Calculate graph
-        self.initializeGraphComputation()
-        
-        // Initialize preview layers
-        self.updateOrderedPreviewLayers()
+//        self.updateSidebarListStateAfterStateChange()
+//        
+//        // TODO: why is this necessary?
+//        _updateStateAfterListChange(
+//            updatedList: self.sidebarListState,
+////            expanded: self.sidebarExpandedItems,
+//            expanded: self.getSidebarExpandedItems(),
+//            graphState: self)
+//        
+//        // Calculate graph
+//        self.initializeGraphComputation()
+//        
+//        // Initialize preview layers
+//        self.updateOrderedPreviewLayers()
     }
    
     func updateSidebarListStateAfterStateChange() {

@@ -27,9 +27,9 @@ protocol DocumentEncodableDelegate: AnyObject {
     @MainActor
     func willEncodeProject(schema: CodableDocument)
     
-    @MainActor
-    func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        components: [StitchComponentData])
+//    @MainActor
+//    func importedFilesDirectoryReceived(mediaFiles: [URL],
+//                                        components: [StitchComponentData])
 }
 
 extension DocumentEncodable {

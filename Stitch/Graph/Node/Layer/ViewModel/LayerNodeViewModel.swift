@@ -162,7 +162,6 @@ final class LayerNodeViewModel {
     
     var isExpandedInSidebar: Bool?
 
-    @MainActor
     init(from schema: LayerNodeEntity) {
         let graphNode = schema.layer.layerGraphNode
         

@@ -25,14 +25,29 @@ final class StitchComponentViewModel {
     weak var nodeDelegate: NodeDelegate?
     weak var componentDelegate: StitchMasterComponent?
     
-    @MainActor init(componentId: UUID,
-                    componentEntity: StitchComponent,
-                    canvas: CanvasItemViewModel,
-                    parentGraphPath: [UUID]) {
+    init(componentId: UUID,
+         canvas: CanvasItemViewModel,
+         graph: GraphState,
+         nodeDelegate: NodeDelegate? = nil,
+         componentDelegate: StitchMasterComponent? = nil) {
         self.componentId = componentId
-        self.graph = .init(from: componentEntity.graph,
-                           saveLocation: parentGraphPath + [self.componentId])
         self.canvas = canvas
+        self.graph = graph
+        self.nodeDelegate = nodeDelegate
+        self.componentDelegate = componentDelegate
+    }
+    
+    convenience init(componentId: UUID,
+                     componentEntity: StitchComponent,
+                     canvas: CanvasItemViewModel,
+                     parentGraphPath: [UUID],
+                     componentEncoder: ComponentEncoder) async {
+        let graph = await GraphState(from: componentEntity.graph,
+                                     saveLocation: parentGraphPath + [componentId],
+                                     encoder: componentEncoder)
+        self.init(componentId: componentId,
+                  canvas: canvas,
+                  graph: graph)
     }
 }
 
@@ -40,13 +55,6 @@ final class StitchComponentViewModel {
 extension StitchComponentViewModel {
     @MainActor static func createEmpty() -> Self {
         .init(componentId: .init(),
-              componentEntity: .init(saveLocation: .document(.init(docId: .init(),
-                                                                   componentsPath: [])),
-                                     graph: .init(id: .init(),
-                                                  name: "",
-                                                  nodes: [],
-                                                  orderedSidebarLayers: [],
-                                                  commentBoxes: [])),
               canvas: .init(from: .init(position: .zero,
                                         zIndex: .zero,
                                         parentGroupNodeId: nil),
@@ -55,7 +63,7 @@ extension StitchComponentViewModel {
                             outputRowObservers: [],
                             unpackedPortParentFieldGroupType: nil,
                             unpackedPortIndex: nil),
-              parentGraphPath: [])
+              graph: .init())
     }
     
     @MainActor func initializeDelegate(node: NodeDelegate,
@@ -86,7 +94,7 @@ extension StitchComponentViewModel {
     }
     
     @MainActor func update(from schema: ComponentEntity,
-                           components: [UUID : StitchMasterComponent]) {
+                           components: [UUID : StitchMasterComponent]) async {
         self.componentId = schema.componentId
         self.canvas.update(from: schema.canvasEntity)
         
@@ -96,7 +104,8 @@ extension StitchComponentViewModel {
             fatalErrorIfDebug()
             return
         }
-        self.graph.update(from: masterComponent.draftedComponent.graph)
+        
+        await self.graph.update(from: masterComponent.draftedComponent.graph)
     }
 }
 
@@ -161,11 +170,10 @@ extension StitchComponentViewModel: NodeCalculatable {
 }
 
 extension NodeViewModelType {
-    @MainActor
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
          components: [UUID: StitchMasterComponent],
-         parentGraphPath: [UUID]) {
+         parentGraphPath: [UUID]) async {
         switch nodeType {
         case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode)

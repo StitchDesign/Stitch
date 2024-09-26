@@ -50,7 +50,7 @@ final class PatchNodeViewModel: Sendable {
     
     weak var delegate: PatchNodeViewModelDelegate?
     
-    @MainActor init(from schema: PatchNodeEntity) {
+    init(from schema: PatchNodeEntity) {
         let kind = NodeKind.patch(schema.patch)
         
         self.id = schema.id

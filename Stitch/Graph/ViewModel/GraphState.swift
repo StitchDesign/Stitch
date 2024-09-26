@@ -25,14 +25,16 @@ final class StitchMasterComponent {
     
     weak var parentGraph: GraphState?
     
-    @MainActor
     init(componentData: StitchComponentData,
          parentGraph: GraphState?) {
         self.componentData = componentData
         self.documentEncoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
-        self.documentEncoder.delegate = self
+//        DispatchQueue.main.async { { [weak self] in
+//            guard let component = self else { return }
+//            component.documentEncoder.delegate = component
+//        }
     }
 }
 
@@ -53,15 +55,16 @@ extension StitchMasterComponent {
         self.componentData
     }
     
-    @MainActor static func createObject(from entity: StitchComponentData) -> Self {
+    static func createObject(from entity: StitchComponentData) -> Self {
         .init(componentData: entity,
               parentGraph: nil)
     }
     
     func onPrototypeRestart() { }
     
-    func initializeDelegate(parentGraph: GraphState) {
+    @MainActor func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph
+        self.documentEncoder.delegate = self
     }
 }
 
@@ -234,7 +237,7 @@ final class GraphState: Sendable {
     let edgeDrawingObserver = EdgeDrawingObserver()
 
     // Loading status for media
-    var libraryLoadingStatus = LoadingState.loading
+//    var libraryLoadingStatus = LoadingState.loading
 
     var selectedEdges = Set<PortEdgeUI>()
 
@@ -278,23 +281,25 @@ final class GraphState: Sendable {
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
-    @MainActor init(from schema: GraphEntity,
-                    saveLocation: [UUID]) {
+    init(from schema: GraphEntity,
+         saveLocation: [UUID],
+         graphDecodedFiles: GraphDecodedFiles) {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-//        self.components = draftedComponents
-//            .reduce(into: [UUID: StitchMasterComponent]()) { result, componentEntity in
-//                let componentGraph = StitchMasterComponent(draftedComponent: componentEntity,
-//                                                           parentGraph: self)
-//                result.updateValue(componentGraph, forKey: componentEntity.id)
-//            }
         
-        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-                                                        components: self.components,
-                                                        parentGraphPath: self.saveLocation)
+        // Add default URLs
+        MediaLibrary.getDefaultLibraryDeps().forEach { url in
+            mediaLibrary.updateValue(url, forKey: url.mediaKey)
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.importedFilesDirectoryReceived(nodes: schema.nodes,
+                                                 mediaFiles: graphDecodedFiles.mediaFiles,
+                                                 components: graphDecodedFiles.components)
+        }
         
 //        // MARK: important we don't initialize nodes until after media is estbalished
 //        DispatchQueue.main.async { [weak self] in
@@ -303,6 +308,20 @@ final class GraphState: Sendable {
 //                                          data: data))
 //            }
 //        }
+    }
+    
+    convenience init(from schema: GraphEntity,
+                     saveLocation: [UUID],
+                     encoder: (any DocumentEncodable)) async {
+        guard let decodedFiles = await encoder.getDecodedFiles() else {
+            fatalErrorIfDebug()
+            self.init()
+            return
+        }
+        
+        self.init(from: schema,
+                  saveLocation: saveLocation,
+                  graphDecodedFiles: decodedFiles)
     }
     
     @MainActor func initializeDelegate(document: StitchDocumentViewModel,
@@ -318,9 +337,9 @@ final class GraphState: Sendable {
         }
         
         // Get media + encoded component files after view models are established
-        Task(priority: .high) { [weak self] in
-            await self?.documentEncoderDelegate?.graphInitialized()
-        }
+//        Task(priority: .high) { [weak self] in
+//            await self?.documentEncoderDelegate?.graphInitialized()
+//        }
     }
 }
 
@@ -458,23 +477,38 @@ extension GraphState {
         return graph
     }
     
-    @MainActor func update(from schema: GraphEntity) {
-//                           componentData: [StitchComponentData]) {
+    @MainActor func update(from schema: GraphEntity) async {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
-//        self.components.sync(with: componentData)
         
-        if let documentViewModel = self.documentDelegate {
-            self.initializeDelegate(document: documentViewModel,
-                                    documentEncoderDelegate: documentViewModel.documentEncoder)
-        } else {
+        guard let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() else {
             fatalErrorIfDebug()
+            return
         }
+        
+        self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
+                                            components: decodedFiles.components)
+        
+//        if let documentViewModel = self.documentDelegate {
+//            self.initializeDelegate(document: documentViewModel,
+//                                    documentEncoderDelegate: documentViewModel.documentEncoder)
+//        } else {
+//            fatalErrorIfDebug()
+//        }
         
         self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
                                                         components: self.components,
                                                         parentGraphPath: self.saveLocation)
+        
+        self.updateSidebarListStateAfterStateChange()
+        
+        // TODO: why is this necessary?
+        _updateStateAfterListChange(
+            updatedList: self.sidebarListState,
+//            expanded: self.sidebarExpandedItems,
+            expanded: self.getSidebarExpandedItems(),
+            graphState: self)
         
         // Sync node view models + cached data
         self.updateGraphData()
@@ -810,13 +844,19 @@ extension GraphState {
         return outputRow.id
     }
     
-    @MainActor static func createEmpty() -> GraphState {
-        .init(from: .init(id: .init(),
+    static func createEmpty() -> GraphState {
+        .init()
+    }
+     
+    convenience init() {
+        self.init(from: .init(id: .init(),
                           name: STITCH_PROJECT_DEFAULT_NAME,
                           nodes: [],
                           orderedSidebarLayers: [],
                           commentBoxes: []),
-              saveLocation: [])
+              saveLocation: [],
+              graphDecodedFiles: .init(mediaFiles: [],
+                                       components: []))
     }
     
     /// Updates values at a specific output loop index.

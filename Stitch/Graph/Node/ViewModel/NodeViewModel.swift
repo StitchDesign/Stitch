@@ -58,28 +58,34 @@ final class NodeViewModel: Sendable {
         }
     }
     
-    // i.e. "create node view model from schema
-    @MainActor
     init(from schema: NodeEntity,
-         components: [UUID : StitchMasterComponent],
-         parentGraphPath: [UUID]) {
+         nodeType: NodeViewModelType) {
         self.id = schema.id
         self.title = schema.title
-        self.nodeType = NodeViewModelType(from: schema.nodeTypeEntity,
-                                          nodeId: schema.id,
-                                          components: components,
-                                          parentGraphPath: parentGraphPath)
+        self.nodeType = nodeType
         
         self._cachedDisplayTitle = self.getDisplayTitle()
+    }
+    
+    // i.e. "create node view model from schema
+    convenience init(from schema: NodeEntity,
+                     components: [UUID : StitchMasterComponent],
+                     parentGraphPath: [UUID]) async {
+        let nodeType = await NodeViewModelType(from: schema.nodeTypeEntity,
+                                               nodeId: schema.id,
+                                               components: components,
+                                               parentGraphPath: parentGraphPath)
+        self.init(from: schema,
+                  nodeType: nodeType)
     }
     
     @MainActor
     convenience init(from schema: NodeEntity,
                      graphDelegate: GraphDelegate,
-                     document: StitchDocumentViewModel) {
-        self.init(from: schema,
-                  components: graphDelegate.components,
-                  parentGraphPath: graphDelegate.saveLocation)
+                     document: StitchDocumentViewModel) async {
+        await self.init(from: schema,
+                        components: graphDelegate.components,
+                        parentGraphPath: graphDelegate.saveLocation)
         self.initializeDelegate(graph: graphDelegate,
                                 document: document)
     }
@@ -218,13 +224,26 @@ extension NodeViewModel: PatchNodeViewModelDelegate {
 
 extension NodeViewModel {
     @MainActor static func createEmpty() -> Self {
-        .init(from: .init(id: .init(),
-                                 nodeTypeEntity: .group(.init(position: .zero,
-                                                              zIndex: .zero,
-                                                              parentGroupNodeId: nil)),
-                                 title: ""),
-                     components: [:],
-                     parentGraphPath: [])
+        .init()
+    }
+    
+    convenience init() {
+        let nodeEntity = NodeEntity(id: .init(),
+                                    nodeTypeEntity: .group(.init(position: .zero,
+                                                                 zIndex: .zero,
+                                                                 parentGroupNodeId: nil)),
+                                    title: "")
+        
+        self.init(from: nodeEntity,
+                  nodeType: .group(.init(id: .node(.init()),
+                                         position: .zero,
+                                         zIndex: .zero,
+                                         parentGroupNodeId: nil,
+                                         inputRowObservers: [],
+                                         outputRowObservers: [],
+                                         unpackedPortParentFieldGroupType: nil,
+                                         unpackedPortIndex: nil))
+                  )
     }
     
     @MainActor func initializeDelegate(graph: GraphDelegate,
