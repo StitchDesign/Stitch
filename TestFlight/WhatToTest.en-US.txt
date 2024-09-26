@@ -1,6 +1,17 @@
-- Layer inputs now support node creation and connections into specific fields
-- Layer inspector flyout popover dismisses on scroll, tap, or pinch
-- Fixed broken Reality layer node
-- Fixed Length node to use improved counting logic for numbers and strings
-- Improved project thumbnails in home screen to remove error display from 3D model layers
-- Added placeholder default text for Soulver node
+New features:
+- New left-hand sidebar with improved responsiveness + look and feel
+- Support for Shift + click selection on left-hand sidebar
+- Support for iOS 18 dark mode + tinted icons
+- Added volume input port to Video Layer node
+- Support for selecting layer nodes when a layer is right-clicked
+- New layer groups default to auto sizing
+
+Fixes:
+- Fixed camera orientation issue on iPhone
+- Fixed crash caused by some layer group creations
+- Improved reliability of detecting Shift key selections
+- Fixed Option + click and drag for node duplication
+- Fixed issue where looped values preview for ports displayed incorrect data
+- Fixed issue where app settings menu wouldn’t disappear
+- Fixed data not resetting on prototype restart for Drag Interaction nodes
+- Added placeholder image for image/video fields not containing media
