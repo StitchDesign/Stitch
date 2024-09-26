@@ -30,17 +30,17 @@ struct CloseGraph: StitchStoreEvent {
 }
 
 /// Starts a graph after first loading
-extension StitchDocumentViewModel: DocumentEncodableDelegate {
-    @MainActor
-    func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        components: [StitchComponentData]) {
-        // Must initialize on main thread
-        self.graphStepManager.start()
-
-        self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-                                                  components: components)
-    }
-}
+//extension StitchDocumentViewModel: DocumentEncodableDelegate {
+//    @MainActor
+//    func importedFilesDirectoryReceived(mediaFiles: [URL],
+//                                        components: [StitchComponentData]) {
+//        // Must initialize on main thread
+//        self.graphStepManager.start()
+//
+//        self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
+//                                                  components: components)
+//    }
+//}
 
 struct StitchComponentData: Codable {
     var draft: StitchComponent

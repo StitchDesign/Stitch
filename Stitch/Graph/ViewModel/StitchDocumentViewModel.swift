@@ -23,7 +23,7 @@ extension StitchDocumentViewModel: Hashable {
 }
 
 @Observable
-final class StitchDocumentViewModel: Sendable {
+final class StitchDocumentViewModel: Sendable, DocumentEncodableDelegate {
     let graph: GraphState
     var graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -69,7 +69,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphMovement.localPosition = schema.localPosition
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
-            
+        
         if let store = store {
             self.initializeDelegate(store: store)
         }
@@ -80,6 +80,9 @@ final class StitchDocumentViewModel: Sendable {
             await MainActor.run { [weak self] in
                 guard let doc = self else { return }
                 doc.documentEncoder.delegate = doc
+                
+                // Start graph
+                doc.graphStepManager.start()
             }
         }
         self.graphStepManager.delegate = self

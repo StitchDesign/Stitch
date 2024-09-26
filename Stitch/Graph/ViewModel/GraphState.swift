@@ -89,28 +89,28 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
     }
     
-    func importedFilesDirectoryReceived(mediaFiles: [URL],
-                                        components: [StitchComponentData]) {
-        guard let parentGraph = parentGraph else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // Find all graph states leveraging this component
-        let componentGraphStates = parentGraph.nodes.values
-            .compactMap { node -> GraphState? in
-                guard let component = node.nodeType.componentNode,
-                component.componentId == self.id else {
-                    return nil
-                }
-                return component.graph
-            }
-        
-        componentGraphStates.forEach { graphState in
-            graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-                                                      components: components)
-        }
-    }
+//    func importedFilesDirectoryReceived(mediaFiles: [URL],
+//                                        components: [StitchComponentData]) {
+//        guard let parentGraph = parentGraph else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+//        
+//        // Find all graph states leveraging this component
+//        let componentGraphStates = parentGraph.nodes.values
+//            .compactMap { node -> GraphState? in
+//                guard let component = node.nodeType.componentNode,
+//                component.componentId == self.id else {
+//                    return nil
+//                }
+//                return component.graph
+//            }
+//        
+//        componentGraphStates.forEach { graphState in
+//            graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
+//                                                      components: components)
+//        }
+//    }
 }
 
 extension StitchDocumentViewModel {
@@ -389,12 +389,12 @@ final class GraphState: Sendable {
             graphState: self)
         
         Task(priority: .high) {
-            await MainActor.run { [weak self] in
+            await MainActor.run { [weak self] in                
                 // Calculate graph
                 self?.initializeGraphComputation()
     
-                // Initialize preview layers
-                self?.updateOrderedPreviewLayers()
+                // Initialize preview layers and topological data
+                self?.updateGraphData()
             }
         }
         
