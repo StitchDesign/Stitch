@@ -260,7 +260,6 @@ extension CanvasItemViewModel {
 }
 
 extension InputLayerNodeRowData {
-    @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],

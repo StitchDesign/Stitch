@@ -63,7 +63,7 @@ extension VisibleNodesViewModel {
     @MainActor
     func updateNodeSchemaData(newNodes: [NodeEntity],
                               components: [UUID: StitchMasterComponent],
-                              parentGraphPath: [UUID]) {
+                              parentGraphPath: [UUID]) async {
 
         let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
             result.updateValue(schema, forKey: schema.id)
@@ -81,10 +81,10 @@ extension VisibleNodesViewModel {
                                  newIds: incomingNodeIds)
 
         // Initialize node view data starting with groups
-        self.updateNodesPagingDict(nodesDict: allNodesDict,
-                                   existingNodePages: existingNodePages,
-                                   components: components,
-                                   parentGraphPath: parentGraphPath)
+        await self.updateNodesPagingDict(nodesDict: allNodesDict,
+                                         existingNodePages: existingNodePages,
+                                         components: components,
+                                         parentGraphPath: parentGraphPath)
     }
 
     /// Returns all view data to be used by nodes in groups.
@@ -92,7 +92,7 @@ extension VisibleNodesViewModel {
     func updateNodesPagingDict(nodesDict: NodeEntityDict,
                                existingNodePages: NodesPagingDict,
                                components: [UUID: StitchMasterComponent],
-                               parentGraphPath: [UUID]) {
+                               parentGraphPath: [UUID]) async {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
@@ -108,19 +108,19 @@ extension VisibleNodesViewModel {
         }
 
         // Create node view models (if not yet created), establishing connection data later
-        nodesDict.values.forEach { schema in
+        for schema in nodesDict.values {
             if let node = self.nodes.get(schema.id) {
-                node.update(from: schema,
-                            components: components)
+                await node.update(from: schema,
+                                  components: components)
 
                 // Toggle output downstream connections to false, will correct below
                 node.getAllOutputsObservers().forEach {
                     $0.containsDownstreamConnection = false
                 }
             } else {
-                let newNode = NodeViewModel(from: schema,
-                                            components: components,
-                                            parentGraphPath: parentGraphPath)
+                let newNode = await NodeViewModel(from: schema,
+                                                  components: components,
+                                                  parentGraphPath: parentGraphPath)
                 nodes.updateValue(newNode,
                                   forKey: newNode.id)
             }

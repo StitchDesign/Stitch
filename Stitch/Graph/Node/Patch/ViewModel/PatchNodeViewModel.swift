@@ -312,9 +312,10 @@ extension NodeViewModel {
                                     nodeTypeEntity: .patch(patchNodeEntity),
                                     title: customName ?? NodeKind.patch(patch).getDisplayTitle(customName: nil))
         
+        let patch = PatchNodeViewModel(from: patchNodeEntity)
+        
         self.init(from: nodeEntity,
-                  components: [:],
-                  parentGraphPath: [])
+                  nodeType: .patch(patch))
     }
     
     @MainActor

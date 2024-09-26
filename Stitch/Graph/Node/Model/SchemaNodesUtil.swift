@@ -125,7 +125,6 @@ extension NodeRowDefinitions {
         }
     }
 
-    @MainActor
     func createOutputLayerPorts(schema: LayerNodeEntity,
                                // Pass in values directly from eval
                                valuesList: PortValuesList,

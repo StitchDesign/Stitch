@@ -53,7 +53,7 @@ final class StitchComponentViewModel {
 
 // TODO: move
 extension StitchComponentViewModel {
-    @MainActor static func createEmpty() -> Self {
+    static func createEmpty() -> Self {
         .init(componentId: .init(),
               canvas: .init(from: .init(position: .zero,
                                         zIndex: .zero,
@@ -210,11 +210,12 @@ extension NodeViewModelType {
                 return
             }
             
-            let component = StitchComponentViewModel(
+            let component = await StitchComponentViewModel(
                 componentId: componentEntity.componentId,
                 componentEntity: masterComponent.draftedComponent,
                 canvas: componentCanvas,
-                parentGraphPath: parentGraphPath)
+                parentGraphPath: parentGraphPath,
+                componentEncoder: masterComponent.documentEncoder)
             self = .component(component)
         }
     }
@@ -246,7 +247,7 @@ extension NodeViewModelType {
 
     @MainActor
     func update(from schema: NodeTypeEntity,
-                components: [UUID: StitchMasterComponent]) {
+                components: [UUID: StitchMasterComponent]) async {
         switch (self, schema) {
         case (.patch(let patchViewModel), .patch(let patchEntity)):
             patchViewModel.update(from: patchEntity)
@@ -255,8 +256,8 @@ extension NodeViewModelType {
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
         case (.component(let componentViewModel), .component(let component)):
-            componentViewModel.update(from: component,
-                                      components: components)
+            await componentViewModel.update(from: component,
+                                            components: components)
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()

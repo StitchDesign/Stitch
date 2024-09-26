@@ -21,7 +21,6 @@ final class LayerInputObserver {
     let layer: Layer
     var port: LayerInputPort
     
-    @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
         self.layer = schema.layer
         self.port = port
