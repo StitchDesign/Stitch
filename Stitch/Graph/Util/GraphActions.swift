@@ -71,7 +71,7 @@ extension GraphState: DocumentEncodableDelegate {
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         components: [StitchComponentData]) {
         // Set loading status to loaded
-//        self.libraryLoadingStatus = .loaded
+        self.libraryLoadingStatus = .loaded
         
         // Update draft and published components from disk
         self.components.sync(with: components)
