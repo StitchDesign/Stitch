@@ -80,9 +80,9 @@ final class StitchDocumentViewModel: Sendable {
                        store: StoreDelegate?) async -> StitchDocumentViewModel? {
         let documentEncoder = DocumentEncoder(document: schema)
 
-        let graph = await GraphState.create(from: schema.graph,
-                                            saveLocation: [],
-                                            encoder: documentEncoder)
+        let graph = await GraphState(from: schema.graph,
+                                     saveLocation: [],
+                                     encoder: documentEncoder)
         
         return await MainActor.run { [weak graph, weak documentEncoder, weak store] in
             guard let graph = graph,
@@ -221,13 +221,13 @@ extension GraphState: GraphCalculatable {
 
 extension StitchDocumentViewModel {
     @MainActor
-    func update(from schema: StitchDocument) {
+    func update(from schema: StitchDocument) async {
         // Sync preview window attributes
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
 
-        self.graph.update(from: schema.graph)
+        await self.graph.update(from: schema.graph)
     }
     
     @MainActor func createSchema() -> StitchDocument {
@@ -255,8 +255,10 @@ extension StitchDocumentViewModel {
         self.graphUI.restartPrototypeWindowIconRotationZ += 360
     }
     
-    @MainActor static func createEmpty() -> StitchDocumentViewModel {
-        .init(from: .init(nodes: []),
+    static func createEmpty() -> StitchDocumentViewModel {
+        .init(from: .init(),
+              graph: .init(),
+              documentEncoder: .init(document: .init()),
               store: nil)
     }
 }
