@@ -197,7 +197,6 @@ extension LayerNodeViewModel {
 }
 
 extension InputLayerNodeRowData {
-    @MainActor
     func update(from schema: LayerInputDataEntity,
                 layerInputType: LayerInputType,
                 layerNode: LayerNodeViewModel,
@@ -236,7 +235,6 @@ extension InputLayerNodeRowData {
 }
 
 extension LayerInputObserver {
-    @MainActor
     var packedObserver: InputLayerNodeRowData? {
         switch self.mode {
         case .packed:
@@ -246,7 +244,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var unpackedObserver: LayerInputUnpackedPortObserver? {
         switch self.mode {
         case .unpacked:

@@ -748,7 +748,6 @@ extension NodeViewModel {
         // assumes new input has no label, etc.
         log("inputAdded called")
         let allInputsObservers = self.getAllInputsObservers()
-        let activeIndex = self.graphDelegate?.activeIndex ?? .defaultActiveIndex
 
         // New value needs to be a default of same type as other inputs
         // Grab the type's default, based on value of last input;
@@ -766,14 +765,12 @@ extension NodeViewModel {
                                                     nodeKind: self.kind,
                                                     userVisibleType: self.userVisibleType,
                                                     id: newInputCoordinate,
-                                                    activeIndex: self.activeIndex,
                                                     upstreamOutputCoordinate: nil)
         newInputObserver.initializeDelegate(self)
         
         let newInputViewModel = InputNodeRowViewModel(id: .init(graphItemType: .node(patchNode.canvasObserver.id),
                                                                 nodeId: newInputCoordinate.nodeId,
                                                                 portId: allInputsObservers.count),
-                                                      activeIndex: activeIndex,
                                                       rowDelegate: newInputObserver,
                                                       canvasItemDelegate: patchNode.canvasObserver)
         newInputViewModel.initializeDelegate(self,

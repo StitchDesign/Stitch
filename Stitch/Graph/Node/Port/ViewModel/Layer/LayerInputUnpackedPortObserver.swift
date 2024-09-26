@@ -69,7 +69,6 @@ extension LayerInputUnpackedPortObserver {
         self.allPorts.map { $0.createSchema() }
     }
     
-    @MainActor
     /// From packed values, unpacks them for unpack layer input scenario.
     func updateValues(from packedValues: PortValues,
                       layerNode: LayerNodeViewModel) {

@@ -37,11 +37,21 @@ extension StitchStore {
             return
         }
 
-        let document = StitchDocumentViewModel(from: document,
-                                               store: self)
-        document.previewSizeDevice = previewDevice
-        document.previewWindowSize = previewDevice.previewWindowDimensions
-        self.navPath = [document]
+        Task { [weak self] in
+            guard let store = self else { return }
+            
+            let document = await StitchDocumentViewModel
+                .create(from: document,
+                        store: store)
+            
+            await MainActor.run { [weak document, weak store] in
+                guard let document = document else { return }
+                
+                document.previewSizeDevice = previewDevice
+                document.previewWindowSize = previewDevice.previewWindowDimensions
+                store?.navPath = [document]
+            }
+        }
     }
 
     /// Called in the event where project saved in iCloud is deleted

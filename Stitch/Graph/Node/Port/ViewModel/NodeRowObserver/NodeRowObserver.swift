@@ -23,7 +23,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     @MainActor var allRowViewModels: [RowViewModelType] { get }
     
-    @MainActor var nodeDelegate: NodeDelegate? { get set }
+    var nodeDelegate: NodeDelegate? { get set }
     
     var connectedNodes: NodeIdSet { get set }
     

@@ -178,8 +178,7 @@ final class LayerNodeViewModel {
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
                                     valuesList: rowDefinitions.outputs.defaultList,
-                                    userVisibleType: nil,
-                                    activeIndex: activeIndex)
+                                    userVisibleType: nil)
         
         self.positionPort = .init(from: schema, port: .position)
         self.sizePort = .init(from: schema, port: .size)
@@ -319,8 +318,7 @@ final class LayerNodeViewModel {
 extension LayerNodeViewModel: SchemaObserver {
     static func createObject(from entity: LayerNodeEntity,
                              activeIndex: ActiveIndex) -> Self {
-        .init(from: entity,
-              activeIndex: activeIndex)
+        .init(from: entity)
     }
 
     @MainActor

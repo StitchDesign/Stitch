@@ -22,7 +22,7 @@ protocol NodeDelegate: AnyObject {
     
     var userVisibleType: UserVisibleType? { get }
     
-    @MainActor var nodeType: NodeViewModelType { get }
+    var nodeType: NodeViewModelType { get }
     
     @MainActor var allInputViewModels: [InputNodeRowViewModel] { get }
     
@@ -143,7 +143,7 @@ extension NodeDelegate {
         }
     }
     
-    @MainActor var layerNodeViewModel: LayerNodeViewModel? {
+    var layerNodeViewModel: LayerNodeViewModel? {
         switch self.nodeType {
         case .layer(let layerNode):
             return layerNode

@@ -134,7 +134,7 @@ final class CanvasItemViewModel: Identifiable {
     }
 }
 
-extension CanvasItemViewModel: SchemaObserver {
+extension CanvasItemViewModel {
     @MainActor
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
@@ -267,7 +267,6 @@ extension InputLayerNodeRowData {
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: .init()),
-                                               activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
                      canvasObserver: nil)

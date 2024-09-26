@@ -98,7 +98,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var mode: LayerInputMode {
         if self._unpackedData.allPorts.contains(where: { $0.canvasObserver.isDefined }) {
             return .unpacked
