@@ -22,6 +22,7 @@ struct ScrubbedVideoView: UIViewControllerRepresentable {
 
         // Sound disabled until layer is created for video
         self.videoPlayer.enableSound()
+        
         // Set volume when the view is created
         videoPlayer.setVolume(volume: volume)
         

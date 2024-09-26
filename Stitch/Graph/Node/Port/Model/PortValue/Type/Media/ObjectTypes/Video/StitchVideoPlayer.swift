@@ -65,7 +65,6 @@ final class StitchVideoImportPlayer: Sendable {
     func setVolume(volume: Double) {
         let volume = min(1, max(0, volume))
         self.video.volume = Float(volume)
-        self.stitchVideoDelegate.audio.updateVolume(volume)
     }
 
     var peakVolume: Double {
