@@ -299,14 +299,18 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var createGroupButton: some View {
         nodeTagMenuButton(label: "Group Nodes") {
-            dispatch(GroupNodeCreatedEvent())
+            Task { [weak graph] in
+                await graph?.documentDelegate?.createGroup(isComponent: false)
+            }
         }
     }
     
     @MainActor
     var createComponentButton: some View {
         nodeTagMenuButton(label: "Create Component") {
-            self.graph.documentDelegate?.createGroup(isComponent: true)
+            Task { [weak graph] in
+                await graph?.documentDelegate?.createGroup(isComponent: true)
+            }
         }
     }
 

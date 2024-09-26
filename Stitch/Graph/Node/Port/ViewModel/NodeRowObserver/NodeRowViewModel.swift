@@ -106,9 +106,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
+         activeIndex: ActiveIndex,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
@@ -132,7 +131,8 @@ extension NodeRowViewModel {
         self.nodeDelegate = node
         self.initializeValues(rowDelegate: rowDelegate,
                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                              unpackedPortIndex: unpackedPortIndex)
+                              unpackedPortIndex: unpackedPortIndex,
+                              activeIndex: node.activeIndex)
     }
     
     var portViewData: PortViewType? {
@@ -144,11 +144,11 @@ extension NodeRowViewModel {
                      canvasId: canvasId)
     }
     
-    @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
-                          unpackedPortIndex: Int?) {
-        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
+                          unpackedPortIndex: Int?,
+                          activeIndex: ActiveIndex) {
+//        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
         
         self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
                                                     activeIndex: activeIndex)
@@ -243,9 +243,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     // TODO: temporary property for old-style layer nodes
     var layerPortId: Int?
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
+         activeIndex: ActiveIndex,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -307,9 +306,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
+         activeIndex: ActiveIndex,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -321,7 +319,8 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
             self.initializeValues(rowDelegate: rowDelegate,
                                   // Irrelevant for outputs, since an output cannot be unpacked
                                   unpackedPortParentFieldGroupType: nil,
-                                  unpackedPortIndex: nil)
+                                  unpackedPortIndex: nil,
+                                  activeIndex: activeIndex)
         }
     }
 }
@@ -383,6 +382,7 @@ extension Array where Element: NodeRowViewModel {
                        unpackedPortIndex: Int?) {
         // This will be nil for some inits--that's ok, just need to set delegate after
         let node = canvas.nodeDelegate
+        let activeIndex = node?.graphDelegate?.activeIndex ?? .defaultActiveIndex
         
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet
@@ -413,7 +413,7 @@ extension Array where Element: NodeRowViewModel {
                                                portId: portIndex)
                 
                 let rowViewModel = Element(id: rowId,
-                                           activeValue: newEntity.activeValue,
+                                           activeIndex: activeIndex,
                                            rowDelegate: newEntity,
                                            canvasItemDelegate: canvas)
                 

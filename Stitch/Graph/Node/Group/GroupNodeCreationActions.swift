@@ -106,7 +106,7 @@ extension GraphState {
     @MainActor
     func createGroupNode(newGroupNodeId: NodeId,
                          center: CGPoint,
-                         isComponent: Bool) -> NodeViewModel {
+                         isComponent: Bool) async -> NodeViewModel {
         guard let document = self.documentDelegate else {
             fatalErrorIfDebug()
             return .createEmpty()
@@ -129,9 +129,9 @@ extension GraphState {
                                 nodeTypeEntity: nodeType,
                                 title: NodeKind.group.getDisplayTitle(customName: nil))
         
-        let newGroupNode = NodeViewModel(from: schema,
-                                         graphDelegate: self,
-                                         document: document)
+        let newGroupNode = await NodeViewModel(from: schema,
+                                               graphDelegate: self,
+                                               document: document)
         
         self.visibleNodesViewModel.nodes.updateValue(newGroupNode, 
                                                      forKey: newGroupNode.id)
@@ -146,17 +146,17 @@ extension GraphState {
  * 2. Creates input and output group nodes.
  * 3. Removes old edges and connections and updates them to new group nodes.
  */
-struct GroupNodeCreatedEvent: StitchDocumentEvent {
-
-    @MainActor
-    func handle(state: StitchDocumentViewModel) {
-        state.createGroup(isComponent: false)
-    }
-}
+//struct GroupNodeCreatedEvent: StitchDocumentEvent {
+//
+//    @MainActor
+//    func handle(state: StitchDocumentViewModel) {
+//        state.createGroup(isComponent: false)
+//    }
+//}
 
 extension StitchDocumentViewModel {
     @MainActor
-    func createGroup(isComponent: Bool) {
+    func createGroup(isComponent: Bool) async {
         guard !self.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
             return
@@ -184,7 +184,7 @@ extension StitchDocumentViewModel {
         }
         
         // Create the actual GroupNode itself
-        let newGroupNode = self.visibleGraph
+        let newGroupNode = await self.visibleGraph
             .createGroupNode(newGroupNodeId: newGroupNodeId,
                              center: center,
                              isComponent: isComponent)

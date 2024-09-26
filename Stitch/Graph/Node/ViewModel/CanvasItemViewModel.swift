@@ -271,6 +271,6 @@ extension InputLayerNodeRowData {
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
                      canvasObserver: nil,
-                     isEmpty: true)
+                     activeIndex: .defaultActiveIndex)
     }
 }

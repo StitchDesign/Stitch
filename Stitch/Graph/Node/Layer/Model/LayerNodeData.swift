@@ -72,10 +72,9 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
             .contains(fieldIndex)
     }
     
-    @MainActor
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
-         isEmpty: Bool = false,
+         activeIndex: ActiveIndex,
          nodeDelegate: NodeDelegate? = nil) {
         let keyPath = rowObserver.id.keyPath
         assertInDebug(keyPath.isDefined)
@@ -97,7 +96,7 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                                      nodeId: rowObserver.id.nodeId,
                                                      // Why portId=0 ?
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue,
+                                           activeIndex: activeIndex,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -110,8 +109,8 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
     var inspectorRowViewModel: OutputNodeRowViewModel
     var canvasObserver: CanvasItemViewModel?
     
-    @MainActor
     init(rowObserver: OutputNodeRowObserver,
+         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
@@ -127,7 +126,7 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeValue: rowObserver.activeValue,
+                                           activeIndex: activeIndex,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)

@@ -669,7 +669,7 @@ extension DocumentEncodable {
         
         let newFiles = self.copyFiles(from: files)
         
-        await self.graphInitialized(importedFilesDir: newFiles,
-                                    graphMutation: graphMutation)
+//        await self.graphInitialized(importedFilesDir: newFiles,
+//                                    graphMutation: graphMutation)
     }
 }

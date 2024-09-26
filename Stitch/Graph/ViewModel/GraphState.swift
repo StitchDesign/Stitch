@@ -237,7 +237,7 @@ final class GraphState: Sendable {
     let edgeDrawingObserver = EdgeDrawingObserver()
 
     // Loading status for media
-//    var libraryLoadingStatus = LoadingState.loading
+    var libraryLoadingStatus = LoadingState.loading
 
     var selectedEdges = Set<PortEdgeUI>()
 
@@ -296,8 +296,7 @@ final class GraphState: Sendable {
         }
         
         DispatchQueue.main.async { [weak self] in
-            self?.importedFilesDirectoryReceived(nodes: schema.nodes,
-                                                 mediaFiles: graphDecodedFiles.mediaFiles,
+            self?.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
                                                  components: graphDecodedFiles.components)
         }
         
@@ -497,9 +496,9 @@ extension GraphState {
 //            fatalErrorIfDebug()
 //        }
         
-        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-                                                        components: self.components,
-                                                        parentGraphPath: self.saveLocation)
+        await self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
+                                                              components: self.components,
+                                                              parentGraphPath: self.saveLocation)
         
         self.updateSidebarListStateAfterStateChange()
         
