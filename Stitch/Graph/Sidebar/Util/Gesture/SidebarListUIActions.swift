@@ -116,12 +116,12 @@ func setYPositionByIndices(originalItemId: SidebarListItemId,
         let newY = CGFloat(offset * CUSTOM_LIST_ITEM_VIEW_HEIGHT)
 
         if !isDragEnded && item.id == originalItemId {
-            //            print("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
+            print("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
             return item
         } else {
             item.location.y = newY
             if isDragEnded {
-                //            print("setYPositionByIndices: drag ended, so resetting previous position")
+                print("setYPositionByIndices: drag ended, so resetting previous position")
                 item.previousLocation.y = newY
             }
             return item
@@ -463,6 +463,8 @@ func adjustMoveToIndex(calculatedIndex: Int,
     // But index 1 is the position of blue's child!
     // So we add the diff.
     
+    // TODO: SEPT 24: may need to update this to take into account whether a parent's child was individually dragged etc.; such individually dragged children would not count here?
+    
     if calculatedIndex > originalItemIndex {
         let diff = calculatedIndex - originalItemIndex
         print("adjustMoveToIndex: diff: \(diff)")
@@ -511,6 +513,7 @@ func maybeMoveIndices(originalItemId: SidebarListItemId,
             originalItemId: originalItemId,
             items,
             isDragEnded: false)
+        
         return items
     } else {
         return items

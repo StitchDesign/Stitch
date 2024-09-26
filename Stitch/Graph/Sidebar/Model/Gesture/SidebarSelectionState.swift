@@ -39,7 +39,10 @@ extension SidebarSelections {
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
     var isEditMode: Bool = false
-        
+    
+    // avoid this?
+    var madeStack: Bool = false
+    
     // Layers focused in the inspector
     var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
     

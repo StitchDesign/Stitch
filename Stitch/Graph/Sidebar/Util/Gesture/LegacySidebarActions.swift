@@ -35,7 +35,6 @@ func findSetItemWithSmallestIndex(from set: LayerIdSet,
 
     // Iterate through each item in the set
     for item in set {
-//        if let index = list.firstIndex(of: item) {
         if let index = list.firstIndex(where: { $0.id == item.id }) {
             // If it's the first item or if its index is smaller than the current smallest, update it
             if smallestIndex == nil || index < smallestIndex! {
@@ -64,6 +63,37 @@ extension GraphState {
     }
 }
 
+func getMasterListWithStack(_ draggedItem: SidebarListItem,
+                            items: SidebarListItems,
+                            selections: LayerIdSet) -> SidebarListItems? {
+    
+    guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
+        return nil
+    }
+    
+    let itemsAboveStart = items.filter { item in
+        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
+            return itemIndex < draggedItemIndex
+        }
+        return false
+    }
+    
+    let selectedItemsAbove = itemsAboveStart.filter { selections.contains($0.id.asLayerNodeId) }
+    let nonSelectedItemsAbove = itemsAboveStart.filter { !selections.contains($0.id.asLayerNodeId) }
+    
+    let itemsBelowStart = items.filter { item in
+        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
+            return itemIndex > draggedItemIndex
+        }
+        return false
+    }
+    
+    let selectedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
+    let nonSelectedItemsBelow = itemsBelowStart.filter { !selections.contains($0.id.asLayerNodeId) }
+    
+    return nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + selectedItemsBelow + nonSelectedItemsBelow
+}
+
 struct SidebarListItemDragged: GraphEvent {
 
     let itemId: SidebarListItemId
@@ -76,14 +106,41 @@ struct SidebarListItemDragged: GraphEvent {
         var list = state.sidebarListState
         
         var itemId = itemId
-        if state.sidebarSelectionState.inspectorFocusedLayers.focused.count > 1,
-           let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
+        
+        if state.sidebarSelectionState.inspectorFocusedLayers.focused.count > 1 {
+           
+            // Turn the master list into a "master list with a stack" first,
+            
+            if !state.sidebarSelectionState.madeStack,
+                let item = list.masterList.items.first(where: { $0.id == itemId }),
+               let masterListWithStack = getMasterListWithStack(
+                item,
+                items: list.masterList.items,
+                selections: state.sidebarSelectionState.inspectorFocusedLayers.focused) {
+             
+//                log("SidebarListItemDragged: had a master list with stack \(masterListWithStack.map(\.id))")
+                log("SidebarListItemDragged: masterListWithStack \(masterListWithStack)")
+            
+                let _masterListWithStack = setYPositionByIndices(
+                    originalItemId: itemId,
+                    masterListWithStack,
+                isDragEnded: true)
+                
+                log("SidebarListItemDragged: _masterListWithStack: \(_masterListWithStack)")
+//
+                list.masterList.items = _masterListWithStack
+                state.sidebarSelectionState.madeStack = true
+            }
+            
+           if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
             in: state.orderedSidebarLayers.getFlattenedList()) {
-            // If we had mutiple layers focused, the "dragged item" should be the top item
-            // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
-            itemId = selectedItemWithSmallestIndex.asItemId
-            log("SidebarListItemDragged item is now \(itemId) ")
+               
+               // If we had mutiple layers focused, the "dragged item" should be the top item
+               // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
+               itemId = selectedItemWithSmallestIndex.asItemId
+               log("SidebarListItemDragged item is now \(itemId) ")
+           }
         }
 
         guard let item = list.masterList.items.first(where: { $0.id == itemId }) else {
@@ -156,10 +213,8 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     
     var alreadyDragged = SidebarListItemIdSet()
     var draggedAlong = SidebarListItemIdSet()
-    
- 
-    //
-//    var draggedAlong: SidebarListItemIdSet = otherSelections
+     
+    //    var draggedAlong: SidebarListItemIdSet = otherSelections
     log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
     log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
 
@@ -167,14 +222,17 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
 
     // First time this is called, we pass in ALL items
-    let (newItems, newIndices, updatedAlreadyDragged, updatedDraggedAlong) = updatePositionsHelper(
-        item,
-        masterList.items,
-        [],
-        translation,
-        otherSelections: otherSelections,
-        alreadyDragged: alreadyDragged,
-        draggedAlong: draggedAlong)
+    let (newItems, 
+         newIndices,
+         updatedAlreadyDragged,
+         updatedDraggedAlong) = updatePositionsHelper(
+            item,
+            masterList.items,
+            [],
+            translation,
+            otherSelections: otherSelections,
+            alreadyDragged: alreadyDragged,
+            draggedAlong: draggedAlong)
 
     // limit this from going negative?
     cursorDrag.x = cursorDrag.previousX + translation.width
@@ -183,7 +241,6 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     item = masterList.items[originalItemIndex] // update the `item` too!
     alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
     draggedAlong = draggedAlong.union(updatedDraggedAlong)
-    
     
     let calculatedIndex = calculateNewIndexOnDrag(
         item: item,
@@ -202,6 +259,7 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
         originalIndex: originalItemIndex)
     
 
+    // i.e. get the index of this dragged-item, given the updated masterList's items
     let updatedOriginalIndex = item.itemIndex(masterList.items)
     // update `item` again!
     item = masterList.items[updatedOriginalIndex]
@@ -260,6 +318,9 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         list.cursorDrag = nil
         
         state.sidebarListState = list
+        
+        // TODO: SEPT 24: avoid this?
+        state.sidebarSelectionState.madeStack = false
     
         return .persistenceResponse
     }
@@ -278,7 +339,7 @@ func onSidebarListItemDragEnded(_ item: SidebarListItem,
     var items = items
     var item = item
 
-    item.zIndex = 0
+    item.zIndex = 0 // is this even used still?
     let index = item.itemIndex(items)
     items[index] = item
 

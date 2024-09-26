@@ -105,8 +105,6 @@ func calculateNewIndexOnDrag(item: SidebarListItem,
                              originalItemIndex: Int,
                              movedIndices: [Int]) -> Int {
 
-    
-    
     let maxMovedToIndex = getMaxMovedToIndex(
         item: item,
         items: items,
@@ -125,6 +123,8 @@ func calculateNewIndexOnDrag(item: SidebarListItem,
     print("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
 
     // Is this really correct?
+    // i.e. shouldn't this be the `maxMovedToIndex` ?
+    // er, this is like "absolute max index", looking at ALL items in the list
     let maxIndex = items.count - 1
 
     // Can't this be combined with something else?
