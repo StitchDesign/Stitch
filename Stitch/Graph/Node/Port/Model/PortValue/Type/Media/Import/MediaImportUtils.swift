@@ -51,7 +51,7 @@ extension URL {
         if isVideoFile(pathExtension: pathExtension) {
             let videoPlayer = await StitchVideoImportPlayer(url: self,
                                                             videoData: VideoMetadata(),
-                                                            initialVolume: StitchVideoImportPlayer.DEFAULT_VIDEO_PLAYER_VOLUME)
+                                                            initialVolume: 0)
             return .success(.video(videoPlayer))
         }
         if isSoundFile(pathExtension: pathExtension) {
