@@ -128,7 +128,9 @@ extension StitchStore {
 
         // Update schema data
         if let newState = newState {
-            document.update(from: newState)
+            Task(priority: .high) {
+                await document.update(from: newState)
+            }
 
             // Persist graph
             document.visibleGraph.encodeProjectInBackground()

@@ -55,7 +55,7 @@ extension StitchComponentData: Identifiable {
 }
 
 extension MasterComponentsDict {
-    @MainActor mutating func sync(with data: [StitchComponentData]) {
+    mutating func sync(with data: [StitchComponentData]) {
         self.sync(with: data,
                   updateCallback: { viewModel, data in
             viewModel.update(from: data)
@@ -68,7 +68,6 @@ extension MasterComponentsDict {
 extension GraphState: DocumentEncodableDelegate {
     func willEncodeProject(schema: GraphEntity) { }
     
-    @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         components: [StitchComponentData]) {
         // Set loading status to loaded

@@ -247,7 +247,6 @@ extension PatchNodeViewModel {
                 userVisibleType: self.userVisibleType,
                 id: InputCoordinate(portId: $0.offset,
                                     nodeId: self.id),
-                activeIndex: self.delegate?.activeIndex ?? .init(.zero),
                 upstreamOutputCoordinate: existingInput?.1)
             
             inputObserver.initializeDelegate(node)

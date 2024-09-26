@@ -31,6 +31,8 @@ extension StitchStore {
         // Get latest preview window size
         let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
             PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+        
+        let isPhoneDevice = GraphUIState.isPhoneDevice
 
         guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
             fatalErrorIfDebug()
@@ -40,9 +42,11 @@ extension StitchStore {
         Task { [weak self] in
             guard let store = self else { return }
             
-            let document = await StitchDocumentViewModel
-                .create(from: document,
-                        store: store)
+            let document = await StitchDocumentViewModel(
+                from: document,
+                isPhoneDevice: isPhoneDevice,
+                store: store
+            )
             
             await MainActor.run { [weak document, weak store] in
                 guard let document = document else { return }

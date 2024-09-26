@@ -56,46 +56,49 @@ final class StitchDocumentViewModel: Sendable {
     // Keeps reference to store
     weak var storeDelegate: StoreDelegate?
     
-    @MainActor init(from schema: StitchDocument,
-                    graph: GraphState,
-                    documentEncoder: DocumentEncoder,
-                    store: StoreDelegate?) {
+    init(from schema: StitchDocument,
+         graph: GraphState,
+         documentEncoder: DocumentEncoder,
+         isPhoneDevice: Bool,
+         store: StoreDelegate?) {
         self.documentEncoder = documentEncoder
         self.previewWindowSize = schema.previewWindowSize
         self.previewSizeDevice = schema.previewSizeDevice
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
-        self.graphUI = GraphUIState()
+        self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
-        
+    }
+    
+    @MainActor
+    func initializeDelegate(store: StoreDelegate) {
         self.documentEncoder.delegate = self
         self.graphStepManager.delegate = self
         self.storeDelegate = store
         
         self.graph.initializeDelegate(document: self,
-                                      documentEncoderDelegate: documentEncoder)
+                                      documentEncoderDelegate: self.documentEncoder)
     }
     
-    static func create(from schema: StitchDocument,
-                       store: StoreDelegate?) async -> StitchDocumentViewModel? {
+    convenience init?(from schema: StitchDocument,
+                      isPhoneDevice: Bool,
+                      store: StoreDelegate?) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
         let graph = await GraphState(from: schema.graph,
                                      saveLocation: [],
                                      encoder: documentEncoder)
+        self.init(from: schema,
+                  graph: graph,
+                  documentEncoder: documentEncoder,
+                  isPhoneDevice: isPhoneDevice,
+                  store: store)
         
-        return await MainActor.run { [weak graph, weak documentEncoder, weak store] in
-            guard let graph = graph,
-                  let documentEncoder = documentEncoder else {
-                fatalErrorIfDebug()
-                return nil
+        await MainActor.run { [weak self, weak store] in
+            if let store = store {
+                self?.initializeDelegate(store: store)
             }
-            
-            return self.init(from: schema,
-                             graph: graph,
-                             documentEncoder: documentEncoder,
-                             store: store)
         }
     }
 }
@@ -260,6 +263,7 @@ extension StitchDocumentViewModel {
         .init(from: .init(),
               graph: .init(),
               documentEncoder: .init(document: .init()),
+              isPhoneDevice: false,
               store: nil)
     }
 }

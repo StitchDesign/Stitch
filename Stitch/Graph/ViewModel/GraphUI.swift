@@ -129,8 +129,7 @@ final class GraphUIState {
 
     // Only applies to non-iPhones so that exiting full-screen mode goes
     // back to graph instead of projects list
-    @MainActor
-    var isFullScreenMode: Bool = GraphUIState.isPhoneDevice
+    var isFullScreenMode: Bool = false
     
     #if DEV_DEBUG
     var showsLayerInspector = true //  during dev
@@ -159,7 +158,6 @@ final class GraphUIState {
     var activeDragInteraction = ActiveDragInteractionNodeVelocityData()
 
     // Explicit `init` is required to use `didSet` on a property
-    @MainActor
     init(activeSpacebarClickDrag: Bool = false,
          safeAreaInsets: SafeAreaInsets = SafeAreaInsetsEnvironmentKey.defaultValue,
          colorScheme: ColorScheme = defaultColorScheme,
@@ -169,7 +167,7 @@ final class GraphUIState {
          frame: CGRect = DEFAULT_LANDSCAPE_GRAPH_FRAME,
          selection: GraphUISelectionState = .init(),
          groupTraversedToChild: Bool = false,
-         isFullScreenMode: Bool = GraphUIState.isPhoneDevice,
+         isPhoneDevice: Bool,
          groupNodeBreadcrumbs: [GroupNodeType] = .init(),
          showPreviewWindow: Bool = PREVIEW_SHOWN_DEFAULT_STATE,
          insertNodeMenuState: InsertNodeMenuState = .init(),
@@ -184,7 +182,7 @@ final class GraphUIState {
         self.frame = frame
         self.selection = selection
         self.groupTraversedToChild = groupTraversedToChild
-        self.isFullScreenMode = isFullScreenMode
+        self.isFullScreenMode = isPhoneDevice
         self.groupNodeBreadcrumbs = groupNodeBreadcrumbs
         self.showPreviewWindow = showPreviewWindow
         self.insertNodeMenuState = insertNodeMenuState

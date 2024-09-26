@@ -52,7 +52,6 @@ extension NodeRowObserver {
         self.nodeDelegate?.userVisibleType
     }
     
-    @MainActor
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     func updatePortViewModels() {
@@ -61,7 +60,6 @@ extension NodeRowObserver {
         }
     }
     
-    @MainActor
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
         // Make sure we're not in full screen mode
         guard let graph = self.nodeDelegate?.graphDelegate,
@@ -98,7 +96,6 @@ extension NodeRowObserver {
         return self.allLoopedValues[safe: graph.activeIndex.adjustedIndex(self.allLoopedValues.count)] ?? .none
     }
     
-    @MainActor
     func postProcessing(oldValues: PortValues,
                         newValues: PortValues) {
         // Update cached interactions data in graph
@@ -112,7 +109,6 @@ extension NodeRowObserver {
     }
     
     /// Updates layer selections for interaction patch nodes for perf.
-    @MainActor
     func updateInteractionNodeData(oldValues: PortValues,
                                    newValues: PortValues) {
         // Interaction nodes ignore loops of assigned layers and only use the first
@@ -264,14 +260,12 @@ extension [InputNodeRowObserver] {
          userVisibleType: UserVisibleType?,
          id: NodeId,
          nodeIO: NodeIO,
-         activeIndex: ActiveIndex,
          nodeDelegate: NodeDelegate) {
         self = values.enumerated().map { portId, values in
             Element(values: values,
                     nodeKind: kind,
                     userVisibleType: userVisibleType,
                     id: NodeIOCoordinate(portId: portId, nodeId: id),
-                    activeIndex: activeIndex,
                     upstreamOutputCoordinate: nil,
                     nodeDelegate: nodeDelegate)
         }

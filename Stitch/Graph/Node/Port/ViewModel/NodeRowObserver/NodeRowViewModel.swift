@@ -96,7 +96,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    @MainActor func calculatePortColor() -> PortColor
+    func calculatePortColor() -> PortColor
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
@@ -158,7 +158,6 @@ extension NodeRowViewModel {
                                    importedMediaObject: nil)
     }
     
-    @MainActor
     func didPortValuesUpdate(values: PortValues) {
         guard let rowDelegate = self.rowDelegate else {
             return
@@ -189,7 +188,6 @@ extension NodeRowViewModel {
         }
     }
     
-    @MainActor
     func updatePortColor() {
         let newColor = self.calculatePortColor()
         self.setPortColorIfChanged(newColor)

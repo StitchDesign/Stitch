@@ -21,7 +21,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeKind: NodeKind { get set }
     
-    @MainActor var allRowViewModels: [RowViewModelType] { get }
+    var allRowViewModels: [RowViewModelType] { get }
     
     var nodeDelegate: NodeDelegate? { get set }
     
@@ -29,7 +29,7 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var hasLoopedValues: Bool { get set }
     
-    @MainActor var importedMediaObject: StitchMediaObject? { get }
+    var importedMediaObject: StitchMediaObject? { get }
     
     var hasEdge: Bool { get }
     
@@ -388,7 +388,6 @@ extension OutputNodeRowObserver {
 
 extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
-    @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
@@ -398,7 +397,6 @@ extension NodeRowViewModel {
     }
     
     /// Called by parent node view model to update fields.
-    @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
         

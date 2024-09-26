@@ -59,7 +59,6 @@ extension Array where Element: SchemaObserverIdentifiable {
 }
 
 extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
-    @MainActor
     mutating func sync<DataElement>(with newEntities: [DataElement],
                                     updateCallback: @escaping (Value, DataElement) -> (),
                                     createCallback: @escaping (DataElement) -> Value) where DataElement: Identifiable, DataElement.ID == Value.ID {
@@ -75,7 +74,6 @@ extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
 }
 
 extension Array where Element: Identifiable & AnyObject {
-    @MainActor
     mutating func sync<DataElement>(with newEntities: [DataElement],
                                     updateCallback: @escaping (Element, DataElement) -> (),
                                     createCallback: @escaping (DataElement) -> Element) where DataElement: Identifiable, DataElement.ID == Element.ID {

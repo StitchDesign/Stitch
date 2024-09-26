@@ -82,29 +82,30 @@ extension GraphState {
 //            return draftedComponent
 //        }
 
-        guard hasEffectsToRun else {
-            // Update state synchronously
-            self._insertNewComponent(newComponent)
-            return
-        }
+//        guard hasEffectsToRun else {
+//            // Update state synchronously
+//            self._insertNewComponent(newComponent)
+//            return
+//        }
 
         // Display loading status for imported media effects
         self.libraryLoadingStatus = .loading
 
-        Task(priority: .high) { [weak encoder] in
+        Task(priority: .high) { [weak encoder, weak self] in
             guard let encoder = encoder else {
                 return
             }
             
-            await encoder.importComponentFiles(copiedFiles) { [weak self] in
-                // Mutates graph before graph is recalcualted after processing new imported files
-                self?._insertNewComponent(newComponent)
-            }
+            await self?._insertNewComponent(newComponent)
+            await encoder.importComponentFiles(copiedFiles)
+//            { [weak self] in
+//                // Mutates graph before graph is recalcualted after processing new imported files
+//            }
         }
     }
 
     @MainActor
-    func _insertNewComponent<T>(_ component: T) where T: StitchComponentable {
+    func _insertNewComponent<T>(_ component: T) async where T: StitchComponentable {
         guard let document = self.documentDelegate,
               let encoderDelegate = self.documentEncoderDelegate else {
             fatalErrorIfDebug()
@@ -135,7 +136,7 @@ extension GraphState {
         // Add new nodes
         graph.nodes += newNodes
         graph.orderedSidebarLayers = component.graph.orderedSidebarLayers + graph.orderedSidebarLayers
-        self.update(from: graph)
+        await self.update(from: graph)
         self.initializeDelegate(document: document,
                                 documentEncoderDelegate: encoderDelegate)
 

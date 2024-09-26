@@ -74,12 +74,15 @@ extension StitchStore {
     /// Async attempts to re-load document from URL in case migration is needed.
     /// We only encode and update the project if the user makes an edit, which helps control project sorting order
     /// so that opened projects only re-sort when edited.
-    func handleProjectTapped(document: StitchDocument) {
+    func handleProjectTapped(document: StitchDocument,
+                             isPhoneDevice: Bool) {
         log("handleProjectTapped: about to set \(document.id)")
         Task(priority: .high) {
-            let documentViewModel = await StitchDocumentViewModel
-                .create(from: document,
-                        store: self)
+            let documentViewModel = await StitchDocumentViewModel(
+                from: document,
+                isPhoneDevice: isPhoneDevice,
+                store: self
+            )
             
             await MainActor.run { [weak self, weak documentViewModel] in
                 guard let documentViewModel = documentViewModel else {

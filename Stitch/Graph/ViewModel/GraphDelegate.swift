@@ -17,9 +17,9 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     var saveLocation: [UUID] { get }
     
-    @MainActor var activeIndex: ActiveIndex { get }
+    var activeIndex: ActiveIndex { get }
     
-    @MainActor var groupNodeFocused: NodeId? { get }
+    var groupNodeFocused: NodeId? { get }
     
     var components: [UUID : StitchMasterComponent] { get }
     
@@ -35,13 +35,13 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var selectedEdges: Set<PortEdgeUI> { get }
     
-    @MainActor var isFullScreenMode: Bool { get }
+    var isFullScreenMode: Bool { get }
     
-    @MainActor var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+    var dragInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
 
-    @MainActor var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+    var pressInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
 
-    @MainActor var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
+    var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
     @MainActor var connections: GraphState.TopologicalData.Connections { get }
     
@@ -67,10 +67,8 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
-    @MainActor
     var sidebarSelectionState: SidebarSelectionState { get }
     
-    @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }
     
     func updateGraphData()

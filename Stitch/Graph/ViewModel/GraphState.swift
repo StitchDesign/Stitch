@@ -343,10 +343,10 @@ final class GraphState: Sendable {
 }
 
 extension GraphState: GraphDelegate {
-    @MainActor var graphUI: GraphUIState {
+    var graphUI: GraphUIState {
         guard let graphUI = self.documentDelegate?.graphUI else {
             fatalErrorIfDebug()
-            return GraphUIState()
+            return GraphUIState(isPhoneDevice: false)
         }
         
         return graphUI

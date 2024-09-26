@@ -34,7 +34,7 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor var outputsRowCount: Int { get }
     
-    @MainActor var activeIndex: ActiveIndex { get }
+    var activeIndex: ActiveIndex { get }
     
     @MainActor var displayTitle: String { get }
 
@@ -74,8 +74,8 @@ protocol NodeDelegate: AnyObject {
     @MainActor func updateOutputsObservers(newOutputsValues: PortValuesList,
                                            activeIndex: ActiveIndex)
     
-    @MainActor func blockOrUnblockFields(newValue: PortValue,
-                                         layerInput: LayerInputPort)
+    func blockOrUnblockFields(newValue: PortValue,
+                              layerInput: LayerInputPort)
     
     @MainActor func calculate()
 }
