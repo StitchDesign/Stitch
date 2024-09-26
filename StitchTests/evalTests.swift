@@ -13,11 +13,15 @@ import XCTest
 // TESTS FOR NODES' EVAL METHODS
 
 class EvalTests: XCTestCase {
-    @MainActor var graphState = GraphState()
+    @MainActor var document = StitchDocumentViewModel()
+    
+    @MainActor var graphState: GraphState {
+        self.document.graph
+    }
     
     @MainActor
     override func setUp() {
-        self.graphState = GraphState()
+        self.document = StitchDocumentViewModel()
     }
 
     /// Runs all evals to make sure nodes can initialize.
