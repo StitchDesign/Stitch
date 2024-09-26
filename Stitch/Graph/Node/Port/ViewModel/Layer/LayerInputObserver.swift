@@ -127,7 +127,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     var observerMode: LayerInputObserverMode {
         switch self.mode {
         case .packed:

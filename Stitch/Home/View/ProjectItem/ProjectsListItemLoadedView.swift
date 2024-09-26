@@ -61,45 +61,32 @@ struct ProjectThumbnailTextField: View {
     }
 }
 
-struct ProjectTapped: StitchStoreEvent {
-    let documentURL: URL
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.handleProjectTapped(documentURL: documentURL)
-        return .noChange
-    }
-}
+//struct ProjectTapped: StitchStoreEvent {
+//    let documentURL: URL
+//    
+//    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+//        store.handleProjectTapped(documentURL: documentURL)
+//        return .noChange
+//    }
+//}
 
 extension StitchStore {
     /// Async attempts to re-load document from URL in case migration is needed.
     /// We only encode and update the project if the user makes an edit, which helps control project sorting order
     /// so that opened projects only re-sort when edited.
-    func handleProjectTapped(documentURL: URL) {
-        // TODO: loading state needed
-        Task(priority: .userInitiated) {
-            do {
-                guard let document = try await StitchDocument.openDocument(from: documentURL) else {
-                    await MainActor.run { [weak self] in
-                        self?.displayError(error: .projectSchemaNotFound)
-                    }
+    func handleProjectTapped(document: StitchDocument) {
+        log("handleProjectTapped: about to set \(document.id)")
+        Task(priority: .high) {
+            let documentViewModel = await StitchDocumentViewModel
+                .create(from: document,
+                        store: self)
+            
+            await MainActor.run { [weak self, weak documentViewModel] in
+                guard let documentViewModel = documentViewModel else {
                     return
                 }
                 
-                await MainActor.run { [weak self] in
-                    guard let store = self else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    
-                    log("handleProjectTapped: about to set \(document.id)")
-                    let documentViewModel = StitchDocumentViewModel(from: document,
-                                                                    store: store)
-                    store.navPath = [documentViewModel]
-                }
-            } catch {
-                await MainActor.run { [weak self] in
-                    self?.displayError(error: .projectSchemaNotFound)
-                }
+                self?.navPath = [documentViewModel]
             }
         }
     }

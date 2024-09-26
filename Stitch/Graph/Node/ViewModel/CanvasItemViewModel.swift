@@ -186,7 +186,7 @@ extension CanvasItemViewModel: SchemaObserver {
         //              parentGroupNodeId: isVisitingComponent ? nil : self.parentGroupNodeId)
     }
 
-    @MainActor func update(from schema: CanvasNodeEntity) {        
+    func update(from schema: CanvasNodeEntity) {        
         if self.position != schema.position {
             self.position = schema.position
         }
@@ -270,7 +270,6 @@ extension InputLayerNodeRowData {
                                                activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
-                     canvasObserver: nil,
-                     activeIndex: .defaultActiveIndex)
+                     canvasObserver: nil)
     }
 }

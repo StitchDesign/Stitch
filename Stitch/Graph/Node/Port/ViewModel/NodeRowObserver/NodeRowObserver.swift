@@ -39,7 +39,6 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?)
 }
 
@@ -83,13 +82,11 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
-    convenience init(from schema: NodePortInputEntity,
-                     activeIndex: ActiveIndex) {
+    convenience init(from schema: NodePortInputEntity) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
-                  activeIndex: activeIndex,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
@@ -97,7 +94,6 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
@@ -145,7 +141,6 @@ final class OutputNodeRowObserver: NodeRowObserver {
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          // always nil but needed for protocol
          upstreamOutputCoordinate: NodeIOCoordinate? = nil) {
         
@@ -493,14 +488,12 @@ extension NodeRowObserver {
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate) {
         self.init(values: values,
                   nodeKind: nodeKind,
                   userVisibleType: userVisibleType,
                   id: id,
-                  activeIndex: activeIndex,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
         self.initializeDelegate(nodeDelegate)
     }

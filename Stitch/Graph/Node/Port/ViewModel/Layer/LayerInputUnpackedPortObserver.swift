@@ -53,7 +53,6 @@ extension LayerInputUnpackedPortObserver {
         return packedValues
     }
     
-    @MainActor
     var allPorts: [InputLayerNodeRowData] {
         guard let portsToUse = layerPort.unpackedPortCount(layer: self.layer) else {
             return []

@@ -67,6 +67,7 @@ final class StitchDocumentViewModel: Sendable {
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
         self.graphUI = GraphUIState()
+        self.graph = graph
         
         self.documentEncoder.delegate = self
         self.graphStepManager.delegate = self
@@ -91,10 +92,10 @@ final class StitchDocumentViewModel: Sendable {
                 return nil
             }
             
-            return StitchDocumentViewModel(from: schema,
-                                           graph: graph,
-                                           documentEncoder: documentEncoder,
-                                           store: store)
+            return self.init(from: schema,
+                             graph: graph,
+                             documentEncoder: documentEncoder,
+                             store: store)
         }
     }
 }
@@ -255,7 +256,7 @@ extension StitchDocumentViewModel {
         self.graphUI.restartPrototypeWindowIconRotationZ += 360
     }
     
-    static func createEmpty() -> StitchDocumentViewModel {
+    @MainActor static func createEmpty() -> StitchDocumentViewModel {
         .init(from: .init(),
               graph: .init(),
               documentEncoder: .init(document: .init()),

@@ -47,7 +47,6 @@ extension [NodePortInputEntity] {
                                         nodeKind: kind,
                                         userVisibleType: userVisibleType,
                                         id: .init(portId: portId, nodeId: nodeId),
-                                        activeIndex: .init(.zero),
                                         upstreamOutputCoordinate: schemaData.portData.upstreamConnection)
         }
     }
@@ -120,7 +119,6 @@ extension NodeRowDefinitions {
                                   nodeKind: .patch(patch),
                                   userVisibleType: userVisibleType,
                                   id: .init(portId: portId, nodeId: nodeId),
-                                  activeIndex: .init(.zero),
                                   upstreamOutputCoordinate: nil)
         }
     }
@@ -128,8 +126,7 @@ extension NodeRowDefinitions {
     func createOutputLayerPorts(schema: LayerNodeEntity,
                                 // Pass in values directly from eval
                                 valuesList: PortValuesList,
-                                userVisibleType: UserVisibleType?,
-                                activeIndex: ActiveIndex) -> [OutputLayerNodeRowData] {
+                                userVisibleType: UserVisibleType?) -> [OutputLayerNodeRowData] {
         let nodeId = schema.id
         let kind = NodeKind.layer(schema.layer)
         
@@ -143,8 +140,7 @@ extension NodeRowDefinitions {
             let observer = OutputNodeRowObserver(values: values,
                                                  nodeKind: kind,
                                                  userVisibleType: userVisibleType,
-                                                 id: .init(portId: portId, nodeId: nodeId),
-                                                 activeIndex: .init(.zero))
+                                                 id: .init(portId: portId, nodeId: nodeId))
 
             if let canvasEntity = canvasEntity {
                 canvasObserver = CanvasItemViewModel(
@@ -159,7 +155,6 @@ extension NodeRowDefinitions {
             }
             
             let outputData = OutputLayerNodeRowData(rowObserver: observer,
-                                                    activeIndex: activeIndex,
                                                     canvasObserver: canvasObserver)
             
             outputData.inspectorRowViewModel.canvasItemDelegate = outputData.canvasObserver

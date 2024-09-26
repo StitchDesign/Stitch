@@ -74,7 +74,6 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
     
     init(rowObserver: InputNodeRowObserver,
          canvasObserver: CanvasItemViewModel? = nil,
-         activeIndex: ActiveIndex,
          nodeDelegate: NodeDelegate? = nil) {
         let keyPath = rowObserver.id.keyPath
         assertInDebug(keyPath.isDefined)
@@ -96,7 +95,6 @@ final class InputLayerNodeRowData: LayerNodeRowData, Identifiable {
                                                      nodeId: rowObserver.id.nodeId,
                                                      // Why portId=0 ?
                                                      portId: 0),
-                                           activeIndex: activeIndex,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -110,7 +108,6 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
     var canvasObserver: CanvasItemViewModel?
     
     init(rowObserver: OutputNodeRowObserver,
-         activeIndex: ActiveIndex,
          canvasObserver: CanvasItemViewModel? = nil) {
         self.rowObserver = rowObserver
         self.canvasObserver = canvasObserver
@@ -126,7 +123,6 @@ final class OutputLayerNodeRowData: LayerNodeRowData {
         self.inspectorRowViewModel = .init(id: .init(graphItemType: itemType,
                                                      nodeId: rowObserver.id.nodeId,
                                                      portId: 0),
-                                           activeIndex: activeIndex,
                                            rowDelegate: rowObserver,
                                            // specifically not a row view model for canvas
                                            canvasItemDelegate: nil)
@@ -170,7 +166,6 @@ extension LayerNodeRowData {
 
 extension LayerNodeViewModel {
     /// First step for layer port initialization before schema settings are set.
-    @MainActor
     func preinitializeSupportedPort(layerInputPort: LayerInputPort,
                                     portType: LayerInputKeyPathType) {
         let layerId = LayerInputType(layerInput: layerInputPort,
@@ -190,7 +185,6 @@ extension LayerNodeViewModel {
     }
     
     /// Second step for layer port initialization after all initial identifier data is set.
-    @MainActor
     func initializePortSchema(layerSchema: LayerNodeEntity,
                               layerInputPort: LayerInputPort) {
         let layerData = self[keyPath: layerInputPort.layerNodeKeyPath]
@@ -233,11 +227,11 @@ extension InputLayerNodeRowData {
             self.canvasObserver = nil
         }
         
-        if let node = layerNode.nodeDelegate {
-            self.initializeDelegate(node,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: unpackedPortIndex)
-        }
+//        if let node = layerNode.nodeDelegate {
+//            self.initializeDelegate(node,
+//                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+//                                    unpackedPortIndex: unpackedPortIndex)
+//        }
     }
 }
 
@@ -262,7 +256,6 @@ extension LayerInputObserver {
         }
     }
     
-    @MainActor
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,
