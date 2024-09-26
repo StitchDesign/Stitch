@@ -245,6 +245,7 @@ extension NodeViewModel {
                   )
     }
     
+    @MainActor
     func initializeDelegate(graph: GraphDelegate,
                             document: StitchDocumentViewModel) {
         self.graphDelegate = graph

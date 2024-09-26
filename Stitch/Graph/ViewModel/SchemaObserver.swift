@@ -71,6 +71,19 @@ extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
             result.updateValue(observer, forKey: observer.id)
         }
     }
+    
+    mutating func sync<DataElement>(with newEntities: [DataElement],
+                                    updateCallback: @escaping (Value, DataElement) async -> (),
+                                    createCallback: @escaping (DataElement) async -> Value) async where DataElement: Identifiable, DataElement.ID == Value.ID {
+        var values = Array(self.values)
+        await values.sync(with: newEntities,
+                          updateCallback: updateCallback,
+                          createCallback: createCallback)
+        
+        self = values.reduce(into: Self.init()) { result, observer in
+            result.updateValue(observer, forKey: observer.id)
+        }
+    }
 }
 
 extension Array where Element: Identifiable & AnyObject {
@@ -99,6 +112,36 @@ extension Array where Element: Identifiable & AnyObject {
                 return createCallback(newEntity)
             }
         }
+    }
+    
+    mutating func sync<DataElement>(with newEntities: [DataElement],
+                                    updateCallback: @escaping (Element, DataElement) async -> (),
+                                    createCallback: @escaping (DataElement) async -> Element) async where DataElement: Identifiable, DataElement.ID == Element.ID {
+        let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
+        let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
+        let entitiesToRemove = currentIds.subtracting(incomingIds)
+
+        let currentEntitiesMap = self.reduce(into: [:]) { result, currentEntity in
+            result.updateValue(currentEntity, forKey: currentEntity.id)
+        }
+
+        // Remove element if no longer tracked by incoming list
+        entitiesToRemove.forEach { idToRemove in
+            self.removeAll { $0.id == idToRemove }
+        }
+
+        // Create or update entities from new list
+        var newValues = [Element]()
+        for newEntity in newEntities {
+            if let entity = currentEntitiesMap.get(newEntity.id) {
+                await updateCallback(entity, newEntity)
+                newValues.append(entity)
+            } else {
+                newValues.append(await createCallback(newEntity))
+            }
+        }
+        
+        self = newValues
     }
 }
 

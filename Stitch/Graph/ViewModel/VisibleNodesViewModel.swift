@@ -60,44 +60,41 @@ extension VisibleNodesViewModel {
     /// This funciton has two roles:
     /// 1. Create, update, and delete all node view models
     /// 2. Returns the specific list of view models to be visible.
-    @MainActor
-    func updateNodeSchemaData(newNodes: [NodeEntity],
-                              components: [UUID: StitchMasterComponent],
-                              parentGraphPath: [UUID]) async {
-
-        let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
-            result.updateValue(schema, forKey: schema.id)
-        }
-
-        let existingNodePages: NodesPagingDict = self.nodesByPage
-
-        let allNodeIds = newNodes.map(\.id).toSet
-
-        let existingNodeIds = self.allNodeIds
-        let incomingNodeIds = allNodeIds
-
-        // Remove now unused view models
-        self.removeOldViewModels(currentIds: existingNodeIds,
-                                 newIds: incomingNodeIds)
-
-        // Initialize node view data starting with groups
-        await self.updateNodesPagingDict(nodesDict: allNodesDict,
-                                         existingNodePages: existingNodePages,
-                                         components: components,
-                                         parentGraphPath: parentGraphPath)
-    }
+//    @MainActor
+//    func updateNodeSchemaData(components: [UUID: StitchMasterComponent],
+//                              parentGraphPath: [UUID]) async {
+//
+////        let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
+////            result.updateValue(schema, forKey: schema.id)
+////        }
+////
+////        let existingNodePages: NodesPagingDict = self.nodesByPage
+////
+////        let allNodeIds = newNodes.map(\.id).toSet
+////
+////        let existingNodeIds = self.allNodeIds
+////        let incomingNodeIds = allNodeIds
+////
+////        // Remove now unused view models
+////        self.removeOldViewModels(currentIds: existingNodeIds,
+////                                 newIds: incomingNodeIds)
+//
+//        // Initialize node view data starting with groups
+//        await self.updateNodesPagingDict(nodesDict: allNodesDict,
+//                                         existingNodePages: existingNodePages,
+//                                         components: components,
+//                                         parentGraphPath: parentGraphPath)
+//    }
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
-    func updateNodesPagingDict(nodesDict: NodeEntityDict,
-                               existingNodePages: NodesPagingDict,
-                               components: [UUID: StitchMasterComponent],
-                               parentGraphPath: [UUID]) async {
+    func updateNodesPagingDict(components: [UUID: StitchMasterComponent],
+                               parentGraphPath: [UUID]) {
 
         // Remove any groups in the node paging dict that no longer exist in GraphSchema:
         let existingGroupPages = self.nodesByPage.compactMap(\.key.getGroupNodePage).toSet
-        let incomingGroupIds = nodesDict
-            .flatMap { $0.value.canvasEntities }
+        let incomingGroupIds = self.nodes.values
+            .flatMap { $0.getAllCanvasObservers() }
             .compactMap { $0.parentGroupNodeId }
             .toSet
 
@@ -107,28 +104,35 @@ extension VisibleNodesViewModel {
                                          forKey: .group(incomingGroupId))
         }
 
-        // Create node view models (if not yet created), establishing connection data later
-        for schema in nodesDict.values {
-            if let node = self.nodes.get(schema.id) {
-                await node.update(from: schema,
-                                  components: components)
+//        // Create node view models (if not yet created), establishing connection data later
+//        for schema in nodesDict.values {
+//            if let node = self.nodes.get(schema.id) {
+//                await node.update(from: schema,
+//                                  components: components)
+//
+//                // Toggle output downstream connections to false, will correct below
+//                node.getAllOutputsObservers().forEach {
+//                    $0.containsDownstreamConnection = false
+//                }
+//            } else {
+//                let newNode = await NodeViewModel(from: schema,
+//                                                  components: components,
+//                                                  parentGraphPath: parentGraphPath)
+//                nodes.updateValue(newNode,
+//                                  forKey: newNode.id)
+//            }
+//        }
 
-                // Toggle output downstream connections to false, will correct below
-                node.getAllOutputsObservers().forEach {
-                    $0.containsDownstreamConnection = false
-                }
-            } else {
-                let newNode = await NodeViewModel(from: schema,
-                                                  components: components,
-                                                  parentGraphPath: parentGraphPath)
-                nodes.updateValue(newNode,
-                                  forKey: newNode.id)
+        // Toggle output downstream connections to false, will correct later
+        self.nodes.values.forEach { node in
+            node.getAllOutputsObservers().forEach {
+                $0.containsDownstreamConnection = false
             }
         }
-
+        
         // Build weak references to connected nodes
-        nodesDict.values.forEach { nodeEntity in
-            self.buildUpstreamReferences(nodeEntity: nodeEntity)
+        self.nodes.values.forEach { node in
+            self.buildUpstreamReferences(nodeViewModel: node)
         }
         
         // Sync port view models for applicable nodes
@@ -159,39 +163,34 @@ extension VisibleNodesViewModel {
     }
 
     @MainActor
-    func buildUpstreamReferences(nodeEntity: NodeEntity) {
-        guard let nodeViewModel = self.nodes.get(nodeEntity.id) else {
-            fatalErrorIfDebug()
-            return
-        }
-
+    func buildUpstreamReferences(nodeViewModel: NodeViewModel) {
         // Layers use keypaths
-        if let layerEntity = nodeEntity.layerNodeEntity,
-           let layerNodeViewModel = nodeViewModel.layerNode {
-            layerEntity.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-                let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
+        if let layerNodeViewModel = nodeViewModel.layerNode {
+            layerNodeViewModel.layer.layerGraphNode.inputDefinitions.forEach { inputType in
+//                let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
                 
                 // Loop over ports for each layer input--multiple if in unpacked mode
                 layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].allInputData.forEach { inputData in
                     let inputObserver = inputData.rowObserver
-                    let id = inputData.id
-                    guard let inputSchemaData = schemaInput.getInputData(from: id.portType) else {
-                        fatalErrorIfDebug()
+                    guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
                         return
                     }
                     
-                    guard let connectedOutputCoordinate = inputSchemaData.inputPort.upstreamConnection else {
-                        inputObserver.upstreamOutputCoordinate = nil
-                        return
-                    }
+//                    let id = inputData.id
+//                    guard let inputSchemaData = schemaInput.getInputData(from: id.portType) else {
+//                        fatalErrorIfDebug()
+//                        return
+//                    }
+                    
+//                    guard let connectedOutputCoordinate = inputSchemaData.inputPort.upstreamConnection else {
+//                        inputObserver.upstreamOutputCoordinate = nil
+//                        return
+//                    }
                     
                     // Check for connected row observer rather than just setting ID--makes for
                     // a more robust check in ensuring the connection actually exists
-                    guard let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate) else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
+                    assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
+//                    inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
                     
                     // Report to output observer that there's an edge (for port colors)
                     // We set this to false on default above
@@ -199,28 +198,17 @@ extension VisibleNodesViewModel {
                 }
             }
         } else {
-            nodeEntity.inputs.enumerated().forEach { portId, inputEntity in
-                guard let inputObserver = nodeViewModel.getInputRowObserver(portId) else {
-                    // TODO: humane demo crash with option picker node titled "Select Source"
-                    //                #if DEBUG
-                    //                fatalError()
-                    //                #endif
+            nodeViewModel.getAllInputsObservers().enumerated().forEach { portId, inputObserver in
+                guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
+//                    inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
-                
-                guard let connectedOutputCoordinate = inputEntity.upstreamConnection else {
-                    inputObserver.upstreamOutputCoordinate = nil
-                    return
-                }
-                
+//                
                 // Check for connected row observer rather than just setting ID--makes for
                 // a more robust check in ensuring the connection actually exists
-                guard let connectedOutputObserver = self.getOutputRowObserver(for: connectedOutputCoordinate) else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
+                assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
+//
+//                inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
                 
                 // Report to output observer that there's an edge (for port colors)
                 // We set this to false on default above

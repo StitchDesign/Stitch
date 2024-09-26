@@ -71,25 +71,24 @@ final class StitchDocumentViewModel: Sendable, DocumentEncodableDelegate {
         self.graph = graph
         
         if let store = store {
-            self.initializeDelegate(store: store)
+            DispatchQueue.main.async { [weak self, weak store] in
+                guard let store = store else { return }
+                self?.initializeDelegate(store: store)
+            }
         }
     }
     
+    @MainActor
     func initializeDelegate(store: StoreDelegate) {
-        Task(priority: .high) {
-            await MainActor.run { [weak self] in
-                guard let doc = self else { return }
-                doc.documentEncoder.delegate = doc
-                
-                // Start graph
-                doc.graphStepManager.start()
-            }
-        }
+        self.documentEncoder.delegate = self
         self.graphStepManager.delegate = self
         self.storeDelegate = store
         
         self.graph.initializeDelegate(document: self,
                                       documentEncoderDelegate: self.documentEncoder)
+        
+        // Start graph
+        self.graphStepManager.start()
     }
     
     convenience init?(from schema: StitchDocument,

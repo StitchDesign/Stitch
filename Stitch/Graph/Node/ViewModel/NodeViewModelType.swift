@@ -66,6 +66,7 @@ extension StitchComponentViewModel {
               graph: .init())
     }
     
+    @MainActor
     func initializeDelegate(node: NodeDelegate,
                                        components: [UUID: StitchMasterComponent],
                                        document: StitchDocumentViewModel) {
@@ -220,6 +221,7 @@ extension NodeViewModelType {
         }
     }
     
+    @MainActor
     func initializeDelegate(_ node: NodeDelegate,
                             components: [UUID: StitchMasterComponent],
                             document: StitchDocumentViewModel) {

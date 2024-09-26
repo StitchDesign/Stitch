@@ -68,6 +68,14 @@ extension MasterComponentsDict {
 extension GraphState: DocumentEncodableDelegate {
     func willEncodeProject(schema: GraphEntity) { }
     
+    func syncMediaFiles(_ mediaFiles: [URL]) {
+        // Add default media and imported URLs
+        let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles
+        self.mediaLibrary = allMediaFiles.reduce(into: .init()) { result, url in
+            result.updateValue(url, forKey: url.mediaKey)
+        }
+    }
+    
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         components: [StitchComponentData]) {
         // Set loading status to loaded

@@ -287,21 +287,23 @@ final class GraphState: Sendable {
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
     init(from schema: GraphEntity,
-         saveLocation: [UUID],
-         graphDecodedFiles: GraphDecodedFiles) {
+         nodes: NodesViewModelDict,
+         components: MasterComponentsDict,
+         mediaFiles: [URL],
+         saveLocation: [UUID]) {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
         self.commentBoxesDict.sync(from: schema.commentBoxes)
+        self.components = components
         self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.visibleNodesViewModel.nodes = nodes
         
-        // Add default URLs
-        MediaLibrary.getDefaultLibraryDeps().forEach { url in
-            mediaLibrary.updateValue(url, forKey: url.mediaKey)
-        }
+        self.libraryLoadingStatus = .loaded
+        self.syncMediaFiles(mediaFiles)
         
-        self.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
-                                             components: graphDecodedFiles.components)
+//        self.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
+//                                             components: graphDecodedFiles.components)
         
 //        Task(priority: .high) { [weak self] in
 //            guard let graph = self else { return }
@@ -357,16 +359,32 @@ final class GraphState: Sendable {
             return
         }
         
-        self.init(from: schema,
-                  saveLocation: saveLocation,
-                  graphDecodedFiles: decodedFiles)
+        let components = decodedFiles.components.reduce(into: MasterComponentsDict()) { result, componentEntity in
+            let newComponent = StitchMasterComponent.createObject(from: componentEntity)
+            result.updateValue(newComponent, forKey: newComponent.id)
+        }
         
-        await self.visibleNodesViewModel
-            .updateNodeSchemaData(newNodes: schema.nodes,
-                                  components: self.components,
-                                  parentGraphPath: self.saveLocation)
+        var nodes = NodesViewModelDict()
+        for nodeEntity in schema.nodes {
+            let newNode = await NodeViewModel(from: nodeEntity,
+                                              components: components,
+                                              parentGraphPath: saveLocation)
+            nodes.updateValue(newNode, forKey: newNode.id)
+        }
+        
+        self.init(from: schema,
+                  nodes: nodes,
+                  components: components,
+                  mediaFiles: decodedFiles.mediaFiles,
+                  saveLocation: saveLocation)
+        
+//        await self.visibleNodesViewModel
+//            .updateNodeSchemaData(newNodes: schema.nodes,
+//                                  components: self.components,
+//                                  parentGraphPath: self.saveLocation)
     }
     
+    @MainActor
     func initializeDelegate(document: StitchDocumentViewModel,
                             documentEncoderDelegate: any DocumentEncodable) {
         self.documentDelegate = document
@@ -388,15 +406,15 @@ final class GraphState: Sendable {
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
         
-        Task(priority: .high) {
-            await MainActor.run { [weak self] in                
-                // Calculate graph
-                self?.initializeGraphComputation()
-    
-                // Initialize preview layers and topological data
-                self?.updateGraphData()
-            }
-        }
+        self.visibleNodesViewModel
+            .updateNodesPagingDict(components: self.components,
+                                   parentGraphPath: self.saveLocation)
+        
+        // Initialize preview layers and topological data
+        self.updateGraphData()
+        
+        // Calculate graph
+        self.initializeGraphComputation()
         
         // Get media + encoded component files after view models are established
 //        Task(priority: .high) { [weak self] in
@@ -539,6 +557,19 @@ extension GraphState {
         return graph
     }
     
+    func syncNodes(with entities: [NodeEntity]) async {
+        await self.visibleNodesViewModel.nodes
+            .sync(with: entities,
+                  updateCallback: { nodeViewModel, nodeSchema in
+            await nodeViewModel.update(from: nodeSchema,
+                                       components: self.components)
+        }) { nodeSchema in
+            await NodeViewModel(from: nodeSchema,
+                                components: self.components,
+                                parentGraphPath: self.saveLocation)
+        }
+    }
+    
     @MainActor func update(from schema: GraphEntity) async {
         self.id = schema.id
         self.name = schema.name
@@ -552,6 +583,8 @@ extension GraphState {
         self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
                                             components: decodedFiles.components)
         
+        await self.syncNodes(with: schema.nodes)
+        
 //        if let documentViewModel = self.documentDelegate {
 //            self.initializeDelegate(document: documentViewModel,
 //                                    documentEncoderDelegate: documentViewModel.documentEncoder)
@@ -559,9 +592,9 @@ extension GraphState {
 //            fatalErrorIfDebug()
 //        }
         
-        await self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-                                                              components: self.components,
-                                                              parentGraphPath: self.saveLocation)
+//        await self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
+//                                                              components: self.components,
+//                                                              parentGraphPath: self.saveLocation)
         
         if let document = self.documentDelegate,
            let documentEncoder = self.documentEncoderDelegate {
@@ -569,21 +602,21 @@ extension GraphState {
                                     documentEncoderDelegate: documentEncoder)
         }
         
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-//            expanded: self.sidebarExpandedItems,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
-        // Sync node view models + cached data
-        self.updateGraphData()
-        
-        // No longer needed, since sidebar-expanded-items handled by node schema
-//        self.sidebarExpandedItems = self.allGroupLayerNodes()
-        self.calculateFullGraph()
+//        self.updateSidebarListStateAfterStateChange()
+//        
+//        // TODO: why is this necessary?
+//        _updateStateAfterListChange(
+//            updatedList: self.sidebarListState,
+////            expanded: self.sidebarExpandedItems,
+//            expanded: self.getSidebarExpandedItems(),
+//            graphState: self)
+//        
+//        // Sync node view models + cached data
+//        self.updateGraphData()
+//        
+//        // No longer needed, since sidebar-expanded-items handled by node schema
+////        self.sidebarExpandedItems = self.allGroupLayerNodes()
+//        self.calculateFullGraph()
         
         // TODO: comment boxes
     }
@@ -922,9 +955,10 @@ extension GraphState {
                           nodes: [],
                           orderedSidebarLayers: [],
                           commentBoxes: []),
-              saveLocation: [],
-              graphDecodedFiles: .init(mediaFiles: [],
-                                       components: []))
+                  nodes: [:],
+                  components: [:],
+                  mediaFiles: [],
+                  saveLocation: [])
     }
     
     /// Updates values at a specific output loop index.
