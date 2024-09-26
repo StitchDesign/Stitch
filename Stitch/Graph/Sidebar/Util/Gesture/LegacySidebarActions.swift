@@ -85,7 +85,6 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
         return false
     }
     
-    // NOT QUITE CORRECT: the add || and/or && means the implicitly dragged items get REMOVED ?!
     let selectedItemsAbove = itemsAboveStart.filter {
         selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
     }
@@ -101,7 +100,7 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
     }
     
     let selectedItemsBelow = itemsBelowStart.filter {
-        selections.contains($0.id.asLayerNodeId) || !draggedAlong.contains($0.id)
+        selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
     }
     let nonSelectedItemsBelow = itemsBelowStart.filter {
         !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
