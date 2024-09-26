@@ -57,7 +57,7 @@ struct SidebarListItemView: View {
     var isNonEditModeSelected: Bool {
         isNonEditModeFocused || isNonEditModeActivelySelected
     }
-        
+  
     var body: some View {
 
         HStack(spacing: 0) {

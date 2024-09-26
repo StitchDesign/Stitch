@@ -76,6 +76,32 @@ struct SidebarListItemSwipeInnerView: View {
         isNonEditModeFocused || isNonEditModeActivelySelected
     }
         
+    var isImplicitlyDragged: Bool {
+        graph.sidebarSelectionState.implicitlyDragged.contains(item.id)
+    }
+    
+    var useHalfOpacityBackground: Bool {
+        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
+    }
+      
+    var backgroundOpacity: CGFloat {
+        if isImplicitlyDragged {
+            return 0.5
+        } else if (isNonEditModeFocused || isBeingDragged) {
+            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
+        } else {
+            return 0
+        }
+//        
+//        
+//        if (isNonEditModeFocused && !isNonEditModeActivelySelected) {
+//            return 0.5
+//        } else if (isNonEditModeSelected || isBeingDragged) {
+//            return 1
+//        } else {
+//            return 0
+//        }
+    }
 
     var body: some View {
         HStack(spacing: .zero) {
@@ -99,12 +125,15 @@ struct SidebarListItemSwipeInnerView: View {
 //                }
                     .padding(.leading, itemIndent + 5)
                     .background {
-                        if isNonEditModeSelected || isBeingDragged {
-                            theme.fontColor
-                                .opacity((isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1)
-            //                    .frame(maxWidth: .infinity)
-            //                    .border(.green, width: 4)
-                        }
+                        theme.fontColor
+                            .opacity(self.backgroundOpacity)
+                        
+//                        if isNonEditModeSelected || isBeingDragged || isImplicitlyDragged {
+//                            theme.fontColor
+//                                .opacity(useHalfOpacityBackground ? 0.5 : 1)
+//            //                    .frame(maxWidth: .infinity)
+//            //                    .border(.green, width: 4)
+//                        }
                     }
 
                     // right-side label overlay comes AFTER x-placement of item,

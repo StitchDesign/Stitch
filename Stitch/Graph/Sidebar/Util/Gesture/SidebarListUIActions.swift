@@ -429,6 +429,7 @@ func updatePositionsHelper(_ item: SidebarListItem,
         // TODO: SEPT 24: we're iterating through
         
         let isNotDraggedItem = childItem.id != item.id
+        // This is the meat of this function -- is this child item the child of the parent we're dragging ?
         let isChildOfDraggedParent = childItem.parentId.map { $0 == item.id } ?? false
         
         let isOtherDragged = otherSelections.contains(childItem.id)

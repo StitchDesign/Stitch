@@ -68,6 +68,12 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
                             // i.e. focused selections
                             selections: LayerIdSet) -> SidebarListItems? {
     
+    let draggedAlong = getDraggedAlong(draggedItem,
+                                       allItems: items,
+                                       acc: .init())
+    
+    
+    
     guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
         return nil
     }
@@ -79,8 +85,13 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
         return false
     }
     
-    let selectedItemsAbove = itemsAboveStart.filter { selections.contains($0.id.asLayerNodeId) }
-    let nonSelectedItemsAbove = itemsAboveStart.filter { !selections.contains($0.id.asLayerNodeId) }
+    // NOT QUITE CORRECT: the add || and/or && means the implicitly dragged items get REMOVED ?!
+    let selectedItemsAbove = itemsAboveStart.filter {
+        selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
+    }
+    let nonSelectedItemsAbove = itemsAboveStart.filter {
+        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
+    }
     
     let itemsBelowStart = items.filter { item in
         if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
@@ -89,8 +100,12 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
         return false
     }
     
-    let selectedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
-    let nonSelectedItemsBelow = itemsBelowStart.filter { !selections.contains($0.id.asLayerNodeId) }
+    let selectedItemsBelow = itemsBelowStart.filter {
+        selections.contains($0.id.asLayerNodeId) || !draggedAlong.contains($0.id)
+    }
+    let nonSelectedItemsBelow = itemsBelowStart.filter {
+        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
+    }
         
     
     // The reordered masterList
@@ -114,6 +129,41 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
         selections: selections)
     
     return _selectedChildrenRemovedFromParents
+}
+
+// Recursively crawls to find all items below that would be dragged, given that we're dragging some other item
+// Ideally
+func getDraggedAlong(_ draggedItem: SidebarListItem,
+                     allItems: SidebarListItems,
+                     acc: SidebarListItemIdSet) -> SidebarListItemIdSet {
+    var acc = acc
+    allItems.forEach { item in
+        if item.id != draggedItem.id,
+           (item.parentId.map({ $0 == draggedItem.id }) ?? false) {
+            acc.insert(item.id)
+            let newDraggedAlong = getDraggedAlong(item, 
+                                                  allItems: allItems,
+                                                  acc: acc)
+            acc = acc.union(newDraggedAlong)
+        }
+    }
+    
+    return acc
+}
+
+// Note: call this AFTER we've dragged and have a big list of all the 'dragged along' items
+func getImplicitlyDragged(items: SidebarListItems,
+                          draggedAlong: SidebarListItemIdSet,
+                          selections: LayerIdSet) -> SidebarListItemIdSet {
+    
+    items.reduce(into: SidebarListItemIdSet()) { partialResult, item in
+        // if the item was NOT selected, yet was dragged along,
+        // then it is "implicitly" selected
+        if !selections.contains(item.id.asLayerNodeId),
+           draggedAlong.contains(item.id) {
+            partialResult.insert(item.id)
+        }
+    }
 }
 
 struct SidebarListItemDragged: GraphEvent {
@@ -146,21 +196,12 @@ struct SidebarListItemDragged: GraphEvent {
                 list.masterList.items = masterListWithStack
                 state.sidebarSelectionState.madeStack = true
                 
+                // TODO: SEPT 24: do this for single selection dragging of a group too ? might be nice touch
+                // implicitly dragged = not directly dragged but one of its ancestor is dragged
+//                state.sidebarSelectionState.implicitlyDragged
+                
                 // TODO: should we exit early here then?
 //                return // added
-            
-//                // Use the newly-reordered masterList's indices to update each master list item's y position
-//                let _masterListWithStack = setYPositionByIndices(
-//                    originalItemId: itemId,
-//                    masterListWithStack,
-//                    // treat as drag ended so that we update previousLocation etc.
-//                    isDragEnded: true)
-//                
-//                log("SidebarListItemDragged: _masterListWithStack: \(_masterListWithStack)")
-//
-//                list.masterList.items = _masterListWithStack
-//                list.masterList.items = masterListWithStack
-//                state.sidebarSelectionState.madeStack = true
             }
             
            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
@@ -183,7 +224,7 @@ struct SidebarListItemDragged: GraphEvent {
         let otherDragged = state.getOtherDraggedItems(draggedItem: itemId)
         log("SidebarListItemDragged: otherDragged \(otherDragged) ")
 
-        let result = onSidebarListItemDragged(
+        let (result, draggedAlong) = onSidebarListItemDragged(
             item, // this dragged item
             translation, // drag data
             // ALL items
@@ -196,6 +237,12 @@ struct SidebarListItemDragged: GraphEvent {
         list.cursorDrag = result.cursorDrag
         
         state.sidebarListState = list
+        
+        let implicitlyDragged = getImplicitlyDragged(
+            items: list.masterList.items,
+            draggedAlong: draggedAlong,
+            selections: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+        state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then
         _updateStateAfterListChange(
@@ -233,7 +280,7 @@ let SIDEBAR_ITEM_MAX_Z_INDEX: ZIndex = 999
 func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
                               _ translation: CGSize,
                               _ masterList: MasterList,
-                              otherSelections: SidebarListItemIdSet) -> SidebarListItemDraggedResult {
+                              otherSelections: SidebarListItemIdSet) -> (SidebarListItemDraggedResult, SidebarListItemIdSet) {
 
     log("onSidebarListItemDragged called: item.id: \(item.id)")
     
@@ -296,12 +343,14 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     item = masterList.items[updatedOriginalIndex]
     
     // should skip this for now?
-    return setItemsInGroupOrTopLevel(
+    let result = setItemsInGroupOrTopLevel(
         item: item,
         masterList: masterList,
         otherSelections: otherSelections,
         draggedAlong: draggedAlong,
         cursorDrag: cursorDrag)
+    
+    return (result, draggedAlong)
 }
 
 struct SidebarListItemDraggedResult {
@@ -353,6 +402,7 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         
         // TODO: SEPT 24: avoid this?
         state.sidebarSelectionState.madeStack = false
+        state.sidebarSelectionState.implicitlyDragged = .init()
     
         return .persistenceResponse
     }
