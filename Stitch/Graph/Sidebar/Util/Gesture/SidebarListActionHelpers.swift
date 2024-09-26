@@ -47,6 +47,7 @@ func updateAllZIndices(items: SidebarListItems,
 @MainActor
 func setItemsInGroupOrTopLevel(item: SidebarListItem,
                                masterList: MasterList,
+                               otherSelections: SidebarListItemIdSet,
                                draggedAlong: SidebarListItemIdSet,
                                cursorDrag: SidebarCursorHorizontalDrag) -> SidebarListItemDraggedResult {
 
@@ -61,6 +62,7 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
     let proposed = proposeGroup(
         item,
         masterList,
+        otherSelections: otherSelections,
         draggedAlong.count,
         cursorDrag: cursorDrag)
 

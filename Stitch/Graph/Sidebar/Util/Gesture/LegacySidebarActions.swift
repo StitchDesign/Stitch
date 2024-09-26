@@ -65,6 +65,7 @@ extension GraphState {
 
 func getMasterListWithStack(_ draggedItem: SidebarListItem,
                             items: SidebarListItems,
+                            // i.e. focused selections
                             selections: LayerIdSet) -> SidebarListItems? {
     
     guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
@@ -90,8 +91,29 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
     
     let selectedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
     let nonSelectedItemsBelow = itemsBelowStart.filter { !selections.contains($0.id.asLayerNodeId) }
+        
     
-    return nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + selectedItemsBelow + nonSelectedItemsBelow
+    // The reordered masterList
+    let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + selectedItemsBelow + nonSelectedItemsBelow
+    
+    // Use the newly-reordered masterList's indices to update each master list item's y position
+    let _rearrangedMasterList = setYPositionByIndices(
+        originalItemId: draggedItem.id,
+        rearrangedMasterList,
+        // treat as drag ended so that we update previousLocation etc.
+        isDragEnded: true)
+    
+    // Wipe the identation levels of any directly-selected items (part of taking them out of their group)
+    let _identationsWiped = wipeIndentationLevelsOfSelectedItems(
+        items: _rearrangedMasterList,
+        selections: selections)
+    
+    // Directly-selected items also need to be taken out of any parents' lists
+    let _selectedChildrenRemovedFromParents = removeSelectedItemsFromParents(
+        items: _identationsWiped,
+        selections: selections)
+    
+    return _selectedChildrenRemovedFromParents
 }
 
 struct SidebarListItemDragged: GraphEvent {
@@ -117,19 +139,28 @@ struct SidebarListItemDragged: GraphEvent {
                 item,
                 items: list.masterList.items,
                 selections: state.sidebarSelectionState.inspectorFocusedLayers.focused) {
-             
+                
 //                log("SidebarListItemDragged: had a master list with stack \(masterListWithStack.map(\.id))")
                 log("SidebarListItemDragged: masterListWithStack \(masterListWithStack)")
-            
-                let _masterListWithStack = setYPositionByIndices(
-                    originalItemId: itemId,
-                    masterListWithStack,
-                isDragEnded: true)
                 
-                log("SidebarListItemDragged: _masterListWithStack: \(_masterListWithStack)")
-//
-                list.masterList.items = _masterListWithStack
+                list.masterList.items = masterListWithStack
                 state.sidebarSelectionState.madeStack = true
+                
+                // TODO: should we exit early here then?
+//                return // added
+            
+//                // Use the newly-reordered masterList's indices to update each master list item's y position
+//                let _masterListWithStack = setYPositionByIndices(
+//                    originalItemId: itemId,
+//                    masterListWithStack,
+//                    // treat as drag ended so that we update previousLocation etc.
+//                    isDragEnded: true)
+//                
+//                log("SidebarListItemDragged: _masterListWithStack: \(_masterListWithStack)")
+//
+//                list.masterList.items = _masterListWithStack
+//                list.masterList.items = masterListWithStack
+//                state.sidebarSelectionState.madeStack = true
             }
             
            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
@@ -268,6 +299,7 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     return setItemsInGroupOrTopLevel(
         item: item,
         masterList: masterList,
+        otherSelections: otherSelections,
         draggedAlong: draggedAlong,
         cursorDrag: cursorDrag)
 }

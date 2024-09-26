@@ -129,6 +129,40 @@ func setYPositionByIndices(originalItemId: SidebarListItemId,
     }
 }
 
+func wipeIndentationLevelsOfSelectedItems(items: SidebarListItems,
+                                          selections: LayerIdSet) -> SidebarListItems {
+    items.map { (item: SidebarListItem) in
+        if selections.contains(item.id.asLayerNodeId) {
+            var item = item
+            item.location.x = 0
+            item.previousLocation.x = 0
+            return item
+        } else {
+            return item
+        }
+    }
+}
+
+func removeSelectedItemsFromParents(items: SidebarListItems,
+                                    selections: LayerIdSet) -> SidebarListItems {
+    var _items = items.map { (item: SidebarListItem) in
+        var item = item
+        item.children = item.children.filter { !selections.contains($0.id.asLayerNodeId) }
+        return item
+    }
+    
+    // Must also iterate through selected items and set their parentId = nil
+    return _items.map { (item: SidebarListItem) in
+        if selections.contains(item.id.asLayerNodeId) {
+            var item = item
+            item.parentId = nil
+            return item
+        } else {
+            return item
+        }
+    }
+}
+
 // Grab the item immediately below;
 // if it has a parent (which should be above us),
 // use that parent as the proposed group.
@@ -138,7 +172,7 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          movedItemChildrenCount: Int,
                          excludedGroups: ExcludedGroups) -> ProposedGroup? {
 
-    //    log("groupFromChildBelow: item: \(item)")
+    log("groupFromChildBelow: item: \(item)")
 
     let movedItemIndex = item.itemIndex(items)
     let entireIndex = movedItemIndex + movedItemChildrenCount
@@ -147,19 +181,19 @@ func groupFromChildBelow(_ item: SidebarListItem,
     let indexBelow: Int = entireIndex + 1
 
     guard let itemBelow = items[safeIndex: indexBelow] else {
-        //        log("groupFromChildBelow: no itemBelow")
+        log("groupFromChildBelow: no itemBelow")
         return nil
     }
 
     guard let parentOfItemBelow = itemBelow.parentId else {
-        //        log("groupFromChildBelow: no parent on itemBelow")
+        log("groupFromChildBelow: no parent on itemBelow")
         return nil
     }
 
     let itemsAbove = getItemsAbove(item, items)
 
     guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }) else {
-        //        log("groupFromChildBelow: could not find parent above")
+        log("groupFromChildBelow: could not find parent above")
         return nil
     }
 
@@ -194,9 +228,9 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
 
     var proposed: ProposedGroup?
 
-    //    log("findDeepestParent: item.id: \(item.id)")
-    //    log("findDeepestParent: item.location.x: \(item.location.x)")
-    //    log("findDeepestParent: cursorDrag: \(cursorDrag)")
+    log("findDeepestParent: item.id: \(item.id)")
+    log("findDeepestParent: item.location.x: \(item.location.x)")
+    log("findDeepestParent: cursorDrag: \(cursorDrag)")
 
     let items = masterList.items
     let excludedGroups = masterList.excludedGroups
@@ -204,8 +238,8 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
     let itemLocationX = cursorDrag.x
 
     for itemAbove in getItemsAbove(item, items) {
-        //        log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
-        //        log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
+        log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
+        log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
 
         // Is this dragged item east of the above item?
         // Must be >, not >=, since = is for certain top level cases.
@@ -218,7 +252,7 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
             if itemAboveHasChildren,
                !excludedGroups[itemAbove.id].isDefined,
                itemAbove.isGroup {
-                //                log("found itemAbove that has children; will make being-dragged-item")
+                log("found itemAbove that has children; will make being-dragged-item")
 
                 // make sure it's not a closed group that we're proposing!
 
@@ -232,7 +266,7 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
 
             else if let itemAboveParentId = itemAbove.parentId,
                     !excludedGroups[itemAboveParentId].isDefined {
-                //                log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
+                log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
                 proposed = ProposedGroup(
                     parentId: itemAboveParentId,
                     xIndentation: itemAbove.location.x)
@@ -242,20 +276,20 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
             // we'll just use the item above now as its parent
             else if !excludedGroups[itemAbove.id].isDefined,
                     item.isGroup {
-                //                log("found itemAbove without parent")
+                log("found itemAbove without parent")
                 proposed = ProposedGroup(
                     parentId: itemAbove.id,
                     xIndentation: IndentationLevel(1).toXLocation)
                 // ^^^ if item has no parent ie is top level,
                 // then need this indentation to be at least one level
             }
-            //            log("findDeepestParent: found proposed: \(proposed)")
-            //            log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
+            log("findDeepestParent: found proposed: \(proposed)")
+            log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
         } else {
-            //            log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
+            log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
         }
     }
-    //    log("findDeepestParent: final proposed: \(String(describing: proposed))")
+    log("findDeepestParent: final proposed: \(String(describing: proposed))")
     return proposed
 }
 
@@ -287,12 +321,19 @@ func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
 @MainActor
 func proposeGroup(_ item: SidebarListItem, // the moved-item
                   _ masterList: SidebarListItemsCoordinator,
+                  otherSelections: SidebarListItemIdSet,
                   _ draggedAlongCount: Int,
                   cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
 
-    let items = masterList.items
+//    let items = masterList.items
+    var items = masterList.items
+    
+    // TODO: SEPT 24: should we remove the otherSelections ? i.e. a selection should not block a propsoed group ?
+    // Ah, it probably already doesn't block a proposed group, since we treat the top-most actively-dragged item as the dragged-item ?
+    // Seems to help keep all the
+    items = items.filter { !otherSelections.contains($0.id) }
 
-    //    log("proposeGroup: will try to propose group for item: \(item.id)")
+    log("proposeGroup: will try to propose group for item: \(item.id)")
 
     // GENERAL RULE:
     var proposed = findDeepestParent(item,
@@ -304,7 +345,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
     // Does the item have a non-parent top-level it immediately above it?
     // if so, that blocks group proposal
     if blockedByTopLevelItemImmediatelyAbove(item, items) {
-        //        log("blocked by non-parent top-level item above")
+        log("blocked by non-parent top-level item above")
         proposed = nil
     }
 
@@ -314,7 +355,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         movedItemChildrenCount: draggedAlongCount,
         excludedGroups: masterList.excludedGroups) {
 
-        //        log("found group \(groupDueToChildBelow.parentId) from child below")
+        log("found group \(groupDueToChildBelow.parentId) from child below")
 
         //        proposed = groupDueToChildBelow
 
@@ -324,12 +365,12 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
 
         if !keepProposed {
-            //            log("will use group from child below")
+            log("will use group from child below")
             proposed = groupDueToChildBelow
         }
     }
 
-    //    log("proposeGroup: returning: \(String(describing: proposed))")
+    log("proposeGroup: returning: \(String(describing: proposed))")
     return proposed
 }
 
