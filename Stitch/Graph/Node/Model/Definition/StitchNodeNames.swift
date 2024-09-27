@@ -57,7 +57,7 @@ Creates custom animation curves by defining two control points
 
 *Inputs*
 • The number to animate to
-• Duration fo the animation
+• Duration for the animation
 • X position of first control point
 • Y position of first control point
 • X position of second control point
@@ -74,10 +74,10 @@ Generates custom cubic bezier animation curves by specifying 2 control points.
 
 *Inputs*
 • 0-1 number representing the animation progress
-• X positon of the first control point
+• X position of the first control point
 • Y position of the first control point
 • X position of the second control point
-• Y posiiton of the second control point
+• Y position of the second control point
 
 *Outputs*
 • Progress value derived from the cubic bezier curve
@@ -95,7 +95,7 @@ Changes the rate of a linear animation to follow a new animation curve.
     • Quadratic - Out
     • Quadratic In / Out
     • Sinusoidal In
-    • Sinusodial In / Out
+    • Sinusoidal In / Out
     • Exponential In
     • Exponential In / Out
 
@@ -121,7 +121,7 @@ Creates an animation based off of the physical model of a spring.
 *Inputs*
 • The number to animate to
 • The mass of the object that's being animated
-• The ammount of tension in the spring
+• The amount of tension in the spring
 • How much friction is applied to the spring
 
 *Outputs*
@@ -763,7 +763,7 @@ The Map node will display an Apple Maps UI in the preview window.
 
 *Inputs*
 • Map Style
-• Lattitude / Longitude
+• Latitude / Longitude
 • Span
 • Position (X/Y)
 • Rotation X
@@ -780,7 +780,7 @@ The Map node will display an Apple Maps UI in the preview window.
 """
 
 let model3DDescription = """
-The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preivew window.
+The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the preview window.
 
 *Inputs*
 • An 3D Model Asset
@@ -796,7 +796,7 @@ The 3D Model Layer will display a 3D model asset (of a USDZ file type) in the pr
 """
 
 let ovalDescription = """
-The Oval Layer will display an Oval shape in the Preivew Window.
+The Oval Layer will display an Oval shape in the Preview Window.
 
 *Inputs*
 • Color
@@ -839,7 +839,7 @@ The RealityView node will display the output of an Augmented Reality scene. It t
 *Inputs*
 • An AR Anchor (see AR Anchor node)
 • Camera Direction (Front / Back)
-• Posiiton (X / Y)
+• Position (X / Y)
 • Rotation X
 • Rotation Y
 • Rotation Z
@@ -854,7 +854,7 @@ The RealityView node will display the output of an Augmented Reality scene. It t
 """
 
 let rectangleDescription = """
-The Rectnagle Layer will display a rectangle shape in the Preivew Window.
+The Rectangle Layer will display a rectangle shape in the Preview Window.
 
 *Inputs*
 • Color
@@ -880,7 +880,7 @@ The Shape Layer can take a shape as an input and display it in the preview windo
 • Shape
 • Color
 • Position (X/Y)
-• Rotaiton X
+• Rotation X
 • Rotation Y
 • Rotation Z
 • Size (Width/Height)
@@ -1175,7 +1175,7 @@ Delay a value by a specified number of seconds. The node can be configured to us
 
 *Inputs*
 • The value to delay
-• The ammount the value should be delayed
+• The amount the value should be delayed
 • Style: Trigger condition.
     -  Always: Applies delay regardless of value change.
     -  Increasing: Delays only when the value is rising.
@@ -1207,7 +1207,7 @@ Works with:
 """
 
 let unpackDescription = """
-Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 woudl be split into individual values of 20 and 40.
+Splits a value into constituent components. For example, an input value of type Size with a width of 20 and height of 40 would be split into individual values of 20 and 40.
 
 Works with:
 • Matrix Transform
@@ -1257,7 +1257,7 @@ Unpacks a single Point4D input to four Number outputs.
 """
 
 let transformPackDescription = """
-Packs a Transform ouptut out of the following Number values:
+Packs a Transform output out of the following Number values:
 
 • Position X
 • Position Y
@@ -1305,7 +1305,7 @@ Unpack packs CurveTo ShapeCommand into a Point, CurveTo and CurveFrom position o
 """
 
 let counterDescription = """
-Counter that can be incrimented, decrimented, or set to a specified value. Starts at 0.
+Counter that can be incremented, decremented, or set to a specified value. Starts at 0.
 
 *Inputs*
 • Increase - pulse that increases the counter value
@@ -1331,7 +1331,7 @@ A node that will flip between an On and Off state whenever a pulse is received.
 """
 
 let optionPickerDescription = """
-The Option Picker node lets you cycle through and select one of N inputs to use as the ouptut. Multiple inputs can be added and removed from the node, and it can be configured to work with a variety of node types.
+The Option Picker node lets you cycle through and select one of N inputs to use as the output. Multiple inputs can be added and removed from the node, and it can be configured to work with a variety of node types.
 
 *Inputs*
 • The index of the value you want to be selected
@@ -1378,7 +1378,7 @@ The Location node returns the currently detected location value of the node.
 • An override of the detected location
 
 *Outputs*
-• The Lattitude of the location as a string
+• The Latitude of the location as a string
 • The Longitude of the location as a string
 • The city name as a string
 """
@@ -1469,11 +1469,11 @@ Creates a video feed from a hardware camera
 // MARK: Machine Learning
 
 let coreMLClassifyDescription = """
-A node for classifiying an image via a CoreML Classificaiton model.
+A node for classifying an image via a CoreML Classification model.
 
 *Inputs*
 • The CoreML model to use for classification. The default model is Resnet50.
-• The image to classifiy; can be either an Image, a Video File, or a Camera Feed
+• The image to classify; can be either an Image, a Video File, or a Camera Feed
 
 *Outputs*
 • The class that the model predicted the image is as a string
@@ -1496,7 +1496,7 @@ A node for detecting the objects in an image via a CoreML Object Detection model
 
 *Outputs*
 • The detected objects in the image
-• Confidence of the prediciton
+• Confidence of the prediction
 • Locations of the detected objects
 • Bounding Box of the detected objects
 """
@@ -1612,7 +1612,7 @@ Calculates the the first (Base) value to the power of the second value (Exponent
 """
 
 let progressDescription = """
-Returns the ammount of progress completed by comparing the current value against the starting and ending values
+Returns the amount of progress completed by comparing the current value against the starting and ending values
 
 *Inputs*
 • A current value
@@ -1620,11 +1620,11 @@ Returns the ammount of progress completed by comparing the current value against
 • An ending value
 
 *Outputs*
-• The ammount of progress that has been completed
+• The amount of progress that has been completed
 """
 
 let reverseProgressDescription = """
-Returns the inverse ammount of progress completed by comparing the current value against the starting and ending values. The inverse of the Progreess node.
+Returns the inverse amount of progress completed by comparing the current value against the starting and ending values. The inverse of the Progreess node.
 
 *Inputs*
 • A current value
@@ -1817,7 +1817,7 @@ A node that gets triggered whenever the prototype has started or restarted. Can 
 """
 
 let restartPrototypeDescription = """
-A node that will restart the state of your prototype. All inputs and ouptuts of the nodes on your graph will be reset.
+A node that will restart the state of your prototype. All inputs and outputs of the nodes on your graph will be reset.
 
 *Inputs*
 • A pulse input serves as the single input for this node. When a pulse is received, the prototype will restart.
@@ -1831,7 +1831,7 @@ Returns spec information on the device that the prototype is running on.
 • Screen scale
 • Orientation
 • Device Type
-• Appearence (Light or Dark mode)
+• Appearance (Light or Dark mode)
 """
 
 let velocityDescription = """
@@ -1881,7 +1881,7 @@ Checks if an input value (the "Option") is equal to any given inputs. The node c
 """
 
 let lengthDescription = """
-Calcualtes the length of a given input. Can be a number, 3D point, position, size, or text.
+Calculates the length of a given input. Can be a number, 3D point, position, size, or text.
 
 *Inputs*
 • Value to calculate the length of.
@@ -1942,7 +1942,7 @@ Checks whether an input text string contains a specified prefix
 
 *Inputs*
 • The input text
-• The prefeix that the input text is checking to
+• The prefix that the input text is checking to
 
 *Outputs*
 • A Bool indicating if the input text contains the given prefix
