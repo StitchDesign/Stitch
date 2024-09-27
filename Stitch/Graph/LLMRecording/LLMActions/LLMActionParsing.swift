@@ -421,7 +421,7 @@ extension String {
             // Normalize the input by removing underscores and lowercasing
             let normalizedInput = self.replacingOccurrences(of: "_", with: "").lowercased()
             
-            // Check for special cases with 2-character sequences
+            // Check for special cases
             let specialCases: [String: NodeKind] = [
                 "ar anchor": .patch(.arAnchor),
                 "ar raycasting": .patch(.arRaycasting),
@@ -432,6 +432,12 @@ extension String {
                 "square root": .patch(.squareRoot),
                 "absolute value": .patch(.absoluteValue),
                 "text length": .patch(.textLength),
+                "less than": .patch(.lessThan),
+                "greater than": .patch(.greaterThan),
+                "greater or equal": .patch(.greaterOrEqual),
+                "less than or equal": .patch(.lessThanOrEqual),
+                "text transform": .patch(.textTransform),
+                "text replace": .patch(.textReplace)
             ]
             
             if let specialCase = specialCases[normalizedInput] {
