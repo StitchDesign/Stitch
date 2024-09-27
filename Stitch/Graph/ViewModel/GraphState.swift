@@ -92,10 +92,6 @@ extension StitchMasterComponent {
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
-    @MainActor func willEncodeProject(schema: StitchComponent) {
-//        self.componentData = schema
-//        self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground(from: <#GraphState#>)
-    }
     
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
 //                                        components: [StitchComponentData]) {

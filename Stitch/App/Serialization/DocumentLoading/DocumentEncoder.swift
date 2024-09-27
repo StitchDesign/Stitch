@@ -26,9 +26,6 @@ protocol DocumentEncodableDelegate: AnyObject {
     
     @MainActor func createSchema(from graph: GraphState) -> CodableDocument
     
-    @MainActor
-    func willEncodeProject(schema: CodableDocument)
-    
 //    @MainActor
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
 //                                        components: [StitchComponent])
@@ -39,7 +36,6 @@ extension DocumentEncodable {
                                               temporaryUrl: DocumentsURL? = nil) {
         guard let delegate = self.delegate else { return }
         let newSchema = delegate.createSchema(from: graph)
-        delegate.willEncodeProject(schema: newSchema)
         
         Task(priority: .background) {
             await self.encodeProject(newSchema,

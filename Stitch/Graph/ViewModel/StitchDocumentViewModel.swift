@@ -164,11 +164,11 @@ extension StitchDocumentViewModel {
                                                        temporaryUrl: temporaryURL)
     }
     
-    @MainActor
-    func willEncodeProject(schema: StitchDocument) {
-        // Update nodes data
-        self.graph.updateGraphData()
-    }
+//    @MainActor
+//    func willEncodeProject(schema: StitchDocument) {
+//        // Update nodes data
+//        self.graph.updateGraphData()
+//    }
     
 //    @MainActor
 //    func encodeProject(temporaryURL: DocumentsURL? = nil) {
