@@ -62,76 +62,72 @@ extension GraphState {
         return otherDragged
     }
 }
+//
+//func getMasterListWithStack(_ draggedItem: SidebarListItem,
+//                            items: SidebarListItems,
+//                            // i.e. focused selections
+//                            selections: LayerIdSet) -> SidebarListItems? {
+//    
+//    let draggedAlong = getDraggedAlong(draggedItem,
+//                                       allItems: items,
+//                                       acc: .init())
+//    
+//    
+//    
+//    guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
+//        return nil
+//    }
+//    
+//    let itemsAboveStart = items.filter { item in
+//        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
+//            return itemIndex < draggedItemIndex
+//        }
+//        return false
+//    }
+//    
+//    let selectedItemsAbove = itemsAboveStart.filter {
+//        selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
+//    }
+//    let nonSelectedItemsAbove = itemsAboveStart.filter {
+//        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
+//    }
+//    
+//    let itemsBelowStart = items.filter { item in
+//        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
+//            return itemIndex > draggedItemIndex
+//        }
+//        return false
+//    }
+//        
+//    let explicitlyDraggedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
+//    
+//    // Implicitly dragged = not selected, but dragged along
+//    let implicitlyDraggedItemsBelow = itemsBelowStart.filter {
+//        draggedAlong.contains($0.id) && !selections.contains($0.id.asLayerNodeId)
+//    }
+//    
+//    let nonSelectedItemsBelow = itemsBelowStart.filter {
+//        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
+//    }
+//    
+//    // The reordered masterList
+//    let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + nonSelectedItemsBelow
+//    
+//    // Use the newly-reordered masterList's indices to update each master list item's y position
+//    let _rearrangedMasterList = setYPositionByIndices(
+//        originalItemId: draggedItem.id,
+//        rearrangedMasterList,
+//        // treat as drag ended so that we update previousLocation etc.
+//        isDragEnded: true)
+//    
+//    // Wipe the identation levels and parentIds of any directly-selected items (part of taking them out of their group)
+//    let _indentationsWiped = wipeIndentationLevelsOfSelectedItems(
+//        items: _rearrangedMasterList,
+//        selections: selections)
+//    
+//    return _indentationsWiped
+//}
 
-func getMasterListWithStack(_ draggedItem: SidebarListItem,
-                            items: SidebarListItems,
-                            // i.e. focused selections
-                            selections: LayerIdSet) -> SidebarListItems? {
-    
-    let draggedAlong = getDraggedAlong(draggedItem,
-                                       allItems: items,
-                                       acc: .init())
-    
-    
-    
-    guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
-        return nil
-    }
-    
-    let itemsAboveStart = items.filter { item in
-        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
-            return itemIndex < draggedItemIndex
-        }
-        return false
-    }
-    
-    let selectedItemsAbove = itemsAboveStart.filter {
-        selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
-    }
-    let nonSelectedItemsAbove = itemsAboveStart.filter {
-        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
-    }
-    
-    let itemsBelowStart = items.filter { item in
-        if let itemIndex = items.firstIndex(where: { $0.id == item.id }) {
-            return itemIndex > draggedItemIndex
-        }
-        return false
-    }
-        
-    let explicitlyDraggedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
-    
-    // Implicitly dragged = not selected, but dragged along
-    let implicitlyDraggedItemsBelow = itemsBelowStart.filter {
-        draggedAlong.contains($0.id) && !selections.contains($0.id.asLayerNodeId)
-    }
-    
-    let nonSelectedItemsBelow = itemsBelowStart.filter {
-        !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
-    }
-    
-    // The reordered masterList
-    let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + nonSelectedItemsBelow
-    
-    // Use the newly-reordered masterList's indices to update each master list item's y position
-    let _rearrangedMasterList = setYPositionByIndices(
-        originalItemId: draggedItem.id,
-        rearrangedMasterList,
-        // treat as drag ended so that we update previousLocation etc.
-        isDragEnded: true)
-    
-    // Wipe the identation levels of any directly-selected items (part of taking them out of their group)
-    let _identationsWiped = wipeIndentationLevelsOfSelectedItems(
-        items: _rearrangedMasterList,
-        selections: selections)
-    
-    // Directly-selected items also need to be taken out of any parents' lists
-    let _selectedChildrenRemovedFromParents = removeSelectedItemsFromParents(
-        items: _identationsWiped,
-        selections: selections)
-    
-    return _selectedChildrenRemovedFromParents
-}
 
 // Recursively crawls to find all items below that would be dragged, given that we're dragging some other item
 // Ideally
@@ -156,12 +152,12 @@ func getDraggedAlong(_ draggedItem: SidebarListItem,
 // Note: call this AFTER we've dragged and have a big list of all the 'dragged along' items
 func getImplicitlyDragged(items: SidebarListItems,
                           draggedAlong: SidebarListItemIdSet,
-                          selections: LayerIdSet) -> SidebarListItemIdSet {
+                          selections: SidebarListItemIdSet) -> SidebarListItemIdSet {
     
     items.reduce(into: SidebarListItemIdSet()) { partialResult, item in
         // if the item was NOT selected, yet was dragged along,
         // then it is "implicitly" selected
-        if !selections.contains(item.id.asLayerNodeId),
+        if !selections.contains(item.id),
            draggedAlong.contains(item.id) {
             partialResult.insert(item.id)
         }
@@ -187,10 +183,15 @@ struct SidebarListItemDragged: GraphEvent {
             
             if !state.sidebarSelectionState.madeStack,
                 let item = list.masterList.items.first(where: { $0.id == itemId }),
-               let masterListWithStack = getMasterListWithStack(
+//               let masterListWithStack = getMasterListWithStack(
+//                item,
+//                items: list.masterList.items,
+//                selections: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+            
+            let masterListWithStack = getStack(
                 item,
                 items: list.masterList.items,
-                selections: state.sidebarSelectionState.inspectorFocusedLayers.focused) {
+                selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
 //                log("SidebarListItemDragged: had a master list with stack \(masterListWithStack.map(\.id))")
                 log("SidebarListItemDragged: masterListWithStack \(masterListWithStack)")
@@ -240,10 +241,11 @@ struct SidebarListItemDragged: GraphEvent {
         
         state.sidebarListState = list
         
+        // JUST USED FOR UI PURPOSES, color changes etc.
         let implicitlyDragged = getImplicitlyDragged(
             items: list.masterList.items,
             draggedAlong: draggedAlong,
-            selections: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+            selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet)
         state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then

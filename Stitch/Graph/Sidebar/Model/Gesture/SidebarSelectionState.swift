@@ -13,6 +13,12 @@ typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 typealias SidebarSelections = LayerIdSet
 typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
+extension LayerIdSet {
+    var asSidebarListItemIdSet: SidebarListItemIdSet {
+        self.map(\.asItemId).toSet
+    }
+}
+
 struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     
     // Focused = what we see focused in the inspector

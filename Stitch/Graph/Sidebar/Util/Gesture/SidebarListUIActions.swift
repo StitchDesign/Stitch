@@ -130,12 +130,13 @@ func setYPositionByIndices(originalItemId: SidebarListItemId,
 }
 
 func wipeIndentationLevelsOfSelectedItems(items: SidebarListItems,
-                                          selections: LayerIdSet) -> SidebarListItems {
+                                          selections: SidebarListItemIdSet) -> SidebarListItems {
     items.map { (item: SidebarListItem) in
-        if selections.contains(item.id.asLayerNodeId) {
+        if item.isSelected(selections) {
             var item = item
             item.location.x = 0
             item.previousLocation.x = 0
+            item.parentId = nil // Also removes parent, if item is now top level
             return item
         } else {
             return item
