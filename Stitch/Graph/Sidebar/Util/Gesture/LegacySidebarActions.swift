@@ -62,7 +62,7 @@ extension GraphState {
         return otherDragged
     }
 }
-//
+////
 //func getMasterListWithStack(_ draggedItem: SidebarListItem,
 //                            items: SidebarListItems,
 //                            // i.e. focused selections
@@ -183,6 +183,7 @@ struct SidebarListItemDragged: GraphEvent {
             
             if !state.sidebarSelectionState.madeStack,
                 let item = list.masterList.items.first(where: { $0.id == itemId }),
+               
 //               let masterListWithStack = getMasterListWithStack(
 //                item,
 //                items: list.masterList.items,
@@ -194,7 +195,7 @@ struct SidebarListItemDragged: GraphEvent {
                 selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
 //                log("SidebarListItemDragged: had a master list with stack \(masterListWithStack.map(\.id))")
-                log("SidebarListItemDragged: masterListWithStack \(masterListWithStack)")
+                log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")
                 
                 list.masterList.items = masterListWithStack
                 state.sidebarSelectionState.madeStack = true
@@ -209,12 +210,13 @@ struct SidebarListItemDragged: GraphEvent {
             
            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
-            in: state.orderedSidebarLayers.getFlattenedList()) {
+            in: state.orderedSidebarLayers.getFlattenedList()),
+            itemId != selectedItemWithSmallestIndex.asItemId {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
                itemId = selectedItemWithSmallestIndex.asItemId
-               log("SidebarListItemDragged item is now \(itemId) ")
+               log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
 
@@ -377,7 +379,6 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         guard let item = item else {
             // if we couldn't find the item, it's been deleted
              log("SidebarListItemDragEnded: item \(itemId) was already deleted")
-//            return .noChange
             return .noChange
         }
 

@@ -81,7 +81,7 @@ extension StitchDocumentViewModel {
                                            layerNodes: self.graph.layerNodes)
         }
         
-        log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
+        // log("recursivePreviewLayers: sortedLayerDataList: \(sortedLayerDataList)")
         
         return sortedLayerDataList
     }

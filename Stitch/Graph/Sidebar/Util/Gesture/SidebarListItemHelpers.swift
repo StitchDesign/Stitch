@@ -72,8 +72,8 @@ func getStack(_ draggedItem: SidebarListItem,
         itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
     }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
         
-    print("nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
-    print("nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
+    print("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
+    print("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
     
     // All items either explicitly-dragged (because selected) or implicitly-dragged (because a child of a selected parent)
     let allDraggedItems = items.filter { $0.isSelected(selections) || $0.implicitlyDragged(implicitlyDraggedItems) }
@@ -81,17 +81,17 @@ func getStack(_ draggedItem: SidebarListItem,
     var draggedResult = [SidebarListItem]()
     var itemsHandledBySomeChunk = SidebarListItemIdSet()
     for draggedItem in allDraggedItems {
-        print("on draggedItem \(draggedItem.id)")
+        print("getStack: on draggedItem \(draggedItem.id)")
 
         if itemsHandledBySomeChunk.contains(draggedItem.id) {
-            print("draggedItem \(draggedItem.id) was already handled by some chunk")
+            print("getStack: draggedItem \(draggedItem.id) was already handled by some chunk")
             continue
         }
                 
         // An explicitly-dragged parent kicks off a "chunk"
         if draggedItem.isGroup,
            draggedItem.isSelected(selections) {
-            print("draggedItem \(draggedItem.id) starts a chunk")
+            print("getStack: draggedItem \(draggedItem.id) starts a chunk")
             // wipe the draggedItem's
             let chunk = rearrangeChunk(
                 selectedParentItem: draggedItem,
@@ -105,19 +105,28 @@ func getStack(_ draggedItem: SidebarListItem,
 
         // Explicitly selected items get their indents wiped
         else if draggedItem.isSelected(selections) {
-            print("draggedItem \(draggedItem.id) is explicitly selected")
+            print("getStack: draggedItem \(draggedItem.id) is explicitly selected")
             var draggedItem = draggedItem
             draggedItem = draggedItem.wipeIndentationLevel()
             draggedResult.append(draggedItem)
         }
  
         else {
-            print("draggedItem \(draggedItem.id) is only implicitly-selected")
+            print("getStack: draggedItem \(draggedItem.id) is only implicitly-selected")
             draggedResult.append(draggedItem)
         }
     }
     
-    return nonDraggedItemsAbove + draggedResult + nonDraggedItemsBelow
+    let rearrangedMasterList = nonDraggedItemsAbove + draggedResult + nonDraggedItemsBelow
+    
+    // Use the newly-reordered masterList's indices to update each master list item's y position
+    let _rearrangedMasterList = setYPositionByIndices(
+        originalItemId: draggedItem.id,
+        rearrangedMasterList,
+        // treat as drag ended so that we update previousLocation etc.
+        isDragEnded: true)
+    
+    return _rearrangedMasterList
 }
 
 func rearrangeChunk(selectedParentItem: SidebarListItem,
@@ -126,7 +135,7 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
                     flatMasterList: [SidebarListItem]) -> [SidebarListItem] {
     
     guard let selectedParentItemIndex: Int = flatMasterList.firstIndex(where: { $0.id == selectedParentItem.id }) else {
-        print("no selected parent item index for \(selectedParentItem.id)")
+        print("rearrangeChunk: no selected parent item index for \(selectedParentItem.id)")
         return []
     }
     
@@ -136,7 +145,7 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
         selections: selections,
         flatMasterList: flatMasterList) else {
         
-        print("no chunkEnderIndex for \(selectedParentItem.id)")
+        print("rearrangeChunk: no chunkEnderIndex for \(selectedParentItem.id)")
         return []
     }
     
@@ -147,7 +156,6 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
     
     // excluded chunkEnder?
     let chunk = flatMasterList[(selectedParentItemIndex + 1)...(chunkEnderIndex - 1)]
-    
     
     let explicitlyDragged = chunk.filter { $0.isSelected(selections) }
     let implicitlyDragged = chunk.filter { $0.implicitlyDragged(implicitlyDragged) }
@@ -185,7 +193,7 @@ func getChunkEnderIndex(selectedParentItem: SidebarListItem,
         if index > selectedParentItemIndex
             && item.indentationLevel.value == 0
             && item.isSelected(selections) {
-            print("found chunk ender index: \(index)")
+            print("getChunkEnderIndex: found selected chunk ender index: \(index)")
             return index
         }
     }
@@ -198,11 +206,11 @@ func getChunkEnderIndex(selectedParentItem: SidebarListItem,
         
         if index > selectedParentItemIndex
             && item.indentationLevel.value == 0 {
-            print("found chunk ender index: \(index)")
+            print("getChunkEnderIndex: found chunk ender index: \(index)")
             return index
         }
     }
     
-    print("no chunk ender index")
+    print("getChunkEnderIndex: no chunk ender index")
     return nil
 }
