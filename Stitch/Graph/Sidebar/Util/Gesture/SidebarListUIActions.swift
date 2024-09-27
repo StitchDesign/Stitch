@@ -145,14 +145,8 @@ func wipeIndentationLevelsOfSelectedItems(items: SidebarListItems,
 
 func removeSelectedItemsFromParents(items: SidebarListItems,
                                     selections: LayerIdSet) -> SidebarListItems {
-    var _items = items.map { (item: SidebarListItem) in
-        var item = item
-        item.children = item.children.filter { !selections.contains($0.id.asLayerNodeId) }
-        return item
-    }
-    
     // Must also iterate through selected items and set their parentId = nil
-    return _items.map { (item: SidebarListItem) in
+    items.map { (item: SidebarListItem) in
         if selections.contains(item.id.asLayerNodeId) {
             var item = item
             item.parentId = nil
@@ -473,8 +467,6 @@ func updatePositionsHelper(_ item: SidebarListItem,
                 otherSelections: otherSelections,
                 alreadyDragged: alreadyDragged,
                 draggedAlong: draggedAlong)
-
-//            alreadyDragged.insert(childItem.id)
             
             // And we update the items
             for newItem in newItems {

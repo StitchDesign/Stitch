@@ -13,16 +13,16 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
     let layer: LayerNodeTitle
     var location: CGPoint
     var previousLocation: CGPoint
-    var children: [SidebarListItem] = []
 
     var zIndex: ZIndex = 1
     var parentId: SidebarListItemId? // has a parent?
+    
+    // TODO: SEPT 24: can't this just be a derived variable like `!self.children.isEmpty` ?
     let isGroup: Bool // is a parent for others?
 
     init(id: SidebarListItemId,
          layer: LayerNodeTitle,
          location: CGPoint,
-         children: [SidebarListItem] = [],
          parentId: SidebarListItemId? = nil,
          isGroup: Bool) {
 
@@ -30,7 +30,6 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
         self.layer = layer
         self.location = location
         self.previousLocation = location
-        self.children = children
         self.parentId = parentId
         self.isGroup = isGroup
     }

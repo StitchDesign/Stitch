@@ -98,14 +98,17 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
         }
         return false
     }
+        
+    let explicitlyDraggedItemsBelow = itemsBelowStart.filter { selections.contains($0.id.asLayerNodeId) }
     
-    let selectedItemsBelow = itemsBelowStart.filter {
-        selections.contains($0.id.asLayerNodeId) || draggedAlong.contains($0.id)
+    // Implicitly dragged = not selected, but dragged along
+    let implicitlyDraggedItemsBelow = itemsBelowStart.filter {
+        draggedAlong.contains($0.id) && !selections.contains($0.id.asLayerNodeId)
     }
+    
     let nonSelectedItemsBelow = itemsBelowStart.filter {
         !selections.contains($0.id.asLayerNodeId) && !draggedAlong.contains($0.id)
     }
-        
     
     // The reordered masterList
     let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + selectedItemsBelow + nonSelectedItemsBelow
