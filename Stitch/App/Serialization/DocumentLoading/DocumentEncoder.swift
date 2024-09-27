@@ -31,7 +31,7 @@ protocol DocumentEncodableDelegate: AnyObject {
     
 //    @MainActor
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
-//                                        components: [StitchComponentData])
+//                                        components: [StitchComponent])
 }
 
 extension DocumentEncodable {
@@ -113,15 +113,16 @@ extension DocumentEncoder {
 
 final actor ComponentEncoder: DocumentEncodable {
     var id: UUID
-    var rootUrl: URL
+    let rootUrl: URL
     
     // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedDocument: StitchComponentData
+    @MainActor var lastEncodedDocument: StitchComponent
     @MainActor weak var delegate: StitchMasterComponent?
     
-    init(component: StitchComponentData) {
+    init(component: StitchComponent) {
         self.id = component.id
         self.lastEncodedDocument = component
         self.rootUrl = component.rootUrl
     }
 }
+

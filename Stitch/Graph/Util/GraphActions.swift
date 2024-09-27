@@ -41,26 +41,42 @@ struct CloseGraph: StitchStoreEvent {
 //                                                  components: components)
 //    }
 //}
-
-struct StitchComponentData: Codable {
+struct StitchComponentData {
     var draft: StitchComponent
     let published: StitchComponent
 }
+
+//
+//struct StitchComponentData {
+//    var draft: StitchComponent
+//    let published: StitchComponent
+//}
 
 extension StitchComponentData: Identifiable {
     var id: UUID {
         get { self.draft.id }
         set(newValue) { self.draft.id = newValue }
     }
+    
+    var saveLocation: GraphSaveLocation {
+        self.draft.saveLocation
+    }
+    
+    var rootUrl: URL {
+        self.draft.saveLocation
+            .getRootDirectoryUrl(componentId: self.id)
+    }
 }
 
 extension MasterComponentsDict {
-    mutating func sync(with data: [StitchComponentData]) {
+    mutating func sync(with data: [StitchComponentData],
+                       parentGraph: GraphState) {
         self.sync(with: data,
                   updateCallback: { viewModel, data in
 //            viewModel.update(from: data)
         }) { data in
-            StitchMasterComponent.createObject(from: data)
+            StitchMasterComponent(componentData: data,
+                                  parentGraph: parentGraph)
         }
     }
 }
@@ -82,7 +98,8 @@ extension GraphState: DocumentEncodableDelegate {
         self.libraryLoadingStatus = .loaded
         
         // Update draft and published components from disk
-        self.components.sync(with: components)
+        self.components.sync(with: components,
+                             parentGraph: self)
 
         // Add default media and imported URLs
         let allMediaFiles = MediaLibrary.getDefaultLibraryDeps() + mediaFiles

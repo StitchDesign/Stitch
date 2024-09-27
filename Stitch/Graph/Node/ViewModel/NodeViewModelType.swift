@@ -68,8 +68,8 @@ extension StitchComponentViewModel {
     
     @MainActor
     func initializeDelegate(node: NodeDelegate,
-                                       components: [UUID: StitchMasterComponent],
-                                       document: StitchDocumentViewModel) {
+                            components: [UUID: StitchMasterComponent],
+                            document: StitchDocumentViewModel) {
         self.nodeDelegate = node
         
         guard let masterComponent = components.get(self.id) else {
@@ -82,7 +82,7 @@ extension StitchComponentViewModel {
                                        unpackedPortParentFieldGroupType: nil,
                                        unpackedPortIndex: nil)
         self.graph.initializeDelegate(document: document,
-                                      documentEncoderDelegate: masterComponent.documentEncoder)
+                                      documentEncoderDelegate: masterComponent.draftedDocumentEncoder)
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -216,7 +216,7 @@ extension NodeViewModelType {
                 componentEntity: masterComponent.draftedComponent,
                 canvas: componentCanvas,
                 parentGraphPath: parentGraphPath,
-                componentEncoder: masterComponent.documentEncoder)
+                componentEncoder: masterComponent.draftedDocumentEncoder)
             self = .component(component)
         }
     }

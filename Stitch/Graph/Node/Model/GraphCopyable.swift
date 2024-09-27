@@ -277,7 +277,7 @@ typealias AsyncCallbackList = [AsyncCallback]
 //typealias ComponentAsyncCallback = @Sendable (any DocumentEncodable) async throws -> Void
 
 struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
-    let component: T
+    var component: T
     let copiedSubdirectoryFiles: StitchDocumentDirectory
 }
 
@@ -403,6 +403,7 @@ extension StitchDocumentViewModel {
             let newPath = GraphDocumentPath(docId: self.id,
                                             componentsPath: self.visibleGraph.saveLocation)
             return StitchComponent(saveLocation: .document(newPath),
+                                   isPublished: false,
                                    graph: graph)
         }
     }
@@ -467,8 +468,9 @@ extension GraphState {
             }
         
         // Copy directory for selected components
-        let componentUrls: [URL] = copiedComponentData.map { draftedComponent in
-            draftedComponent.rootUrl
+        let componentUrls: [URL] = copiedComponentData.map { componentData in
+            // Save location same for
+            componentData.rootUrl
         }
 
         return .init(component: copiedComponent,
@@ -500,33 +502,16 @@ protocol StitchComponentable: StitchDocumentEncodable {
 //    var dataJsonUrl: URL { get }
 }
 
-extension StitchComponentData: StitchDocumentEncodable {
-    static var unzippedFileType: UTType {
-        StitchComponent.unzippedFileType
-    }
-    
-    init() {
-        self.init(draft: .init(),
-                  published: .init())
-    }
-    
-    var name: String {
-        self.draft.name
-    }
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        self.draft.getEncodingUrl(documentRootUrl: documentRootUrl)
-    }
-    
-    static func getDocument(from url: URL) throws -> StitchComponentData? {
-        guard let draft = try StitchComponent.getDocument(from: url.appendingComponentDraftPath()),
-              let published =  try StitchComponent.getDocument(from: url.appendingComponentPublishedPath()) else {
-            fatalErrorIfDebug()
-            return nil
-        }
-        return .init(draft: draft,
-                     published: published)
-    }
+extension StitchComponent: StitchDocumentEncodable {
+//    static func getDocument(from url: URL) throws -> StitchComponentData? {
+//        guard let draft = try StitchComponent.getDocument(from: url.appendingComponentDraftPath()),
+//              let published =  try StitchComponent.getDocument(from: url.appendingComponentPublishedPath()) else {
+//            fatalErrorIfDebug()
+//            return nil
+//        }
+//        return .init(draft: draft,
+//                     published: published)
+//    }
 }
 
 //extension StitchComponent: StitchComponentable { }
@@ -644,15 +629,15 @@ extension DocumentEncodable {
         pasteboard.url = copiedComponentResult.component.rootUrl
     }
     
-    func publishNewStitchComponent(_ result: StitchComponentCopiedResult<StitchComponent>) async {
-        let _ = await StitchComponent.exportComponent(result.component,
-                                                      rootUrl: result.component.publishedRootUrl)
-        let _ = await StitchComponent.exportComponent(result.component,
-                                                      rootUrl: result.component.draftRootUrl)
-
-        // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles)
-    }
+//    func publishNewStitchComponent(_ result: StitchComponentCopiedResult<StitchComponent>) async {
+//        let _ = await StitchComponent.exportComponent(result.component,
+//                                                      rootUrl: result.component.publishedRootUrl)
+//        let _ = await StitchComponent.exportComponent(result.component,
+//                                                      rootUrl: result.component.draftRootUrl)
+//
+//        // Process imported media side effects
+//        await self.importComponentFiles(result.copiedSubdirectoryFiles)
+//    }
     
     func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
         let _ = await T.exportComponent(result.component)

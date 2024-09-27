@@ -19,14 +19,16 @@ import Vision
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
     @MainActor var componentData: StitchComponentData {
-        self.documentEncoder.lastEncodedDocument
+        .init(draft: self.draftedDocumentEncoder.lastEncodedDocument,
+              published: self.publishedDocumentEncoder.lastEncodedDocument)
     }
     
     let id: UUID
     let saveLocation: GraphSaveLocation
     
     // Encoded copy of drafted component
-    let documentEncoder: ComponentEncoder
+    let draftedDocumentEncoder: ComponentEncoder
+    let publishedDocumentEncoder: ComponentEncoder
     
     weak var parentGraph: GraphState?
     
@@ -35,7 +37,8 @@ final class StitchMasterComponent {
         self.id = componentData.draft.id
         self.saveLocation = componentData.draft.saveLocation
 //        self.componentData = componentData
-        self.documentEncoder = .init(component: componentData)
+        self.draftedDocumentEncoder = .init(component: componentData.draft)
+        self.publishedDocumentEncoder = .init(component: componentData.published)
         self.parentGraph = parentGraph
         
 //        DispatchQueue.main.async { { [weak self] in
@@ -58,13 +61,14 @@ extension StitchMasterComponent {
 //        self.componentData = schema
 //    }
     
-    @MainActor func createSchema() -> StitchComponentData {
-        self.componentData
+    @MainActor func createSchema() -> StitchComponent {
+        self.componentData.draft
     }
     
-    static func createObject(from entity: StitchComponentData) -> Self {
-        .init(componentData: entity,
-              parentGraph: nil)
+    static func createObject(from entity: StitchComponent) -> Self {
+        fatalError()
+//        .init(componentData: entity,
+//              parentGraph: nil)
     }
     
     func onPrototypeRestart() { }
@@ -75,7 +79,8 @@ extension StitchMasterComponent {
         Task {
             await MainActor.run { [weak self] in
                 guard let component = self else { return }
-                component.documentEncoder.delegate = component
+                component.draftedDocumentEncoder.delegate = component
+                component.publishedDocumentEncoder.delegate = component
             }
         }
     }
@@ -84,7 +89,7 @@ extension StitchMasterComponent {
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
-    @MainActor func willEncodeProject(schema: StitchComponentData) {
+    @MainActor func willEncodeProject(schema: StitchComponent) {
 //        self.componentData = schema
         self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
     }
@@ -360,7 +365,8 @@ final class GraphState: Sendable {
         }
         
         let components = decodedFiles.components.reduce(into: MasterComponentsDict()) { result, componentEntity in
-            let newComponent = StitchMasterComponent.createObject(from: componentEntity)
+            let newComponent = StitchMasterComponent(componentData: componentEntity,
+                                                     parentGraph: nil)  // assigned later
             result.updateValue(newComponent, forKey: newComponent.id)
         }
         

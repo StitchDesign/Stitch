@@ -45,13 +45,13 @@ extension GraphState {
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory) where T: StitchComponentable {
-        guard let docId = self.documentDelegate?.id else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // No encoding work if struct == empty
-        let hasEffectsToRun = copiedFiles != StitchDocumentDirectory.empty
+//        guard let docId = self.documentDelegate?.id else {
+//            fatalErrorIfDebug()
+//            return
+//        }
+//        
+//        // No encoding work if struct == empty
+//        let hasEffectsToRun = copiedFiles != StitchDocumentDirectory.empty
 
         // Change all IDs
         var newComponent = component

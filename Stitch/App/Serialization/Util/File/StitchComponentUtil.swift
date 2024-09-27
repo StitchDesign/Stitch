@@ -28,16 +28,13 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        self.saveLocation.getRootUrl(componentId: self.id,
-                                     isPublished: false)
+        let dir = self.saveLocation.getRootDirectoryUrl(componentId: self.id)
+        
+        return self.isPublished ? dir.appendingComponentPublishedPath() :
+        dir.appendingComponentDraftPath()
     }
     
-    var draftRootUrl: URL { rootUrl }
-    
-    var publishedRootUrl: URL {
-        self.saveLocation.getRootUrl(componentId: self.id,
-                                     isPublished: true)
-    }
+//    var draftRootUrl: URL { rootUrl }
 }
 
 extension StitchComponentable {
@@ -81,13 +78,12 @@ public enum GraphSaveLocation: Codable, Equatable, Sendable {
 }
 
 extension GraphSaveLocation {
-    func getRootUrl(componentId: UUID,
-                    isPublished: Bool) -> URL {
+    func getRootDirectoryUrl(componentId: UUID) -> URL {
         switch self {
         case .document(let graphDocumentPath):
             let rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
             
-            let componentPath = graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
+            return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
                     .appendingComponentsPath()
                     .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
@@ -98,7 +94,7 @@ extension GraphSaveLocation {
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
             
-            return isPublished ? componentPath.appendingComponentPublishedPath() : componentPath.appendingComponentDraftPath()
+//            return isPublished ? componentPath.appendingComponentPublishedPath() : componentPath.appendingComponentDraftPath()
             
         case .userLibrary:
             // TODO: come back to user library

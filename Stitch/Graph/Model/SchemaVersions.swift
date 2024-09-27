@@ -237,23 +237,26 @@ public enum StitchComponent_V24: StitchSchemaVersionable {
         
         // Share location, saved here due to static helpers for sharing
         public var saveLocation: GraphSaveLocation
+        public var isPublished: Bool
         
         public var graph: GraphEntity
 //        public let lastModifiedDate: Date
 //        public let version: Int
         
         public init(
-//            id: UUID,
-                    saveLocation: GraphSaveLocation,
-                    graph: GraphEntity) {
-//                    lastModifiedDate: Date,
-//                    version: Int) {
-//            self.id = id
-            self.saveLocation = saveLocation
-            self.graph = graph
-//            self.lastModifiedDate = lastModifiedDate
-//            self.version = version
-        }
+            //            id: UUID,
+            saveLocation: GraphSaveLocation,
+            isPublished: Bool,
+            graph: GraphEntity) {
+                //                    lastModifiedDate: Date,
+                //                    version: Int) {
+                //            self.id = id
+                self.saveLocation = saveLocation
+                self.isPublished = isPublished
+                self.graph = graph
+                //            self.lastModifiedDate = lastModifiedDate
+                //            self.version = version
+            }
         
         public init(previousInstance: Self) {
             fatalError()

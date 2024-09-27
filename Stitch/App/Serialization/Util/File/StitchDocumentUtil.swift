@@ -135,6 +135,7 @@ extension StitchComponent: StitchDocumentMigratable {
     init() {
         self.init(saveLocation: .document(.init(docId: .init(),
                                                 componentsPath: [])),
+                  isPublished: false,
                   graph: GraphEntity.createEmpty())
     }
     
