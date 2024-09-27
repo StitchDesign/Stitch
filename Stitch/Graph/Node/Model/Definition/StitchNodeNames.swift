@@ -2156,14 +2156,14 @@ Detects keyboard events and outputs a Bool when a specified event occurs
 // MARK: Wireless Broadcasting
 
 let wirelessBroadcasterDescription = """
-Sens a value to a selected Wireless Receiver node. Useful for orginizing large, complicated projects by replacing cables betwen patches.
+Sends a value to a selected Wireless Receiver node. Useful for organizing large, complicated projects by replacing cables betwen patches.
 
 *Inputs*
 • Whatever value you would like to broadcast. Can be configured to be any value type.
 """
 
 let wirelessReceiverDescription = """
-Used with the Wireless Broadcaster node to route values across the graph. Useful for orginizing large, complicated projects.
+Used with the Wireless Broadcaster node to route values across the graph. Useful for organizing large, complicated projects.
 
 *Outputs*
 • The value received from the corresponding broadcast node.
