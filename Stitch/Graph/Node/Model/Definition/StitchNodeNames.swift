@@ -344,13 +344,13 @@ Any is a boolean node that returns true if any of the inputs are true.
 """
 
 let orDescription = """
-Calcluats an OR Boolean operation. If at least one input is true, the output will be true. For example, if both inputs are 0, the output will be false. If one input is 0 and another is 1, the output will be true.
+Calculates an OR Boolean operation. If at least one input is true, the output will be true. For example, if both inputs are 0, the output will be false. If one input is 0 and another is 1, the output will be true.
 
 *Inputs*
 • At least two inputs. N number of inputs can be added to the node.
 
 *Outputs*
-• A Boolean that retuns true if at least one of the inputs are true
+• A Boolean that returns true if at least one of the inputs are true
 """
 
 let andDescription = """
@@ -376,7 +376,7 @@ Performs a NOT Boolean operation where the input is inverted. For example, if th
 // MARK: Colors
 
 let colorToHexDescription = """
-Converts a provided color into a corresonding Hex string.
+Converts a provided color into a corresponding Hex string.
 
 *Inputs*
 • A color value
@@ -505,7 +505,7 @@ Adds scroll interaction to a specified layer. Scrolling can be either free or pa
 • Jump Style Y
 • Jump to Y
 • Jump Position Y
-• Decceleration Rate
+• Deacceleration Rate
     • Normal
     • Fast
 
@@ -597,7 +597,7 @@ Creates a JSON object out of an input key and value. The node can be configured 
 
 *Inputs*
 • The key
-• The value you wnat to set corresponding to the key
+• The value you want to set corresponding to the key
 
 *Outputs*
 • The created JSON object
@@ -1594,7 +1594,7 @@ A node for multiplying two numbers.
 
 *Inputs*
 • The value to multiply
-• The number at which to mulitple the value by
+• The number at which to mulitply the value by
 
 *Outputs*
 • The result of the mulitplication
@@ -1624,7 +1624,7 @@ Returns the amount of progress completed by comparing the current value against 
 """
 
 let reverseProgressDescription = """
-Returns the inverse amount of progress completed by comparing the current value against the starting and ending values. The inverse of the Progreess node.
+Returns the inverse amount of progress completed by comparing the current value against the starting and ending values. The inverse of the Progrees node.
 
 *Inputs*
 • A current value
@@ -1632,7 +1632,7 @@ Returns the inverse amount of progress completed by comparing the current value 
 • An ending value
 
 *Outputs*
-• The ammount of progress that has been completed
+• The amount of progress that has been completed
 """
 
 let roundDescription = """
@@ -1640,7 +1640,7 @@ Returns a rounded number.
 
 *Inputs*
 • The number to round
-• The ammount of places to round the number to
+• The amount of places to round the number to
 • A Boolean indicating whether the number should be rounded up
 
 *Outputs*
@@ -1716,8 +1716,8 @@ let videoImportDescription = """
 Allows for importing video file assets. The video can be displayed in the Preview Window by connecting this node to a Video Layer.
 
 *Inputs*
-• A selctor for importing a video file
-• A boolean to set whether the video is scrubbalbe
+• A selector for importing a video file
+• A boolean to set whether the video is scrubbable
 • Number value to adjust the playback head of the video
 • A boolean to play the video
 • A boolean to loop the video
@@ -2156,7 +2156,7 @@ Detects keyboard events and outputs a Bool when a specified event occurs
 // MARK: Wireless Broadcasting
 
 let wirelessBroadcasterDescription = """
-Sends a value to a selected Wireless Receiver node. Useful for organizing large, complicated projects by replacing cables betwen patches.
+Sends a value to a selected Wireless Receiver node. Useful for organizing large, complicated projects by replacing cables between patches.
 
 *Inputs*
 • Whatever value you would like to broadcast. Can be configured to be any value type.
