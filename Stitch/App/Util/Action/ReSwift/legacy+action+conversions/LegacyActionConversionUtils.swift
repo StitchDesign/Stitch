@@ -16,7 +16,7 @@ func _getResponse(from legacyAction: Action,
 
     let getState: () -> AppState = store.getState
     let document = store.currentDocument
-    let graphState: GraphState? = document?.graph
+    let graphState: GraphState? = document?.visibleGraph
     let environment: StitchEnvironment = store.environment
     
     let fileManager = environment.fileManager

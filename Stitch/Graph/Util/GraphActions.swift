@@ -82,6 +82,10 @@ extension MasterComponentsDict {
 }
 
 extension GraphState: DocumentEncodableDelegate {
+    func createSchema(from graph: GraphState) -> GraphEntity {
+        self.createSchema()
+    }
+    
     func willEncodeProject(schema: GraphEntity) { }
     
     func syncMediaFiles(_ mediaFiles: [URL]) {

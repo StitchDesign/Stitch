@@ -61,8 +61,11 @@ extension StitchMasterComponent {
 //        self.componentData = schema
 //    }
     
-    @MainActor func createSchema() -> StitchComponent {
-        self.componentData.draft
+    @MainActor func createSchema(from graph: GraphState) -> StitchComponent {
+        let graph = graph.createSchema()
+        var component = self.componentData.draft
+        component.graph = graph
+        return component
     }
     
     static func createObject(from entity: StitchComponent) -> Self {
@@ -91,7 +94,7 @@ typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     @MainActor func willEncodeProject(schema: StitchComponent) {
 //        self.componentData = schema
-        self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground()
+//        self.parentGraph?.documentEncoderDelegate?.encodeProjectInBackground(from: <#GraphState#>)
     }
     
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
@@ -698,7 +701,7 @@ extension GraphState {
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
-        self.documentEncoderDelegate?.encodeProjectInBackground()
+        self.documentEncoderDelegate?.encodeProjectInBackground(from: self)
 //        guard let documentViewModel = self.documentDelegate else {
 //            fatalErrorIfDebug()
 //            return

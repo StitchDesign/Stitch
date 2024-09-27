@@ -24,7 +24,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
 protocol DocumentEncodableDelegate: AnyObject {
     associatedtype CodableDocument: Codable
     
-    @MainActor func createSchema() -> CodableDocument
+    @MainActor func createSchema(from graph: GraphState) -> CodableDocument
     
     @MainActor
     func willEncodeProject(schema: CodableDocument)
@@ -35,9 +35,10 @@ protocol DocumentEncodableDelegate: AnyObject {
 }
 
 extension DocumentEncodable {
-    @MainActor func encodeProjectInBackground(temporaryUrl: DocumentsURL? = nil) {
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
+                                              temporaryUrl: DocumentsURL? = nil) {
         guard let delegate = self.delegate else { return }
-        let newSchema = delegate.createSchema()
+        let newSchema = delegate.createSchema(from: graph)
         delegate.willEncodeProject(schema: newSchema)
         
         Task(priority: .background) {
