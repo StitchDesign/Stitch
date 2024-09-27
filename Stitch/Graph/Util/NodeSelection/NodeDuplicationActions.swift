@@ -74,7 +74,7 @@ extension GraphState {
         }
 
         // Display loading status for imported media effects
-        self.libraryLoadingStatus = .loading
+//        self.libraryLoadingStatus = .loading
 
         Task {
             await effects.processEffects()
@@ -83,7 +83,7 @@ extension GraphState {
                 self?._insertNewComponent(newComponent)
 
                 // Hide loading status
-                self?.libraryLoadingStatus = .loaded
+//                self?.libraryLoadingStatus = .loaded
             }
         }
     }
