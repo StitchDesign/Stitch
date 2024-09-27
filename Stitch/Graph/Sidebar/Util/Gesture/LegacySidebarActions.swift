@@ -111,7 +111,7 @@ func getMasterListWithStack(_ draggedItem: SidebarListItem,
     }
     
     // The reordered masterList
-    let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + selectedItemsBelow + nonSelectedItemsBelow
+    let rearrangedMasterList = nonSelectedItemsAbove + selectedItemsAbove + [draggedItem] + nonSelectedItemsBelow
     
     // Use the newly-reordered masterList's indices to update each master list item's y position
     let _rearrangedMasterList = setYPositionByIndices(
