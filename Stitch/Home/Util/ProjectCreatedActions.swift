@@ -62,7 +62,7 @@ extension StitchStore {
     /// from another device, but user opts to re-save.
     @MainActor
     func encodeCurrentProject() {
-        guard let graphState = self.currentGraph else {
+        guard let graphState = self.currentDocument?.visibleGraph else {
             return
         }
 
