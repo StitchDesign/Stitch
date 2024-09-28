@@ -478,7 +478,8 @@ func updatePositionsHelper(_ item: SidebarListItem,
             indicesToMove = newIndices // what is this about?
             alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
             draggedAlong = draggedAlong.union(updatedDraggedAlong)
-        }
+        } // if ...
+        
     } // items.forEach
 
     return (items, indicesToMove, alreadyDragged, draggedAlong)

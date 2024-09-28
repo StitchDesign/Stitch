@@ -103,12 +103,12 @@ struct ProjectsListItemView: View {
                         dispatch(ProjectTapped(documentURL: projectLoader.url))
                     }
                     .transition(.opacity)
-                    .onAppear {
-                        if document.name.trim().lowercased() == "ovals" {
-                            log("WILL OPEN OVALS PROJECT")
-                            dispatch(ProjectTapped(documentURL: projectLoader.url))
-                        }
-                    }
+//                    .onAppear {
+//                        if document.name.trim().lowercased() == "ovals" {
+//                            log("WILL OPEN OVALS PROJECT")
+//                            dispatch(ProjectTapped(documentURL: projectLoader.url))
+//                        }
+//                    }
             }
         } labelView: {
             switch projectLoader.loadingDocument {

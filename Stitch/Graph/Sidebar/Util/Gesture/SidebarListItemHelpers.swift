@@ -56,7 +56,8 @@ func getStack(_ draggedItem: SidebarListItem,
     // All items that were dragged along, whether explicitly or implicitly selected
     let draggedAlong = getDraggedAlong(draggedItem,
                                        allItems: items,
-                                       acc: .init())
+                                       acc: .init(),
+                                       selections: selections)
     
     // Items that were dragged along but not explicitly selected
     let implicitlyDraggedItems: SidebarListItemIdSet = getImplicitlyDragged(
@@ -134,6 +135,8 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
                     implicitlyDragged: SidebarListItemIdSet,
                     flatMasterList: [SidebarListItem]) -> [SidebarListItem] {
     
+    print("rearrangeChunk: on chunk begun by \(selectedParentItem.layer) \(selectedParentItem.id)")
+    
     guard let selectedParentItemIndex: Int = flatMasterList.firstIndex(where: { $0.id == selectedParentItem.id }) else {
         print("rearrangeChunk: no selected parent item index for \(selectedParentItem.id)")
         return []
@@ -149,7 +152,8 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
         return []
     }
     
-    //    let chunk = flatMasterList[selectedParentItemIndex...chunkEnderIndex]
+    
+    //        let chunk = flatMasterList[selectedParentItemIndex...chunkEnderIndex]
     
     // exclude the parent itself?
     //    let chunk = flatMasterList[(selectedParentItemIndex + 1)...chunkEnderIndex]
@@ -157,8 +161,13 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
     // excluded chunkEnder?
     let chunk = flatMasterList[(selectedParentItemIndex + 1)...(chunkEnderIndex - 1)]
     
+    print("rearrangeChunk: chunk: \(chunk.map(\.layer)) \(chunk.map(\.id))")
+    
     let explicitlyDragged = chunk.filter { $0.isSelected(selections) }
     let implicitlyDragged = chunk.filter { $0.implicitlyDragged(implicitlyDragged) }
+    
+    print("rearrangeChunk: explicitlyDragged: \(explicitlyDragged.map(\.layer)) \(explicitlyDragged.map(\.id))")
+    print("rearrangeChunk: implicitlyDragged: \(implicitlyDragged.map(\.layer)) \(implicitlyDragged.map(\.id))")
     
     let wipedExplicitlyDragged = wipeIndentationLevelsOfSelectedItems(
         items: explicitlyDragged, 
@@ -173,7 +182,10 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
     let oneIndentLevelImplicitlyDragged = implicitlyDragged.map { item in
         var item = item
 //        item.indentationLevel = 1
-        return item.setIndentToOneLevel()
+        print("rearrangeChunk: item \(item.layer) indent was: \(item.indentationLevel)")
+        item = item.setIndentToOneLevel()
+        print("rearrangeChunk: item \(item.layer) indent is now: \(item.indentationLevel)")
+        return item
     }
     
     return [selectedParentItem] + oneIndentLevelImplicitlyDragged + wipedExplicitlyDragged
