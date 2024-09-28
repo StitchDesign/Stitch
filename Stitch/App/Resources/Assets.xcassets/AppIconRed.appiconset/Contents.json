@@ -31,61 +31,61 @@
       "size" : "1024x1024"
     },
     {
-      "filename" : "MacRed16.png",
+      "filename" : "AppIcon-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "MacRed32.png",
+      "filename" : "AppIcon-16@2x.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "MacRed32 1.png",
+      "filename" : "AppIcon-32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "MacRed64.png",
+      "filename" : "AppIcon-32@2x.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "MacRed128.png",
+      "filename" : "AppIcon-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "MacRed256.png",
+      "filename" : "AppIcon-128@2x.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "MacRed256 1.png",
+      "filename" : "AppIcon-256.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacRed512.png",
+      "filename" : "AppIcon-256@2x.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "MacRed512 1.png",
+      "filename" : "AppIcon-512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "MacRedAnyAppStore.png",
+      "filename" : "AppIcon-512@2x.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
