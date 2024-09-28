@@ -98,14 +98,14 @@ struct SidebarListItemView: View {
         
 //        .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
         
-        .onTapGesture {
-            if !isBeingEdited {
-                // Note: seems better to query the keyboard observer in the actual on-tap-gesture ?
-                let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
-                dispatch(SidebarItemTapped(id: layerNodeId,
-                                           shiftHeld: isShiftDown))
-            }
-        }
+//        .onTapGesture {
+//            if !isBeingEdited {
+//                // Note: seems better to query the keyboard observer in the actual on-tap-gesture ?
+//                let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
+//                dispatch(SidebarItemTapped(id: layerNodeId,
+//                                           shiftHeld: isShiftDown))
+//            }
+//        }
     
         .overlay {
             RoundedRectangle(cornerRadius: SWIPE_FULL_CORNER_RADIUS)
