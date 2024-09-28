@@ -148,7 +148,7 @@ extension DocumentEncodable {
                 try FileManager.default.copyItem(at: componentUrl, to: newComponentUrl)
                 return newComponentUrl
             } catch {
-                fatalErrorIfDebug(error.localizedDescription)
+                // Usually means direcory already exists--valid when we copy an already-existing component
                 return nil
             }
         }

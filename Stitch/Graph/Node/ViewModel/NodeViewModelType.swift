@@ -72,7 +72,7 @@ extension StitchComponentViewModel {
                             document: StitchDocumentViewModel) {
         self.nodeDelegate = node
         
-        guard let masterComponent = components.get(self.id) else {
+        guard let masterComponent = components.get(self.componentId) else {
             fatalErrorIfDebug()
             return
         }
