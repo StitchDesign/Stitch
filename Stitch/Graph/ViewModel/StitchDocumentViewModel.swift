@@ -23,7 +23,7 @@ extension StitchDocumentViewModel: Hashable {
 }
 
 @Observable
-final class StitchDocumentViewModel: Sendable, DocumentEncodableDelegate {
+final class StitchDocumentViewModel: Sendable {
     let graph: GraphState
     var graphUI: GraphUIState
     let graphStepManager = GraphStepManager()
@@ -105,6 +105,10 @@ final class StitchDocumentViewModel: Sendable, DocumentEncodableDelegate {
                   isPhoneDevice: isPhoneDevice,
                   store: store)
     }
+}
+
+extension StitchDocumentViewModel: DocumentEncodableDelegate {
+    func willEncodeProject(schema: StitchDocument) { }
 }
 
 extension StitchDocumentViewModel {

@@ -43,7 +43,7 @@ struct CloseGraph: StitchStoreEvent {
 //}
 struct StitchComponentData {
     var draft: StitchComponent
-    let published: StitchComponent
+    var published: StitchComponent
 }
 
 //
@@ -82,6 +82,8 @@ extension MasterComponentsDict {
 }
 
 extension GraphState: DocumentEncodableDelegate {
+    func willEncodeProject(schema: GraphEntity) { }
+    
     func createSchema(from graph: GraphState) -> GraphEntity {
         self.createSchema()
     }

@@ -92,6 +92,25 @@ extension StitchMasterComponent {
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
+    func willEncodeProject(schema: StitchComponent) {
+        // Find all graphs using this component
+        guard !schema.isPublished,
+              let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.componentData.id) else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        graphs.forEach { graph in
+            Task(priority: .high) { [weak graph, weak self] in
+                guard let masterComponent = self else {
+                    return
+                }
+                
+                await graph?.update(from: schema.graph)
+            }
+        }
+    }
+    
     
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
 //                                        components: [StitchComponentData]) {
@@ -145,6 +164,19 @@ extension GraphState {
             
             return nodeComponent.graph.allGraphs
         }
+    }
+    
+    /// Finds graph states for a component at this hierarchy.
+    func findComponentGraphStates(componentId: UUID) -> [GraphState] {
+        self.nodes.values
+            .compactMap { node in
+                if let component = node.componentNode,
+                   component.componentId == componentId {
+                    return component.graph
+                }
+                
+                return nil
+            }
     }
     
     /// Finds graph state given a node ID of some component node.
