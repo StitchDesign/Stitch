@@ -87,9 +87,16 @@ extension GraphState {
                 let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
-                    // Actually, with an island, you want to deselect the island, NOT 'all' selections
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+                    
+//                    // Actually, with an island, you want to deselect the island, NOT 'all' selections
+//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
+//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+                    
+                    itemsBetweenSet.forEach { itemBetween in
+                        log("sidebarItemTapped: will remove item Between \(itemBetween)")
+                        self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(itemBetween.id.asLayerNodeId)
+                        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(itemBetween.id.asLayerNodeId)
+                    }
                 }
                 
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
