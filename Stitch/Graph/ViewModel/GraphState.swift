@@ -139,7 +139,12 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
 extension StitchDocumentViewModel {
     /// Returns self and all graphs inside component instances.
     var allGraphs: [GraphState] {
-        self.graph.allGraphs
+        [self.graph] + self.graph.allComponentGraphs
+    }
+    
+    /// Returns all components inside graph instances.
+    var allComponents: [StitchComponentViewModel] {
+        self.graph.allComponents
     }
     
     @MainActor func calculateAllKeyboardNodes() {
@@ -151,19 +156,18 @@ extension StitchDocumentViewModel {
 }
 
 extension GraphState {
-    /// Returns self and all graphs inside component instances.
-    var allGraphs: [GraphState] {
-        [self] + allComponentGraphs
-    }
-    
-    var allComponentGraphs: [GraphState] {
-        self.nodes.values.flatMap { node -> [GraphState] in
+    var allComponents: [StitchComponentViewModel] {
+        self.nodes.values.flatMap { node -> [StitchComponentViewModel] in
             guard let nodeComponent = node.nodeType.componentNode else {
                 return []
             }
             
-            return nodeComponent.graph.allGraphs
+            return [nodeComponent] + nodeComponent.graph.allComponents
         }
+    }
+    
+    var allComponentGraphs: [GraphState] {
+        self.allComponents.map { $0.graph }
     }
     
     /// Finds graph states for a component at this hierarchy.
@@ -181,40 +185,41 @@ extension GraphState {
     
     /// Finds graph state given a node ID of some component node.
     func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
-        for node in self.nodes.values {
-            guard let nodeComponent = node.nodeType.componentNode else {
-                continue
-            }
-            
-            if nodeComponent.id == nodeId {
-                return nodeComponent.graph
-            }
-            
-            // Recursive check--we found a match if path isn't empty
-            let recursivePath = nodeComponent.getComponentPath(to: id)
-            if let matchedGraph = recursivePath.last?.graph {
-                return matchedGraph
-            }
-        }
-        
-        return nil
+        self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
+//        for node in self.nodes.values {
+//            guard let nodeComponent = node.nodeType.componentNode else {
+//                continue
+//            }
+//            
+//            if nodeComponent.id == nodeId {
+//                return nodeComponent.graph
+//            }
+//            
+//            // Recursive check--we found a match if path isn't empty
+//            let recursivePath = nodeComponent.getComponentPath(to: id)
+//            if let matchedGraph = recursivePath.last?.graph {
+//                return matchedGraph
+//            }
+//        }
+//        
+//        return nil
     }
     
-    func getComponentPath(_ id: UUID) -> [UUID] {
-        for node in self.nodes.values {
-            guard let nodeComponent = node.nodeType.componentNode else {
-                continue
-            }
-            
-            // Recursive check--we found a match if path isn't empty
-            let recursivePath = nodeComponent.getComponentPath(to: id)
-            if !recursivePath.isEmpty {
-                return recursivePath.map { $0.id }
-            }
-        }
-        
-        return []
-    }
+//    func getComponentPath(_ id: UUID) -> [UUID] {
+//        for node in self.nodes.values {
+//            guard let nodeComponent = node.nodeType.componentNode else {
+//                continue
+//            }
+//            
+//            // Recursive check--we found a match if path isn't empty
+//            let recursivePath = nodeComponent.getComponentPath(to: id)
+//            if !recursivePath.isEmpty {
+//                return recursivePath.map { $0.id }
+//            }
+//        }
+//        
+//        return []
+//    }
     
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
@@ -227,30 +232,30 @@ extension GraphState {
 }
 
 extension StitchComponentViewModel {
-    /// Recursively checks node component's `GraphState`'s until a match is found.
-    func getComponentPath(to id: UUID) -> [StitchComponentViewModel] {
-        for node in self.graph.nodes.values {
-            guard let nodeComponent = node.nodeType.componentNode else {
-                continue
-            }
-            
-            if node.id == id {
-                if nodeComponent.componentId == id {
-                    return [nodeComponent]
-                } else {
-                    fatalErrorIfDebug("Node ID should match component ID")
-                }
-            }
-            
-            // Recursive check--we found a match if path isn't empty
-            let recursivePath = nodeComponent.getComponentPath(to: id)
-            if !recursivePath.isEmpty {
-                return [self] + recursivePath
-            }
-        }
-        
-        return []
-    }
+//    /// Recursively checks node component's `GraphState`'s until a match is found.
+//    func getComponentPath(to id: UUID) -> [StitchComponentViewModel] {
+//        for node in self.graph.nodes.values {
+//            guard let nodeComponent = node.nodeType.componentNode else {
+//                continue
+//            }
+//            
+//            if node.id == id {
+//                if nodeComponent.componentId == id {
+//                    return [nodeComponent]
+//                } else {
+//                    fatalErrorIfDebug("Node ID should match component ID")
+//                }
+//            }
+//            
+//            // Recursive check--we found a match if path isn't empty
+//            let recursivePath = nodeComponent.getComponentPath(to: id)
+//            if !recursivePath.isEmpty {
+//                return [self] + recursivePath
+//            }
+//        }
+//        
+//        return []
+//    }
 }
 
 @Observable
