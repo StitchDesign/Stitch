@@ -31,7 +31,23 @@ extension GraphState {
         
         let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
         
-        if shiftHeld,
+        if shiftHeld, originalSelections.isEmpty {
+            // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
+            let flatList = self.orderedSidebarLayers.getFlattenedList()
+            if let indexOfTappedItem = flatList.firstIndex(where: { $0.id == id.asNodeId }) {
+                let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
+                self.sidebarSelectionState.inspectorFocusedLayers.focused = .init(selectionsFromTop.map(\.asLayerNodeId))
+                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init(selectionsFromTop.map(\.asLayerNodeId))
+                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
+            } else {
+                log("sidebarItemTapped: could not retrieve index of tapped item when no oge")
+                fatalErrorIfDebug()
+            }
+            
+        }
+        
+        else if shiftHeld,
            // We must have at least one layer already selected / focused
            !originalSelections.isEmpty,
            let lastClickedItemId = self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer {
@@ -64,8 +80,6 @@ extension GraphState {
                 
                 // log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
-                
-                
                 
                 // ORIGINAL
                 self.sidebarSelectionState.inspectorFocusedLayers.focused =
