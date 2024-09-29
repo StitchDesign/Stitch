@@ -87,6 +87,7 @@ extension GraphState {
                 let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
+                    // Actually, with an island, you want to deselect the island, NOT 'all' selections
                     self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
                     self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
                 }
