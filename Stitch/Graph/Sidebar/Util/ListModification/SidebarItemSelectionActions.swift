@@ -73,6 +73,7 @@ extension GraphState {
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                   
+                // Modifies `originalIsland`
                 self.expandOrShrinkExpansions(flatList: flatList,
                                               originalIsland: originalIsland,
                                               newIsland: itemsBetween,
@@ -80,6 +81,15 @@ extension GraphState {
                                 
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                
+                // If we ended up selecting the exact same as the original,
+                // then we actually DE-SELECTED the range.
+                let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+                if newSelections == originalSelections {
+                    log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+                }
                 
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
                 
