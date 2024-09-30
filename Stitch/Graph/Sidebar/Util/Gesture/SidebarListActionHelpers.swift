@@ -59,23 +59,24 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
             item.id, draggedAlong:
                 draggedAlong)
 
+    // Propose a group based on the dragged item (in Stack case, will be Stack's top item)
     let proposed = proposeGroup(
         item,
         masterList,
-        otherSelections: otherSelections,
         draggedAlong.count,
         cursorDrag: cursorDrag)
 
     let beingDragged = SidebarDraggedItem(current: item.id,
                                           draggedAlong: draggedAlong)
 
-    //    log("setItemsInGroupOrTopLevel: beingDragged: \(beingDragged)")
+    log("setItemsInGroupOrTopLevel: beingDragged: \(beingDragged)")
 
     // TODO: SEPT 24: revisit this once we're working in non-flat UIs
     if let proposed = proposed {
-        //        log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
+        log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
         masterList.items = moveSidebarListItemIntoGroup(item,
                                                         masterList.items,
+                                                        otherSelections: otherSelections,
                                                         draggedAlong: draggedAlong,
                                                         proposed)
     }
@@ -84,9 +85,10 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
     // 1. reset done-dragging item's x to `0`
     // 2. set item's parent to nil
     else {
-        //        log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
+        log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
         masterList.items = moveSidebarListItemToTopLevel(item,
                                                          masterList.items,
+                                                         otherSelections: otherSelections,
                                                          draggedAlong: draggedAlong)
     }
 

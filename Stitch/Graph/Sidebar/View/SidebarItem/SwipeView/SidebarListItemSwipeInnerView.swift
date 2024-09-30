@@ -41,13 +41,27 @@ struct SidebarListItemSwipeInnerView: View {
     var fontColor: Color {
         // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
         if isNonEditModeSelected {
+#if DEV_DEBUG
+            return .red
+#else
             return .white
+#endif
         }
-           
-        #if DEV_DEBUG
+        
+#if DEV_DEBUG
         // Easier to see secondary selections for debug
-        return selection.color(isHidden)
-        #endif
+        //        return selection.color(isHidden)
+        
+        switch selection {
+        case .primary:
+            return .blue
+        case .secondary:
+            return .green
+        case .none:
+            return .yellow
+        }
+        
+#endif
         
         if isBeingEdited {
             return selection.color(isHidden)

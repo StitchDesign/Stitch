@@ -17,15 +17,24 @@ import SwiftUI
 @MainActor
 func moveSidebarListItemIntoGroup(_ item: SidebarListItem,
                                   _ items: SidebarListItems,
+                                  otherSelections: SidebarListItemIdSet,
                                   draggedAlong: SidebarListItemIdSet,
                                   _ proposedGroup: ProposedGroup) -> SidebarListItems {
-    var item = item
+    
+    let newParent = proposedGroup.parentId
+    
     var items = items
-    item.parentId = proposedGroup.parentId
-    item.location.x = proposedGroup.indentationLevel.toXLocation
-    items = updateSidebarListItem(item, items)
+        
+    // Every explicitly dragged item gets the new parent
+    ([item.id] + otherSelections).forEach { otherSelection in
+        var otherItem = retrieveItem(otherSelection, items)
+        otherItem.parentId = proposedGroup.parentId
+        otherItem.location.x = proposedGroup.indentationLevel.toXLocation
+        items = updateSidebarListItem(otherItem, items)
+    }
+    
     let updatedItem = retrieveItem(item.id, items)
-
+    
     return maybeSnapDescendants(updatedItem,
                                 items,
                                 draggedAlong: draggedAlong,
@@ -35,19 +44,20 @@ func moveSidebarListItemIntoGroup(_ item: SidebarListItem,
 @MainActor
 func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
                                    _ items: SidebarListItems,
+                                   otherSelections: SidebarListItemIdSet,
                                    draggedAlong: SidebarListItemIdSet) -> SidebarListItems {
 
-    var item = item
     var items = items
 
-    // top level items have no parent,
-    // and have x = 0 indentation
-    item.parentId = nil
-    item.location.x = 0
-
-    items = updateSidebarListItem(item, items)
+    // Every explicitly dragged item gets its parent and indentation-level wiped
+    ([item.id] + otherSelections).forEach { otherSelection in
+        var otherItem = retrieveItem(otherSelection, items)
+        otherItem.parentId = nil
+        otherItem.location.x = 0
+        items = updateSidebarListItem(otherItem, items)
+    }
+    
     let updatedItem = retrieveItem(item.id, items)
-    //    log("moveItemToTopLevel: updatedItem: \(updatedItem)")
 
     return maybeSnapDescendants(updatedItem,
                                 items,
@@ -56,6 +66,7 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
 
 }
 
+// TODO: SEPT 24: shouldn't we also set a new parentId on the children? ... NO, because the children of the dragged item already have that dragged item's id as their parentId
 @MainActor
 func maybeSnapDescendants(_ item: SidebarListItem,
                           _ items: SidebarListItems,
@@ -64,12 +75,12 @@ func maybeSnapDescendants(_ item: SidebarListItem,
                           // (if top level then = 0)
                           startingIndentationLevel: IndentationLevel) -> SidebarListItems {
 
-    //    log("maybeSnapDescendants: item at start: \(item)")
+    log("maybeSnapDescendants: item at start: \(item)")
 
     let descendants = items.filter { draggedAlong.contains($0.id) }
 
     if descendants.isEmpty {
-        //        log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
+        log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
         return items
     }
 
@@ -167,19 +178,19 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          movedItemChildrenCount: Int,
                          excludedGroups: ExcludedGroups) -> ProposedGroup? {
 
-    log("groupFromChildBelow: item: \(item)")
+     log("groupFromChildBelow: item: \(item)")
     let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
-    log("groupFromChildBelow: items: \(debugItems)")
+    // log("groupFromChildBelow: items: \(debugItems)")
 
     let movedItemIndex = item.itemIndex(items)
     
     let entireIndex = movedItemIndex + movedItemChildrenCount
-    log("groupFromChildBelow: entireIndex: \(entireIndex)")
+    // log("groupFromChildBelow: entireIndex: \(entireIndex)")
     
     // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
     let indexBelow: Int = entireIndex + 1
     
-    log("groupFromChildBelow: indexBelow: \(indexBelow)")
+    // log("groupFromChildBelow: indexBelow: \(indexBelow)")
 
     guard let itemBelow = items[safeIndex: indexBelow] else {
         log("groupFromChildBelow: no itemBelow")
@@ -396,8 +407,8 @@ func updatePositionsHelper(_ item: SidebarListItem,
                                                                    SidebarListItemIdSet,
                                                                    SidebarListItemIdSet) {
 
-    log("updatePositionsHelper for item \(item.id)")
-    log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
+    // log("updatePositionsHelper for item \(item.id)")
+    // log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
     
     var item = item
     
@@ -432,8 +443,8 @@ func updatePositionsHelper(_ item: SidebarListItem,
         let isOtherDragged = otherSelections.contains(childItem.id)
         
         let isNotAlreadyDragged = !alreadyDragged.contains(childItem.id)
-        log("updatePositionsHelper: childItem: \(childItem.id)")
-        log("updatePositionsHelper: isNotAlreadyDragged: \(isNotAlreadyDragged)")
+        // log("updatePositionsHelper: childItem: \(childItem.id)")
+        // log("updatePositionsHelper: isNotAlreadyDragged: \(isNotAlreadyDragged)")
   
     
         if isNotDraggedItem && isNotAlreadyDragged &&
@@ -453,10 +464,10 @@ func updatePositionsHelper(_ item: SidebarListItem,
             
             // ... why do we really need to update the draggedAlong?
             draggedAlong.insert(childItem.id)
-            log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
-//            alreadyDragged = alreadyDragged.union([childItem.id]) 
+            // log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
+//            alreadyDragged = alreadyDragged.union([childItem.id])
             alreadyDragged.insert(childItem.id)
-            log("updatePositionsHelper: alreadyDragged is now: \(alreadyDragged)")
+            // log("updatePositionsHelper: alreadyDragged is now: \(alreadyDragged)")
 
             let (newItems, 
                  newIndices,
