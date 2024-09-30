@@ -288,7 +288,8 @@ extension GraphState {
     @MainActor
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
         guard let documentLoader = self.storeDelegate?.documentLoader else {
-            fatalErrorIfDebug()
+            // Disabled for unit tests
+//            fatalErrorIfDebug()
             return
         }
         

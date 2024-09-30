@@ -123,19 +123,19 @@ extension StitchDocumentViewModel {
             
             guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   let node = self.graph.getNode(nodeId) else {
-                log("handleLLMAction: .setField: No node id or node")
+                log("handleLLMAction: .setInput: No node id or node")
                 return
             }
             
             guard let portType = x.field.port.parseLLMPortAsPortType(nodeKind, .input) else {
-                log("handleLLMAction: .setField: No port")
+                log("handleLLMAction: .setInput: No port")
                 return
             }
             
             let inputCoordinate = InputCoordinate(portType: portType, nodeId: nodeId)
             
             guard let nodeType = x.nodeType.parseLLMNodeType else {
-                log("handleLLMAction: .setField: No node type")
+                log("handleLLMAction: .setInput: No node type")
                 return
             }
             
@@ -397,10 +397,13 @@ extension String {
         
         var s = self
         
-        // drop closing parens
+        // Normalize the input by replacing underscores with spaces and capitalizing words
+        s = s.replacingOccurrences(of: "_", with: " ").capitalized
+        
+        // Drop closing parentheses
         s.removeLast()
         
-        // split at and remove opening parens
+        // Split at and remove opening parentheses
         let _s = s.split(separator: "(")
         
         let llmNodeId = (_s.last ?? "").trimmingCharacters(in: .whitespaces)
@@ -414,18 +417,42 @@ extension String {
         }
     }
     
-    var getNodeKind: NodeKind? {
-        // Assumes `self` is already "human-readable" patch/layer name,
-        // e.g. "Convert Position" not "convertPosition"
-        // TODO: update Patch and Layer enums to use human-readable names for their cases' raw string values; then can just use `Patch(rawValue: self)`
-        if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .layer(layer)
-        } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle() == self }) {
-            return .patch(patch)
+        var getNodeKind: NodeKind? {
+            // Normalize the input by removing underscores and lowercasing
+            let normalizedInput = self.replacingOccurrences(of: "_", with: "").lowercased()
+            
+            // Check for special cases
+            let specialCases: [String: NodeKind] = [
+                "ar anchor": .patch(.arAnchor),
+                "ar raycasting": .patch(.arRaycasting),
+                "arc tan2": .patch(.arcTan2),
+                "qr code detection": .patch(.qrCodeDetection),
+                "model 3d import": .patch(.model3DImport),
+                "camera feed": .patch(.cameraFeed),
+                "square root": .patch(.squareRoot),
+                "absolute value": .patch(.absoluteValue),
+                "text length": .patch(.textLength),
+                "less than": .patch(.lessThan),
+                "greater than": .patch(.greaterThan),
+                "greater or equal": .patch(.greaterOrEqual),
+                "less than or equal": .patch(.lessThanOrEqual),
+                "text transform": .patch(.textTransform),
+                "text replace": .patch(.textReplace)
+            ]
+            
+            if let specialCase = specialCases[normalizedInput] {
+                return specialCase
+            }
+            
+            // If not a special case, proceed with the original logic
+            if let layer = Layer.allCases.first(where: { $0.defaultDisplayTitle().lowercased().replacingOccurrences(of: " ", with: "") == normalizedInput }) {
+                return .layer(layer)
+            } else if let patch = Patch.allCases.first(where: { $0.defaultDisplayTitle().lowercased().replacingOccurrences(of: " ", with: "") == normalizedInput }) {
+                return .patch(patch)
+            }
+            
+            return nil
         }
-        
-        return nil
-    }
 }
 
 extension PortValue {

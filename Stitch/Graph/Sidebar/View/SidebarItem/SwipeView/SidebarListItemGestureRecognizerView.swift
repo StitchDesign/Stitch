@@ -65,6 +65,12 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
+        let tapGesture = UITapGestureRecognizer(
+            target: delegate,
+            action: #selector(delegate.tapInView))
+        tapGesture.delegate = delegate
+        vc.view.addGestureRecognizer(tapGesture)
+        
         // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
         #if targetEnvironment(macCatalyst)
         // We define the
@@ -129,12 +135,35 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         self.graph = graph
         self.layerNodeId = layerNodeId
     }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+                           shouldReceive event: UIEvent) -> Bool {
+        if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.alphaShift) {
+            log("SHIFT DOWN")
+            self.shiftHeldDown = true
+        } else {
+            log("SHIFT NOT DOWN")
+            self.shiftHeldDown = false
+        }
+        
+        return true
+    }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         true
     }
       
+    @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        if graph.sidebarSelectionState.isEditMode || gestureViewModel.swipeSetting == .open {
+            return
+        }
+        
+        dispatch(SidebarItemTapped(id: layerNodeId,
+                                   shiftHeld: self.shiftHeldDown))
+        
+    }
+    
     // finger on screen
     @objc func screenGestureHandler(_ gestureRecognizer: UIPanGestureRecognizer) {
 
@@ -225,7 +254,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
     //        log("UIContextMenuInteractionDelegate: contextMenuInteraction: WILL DISPLAY MENU")
     //    }
-    
+        
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         
