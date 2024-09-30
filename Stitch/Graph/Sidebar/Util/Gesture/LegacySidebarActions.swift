@@ -123,7 +123,7 @@ struct SidebarListItemDragged: GraphEvent {
 
     func handle(state: GraphState) {
         
-         log("SidebarListItemDragged called: item \(itemId) ")
+        // log("SidebarListItemDragged called: item \(itemId) ")
         
         var list = state.sidebarListState
         
@@ -133,7 +133,6 @@ struct SidebarListItemDragged: GraphEvent {
         
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
         if !focusedLayers.contains(itemId.asLayerNodeId) {
-            log("SidebarListItemDragged: multiple selections but dragging a new one")
             state.sidebarSelectionState.resetEditModeSelections()
             let layerNodeId = itemId.asLayerNodeId
             state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([layerNodeId])
@@ -146,23 +145,17 @@ struct SidebarListItemDragged: GraphEvent {
         // If we have multiple layers already selected and are dragging one of these already-selected layers,
         // we create a "stack" (reorganization of selected layers) and treat the first layer in the stack as the user-dragged layer.
         else if focusedLayers.count > 1 {
-            log("SidebarListItemDragged: multiple selections; dragging an existing one")
+            // log("SidebarListItemDragged: multiple selections; dragging an existing one")
             // Turn the master list into a "master list with a stack" first,
-            
             if !state.sidebarSelectionState.madeStack,
                 let item = list.masterList.items.first(where: { $0.id == itemId }),
-               
-//               let masterListWithStack = getMasterListWithStack(
-//                item,
-//                items: list.masterList.items,
-//                selections: state.sidebarSelectionState.inspectorFocusedLayers.focused)
             
             let masterListWithStack = getStack(
                 item,
                 items: list.masterList.items,
                 selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
-                log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")
+                // log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")
                 
                 list.masterList.items = masterListWithStack
                 state.sidebarSelectionState.madeStack = true
@@ -176,7 +169,7 @@ struct SidebarListItemDragged: GraphEvent {
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
                itemId = selectedItemWithSmallestIndex.asItemId
-               log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
+               // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
 
@@ -187,7 +180,7 @@ struct SidebarListItemDragged: GraphEvent {
         }
         
         let otherSelections = state.getOtherSelections(draggedItem: itemId)
-        log("SidebarListItemDragged: otherDragged \(otherSelections) ")
+        // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
         let (result, draggedAlong) = onSidebarListItemDragged(
             item, // this dragged item
@@ -230,7 +223,7 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
                               _ masterList: MasterList,
                               otherSelections: SidebarListItemIdSet) -> (SidebarListItemDraggedResult, SidebarListItemIdSet) {
 
-    log("onSidebarListItemDragged called: item.id: \(item.id)")
+    // log("onSidebarListItemDragged called: item.id: \(item.id)")
     
     var item = item
     var masterList = masterList
@@ -240,9 +233,8 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     var alreadyDragged = SidebarListItemIdSet()
     var draggedAlong = SidebarListItemIdSet()
      
-    //    var draggedAlong: SidebarListItemIdSet = otherSelections
-    log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
-    log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
+    // log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
+    // log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
 
     // TODO: remove this property, and use an `isBeingDragged` check in the UI instead?
     item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
@@ -347,7 +339,6 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         
         state.sidebarListState = list
         
-        // TODO: how to avoid this?
         state.sidebarSelectionState.madeStack = false
         state.sidebarSelectionState.implicitlyDragged = .init()
     
