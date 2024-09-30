@@ -437,7 +437,8 @@ extension String {
                 "greater or equal": .patch(.greaterOrEqual),
                 "less than or equal": .patch(.lessThanOrEqual),
                 "text transform": .patch(.textTransform),
-                "text replace": .patch(.textReplace)
+                "text replace": .patch(.textReplace),
+                "date and time formatter": .patch(.dateAndTimeFormatter)
             ]
             
             if let specialCase = specialCases[normalizedInput] {
