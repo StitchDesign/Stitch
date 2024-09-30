@@ -43,7 +43,7 @@ extension DocumentEncodable {
     
     static func readComponentsDirectory(rootUrl: URL) -> [URL] {
         (try? FileManager.default.contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
-                                                    includingPropertiesForKeys: nil)) ?? []
+                                                      includingPropertiesForKeys: nil)) ?? []
     }
     
     func readAllImportedFiles() -> StitchDocumentDirectory {
@@ -142,13 +142,41 @@ extension DocumentEncodable {
             }
         }
         
-        let newComponentUrls = directory.componentDirs.compactMap { componentUrl in
+        let newComponentUrls = directory.componentDirs.compactMap { srcComponentUrl -> URL? in
+            guard let componentIdPath = srcComponentUrl.pathComponents.last else {
+                fatalErrorIfDebug()
+                return nil
+            }
+
+            let destComponentUrl = self.rootUrl
+                .appendingComponentsPath()
+            // Append component ID
+                .appendingPathComponent(componentIdPath,
+                                        conformingTo: .stitchComponentUnzipped)
+            
+            let _ = srcComponentUrl.startAccessingSecurityScopedResource()
+            
+            let subfolders = [srcComponentUrl.appendingComponentDraftPath(),
+                              srcComponentUrl.appendingComponentPublishedPath()]
+            
             do {
-                let newComponentUrl = self.rootUrl.appendingComponentsPath()
-                try FileManager.default.copyItem(at: componentUrl, to: newComponentUrl)
-                return newComponentUrl
+                // Silently fail directory creation if already exists
+                try FileManager.default.createDirectory(at: destComponentUrl,
+                                                         withIntermediateDirectories: true)
+                
+                subfolders.forEach { subfile in
+                    let name = subfile.lastPathComponent
+                    
+                    try? FileManager.default
+                        .copyItem(at: subfile,
+                                  to: destComponentUrl.appendingPathComponent(name))
+                }
+                
+                srcComponentUrl.stopAccessingSecurityScopedResource()
+                return destComponentUrl
             } catch {
                 // Usually means direcory already exists--valid when we copy an already-existing component
+                srcComponentUrl.stopAccessingSecurityScopedResource()
                 return nil
             }
         }

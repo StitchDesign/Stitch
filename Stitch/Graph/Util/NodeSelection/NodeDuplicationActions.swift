@@ -96,8 +96,9 @@ extension GraphState {
                 return
             }
             
-            await self?._insertNewComponent(newComponent)
+            // Copy files before inserting component
             await encoder.importComponentFiles(copiedFiles)
+            await self?._insertNewComponent(newComponent)
 //            { [weak self] in
 //                // Mutates graph before graph is recalcualted after processing new imported files
 //            }

@@ -179,8 +179,8 @@ extension StitchDocumentViewModel {
         // Encode component files if specified
         if isComponent {
             // MARK: must create component before calling createGroupNode below
-            self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
-                                          componentId: newGroupNodeId)
+            await self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
+                                                componentId: newGroupNodeId)
         }
         
         // Create the actual GroupNode itself
@@ -237,7 +237,7 @@ extension StitchDocumentViewModel {
     /// Updates graph state with brand new component, not yet creating a node view model.
     @MainActor
     func createNewMasterComponent(selectedCanvasItems: [CanvasItemViewModel],
-                                  componentId: NodeId) {
+                                  componentId: NodeId) async {
         let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
         let result = self.createNewStitchComponent(componentId: componentId,
                                                    groupNodeFocused: self.graphUI.groupNodeFocused,
@@ -261,13 +261,11 @@ extension StitchDocumentViewModel {
                                                  forKey: result.component.id)
         
         // Copy to disk and publish
-        Task { [weak masterComponent] in
-            await masterComponent?.draftedDocumentEncoder
-                .encodeNewComponent(draftedResult)
-            
-            await masterComponent?.publishedDocumentEncoder
-                .encodeNewComponent(publishedResult)
-        }
+        await masterComponent.draftedDocumentEncoder
+            .encodeNewComponent(draftedResult)
+        
+        await masterComponent.publishedDocumentEncoder
+            .encodeNewComponent(publishedResult)
     }
 }
 
