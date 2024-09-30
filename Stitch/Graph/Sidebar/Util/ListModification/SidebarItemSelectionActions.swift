@@ -61,7 +61,7 @@ extension GraphState {
                 return
             }
             
-            // log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
+             log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
             
             let flatList = self.orderedSidebarLayers.getFlattenedList()
             
@@ -78,7 +78,7 @@ extension GraphState {
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                // log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
+                 log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
                 // ORIGINAL
@@ -101,11 +101,7 @@ extension GraphState {
                 let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
-                    
-//                    // Actually, with an island, you want to deselect the island, NOT 'all' selections
-//                    self.sidebarSelectionState.inspectorFocusedLayers.focused = .init()
-//                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
-                    
+                                        
                     itemsBetweenSet.forEach { itemBetween in
                         log("sidebarItemTapped: will remove item Between \(itemBetween)")
                         self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(itemBetween.id.asLayerNodeId)
