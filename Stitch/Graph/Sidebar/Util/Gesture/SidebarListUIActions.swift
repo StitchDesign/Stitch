@@ -14,38 +14,50 @@ import SwiftUI
 
 // you're just updating a single item
 // but need to update all the descendants as well?
+@MainActor
 func moveSidebarListItemIntoGroup(_ item: SidebarListItem,
                                   _ items: SidebarListItems,
+                                  otherSelections: SidebarListItemIdSet,
                                   draggedAlong: SidebarListItemIdSet,
                                   _ proposedGroup: ProposedGroup) -> SidebarListItems {
-    var item = item
+    
+    let newParent = proposedGroup.parentId
+    
     var items = items
-    item.parentId = proposedGroup.parentId
-    item.location.x = proposedGroup.indentationLevel.toXLocation
-    items = updateSidebarListItem(item, items)
+        
+    // Every explicitly dragged item gets the new parent
+    ([item.id] + otherSelections).forEach { otherSelection in
+        var otherItem = retrieveItem(otherSelection, items)
+        otherItem.parentId = proposedGroup.parentId
+        otherItem.location.x = proposedGroup.indentationLevel.toXLocation
+        items = updateSidebarListItem(otherItem, items)
+    }
+    
     let updatedItem = retrieveItem(item.id, items)
-
+    
     return maybeSnapDescendants(updatedItem,
                                 items,
                                 draggedAlong: draggedAlong,
                                 startingIndentationLevel: proposedGroup.indentationLevel)
 }
 
+@MainActor
 func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
                                    _ items: SidebarListItems,
+                                   otherSelections: SidebarListItemIdSet,
                                    draggedAlong: SidebarListItemIdSet) -> SidebarListItems {
 
-    var item = item
     var items = items
 
-    // top level items have no parent,
-    // and have x = 0 indentation
-    item.parentId = nil
-    item.location.x = 0
-
-    items = updateSidebarListItem(item, items)
+    // Every explicitly dragged item gets its parent and indentation-level wiped
+    ([item.id] + otherSelections).forEach { otherSelection in
+        var otherItem = retrieveItem(otherSelection, items)
+        otherItem.parentId = nil
+        otherItem.location.x = 0
+        items = updateSidebarListItem(otherItem, items)
+    }
+    
     let updatedItem = retrieveItem(item.id, items)
-    //    log("moveItemToTopLevel: updatedItem: \(updatedItem)")
 
     return maybeSnapDescendants(updatedItem,
                                 items,
@@ -54,6 +66,7 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
 
 }
 
+@MainActor
 func maybeSnapDescendants(_ item: SidebarListItem,
                           _ items: SidebarListItems,
                           draggedAlong: SidebarListItemIdSet,
@@ -61,12 +74,12 @@ func maybeSnapDescendants(_ item: SidebarListItem,
                           // (if top level then = 0)
                           startingIndentationLevel: IndentationLevel) -> SidebarListItems {
 
-    //    log("maybeSnapDescendants: item at start: \(item)")
+    log("maybeSnapDescendants: item at start: \(item)")
 
     let descendants = items.filter { draggedAlong.contains($0.id) }
 
     if descendants.isEmpty {
-        //        log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
+        log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
         return items
     }
 
@@ -113,14 +126,43 @@ func setYPositionByIndices(originalItemId: SidebarListItemId,
         let newY = CGFloat(offset * CUSTOM_LIST_ITEM_VIEW_HEIGHT)
 
         if !isDragEnded && item.id == originalItemId {
-            //            print("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
+            print("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
             return item
         } else {
             item.location.y = newY
             if isDragEnded {
-                //            print("setYPositionByIndices: drag ended, so resetting previous position")
+                print("setYPositionByIndices: drag ended, so resetting previous position")
                 item.previousLocation.y = newY
             }
+            return item
+        }
+    }
+}
+
+func wipeIndentationLevelsOfSelectedItems(items: SidebarListItems,
+                                          selections: SidebarListItemIdSet) -> SidebarListItems {
+    items.map { (item: SidebarListItem) in
+        if item.isSelected(selections) {
+            var item = item
+            item.location.x = 0
+            item.previousLocation.x = 0
+            item.parentId = nil // Also removes parent, if item is now top level
+            return item
+        } else {
+            return item
+        }
+    }
+}
+
+func removeSelectedItemsFromParents(items: SidebarListItems,
+                                    selections: LayerIdSet) -> SidebarListItems {
+    // Must also iterate through selected items and set their parentId = nil
+    items.map { (item: SidebarListItem) in
+        if selections.contains(item.id.asLayerNodeId) {
+            var item = item
+            item.parentId = nil
+            return item
+        } else {
             return item
         }
     }
@@ -129,36 +171,47 @@ func setYPositionByIndices(originalItemId: SidebarListItemId,
 // Grab the item immediately below;
 // if it has a parent (which should be above us),
 // use that parent as the proposed group.
+@MainActor
 func groupFromChildBelow(_ item: SidebarListItem,
                          _ items: SidebarListItems,
                          movedItemChildrenCount: Int,
                          excludedGroups: ExcludedGroups) -> ProposedGroup? {
 
-    //    log("groupFromChildBelow: item: \(item)")
+     log("groupFromChildBelow: item: \(item)")
+    let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
+    // log("groupFromChildBelow: items: \(debugItems)")
 
     let movedItemIndex = item.itemIndex(items)
+    
     let entireIndex = movedItemIndex + movedItemChildrenCount
-
+    // log("groupFromChildBelow: entireIndex: \(entireIndex)")
+    
     // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
     let indexBelow: Int = entireIndex + 1
+    
+    // log("groupFromChildBelow: indexBelow: \(indexBelow)")
 
     guard let itemBelow = items[safeIndex: indexBelow] else {
-        //        log("groupFromChildBelow: no itemBelow")
+        log("groupFromChildBelow: no itemBelow")
         return nil
     }
+    
+    log("groupFromChildBelow: itemBelow: \(itemBelow)")
 
     guard let parentOfItemBelow = itemBelow.parentId else {
-        //        log("groupFromChildBelow: no parent on itemBelow")
+        log("groupFromChildBelow: no parent on itemBelow")
         return nil
     }
 
     let itemsAbove = getItemsAbove(item, items)
 
     guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }) else {
-        //        log("groupFromChildBelow: could not find parent above")
+        log("groupFromChildBelow: could not find parent above")
         return nil
     }
 
+    log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
+    
     let proposedParent = parentItemAbove.id
     let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
 
@@ -167,6 +220,7 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          xIndentation: proposedIndentation)
 }
 
+@MainActor
 func getItemsBelow(_ item: SidebarListItem, _ items: SidebarListItems) -> SidebarListItems {
     let movedItemIndex = item.itemIndex(items)
     // eg if movedItem's index is 5,
@@ -174,6 +228,7 @@ func getItemsBelow(_ item: SidebarListItem, _ items: SidebarListItems) -> Sideba
     return items.filter { $0.itemIndex(items) > movedItemIndex }
 }
 
+@MainActor
 func getItemsAbove(_ item: SidebarListItem, _ items: SidebarListItems) -> SidebarListItems {
     let movedItemIndex = item.itemIndex(items)
     // eg if movedItem's index is 5,
@@ -181,15 +236,16 @@ func getItemsAbove(_ item: SidebarListItem, _ items: SidebarListItems) -> Sideba
     return items.filter { $0.itemIndex(items) < movedItemIndex }
 }
 
+@MainActor
 func findDeepestParent(_ item: SidebarListItem, // the moved-item
                        _ masterList: SidebarListItemsCoordinator,
                        cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
 
     var proposed: ProposedGroup?
 
-    //    log("findDeepestParent: item.id: \(item.id)")
-    //    log("findDeepestParent: item.location.x: \(item.location.x)")
-    //    log("findDeepestParent: cursorDrag: \(cursorDrag)")
+    log("findDeepestParent: item.id: \(item.id)")
+    log("findDeepestParent: item.location.x: \(item.location.x)")
+    log("findDeepestParent: cursorDrag: \(cursorDrag)")
 
     let items = masterList.items
     let excludedGroups = masterList.excludedGroups
@@ -197,8 +253,8 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
     let itemLocationX = cursorDrag.x
 
     for itemAbove in getItemsAbove(item, items) {
-        //        log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
-        //        log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
+        log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
+        log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
 
         // Is this dragged item east of the above item?
         // Must be >, not >=, since = is for certain top level cases.
@@ -211,7 +267,7 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
             if itemAboveHasChildren,
                !excludedGroups[itemAbove.id].isDefined,
                itemAbove.isGroup {
-                //                log("found itemAbove that has children; will make being-dragged-item")
+                log("found itemAbove that has children; will make being-dragged-item")
 
                 // make sure it's not a closed group that we're proposing!
 
@@ -225,7 +281,7 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
 
             else if let itemAboveParentId = itemAbove.parentId,
                     !excludedGroups[itemAboveParentId].isDefined {
-                //                log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
+                log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
                 proposed = ProposedGroup(
                     parentId: itemAboveParentId,
                     xIndentation: itemAbove.location.x)
@@ -235,25 +291,26 @@ func findDeepestParent(_ item: SidebarListItem, // the moved-item
             // we'll just use the item above now as its parent
             else if !excludedGroups[itemAbove.id].isDefined,
                     item.isGroup {
-                //                log("found itemAbove without parent")
+                log("found itemAbove without parent")
                 proposed = ProposedGroup(
                     parentId: itemAbove.id,
                     xIndentation: IndentationLevel(1).toXLocation)
                 // ^^^ if item has no parent ie is top level,
                 // then need this indentation to be at least one level
             }
-            //            log("findDeepestParent: found proposed: \(proposed)")
-            //            log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
+            log("findDeepestParent: found proposed: \(proposed)")
+            log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
         } else {
-            //            log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
+            log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
         }
     }
-    //    log("findDeepestParent: final proposed: \(String(describing: proposed))")
+    log("findDeepestParent: final proposed: \(String(describing: proposed))")
     return proposed
 }
 
 // if we're blocked by a top level item,
 // then we ourselves must become a top level item
+@MainActor
 func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
                                            _ items: SidebarListItems) -> Bool {
 
@@ -276,14 +333,16 @@ func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
     return false
 }
 
+@MainActor
 func proposeGroup(_ item: SidebarListItem, // the moved-item
                   _ masterList: SidebarListItemsCoordinator,
-                  _ draggedAlongCount: Int,
+                  _ draggedAlongCount: Int, // all dragged items, whether implicitly or explicitly selelected
                   cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
 
+    // Note: we do not need to filter out otherSelectons etc., which are inc
     let items = masterList.items
-
-    //    log("proposeGroup: will try to propose group for item: \(item.id)")
+    
+    // log("proposeGroup: will try to propose group for item: \(item.id)")
 
     // GENERAL RULE:
     var proposed = findDeepestParent(item,
@@ -295,7 +354,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
     // Does the item have a non-parent top-level it immediately above it?
     // if so, that blocks group proposal
     if blockedByTopLevelItemImmediatelyAbove(item, items) {
-        //        log("blocked by non-parent top-level item above")
+        log("proposeGroup: blocked by non-parent top-level item above")
         proposed = nil
     }
 
@@ -305,9 +364,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         movedItemChildrenCount: draggedAlongCount,
         excludedGroups: masterList.excludedGroups) {
 
-        //        log("found group \(groupDueToChildBelow.parentId) from child below")
-
-        //        proposed = groupDueToChildBelow
+        log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
 
         // if our drag is east of the proposed-from-below's indentation level,
         // and we already found a proposed group from 'deepest parent',
@@ -315,15 +372,16 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
 
         if !keepProposed {
-            //            log("will use group from child below")
+            log("proposeGroup: will use group from child below")
             proposed = groupDueToChildBelow
         }
     }
 
-    //    log("proposeGroup: returning: \(String(describing: proposed))")
+    log("proposeGroup: returning: \(String(describing: proposed))")
     return proposed
 }
 
+@MainActor
 func updateSidebarListItem(_ item: SidebarListItem,
                            _ items: SidebarListItems) -> SidebarListItems {
     let index = item.itemIndex(items)
@@ -333,18 +391,30 @@ func updateSidebarListItem(_ item: SidebarListItem,
 }
 
 // used only during on drag;
+@MainActor
 func updatePositionsHelper(_ item: SidebarListItem,
                            _ items: SidebarListItems,
                            _ indicesToMove: [Int],
                            _ translation: CGSize,
+                           
+                           // doesn't change during drag gesture itself
+                           otherSelections: SidebarListItemIdSet,
+                           alreadyDragged: SidebarListItemIdSet,
+                           // changes during drag gesture?
                            draggedAlong: SidebarListItemIdSet) -> (SidebarListItems,
                                                                    [Int],
+                                                                   SidebarListItemIdSet,
                                                                    SidebarListItemIdSet) {
 
-    //    print("updatePositionsHelper called")
-
+    // log("updatePositionsHelper for item \(item.id)")
+    // log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
+    
     var item = item
-    var items = items
+    
+    // When called from top level, this is the ENTIRE `masterList.items`
+    // ... and we never filter it, so we end up always passed
+    var items = items // When
+    
     var indicesToMove = indicesToMove
     var draggedAlong = draggedAlong
 
@@ -357,31 +427,58 @@ func updatePositionsHelper(_ item: SidebarListItem,
     items[index] = item
     indicesToMove.append(index)
 
+    
+    // Tricky: this recursively looks at every item in the last and checks whether we dragged its parent; if so, we adjust it
+    
+    var alreadyDragged = alreadyDragged // SidebarListItemIdSet()
+    
     items.forEach { childItem in
-        if let parentId = childItem.parentId,
-           parentId == item.id,
-           // don't update the item again, since you already did that
-           childItem.id != item.id {
-            //            let (newItems, newIndices) = updatePositionsHelper(
+        
+        let isNotDraggedItem = childItem.id != item.id
+        // This is the meat of this function -- is this child item the child of the parent we're dragging ?
+        let isChildOfDraggedParent = childItem.parentId.map { $0 == item.id } ?? false
+        
+        let isOtherDragged = otherSelections.contains(childItem.id)
+        
+        let isNotAlreadyDragged = !alreadyDragged.contains(childItem.id)
+        // log("updatePositionsHelper: childItem: \(childItem.id)")
+        // log("updatePositionsHelper: isNotAlreadyDragged: \(isNotAlreadyDragged)")
+  
+    
+        if isNotDraggedItem && isNotAlreadyDragged &&
+           (isChildOfDraggedParent || isOtherDragged) {
+        
             draggedAlong.insert(childItem.id)
+            // log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
+            alreadyDragged.insert(childItem.id)
 
-            let (newItems, newIndices, updatedDraggedAlong) = updatePositionsHelper(
-                childItem,
+            let (newItems, 
+                 newIndices,
+                 updatedAlreadyDragged,
+                 updatedDraggedAlong) = updatePositionsHelper(
+                
+                    childItem,
                 items,
                 indicesToMove,
                 translation,
+                otherSelections: otherSelections,
+                alreadyDragged: alreadyDragged,
                 draggedAlong: draggedAlong)
-
+            
+            // And we update the items
             for newItem in newItems {
                 let i = items.firstIndex { $0.id == newItem.id }!
                 items[i] = newItem
             }
+            
             indicesToMove = newIndices
+            alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
             draggedAlong = draggedAlong.union(updatedDraggedAlong)
-        }
-    }
+        } // if ...
+        
+    } // items.forEach
 
-    return (items, indicesToMove, draggedAlong)
+    return (items, indicesToMove, alreadyDragged, draggedAlong)
 }
 
 func adjustMoveToIndex(calculatedIndex: Int,
@@ -397,32 +494,31 @@ func adjustMoveToIndex(calculatedIndex: Int,
     // If we move blue down, `getMovedtoIndex` will give us a new index of 1 instead of 0.
     // But index 1 is the position of blue's child!
     // So we add the diff.
-
     if calculatedIndex > originalItemIndex {
         let diff = calculatedIndex - originalItemIndex
-        //        print("diff: \(diff)")
-
+        print("adjustMoveToIndex: diff: \(diff)")
+        
         // movedIndices is never going to be empty!
         // it always has at least a single item
         if movedIndices.isEmpty {
             //            calculatedIndex = calculatedIndex + diff
             calculatedIndex += diff
-            //            print("empty movedIndices: calculatedIndex is now: \(calculatedIndex)")
+            print("adjustMoveToIndex: empty movedIndices: calculatedIndex is now: \(calculatedIndex)")
         } else {
             let maxMovedIndex = movedIndices.max()!
-            //            print("maxMovedIndex: \(maxMovedIndex)")
+            print("adjustMoveToIndex: maxMovedIndex: \(maxMovedIndex)")
             calculatedIndex = maxMovedIndex + diff
-            //            print("nonEmpty movedIndices: calculatedIndex is now: \(calculatedIndex)")
+            print("adjustMoveToIndex: nonEmpty movedIndices: calculatedIndex is now: \(calculatedIndex)")
         }
-
+        
         if calculatedIndex > maxIndex {
-            //            print("calculatedIndex was too large, will use max index instead")
+            print("adjustMoveToIndex: calculatedIndex was too large, will use max index instead")
             calculatedIndex = maxIndex
         }
         return calculatedIndex
 
     } else {
-        //        print("Will NOT adjust moveTo index")
+        print("adjustMoveToIndex: Will NOT adjust moveTo index")
         return calculatedIndex
     }
 }
@@ -446,6 +542,7 @@ func maybeMoveIndices(originalItemId: SidebarListItemId,
             originalItemId: originalItemId,
             items,
             isDragEnded: false)
+        
         return items
     } else {
         return items

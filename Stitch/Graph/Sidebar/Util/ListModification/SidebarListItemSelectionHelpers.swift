@@ -145,16 +145,21 @@ extension GraphState {
         // Wipe existing edit mode selections
         self.sidebarSelectionState.resetEditModeSelections()
         
-        self.orderedSidebarLayers.forEach { (sidebarLayer: SidebarLayerData) in
+        self.orderedSidebarLayers.getFlattenedList().forEach { (sidebarLayer: SidebarLayerData) in
             
             let layerId = sidebarLayer.id.asLayerNodeId
             let wasTapped = tappedItems.contains(layerId)
             
             // Only interested in items that were tapped
             if wasTapped {
+                log("editModeSelectTappedItems: sidebarLayer.id \(sidebarLayer.id) was tapped")
+                
                 self.sidebarItemSelectedViaEditMode(layerId,
                                                     isSidebarItemTapped: true)
             } // if wasTapped
+            else {
+                log("editModeSelectTappedItems: sidebarLayer.id \(sidebarLayer.id) was NOT tapped")
+            }
         } // forEach
     }
 }

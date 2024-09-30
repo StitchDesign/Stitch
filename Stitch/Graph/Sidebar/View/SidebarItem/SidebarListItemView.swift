@@ -33,6 +33,7 @@ struct SidebarListItemView: View {
 
     let swipeOffset: CGFloat
 
+    // TODO: should be for *all* selected-layers during a drag
     var isBeingDragged: Bool {
         current.map { $0.current == item.id } ?? false
     }
@@ -56,7 +57,7 @@ struct SidebarListItemView: View {
     var isNonEditModeSelected: Bool {
         isNonEditModeFocused || isNonEditModeActivelySelected
     }
-        
+  
     var body: some View {
 
         HStack(spacing: 0) {
@@ -114,7 +115,9 @@ struct SidebarListItemView: View {
             // Preferably animate the smallest view possible; when this .animation was applied outside the .overlay, we undesiredly animated text color changes
                 .animation(.default, value: isProposedGroup)
         }
-        .animation(.default, value: isBeingDragged)
+
+        // TODO: needs to be for all actively-dragged selected layers
+//        .animation(.default, value: isBeingDragged)
     }
 }
 

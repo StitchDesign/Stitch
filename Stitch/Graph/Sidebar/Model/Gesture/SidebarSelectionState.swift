@@ -13,6 +13,12 @@ typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 typealias SidebarSelections = LayerIdSet
 typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
+extension LayerIdSet {
+    var asSidebarListItemIdSet: SidebarListItemIdSet {
+        self.map(\.asItemId).toSet
+    }
+}
+
 struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     
     // Focused = what we see focused in the inspector
@@ -39,7 +45,13 @@ extension SidebarSelections {
 struct SidebarSelectionState: Codable, Equatable, Hashable {
     
     var isEditMode: Bool = false
-        
+    
+    // avoid this?
+    var madeStack: Bool = false
+    
+    // non-empty only during active layer drag (multi-drag only?)
+    var implicitlyDragged = SidebarListItemIdSet()
+    
     // Layers focused in the inspector
     var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
     

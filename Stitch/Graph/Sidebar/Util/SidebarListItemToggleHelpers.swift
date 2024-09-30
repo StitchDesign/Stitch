@@ -19,6 +19,7 @@ import SwiftUI
 
 // ONLY USEFUL FOR NON-DRAGGING CASES
 // ie when closing or opening a group
+@MainActor
 func getDescendants(_ parentItem: SidebarListItem,
                     _ items: SidebarListItems) -> SidebarListItems {
 
@@ -56,6 +57,7 @@ func hasOpenChildren(_ item: SidebarListItem, _ items: SidebarListItems) -> Bool
 }
 
 // only called if parent has children
+@MainActor
 func hideChildren(closedParentId: SidebarListItemId,
                   _ masterList: MasterList) -> MasterList {
 

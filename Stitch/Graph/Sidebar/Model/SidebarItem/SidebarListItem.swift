@@ -13,16 +13,15 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
     let layer: LayerNodeTitle
     var location: CGPoint
     var previousLocation: CGPoint
-    var children: [SidebarListItem] = []
 
     var zIndex: ZIndex = 1
     var parentId: SidebarListItemId? // has a parent?
+
     let isGroup: Bool // is a parent for others?
 
     init(id: SidebarListItemId,
          layer: LayerNodeTitle,
          location: CGPoint,
-         children: [SidebarListItem] = [],
          parentId: SidebarListItemId? = nil,
          isGroup: Bool) {
 
@@ -30,7 +29,6 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
         self.layer = layer
         self.location = location
         self.previousLocation = location
-        self.children = children
         self.parentId = parentId
         self.isGroup = isGroup
     }

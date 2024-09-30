@@ -47,7 +47,7 @@ struct StitchRootView: View {
     // "Is NavigationSplitView's sidebar open or not?"
     // Handled manually by user; but synced with GraphUIState.leftSide
     @State var columnVisibility: NavigationSplitViewVisibility = .detailOnly
-    
+        
     var body: some View {
         Group {
             if isPhoneDevice() {
