@@ -41,17 +41,12 @@ extension SidebarListItem {
 func getStack(_ draggedItem: SidebarListItem,
               items: [SidebarListItem],
               // all selections
-              selections: SidebarListItemIdSet
-//              ,
-              // all implicitly dragged
-//              implicitlyDraggedItems: SidebarListItemIdSet
-) -> [SidebarListItem]? {
+              selections: SidebarListItemIdSet) -> [SidebarListItem]? {
         
     guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
         print("getStack: no dragged item index")
         return nil
     }
-    
     
     // All items that were dragged along, whether explicitly or implicitly selected
     let draggedAlong = getDraggedAlong(draggedItem,
@@ -89,9 +84,11 @@ func getStack(_ draggedItem: SidebarListItem,
             continue
         }
                 
+        let draggedItemIsSelected = draggedItem.isSelected(selections)
+        
         // An explicitly-dragged parent kicks off a "chunk"
         if draggedItem.isGroup,
-           draggedItem.isSelected(selections) {
+           draggedItemIsSelected {
             print("getStack: draggedItem \(draggedItem.id) starts a chunk")
             // wipe the draggedItem's
             let chunk = rearrangeChunk(
@@ -105,7 +102,7 @@ func getStack(_ draggedItem: SidebarListItem,
         }
 
         // Explicitly selected items get their indents wiped
-        else if draggedItem.isSelected(selections) {
+        else if draggedItemIsSelected {
             print("getStack: draggedItem \(draggedItem.id) is explicitly selected")
             var draggedItem = draggedItem
             draggedItem = draggedItem.wipeIndentationLevel()
@@ -151,7 +148,7 @@ func rearrangeChunk(selectedParentItem: SidebarListItem,
         print("rearrangeChunk: no chunkEnderIndex for \(selectedParentItem.id)")
         return []
     }
-    
+    log("chunkEnderIndex: \(chunkEnderIndex)")
     
     //        let chunk = flatMasterList[selectedParentItemIndex...chunkEnderIndex]
     
@@ -198,14 +195,16 @@ func getChunkEnderIndex(selectedParentItem: SidebarListItem,
                         selections: SidebarListItemIdSet,
                         flatMasterList: [SidebarListItem]) -> Int? {
     
-    for itemAndIndex in flatMasterList.enumerated() {
+    let itemsAndIndices = flatMasterList.enumerated()
+    
+    for itemAndIndex in itemsAndIndices {
         let index = itemAndIndex.offset
         let item = itemAndIndex.element
         
         if index > selectedParentItemIndex
             && item.indentationLevel.value == 0
             && item.isSelected(selections) {
-            print("getChunkEnderIndex: found selected chunk ender index: \(index)")
+            print("getChunkEnderIndex: found selected chunk ender index: \(index), item \(item)")
             return index
         }
     }
@@ -218,9 +217,17 @@ func getChunkEnderIndex(selectedParentItem: SidebarListItem,
         
         if index > selectedParentItemIndex
             && item.indentationLevel.value == 0 {
-            print("getChunkEnderIndex: found chunk ender index: \(index)")
+            print("getChunkEnderIndex: found chunk ender index: \(index), item \(item)")
             return index
         }
+    }
+    
+    // TODO: what happens if there's no item AT ALL below us?
+    // just return the last item in the chunk + 1 ?
+    if let maxIndex = itemsAndIndices.map(\.offset).max() {
+        print("getChunkEnderIndex: no layers below at all; will use max index \(maxIndex) chunk ender index")
+        // +1, so that we think we're going to some "imaginary" layer below us
+        return maxIndex + 1
     }
     
     print("getChunkEnderIndex: no chunk ender index")
