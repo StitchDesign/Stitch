@@ -125,7 +125,7 @@ struct SidebarListView: View {
                         isBeingEdited: isBeingEditedAnimated,
                         activeGesture: $activeGesture,
                         activeSwipeId: $activeSwipeId)
-                    .zIndex(item.zIndex)
+                    .zIndex(item.zIndex) // TODO: replace wi
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
                 
