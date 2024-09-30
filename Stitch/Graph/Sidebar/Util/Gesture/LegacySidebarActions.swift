@@ -244,7 +244,7 @@ func onSidebarListItemDragged(_ item: SidebarListItem, // assumes we've already
     log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
     log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
 
-    // TODO: SEPT 24: raise z-index of ALL dragged/selected items
+    // TODO: remove this property, and use an `isBeingDragged` check in the UI instead?
     item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
 
     // First time this is called, we pass in ALL items
@@ -347,7 +347,7 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         
         state.sidebarListState = list
         
-        // TODO: SEPT 24: avoid this?
+        // TODO: how to avoid this?
         state.sidebarSelectionState.madeStack = false
         state.sidebarSelectionState.implicitlyDragged = .init()
     

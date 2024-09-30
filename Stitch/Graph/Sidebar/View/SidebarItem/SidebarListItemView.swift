@@ -33,7 +33,7 @@ struct SidebarListItemView: View {
 
     let swipeOffset: CGFloat
 
-    // TODO: SEPT 24: NEEDS TO BE FOR ALL SELECTED LAYERS DURING A DRAG
+    // TODO: should be for *all* selected-layers during a drag
     var isBeingDragged: Bool {
         current.map { $0.current == item.id } ?? false
     }
@@ -115,7 +115,8 @@ struct SidebarListItemView: View {
             // Preferably animate the smallest view possible; when this .animation was applied outside the .overlay, we undesiredly animated text color changes
                 .animation(.default, value: isProposedGroup)
         }
-        // TODO: SEPT 24: THIS NEEDS TO BE FOR ALL ACTIVELY-DRAGGED SELECTED LAYERS
+
+        // TODO: needs to be for all actively-dragged selected layers
 //        .animation(.default, value: isBeingDragged)
     }
 }

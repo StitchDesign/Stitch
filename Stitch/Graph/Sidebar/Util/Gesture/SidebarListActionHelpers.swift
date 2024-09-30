@@ -71,7 +71,6 @@ func setItemsInGroupOrTopLevel(item: SidebarListItem,
 
     log("setItemsInGroupOrTopLevel: beingDragged: \(beingDragged)")
 
-    // TODO: SEPT 24: revisit this once we're working in non-flat UIs
     if let proposed = proposed {
         log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
         masterList.items = moveSidebarListItemIntoGroup(item,
@@ -142,12 +141,6 @@ func calculateNewIndexOnDrag(item: SidebarListItem,
 
     return calculatedIndex
 }
-
-
-// TODO: SEPT 24: probably need to update this to also excluded the other-dragged layers
-// this is probably necessary because the children haven't had their indices changed yet?
-// highest index = last item in the list THAT IS NOT ACITVELY BEING DRAGGED (so excluded
-
 
 // the highest index we can have moved an item to;
 // based on item count but with special considerations

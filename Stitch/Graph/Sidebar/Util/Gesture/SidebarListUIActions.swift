@@ -66,7 +66,6 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
 
 }
 
-// TODO: SEPT 24: shouldn't we also set a new parentId on the children? ... NO, because the children of the dragged item already have that dragged item's id as their parentId
 @MainActor
 func maybeSnapDescendants(_ item: SidebarListItem,
                           _ items: SidebarListItems,
@@ -434,7 +433,6 @@ func updatePositionsHelper(_ item: SidebarListItem,
     var alreadyDragged = alreadyDragged // SidebarListItemIdSet()
     
     items.forEach { childItem in
-        // TODO: SEPT 24: we're iterating through
         
         let isNotDraggedItem = childItem.id != item.id
         // This is the meat of this function -- is this child item the child of the parent we're dragging ?
@@ -450,32 +448,17 @@ func updatePositionsHelper(_ item: SidebarListItem,
         if isNotDraggedItem && isNotAlreadyDragged &&
            (isChildOfDraggedParent || isOtherDragged) {
         
-        // if this item in masterList.items has a parent ...
-//        if let parentId = childItem.parentId,
-//
-//            // ... and the parent was the passed in 'just dragged layer'
-//           parentId == item.id,
-//           
-//           // don't update the item again, since you already did that
-//            // ... and is NOT the item we've already just dragged...
-//           childItem.id != item.id {
-            
-            //            let (newItems, newIndices) = updatePositionsHelper(
-            
-            // ... why do we really need to update the draggedAlong?
             draggedAlong.insert(childItem.id)
             // log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
-//            alreadyDragged = alreadyDragged.union([childItem.id])
             alreadyDragged.insert(childItem.id)
-            // log("updatePositionsHelper: alreadyDragged is now: \(alreadyDragged)")
 
             let (newItems, 
                  newIndices,
                  updatedAlreadyDragged,
                  updatedDraggedAlong) = updatePositionsHelper(
-                    
-                childItem,
-                items, // we always pass in ALL items?
+                
+                    childItem,
+                items,
                 indicesToMove,
                 translation,
                 otherSelections: otherSelections,
@@ -488,7 +471,7 @@ func updatePositionsHelper(_ item: SidebarListItem,
                 items[i] = newItem
             }
             
-            indicesToMove = newIndices // what is this about?
+            indicesToMove = newIndices
             alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
             draggedAlong = draggedAlong.union(updatedDraggedAlong)
         } // if ...
@@ -511,9 +494,6 @@ func adjustMoveToIndex(calculatedIndex: Int,
     // If we move blue down, `getMovedtoIndex` will give us a new index of 1 instead of 0.
     // But index 1 is the position of blue's child!
     // So we add the diff.
-    
-    // TODO: SEPT 24: may need to update this to take into account whether a parent's child was individually dragged etc.; such individually dragged children would not count here?
-    
     if calculatedIndex > originalItemIndex {
         let diff = calculatedIndex - originalItemIndex
         print("adjustMoveToIndex: diff: \(diff)")

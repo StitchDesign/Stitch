@@ -16,8 +16,7 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
 
     var zIndex: ZIndex = 1
     var parentId: SidebarListItemId? // has a parent?
-    
-    // TODO: SEPT 24: can't this just be a derived variable like `!self.children.isEmpty` ?
+
     let isGroup: Bool // is a parent for others?
 
     init(id: SidebarListItemId,

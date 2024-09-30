@@ -69,8 +69,7 @@ struct SidebarDraggedItem: Equatable, Codable, Hashable {
     // directly dragged
     var current: SidebarListItemId
 
-    // // TODO: SEPT 24: expand to include ANY other selected (and stacked) dragged layers, not just children of a group
-    // dragged along as part of children etc.
+    // layers dragged along as part of children or which were otherwise explcitly-selected etc.
     var draggedAlong: SidebarListItemIdSet
 }
 
