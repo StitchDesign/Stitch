@@ -129,52 +129,43 @@ extension GraphState {
 //}
 
 
-// Recursively crawls to find all items below that would be dragged, given that we're dragging some other item
-// Ideally
-
-/*
- Simplify this?
- Any item that is selected is explicitly-dragged;
- and any item that has an explicitly-dragged parent is thereby implicitly-dragged;
-
- ah but if you have e.g. a case where an item's parent is itself implicitly dragged...
- */
+func getDraggedAlongHelper(item: SidebarListItemId,
+                           allItems: SidebarListItems, // for retrieving children
+                           acc: SidebarListItemIdSet) -> SidebarListItemIdSet {
+    var acc = acc
+    acc.insert(item)
+    
+    let children = allItems.filter { $0.parentId == item }
+    children.forEach { child in
+        let updatedAcc = getDraggedAlongHelper(item: child.id,
+                                               allItems: allItems,
+                                               acc: acc)
+        acc = acc.union(updatedAcc)
+    }
+    
+    return acc
+}
 
 func getDraggedAlong(_ draggedItem: SidebarListItem,
                      allItems: SidebarListItems,
                      acc: SidebarListItemIdSet,
                      selections: SidebarListItemIdSet) -> SidebarListItemIdSet {
-    log("getDraggedAlong: draggedItem: \(draggedItem.layer) \(draggedItem.id)")
-    var acc = acc
-    allItems.forEach { item in
-        log("getDraggedAlong: on item: \(item.layer) \(item.id)")
-        let isNotDraggedItem = item.id != draggedItem.id
-        let isChildOfDraggedParent = (item.parentId.map({ $0 == draggedItem.id }) ?? false)
-        let isOtherDragged = item.isSelected(selections)
-        let isNotAlreadyDragged = !acc.contains(item.id)
-        // STILL doesn't work for purple ? // But purple is the child of dragged group E5
-        log("getDraggedAlong: isNotDraggedItem: \(isNotDraggedItem)")
-        log("getDraggedAlong: isChildOfDraggedParent: \(isChildOfDraggedParent)")
-        log("getDraggedAlong: isOtherDragged: \(isOtherDragged)")
-        log("getDraggedAlong: isNotAlreadyDragged: \(isNotAlreadyDragged)")
-        
-        
-        if isNotDraggedItem && isNotAlreadyDragged && (isChildOfDraggedParent || isOtherDragged) { // parentId test is not good?
-            log("getDraggedAlong: will add item: \(item.layer) \(item.id) to acc and recur")
-            acc.insert(item.id)
-            
-            let newDraggedAlong = getDraggedAlong(item,
-                                                  allItems: allItems,
-                                                  acc: acc,
-                                                  selections: selections)
-            acc = acc.union(newDraggedAlong)
-        } else {
-            log("getDraggedAlong: will NOT add item: \(item.layer) \(item.id) to acc, will NOT recur")
-        }
-    }
     
+    log("getDraggedAlong: draggedItem: \(draggedItem.layer) \(draggedItem.id)")
+    
+    var acc = acc
+    
+    let explicitlyDraggedItems: SidebarListItemIdSet = selections.union([draggedItem.id])
+    
+    explicitlyDraggedItems.forEach { explicitlyDraggedItem in
+        let updatedAcc = getDraggedAlongHelper(item: explicitlyDraggedItem, allItems: allItems, acc: acc)
+        acc = acc.union(updatedAcc)
+    }
+
     return acc
 }
+
+
 
 // Note: call this AFTER we've dragged and have a big list of all the 'dragged along' items
 func getImplicitlyDragged(items: SidebarListItems,

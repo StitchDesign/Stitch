@@ -168,17 +168,25 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          excludedGroups: ExcludedGroups) -> ProposedGroup? {
 
     log("groupFromChildBelow: item: \(item)")
+    let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
+    log("groupFromChildBelow: items: \(debugItems)")
 
     let movedItemIndex = item.itemIndex(items)
+    
     let entireIndex = movedItemIndex + movedItemChildrenCount
-
+    log("groupFromChildBelow: entireIndex: \(entireIndex)")
+    
     // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
     let indexBelow: Int = entireIndex + 1
+    
+    log("groupFromChildBelow: indexBelow: \(indexBelow)")
 
     guard let itemBelow = items[safeIndex: indexBelow] else {
         log("groupFromChildBelow: no itemBelow")
         return nil
     }
+    
+    log("groupFromChildBelow: itemBelow: \(itemBelow)")
 
     guard let parentOfItemBelow = itemBelow.parentId else {
         log("groupFromChildBelow: no parent on itemBelow")
@@ -192,6 +200,8 @@ func groupFromChildBelow(_ item: SidebarListItem,
         return nil
     }
 
+    log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
+    
     let proposedParent = parentItemAbove.id
     let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
 
@@ -316,18 +326,12 @@ func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
 @MainActor
 func proposeGroup(_ item: SidebarListItem, // the moved-item
                   _ masterList: SidebarListItemsCoordinator,
-                  otherSelections: SidebarListItemIdSet,
-                  _ draggedAlongCount: Int,
+                  _ draggedAlongCount: Int, // all dragged items, whether implicitly or explicitly selelected
                   cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
 
-//    let items = masterList.items
-    var items = masterList.items
+    // Note: we do not need to filter out otherSelectons etc., which are inc
+    let items = masterList.items
     
-    // TODO: SEPT 24: should we remove the otherSelections ? i.e. a selection should not block a propsoed group ?
-    // Ah, it probably already doesn't block a proposed group, since we treat the top-most actively-dragged item as the dragged-item ?
-    // Seems to help keep all the
-    items = items.filter { !otherSelections.contains($0.id) }
-
     log("proposeGroup: will try to propose group for item: \(item.id)")
 
     // GENERAL RULE:
@@ -340,7 +344,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
     // Does the item have a non-parent top-level it immediately above it?
     // if so, that blocks group proposal
     if blockedByTopLevelItemImmediatelyAbove(item, items) {
-        log("blocked by non-parent top-level item above")
+        log("proposeGroup: blocked by non-parent top-level item above")
         proposed = nil
     }
 
@@ -350,9 +354,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         movedItemChildrenCount: draggedAlongCount,
         excludedGroups: masterList.excludedGroups) {
 
-        log("found group \(groupDueToChildBelow.parentId) from child below")
-
-        //        proposed = groupDueToChildBelow
+        log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
 
         // if our drag is east of the proposed-from-below's indentation level,
         // and we already found a proposed group from 'deepest parent',
@@ -360,7 +362,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
 
         if !keepProposed {
-            log("will use group from child below")
+            log("proposeGroup: will use group from child below")
             proposed = groupDueToChildBelow
         }
     }
