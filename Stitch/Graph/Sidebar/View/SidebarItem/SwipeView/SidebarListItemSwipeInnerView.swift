@@ -106,15 +106,6 @@ struct SidebarListItemSwipeInnerView: View {
         } else {
             return 0
         }
-//        
-//        
-//        if (isNonEditModeFocused && !isNonEditModeActivelySelected) {
-//            return 0.5
-//        } else if (isNonEditModeSelected || isBeingDragged) {
-//            return 1
-//        } else {
-//            return 0
-//        }
     }
 
     var body: some View {
@@ -134,21 +125,10 @@ struct SidebarListItemSwipeInnerView: View {
                                     isBeingEdited: isBeingEdited,
                                     isHidden: isHidden,
                                     swipeOffset: swipeX)
-//                .background {
-//                    Color.yellow.opacity(0.5)
-//                }
                     .padding(.leading, itemIndent + 5)
                     .background {
                         theme.fontColor
                             .opacity(self.backgroundOpacity)
-                        
-//                        if isNonEditModeSelected || isBeingDragged || isImplicitlyDragged {
-//                            theme.fontColor
-//                                .opacity(useHalfOpacityBackground ? 0.5 : 1)
-//            //                    .frame(maxWidth: .infinity)
-//            //                    .border(.green, width: 4)
-//                        }
-                    }
 
                     // right-side label overlay comes AFTER x-placement of item,
                     // so as not to be affected by x-placement.

@@ -354,7 +354,7 @@ func onSidebarListItemDragEnded(_ item: SidebarListItem,
                                 draggedAlong: SidebarListItemIdSet,
                                 proposed: ProposedGroup?) -> SidebarListItems {
 
-        print("onSidebarListItemDragEnded called")
+    log("onSidebarListItemDragEnded called")
 
     var items = items
     var item = item
@@ -370,7 +370,6 @@ func onSidebarListItemDragEnded(_ item: SidebarListItem,
         items,
         isDragEnded: true)
 
-//    let allDragged: SidebarListItemIds = [item.id] + Array(draggedAlong)
     let allDragged: SidebarListItemIds = [item.id] + Array(draggedAlong) + otherSelections
 
     // update both the X and Y in the previousLocation of the items that were moved;

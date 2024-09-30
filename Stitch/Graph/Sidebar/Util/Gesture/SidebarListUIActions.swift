@@ -342,7 +342,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
     // Note: we do not need to filter out otherSelectons etc., which are inc
     let items = masterList.items
     
-    log("proposeGroup: will try to propose group for item: \(item.id)")
+    // log("proposeGroup: will try to propose group for item: \(item.id)")
 
     // GENERAL RULE:
     var proposed = findDeepestParent(item,
