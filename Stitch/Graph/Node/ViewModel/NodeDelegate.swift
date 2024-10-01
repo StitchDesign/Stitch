@@ -73,11 +73,7 @@ protocol NodeDelegate: AnyObject {
     
     @MainActor func updateOutputsObservers(newOutputsValues: PortValuesList,
                                            activeIndex: ActiveIndex)
-    
-    // TODO: OCT 1
-    @MainActor func _blockOrUnblockFields(newValue: PortValue,
-                                          layerInput: LayerInputPort)
-    
+        
     @MainActor func calculate()
 }
 

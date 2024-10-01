@@ -11,201 +11,6 @@ import StitchSchemaKit
 let WIDTH_FIELD_INDEX = 0
 let HEIGHT_FIELD_INDEX = 1
 
-extension NodeViewModel {
-
-    // When a PortValue changes, we may need to block or unblock certain
-    @MainActor
-    func _blockOrUnblockFields(newValue: PortValue,
-                              layerInput: LayerInputPort) {
-        
-        if !self.kind.isLayer {
-            log("blockOrUnblockFields: only block or unblock fields on a layer node; instead had \(self.kind) for node \(self.id)")
-            return
-        }
-        
-        // TODO: Which is better? To look at layer input or port value?
-        // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
-        switch layerInput {
-            
-        case .orientation:
-            newValue.getOrientation.map(self.layerGroupOrientationUpdated)
-            
-        case .size:
-            newValue.getSize.map(self.layerSizeUpdated)
-            
-        case .sizingScenario:
-            newValue.getSizingScenario.map(self.sizingScenarioUpdated)
-            
-        case .isPinned:
-            newValue.getBool.map(self.isPinnedUpdated)
-                    
-        default:
-            return
-        }
-    }
-    
-    @MainActor
-    func isPinnedUpdated(newValue: Bool) {
-        
-        let stitch = self
-        
-        if newValue {
-            // Unblock all pin-related inputs
-            stitch.unblockPinInputs()
-            
-            // Block position and anchoring
-            stitch.blockPositionAndAnchoringInputs()
-            
-        } else {
-            // Block all pin-related inputs
-            stitch.blockPinInputs()
-            
-            // Unblock position and anchoring
-            stitch.unblockPositionAndAnchoringInputs()
-        }
-    }
-    
-    @MainActor
-    func layerGroupOrientationUpdated(newValue: StitchOrientation) {
-        
-        // Changing the orientation of a parent (layer group) updates fields on the children
-        let children = self.graphDelegate?.children(of: self.id) ?? []
-        
-        log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
-        
-        switch newValue {
-        
-        case .none:
-            // Block `spacing` input on the LayerGroup
-
-            /*
-              TODO: block `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
-             
-             (Or maybe not, since those children themselves could be LayerGroups with out spacing etc.?)
-             */
-            self.blockSpacingInput()
-            self.blockGridLayoutInputs()
-            
-            children.forEach {
-                $0.blockOffsetInput()
-                $0.unblockPositionInput()
-            }
-            
-        case .horizontal, .vertical:
-            // Unblock `spacing` input on the LayerGroup
-            // TODO: unblock `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
-            self.unblockSpacingInput()
-            self.blockGridLayoutInputs()
-            
-            children.forEach {
-                $0.unblockOffsetInput()
-                $0.blockPositionInput()
-            }
-            
-        case .grid:
-            self.unblockSpacingInput()
-            self.unblockGridLayoutInputs()
-            
-            children.forEach {
-                $0.unblockOffsetInput()
-                $0.blockPositionInput()
-            }
-        }
-    }
-    
-    // Only for changes to .size (not .minSize, .maxSize) inputs ?
-    @MainActor
-    func layerSizeUpdated(newValue: LayerSize) {
-        self.layerDimensionUpdated(newValue: newValue.width,
-                                   dimension: .width)
-        
-        self.layerDimensionUpdated(newValue: newValue.height,
-                                   dimension: .height)
-    }
-    
-    // When LayerDimension is `pt` or `parent percent`, disable the min/max along that same dimension.
-    @MainActor
-    private func layerDimensionUpdated(newValue: LayerDimension,
-                                       dimension: LengthDimension) {
-                
-        let stitch = self
-                
-        switch newValue {
-            
-        case .number:
-            // block min and max along this given dimension
-            switch dimension {
-            case .width:
-                // Note: the width (non-min/max width) field must have already been unblocked for us to be able to edit the width layer dimension
-                stitch.blockMinAndMaxWidthFields()
-            case .height:
-                stitch.blockMinAndMaxHeightFields()
-            }
-            
-        case .auto, .fill, .hug, .parentPercent:
-            switch dimension {
-            case .width:
-                stitch.unblockMinAndMaxWidthFields()
-            case .height:
-                stitch.unblockMinAndMaxHeightFields()
-            }
-        }
-    }
-    
-    // Assumes input was already updated via e.g. PickerOptionSelected
-    @MainActor
-    func sizingScenarioUpdated(scenario: SizingScenario) {
-        
-        log("sizingScenarioUpdated: scenario: \(scenario)")
-        
-        let stitch = self
-                
-        // NOTE: does this work with loops? What is the relationship between a loop of fields
-        
-        switch scenario {
-            
-        case .auto:
-            // TODO: unblock e.g. min/max width when width set to grow/hug (will be a different action / scenario?)
-                        
-            // if sizing scenario is auto, unblock the width and height fields:
-            stitch.unblockSizeInput()
-            
-            // ... and block the min and max width and height (until width and height are set to grow or hug)
-            // TODO: check whether each dimenion's field != point; if so, unblock that dimension's min/max fields
-//            stitch.blockMinAndMaxSizeInputs()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
-                                    
-            // ... and block the aspect ratio inputs:
-            stitch.blockAspectRatio()
-            
-        case .constrainHeight:
-            // if height is constrained, block-out the height inputs (height, min height, max height):
-            stitch.blockHeightFields()
-                        
-            // ... and unblock the width field:
-            // TODO: also unblock min/max width fields if width field != point
-            stitch.unblockWidthField()
-            stitch.updateMinMaxWidthFieldsBlockingPerWidth()
-            
-            // ... and unblock the aspect ratio inputs:
-            stitch.unblockAspectRatio()
-            
-        case .constrainWidth:
-            // if width is constrained, block-out the width inputs (width, min width, max width):
-            stitch.blockWidthFields()
-            
-            // ... and unblock the height fields:
-            // TODO: also unblock min/max height fields if height field != point
-            stitch.unblockHeightField()
-            stitch.updateMinMaxHeightFieldsBlockingPerHeight()
-            
-            // ... and unblock the aspect ratio inputs:
-            stitch.unblockAspectRatio()
-        }
-    }
-}
-
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
     
@@ -241,10 +46,8 @@ extension LayerInputPort {
         .init(layerInput: self,
               portType: .unpacked(.port1))
     }
-        
 }
 
-//extension LayerInputObserver {
 extension LayerNodeViewModel {
     
     // When a PortValue changes, we may need to block or unblock certain
@@ -255,22 +58,19 @@ extension LayerNodeViewModel {
     @MainActor
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
-//    func blockOrUnblockFields(newValue: PortValue) {
-
-//        let layerInput: LayerInputPort = self.port
         
         log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
         
         // TODO: Which is better? To look at layer input or port value?
         // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
         switch layerInput {
-//            
+            
         case .orientation:
             newValue.getOrientation.map(self.layerGroupOrientationUpdated)
-//            
+            
         case .size:
             newValue.getSize.map(self.layerSizeUpdated)
-//            
+            
         case .sizingScenario:
             newValue.getSizingScenario.map(self.sizingScenarioUpdated)
             
@@ -280,8 +80,6 @@ extension LayerNodeViewModel {
         default:
             return
         }
-//        
-//        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) blockedFields are now: \(self.blockedFields)")
     }
     
     /*
