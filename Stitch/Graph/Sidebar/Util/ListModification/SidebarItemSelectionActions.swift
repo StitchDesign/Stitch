@@ -181,6 +181,7 @@ extension GraphState {
         
         // Reset selected-inspector-row whenever inspector-focused layers change
         self.graphUI.propertySidebar.selectedProperty = nil
+        self.graphUI.closeFlyout()
     }
     
     @MainActor
