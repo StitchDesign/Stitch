@@ -438,7 +438,14 @@ extension String {
                 "less than or equal": .patch(.lessThanOrEqual),
                 "text transform": .patch(.textTransform),
                 "text replace": .patch(.textReplace),
-                "date and time formatter": .patch(.dateAndTimeFormatter)
+                "date and time formatter": .patch(.dateAndTimeFormatter),
+                "text starts with": .patch(.textStartsWith),
+                "text ends with": .patch(.textEndsWith),
+                "video import": .patch(.videoImport),
+                "object detection": .patch(.coreMLDetection),
+                "image classification": .patch(.coreMLClassify),
+                "image import": .patch(.imageImport),
+
             ]
             
             if let specialCase = specialCases[normalizedInput] {
