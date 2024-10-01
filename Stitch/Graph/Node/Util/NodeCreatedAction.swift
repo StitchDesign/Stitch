@@ -102,8 +102,8 @@ extension StitchDocumentViewModel {
                 graphState: self.visibleGraph)
         }
 
-        // Little hack to update node data so first render works proper
-        self.update(from: self.createSchema())
+//        // Little hack to update node data so first render works proper
+//        self.update(from: self.createSchema())
 
         // TODO: handle camera undo event
         // Undo event needed for camera feed to update manager if camera feed addition is undo'd
@@ -111,6 +111,10 @@ extension StitchDocumentViewModel {
             undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
         }
 
+        if choice.isLayer {
+            self.updateOrderedPreviewLayers()
+        }
+        
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
 
@@ -118,6 +122,22 @@ extension StitchDocumentViewModel {
         //    self.graphUI.doubleTapLocation = nil
 
         self.graphMovement.draggedCanvasItem = nil
+        
+        self.graphUI.propertySidebar.inspectorId = .init()
+        
+        
+        if let layerNode = node.layerNode {
+            layerNode.getSortedInputPorts().forEach({ (portObserver: LayerInputObserver) in
+                
+                node.blockOrUnblockFields(
+                    newValue: portObserver.activeValue,
+                    layerInput: portObserver.port)
+            })
+        }
+        
+        // Little hack to update node data so first render works proper
+//        self.update(from: self.createSchema())
+        
     }
 
     // GOOD EXAMPLE FOR ARKIT NODES

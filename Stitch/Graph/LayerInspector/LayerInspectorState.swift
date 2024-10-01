@@ -25,6 +25,8 @@ typealias LayerInspectorRowIdSet = Set<LayerInspectorRowId>
 
 @Observable
 final class PropertySidebarObserver {
+    
+    var inspectorId: UUID = .init()
         
     // Non-nil just if we have multiple layers selected
     var inputsCommonToSelectedLayers: LayerInputTypeSet?

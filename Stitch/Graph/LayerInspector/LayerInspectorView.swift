@@ -82,6 +82,7 @@ struct LayerInspectorView: View {
                                  graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
                                  //                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
                              }
+                             .id(self.graph.graphUI.propertySidebar.inspectorId)
             }
             
         } else {
@@ -101,6 +102,8 @@ struct LayerInspectorView: View {
                            layerInputObserverDict: LayerInputObserverDict,
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
+        logInView("selectedLayerView")
+        
         VStack(alignment: .leading, spacing: 0) {
             
 #if DEV_DEBUG || DEBUG
@@ -237,9 +240,13 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs, id: \.layerInput) { (layerInput) in
                 let layerPort: LayerInputObserver = layerInput.portObserver
                 
+                if layerInput.layerInput == .widthAxis || layerInput.layerInput == .heightAxis || layerInput.layerInput == .minSize || layerInput.layerInput == .maxSize {
+                    logInView("LayerInspectorInputsSectionView: had an input that should be blocked out")
+                }
                 
                 // TODO: only using packed data here
-                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+//                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                let allFieldsBlockedOut = layerPort.fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 if !allFieldsBlockedOut {
                     LayerInspectorInputPortView(layerInputObserver: layerPort,

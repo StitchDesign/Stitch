@@ -23,6 +23,7 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
     // eg "X" vs "Y" for .position parent-value
     var fieldLabel: String { get set }
 
+    // ONLY FOR INPUTS, not inputs and outputs
     // e.g. Layer's size-scenario is "Constrain Height",
     // so we "block out" the Height fields on the Layer: size.height, minSize.height, maxSize.height
     var isBlockedOut: Bool { get set }
@@ -41,6 +42,14 @@ final class InputFieldViewModel: FieldViewModel {
     var fieldIndex: Int
     var fieldLabel: String
     var isBlockedOut: Bool = false
+//    private var isBlockedOut: Bool
+    
+    
+//    var isBlockedOut: Bool = false {
+//        didSet {
+//            log("isBlockedOut")
+//        }
+//    }
 
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
@@ -48,10 +57,18 @@ final class InputFieldViewModel: FieldViewModel {
          fieldIndex: Int,
          fieldLabel: String,
          rowViewModelDelegate: InputNodeRowViewModel?) {
+        
+        if fieldLabel == "W" {
+            log("had W field label")
+        }
+        
+        
         self.fieldValue = fieldValue
         self.fieldIndex = fieldIndex
         self.fieldLabel = fieldLabel
         self.rowViewModelDelegate = rowViewModelDelegate
+        
+//        self.isBlockedOut = false
     }
 }
 

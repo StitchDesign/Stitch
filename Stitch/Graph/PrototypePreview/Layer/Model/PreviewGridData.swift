@@ -165,6 +165,8 @@ extension NodeViewModel {
         switch scenario {
             
         case .auto:
+            
+            log("sizingScenarioUpdated: will block aspect ratio because had auto, for node \(self.id)")
             // TODO: unblock e.g. min/max width when width set to grow/hug (will be a different action / scenario?)
                         
             // if sizing scenario is auto, unblock the width and height fields:
@@ -243,6 +245,7 @@ extension NodeViewModel {
         guard let fields = self.getLayerInspectorInputFields(input) else {
             // Re-enable the fatal error when min/max fields are enabled for inspector
 //            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
+            log("setBlockStatus: Could not retrieve fields for input \(input), node \(self.id)")
             return
         }
         
@@ -360,12 +363,6 @@ extension NodeViewModel {
     @MainActor
     func unblockSizeInput() {
         setBlockStatus(.size, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockMinAndMaxSizeInputs() {
-        setBlockStatus(.minSize, isBlocked: true)
-        setBlockStatus(.maxSize, isBlocked: true)
     }
     
     @MainActor

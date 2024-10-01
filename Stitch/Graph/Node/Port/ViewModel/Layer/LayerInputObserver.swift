@@ -197,6 +197,12 @@ extension LayerInputObserver {
             port.initializeDelegate(node,
                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                     unpackedPortIndex: fieldIndex)
+            
+            
+            if self.port == .widthAxis || self.port == .heightAxis || self.port == .minSize || self.port == .maxSize {
+                log("LayerInputObserver: initializeDelegate: had an input that should be blocked out")
+            }
+            
         }
     }
     
