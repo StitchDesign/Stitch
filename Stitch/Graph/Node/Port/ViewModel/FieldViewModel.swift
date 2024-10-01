@@ -31,38 +31,37 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
-// NOTE: not needed, since fieldIndex was updated to be pack vs unpack indifferent
+extension FieldViewModel {
+    
+    // a field index that ignores packed vs. unpacked mode
+    // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
+    var fieldLabelIndex: Int {
+        guard let rowViewModelDelegate = rowViewModelDelegate else {
+            fatalErrorIfDebug()
+            return fieldIndex
+        }
 
-//extension FieldViewModel {
-//    
-//    // a field index that ignores packed vs. unpacked mode
-//    var fieldLabelIndex: Int {
-//        guard let rowViewModelDelegate = rowViewModelDelegate else {
-//            fatalErrorIfDebug()
-//            return fieldIndex
-//        }
-//
-//        switch rowViewModelDelegate.id.portType {
-//
-//        case .portIndex:
-//            // leverage patch node definition to get label
-//            return fieldIndex
-//
-//        case .keyPath(let layerInputType):
-//
-//            switch layerInputType.portType {
-//            case .packed:
-//                // if it is packed, then field index is correct,
-//                // so can use proper label list etc.
-//                return fieldIndex
-//
-//            case .unpacked(let unpackedPortType):
-//                let index = unpackedPortType.rawValue
-//                return index
-//            }
-//        }
-//    }
-//}
+        switch rowViewModelDelegate.id.portType {
+
+        case .portIndex:
+            // leverage patch node definition to get label
+            return fieldIndex
+
+        case .keyPath(let layerInputType):
+
+            switch layerInputType.portType {
+            case .packed:
+                // if it is packed, then field index is correct,
+                // so can use proper label list etc.
+                return fieldIndex
+
+            case .unpacked(let unpackedPortType):
+                let index = unpackedPortType.rawValue
+                return index
+            }
+        }
+    }
+}
 
 @Observable
 final class InputFieldViewModel: FieldViewModel {

@@ -457,7 +457,6 @@ extension LayerNodeViewModel {
                                           layer: self.layer)
         }
         
-        // TODO: OCT 1
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in
             self.blockOrUnblockFields(

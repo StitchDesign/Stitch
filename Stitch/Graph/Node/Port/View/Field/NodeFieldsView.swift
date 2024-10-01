@@ -73,11 +73,8 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                        Color.clear
 //                    }
 //                }
-            
-//            fieldViewModel.rowViewModelDelegate?.inputUsesTextField
-                                    
-//            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
-            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldIndex.asUnpackedPortType)) ?? false
+                                                
+            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
                         
             if !isBlocked {
                 self.valueEntryView(fieldViewModel, isMultiField)
