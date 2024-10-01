@@ -58,6 +58,18 @@ protocol GraphDelegate: AnyObject, Sendable, StitchDocumentIdentifiable {
     
     @MainActor
     var orderedSidebarLayers: OrderedSidebarLayers { get }
+    
+    @MainActor
+    func children(of parent: NodeId) -> NodeViewModels
+}
+
+extension GraphState {
+    @MainActor
+    func children(of parent: NodeId) -> NodeViewModels {
+        self.layerNodes.values.filter { layerNode in
+            layerNode.layerNode?.layerGroupId == parent
+        }
+    }
 }
 
 extension GraphDelegate {

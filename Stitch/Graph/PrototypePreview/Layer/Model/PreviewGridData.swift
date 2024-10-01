@@ -38,7 +38,7 @@ extension NodeViewModel {
             
         case .isPinned:
             newValue.getBool.map(self.isPinnedUpdated)
-        
+                    
         default:
             return
         }
@@ -68,7 +68,10 @@ extension NodeViewModel {
     @MainActor
     func layerGroupOrientationUpdated(newValue: StitchOrientation) {
         
-        let stitch = self
+        // Changing the orientation of a parent (layer group) updates fields on the children
+        let children = self.graphDelegate?.children(of: self.id) ?? []
+        
+        log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
@@ -80,18 +83,33 @@ extension NodeViewModel {
              
              (Or maybe not, since those children themselves could be LayerGroups with out spacing etc.?)
              */
-            stitch.blockSpacingInput()
-            stitch.blockGridLayoutInputs()
+            self.blockSpacingInput()
+            self.blockGridLayoutInputs()
+            
+            children.forEach {
+                $0.blockOffsetInput()
+                $0.unblockPositionInput()
+            }
             
         case .horizontal, .vertical:
             // Unblock `spacing` input on the LayerGroup
             // TODO: unblock `offset`/`margin` input on the LayerGroup's children (all descendants?) as well
-            stitch.unblockSpacingInput()
-            stitch.blockGridLayoutInputs()
+            self.unblockSpacingInput()
+            self.blockGridLayoutInputs()
+            
+            children.forEach {
+                $0.unblockOffsetInput()
+                $0.blockPositionInput()
+            }
             
         case .grid:
-            stitch.unblockSpacingInput()
-            stitch.unblockGridLayoutInputs()
+            self.unblockSpacingInput()
+            self.unblockGridLayoutInputs()
+            
+            children.forEach {
+                $0.unblockOffsetInput()
+                $0.blockPositionInput()
+            }
         }
     }
     
@@ -315,6 +333,27 @@ extension NodeViewModel {
         setBlockStatus(.spacingBetweenGridRows, isBlocked: false)
         setBlockStatus(.itemAlignmentWithinGridCell, isBlocked: false)
     }
+    
+    @MainActor
+    func blockPositionInput() {
+        setBlockStatus(.position, isBlocked: true)
+    }
+    
+    @MainActor
+    func unblockPositionInput() {
+        setBlockStatus(.position, isBlocked: false)
+    }
+    
+    @MainActor
+    func blockOffsetInput() {
+        setBlockStatus(.offsetInGroup, isBlocked: true)
+    }
+    
+    @MainActor
+    func unblockOffsetInput() {
+        setBlockStatus(.offsetInGroup, isBlocked: false)
+    }
+    
     
     // SizingScenario = Auto
     
