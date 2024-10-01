@@ -90,7 +90,6 @@ extension LayerNodeViewModel {
      self.blockedFields.contains(.init(layerInput: .minSize, portType: .unpacked(.port0)))
      */
     @MainActor
-//    func setBlockStatus(_ layerInputType: LayerInputType, // e.g. minSize packed input, or min
     func setBlockStatus(_ layerInputType: LayerInputType, // e.g. minSize packed input, or min
                         // blocked = add to blocked-set, else remove
                         isBlocked: Bool) {

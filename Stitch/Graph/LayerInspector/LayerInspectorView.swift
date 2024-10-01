@@ -237,20 +237,6 @@ struct LayerInspectorInputsSectionView: View {
             ForEach(layerInputs, id: \.layerInput) { layerInput in
                 let layerInputObserver: LayerInputObserver = layerInput.portObserver
                 
-                
-                // TODO: only using packed data here
-//                let allFieldsBlockedOut = layerInputObserver._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
-                
-//                let allFieldsBlockedOut = layerInputObserver._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
-                
-                // TODO: OCT 1
-//                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.contains(.init(layerInput: layerInput.layerInput, portType: .packed))
-                
-//                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.contains(.packed)
-//                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.blocks(layerInput.portType)
-//                layerInput.layerInput.id
-                
-
                 let blockedFields = layerInputObserver.blockedFields
                 
                 let allFieldsBlockedOut = layerInputObserver
