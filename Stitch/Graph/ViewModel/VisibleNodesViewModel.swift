@@ -126,7 +126,8 @@ extension VisibleNodesViewModel {
                                   forKey: newNode.id)
             }
         }
-
+        
+        
         // Build weak references to connected nodes
         nodesDict.values.forEach { nodeEntity in
             self.buildUpstreamReferences(nodeEntity: nodeEntity)
@@ -155,6 +156,21 @@ extension VisibleNodesViewModel {
                 
             default:
                 return
+            }
+        }
+        
+        
+        // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parents
+        // TODO: a better way to handle this?
+        self.nodes.forEach { (key: NodeId, value: NodeViewModel) in
+            if let layerNode = value.layerNode,
+               layerNode.layer == .group,
+                let groupOrientationInputObserver: InputNodeRowObserver = value.getInputRowObserver(for: .keyPath(.init(
+                    layerInput: .orientation,
+                    // Group Orientation is always packed
+                    portType: .packed))) {
+                value.blockOrUnblockFields(newValue: groupOrientationInputObserver.activeValue,
+                                           layerInput: .orientation)
             }
         }
     }
