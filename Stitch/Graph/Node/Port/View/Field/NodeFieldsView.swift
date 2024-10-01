@@ -8,13 +8,6 @@
 import SwiftUI
 import StitchSchemaKit
 
-//extension Set<LayerInputKeyPathType> {
-//    func asIndicesOfBlockedFields() -> Set<Int> {
-//        self.map {
-//            
-//        }
-//    }
-//}
 
 typealias LayerPortTypeSet = Set<LayerInputKeyPathType>
 
@@ -30,18 +23,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     let forPropertySidebar: Bool
     
     let blockedFields: Set<LayerInputKeyPathType>?
-    
-//////    // TODO: OCT 1: pass down from layer input observer
-//    var blockedFields: Set<LayerInputKeyPathType> {
-//        
-//        // Normally only populated for specific inputs; but this would be for ALL
-//        .init([
-//            .unpacked(.port1) // only height blocked
-////            .unpacked(.port0) // only width blocked
-////            .packed // both blocked
-//        ])
-//    }
-    
     
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
         
@@ -95,13 +76,9 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
             
 //            fieldViewModel.rowViewModelDelegate?.inputUsesTextField
                                     
-            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
-            
-            logInView("NodeFieldsView: self.blockedFields: \(self.blockedFields)")
-            logInView("NodeFieldsView: fieldViewModel.fieldLabel: \(fieldViewModel.fieldLabel)")
-            logInView("NodeFieldsView: fieldViewModel.fieldIndex: \(fieldViewModel.fieldIndex)")
-            logInView("NodeFieldsView: isBlocked: \(isBlocked)")
-            
+//            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
+            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldIndex.asUnpackedPortType)) ?? false
+                        
             if !isBlocked {
                 self.valueEntryView(fieldViewModel, isMultiField)
             }
@@ -135,12 +112,5 @@ extension Set<LayerInputKeyPathType> {
         
         // Else, field must be specifically blocked
         return self.contains(portKeypath)
-        
-//        // A field is blocked if its field is specifically blocked,
-//        // or its entire input is blocked:
-//        let specificFieldBlocked = self.contains(portKeypath)
-//        let wholeInputBlocked = self.contains(.packed)
-//        
-//        return specificFieldBlocked || wholeInputBlocked
     }
 }

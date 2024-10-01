@@ -244,11 +244,6 @@ struct LayerInspectorInputsSectionView: View {
                     .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
                 ?? false
                 
-                if layerInput.layerInput == .pinAnchor || layerInput.layerInput == .pinOffset || layerInput.layerInput == .pinTo {
-                    logInView("LayerInspectorInputsSectionView: for node \(nodeId) and layer input: \(layerInput.layerInput): blockedFields: \(layerInput.portObserver.blockedFields)")
-                }
-                
-                
                 if !allFieldsBlockedOut {
                     LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                                 graph: graph,

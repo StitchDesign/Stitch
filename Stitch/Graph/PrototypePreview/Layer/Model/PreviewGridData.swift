@@ -95,7 +95,7 @@ extension LayerNodeViewModel {
                         isBlocked: Bool) {
         
         self.getLayerInputObserver(layerInputType.layerInput)
-            .setBlockStatus(layerInputType.portType, isBlocked: isBlocked)
+            .setBlockStatus(layerInputType, isBlocked: isBlocked)
     }
     
     @MainActor
@@ -503,15 +503,30 @@ extension LayerNodeViewModel {
 
 extension LayerInputObserver {
     @MainActor
-    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
+//    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
+    func setBlockStatus(_ keypathPortType: LayerInputType, // e.g. minSize packed input, or min
                         // blocked = add to blocked-set, else remove
                         isBlocked: Bool) {
+        
+        let allChanged = keypathPortType.portType == .packed
+                
         if isBlocked {
-            log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
-            self.blockedFields.insert(keypathPortType)
+            
+            if allChanged {
+                log("LayerInputObserver: setBlockStatus: will block all")
+                self.blockedFields = .init([.packed])
+            } else {
+                log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
+                self.blockedFields.insert(keypathPortType.portType)
+            }
+            
         } else {
-            log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
-            self.blockedFields.remove(keypathPortType)
+            if allChanged {
+                self.blockedFields = .init()
+            } else {
+                log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
+                self.blockedFields.remove(keypathPortType.portType)
+            }
         }
     }
 }
