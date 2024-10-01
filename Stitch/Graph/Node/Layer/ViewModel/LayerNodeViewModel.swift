@@ -27,6 +27,21 @@ final class LayerNodeViewModel {
     // View models for layers in prototype window
     var previewLayerViewModels: [LayerViewModel] = []
     
+    /*
+     Only fields on a layer input (not a patch input or layer output) can be blocked,
+     and a field is blocked regardless of an input's packed vs unpacked status.
+     
+     Example use:
+     
+     // the entire minSize input blocked:
+     blockedFields.contains(.init(layerInput: .minSize, portType: .packed))
+     
+     // just the width field on the minSize input blocked:
+     blockedFields.contains(.init(layerInput: .minSize, portType: .unpacked(.port0)))
+     */
+//    var blockedFields: Set<LayerInputType> = .init()
+    
+    
     // Some layer nodes contain outputs
     @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
@@ -164,6 +179,8 @@ final class LayerNodeViewModel {
 
     @MainActor
     init(from schema: LayerNodeEntity) {
+        log("LayerNodeViewModel: init called for \(schema.id)")
+        
         let graphNode = schema.layer.layerGraphNode
         
         // Create initial inputs and outputs using default data
@@ -440,10 +457,17 @@ extension LayerNodeViewModel {
                                           layer: self.layer)
         }
         
+        // TODO: OCT 1
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in
-            node.blockOrUnblockFields(newValue: layerInput.activeValue,
-                                      layerInput: layerInput.port)
+//            node.blockOrUnblockFields(newValue: layerInput.activeValue,
+//            self.blockOrUnblockFields(newValue: layerInput.activeValue,
+//                                      layerInput: layerInput.port)
+            
+//            layerInput.blockOrUnblockFields(newValue: layerInput.activeValue)
+            self.blockOrUnblockFields(
+                newValue: layerInput.activeValue,
+                layerInput: layerInput.port)
         }
     }
     

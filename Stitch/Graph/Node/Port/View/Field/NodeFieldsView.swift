@@ -15,13 +15,20 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     // just becomes a list of field models
     @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
     
+
+//    let blockedFields: Set<LayerInputType>
+    
     let nodeId: NodeId
     let isMultiField: Bool
     let forPropertySidebar: Bool
+    
+    
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
         
     var body: some View {
-        if allFieldsBlockedOut {
+//        if allFieldsBlockedOut {
+        // TODO: OCT 1
+        if false {
             EmptyView()
         } else {
             
@@ -43,9 +50,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
         }
     }
     
-    var allFieldsBlockedOut: Bool {
-        fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
-    }
+    // TODO: OCT 1
+//    var allFieldsBlockedOut: Bool {
+//        fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
+//    }
         
     // fieldObservers / field view models remain our bread-and-butter
     var fields: some View {
@@ -61,9 +69,10 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                    }
 //                }
             
-            if !fieldViewModel.isBlockedOut {
+            // TODO: OCT 1
+//            if !fieldViewModel.isBlockedOut {
                 self.valueEntryView(fieldViewModel, isMultiField)
-            }
+//            }
         }
     }
 }

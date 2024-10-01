@@ -15,7 +15,7 @@ extension NodeViewModel {
 
     // When a PortValue changes, we may need to block or unblock certain
     @MainActor
-    func blockOrUnblockFields(newValue: PortValue,
+    func _blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
         
         if !self.kind.isLayer {
@@ -208,6 +208,12 @@ extension NodeViewModel {
 
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
+    
+    @MainActor 
+    func getLayerInputObserver(_ layerInput: LayerInputPort) -> LayerInputObserver {
+        self[keyPath: layerInput.layerNodeKeyPath]
+    }
+    
     @MainActor
     func getLayerInspectorInputFields(_ key: LayerInputPort) -> InputFieldViewModels {
         let port = self[keyPath: key.layerNodeKeyPath]
@@ -217,6 +223,153 @@ extension LayerNodeViewModel {
         }
     }
 }
+
+//extension LayerInputObserver {
+extension LayerNodeViewModel {
+    
+    // When a PortValue changes, we may need to block or unblock certain
+    // this should be on L
+    
+    // it's more like this should be on the layer node view model itself, not on the layer input observer;
+    // but it's the passed in `layer input port` that tells us
+    @MainActor
+    func blockOrUnblockFields(newValue: PortValue,
+                              layerInput: LayerInputPort) {
+//    func blockOrUnblockFields(newValue: PortValue) {
+
+//        let layerInput: LayerInputPort = self.port
+        
+        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
+        
+        // TODO: Which is better? To look at layer input or port value?
+        // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
+        switch layerInput {
+//            
+//        case .orientation:
+//            newValue.getOrientation.map(self.layerGroupOrientationUpdated)
+//            
+//        case .size:
+//            newValue.getSize.map(self.layerSizeUpdated)
+//            
+//        case .sizingScenario:
+//            newValue.getSizingScenario.map(self.sizingScenarioUpdated)
+//            
+        case .isPinned:
+            newValue.getBool.map(self.isPinnedUpdated)
+                    
+        default:
+            return
+        }
+//        
+//        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) blockedFields are now: \(self.blockedFields)")
+    }
+    
+    @MainActor
+    func isPinnedUpdated(newValue: Bool) {
+        
+        let stitch = self
+        
+        if newValue {
+            // Unblock all pin-related inputs
+            stitch.unblockPinInputs()
+            
+            // Block position and anchoring
+            stitch.blockPositionAndAnchoringInputs()
+            
+        } else {
+            // Block all pin-related inputs
+            stitch.blockPinInputs()
+            
+            // Unblock position and anchoring
+            stitch.unblockPositionAndAnchoringInputs()
+        }
+    }
+    
+    // LayerGroup's isPinned = false: we block pin inputs and unblock position, anchoring etc.
+
+    @MainActor
+    func blockPinInputs() {
+        LayerInputTypeSet.pinning.forEach {
+            // Do not block the `isPinned` input itself
+            if $0 != .isPinned {
+                // packed = block entire input
+                self.setBlockStatus(.init(layerInput: $0, portType: .packed),
+                                    isBlocked: true)
+            }
+        }
+    }
+
+    @MainActor
+    func unblockPositionAndAnchoringInputs() {
+        
+//        // Unblock the layer input port and/or any of its fields
+//        self.blockedFields = self.blockedFields.filter { (layerInputType: LayerInputType) in
+//            layerInputType.layerInput != .position
+//        }
+//        
+        
+        setBlockStatus(.init(layerInput: .position, portType: .packed),
+                       isBlocked: false)
+        setBlockStatus(.init(layerInput: .anchoring, portType: .packed),
+                       isBlocked: false)
+    }
+
+    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
+
+    @MainActor
+    func unblockPinInputs() {
+        LayerInputTypeSet.pinning.forEach {
+            // Do not block the `isPinned` input itself
+            if $0 != .isPinned {
+                // packed = unblock entire input
+                self.setBlockStatus(.init(layerInput: $0, portType: .packed),
+                                    isBlocked: false)
+            }
+        }
+    }
+
+    @MainActor
+    func blockPositionAndAnchoringInputs() {
+        setBlockStatus(.init(layerInput: .position, portType: .packed),
+                       isBlocked: true)
+        setBlockStatus(.init(layerInput: .anchoring, portType: .packed),
+                       isBlocked: true)
+    }
+    
+    /*
+     // the entire minSize input blocked:
+     self.blockedFields.contains(.init(layerInput: .minSize, portType: .packed))
+     
+     // just the width field on the minSize input blocked:
+     self.blockedFields.contains(.init(layerInput: .minSize, portType: .unpacked(.port0)))
+     */
+    @MainActor
+//    func setBlockStatus(_ layerInputType: LayerInputType, // e.g. minSize packed input, or min
+    func setBlockStatus(_ layerInputType: LayerInputType, // e.g. minSize packed input, or min
+                        // blocked = add to blocked-set, else remove
+                        isBlocked: Bool) {
+        
+        self.getLayerInputObserver(layerInputType.layerInput)
+            .setBlockStatus(layerInputType.portType, isBlocked: isBlocked)
+    }
+    
+}
+
+extension LayerInputObserver {
+    @MainActor
+    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
+                        // blocked = add to blocked-set, else remove
+                        isBlocked: Bool) {
+        if isBlocked {
+            log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
+            self.blockedFields.insert(keypathPortType)
+        } else {
+            log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
+            self.blockedFields.remove(keypathPortType)
+        }
+    }
+}
+
 
 extension NodeViewModel {
     
@@ -236,6 +389,7 @@ extension NodeViewModel {
         self.getLayerInspectorInputFields(key)?.first
     }
    
+    // TODO: OCT 1: REMOVE
     @MainActor
     func setBlockStatus(_ input: LayerInputPort,
                         fieldIndex: Int? = nil,
@@ -253,11 +407,11 @@ extension NodeViewModel {
                 fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
                 return
             }
-            field.isBlockedOut = isBlocked
+//            field.isBlockedOut = isBlocked
         }
         // Else we're changing the whole input
         else {
-            fields.forEach { $0.isBlockedOut = isBlocked }
+//            fields.forEach { $0.isBlockedOut = isBlocked }
             return
         }
     }

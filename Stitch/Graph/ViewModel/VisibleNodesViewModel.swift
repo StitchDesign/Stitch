@@ -160,17 +160,31 @@ extension VisibleNodesViewModel {
         }
         
         
-        // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parents
+        // Special case: we must re-initialize the group orientation input, since its first initialization happens before we have constructed the layer view models that can tell us all the parent's children
         // TODO: a better way to handle this?
         self.nodes.forEach { (key: NodeId, value: NodeViewModel) in
             if let layerNode = value.layerNode,
-               layerNode.layer == .group,
-                let groupOrientationInputObserver: InputNodeRowObserver = value.getInputRowObserver(for: .keyPath(.init(
-                    layerInput: .orientation,
-                    // Group Orientation is always packed
-                    portType: .packed))) {
-                value.blockOrUnblockFields(newValue: groupOrientationInputObserver.activeValue,
-                                           layerInput: .orientation)
+               layerNode.layer == .group
+                // ,
+               
+                
+//                let groupOrientationInputObserver: InputNodeRowObserver = value.getInputRowObserver(for: .keyPath(.init(
+//                    layerInput: .orientation,
+//                    // Group Orientation is always packed
+//                    portType: .packed))) 
+            {
+                
+//                layerNode.orientationPort.blockOrUnblockFields(
+//                    newValue: layerNode.orientationPort.activeValue,
+//                    layerInput: .orientation)
+                layerNode
+//                    .orientationPort
+                    .blockOrUnblockFields(
+                    newValue: layerNode.orientationPort.activeValue,
+                    layerInput: .orientation)
+                
+//                value.blockOrUnblockFields(newValue: groupOrientationInputObserver.activeValue,
+//                                           layerInput: .orientation)
             }
         }
     }

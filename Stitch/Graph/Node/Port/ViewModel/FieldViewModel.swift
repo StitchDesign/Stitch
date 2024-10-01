@@ -25,7 +25,7 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
 
     // e.g. Layer's size-scenario is "Constrain Height",
     // so we "block out" the Height fields on the Layer: size.height, minSize.height, maxSize.height
-    var isBlockedOut: Bool { get set }
+//    var isBlockedOut: Bool { get set }
     
     var rowViewModelDelegate: NodeRowType? { get set }
     
@@ -40,7 +40,7 @@ final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
-    var isBlockedOut: Bool = false
+//    var isBlockedOut: Bool = false
 
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
@@ -60,7 +60,7 @@ final class OutputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
-    var isBlockedOut: Bool = false
+//    var isBlockedOut: Bool = false
     
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     
