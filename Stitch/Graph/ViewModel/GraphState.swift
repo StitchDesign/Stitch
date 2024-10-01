@@ -101,11 +101,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
         
         graphs.forEach { graph in
-            Task(priority: .high) { [weak graph, weak self] in
-                guard let masterComponent = self else {
-                    return
-                }
-                
+            Task(priority: .high) { [weak graph] in
                 await graph?.update(from: schema.graph)
             }
         }

@@ -17,4 +17,10 @@ protocol StoreDelegate: AnyObject {
     @MainActor
     func saveUndoHistory(undoEvents: [@MainActor () -> ()],
                          redoEvents: [@MainActor () -> ()])
+    
+    @MainActor
+    func saveUndoHistory(oldState: StitchDocument,
+                         newState: StitchDocument,
+                         undoEvents: [Action],
+                         redoEvents: [Action])
 }

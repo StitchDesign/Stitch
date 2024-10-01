@@ -101,7 +101,7 @@ extension StitchComponentViewModel {
         
         // TODO: zip schema inputs with computed input row observers
         
-        guard let masterComponent = components.get(self.id) else {
+        guard let masterComponent = components.get(self.componentId) else {
             fatalErrorIfDebug()
             return
         }

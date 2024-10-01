@@ -35,9 +35,21 @@ protocol DocumentEncodableDelegate: AnyObject {
 extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               temporaryUrl: DocumentsURL? = nil) {
-        guard let delegate = self.delegate else { return }
+        guard let delegate = self.delegate,
+              let documentViewModel = graph.documentDelegate else {
+            return
+        }
         let newSchema = delegate.createSchema(from: graph)
         delegate.willEncodeProject(schema: newSchema)
+        
+        // Update undo
+        let oldDocument = documentViewModel.documentEncoder.lastEncodedDocument
+        let newDocument = documentViewModel.createSchema()
+        graph.storeDelegate?
+            .saveUndoHistory(oldState: oldDocument,
+                             newState: newDocument,
+                             undoEvents: [],
+                             redoEvents: [])
         
         Task(priority: .background) {
             await self.encodeProject(newSchema,
