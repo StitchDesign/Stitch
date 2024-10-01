@@ -8,16 +8,22 @@
 import SwiftUI
 import StitchSchemaKit
 
+
+typealias LayerPortTypeSet = Set<LayerInputKeyPathType>
+
 struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldViewModel,
                                                              ValueEntryView: View {
     @Bindable var graph: GraphState
     
     // just becomes a list of field models
     @Bindable var fieldGroupViewModel: FieldGroupTypeViewModel<FieldType>
-    
+        
     let nodeId: NodeId
     let isMultiField: Bool
     let forPropertySidebar: Bool
+    
+    let blockedFields: Set<LayerInputKeyPathType>?
+    
     @ViewBuilder var valueEntryView: (FieldType, Bool) -> ValueEntryView
         
     var body: some View {
@@ -44,7 +50,13 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var allFieldsBlockedOut: Bool {
-        fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
+        if let blockedFields = blockedFields {
+            return fieldGroupViewModel.fieldObservers.allSatisfy {
+                $0.isBlocked(blockedFields)
+            }
+        }
+        
+        return false
     }
         
     // fieldObservers / field view models remain our bread-and-butter
@@ -60,10 +72,34 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 //                        Color.clear
 //                    }
 //                }
-            
-            if !fieldViewModel.isBlockedOut {
+                                                
+            let isBlocked = self.blockedFields?.blocks(.unpacked(fieldViewModel.fieldLabelIndex.asUnpackedPortType)) ?? false
+                        
+            if !isBlocked {
                 self.valueEntryView(fieldViewModel, isMultiField)
             }
         }
+    }
+}
+
+extension FieldViewModel {
+    
+    // TODO: instrument perf here?
+    func isBlocked(_ blockedFields: Set<LayerInputKeyPathType>) -> Bool {
+        blockedFields.blocks(.unpacked(self.fieldLabelIndex.asUnpackedPortType))
+    }
+}
+
+extension Set<LayerInputKeyPathType> {
+    func blocks(_ portKeypath: LayerInputKeyPathType) -> Bool {
+        
+        // If the entire input is blocked,
+        // then every field is blocked:
+        if self.contains(.packed) {
+            return true
+        }
+        
+        // Else, field must be specifically blocked
+        return self.contains(portKeypath)
     }
 }

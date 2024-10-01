@@ -136,7 +136,7 @@ struct NodeInputView: View {
         
     // ONLY for port-view, which is only on canvas items
     let rowObserver: InputNodeRowObserver?
-    let rowViewModel: InputNodeRowObserver.RowViewModelType?
+    let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
         
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     
@@ -206,6 +206,7 @@ struct NodeInputView: View {
                     fieldValueTypes: fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
+                    blockedFields: layerInputObserver?.blockedFields,
                     valueEntryView: valueEntryView)
             }
         } // HStack
@@ -311,6 +312,7 @@ struct NodeOutputView: View {
                     fieldValueTypes: rowViewModel.fieldValueTypes,
                     nodeId: nodeId,
                     forPropertySidebar: forPropertySidebar,
+                    blockedFields: nil, // Always nil for output fields
                     valueEntryView: valueEntryView)
             }
             
@@ -345,6 +347,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
     var fieldValueTypes: [FieldGroupTypeViewModel<PortType.FieldType>]
     let nodeId: NodeId
     let forPropertySidebar: Bool
+    let blockedFields: LayerPortTypeSet?
 
     @ViewBuilder var valueEntryView: (PortType.FieldType, Bool) -> ValueEntryView
     
@@ -364,6 +367,7 @@ struct FieldsListView<PortType, ValueEntryView>: View where PortType: NodeRowVie
                            nodeId: nodeId,
                            isMultiField: isMultiField,
                            forPropertySidebar: forPropertySidebar,
+                           blockedFields: blockedFields,
                            valueEntryView: valueEntryView)
         }
     }

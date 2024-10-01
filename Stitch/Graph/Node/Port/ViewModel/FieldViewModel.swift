@@ -22,10 +22,6 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
     // eg "X" vs "Y" vs "Z" for .point3D parent-value
     // eg "X" vs "Y" for .position parent-value
     var fieldLabel: String { get set }
-
-    // e.g. Layer's size-scenario is "Constrain Height",
-    // so we "block out" the Height fields on the Layer: size.height, minSize.height, maxSize.height
-    var isBlockedOut: Bool { get set }
     
     var rowViewModelDelegate: NodeRowType? { get set }
     
@@ -35,12 +31,43 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
+extension FieldViewModel {
+    
+    // a field index that ignores packed vs. unpacked mode
+    // so e.g. a field view model for a height field of a size input will have a fieldLabelIndex of 1, not 0
+    var fieldLabelIndex: Int {
+        guard let rowViewModelDelegate = rowViewModelDelegate else {
+            fatalErrorIfDebug()
+            return fieldIndex
+        }
+
+        switch rowViewModelDelegate.id.portType {
+
+        case .portIndex:
+            // leverage patch node definition to get label
+            return fieldIndex
+
+        case .keyPath(let layerInputType):
+
+            switch layerInputType.portType {
+            case .packed:
+                // if it is packed, then field index is correct,
+                // so can use proper label list etc.
+                return fieldIndex
+
+            case .unpacked(let unpackedPortType):
+                let index = unpackedPortType.rawValue
+                return index
+            }
+        }
+    }
+}
+
 @Observable
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
-    var isBlockedOut: Bool = false
 
     weak var rowViewModelDelegate: InputNodeRowViewModel?
     
@@ -60,7 +87,6 @@ final class OutputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue
     var fieldIndex: Int
     var fieldLabel: String
-    var isBlockedOut: Bool = false
     
     weak var rowViewModelDelegate: OutputNodeRowViewModel?
     

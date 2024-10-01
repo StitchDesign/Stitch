@@ -20,9 +20,24 @@ final class LayerInputObserver {
     
     let layer: Layer
     var port: LayerInputPort
+
+    /*
+     Only fields on a layer input (not a patch input or layer output) can be blocked,
+     and a field is blocked regardless of pack vs unpack mode.
+     
+     Example use with LayerInputObserver for the .minSize input:
+     
+     // the entire minSize input blocked:
+     self.blockedFields.contains(.packed)
+     
+     // just the width field on the minSize input blocked:
+     self.blockedFields.contains(.unpacked(.port0))
+     */
+    var blockedFields: Set<LayerInputKeyPathType> // = .init()
     
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
+        
         self.layer = schema.layer
         self.port = port
         
@@ -45,6 +60,10 @@ final class LayerInputObserver {
                                    port3: .empty(.init(layerInput: port,
                                                        portType: .unpacked(.port3)),
                                                  layer: schema.layer))
+        
+        // When initialized fom schema, blockedFields is empty.
+        // `blockedFields` is populated when we e.g. update `activeValue`
+        self.blockedFields = .init()
     }
 }
 

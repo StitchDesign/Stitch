@@ -26,7 +26,7 @@ final class LayerNodeViewModel {
 
     // View models for layers in prototype window
     var previewLayerViewModels: [LayerViewModel] = []
-    
+ 
     // Some layer nodes contain outputs
     @MainActor var outputPorts: [OutputLayerNodeRowData] = []
     
@@ -164,6 +164,7 @@ final class LayerNodeViewModel {
 
     @MainActor
     init(from schema: LayerNodeEntity) {
+        
         let graphNode = schema.layer.layerGraphNode
         
         // Create initial inputs and outputs using default data
@@ -442,8 +443,9 @@ extension LayerNodeViewModel {
         
         // Set blocked fields after all fields have been initialized
         self.forEachInput { layerInput in
-            node.blockOrUnblockFields(newValue: layerInput.activeValue,
-                                      layerInput: layerInput.port)
+            self.blockOrUnblockFields(
+                newValue: layerInput.activeValue,
+                layerInput: layerInput.port)
         }
     }
     

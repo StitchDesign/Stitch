@@ -447,9 +447,11 @@ extension NodeRowViewModel {
         } // zip
         
         if let node = self.nodeDelegate,
+           let layerNode = node.layerNodeViewModel,
            let layerInputForThisRow = rowDelegate.id.keyPath {
-            node.blockOrUnblockFields(newValue: newValue,
-                                      layerInput: layerInputForThisRow.layerInput)
+            
+            layerNode.blockOrUnblockFields(newValue: newValue, 
+                                           layerInput: layerInputForThisRow.layerInput)
         }
     }
 }

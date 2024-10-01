@@ -234,15 +234,18 @@ struct LayerInspectorInputsSectionView: View {
       
     var body: some View {
         Section(isExpanded: $expanded) {
-            ForEach(layerInputs, id: \.layerInput) { (layerInput) in
-                let layerPort: LayerInputObserver = layerInput.portObserver
+            ForEach(layerInputs, id: \.layerInput) { layerInput in
+                let layerInputObserver: LayerInputObserver = layerInput.portObserver
                 
+                let blockedFields = layerInputObserver.blockedFields
                 
-                // TODO: only using packed data here
-                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+                let allFieldsBlockedOut = layerInputObserver
+                    .fieldValueTypes.first?
+                    .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
+                ?? false
                 
                 if !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(layerInputObserver: layerPort,
+                    LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                                 graph: graph,
                                                 nodeId: nodeId)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,

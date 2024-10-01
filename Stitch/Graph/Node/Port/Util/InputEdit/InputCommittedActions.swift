@@ -134,10 +134,10 @@ extension GraphState {
                                          activeIndex: self.activeIndex)
         
         // Block or unblock certain layer inputs
-        if let layerInputType = input.id.keyPath {
-            nodeViewModel.blockOrUnblockFields(
-                newValue: value,
-                layerInput: layerInputType.layerInput)
+        if let layerInputType: LayerInputType = input.id.keyPath,
+           let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
+            layerNode.blockOrUnblockFields(newValue: value,
+                                           layerInput: layerInputType.layerInput)
         }
         
         let newCommandType = value.shapeCommandType
