@@ -143,26 +143,8 @@ extension GraphState {
         // TODO: OCT 1
         if let layerInputType: LayerInputType = input.id.keyPath,
            let layerNode: LayerNodeViewModel = nodeViewModel.layerNode {
-            
-//            layerNode.getLayerInspectorInputFields(<#T##LayerInputPort#>)
-//            let port: LayerInputObserver = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-//            let port = layerNode[keyPath: layerInputType.layerNodeKeyPath]
-            
-//            let port: LayerInputObserver = layerNode[keyPath: layerInputType.layerInput.layerNodeKeyPath]
-//            port.blockOrUnblockFields(newValue: value)
-            
-            layerNode
-//                .getLayerInputObserver(layerInputType.layerInput)
-                .blockOrUnblockFields(newValue: value,
-                                      layerInput: layerInputType.layerInput)
-            
-            
-//            let k = layerNode[keyPath: layerInputType]
-            
-            
-//            nodeViewModel.blockOrUnblockFields(
-//                newValue: value,
-//                layerInput: layerInputType.layerInput)
+            layerNode.blockOrUnblockFields(newValue: value,
+                                           layerInput: layerInputType.layerInput)
         }
         
         let newCommandType = value.shapeCommandType

@@ -35,6 +35,37 @@ protocol FieldViewModel: AnyObject, Observable, Identifiable {
          rowViewModelDelegate: NodeRowType?)
 }
 
+extension FieldViewModel {
+    
+    // a field index that ignores packed vs. unpacked mode
+    var fieldLabelIndex: Int {
+        guard let rowViewModelDelegate = rowViewModelDelegate else {
+            fatalErrorIfDebug()
+            return fieldIndex
+        }
+
+        switch rowViewModelDelegate.id.portType {
+
+        case .portIndex:
+            // leverage patch node definition to get label
+            return fieldIndex
+
+        case .keyPath(let layerInputType):
+
+            switch layerInputType.portType {
+            case .packed:
+                // if it is packed, then field index is correct,
+                // so can use proper label list etc.
+                return fieldIndex
+
+            case .unpacked(let unpackedPortType):
+                let index = unpackedPortType.rawValue
+                return index
+            }
+        }
+    }
+}
+
 @Observable
 final class InputFieldViewModel: FieldViewModel {
     var fieldValue: FieldValue

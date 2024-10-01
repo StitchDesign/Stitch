@@ -235,18 +235,28 @@ struct LayerInspectorInputsSectionView: View {
     var body: some View {
         Section(isExpanded: $expanded) {
             ForEach(layerInputs, id: \.layerInput) { layerInput in
-                let layerPort: LayerInputObserver = layerInput.portObserver
+                let layerInputObserver: LayerInputObserver = layerInput.portObserver
                 
                 
                 // TODO: only using packed data here
-//                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+//                let allFieldsBlockedOut = layerInputObserver._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
-//                let allFieldsBlockedOut = layerPort._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
+//                let allFieldsBlockedOut = layerInputObserver._packedData.inspectorRowViewModel .fieldValueTypes.first?.fieldObservers.allSatisfy(\.isBlockedOut) ?? false
                 
                 // TODO: OCT 1
 //                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.contains(.init(layerInput: layerInput.layerInput, portType: .packed))
                 
-                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.contains(.packed)
+//                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.contains(.packed)
+//                let allFieldsBlockedOut = layerInput.portObserver.blockedFields.blocks(layerInput.portType)
+//                layerInput.layerInput.id
+                
+
+                let blockedFields = layerInputObserver.blockedFields
+                
+                let allFieldsBlockedOut = layerInputObserver
+                    .fieldValueTypes.first?
+                    .fieldObservers.allSatisfy({ $0.isBlocked(blockedFields)})
+                ?? false
                 
                 if layerInput.layerInput == .pinAnchor || layerInput.layerInput == .pinOffset || layerInput.layerInput == .pinTo {
                     logInView("LayerInspectorInputsSectionView: for node \(nodeId) and layer input: \(layerInput.layerInput): blockedFields: \(layerInput.portObserver.blockedFields)")
@@ -254,7 +264,7 @@ struct LayerInspectorInputsSectionView: View {
                 
                 
                 if !allFieldsBlockedOut {
-                    LayerInspectorInputPortView(layerInputObserver: layerPort,
+                    LayerInspectorInputPortView(layerInputObserver: layerInputObserver,
                                                 graph: graph,
                                                 nodeId: nodeId)
                     .modifier(LayerPropertyRowOriginReader(graph: graph,

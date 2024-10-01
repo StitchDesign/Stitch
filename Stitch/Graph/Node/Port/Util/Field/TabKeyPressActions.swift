@@ -284,10 +284,14 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
         .reduce(into: LayerInputEligibleFields(), { partialResult, layerInput in
             (layerNode.getLayerInspectorInputFields(layerInput)).forEach { field in
                 // TODO: OCT 1
-//                if !field.isBlockedOut {
+                let blockedFields = layerNode.getLayerInputObserver(layerInput).blockedFields
+                
+                let isBlocked = field.isBlocked(blockedFields)
+                
+                if !isBlocked {
                     partialResult.append(.init(input: layerInput,
                                                fieldIndex: field.fieldIndex))
-//                }
+                }
             }
         })
 

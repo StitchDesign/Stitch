@@ -446,22 +446,12 @@ extension NodeRowViewModel {
             fieldObserverGroup.updateFieldValues(fieldValues: newFields)
         } // zip
         
-        // TODO: OCT 1
-//        if let node = self.nodeDelegate,
-//           let layerInputForThisRow = rowDelegate.id.keyPath {
-//            node.blockOrUnblockFields(newValue: newValue,
-//                                      layerInput: layerInputForThisRow.layerInput)
-//        }
         if let node = self.nodeDelegate,
            let layerNode = node.layerNodeViewModel,
            let layerInputForThisRow = rowDelegate.id.keyPath {
             
             layerNode.blockOrUnblockFields(newValue: newValue, 
                                            layerInput: layerInputForThisRow.layerInput)
-            
-//            layerNode.getLayerInputObserver(layerInputForThisRow.layerInput).blockOrUnblockFields(newValue: newValue)
-            
-//            layerNode[keyPath: layerInputForThisRow.layerInput.layerNodeKeyPath].blockOrUnblockFields(newValue: newValue)
         }
     }
 }

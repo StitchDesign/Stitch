@@ -121,8 +121,8 @@ extension LayerNodeViewModel {
             self.blockGridLayoutInputs()
             
             children.forEach {
-                $0.blockOffsetInput()
-                $0.unblockPositionInput()
+                $0.layerNode?.blockOffsetInput()
+                $0.layerNode?.unblockPositionInput()
             }
             
         case .horizontal, .vertical:
@@ -132,8 +132,8 @@ extension LayerNodeViewModel {
             self.blockGridLayoutInputs()
             
             children.forEach {
-                $0.unblockOffsetInput()
-                $0.blockPositionInput()
+                $0.layerNode?.unblockOffsetInput()
+                $0.layerNode?.blockPositionInput()
             }
             
         case .grid:
@@ -141,8 +141,8 @@ extension LayerNodeViewModel {
             self.unblockGridLayoutInputs()
             
             children.forEach {
-                $0.unblockOffsetInput()
-                $0.blockPositionInput()
+                $0.layerNode?.unblockOffsetInput()
+                $0.layerNode?.blockPositionInput()
             }
         }
     }
@@ -535,243 +535,6 @@ extension NodeViewModel {
     func getLayerInspectorInputField(_ key: LayerInputPort) -> InputFieldViewModel? {
         self.getLayerInspectorInputFields(key)?.first
     }
-   
-    // TODO: OCT 1: REMOVE
-    @MainActor
-    func setBlockStatus(_ input: LayerInputPort,
-                        fieldIndex: Int? = nil,
-                        isBlocked: Bool) {
-        guard let fields = self.getLayerInspectorInputFields(input) else {
-            // Re-enable the fatal error when min/max fields are enabled for inspector
-//            fatalErrorIfDebug("setBlockStatus: Could not retrieve fields for input \(input)")
-            return
-        }
-        
-        // If we have a particular field-index, then we're modifiyng a particular field,
-        // like height or width.
-        if let fieldIndex = fieldIndex {
-            guard let field = fields[safeIndex: fieldIndex] else {
-                fatalErrorIfDebug("setBlockStatus: Could not retrieve field \(fieldIndex) for input \(input)")
-                return
-            }
-//            field.isBlockedOut = isBlocked
-        }
-        // Else we're changing the whole input
-        else {
-//            fields.forEach { $0.isBlockedOut = isBlocked }
-            return
-        }
-    }
-        
-    // LayerGroup's isPinned = false: we block pin inputs and unblock position, anchoring etc.
-
-    @MainActor
-    func blockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                setBlockStatus($0, isBlocked: true)
-            }
-        }
-    }
-
-    @MainActor
-    func unblockPositionAndAnchoringInputs() {
-        setBlockStatus(.position, isBlocked: false)
-        setBlockStatus(.anchoring, isBlocked: false)
-    }
-
-    // LayerGroup's isPinned = true: we unblock pin inputs and block position, anchoring etc.
-
-    @MainActor
-    func unblockPinInputs() {
-        LayerInputTypeSet.pinning.forEach {
-            // Do not block the `isPinned` input itself
-            if $0 != .isPinned {
-                setBlockStatus($0, isBlocked: false)
-            }
-        }
-    }
-
-    @MainActor
-    func blockPositionAndAnchoringInputs() {
-        setBlockStatus(.position, isBlocked: true)
-        setBlockStatus(.anchoring, isBlocked: true)
-    }
-    
-    // LayerGroup's StitchOrientation = None
-    
-    @MainActor
-    func blockSpacingInput() {
-        setBlockStatus(.spacing, isBlocked: true)
-        
-        // Note: a layer group can be padded, no matter its orientation
-        // setBlockStatus(.padding, isBlocked: true)
-    }
-    
-    @MainActor
-    func blockGridLayoutInputs() {
-        setBlockStatus(.spacingBetweenGridColumns, isBlocked: true)
-        setBlockStatus(.spacingBetweenGridRows, isBlocked: true)
-        setBlockStatus(.itemAlignmentWithinGridCell, isBlocked: true)
-    }
-    
-    // LayerGroup's StitchOrientation = Vertical, Horizontal
-    
-    @MainActor
-    func unblockSpacingInput() {
-        setBlockStatus(.spacing, isBlocked: false)
-        
-        // Note: a layer group can be padded, no matter its orientation
-        // setBlockStatus(.padding, isBlocked: false)
-    }
-    
-    // LayerGroup's StitchOrientation = Grid
-    
-    @MainActor
-    func unblockGridLayoutInputs() {
-        setBlockStatus(.spacingBetweenGridColumns, isBlocked: false)
-        setBlockStatus(.spacingBetweenGridRows, isBlocked: false)
-        setBlockStatus(.itemAlignmentWithinGridCell, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockPositionInput() {
-        setBlockStatus(.position, isBlocked: true)
-    }
-    
-    @MainActor
-    func unblockPositionInput() {
-        setBlockStatus(.position, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockOffsetInput() {
-        setBlockStatus(.offsetInGroup, isBlocked: true)
-    }
-    
-    @MainActor
-    func unblockOffsetInput() {
-        setBlockStatus(.offsetInGroup, isBlocked: false)
-    }
-    
-    
-    // SizingScenario = Auto
-    
-    @MainActor
-    func unblockSizeInput() {
-        setBlockStatus(.size, isBlocked: false)
-    }
-    
-    @MainActor
-    func blockMinAndMaxSizeInputs() {
-        setBlockStatus(.minSize, isBlocked: true)
-        setBlockStatus(.maxSize, isBlocked: true)
-    }
-    
-    @MainActor
-    func updateMinMaxWidthFieldsBlockingPerWidth() {
-        
-        // Check the input itself (the value at the active-index), not the field view model.
-        guard let widthIsNumber = self.getInputActivePortValue(for: .size)?
-            .getSize?.width.isNumber else {
-            fatalErrorIfDebug("updateMinMaxWidthFieldsBlockingPerWidth: no field?")
-            return
-        }
-        
-        if !widthIsNumber {
-            self.unblockMinAndMaxWidthFields()
-        } else {
-            self.blockMinAndMaxWidthFields()
-        }
-    }
-    
-    @MainActor
-    func updateMinMaxHeightFieldsBlockingPerHeight() {
-
-        // Check the input itself (the value at the active-index), not the field view model.
-        guard let heightIsNumber = self.getInputActivePortValue(for: .size)?
-            .getSize?.height.isNumber else {
-            fatalErrorIfDebug("updateMinMaxHeightFieldsBlockingPerHeight: no field?")
-            return
-        }
-        
-        if !heightIsNumber {
-            self.unblockMinAndMaxHeightFields()
-        } else {
-            self.blockMinAndMaxHeightFields()
-        }
-    }
-    
-    @MainActor
-    func blockAspectRatio() {
-        [LayerInputPort.widthAxis, .heightAxis, .contentMode]
-            .forEach {
-                setBlockStatus($0, isBlocked: true)
-            }
-    }
-
-    // SizingScenario = ConstrainHeight
-
-    @MainActor func blockHeightFields() {
-        setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
-    }
-    
-    // Only unblock min/max width fields if user has a
-    @MainActor func unblockWidthField() {
-        setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
-    }
-    
-    
-    @MainActor
-    func unblockAspectRatio() {
-        setBlockStatus(.widthAxis, isBlocked: false)
-        setBlockStatus(.heightAxis, isBlocked: false)
-        setBlockStatus(.contentMode, isBlocked: false)
-    }
-    
-    // SizingScenario = ConstrainWidth
-    
-    @MainActor func blockWidthFields() {
-        setBlockStatus(.size, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
-    }
-    
-    @MainActor func unblockHeightField() {
-        setBlockStatus(.size, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
-    }
-        
-    // SizingScenario = Auto, LayerDimension = Point, Width
-    
-    @MainActor func blockMinAndMaxWidthFields() {
-        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: true)
-    }
-        
-    // SizingScenario = Auto, LayerDimension = Point, Height
-    
-    @MainActor func blockMinAndMaxHeightFields() {
-        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
-        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: true)
-    }
-    
-    // SizingScenario = Auto, LayerDimension = Auto/Hug/Fill etc., Width
-    
-    @MainActor func unblockMinAndMaxWidthFields() {
-        setBlockStatus(.minSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.maxSize, fieldIndex: WIDTH_FIELD_INDEX, isBlocked: false)
-    }
-    
-    // SizingScenario = Auto, LayerDimension = Auto/Hug/Fill etc., Height
-    
-    @MainActor func unblockMinAndMaxHeightFields() {
-        setBlockStatus(.minSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
-        setBlockStatus(.maxSize, fieldIndex: HEIGHT_FIELD_INDEX, isBlocked: false)
-    }
-    
 }
 
 extension StitchPadding {    
