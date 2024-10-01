@@ -45,6 +45,13 @@ protocol StitchDocumentEncodable: Codable, Identifiable {
 }
 
 extension StitchDocumentEncodable {
+    static var subfolderNames: [String] {
+        [
+            STITCH_IMPORTED_FILES_DIR,
+            URL.componentsDirPath
+        ]
+    }
+    
     /// Initializer used for a new project, which creates file paths for contents like media.
     func encodeDocumentContents(documentRootUrl: URL) async {
         // Creates new paths with subfolders if relevant (i.e. components)

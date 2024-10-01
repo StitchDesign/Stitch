@@ -127,32 +127,28 @@ extension StitchStore {
      ```
      */
     func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
-        // TODO: find better recursive strategy for copying
-        fatalError()
-//        var document = document
-//        document.graph.id = .init()
-//        document.graph.name += " copy"
-//        
-//        let subfolders: [URL] = [
-//            document.getProjectThumbnailURL(),
-//            document.getImportedFilesURL(),
-//            document.componentsDirUrl
-//        ]
-//
-//        do {
-//            // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-//            try await self.documentLoader.installDocument(document: document)
-//            try DocumentLoader.encodeDocument(document)
-//            
-//            try subfolders.forEach {
-//                try FileManager.default.copyItem(at: $0, to: $0)
-//            }
-//
-//            return .success
-//        } catch {
-//            log("copyExistingProject: error: \(error)")
-//            return .failure(.projectDuplicationFailed)
-//        }
+        let srcRootUrl = document.rootUrl
+        var document = document
+        document.graph.id = .init()
+        document.graph.name += " copy"
+        let destRootUrl = document.rootUrl
+        
+        do {
+            // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
+            try await self.documentLoader.installDocument(document: document)
+            try DocumentLoader.encodeDocument(document)
+            
+            StitchDocument.subfolderNames.forEach { subfolderName in
+                try? FileManager.default
+                    .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
+                              to: destRootUrl.appendingPathComponent(subfolderName))
+            }
+            
+            return .success
+        } catch {
+            log("copyExistingProject: error: \(error)")
+            return .failure(.projectDuplicationFailed)
+        }
     }
 }
 
