@@ -164,27 +164,10 @@ extension VisibleNodesViewModel {
         // TODO: a better way to handle this?
         self.nodes.forEach { (key: NodeId, value: NodeViewModel) in
             if let layerNode = value.layerNode,
-               layerNode.layer == .group
-                // ,
-               
-                
-//                let groupOrientationInputObserver: InputNodeRowObserver = value.getInputRowObserver(for: .keyPath(.init(
-//                    layerInput: .orientation,
-//                    // Group Orientation is always packed
-//                    portType: .packed))) 
-            {
-                
-//                layerNode.orientationPort.blockOrUnblockFields(
-//                    newValue: layerNode.orientationPort.activeValue,
-//                    layerInput: .orientation)
-                layerNode
-//                    .orientationPort
-                    .blockOrUnblockFields(
+               layerNode.layer == .group {
+                layerNode.blockOrUnblockFields(
                     newValue: layerNode.orientationPort.activeValue,
                     layerInput: .orientation)
-                
-//                value.blockOrUnblockFields(newValue: groupOrientationInputObserver.activeValue,
-//                                           layerInput: .orientation)
             }
         }
     }

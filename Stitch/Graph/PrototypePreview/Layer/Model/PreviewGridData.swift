@@ -464,12 +464,6 @@ extension LayerNodeViewModel {
 
     @MainActor
     func unblockPositionAndAnchoringInputs() {
-        
-//        // Unblock the layer input port and/or any of its fields
-//        self.blockedFields = self.blockedFields.filter { (layerInputType: LayerInputType) in
-//            layerInputType.layerInput != .position
-//        }
-//        
         setBlockStatus(LayerInputPort.position.asFullInput,
                        isBlocked: false)
         setBlockStatus(LayerInputPort.anchoring.asFullInput,

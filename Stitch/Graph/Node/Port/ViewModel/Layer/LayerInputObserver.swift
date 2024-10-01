@@ -38,10 +38,6 @@ final class LayerInputObserver {
     @MainActor
     init(from schema: LayerNodeEntity, port: LayerInputPort) {
         
-        if port == .pinAnchor || port == .pinOffset || port == .pinTo {
-            log("LayerInputObserver init called for pin-related input")
-        }
-        
         self.layer = schema.layer
         self.port = port
         

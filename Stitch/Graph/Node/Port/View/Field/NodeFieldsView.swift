@@ -50,7 +50,6 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
     }
     
     var allFieldsBlockedOut: Bool {
-//        fieldGroupViewModel.fieldObservers.allSatisfy(\.isBlockedOut)
         if let blockedFields = blockedFields {
             return fieldGroupViewModel.fieldObservers.allSatisfy {
                 $0.isBlocked(blockedFields)
@@ -85,14 +84,7 @@ struct NodeFieldsView<FieldType, ValueEntryView>: View where FieldType: FieldVie
 
 extension FieldViewModel {
     
-    // How often will this run?
-    // and how expensive is the type casting?
-    // Can you instead pass down this information from the top level,
-    // as info that would rarely or hardly change?
-    
-    // ... could instrument this...
-    
-    // Mostly
+    // TODO: instrument perf here?
     func isBlocked(_ blockedFields: Set<LayerInputKeyPathType>) -> Bool {
         blockedFields.blocks(.unpacked(self.fieldLabelIndex.asUnpackedPortType))
     }

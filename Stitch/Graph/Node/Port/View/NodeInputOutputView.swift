@@ -136,7 +136,7 @@ struct NodeInputView: View {
         
     // ONLY for port-view, which is only on canvas items
     let rowObserver: InputNodeRowObserver?
-    let rowViewModel: InputNodeRowViewModel? // InputNodeRowObserver.RowViewModelType?
+    let rowViewModel: InputNodeRowObserver.RowViewModelType? // i.e. `InputNodeRowViewModel?`
         
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
     
