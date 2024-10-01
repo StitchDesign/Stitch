@@ -445,7 +445,7 @@ extension String {
                 "object detection": .patch(.coreMLDetection),
                 "image classification": .patch(.coreMLClassify),
                 "image import": .patch(.imageImport),
-
+                "when prototype starts": .patch(.whenPrototypeStarts),
             ]
             
             if let specialCase = specialCases[normalizedInput] {
