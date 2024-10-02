@@ -135,6 +135,7 @@ extension GraphState {
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")
+                // TODO: this can happen when just-clicked == last-clicked, but some apps do not any deselection etc.
             }
         } 
 //        else {

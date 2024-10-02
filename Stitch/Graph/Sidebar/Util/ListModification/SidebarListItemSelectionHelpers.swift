@@ -71,7 +71,6 @@ func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
     }
     
     let startEarlierThanClickedItem = startIndex < clickedItemIndex
-    let clickedEarlierThanStart = clickedItemIndex < startIndex
     
     // Determine the range and ensure it includes items regardless of their order
     let range = startEarlierThanClickedItem ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
@@ -87,42 +86,31 @@ enum SidebarSelectionExpansionDirection: Equatable {
 
 extension SidebarSelectionExpansionDirection {
     
-    static func getExpansionDirection(lastClickedItem: ListItem,
-                                      island: [ListItem],
-                                      flatList: [ListItem]) -> Self {
+    static func getExpansionDirection(islandTopIndex: Int,
+                                      islandBottomIndex: Int,
+                                      lastClickedIndex: Int) -> Self {
         
-        if let islandTop = island.first,
-           let islandBottom = island.last,
-           let islandTopIndex = flatList.firstIndex(of: islandTop),
-           let islandBottomIndex = flatList.firstIndex(of: islandBottom),
-           let lastClickedIndex = flatList.firstIndex(of: lastClickedItem) {
-            
-            // If island top is above last clicked,
-            // then we expanded upward
-            if islandTopIndex < lastClickedIndex {
-                return .upward
-            }
-            
-            // If island bottom is below last clicked,
-            // then we expanded downward
-            if islandBottomIndex > lastClickedIndex {
-                return .downward
-            }
-            
-            return .none
-            
-        } else {
-            // failure
-            fatalErrorIfDebug()
-            return .none
+        // If island top is above last clicked,
+        // then we expanded upward
+        if islandTopIndex < lastClickedIndex {
+            return .upward
         }
+        
+        // If island bottom is below last clicked,
+        // then we expanded downward
+        if islandBottomIndex > lastClickedIndex {
+            return .downward
+        }
+        
+        return .none
+        
     }
 }
 
 extension GraphState {
     
-    
-    func handleShiftClick(flatList: [ListItem], // ALL items with nesting flattened; used for finding indices
+    // TODO: combine this with our logic for adding to the current selections
+    func shrinkExpansions(flatList: [ListItem], // ALL items with nesting flattened; used for finding indices
                           itemsBetween: [ListItem], // the 'range' we clicked; items between last-clicked and just-clicked
                           originalIsland: [ListItem], // the original contiguous selection range
                           lastClickedItem: ListItem, // the last-non-shift-clicked item
@@ -143,15 +131,10 @@ extension GraphState {
         }
         
         let originalExpansionDirection = SidebarSelectionExpansionDirection.getExpansionDirection(
-            lastClickedItem: lastClickedItem,
-            island: originalIsland,
-            flatList: flatList)
-        
-//        let newExpansionDirection = SidebarSelectionExpansionDirection.getExpansionDirection(
-//            lastClickedItem: lastClickedItem,
-//            island: newIsland,
-//            flatList: flatList)
-//        
+            islandTopIndex: originalIslandTopIndex,
+            islandBottomIndex: originalIslandBottomIndex,
+            lastClickedIndex: lastClickedIndex)
+ 
         var shrunk = false
         
         // it's not even as simple as 'expansion directions'
@@ -202,249 +185,8 @@ extension GraphState {
                 }
             }
         }
-        
-        
     }
-    
-    
-    // called after we've simply taken the `itemsBetweenSet` and union'd them on to
-    func shrinkExpansions(flatList: [ListItem],
-                          originalIsland: [ListItem],
-                          newIsland: [ListItem],
-                          lastClickedItem: ListItem) {
         
-//        var shrunk = false
-        var shrunk = true
-        
-        if let originalIslandTop = originalIsland.first,
-           let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
-           
-            let originalIslandBottom = originalIsland.last,
-           let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom),
-                               
-            let newIslandTop = newIsland.first,
-           let newIslandTopIndex = flatList.firstIndex(of: newIslandTop),
-           
-            let newIslandBottom = newIsland.last,
-           let newIslandBottomIndex = flatList.firstIndex(of: newIslandBottom),
-           
-            let lastClickedItemIndex = flatList.firstIndex(of: lastClickedItem) {
-            
-            log("expandOrShrinkExpansions: originalIslandTopIndex \(originalIslandTopIndex)")
-            log("expandOrShrinkExpansions: originalIslandBottomIndex \(originalIslandBottomIndex)")
-            log("expandOrShrinkExpansions: newIslandTopIndex \(newIslandTopIndex)")
-            log("expandOrShrinkExpansions: newIslandBottomIndex \(newIslandBottomIndex)")
-            log("expandOrShrinkExpansions: lastClickedItemIndex \(lastClickedItemIndex)")
-                   
-            let originalBottomBelowLastClicked = originalIslandBottomIndex > lastClickedItemIndex
-            
-            let newBottomBelowLastClicked = newIslandBottomIndex > lastClickedItemIndex
-            
-            log("expandOrShrinkExpansions: originalBottomBelowLastClicked \(originalBottomBelowLastClicked)")
-            log("expandOrShrinkExpansions: newBottomBelowLastClicked \(newBottomBelowLastClicked)")
-            
-            let originalTopAboveLastClicked = originalIslandTopIndex < lastClickedItemIndex
-            let newTopAboveLastClicked = newIslandTopIndex < lastClickedItemIndex
-            
-            log("expandOrShrinkExpansions: originalTopAboveLastClicked \(originalTopAboveLastClicked)")
-            log("expandOrShrinkExpansions: newTopAboveLastClicked \(newTopAboveLastClicked)")
-            
-            let originalTopAboveNewTop = originalIslandTopIndex < newIslandTopIndex
-//            let originalTopBelowNewTop = originalIslandTopIndex > newIslandTopIndex
-            
-            let newTopAboveOriginalTop = newIslandTopIndex < originalIslandTopIndex
-            
-//            let originalBottomAboveNewBottom = originalIslandBottomIndex < newIslandBottomIndex
-            let newBottomAboveOriginalBottom = newIslandBottomIndex < originalIslandBottomIndex
-            
-            // We also shrink if new t
-            
-            
-//            log("expandOrShrinkExpansions: originalTopAboveNewTop \(originalTopAboveNewTop)")
-//            log("expandOrShrinkExpansions: newTopAboveOriginalTop \(newTopAboveOriginalTop)")
-                        
-            // If both original and new range expanded downward from the non-shift-click point, then we expanded
-//            if originalIslandBottomIndex > lastClickedItemIndex && newIslandBottomIndex > lastClickedItemIndex {
-            if originalBottomBelowLastClicked && newBottomBelowLastClicked {
-                log("expandOrShrinkExpansions: original bottom was below last clicked AND new bottom is below last clicked")
-                shrunk = false
-            }
-
-            // If both original and new range expanded upward from the non-shift-click point, then we expanded
-//            else if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-//            if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-            if originalTopAboveLastClicked && newTopAboveLastClicked {
-                log("expandOrShrinkExpansions: original top was above last clicked AND new bottom is above last clicked")
-                shrunk = false
-            }
-            
-
-            // If the new top is above the old top, we shrunk? But only if the original top was below the last clicked
-//            if newTopAboveLastClicked && originalBottomBelowLastClicked {
-            if originalBottomBelowLastClicked && newBottomAboveOriginalBottom {
-                log("expandOrShrinkExpansions: new bottom is above old bottom and the old bottom was below last clicked; so we shrunk")
-                shrunk = true
-            }
-            
-//            originalBelow
-            
-            
-//            // Else assume we shrunk?
-//            else {
-//                log("expandOrShrinkExpansions: defaulting to true")
-//                shrunk = true
-//            }
-        }
-        
-        log("expandOrShrinkExpansions: shrunk \(shrunk)")
-        
-        if shrunk {
-            // If we shrunk, remove the items that are in the original island but not the new island
-            flatList.forEach { item in
-                let itemIsInNewIsland = newIsland.contains(item)
-                let itemIsInOldIsland = originalIsland.contains(item)
-                
-                if itemIsInOldIsland
-                    && !itemIsInNewIsland
-                    && item != lastClickedItem {
-                    
-                    log("expandOrShrinkExpansions: will remove item \(item)")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id.asLayerNodeId)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id.asLayerNodeId)
-                }
-            }
-            
-        }
-        
-//        originalIsland.forEach {
-//        newIsland.forEach {
-//            if $0 != lastClickedItem && shrunk {
-//                log("expandOrShrinkExpansions: will remove \($0)")
-//                self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
-//                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
-//            }
-//        }
-    }
-    
-    
-    func expandOrShrinkExpansions(flatList: [ListItem],
-                                  originalIsland: [ListItem],
-                                  newIsland: [ListItem],
-                                  lastClickedItem: ListItem) {
-        
-//        var shrunk = false
-        var shrunk = true
-        
-        if let originalIslandTop = originalIsland.first,
-           let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
-           
-            let originalIslandBottom = originalIsland.last,
-           let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom),
-                               
-            let newIslandTop = newIsland.first,
-           let newIslandTopIndex = flatList.firstIndex(of: newIslandTop),
-           
-            let newIslandBottom = newIsland.last,
-           let newIslandBottomIndex = flatList.firstIndex(of: newIslandBottom),
-           
-            let lastClickedItemIndex = flatList.firstIndex(of: lastClickedItem) {
-            
-            log("expandOrShrinkExpansions: originalIslandTopIndex \(originalIslandTopIndex)")
-            log("expandOrShrinkExpansions: originalIslandBottomIndex \(originalIslandBottomIndex)")
-            log("expandOrShrinkExpansions: newIslandTopIndex \(newIslandTopIndex)")
-            log("expandOrShrinkExpansions: newIslandBottomIndex \(newIslandBottomIndex)")
-            log("expandOrShrinkExpansions: lastClickedItemIndex \(lastClickedItemIndex)")
-                   
-            let originalBottomBelowLastClicked = originalIslandBottomIndex > lastClickedItemIndex
-            
-            let newBottomBelowLastClicked = newIslandBottomIndex > lastClickedItemIndex
-            
-            log("expandOrShrinkExpansions: originalBottomBelowLastClicked \(originalBottomBelowLastClicked)")
-            log("expandOrShrinkExpansions: newBottomBelowLastClicked \(newBottomBelowLastClicked)")
-            
-            let originalTopAboveLastClicked = originalIslandTopIndex < lastClickedItemIndex
-            let newTopAboveLastClicked = newIslandTopIndex < lastClickedItemIndex
-            
-            log("expandOrShrinkExpansions: originalTopAboveLastClicked \(originalTopAboveLastClicked)")
-            log("expandOrShrinkExpansions: newTopAboveLastClicked \(newTopAboveLastClicked)")
-            
-            let originalTopAboveNewTop = originalIslandTopIndex < newIslandTopIndex
-//            let originalTopBelowNewTop = originalIslandTopIndex > newIslandTopIndex
-            
-            let newTopAboveOriginalTop = newIslandTopIndex < originalIslandTopIndex
-            
-//            let originalBottomAboveNewBottom = originalIslandBottomIndex < newIslandBottomIndex
-            let newBottomAboveOriginalBottom = newIslandBottomIndex < originalIslandBottomIndex
-            
-            // We also shrink if new t
-            
-            
-//            log("expandOrShrinkExpansions: originalTopAboveNewTop \(originalTopAboveNewTop)")
-//            log("expandOrShrinkExpansions: newTopAboveOriginalTop \(newTopAboveOriginalTop)")
-                        
-            // If both original and new range expanded downward from the non-shift-click point, then we expanded
-//            if originalIslandBottomIndex > lastClickedItemIndex && newIslandBottomIndex > lastClickedItemIndex {
-            if originalBottomBelowLastClicked && newBottomBelowLastClicked {
-                log("expandOrShrinkExpansions: original bottom was below last clicked AND new bottom is below last clicked")
-                shrunk = false
-            }
-
-            // If both original and new range expanded upward from the non-shift-click point, then we expanded
-//            else if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-//            if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-            if originalTopAboveLastClicked && newTopAboveLastClicked {
-                log("expandOrShrinkExpansions: original top was above last clicked AND new bottom is above last clicked")
-                shrunk = false
-            }
-            
-
-            // If the new top is above the old top, we shrunk? But only if the original top was below the last clicked
-//            if newTopAboveLastClicked && originalBottomBelowLastClicked {
-            if originalBottomBelowLastClicked && newBottomAboveOriginalBottom {
-                log("expandOrShrinkExpansions: new bottom is above old bottom and the old bottom was below last clicked; so we shrunk")
-                shrunk = true
-            }
-            
-//            originalBelow
-            
-            
-//            // Else assume we shrunk?
-//            else {
-//                log("expandOrShrinkExpansions: defaulting to true")
-//                shrunk = true
-//            }
-        }
-        
-        log("expandOrShrinkExpansions: shrunk \(shrunk)")
-        
-        if shrunk {
-            // If we shrunk, remove the items that are in the original island but not the new island
-            flatList.forEach { item in
-                let itemIsInNewIsland = newIsland.contains(item)
-                let itemIsInOldIsland = originalIsland.contains(item)
-                
-                if itemIsInOldIsland
-                    && !itemIsInNewIsland
-                    && item != lastClickedItem {
-                    
-                    log("expandOrShrinkExpansions: will remove item \(item)")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id.asLayerNodeId)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id.asLayerNodeId)
-                }
-            }
-            
-        }
-        
-//        originalIsland.forEach {
-//        newIsland.forEach {
-//            if $0 != lastClickedItem && shrunk {
-//                log("expandOrShrinkExpansions: will remove \($0)")
-//                self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
-//                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
-//            }
-//        }
-    }
-    
     /*
      Given an unordered set of tapped items,
      Start at top level of the ordered sidebar layers.
