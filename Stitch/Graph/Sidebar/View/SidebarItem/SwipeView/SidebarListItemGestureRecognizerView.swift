@@ -122,6 +122,7 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     
     var shiftHeldDown = false
     var commandHeldDown = false
+    var optionHeldDown = false
 
     init(gestureViewModel: SidebarItemGestureViewModel,
          keyboardObserver: KeyboardObserver,
@@ -153,6 +154,15 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
             self.commandHeldDown = false
         }
         
+        if event.modifierFlags.contains(.alternate) {
+            log("OPTION DOWN")
+            self.optionHeldDown = true
+        } else {
+            log("OPTION NOT DOWN")
+            self.optionHeldDown = false
+        }
+        
+        
         return true
     }
 
@@ -168,7 +178,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         
         dispatch(SidebarItemTapped(id: layerNodeId,
                                    shiftHeld: self.shiftHeldDown,
-                                   commandHeld: self.commandHeldDown))
+                                   commandHeld: self.commandHeldDown,
+                                   optionHeld: self.optionHeldDown))
         
     }
     
@@ -277,7 +288,8 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
             self.graph.sidebarItemTapped(
                 id: self.layerNodeId,
                 shiftHeld: isShiftDown,
-                commandHeld: self.graph.keypressState.isCommandPressed)
+                commandHeld: self.graph.keypressState.isCommandPressed,
+                optionHeld: self.graph.keypressState.isOptionPressed)
         }
                 
         let selections = self.graph.sidebarSelectionState

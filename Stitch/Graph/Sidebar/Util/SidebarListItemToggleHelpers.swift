@@ -63,7 +63,10 @@ func hideChildren(closedParentId: SidebarListItemId,
 
     var masterList = masterList
 
-    let closedParent = retrieveItem(closedParentId, masterList.items)
+    guard let closedParent = retrieveItem(closedParentId, masterList.items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return masterList
+    }
 
     // if there are no descendants, then we're basically done
 
@@ -262,7 +265,10 @@ func unhideChildren(openedParent: SidebarListItemId,
 
     // log("unhideChildren: parentIndex: \(parentIndex)")
 
-    let parent = retrieveItem(openedParent, masterList.items)
+    guard let parent = retrieveItem(openedParent, masterList.items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return (masterList, parentIndex)
+    }
 
     // if you start with the parent, you double add it
     let (updatedMaster, lastIndex, _) = unhideChildrenHelper(
@@ -324,8 +330,8 @@ func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
 }
 
 func retrieveItem(_ id: SidebarListItemId,
-                  _ items: SidebarListItems) -> SidebarListItem {
-    items.first { $0.id == id }!
+                  _ items: SidebarListItems) -> SidebarListItem? {
+    items.first { $0.id == id }
 }
 
 func hasChildren(_ parentId: SidebarListItemId, _ masterList: MasterList) -> Bool {

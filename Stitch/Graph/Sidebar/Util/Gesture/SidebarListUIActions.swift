@@ -26,14 +26,20 @@ func moveSidebarListItemIntoGroup(_ item: SidebarListItem,
     var items = items
         
     // Every explicitly dragged item gets the new parent
-    ([item.id] + otherSelections).forEach { otherSelection in
-        var otherItem = retrieveItem(otherSelection, items)
+    for otherSelection in ([item.id] + otherSelections) {
+        guard var otherItem = retrieveItem(otherSelection, items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            continue
+        }
         otherItem.parentId = proposedGroup.parentId
         otherItem.location.x = proposedGroup.indentationLevel.toXLocation
         items = updateSidebarListItem(otherItem, items)
     }
     
-    let updatedItem = retrieveItem(item.id, items)
+    guard let updatedItem = retrieveItem(item.id, items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return items
+    }
     
     return maybeSnapDescendants(updatedItem,
                                 items,
@@ -50,14 +56,20 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
     var items = items
 
     // Every explicitly dragged item gets its parent and indentation-level wiped
-    ([item.id] + otherSelections).forEach { otherSelection in
-        var otherItem = retrieveItem(otherSelection, items)
+    for otherSelection in ([item.id] + otherSelections) {
+        guard var otherItem = retrieveItem(otherSelection, items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            continue
+        }
         otherItem.parentId = nil
         otherItem.location.x = 0
         items = updateSidebarListItem(otherItem, items)
     }
     
-    let updatedItem = retrieveItem(item.id, items)
+    guard let updatedItem = retrieveItem(item.id, items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return items
+    }
 
     return maybeSnapDescendants(updatedItem,
                                 items,
