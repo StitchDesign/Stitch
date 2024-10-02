@@ -125,9 +125,26 @@ struct SidebarListItemDragged: GraphEvent {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
         
-        var list = state.sidebarListState
+//        var list = state.sidebarListState
+        
+        
         
         var itemId = itemId
+        
+        
+//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
+//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
+        if state.sidebarSelectionState.optionDragInProgress {
+            // If we're currently doing an option+drag, then item needs to just be the top
+            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+            
+            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
+             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
+             in: state.orderedSidebarLayers.getFlattenedList()) {
+                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
+                itemId = selectedItemWithSmallestIndex.asItemId
+            }
+        }
         
         let focusedLayers = state.sidebarSelectionState.inspectorFocusedLayers.focused
         
@@ -142,22 +159,51 @@ struct SidebarListItemDragged: GraphEvent {
             state.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = layerNodeId
         }
                 
+        
+//        if state.keypressState.isOptionPressed && !state.sidebarSelectionState.haveDuplicated {
+        if state.keypressState.isOptionPressed 
+            && !state.sidebarSelectionState.haveDuplicated
+            && !state.sidebarSelectionState.optionDragInProgress {
+            log("SidebarListItemDragged: option held during drag; will duplicate layers")
+            
+            // duplicate the items
+            // NOTE: will this be okay even though secretly async?, seems to work fine with option+node drag;
+            // also, it aready updates the selected and focused sidebar layers etc.
+            
+            // But will the user's cursor still be on / under the original layer ?
+            state.sidebarSelectedItemsDuplicatedViaEditMode()
+            state.sidebarListState = state.sidebarListState
+            state.sidebarSelectionState.haveDuplicated = true
+            state.sidebarSelectionState.optionDragInProgress = true
+            
+            log("")
+            // return ?
+            // but will also need
+            // NOTE: selection of the
+            
+            return
+        }
+        
+        
         // If we have multiple layers already selected and are dragging one of these already-selected layers,
         // we create a "stack" (reorganization of selected layers) and treat the first layer in the stack as the user-dragged layer.
-        else if focusedLayers.count > 1 {
+        
+        // do we need this `else if` ?
+//        else if focusedLayers.count > 1 {
+        if focusedLayers.count > 1 {
             // log("SidebarListItemDragged: multiple selections; dragging an existing one")
             // Turn the master list into a "master list with a stack" first,
             if !state.sidebarSelectionState.madeStack,
-                let item = list.masterList.items.first(where: { $0.id == itemId }),
+                let item = state.sidebarListState.masterList.items.first(where: { $0.id == itemId }),
             
             let masterListWithStack = getStack(
                 item,
-                items: list.masterList.items,
+                items: state.sidebarListState.masterList.items,
                 selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
                 // log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")
                 
-                list.masterList.items = masterListWithStack
+                state.sidebarListState.masterList.items = masterListWithStack
                 state.sidebarSelectionState.madeStack = true
             }
             
@@ -173,7 +219,7 @@ struct SidebarListItemDragged: GraphEvent {
            }
         }
 
-        guard let item = list.masterList.items.first(where: { $0.id == itemId }) else {
+        guard let item = state.sidebarListState.masterList.items.first(where: { $0.id == itemId }) else {
             // if we couldn't find the item, it's been deleted
             log("SidebarListItemDragged: item \(itemId) was already deleted")
             return
@@ -186,19 +232,18 @@ struct SidebarListItemDragged: GraphEvent {
             item, // this dragged item
             translation, // drag data
             // ALL items
-            list.masterList,
+            state.sidebarListState.masterList,
             otherSelections: otherSelections)
 
-        list.current = result.beingDragged
-        list.masterList = result.masterList
-        list.proposedGroup = result.proposed
-        list.cursorDrag = result.cursorDrag
+        state.sidebarListState.current = result.beingDragged
+        state.sidebarListState.masterList = result.masterList
+        state.sidebarListState.proposedGroup = result.proposed
+        state.sidebarListState.cursorDrag = result.cursorDrag
         
-        state.sidebarListState = list
         
         // JUST USED FOR UI PURPOSES, color changes etc.
         let implicitlyDragged = getImplicitlyDragged(
-            items: list.masterList.items,
+            items: state.sidebarListState.masterList.items,
             draggedAlong: draggedAlong,
             selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet)
         state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
@@ -308,8 +353,23 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
     
         log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
-        var list = state.sidebarListState
-        let item = list.masterList.items.first { $0.id == itemId }
+        var itemId = itemId
+        
+//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
+        if state.sidebarSelectionState.optionDragInProgress {
+            // If we're currently doing an option+drag, then item needs to just be the top
+            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+            
+            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
+             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
+             in: state.orderedSidebarLayers.getFlattenedList()) {
+                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
+                itemId = selectedItemWithSmallestIndex.asItemId
+            }
+        }
+        
+        
+        let item = state.sidebarListState.masterList.items.first { $0.id == itemId }
         guard let item = item else {
             // if we couldn't find the item, it's been deleted
              log("SidebarListItemDragEnded: item \(itemId) was already deleted")
@@ -317,29 +377,29 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         }
 
         // if no `current`, then we were just swiping?
-        if let current = list.current {
-            list.masterList.items = onSidebarListItemDragEnded(
+        if let current = state.sidebarListState.current {
+            state.sidebarListState.masterList.items = onSidebarListItemDragEnded(
                 item,
-                list.masterList.items, 
+                state.sidebarListState.masterList.items,
                 otherSelections: state.getOtherSelections(draggedItem: itemId),
                 // MUST have a `current`
                 // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
                 draggedAlong: current.draggedAlong,
-                proposed: list.proposedGroup)
+                proposed: state.sidebarListState.proposedGroup)
         } else {
             log("SidebarListItemDragEnded: had no current, so will not do the full onDragEnded call")
         }
 
         // also reset: the potentially highlighted group,
-        list.proposedGroup = nil
+        state.sidebarListState.proposedGroup = nil
         // the current dragging item,
-        list.current = nil
+        state.sidebarListState.current = nil
         // and the current x-drag tracking
-        list.cursorDrag = nil
-        
-        state.sidebarListState = list
-        
+        state.sidebarListState.cursorDrag = nil
+                
         state.sidebarSelectionState.madeStack = false
+        state.sidebarSelectionState.haveDuplicated = false
+        state.sidebarSelectionState.optionDragInProgress = false
         state.sidebarSelectionState.implicitlyDragged = .init()
     
         return .persistenceResponse
@@ -375,7 +435,10 @@ func onSidebarListItemDragEnded(_ item: SidebarListItem,
     // update both the X and Y in the previousLocation of the items that were moved;
     // ie `item` AND every id in `draggedAlong`
     for draggedId in allDragged {
-        var draggedItem = retrieveItem(draggedId, items)
+        guard var draggedItem = retrieveItem(draggedId, items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            continue
+        }
         draggedItem.previousLocation = draggedItem.location
         items = updateSidebarListItem(draggedItem, items)
     }

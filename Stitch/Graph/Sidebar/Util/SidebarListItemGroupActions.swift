@@ -33,8 +33,11 @@ extension GraphState {
     func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        let closedParent = retrieveItem(closedParentId.asItemId,
-                                        self.sidebarListState.masterList.items)
+        guard let closedParent = retrieveItem(closedParentId.asItemId,
+                                              self.sidebarListState.masterList.items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            return
+        }
         
         let descendants = Stitch.getDescendants(closedParent,
                                                 self.sidebarListState.masterList.items)
@@ -118,7 +121,10 @@ func onSidebarListItemGroupOpened(openedId: SidebarListItemId,
     // so that we can unfurl its own children
     masterList.collapsedGroups.remove(openedId)
 
-    let parentItem = retrieveItem(openedId, masterList.items)
+    guard let parentItem = retrieveItem(openedId, masterList.items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return masterList
+    }
     let parentIndex = parentItem.itemIndex(masterList.items)
 
     let originalCount = masterList.items.count
@@ -159,7 +165,10 @@ func onSidebarListItemGroupClosed(closedId: SidebarListItemId,
 
     print("onSidebarListItemGroupClosed called")
 
-    let closedParent = retrieveItem(closedId, masterList.items)
+    guard let closedParent = retrieveItem(closedId, masterList.items) else {
+        fatalErrorIfDebug("Could not retrieve item")
+        return masterList
+    }
 
     var masterList = masterList
 

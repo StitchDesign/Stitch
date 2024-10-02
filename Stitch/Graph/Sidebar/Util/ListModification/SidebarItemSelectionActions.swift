@@ -31,8 +31,12 @@ extension GraphState {
                            shiftHeld: Bool,
                            commandHeld: Bool) {
         log("sidebarItemTapped: id: \(id)")
-        let _layer = self.getNode(id.asNodeId)!.layerNode!.layer
-        log("sidebarItemTapped: layer: \(_layer)")
+        
+        #if DEV_DEBUG
+        let nodeTitle = self.getNode(id.asNodeId)!.getDisplayTitle()
+        log("sidebarItemTapped: layer: \(nodeTitle)")
+        #endif
+        
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
                 
         let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused

@@ -49,6 +49,9 @@ struct SidebarSelectionState: Codable, Equatable, Hashable {
     // avoid this?
     var madeStack: Bool = false
     
+    var haveDuplicated: Bool = false
+    var optionDragInProgress: Bool = false 
+    
     // non-empty only during active layer drag (multi-drag only?)
     var implicitlyDragged = SidebarListItemIdSet()
     
