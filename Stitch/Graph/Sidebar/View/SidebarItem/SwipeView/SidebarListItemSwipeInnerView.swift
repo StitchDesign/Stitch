@@ -147,13 +147,11 @@ struct SidebarListItemSwipeInnerView: View {
                 
             }
             
-            if swipeX > 0 {
-                SidebarListItemSwipeMenu(
-                    item: item,
-                    swipeOffset: swipeX,
-                    visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
-                    gestureViewModel: self.gestureViewModel)
-            }
+            SidebarListItemSwipeMenu(
+                item: item,
+                swipeOffset: swipeX,
+                visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
+                gestureViewModel: self.gestureViewModel)
         }
         
         // Animates swipe distance if it gets pinned to its open or closed position.
@@ -161,7 +159,15 @@ struct SidebarListItemSwipeInnerView: View {
         .onChange(of: swipeSetting) { newSwipeSetting in
             switch newSwipeSetting {
             case .closed, .open:
-                withAnimation {
+                                
+//                withAnimation { // has weird behavior at end of closing animation
+                
+//                withAnimation(.linear(duration: 0.1)) {
+//                withAnimation(.easeInOut(duration: 0.2)) {
+//                withAnimation(.easeInOut(duration: 0.3)) {
+                
+                // Feels just right?
+                withAnimation(.easeInOut(duration: 0.25)) {
                     swipeX = newSwipeSetting.distance
                 }
             case .swiping(let distance):
