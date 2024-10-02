@@ -15,17 +15,21 @@ struct SidebarItemTapped: GraphEvent {
     
     let id: LayerNodeId
     let shiftHeld: Bool
+    let commandHeld: Bool
     
     func handle(state: GraphState) {
         state.sidebarItemTapped(id: id,
-                                shiftHeld: shiftHeld)
+                                shiftHeld: shiftHeld,
+                                commandHeld: commandHeld)
     }
 }
 
 extension GraphState {
         
     @MainActor
-    func sidebarItemTapped(id: LayerNodeId, shiftHeld: Bool) {
+    func sidebarItemTapped(id: LayerNodeId,
+                           shiftHeld: Bool,
+                           commandHeld: Bool) {
         log("sidebarItemTapped: id: \(id)")
         let _layer = self.getNode(id.asNodeId)!.layerNode!.layer
         log("sidebarItemTapped: layer: \(_layer)")
@@ -95,23 +99,12 @@ extension GraphState {
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                   
-                self.handleShiftClick(flatList: flatList,
+                self.shrinkExpansions(flatList: flatList,
                                       itemsBetween: itemsBetween,
                                       originalIsland: originalIsland,
                                       lastClickedItem: lastClickedItem,
                                       justClickedItem: clickedItem)
-                
-//                self.shrinkExpansions(flatList: flatList,
-//                                      originalIsland: originalIsland,
-//                                      newIsland: itemsBetween,
-//                                      lastClickedItem: lastClickedItem)
-                
-                // Modifies `originalIsland`
-//                self.expandOrShrinkExpansions(flatList: flatList,
-//                                              originalIsland: originalIsland,
-//                                              newIsland: itemsBetween,
-//                                              lastClickedItem: lastClickedItem)
-                                
+                                                
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
@@ -136,13 +129,28 @@ extension GraphState {
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")
                 // TODO: this can happen when just-clicked == last-clicked, but some apps do not any deselection etc.
+                // If we shift click the last-clicked item, then remove everything in the island?
+                if clickedItem == lastClickedItem {
+                    log("clicked the same item as the last clicked; will deselect original island and select only last selected")
+                    originalIsland.forEach {
+                        self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
+                        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
+                    }
+                    
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(clickedItem.id.asLayerNodeId)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(clickedItem.id.asLayerNodeId)
+                    
+                    self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
+                    
+                    self.deselectAllCanvasItems()
+                }
             }
         } 
 //        else {
 //            log("sidebarItemTapped: either shift not held or focused layers were empty")
 //        }
                 
-        else if self.keypressState.isCommandPressed {
+        else if commandHeld {
             
             log("sidebarItemTapped: command select")
             
