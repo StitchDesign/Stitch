@@ -16,13 +16,11 @@ struct SidebarItemTapped: GraphEvent {
     let id: LayerNodeId
     let shiftHeld: Bool
     let commandHeld: Bool
-    let optionHeld: Bool
     
     func handle(state: GraphState) {
         state.sidebarItemTapped(id: id,
                                 shiftHeld: shiftHeld,
-                                commandHeld: commandHeld,
-                                optionHeld: optionHeld)
+                                commandHeld: commandHeld)
     }
 }
 
@@ -31,8 +29,7 @@ extension GraphState {
     @MainActor
     func sidebarItemTapped(id: LayerNodeId,
                            shiftHeld: Bool,
-                           commandHeld: Bool,
-                           optionHeld: Bool) {
+                           commandHeld: Bool) {
         log("sidebarItemTapped: id: \(id)")
         
         #if DEV_DEBUG
@@ -45,25 +42,6 @@ extension GraphState {
         let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
         
         log("sidebarItemTapped: originalSelections: \(originalSelections)")
-        
-                
-        if optionHeld {
-            log("sidebarItemTapped: optionHeld: \(optionHeld)")
-            
-            if originalSelections.isEmpty {
-                self.sidebarSelectionState.resetEditModeSelections()
-                self.sidebarSelectionState.inspectorFocusedLayers.focused = .init([id])
-                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([id])
-                self.sidebarItemSelectedViaEditMode(id, isSidebarItemTapped: true)
-                self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
-                self.deselectAllCanvasItems()
-            }
-            
-            self.sidebarSelectedItemsDuplicatedViaEditMode()
-            
-            return
-        }
-        
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
