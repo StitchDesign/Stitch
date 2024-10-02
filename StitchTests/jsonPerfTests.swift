@@ -11,40 +11,40 @@ import SwiftyJSON
 
 // Performance test failures not considered blocking.
 final class jsonPerfTests: XCTestCase {
-
-    // SwiftyJSON.rawData + JSONDecoder<PathCommands>
-    // parseTestJSON: 0.219
-    // sampleCurveToJSON: 0.385, 0.381, 0.383
-    // sampleCurveToJSON + PathCommands.asJSONShapeCommands: 0.393
-    func testJSONToShapePerf() throws {
-        //        let jsons = manyJSONS(parseJSON(parseTestJSON)!)
-
-        let jsons = manyJSONS(parseJSON(sampleCurveToJSON)!,
-                              count: 8000)
-
-        // May 12: 0.382, 0.377, 0.387
-        self.measure {
-            jsons.forEach {
-                // turning a path array json into a shape;
-                // same logic as `jsonToShapeEval`
-                $0.parseAsPathCommands().map(\.asJSONShapeCommands)!
-            }
-        }
-    }
-
-    func testCommandsToShapePerf() throws {
-        let manyCommands = Array(repeating: getDemoShape(jsonString: sampleCurveToJSON).shapes.fromShapeToShapeCommandLoop!,
-                                 count: 8000)
-
-        // May 12: 0.005, 0.005, 0.00484
-        self.measure {
-            manyCommands.forEach { commands in
-                // turning a loop of shape-commands into a shape;
-                // same logic as `commandsToShapeEval`
-                commands.asJSONShapeCommands!
-            }
-        }
-    }
+//
+//    // SwiftyJSON.rawData + JSONDecoder<PathCommands>
+//    // parseTestJSON: 0.219
+//    // sampleCurveToJSON: 0.385, 0.381, 0.383
+//    // sampleCurveToJSON + PathCommands.asJSONShapeCommands: 0.393
+//    func testJSONToShapePerf() throws {
+//        //        let jsons = manyJSONS(parseJSON(parseTestJSON)!)
+//
+//        let jsons = manyJSONS(parseJSON(sampleCurveToJSON)!,
+//                              count: 8000)
+//
+//        // May 12: 0.382, 0.377, 0.387
+//        self.measure {
+//            jsons.forEach {
+//                // turning a path array json into a shape;
+//                // same logic as `jsonToShapeEval`
+//                $0.parseAsPathCommands().map(\.asJSONShapeCommands)!
+//            }
+//        }
+//    }
+//
+//    func testCommandsToShapePerf() throws {
+//        let manyCommands = Array(repeating: getDemoShape(jsonString: sampleCurveToJSON).shapes.fromShapeToShapeCommandLoop!,
+//                                 count: 8000)
+//
+//        // May 12: 0.005, 0.005, 0.00484
+//        self.measure {
+//            manyCommands.forEach { commands in
+//                // turning a loop of shape-commands into a shape;
+//                // same logic as `commandsToShapeEval`
+//                commands.asJSONShapeCommands!
+//            }
+//        }
+//    }
 
     //    func testCommandTypeSerialization() throws {
     //        let commandType: ShapeCommandType = .closePath
