@@ -108,8 +108,21 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     func updateOnUndo(schema: StitchComponent) {
-        Task(priority: .high) { [weak self] in
-            await self?.parentGraph?.update(from: schema.graph)
+        guard let document = self.parentGraph?.documentDelegate else {
+            return
+        }
+        
+        let componentId = self.id
+        
+        // Find all graph states using this component
+        for component in document.allComponents {
+            guard component.componentId == componentId else {
+                continue
+            }
+            
+            Task(priority: .high) { [weak component] in
+                await component?.graph.update(from: schema.graph)
+            }
         }
     }
     
