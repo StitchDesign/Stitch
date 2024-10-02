@@ -23,4 +23,11 @@ protocol StoreDelegate: AnyObject {
                          newState: StitchDocument,
                          undoEvents: [Action],
                          redoEvents: [Action])
+    
+    @MainActor func undoManagerInvoked(newState: StitchDocument?)
+    
+    @MainActor
+    func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
+                                          newSchema: EncoderDelegate.CodableDocument,
+                                          oldSchema: EncoderDelegate.CodableDocument) where EncoderDelegate: DocumentEncodableDelegate
 }

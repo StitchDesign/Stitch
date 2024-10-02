@@ -107,6 +107,15 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
     }
     
+    func updateOnUndo(schema: StitchComponent) {
+        Task(priority: .high) { [weak self] in
+            await self?.parentGraph?.update(from: schema.graph)
+        }
+    }
+    
+    var storeDelegate: StoreDelegate? {
+        self.parentGraph?.storeDelegate
+    }
     
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
 //                                        components: [StitchComponentData]) {
@@ -729,8 +738,10 @@ extension GraphState {
     }
     
     @MainActor
-    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
-        self.documentEncoderDelegate?.encodeProjectInBackground(from: self)
+    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil,
+                                   wasUndo: Bool = false) {
+        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
+                                                                wasUndo: wasUndo)
 //        guard let documentViewModel = self.documentDelegate else {
 //            fatalErrorIfDebug()
 //            return

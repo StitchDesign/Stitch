@@ -27,6 +27,11 @@ protocol DocumentEncodableDelegate: AnyObject {
     @MainActor func createSchema(from graph: GraphState) -> CodableDocument
     
     @MainActor func willEncodeProject(schema: CodableDocument)
+
+    func updateOnUndo(schema: CodableDocument)
+    
+    var storeDelegate: StoreDelegate? { get }
+    
 //    @MainActor
 //    func importedFilesDirectoryReceived(mediaFiles: [URL],
 //                                        components: [StitchComponent])
@@ -34,22 +39,25 @@ protocol DocumentEncodableDelegate: AnyObject {
 
 extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState,
-                                              temporaryUrl: DocumentsURL? = nil) {
-        guard let delegate = self.delegate,
-              let documentViewModel = graph.documentDelegate else {
+                                              temporaryUrl: DocumentsURL? = nil,
+                                              wasUndo: Bool = false) {
+        guard let delegate = self.delegate else {
+            fatalErrorIfDebug()
             return
         }
+        
         let newSchema = delegate.createSchema(from: graph)
         delegate.willEncodeProject(schema: newSchema)
         
-        // Update undo
-        let oldDocument = documentViewModel.documentEncoder.lastEncodedDocument
-        let newDocument = documentViewModel.createSchema()
-        graph.storeDelegate?
-            .saveUndoHistory(oldState: oldDocument,
-                             newState: newDocument,
-                             undoEvents: [],
-                             redoEvents: [])
+        // Make schema changes like document
+        let oldSchema = self.lastEncodedDocument
+        
+        // Update undo only if the caller here wasn't undo itself--this breaks redo
+        if !wasUndo {
+            graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                 newSchema: newSchema,
+                                                 oldSchema: oldSchema)
+        }
         
         Task(priority: .background) {
             await self.encodeProject(newSchema,

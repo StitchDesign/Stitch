@@ -82,6 +82,12 @@ extension MasterComponentsDict {
 }
 
 extension GraphState: DocumentEncodableDelegate {
+    func updateOnUndo(schema: GraphEntity) {
+        Task(priority: .high) { [weak self] in
+            await self?.update(from: schema)
+        }
+    }
+    
     func willEncodeProject(schema: GraphEntity) { }
     
     func createSchema(from graph: GraphState) -> GraphEntity {

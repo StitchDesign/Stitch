@@ -108,6 +108,12 @@ final class StitchDocumentViewModel: Sendable {
 }
 
 extension StitchDocumentViewModel: DocumentEncodableDelegate {
+    func updateOnUndo(schema: StitchDocument) {
+        DispatchQueue.main.async { [weak self] in
+            self?.storeDelegate?.undoManagerInvoked(newState: schema)
+        }
+    }
+    
     func willEncodeProject(schema: StitchDocument) { }
 }
 

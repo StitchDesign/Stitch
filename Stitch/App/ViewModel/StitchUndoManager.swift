@@ -133,7 +133,7 @@ extension StitchStore {
             }
 
             // Persist graph
-            document.visibleGraph.encodeProjectInBackground()
+            document.visibleGraph.encodeProjectInBackground(wasUndo: true)
             
         }
     }
@@ -151,6 +151,20 @@ extension StitchStore {
         self.saveUndoHistory(oldState: oldState,
                              newState: newState,
                              undoFileEffects: undoFileEffects)
+    }
+    
+    func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
+                                          newSchema: EncoderDelegate.CodableDocument,
+                                          oldSchema: EncoderDelegate.CodableDocument) where EncoderDelegate: DocumentEncodableDelegate {
+        
+        // Update undo
+        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in
+            delegate.updateOnUndo(schema: oldSchema)
+            
+            self.saveUndoHistory(from: delegate,
+                                 newSchema: oldSchema,
+                                 oldSchema: newSchema)
+        }
     }
 
     /// Saves undo history of some graph using copies of StitchDocument.
