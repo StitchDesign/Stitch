@@ -71,7 +71,6 @@ func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
     }
     
     let startEarlierThanClickedItem = startIndex < clickedItemIndex
-    let clickedEarlierThanStart = clickedItemIndex < startIndex
     
     // Determine the range and ensure it includes items regardless of their order
     let range = startEarlierThanClickedItem ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
@@ -81,56 +80,113 @@ func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
     return Array(flatList[range])
 }
 
+enum SidebarSelectionExpansionDirection: Equatable {
+    case upward, downward, none
+}
+
+extension SidebarSelectionExpansionDirection {
+    
+    static func getExpansionDirection(islandTopIndex: Int,
+                                      islandBottomIndex: Int,
+                                      lastClickedIndex: Int) -> Self {
+        
+        // If island top is above last clicked,
+        // then we expanded upward
+        if islandTopIndex < lastClickedIndex {
+            return .upward
+        }
+        
+        // If island bottom is below last clicked,
+        // then we expanded downward
+        if islandBottomIndex > lastClickedIndex {
+            return .downward
+        }
+        
+        return .none
+        
+    }
+}
 
 extension GraphState {
     
-    func expandOrShrinkExpansions(flatList: [ListItem],
-                                  originalIsland: [ListItem],
-                                  newIsland: [ListItem],
-                                  lastClickedItem: ListItem) {
+    // TODO: combine this with our logic for adding to the current selections
+    func shrinkExpansions(flatList: [ListItem], // ALL items with nesting flattened; used for finding indices
+                          itemsBetween: [ListItem], // the 'range' we clicked; items between last-clicked and just-clicked
+                          originalIsland: [ListItem], // the original contiguous selection range
+                          lastClickedItem: ListItem, // the last-non-shift-clicked item
+                          // the just shift-clicked item
+                          justClickedItem: ListItem) {
         
+        let newIsland: [ListItem] = itemsBetween
+        
+        guard
+            let lastClickedIndex = flatList.firstIndex(of: lastClickedItem),
+            let justClickedIndex = flatList.firstIndex(of: justClickedItem),
+            let originalIslandTop = originalIsland.first,
+            let originalIslandBottom = originalIsland.last,
+            let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
+            let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom) else  {
+                log("Could not retrieve requires indices")
+                return
+        }
+        
+        let originalExpansionDirection = SidebarSelectionExpansionDirection.getExpansionDirection(
+            islandTopIndex: originalIslandTopIndex,
+            islandBottomIndex: originalIslandBottomIndex,
+            lastClickedIndex: lastClickedIndex)
+ 
         var shrunk = false
         
-        if let originalIslandTop = originalIsland.first,
-           let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
-           
-            let originalIslandBottom = originalIsland.last,
-           let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom),
-                               
-            let newIslandTop = newIsland.first,
-           let newIslandTopIndex = flatList.firstIndex(of: newIslandTop),
-           
-            let newIslandBottom = newIsland.last,
-           let newIslandBottomIndex = flatList.firstIndex(of: newIslandBottom),
-           
-            let lastClickedItemIndex = flatList.firstIndex(of: lastClickedItem) {
+        // it's not even as simple as 'expansion directions'
+        
+        
+        // Assuming the case where the island "expands downward", i.e. original island's bottom is below the last clicked,
+        // then
+        
+        // Given that
+        // it's more about "is the new clicked below or above
+        
+        if originalExpansionDirection == .downward {
             
-            // If both original and new range expanded downward from the non-shift-click point, then we expanded
-            if originalIslandBottomIndex > lastClickedItemIndex && newIslandBottomIndex > lastClickedItemIndex {
-                shrunk = false
-            }
-
-            // If both original and new range expanded upward from the non-shift-click point, then we expanded
-            else if originalIslandTopIndex < lastClickedItemIndex && newIslandTopIndex < lastClickedItemIndex {
-
-                shrunk = false
-            }
-            
-            // Else assume we shrunk?
-            else {
+            // If the original island was expanded downward,
+            // but the new click range does not extend as far down,
+            // then we shrunk:
+            if justClickedIndex < originalIslandBottomIndex {
+                log("expandOrShrinkExpansions: had expanded downward but new range does not goes as far down")
                 shrunk = true
             }
         }
-                        
-        originalIsland.forEach {
-//                    if $0 != lastClickedItem && clickedEarlierThanStart {
-            if $0 != lastClickedItem && shrunk {
-                self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
-                self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
+        
+        if originalExpansionDirection == .upward {
+            // If the original island was expanded upward
+            // but the new click range does not extend as far up,
+            // then we shrunk:
+            if justClickedIndex > originalIslandTopIndex {
+                log("expandOrShrinkExpansions: had expanded upward but new range does not goes as far up")
+                shrunk = true
+            }
+        }
+        
+        log("expandOrShrinkExpansions: shrunk \(shrunk)")
+        
+        if shrunk {
+            // If we shrunk, remove the items that are in the original island but not the new island
+            flatList.forEach { item in
+                let itemIsInNewIsland = newIsland.contains(item)
+                let itemIsInOldIsland = originalIsland.contains(item)
+                
+                if itemIsInOldIsland
+                    && !itemIsInNewIsland
+                    && item != lastClickedItem {
+                    
+                    log("expandOrShrinkExpansions: will remove item \(item)")
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id.asLayerNodeId)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id.asLayerNodeId)
+                }
             }
         }
     }
-    
+        
     /*
      Given an unordered set of tapped items,
      Start at top level of the ordered sidebar layers.

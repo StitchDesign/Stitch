@@ -15,33 +15,45 @@ struct SidebarItemTapped: GraphEvent {
     
     let id: LayerNodeId
     let shiftHeld: Bool
+    let commandHeld: Bool
     
     func handle(state: GraphState) {
         state.sidebarItemTapped(id: id,
-                                shiftHeld: shiftHeld)
+                                shiftHeld: shiftHeld,
+                                commandHeld: commandHeld)
     }
 }
 
 extension GraphState {
         
     @MainActor
-    func sidebarItemTapped(id: LayerNodeId, shiftHeld: Bool) {
+    func sidebarItemTapped(id: LayerNodeId,
+                           shiftHeld: Bool,
+                           commandHeld: Bool) {
         log("sidebarItemTapped: id: \(id)")
+        let _layer = self.getNode(id.asNodeId)!.layerNode!.layer
+        log("sidebarItemTapped: layer: \(_layer)")
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
-        
+                
         let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+        
+        log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
             let flatList = self.orderedSidebarLayers.getFlattenedList()
             if let indexOfTappedItem = flatList.firstIndex(where: { $0.id == id.asNodeId }) {
+                
                 let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
+                
                 self.sidebarSelectionState.inspectorFocusedLayers.focused = .init(selectionsFromTop.map(\.asLayerNodeId))
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init(selectionsFromTop.map(\.asLayerNodeId))
+                
                 self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
             } else {
-                log("sidebarItemTapped: could not retrieve index of tapped item when no oge")
+                log("sidebarItemTapped: could not retrieve index of tapped item when")
                 fatalErrorIfDebug()
             }
             
@@ -78,7 +90,7 @@ extension GraphState {
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                 log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
                 // ORIGINAL
@@ -87,18 +99,19 @@ extension GraphState {
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                   
-                // Modifies `originalIsland`
-                self.expandOrShrinkExpansions(flatList: flatList,
-                                              originalIsland: originalIsland,
-                                              newIsland: itemsBetween,
-                                              lastClickedItem: lastClickedItem)
-                                
+                self.shrinkExpansions(flatList: flatList,
+                                      itemsBetween: itemsBetween,
+                                      originalIsland: originalIsland,
+                                      lastClickedItem: lastClickedItem,
+                                      justClickedItem: clickedItem)
+                                                
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
                 // If we ended up selecting the exact same as the original,
                 // then we actually DE-SELECTED the range.
                 let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+                log("sidebarItemTapped: selected range: newSelections: \(newSelections)")
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
                                         
@@ -115,13 +128,29 @@ extension GraphState {
                 
             } else {
                 log("sidebarItemTapped: did not have itemsBetween")
+                // TODO: this can happen when just-clicked == last-clicked, but some apps do not any deselection etc.
+                // If we shift click the last-clicked item, then remove everything in the island?
+                if clickedItem == lastClickedItem {
+                    log("clicked the same item as the last clicked; will deselect original island and select only last selected")
+                    originalIsland.forEach {
+                        self.sidebarSelectionState.inspectorFocusedLayers.focused.remove($0.id.asLayerNodeId)
+                        self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove($0.id.asLayerNodeId)
+                    }
+                    
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.insert(clickedItem.id.asLayerNodeId)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.insert(clickedItem.id.asLayerNodeId)
+                    
+                    self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
+                    
+                    self.deselectAllCanvasItems()
+                }
             }
         } 
 //        else {
 //            log("sidebarItemTapped: either shift not held or focused layers were empty")
 //        }
                 
-        else if self.keypressState.isCommandPressed {
+        else if commandHeld {
             
             log("sidebarItemTapped: command select")
             
