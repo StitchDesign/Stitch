@@ -446,6 +446,9 @@ extension String {
                 "image classification": .patch(.coreMLClassify),
                 "image import": .patch(.imageImport),
                 "when prototype starts": .patch(.whenPrototypeStarts),
+                "haptic feedback": .patch(.hapticFeedback),
+                "delay one": .patch(.delayOne),
+                "reality view": .layer(.realityView)
             ]
             
             if let specialCase = specialCases[normalizedInput] {
