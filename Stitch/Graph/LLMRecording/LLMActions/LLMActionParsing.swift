@@ -448,7 +448,10 @@ extension String {
                 "when prototype starts": .patch(.whenPrototypeStarts),
                 "haptic feedback": .patch(.hapticFeedback),
                 "delay one": .patch(.delayOne),
-                "reality view": .layer(.realityView)
+                "triangle shape": .patch(.triangleShape),
+                "oval shape": .patch(.ovalShape),
+                "split text": .patch(.splitText),
+                "reality view": .layer(.realityView),
             ]
             
             if let specialCase = specialCases[normalizedInput] {
