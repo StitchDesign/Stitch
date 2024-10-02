@@ -95,11 +95,22 @@ extension GraphState {
                 
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.inspectorFocusedLayers.focused.union(itemsBetweenSet)
                   
+                self.handleShiftClick(flatList: flatList,
+                                      itemsBetween: itemsBetween,
+                                      originalIsland: originalIsland,
+                                      lastClickedItem: lastClickedItem,
+                                      justClickedItem: clickedItem)
+                
+//                self.shrinkExpansions(flatList: flatList,
+//                                      originalIsland: originalIsland,
+//                                      newIsland: itemsBetween,
+//                                      lastClickedItem: lastClickedItem)
+                
                 // Modifies `originalIsland`
-                self.expandOrShrinkExpansions(flatList: flatList,
-                                              originalIsland: originalIsland,
-                                              newIsland: itemsBetween,
-                                              lastClickedItem: lastClickedItem)
+//                self.expandOrShrinkExpansions(flatList: flatList,
+//                                              originalIsland: originalIsland,
+//                                              newIsland: itemsBetween,
+//                                              lastClickedItem: lastClickedItem)
                                 
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
