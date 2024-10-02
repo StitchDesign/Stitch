@@ -27,21 +27,29 @@ extension GraphState {
     @MainActor
     func sidebarItemTapped(id: LayerNodeId, shiftHeld: Bool) {
         log("sidebarItemTapped: id: \(id)")
+        let _layer = self.getNode(id.asNodeId)!.layerNode!.layer
+        log("sidebarItemTapped: layer: \(_layer)")
         log("sidebarItemTapped: shiftHeld: \(shiftHeld)")
-        
+                
         let originalSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+        
+        log("sidebarItemTapped: originalSelections: \(originalSelections)")
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
             let flatList = self.orderedSidebarLayers.getFlattenedList()
             if let indexOfTappedItem = flatList.firstIndex(where: { $0.id == id.asNodeId }) {
+                
                 let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
+                
                 self.sidebarSelectionState.inspectorFocusedLayers.focused = .init(selectionsFromTop.map(\.asLayerNodeId))
                 self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init(selectionsFromTop.map(\.asLayerNodeId))
+                
                 self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
+                
                 self.editModeSelectTappedItems(tappedItems: self.sidebarSelectionState.inspectorFocusedLayers.focused)
             } else {
-                log("sidebarItemTapped: could not retrieve index of tapped item when no oge")
+                log("sidebarItemTapped: could not retrieve index of tapped item when")
                 fatalErrorIfDebug()
             }
             
@@ -78,7 +86,7 @@ extension GraphState {
                 // Look at focused layers
                 selections: originalSelections) {
                 
-                 log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
+                log("sidebarItemTapped: itemsBetween: \(itemsBetween.map(\.id))")
                 let itemsBetweenSet: LayerIdSet = itemsBetween.map(\.id.asLayerNodeId).toSet
                 
                 // ORIGINAL
@@ -99,6 +107,7 @@ extension GraphState {
                 // If we ended up selecting the exact same as the original,
                 // then we actually DE-SELECTED the range.
                 let newSelections = self.sidebarSelectionState.inspectorFocusedLayers.focused
+                log("sidebarItemTapped: selected range: newSelections: \(newSelections)")
                 if newSelections == originalSelections {
                     log("sidebarItemTapped: selected range; will wipe inspectorFocusedLayers")
                                         
