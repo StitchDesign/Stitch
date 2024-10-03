@@ -9,16 +9,19 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
+extension GraphState {
+    var hasActivelySelectedLayers: Bool {
+        !self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.isEmpty
+    }
+}
+
 // Used for Delete key shortcut
 struct DeleteShortcutKeyPressed: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
 
         // Check which we have focused: layers or canvas items
-        
-        let activelySelectedLayers = state.sidebarSelectionState.inspectorFocusedLayers.activelySelected
-        
-        if !activelySelectedLayers.isEmpty {
+        if state.hasActivelySelectedLayers {
             state.sidebarSelectedItemsDeletingViaEditMode()
             state.updateInspectorFocusedLayers()
         }

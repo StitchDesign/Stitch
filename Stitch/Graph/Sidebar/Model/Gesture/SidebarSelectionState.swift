@@ -26,9 +26,21 @@ struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     
     // Actively Selected = what we see focused in inspector + what user has recently tapped on
     var activelySelected = LayerIdSet()
-    
-    // TODO: use an ordered set and do .last ?
+
+    // Updated by regular or command click, but not shick click (with some exceptions)
     var lastFocusedLayer: LayerNodeId? = nil
+    
+    // Inserts into both focused and activelySelected layer id sets
+    func insert(_ layer: LayerNodeId) -> Self {
+        self.insert(.init([layer]))
+    }
+    
+    func insert(_ layers: LayerIdSet) -> Self {
+        var data = self
+        data.focused = data.focused.union(layers)
+        data.activelySelected = data.activelySelected.union(layers)
+        return data
+    }
 }
 
 extension SidebarSelections {

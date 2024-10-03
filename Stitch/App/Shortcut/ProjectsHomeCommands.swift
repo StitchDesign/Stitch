@@ -242,7 +242,7 @@ struct ProjectsHomeCommands: Commands {
                                     // Disable CMD+A "select all" when an input text field is focused
                                     disabled: textFieldFocused || !activeProject) {
                     //                    dispatch(ToggleSelectAllNodes())
-                    dispatch(ToggleSelectAllGraphItems())
+                    dispatch(SelectAllShortcutKeyPressed())
                 }
             } // replacing: .pasteboard
         } // if activeProject
