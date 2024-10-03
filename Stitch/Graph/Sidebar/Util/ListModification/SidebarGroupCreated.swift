@@ -14,7 +14,7 @@ import SwiftUI
 struct SidebarGroupCreated: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
-        log("_createLayerGroup called")
+        log("SidebarGroupCreated called")
         
         // Create node view model for the new Layer Group
         
@@ -64,8 +64,12 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // Update legacy state
         state.visibleGraph.updateSidebarListStateAfterStateChange()
         
-        // Reset selections
-        state.visibleGraph.sidebarSelectionState.resetEditModeSelections()
+        // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
+        if state.graph.sidebarSelectionState.isEditMode {
+            // Reset selections
+            state.visibleGraph.sidebarSelectionState.resetEditModeSelections()
+        }
+
         
         // NOTE: must do this AFTER children have been assigned to the new layer node; else we return preview window size
         

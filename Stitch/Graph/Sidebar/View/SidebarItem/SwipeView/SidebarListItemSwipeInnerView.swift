@@ -34,6 +34,7 @@ struct SidebarListItemSwipeInnerView: View {
     
     var itemIndent: CGFloat { item.location.x }
     
+    @MainActor
     var isHidden: Bool {
         graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
     }

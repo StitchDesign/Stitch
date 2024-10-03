@@ -19,12 +19,12 @@ let SIDEBAR_VISIBILITY_STATUS_SECONDARY_HIDDEN_COLOR: Color = Color(uiColor: .da
 let SIDEBAR_VISIBILITY_STATUS_VISIBLE_COLOR: Color = .white
 
 extension GraphState {
+    
+    @MainActor
     func getVisibilityStatus(for layerNodeId: NodeId) -> SidebarVisibilityStatus {
-        
         guard let layerNode = self
             .getLayerNode(id: layerNodeId)?
             .layerNode else {
-            log("getVisibilityStatus: could not find layer node \(layerNodeId)")
             return .visible
         }
         
@@ -40,6 +40,7 @@ extension GraphState {
         return .visible
     }
 
+    @MainActor
     func isUpstreamNodeInvisible(for layerNode: LayerNodeViewModel) -> Bool {
         guard let groupId = layerNode.layerGroupId,
               let layerGroup = self.nodes.get(groupId)?.layerNode else {

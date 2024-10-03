@@ -33,7 +33,9 @@ extension GraphState {
             return
         }
         
-        let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
+        // let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
+        let children = self.orderedSidebarLayers.getSidebarLayerData(group.id)?.children ?? []
+        
         let newParentId = self.getNodeViewModel(group.asNodeId)?.layerNode?.layerGroupId
 
         // Update sidebar self
