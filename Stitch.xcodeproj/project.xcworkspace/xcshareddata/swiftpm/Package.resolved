@@ -76,7 +76,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchViewKit.git",
       "state" : {
-        "revision" : "82404015aa4c9eded51a9c189d317238b6bc5b87"
+        "revision" : "d8eaaf3e7522038e16f963a332c505a105ecbde5",
+        "version" : "1.0.3"
       }
     },
     {
@@ -127,7 +128,7 @@
     {
       "identity" : "swipeactions",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/vpl-codesign/SwipeActions.git",
+      "location" : "https://github.com/StitchDesign/SwipeActions.git",
       "state" : {
         "revision" : "63cc57f9709e0cde213358e604ddb81d1648f210",
         "version" : "1.0.1"

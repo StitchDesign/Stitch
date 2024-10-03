@@ -6034,8 +6034,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchViewKit.git";
 			requirement = {
-				kind = revision;
-				revision = 82404015aa4c9eded51a9c189d317238b6bc5b87;
+				kind = exactVersion;
+				version = 1.0.3;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
