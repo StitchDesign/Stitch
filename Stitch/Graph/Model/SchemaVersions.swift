@@ -191,7 +191,7 @@ extension StitchComonentVersion {
             fatalError("No StitchComponent version expected before v24.")
             
         case ._V25:
-            return StitchComponent_V24.StitchComponent.self
+            return StitchComponent_V25.StitchComponent.self
         }
     }
 }

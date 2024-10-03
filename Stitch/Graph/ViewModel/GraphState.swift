@@ -36,15 +36,13 @@ final class StitchMasterComponent {
          parentGraph: GraphState?) {
         self.id = componentData.draft.id
         self.saveLocation = componentData.draft.saveLocation
-//        self.componentData = componentData
         self.draftedDocumentEncoder = .init(component: componentData.draft)
         self.publishedDocumentEncoder = .init(component: componentData.published)
         self.parentGraph = parentGraph
         
-//        DispatchQueue.main.async { { [weak self] in
-//            guard let component = self else { return }
-//            component.documentEncoder.delegate = component
-//        }
+        if let parentGraph = parentGraph {
+            self.initializeDelegate(parentGraph: parentGraph)
+        }
     }
 }
 
