@@ -37,7 +37,7 @@ public typealias LightType = CurrentLightType.LightType
 public typealias MobileHapticStyle = CurrentMobileHapticStyle.MobileHapticStyle
 public typealias MediaKey = CurrentMediaKey.MediaKey
 public typealias NetworkRequestType = CurrentNetworkRequestType.NetworkRequestType
-public typealias NodeEntity = Stitch.NodeEntity_V24.NodeEntity
+public typealias NodeEntity = CurrentNodeEntity.NodeEntity
 public typealias NodeKind = CurrentNodeKind.NodeKind
 public typealias NodeIOCoordinate = CurrentNodeIOCoordinate.NodeIOCoordinate
 public typealias NodePortInputEntity = CurrentNodePortInputEntity.NodePortInputEntity
@@ -65,7 +65,7 @@ public typealias ShapeCoordinates = CurrentShapeCoordinates.ShapeCoordinates
 public typealias SidebarLayerData = CurrentSidebarLayerData.SidebarLayerData
 public typealias SplitterType = CurrentSplitterType.SplitterType
 public typealias SplitterNodeEntity = CurrentSplitterNodeEntity.SplitterNodeEntity
-public typealias StitchDocument = Stitch.StitchDocument_V24.StitchDocument
+public typealias StitchDocument = CurrentStitchDocument.StitchDocument
 public typealias StitchBlendMode = CurrentStitchBlendMode.StitchBlendMode
 public typealias StitchCameraOrientation = CurrentStitchCameraOrientation.StitchCameraOrientation
 public typealias StitchDeviceOrientation = CurrentStitchDeviceOrientation.StitchDeviceOrientation
@@ -89,7 +89,7 @@ public typealias StitchContentMode = CurrentStitchContentMode.StitchContentMode
 public typealias StitchSpacing = CurrentStitchSpacing.StitchSpacing
 public typealias StitchPadding = CurrentStitchPadding.StitchPadding
 public typealias SizingScenario = CurrentSizingScenario.SizingScenario
-//public typealias NodeTypeEntity = CurrentNodeTypeEntity.NodeTypeEntity
+public typealias NodeTypeEntity = CurrentNodeTypeEntity.NodeTypeEntity
 public typealias CanvasNodeEntity = CurrentCanvasNodeEntity.CanvasNodeEntity
 public typealias LayerInputDataEntity = CurrentLayerInputDataEntity.LayerInputDataEntity
 public typealias CanvasItemId = CurrentCanvasItemId.CanvasItemId
@@ -101,10 +101,12 @@ public typealias LayerInputPort = CurrentLayerInputPort.LayerInputPort
 public typealias LayerInputKeyPathType = CurrentLayerInputKeyPathType.LayerInputKeyPathType
 public typealias UnpackedPortType = CurrentUnpackedPortType.UnpackedPortType
 public typealias StitchTransform = CurrentStitchTransform.StitchTransform
-public typealias StitchComponent = StitchComponent_V24.StitchComponent // CurrentStitchComponent.StitchComponent
+public typealias StitchComponent = CurrentStitchComponent.StitchComponent
+public typealias ComponentEntity = CurrentComponentEntity.ComponentEntity
+public typealias GraphEntity = CurrentGraphEntity.GraphEntity
+public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
+public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
 
-
-// TODO: move
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
     
@@ -176,6 +178,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V23.StitchDocument.self
         case ._V24:
             return StitchDocument_V24.StitchDocument.self
+        case ._V25:
+            return StitchDocument_V25.StitchDocument.self
         }
     }
 }
@@ -183,154 +187,12 @@ extension StitchDocumentVersion {
 extension StitchComonentVersion {
     public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
         switch version {
-        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23:
+        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23, ._V24:
             fatalError("No StitchComponent version expected before v24.")
             
-        case ._V24:
+        case ._V25:
             return StitchComponent_V24.StitchComponent.self
         }
     }
 }
 
-
-public enum NodeTypeEntity: Equatable, Codable {
-    case patch(PatchNodeEntity_V24.PatchNodeEntity)
-    case layer(LayerNodeEntity_V24.LayerNodeEntity)
-    case group(CanvasNodeEntity_V24.CanvasNodeEntity)
-    case component(ComponentEntity)
-}
-
-public struct ComponentEntity: Codable, Equatable {
-    let componentId: UUID
-    var inputs: [NodeConnectionType_V24.NodeConnectionType]
-    var canvasEntity: CanvasNodeEntity_V24.CanvasNodeEntity
-}
-
-public enum NodeEntity_V24: StitchSchemaVersionable {
-    public static let version = StitchSchemaVersion._V24
-    
-    public struct NodeEntity: StitchVersionedCodable, Equatable, Identifiable {
-        public let id: UUID
-        public var nodeTypeEntity: NodeTypeEntity
-        public let title: String
-        
-        public init(id: UUID,
-                    nodeTypeEntity: NodeTypeEntity,
-                    title: String) {
-            self.id = id
-            self.nodeTypeEntity = nodeTypeEntity
-            self.title = title
-        }
-    
-        public init(previousInstance: Self) {
-            fatalError()
-        }
-    }
-}
-
-// TODO: move to SSK
-public enum StitchComponent_V24: StitchSchemaVersionable {
-    public static let version = StitchSchemaVersion._V24
-    
-    public struct StitchComponent: StitchVersionedCodable, Equatable, Sendable {
-//        public var id: UUID
-        
-        // Share location, saved here due to static helpers for sharing
-        public var saveLocation: GraphSaveLocation
-        public var isPublished: Bool
-        
-        public var graph: GraphEntity
-//        public let lastModifiedDate: Date
-//        public let version: Int
-        
-        public init(
-            //            id: UUID,
-            saveLocation: GraphSaveLocation,
-            isPublished: Bool,
-            graph: GraphEntity) {
-                //                    lastModifiedDate: Date,
-                //                    version: Int) {
-                //            self.id = id
-                self.saveLocation = saveLocation
-                self.isPublished = isPublished
-                self.graph = graph
-                //            self.lastModifiedDate = lastModifiedDate
-                //            self.version = version
-            }
-        
-        public init(previousInstance: Self) {
-            fatalError()
-        }
-    }
-}
-
-public struct GraphEntity: Codable, Equatable, Sendable {
-    public var id: UUID
-    public var name: String
-    public var nodes: [NodeEntity]
-    public var orderedSidebarLayers: [SidebarLayerData]
-    public let commentBoxes: [CommentBoxData]
-    
-    init(id: UUID,
-         name: String,
-         nodes: [NodeEntity],
-         orderedSidebarLayers: [SidebarLayerData],
-         commentBoxes: [CommentBoxData]) {
-        self.id = id
-        self.name = name
-        self.nodes = nodes
-        self.orderedSidebarLayers = orderedSidebarLayers
-        self.commentBoxes = commentBoxes
-    }
-}
-
-public enum StitchDocument_V24: StitchSchemaVersionable {
-    public static let version = StitchSchemaVersion._V24
-    
-    public struct StitchDocument: StitchVersionedCodable, Equatable, Sendable {
-        // Node data
-        public var graph: GraphEntity
-
-        // Preview window
-        public let previewWindowSize: CGSize
-        public let previewSizeDevice: PreviewSize
-        public let previewWindowBackgroundColor: Color
-        
-        // Graph positioning data
-        public let localPosition: CGPoint
-        public let zoomData: CGFloat
-        
-        public let cameraSettings: CameraSettings
-        
-        public init(graph: GraphEntity,
-                    previewWindowSize: CGSize,
-                    previewSizeDevice: PreviewSize,
-                    previewWindowBackgroundColor: Color,
-                    localPosition: CGPoint,
-                    zoomData: CGFloat,
-                    cameraSettings: CameraSettings) {
-            self.graph = graph
-            self.previewWindowSize = previewWindowSize
-            self.previewSizeDevice = previewSizeDevice
-            self.previewWindowBackgroundColor = previewWindowBackgroundColor
-            self.localPosition = localPosition
-            self.zoomData = zoomData
-            self.cameraSettings = cameraSettings
-        }
-        
-        public init(previousInstance: Self) {
-            fatalError()
-        }
-        
-        // MARK: remove `transferRepresentation` from older `StitchDocument` versions
-        //        static var transferRepresentation: some TransferRepresentation {
-        //            FileRepresentation(contentType: .stitchDocument,
-        //                               exporting: Self.exportDocument,
-        //                               importing: Self.importDocument)
-        //        }
-    }
-}
-
-//public enum NodeKind: Codable, Equatable, Hashable {
-//    case patch(Patch), layer(Layer), group
-//}

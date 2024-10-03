@@ -10,7 +10,7 @@ import SwiftUI
 import StitchSchemaKit
 import UniformTypeIdentifiers
 
-extension StitchComponent: Identifiable {
+extension StitchComponent {
     public var id: UUID {
         get {
             self.graph.id
@@ -62,19 +62,6 @@ extension StitchComponentable {
     var orderedSidebarLayers: SidebarLayerList {
         self.graph.orderedSidebarLayers
     }
-}
-
-public struct GraphDocumentPath: Codable, Equatable, Sendable {
-    let docId: UUID
-    let componentsPath: [UUID]
-}
-
-// TODO: move to SSK
-public enum GraphSaveLocation: Codable, Equatable, Sendable {
-    case document(GraphDocumentPath)
-    case userLibrary
-    // TODO: system
-    //case system(UUID)
 }
 
 extension GraphSaveLocation {
