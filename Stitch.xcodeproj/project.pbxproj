@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -131,6 +131,7 @@
 		B55501072C1BCAD60081C3F1 /* SidebarListItemActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55501062C1BCAD50081C3F1 /* SidebarListItemActions.swift */; };
 		B555010D2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */; };
 		B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */; };
+		B55780612CAF5D9500907BA8 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B55780602CAF5D9500907BA8 /* StitchEngine */; };
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
@@ -1812,6 +1813,7 @@
 				EC7784CF27053D9700B662DD /* ZIPFoundation in Frameworks */,
 				B50F41682C1EB4320082262F /* StitchViewKit in Frameworks */,
 				EC1137382719F9B400ADCA72 /* OrderedCollections in Frameworks */,
+				B55780612CAF5D9500907BA8 /* StitchEngine in Frameworks */,
 				EC91034A29109DF3007C548E /* SoulverCore in Frameworks */,
 				EC17DF0928F626660042BF4F /* MathParser in Frameworks */,
 				B5386FB02C9A929B00AD8065 /* StitchEngine in Frameworks */,
@@ -4339,6 +4341,7 @@
 				B5FBE3C32C4195B3006DA0A7 /* DirectoryWatcher */,
 				E463E7EE2C6FC7090008E318 /* StitchSchemaKit */,
 				B5386FAF2C9A929B00AD8065 /* StitchEngine */,
+				B55780602CAF5D9500907BA8 /* StitchEngine */,
 			);
 			productName = prototype;
 			productReference = 200BD857254F66EB00692903 /* Stitch.app */;
@@ -4424,7 +4427,7 @@
 				B50F41662C1EB4320082262F /* XCRemoteSwiftPackageReference "StitchViewKit" */,
 				B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
 				E463E7ED2C6FC7090008E318 /* XCRemoteSwiftPackageReference "StitchSchemaKit" */,
-				B5386FAE2C9A929B00AD8065 /* XCLocalSwiftPackageReference "../StitchEngineClosedSource" */,
+				B557805F2CAF5D9500907BA8 /* XCRemoteSwiftPackageReference "StitchEngine" */,
 			);
 			productRefGroup = 200BD858254F66EB00692903 /* Products */;
 			projectDirPath = "";
@@ -5993,13 +5996,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		B5386FAE2C9A929B00AD8065 /* XCLocalSwiftPackageReference "../StitchEngineClosedSource" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../StitchEngineClosedSource;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		201953D825B25D3300D5296C /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -6039,6 +6035,14 @@
 			requirement = {
 				kind = revision;
 				revision = 82404015aa4c9eded51a9c189d317238b6bc5b87;
+			};
+		};
+		B557805F2CAF5D9500907BA8 /* XCRemoteSwiftPackageReference "StitchEngine" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/StitchDesign/StitchEngine";
+			requirement = {
+				kind = revision;
+				revision = 7b68361244834a2b4df9ad44ae267b41b15b1de6;
 			};
 		};
 		B5FBE3C22C4195B3006DA0A7 /* XCRemoteSwiftPackageReference "DirectoryWatcher" */ = {
@@ -6151,6 +6155,11 @@
 		};
 		B5386FAF2C9A929B00AD8065 /* StitchEngine */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = StitchEngine;
+		};
+		B55780602CAF5D9500907BA8 /* StitchEngine */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B557805F2CAF5D9500907BA8 /* XCRemoteSwiftPackageReference "StitchEngine" */;
 			productName = StitchEngine;
 		};
 		B56EA8A52C409898003D39E2 /* StitchEngine */ = {
