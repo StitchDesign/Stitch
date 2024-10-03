@@ -87,11 +87,24 @@ func applyGraphOffsetAndScale(nodeSize: CGSize,
     return adjustedPosition
 }
 
-struct ToggleSelectAllGraphItems: GraphEvent {
+struct SelectAllShortcutKeyPressed: GraphEvent {
     func handle(state: GraphState) {
-        selectAllNodesAtTraversalLevel(state)
-
-        state.selectAllCommentsAtTraversalLevel()
+        
+        // If we have at least one actively selected sidebar layers,
+        // then select all layers, not canvas items.
+        if state.hasActivelySelectedLayers {
+            // Wipe the 'last selected item'
+            state.sidebarSelectionState.inspectorFocusedLayers = .init()
+            
+            let allLayers: LayerIdSet = state.orderedSidebarLayers.getFlattenedList().map(\.id.asLayerNodeId).toSet
+            state.sidebarSelectionState.inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers.insert(allLayers)
+            
+            state.editModeSelectTappedItems(tappedItems: state.sidebarSelectionState.inspectorFocusedLayers.focused)
+            
+        } else {
+            selectAllNodesAtTraversalLevel(state)
+            state.selectAllCommentsAtTraversalLevel()
+        }
     }
 }
 
