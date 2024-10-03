@@ -132,6 +132,8 @@
 		B555010D2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */; };
 		B55501342C1C00EB0081C3F1 /* GraphStepIncrementer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */; };
 		B55780612CAF5D9500907BA8 /* StitchEngine in Frameworks */ = {isa = PBXBuildFile; productRef = B55780602CAF5D9500907BA8 /* StitchEngine */; };
+		B55780632CAF667900907BA8 /* StitchClipboardContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780622CAF667700907BA8 /* StitchClipboardContent.swift */; };
+		B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780642CAF66D600907BA8 /* StitchComponentable.swift */; };
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
@@ -1040,6 +1042,8 @@
 		B55501062C1BCAD50081C3F1 /* SidebarListItemActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemActions.swift; sourceTree = "<group>"; };
 		B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarVisibilityUtils.swift; sourceTree = "<group>"; };
 		B55501332C1C00EB0081C3F1 /* GraphStepIncrementer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphStepIncrementer.swift; sourceTree = "<group>"; };
+		B55780622CAF667700907BA8 /* StitchClipboardContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchClipboardContent.swift; sourceTree = "<group>"; };
+		B55780642CAF66D600907BA8 /* StitchComponentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentable.swift; sourceTree = "<group>"; };
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
@@ -3073,6 +3077,8 @@
 				B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */,
 				B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */,
 				B52A3E622B7F337400B4F1DA /* GraphCopyable.swift */,
+				B55780622CAF667700907BA8 /* StitchClipboardContent.swift */,
+				B55780642CAF66D600907BA8 /* StitchComponentable.swift */,
 				EC6DF0A829FA04F60052545E /* StitchJSON.swift */,
 				ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */,
 				B596608A2C1A413200BE75D7 /* NodeBounds.swift */,
@@ -4813,6 +4819,7 @@
 				EC11218F2942846900F0AE19 /* ShapeLayerNode.swift in Sources */,
 				B55500E92C1BACC80081C3F1 /* PreviewCommonModifierWithoutFrame.swift in Sources */,
 				EC6BFE4A2829CB5D005EB7B8 /* GridLinesHelper.swift in Sources */,
+				B55780632CAF667900907BA8 /* StitchClipboardContent.swift in Sources */,
 				8B77BA7B2713D35C00255C40 /* GraphUIActions.swift in Sources */,
 				ECD1F6C32965FDCC00DBD9A8 /* CubicBezierCurveNode.swift in Sources */,
 				EC9AB64528DFE99B002810BC /* ScrollFreeInteractionHelpers.swift in Sources */,
@@ -5146,6 +5153,7 @@
 				B50C897B2864E2750032E95D /* DelayedEffect.swift in Sources */,
 				B58723BD2B28D5FE00EAB0E5 /* NodeEntity.swift in Sources */,
 				B55500FB2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift in Sources */,
+				B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */,
 				B56FFB3E2C18F52600623CC7 /* StitchFileResult.swift in Sources */,
 				B54D0BAF2957811A00F3B2F9 /* ProjectsListItemLoadedView.swift in Sources */,
 				EC2942452BA13E6100D14CD1 /* SidebarItemSelectionActions.swift in Sources */,
