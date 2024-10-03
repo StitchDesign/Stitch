@@ -19,14 +19,49 @@ struct ProjectsHomeCommands: Commands {
     var activeProject: Bool {
         store.currentGraph.isDefined
     }
-    
+        
     var layersActivelySelected: Bool {
-        if let graph = store.currentGraph {
-            return !graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.isEmpty
+        store.currentGraph?.hasActivelySelectedLayers ?? false
+    }
+
+    var selections: SidebarSelectionState? {
+        store.currentGraph?.sidebarSelectionState
+    }
+    
+    var graph: GraphState? {
+        store.currentGraph
+    }
+    
+    var groups: SidebarGroupsDict? {
+        graph?.getSidebarGroupsDict()
+    }
+    
+    var layerNodes: LayerNodesForSidebarDict? {
+        if let graph = graph {
+            return LayerNodesForSidebarDict.fromLayerNodesDict(
+                nodes: graph.layerNodes,
+                orderedSidebarItems: graph.orderedSidebarLayers)
+        }
+        return nil
+    }
+    
+    var ungroupButtonEnabled: Bool {
+        if let selections = selections,
+           let layerNodes = layerNodes {
+            return canUngroup(selections.primary, nodes: layerNodes)
         }
         return false
     }
 
+    var groupButtonEnabled: Bool {
+        if let selections = selections,
+           let groups = groups {
+            return selections.nonEmptyPrimary.map { canBeGrouped($0, groups: groups) } ?? false
+        }
+        return false
+    }
+    
+    
     var textFieldFocused: Bool {
         let k = activeReduxFocusedField.isDefined || focusedField.isDefined
         //        log("ProjectsHomeCommands: activeReduxFocusedField: \(activeReduxFocusedField)")
@@ -232,6 +267,7 @@ struct ProjectsHomeCommands: Commands {
             }
         } // replacing: .undoRedo
 
+        
         // Don't show any of these if we're on projects-home-screen
         if activeProject {
 
@@ -244,7 +280,30 @@ struct ProjectsHomeCommands: Commands {
                     //                    dispatch(ToggleSelectAllNodes())
                     dispatch(SelectAllShortcutKeyPressed())
                 }
+                
+                SwiftUIShortcutView(title: "Group Layers",
+                                    key: GROUP_LAYERS_SHORTCUT,
+                                    // Disabled if no layers are actively selected
+                                    disabled: !layersActivelySelected || !groupButtonEnabled) {
+                    // deletes both selected nodes and selected comments
+                    dispatch(SidebarGroupCreated())
+                }
+                
+                SwiftUIShortcutView(title: "Ungroup Layers",
+                                    key: DELETE_SELECTED_NODES_SHORTCUT,
+                                    eventModifiers: [.command],
+                                    // Disabled if no layers are actively selected
+                                    disabled: !layersActivelySelected || !ungroupButtonEnabled) {
+//                                    disabled: !layersActivelySelected) {
+                    // deletes both selected nodes and selected comments
+                    dispatch(SidebarGroupUncreated())
+                }
+                
             } // replacing: .pasteboard
+            
+            
+            
+            
         } // if activeProject
     }
 }
