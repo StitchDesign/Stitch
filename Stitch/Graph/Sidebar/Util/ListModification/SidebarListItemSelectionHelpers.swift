@@ -223,9 +223,21 @@ extension GraphState {
 
 extension SidebarLayerList {
     func getFlattenedList() -> [ListItem] {
-        self.flatMap { [$0] + ($0.children ?? []) }
+        flattenListItems(self, acc: .init())
     }
 }
+
+func flattenListItems(_ items: [ListItem],
+                      acc: [ListItem]) -> [ListItem] {
+    var acc = acc
+    items.forEach { item in
+        acc.append(item)
+        let accFromChildren = flattenListItems(item.children ?? [], acc: .init())
+        acc += accFromChildren
+    }
+    return acc
+}
+
 
 // Function to find all items between the smallest and largest consecutive selected items (inclusive)
 // `findItemsBetweenSmallestAndLargestSelected`
