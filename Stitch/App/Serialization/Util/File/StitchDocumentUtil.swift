@@ -24,12 +24,6 @@ extension UTType {
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
-//extension StitchDocumentData: StitchDocumentIdentifiable {
-//    var projectId: UUID {
-//        self.document.projectId
-//    }
-//}
-
 extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     typealias VersionType = StitchDocumentVersion
     
@@ -101,33 +95,7 @@ extension StitchDocumentEncodable {
     var rootUrl: URL {
         Self.getRootUrl(from: self.id)
     }
-    
-//    func getEncodingUrl(documentRootUrl: URL) -> URL {
-//        // Use param in case going to recently deleted temp directory
-//        documentRootUrl
-//    }
-//
-//    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
-//        if forRecentlyDeleted {
-//            return self.recentlyDeletedUrl
-//        }
-//        return self.rootUrl
-//    }
 }
-
-//protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
-//    var projectId: UUID { get }
-//}
-
-// TODO: move
-/// Data structure representing all saved files for some project.
-/// Components are not defined in `StitchDocument` as they are managed in separate files.
-//struct StitchDocumentData: Equatable {
-//    var document: StitchDocument
-//    
-//    // final copies of components--only updated on user publish
-//    let publishedDocumentComponents: [StitchComponent]
-//}
 
 extension StitchComponent: StitchDocumentMigratable {
     typealias VersionType = StitchComonentVersion
@@ -140,7 +108,7 @@ extension StitchComponent: StitchDocumentMigratable {
     }
     
     func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl//.appendingComponentsPath()
+        documentRootUrl
     }
 }
 
@@ -177,13 +145,6 @@ extension StitchComponent {
         }
     }
 }
-
-//extension GraphEntity: MediaDocumentEncodable {
-//    func getEncodingUrl(documentRootUrl: URL) -> URL {
-//        // Don't append anything to parameter
-//        documentRootUrl
-//    }
-//}
 
 extension GraphEntity {
     static func createEmpty() -> Self {

@@ -14,7 +14,6 @@ import StitchSchemaKit
 typealias ImpureNodeEval = (PatchNode) -> ImpureEvalResult
 
 // SAME PATTERN: (PatchNode, T) -> ImpureEvalResult
-//typealias ImpureGraphStateEval = (PatchNode, GraphState) -> ImpureEvalResult
 typealias ImpureGraphEval = (PatchNode, GraphDelegate) -> ImpureEvalResult
 typealias ImpureGraphStepEval = (PatchNode, GraphStepState) -> ImpureEvalResult
 
@@ -23,7 +22,6 @@ typealias ImpureGraphStateAndGraphStep = (PatchNode, GraphDelegate, GraphStepSta
 
 enum ImpureEvals {
     case node(ImpureNodeEval)
-//    case graphState(ImpureGraphStateEval)
     case graph(ImpureGraphEval)
     case graphStep(ImpureGraphStepEval)
     case graphAndGraphStep(ImpureGraphStateAndGraphStep)
@@ -40,8 +38,6 @@ enum ImpureEvals {
         switch self {
         case .node(let impureNodeEval):
             return impureNodeEval(node)
-//        case .graphState(let impureGraph):
-//            return impureGraph(node, graphState)
         case .graph(let impureGraphEval):
             return impureGraphEval(node, graphState)
         case .graphStep(let impureGraphStepEval):

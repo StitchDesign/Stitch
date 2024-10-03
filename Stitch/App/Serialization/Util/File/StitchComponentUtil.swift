@@ -33,8 +33,6 @@ extension StitchComponent: StitchComponentable {
         return self.isPublished ? dir.appendingComponentPublishedPath() :
         dir.appendingComponentDraftPath()
     }
-    
-//    var draftRootUrl: URL { rootUrl }
 }
 
 extension StitchComponentable {
@@ -50,10 +48,6 @@ extension StitchComponentable {
     var name: String {
         self.graph.name
     }
-    
-//    var dataJsonUrl: URL {
-//        self.get.appendingVersionedSchemaPath()
-//    }
     
     var nodes: [NodeEntity] {
         self.graph.nodes
@@ -81,90 +75,9 @@ extension GraphSaveLocation {
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
             
-//            return isPublished ? componentPath.appendingComponentPublishedPath() : componentPath.appendingComponentDraftPath()
-            
         case .userLibrary:
             // TODO: come back to user library
             fatalError()
         }
     }
 }
-
-//extension GraphDocumentPath {
-//    func appendingComponent(_ id: UUID) -> Self {
-//        .init(docId: self.docId,
-//              componentsPath: componentsPath + [id])
-//    }
-//}
-
-// TODO: consider data structure here
-//struct ComponentSaveData {
-//    var type: ComponentSaveLocation
-//    var component: StitchComponent
-//}
-
-//extension ComponentSaveData: MediaDocumentEncodable {
-//    var rootUrl: URL {
-//        switch type {
-//        case .document(let documentId):
-//            StitchDocument.getRootUrl(from: documentId)
-//                .appendingPathComponent(URL.componentsDirPath,
-//                                        conformingTo: .stitchComponent)
-//        case .userLibrary:
-//            // TODO: come back to user library
-//            fatalError()
-//        }
-//    }
-//    
-//    public static var transferRepresentation: some TransferRepresentation {
-//        FileRepresentation(contentType: .stitchComponent,
-//                           exporting: Self.exportComponent,
-//                           importing: Self.importComponent)
-//    }
-//
-//    @Sendable
-//    static func exportComponent(_ component: StitchComponent) async -> SentTransferredFile {
-//        await component.encodeDocumentContents()
-//
-//        let url = component.rootUrl
-//        await ComponentSaveData.exportComponent(component, url: url)
-//        return SentTransferredFile(url)
-//    }
-//
-//    @Sendable
-//    static func exportComponent(_ component: StitchComponent, url: URL) async {
-//        do {
-//            let encodedData = try getStitchEncoder().encode(component)
-//            try encodedData.write(to: url, options: .atomic)
-//        } catch {
-//            log("exportComponent error: \(error)")
-//            #if DEBUG
-//            fatalError()
-//            #endif
-//        }
-//    }
-//
-//    @Sendable
-//    static func importComponent(_ received: ReceivedTransferredFile) async -> ComponentSaveData {
-//        fatalError()
-//        //        do {
-//        //            guard let doc = try await Self.importDocument(from: received.file,
-//        //                                                          isImport: true) else {
-//        //                //                #if DEBUG
-//        //                //                fatalError()
-//        //                //                #endif
-//        //                DispatchQueue.main.async {
-//        //                    dispatchStitch(.displayError(.unsupportedProject))
-//        //                }
-//        //                return StitchDocument()
-//        //            }
-//        //
-//        //            return doc
-//        //        } catch {
-//        //            #if DEBUG
-//        //            fatalError()
-//        //            #endif
-//        //            return StitchDocument()
-//        //        }
-//    }
-//}

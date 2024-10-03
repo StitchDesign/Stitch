@@ -103,12 +103,6 @@ extension DocumentLoader {
         // Create versioned document
         try Self.encodeDocument(document, to: rootUrl)
     }
-
-//    // Note: this fails if file does not already exist at path
-//    func encodeVersionedContents<Document>(document: Document,
-//                                           directoryUrl: URL) async throws where Document: MediaDocumentEncodable {
-//        try Self.encodeDocument(document, to: directoryUrl)
-//    }
     
     static func encodeDocument(_ document: StitchDocument) throws {
         try Self.encodeDocument(document, to: document.rootUrl)

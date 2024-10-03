@@ -31,10 +31,6 @@ protocol DocumentEncodableDelegate: AnyObject {
     func updateOnUndo(schema: CodableDocument)
     
     var storeDelegate: StoreDelegate? { get }
-    
-//    @MainActor
-//    func importedFilesDirectoryReceived(mediaFiles: [URL],
-//                                        components: [StitchComponent])
 }
 
 extension DocumentEncodable {
@@ -78,12 +74,6 @@ extension DocumentEncodable {
             try DocumentLoader.encodeDocument(document,
                                               to: rootDocUrl)
             
-//            // Encode document-level published components
-//            for component in data.publishedDocumentComponents {
-//                try DocumentLoader.encodeDocument(component,
-//                                                  to: rootDocUrl)
-//            }
-            
             log("encodeProject success")
 
             // Save data for last encoded document
@@ -102,12 +92,6 @@ extension DocumentEncodable {
         }
     }
 }
-
-//extension StitchDocument: StitchDocumentEncodable {
-//    func getEncodingUrl(documentRootUrl: URL) -> URL {
-//        <#code#>
-//    }
-//}
 
 final actor DocumentEncoder: DocumentEncodable {
     var id: UUID

@@ -15,11 +15,6 @@ extension URL {
         self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
     }
-    
-//    func appendingStitchProjectDataPath(_ projectId: ProjectId) -> URL {
-//        self.appendingPathComponent(StitchDocument.getFileName(projectId: projectId),
-//                                    conformingTo: .stitchProjectData)
-//    }
 
     func appendingStitchMediaPath() -> URL {
         self.appendingPathComponent(STITCH_IMPORTED_FILES_DIR)

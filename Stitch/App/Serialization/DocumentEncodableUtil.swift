@@ -8,8 +8,6 @@
 import Foundation
 import StitchSchemaKit
 
-//extension GraphState: StitchDocumentIdentifiable { }
-
 extension DocumentEncodable {
     func deleteMediaFromNode(mediaKey: MediaKey) async {
         switch self.getMediaURL(for: mediaKey,
@@ -50,24 +48,5 @@ extension DocumentEncodable {
         
         return .init(mediaFiles: importedFilesDir.importedMediaUrls,
                      components: migratedComponents)
-        
-//        // Start graph once library is built
-//        await MainActor.run { [weak self] in
-//            guard let encoder = self else {
-//                return
-//            }
-//            
-//            // Mutates graph before computation is called on importedFilesDirectoryReceived caller below
-//            graphMutation?()
-//            
-//            encoder.delegate?.importedFilesDirectoryReceived(mediaFiles: importedFilesDir.importedMediaUrls,
-//                                                             components: migratedComponents)
-//        }
     }
-}
-
-// TODO: move
-struct GraphDecodedFiles {
-    let mediaFiles: [URL]
-    let components: [StitchComponentData]
 }

@@ -140,21 +140,13 @@ extension GraphState {
     }
 }
 
-/** Event for creating a group node, which does the following:
- * 1. Determines incoming and outgoing edges to group, whose connections
- *      will need to change to new group node.
- * 2. Creates input and output group nodes.
- * 3. Removes old edges and connections and updates them to new group nodes.
- */
-//struct GroupNodeCreatedEvent: StitchDocumentEvent {
-//
-//    @MainActor
-//    func handle(state: StitchDocumentViewModel) {
-//        state.createGroup(isComponent: false)
-//    }
-//}
-
 extension StitchDocumentViewModel {
+    /** Event for creating a group node, which does the following:
+     * 1. Determines incoming and outgoing edges to group, whose connections
+     *      will need to change to new group node.
+     * 2. Creates input and output group nodes.
+     * 3. Removes old edges and connections and updates them to new group nodes.
+     */
     @MainActor
     func createGroup(isComponent: Bool) async {
         guard !self.llmRecording.isRecording else {

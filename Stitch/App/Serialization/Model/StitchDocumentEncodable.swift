@@ -96,3 +96,8 @@ extension StitchDocumentDirectory {
         self == .empty
     }
 }
+
+struct GraphDecodedFiles {
+    let mediaFiles: [URL]
+    let components: [StitchComponentData]
+}

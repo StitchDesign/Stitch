@@ -225,12 +225,6 @@ extension InputLayerNodeRowData {
         } else {
             self.canvasObserver = nil
         }
-        
-//        if let node = layerNode.nodeDelegate {
-//            self.initializeDelegate(node,
-//                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-//                                    unpackedPortIndex: unpackedPortIndex)
-//        }
     }
 }
 

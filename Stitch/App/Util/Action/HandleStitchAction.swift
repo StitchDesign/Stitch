@@ -31,18 +31,6 @@ struct KeyCharacterPressBegan: StitchStoreEvent {
     }
 }
 
-//struct GraphInitialized: StitchStoreEvent {
-//    let graph: GraphState
-//    let data: GraphEntity
-//    
-//    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-//        Task { [weak graph] in
-//            await graph?.graphInitialized(data: data)
-//        }
-//        return .noChange
-//    }
-//}
-
 struct UndoManagerInvoked: StitchStoreEvent {
     let newState: StitchDocument?
     

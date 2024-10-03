@@ -274,7 +274,6 @@ extension SidebarLayerList {
 
 typealias AsyncCallback = @Sendable () async -> Void
 typealias AsyncCallbackList = [AsyncCallback]
-//typealias ComponentAsyncCallback = @Sendable (any DocumentEncodable) async throws -> Void
 
 struct StitchComponentCopiedResult<T>: Sendable where T: StitchComponentable {
     var component: T
@@ -288,14 +287,6 @@ extension Array where Element == AsyncCallback {
         }
     }
 }
-
-//extension Array where Element == ComponentAsyncCallback {
-//    func processEffects(_ encoder: any DocumentEncodable) async {
-//        for effect in self {
-//            await effect(encoder)
-//        }
-//    }
-//}
 
 extension GraphEntity {
     /// Creates fresh IDs for all data in NodeEntities
