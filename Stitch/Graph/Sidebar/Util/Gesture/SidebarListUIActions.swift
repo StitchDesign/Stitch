@@ -190,7 +190,7 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          excludedGroups: ExcludedGroups) -> ProposedGroup? {
 
      log("groupFromChildBelow: item: \(item)")
-    let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
+    // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
     // log("groupFromChildBelow: items: \(debugItems)")
 
     let movedItemIndex = item.itemIndex(items)
@@ -217,7 +217,9 @@ func groupFromChildBelow(_ item: SidebarListItem,
 
     let itemsAbove = getItemsAbove(item, items)
 
-    guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }) else {
+    guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }),
+          // added:
+          parentItemAbove.isGroup else {
         log("groupFromChildBelow: could not find parent above")
         return nil
     }
@@ -377,7 +379,7 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
         excludedGroups: masterList.excludedGroups) {
 
         log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
-
+        
         // if our drag is east of the proposed-from-below's indentation level,
         // and we already found a proposed group from 'deepest parent',
         // then don't use proposed-from-below.
@@ -390,6 +392,14 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
     }
 
     log("proposeGroup: returning: \(String(describing: proposed))")
+    
+    if let proposedParentId = proposed?.parentId,
+       let proposedParentItem = retrieveItem(proposedParentId, items),
+       !proposedParentItem.isGroup {
+        fatalErrorIfDebug() // Can never propose a parent that is not actually a group
+        return nil
+    }
+    
     return proposed
 }
 
