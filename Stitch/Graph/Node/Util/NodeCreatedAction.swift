@@ -94,6 +94,11 @@ extension StitchDocumentViewModel {
                 expanded: self.visibleGraph.getSidebarExpandedItems(),
                 graphState: self.visibleGraph)
         }
+        
+        node.initializeDelegate(graph: self.visibleGraph,
+                                document: self)
+        
+        self.visibleGraph.calculateFullGraph()
 
         // Little hack to update node data so first render works proper
 //        self.update(from: self.createSchema())

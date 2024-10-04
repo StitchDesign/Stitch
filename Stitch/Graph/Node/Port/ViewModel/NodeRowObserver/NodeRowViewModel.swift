@@ -146,9 +146,7 @@ extension NodeRowViewModel {
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
-                          initialValue: PortValue) {
-//        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
-        
+                          initialValue: PortValue) {        
         self.activeValue = initialValue
         
         self.createFieldValueTypes(initialValue: initialValue,
@@ -399,12 +397,6 @@ extension Array where Element: NodeRowViewModel {
                 let rowViewModel = Element(id: rowId,
                                            rowDelegate: newEntity,
                                            canvasItemDelegate: canvas)
-                
-//                if let node = node {
-//                    rowViewModel.initializeDelegate(node,
-//                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-//                                                    unpackedPortIndex: unpackedPortIndex)
-//                }
                 
                 return rowViewModel
             }
