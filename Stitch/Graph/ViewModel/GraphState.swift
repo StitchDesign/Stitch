@@ -34,9 +34,6 @@ final class GraphState: Sendable {
     let visibleNodesViewModel = VisibleNodesViewModel()
     let edgeDrawingObserver = EdgeDrawingObserver()
 
-    // Loading status for media
-    var libraryLoadingStatus = LoadingState.loading
-
     var selectedEdges = Set<PortEdgeUI>()
 
     // Hackiness for handling edge case in our UI where somehow
@@ -94,7 +91,6 @@ final class GraphState: Sendable {
         self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.visibleNodesViewModel.nodes = nodes
         
-        self.libraryLoadingStatus = .loaded
         self.syncMediaFiles(mediaFiles)
     }
     
