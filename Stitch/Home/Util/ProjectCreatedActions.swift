@@ -21,13 +21,15 @@ extension StitchStore {
 
             // Open doc
             await MainActor.run { [weak self] in
-                self?.openProjectAction(from: newDoc)
+                self?.openProjectAction(from: newDoc,
+                                        isNewProject: true)
             }
         }
     }
 
     @MainActor
-    func openProjectAction(from document: StitchDocument) {
+    func openProjectAction(from document: StitchDocument,
+                           isNewProject: Bool = false) {
         // Get latest preview window size
         let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
             PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
@@ -47,6 +49,10 @@ extension StitchStore {
                 isPhoneDevice: isPhoneDevice,
                 store: store
             )
+            
+            if isNewProject {
+                document?.didDocumentChange = true // creates fresh thumbnail
+            }
             
             await MainActor.run { [weak document, weak store] in
                 guard let document = document else { return }
