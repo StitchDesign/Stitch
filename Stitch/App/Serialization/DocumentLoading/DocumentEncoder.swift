@@ -37,6 +37,35 @@ extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               temporaryUrl: DocumentsURL? = nil,
                                               wasUndo: Bool = false) {
+        self.encodeProjectInBackground(from: graph,
+                                       temporaryUrl: temporaryUrl,
+                                       wasUndo: wasUndo) { delegate, oldSchema, newSchema in
+            graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                 oldSchema: oldSchema,
+                                                 newSchema: newSchema,
+                                                 undoEffectsData: nil)
+        }
+    }
+    
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
+                                              undoEvents: [Action],
+                                              temporaryUrl: DocumentsURL? = nil,
+                                              wasUndo: Bool = false) {
+        self.encodeProjectInBackground(from: graph,
+                                       temporaryUrl: temporaryUrl,
+                                       wasUndo: wasUndo) { delegate, oldSchema, newSchema in
+            graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                 oldSchema: oldSchema,
+                                                 newSchema: newSchema,
+                                                 undoEvents: undoEvents,
+                                                 redoEvents: [])
+        }
+    }
+    
+    @MainActor func encodeProjectInBackground(from graph: GraphState,
+                                              temporaryUrl: DocumentsURL? = nil,
+                                              wasUndo: Bool = false,
+                                              saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
             fatalErrorIfDebug()
             return
@@ -50,9 +79,7 @@ extension DocumentEncodable {
         
         // Update undo only if the caller here wasn't undo itself--this breaks redo
         if !wasUndo {
-            graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                 newSchema: newSchema,
-                                                 oldSchema: oldSchema)
+            saveUndoHistory(delegate, oldSchema, newSchema)
         }
         
         Task(priority: .background) {

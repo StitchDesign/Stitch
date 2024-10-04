@@ -15,8 +15,11 @@ struct NodeCreatedEvent: StitchDocumentEvent {
     let choice: NodeKind
     
     func handle(state: StitchDocumentViewModel) {
-        let _ = state.nodeCreated(choice: choice)
-        state.visibleGraph.encodeProjectInBackground()
+        guard let node = state.nodeCreated(choice: choice) else {
+            fatalErrorIfDebug()
+            return
+        }
+        state.visibleGraph.persistNewNode(node)
     }
 }
 
@@ -99,12 +102,6 @@ extension StitchDocumentViewModel {
                                 document: self)
         
         self.visibleGraph.calculateFullGraph()
-
-        // TODO: handle camera undo event
-        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
-//        if choice == .patch(.cameraFeed) {
-//            undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
-//        }
 
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?
@@ -191,5 +188,19 @@ extension StitchDocumentViewModel {
                     graphDelegate: self.visibleGraph)
             } // choice
         }
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func persistNewNode(_ node: PatchNode) {
+        var undoEvents = [Action]()
+        
+        // Undo event needed for camera feed to update manager if camera feed addition is undo'd
+        if node.kind == .patch(.cameraFeed) {
+            undoEvents.append(CameraFeedNodeDeleted(nodeId: node.id))
+        }
+        
+        self.encodeProjectInBackground(undoEvents: undoEvents)
     }
 }

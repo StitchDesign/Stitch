@@ -41,7 +41,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         newNode.graphDelegate = state.visibleGraph // redundant?
                 
         // Add to state
-        let _ = state.nodeCreated(node: newNode)
+        state.nodeCreated(node: newNode)
             
         // Update sidebar state
         state.visibleGraph.orderedSidebarLayers.insertGroup(group: newGroupData,
@@ -79,7 +79,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
                 
-        state.visibleGraph.encodeProjectInBackground()
+        state.visibleGraph.persistNewNode(newNode)
     }
 }
 

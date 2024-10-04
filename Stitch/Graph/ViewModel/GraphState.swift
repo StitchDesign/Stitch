@@ -753,26 +753,19 @@ extension GraphState {
     func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil,
                                    wasUndo: Bool = false) {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
+                                                                temporaryUrl: temporaryURL,
                                                                 wasUndo: wasUndo)
-//        guard let documentViewModel = self.documentDelegate else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-//        
-//        documentViewModel.encodeProjectInBackground()
     }
     
-//    @MainActor
-//    func encodeProject(temporaryURL: DocumentsURL? = nil) {
-//        self.documentEncoderDelegate?.encodeProject(temporaryURL: temporaryURL)
-//        
-////        guard let documentViewModel = self.documentDelegate else {
-////            fatalErrorIfDebug()
-////            return
-////        }
-////        
-////        documentViewModel.encodeProject(temporaryURL: temporaryURL)
-//    }
+    @MainActor
+    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil,
+                                   undoEvents: [Action],
+                                   wasUndo: Bool = false) {
+        self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
+                                                                undoEvents: undoEvents,
+                                                                temporaryUrl: temporaryURL,
+                                                                wasUndo: false)
+    }
     
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
         self.visibleNodesViewModel.patchNodes.get(nodeId)
