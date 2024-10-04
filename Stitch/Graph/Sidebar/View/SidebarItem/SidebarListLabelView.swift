@@ -115,9 +115,10 @@ struct SidebarListItemLeftLabelView: View {
     var label: some View {
         Group {
             if isBeingEdited {
-                StitchTextView(string: _name,
-                               font: SIDEBAR_LIST_ITEM_FONT,
-                               fontColor: fontColor)
+                SidebarListLabelEditView(id: nodeId,
+                                         name: _name,
+                                         fontColor: fontColor,
+                                         graph: graph)
                 .truncationMode(.tail)
 #if targetEnvironment(macCatalyst)
                 .padding(.trailing, 44)
@@ -125,14 +126,77 @@ struct SidebarListItemLeftLabelView: View {
                 .padding(.trailing, 60)
 #endif
             } else {
-                StitchTextView(string: _name,
-                               font: SIDEBAR_LIST_ITEM_FONT,
-                               fontColor: fontColor)
+                SidebarListLabelEditView(id: nodeId,
+                                         name: _name,
+                                         fontColor: fontColor,
+                                         graph: graph)
             }
         }
         .lineLimit(1)
     }
 }
+
+struct SidebarListLabelEditView: View {
+    
+    // Do we need to add another focused field type here?
+    // If this is focused, you don't want
+    
+    let id: LayerNodeId
+    let name: String
+    let fontColor: Color
+    
+    @Bindable var graph: GraphState
+        
+    @State var edit: String = ""
+    
+    @MainActor
+    var isFocused: Bool {
+        switch graph.graphUI.reduxFocusedField {
+        case .sidebarLayerTitle(let layerNodeId):
+            let k = layerNodeId == id
+            // log("SidebarListLabelEditView: isFocused: \(k) for \(id)")
+            return k
+        default:
+            // log("SidebarListLabelEditView: isFocused: false")
+            return false
+        }
+    }
+    
+    
+    var body: some View {
+        
+        Group {
+            if isFocused {
+                // logInView("SidebarListLabelEditView: editable field")
+                StitchTextEditingBindingField(currentEdit: self.$edit,
+                                              fieldType: .sidebarLayerTitle(id),
+                                              font: SIDEBAR_LIST_ITEM_FONT,
+                                              fontColor: fontColor,
+                                              fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
+                    // Treat this is as a "layer inspector edit" ?
+                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id.asNodeId),
+                                             edit: newEdit,
+                                             isCommitting: isCommitting))
+                })
+            } else {
+                // logInView("SidebarListLabelEditView: read only")
+                StitchTextView(string: edit,
+                               font: SIDEBAR_LIST_ITEM_FONT,
+                               fontColor: fontColor)
+                .padding(.top, 1)
+            }
+            
+        }.onAppear {
+            self.edit = name
+        }
+        .onTapGesture(count: 2) {
+            log("SidebarListLabelEditView: double tap \(id)")
+            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(id)))
+        }
+    }
+    
+}
+
 
 struct SidebarListItemRightLabelView: View {
 
