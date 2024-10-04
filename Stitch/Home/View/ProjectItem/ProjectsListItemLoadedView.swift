@@ -9,7 +9,6 @@ import SwiftUI
 import StitchSchemaKit
 
 struct ProjectThumbnailTextField: View {
-    @Environment(StitchStore.self) var store
     @FocusedValue(\.focusedField) private var focusedField
 
     let document: StitchDocument
@@ -31,12 +30,12 @@ struct ProjectThumbnailTextField: View {
         }
         .transition(.opacity)
         .onSubmit {
-            Task(priority: .background) { [weak store] in
+            Task(priority: .background) {
                 do {
-                    var doc = document
-                    doc.name = projectName
+                    var document = document
+                    document.graph.name = projectName
                     // Must write a version of the project with an updated name
-                    try await store?.documentLoader.encodeVersionedContents(document: doc)
+                    try DocumentLoader.encodeDocument(document)
                 } catch {
                     log("editProjectName: onSubmit: error: \(error)")
                 }
@@ -62,45 +61,32 @@ struct ProjectThumbnailTextField: View {
     }
 }
 
-struct ProjectTapped: StitchStoreEvent {
-    let documentURL: URL
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.handleProjectTapped(documentURL: documentURL)
-        return .noChange
-    }
-}
-
 extension StitchStore {
     /// Async attempts to re-load document from URL in case migration is needed.
     /// We only encode and update the project if the user makes an edit, which helps control project sorting order
     /// so that opened projects only re-sort when edited.
-    func handleProjectTapped(documentURL: URL) {
-        // TODO: loading state needed
-        Task(priority: .userInitiated) {
-            do {
-                guard let document = try await StitchDocument.openDocument(from: documentURL) else {
-                    await MainActor.run { [weak self] in
-                        self?.displayError(error: .projectSchemaNotFound)
-                    }
-                    return
-                }
-                
-                await MainActor.run { [weak self] in
-                    guard let store = self else {
-                        fatalErrorIfDebug()
-                        return
-                    }
-                    
-                    log("handleProjectTapped: about to set \(document.projectId)")
-                    let document = StitchDocumentViewModel(from: document,
-                                                           store: store)
-                    store.navPath = [document]
-                }
-            } catch {
+    func handleProjectTapped(documentURL: URL,
+                             isPhoneDevice: Bool) {
+        Task(priority: .high) {
+            guard let document = try await StitchDocument.openDocument(from: documentURL) else {
                 await MainActor.run { [weak self] in
                     self?.displayError(error: .projectSchemaNotFound)
                 }
+                return
+            }
+            
+            let documentViewModel = await StitchDocumentViewModel(
+                from: document,
+                isPhoneDevice: isPhoneDevice,
+                store: self
+            )
+            
+            await MainActor.run { [weak self, weak documentViewModel] in
+                guard let documentViewModel = documentViewModel else {
+                    return
+                }
+                
+                self?.navPath = [documentViewModel]
             }
         }
     }

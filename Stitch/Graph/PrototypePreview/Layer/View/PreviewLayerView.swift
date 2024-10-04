@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 struct PreviewLayerView: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let layer: Layer
     let isPinnedViewRendering: Bool
@@ -23,6 +24,7 @@ struct PreviewLayerView: View {
     
     var body: some View {
         layer.layerGraphNode.content(document: document,
+                                     graph: graph,
                                      viewModel: layerViewModel,
                                      parentSize: parentSize,
                                      layersInGroup: [],

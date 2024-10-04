@@ -42,7 +42,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     }
     
     /// Updates observer objects with latest data.
-    @MainActor
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
             log("FieldGroupTypeViewModel error: non-equal count of field values to observer objects for \(type).")
@@ -368,9 +367,6 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
 
 //extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
 extension NodeRowViewModel {
-    
-    // Every place we use this, we seem to pass in a proper
-    @MainActor
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,

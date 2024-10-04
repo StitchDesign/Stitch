@@ -102,7 +102,6 @@ final class CanvasItemViewModel: Identifiable {
         self.nodeDelegate?.graphDelegate
     }
     
-    @MainActor
     init(id: CanvasItemId,
          position: CGPoint,
          zIndex: Double,
@@ -117,23 +116,17 @@ final class CanvasItemViewModel: Identifiable {
         self.previousPosition = position
         self.zIndex = zIndex
         self.parentGroupNodeId = parentGroupNodeId
+        self.nodeDelegate = nodeDelegate
         
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
                                outputRowObservers: outputRowObservers,
                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                unpackedPortIndex: unpackedPortIndex)
-        
-        if let node = nodeDelegate {
-            self.initializeDelegate(node,
-                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                    unpackedPortIndex: unpackedPortIndex)
-        }
     }
 }
 
-extension CanvasItemViewModel: SchemaObserver {
-    @MainActor
+extension CanvasItemViewModel {
     func syncRowViewModels(inputRowObservers: [InputNodeRowObserver],
                            outputRowObservers: [OutputNodeRowObserver],
                            unpackedPortParentFieldGroupType: FieldGroupType?,
@@ -150,7 +143,6 @@ extension CanvasItemViewModel: SchemaObserver {
                                    unpackedPortIndex: nil)
     }
     
-    @MainActor
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
@@ -167,13 +159,13 @@ extension CanvasItemViewModel: SchemaObserver {
                   unpackedPortIndex: unpackedPortIndex)
     }
     
-    func createSchema() -> CanvasNodeEntity {
+    func createSchema() -> CanvasNodeEntity {        
         .init(position: self.position,
               zIndex: self.zIndex,
-              parentGroupNodeId: self.parentGroupNodeId)
+              parentGroupNodeId:self.parentGroupNodeId)
     }
 
-    @MainActor func update(from schema: CanvasNodeEntity) {        
+    func update(from schema: CanvasNodeEntity) {        
         if self.position != schema.position {
             self.position = schema.position
         }
@@ -195,9 +187,9 @@ extension CanvasItemViewModel: SchemaObserver {
 }
 
 extension CanvasItemViewModel {
-    @MainActor func initializeDelegate(_ node: NodeDelegate,
-                                       unpackedPortParentFieldGroupType: FieldGroupType?,
-                                       unpackedPortIndex: Int?) {
+    func initializeDelegate(_ node: NodeDelegate,
+                            unpackedPortParentFieldGroupType: FieldGroupType?,
+                            unpackedPortIndex: Int?) {
         self.nodeDelegate = node
         self.inputViewModels.forEach {
             $0.initializeDelegate(node,
@@ -247,7 +239,6 @@ extension CanvasItemViewModel {
 }
 
 extension InputLayerNodeRowData {
-    @MainActor
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
@@ -255,10 +246,8 @@ extension InputLayerNodeRowData {
                                                userVisibleType: nil,
                                                id: .init(portType: .keyPath(layerInputType),
                                                          nodeId: .init()),
-                                               activeIndex: .init(.zero),
                                                upstreamOutputCoordinate: nil)
         return .init(rowObserver: rowObserver,
-                     canvasObserver: nil,
-                     isEmpty: true)
+                     canvasObserver: nil)
     }
 }

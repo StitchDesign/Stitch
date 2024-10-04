@@ -39,6 +39,6 @@ struct HueSliderView: View {
 struct ColorPickerView_Previews: PreviewProvider {
     static var previews: some View {
         HueSliderView(chosenColor: Binding.constant(Color.orange),
-                      graph: .init(id: .init(), store: nil))
+                      graph: .createEmpty())
     }
 }

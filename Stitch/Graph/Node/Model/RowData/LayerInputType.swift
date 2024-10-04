@@ -922,7 +922,6 @@ extension LayerViewModel {
 }
 
 extension LayerInputPort {
-    @MainActor
     var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
         switch self {
         case .position:
@@ -1214,7 +1213,6 @@ extension PortValue {
 
 extension LayerInputType {
     /// Key paths for parent layer view model
-    @MainActor
     var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         let portKeyPath = self.layerInput.layerNodeKeyPath
         

@@ -17,7 +17,7 @@ protocol NodeDefinition {
     
     // TODO: `LayerGraphNode.rowDefinitions` can NEVER have a UserVisibleType
     static func rowDefinitions(for type: UserVisibleType?) -> NodeRowDefinitions
-    @MainActor static func createEphemeralObserver() -> NodeEphemeralObservable?
+    static func createEphemeralObserver() -> NodeEphemeralObservable?
 
     static var inputCountVariesByType: Bool { get }
     static var outputCountVariesByType: Bool { get }
@@ -52,6 +52,7 @@ protocol LayerNodeDefinition: NodeDefinition {
     
     @MainActor
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -82,14 +83,12 @@ extension NodeDefinition {
                                 position: CGPoint,
                                 zIndex: CGFloat,
                                 parentGroupNodeId: GroupNodeId? = nil,
-                                activeIndex: ActiveIndex,
                                 graphDelegate: GraphDelegate?) -> NodeViewModel {
         NodeViewModel(from: Self.self,
                       id: id,
                       position: position,
                       zIndex: zIndex,
                       parentGroupNodeId: parentGroupNodeId,
-                      activeIndex: activeIndex,
                       graphDelegate: graphDelegate)
     }
 

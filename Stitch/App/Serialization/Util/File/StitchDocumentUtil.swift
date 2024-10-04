@@ -11,10 +11,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 import ZIPFoundation
 
-extension StitchDocument: Identifiable {
-    public var id: ProjectId { self.projectId }
-}
-
 enum StitchDocumentError: Error {
     case noDataFile
 }
@@ -22,34 +18,63 @@ enum StitchDocumentError: Error {
 extension UTType {
     static let stitchDocument: UTType = UTType(exportedAs: "app.stitchdesign.stitch.document")
     static let stitchProjectData: UTType = UTType(exportedAs: "app.stitchdesign.stitch.projectdata")
-    static let stitchComponent: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
+    static let stitchComponentZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
+    static let stitchComponentUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.componentdata")
+    static let stitchClipboard: UTType = UTType(exportedAs: "app.stitchdesign.stitch.clipboard")
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
-extension StitchDocument: StitchDocumentIdentifiable {
+extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
+    typealias VersionType = StitchDocumentVersion
+    
+    static let unzippedFileType: UTType = .stitchProjectData
+    static let zippedFileType: UTType = .stitchDocument
+    
+    init() {
+        self.init(nodes: [])
+    }
+    
+    public var id: ProjectId {
+        get {
+            self.graph.id
+        }
+        set(newValue) {
+            self.graph.id = newValue
+        }
+    }
+    
+    var name: String {
+        self.graph.name
+    }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        // Don't append anything to parameter
+        documentRootUrl
+    }
+    
     init(nodes: [NodeEntity] = []) {
-        self.init(projectId: ProjectId(),
-                  name: STITCH_PROJECT_DEFAULT_NAME,
+        self.init(graph: .init(id: .init(),
+                               name: STITCH_PROJECT_DEFAULT_NAME,
+                               nodes: nodes,
+                               orderedSidebarLayers: [],
+                               commentBoxes: []),
                   previewWindowSize: PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
                   previewSizeDevice: PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
                   previewWindowBackgroundColor: DEFAULT_FLOATING_WINDOW_COLOR,
                   localPosition: .zero,
                   zoomData: 1,
-                  nodes: nodes,
-                  orderedSidebarLayers: [],
-                  commentBoxes: .init(),
                   cameraSettings: .init())
     }
     
     static let graphDataFileName = "data"
 }
 
-extension StitchDocumentIdentifiable {
-    var uniqueInternalDirectoryName: String {
-        Self.getFileName(projectId: self.projectId)
+extension StitchDocumentEncodable {
+    static func getUniqueInternalDirectoryName(from id: UUID) -> String {
+        Self.getFileName(projectId: id)
     }
     
-    static func getFileName(projectId: ProjectId) -> String {
+    static func getFileName(projectId: UUID) -> String {
         "stitch--\(projectId)"
     }
 
@@ -59,47 +84,96 @@ extension StitchDocumentIdentifiable {
         let fileExt = "\(versionString).json"
         return fileExt
     }
+    
+    static func getRootUrl(from documentId: UUID) -> URL {
+        StitchFileManager.documentsURL
+            .url
+            .appendingStitchProjectDataPath(documentId)
+    }
 
     /// URL location for document contents, i.e. imported media
     var rootUrl: URL {
-        StitchFileManager.documentsURL
-            .url
-            .appendingStitchProjectDataPath(self)
+        Self.getRootUrl(from: self.id)
     }
+}
 
-    /// URL location for recently deleted project.
-    private var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self)
+extension StitchComponent: StitchDocumentMigratable {
+    typealias VersionType = StitchComonentVersion
+    
+    init() {
+        self.init(saveLocation: .document(.init(docId: .init(),
+                                                componentsPath: [])),
+                  isPublished: false,
+                  graph: GraphEntity.createEmpty())
     }
+    
+    func getEncodingUrl(documentRootUrl: URL) -> URL {
+        documentRootUrl
+    }
+}
 
-    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
-        if forRecentlyDeleted {
-            return self.recentlyDeletedUrl
+extension StitchClipboardContent {
+    var name: String {
+        self.graph.name
+    }
+    
+    public var id: UUID {
+        get {
+            self.graph.id
         }
-        return self.rootUrl
+        set(newValue) {
+            self.graph.id = newValue
+        }
     }
 }
 
-protocol StitchDocumentIdentifiable: MediaDocumentEncodable {
-    var projectId: UUID { get }
+extension StitchComponent {
+    static func migrateEncodedComponent(from componentUrl: URL) throws -> StitchComponent? {
+        let versionedDataUrls = componentUrl.getVersionedDataUrls()
+        
+        do {
+            // If multiple verisoned URLs found, delete the older documents
+            guard let graphDataUrl: URL = try versionedDataUrls.getAndCleanupVersions() else {
+                log("StitchComponent.migrateEncodedComponents error: could not get versioned URL from package.")
+                return nil
+            }
+            
+            return try StitchComonentVersion.migrate(versionedCodableUrl: graphDataUrl)
+        } catch {
+            fatalErrorIfDebug("StitchDocumentData.openDocument error on components decoding: \(error)")
+            return nil
+        }
+    }
 }
 
-extension StitchDocument: Transferable, Sendable {
+extension GraphEntity {
+    static func createEmpty() -> Self {
+        .init(id: .init(),
+              name: "",
+              nodes: [],
+              orderedSidebarLayers: [],
+              commentBoxes: [])
+    }
+}
+
+extension StitchDocumentMigratable {
     public static var transferRepresentation: some TransferRepresentation {
-        FileRepresentation(contentType: .stitchDocument,
+        FileRepresentation(contentType: Self.zippedFileType,
                            exporting: Self.exportDocument,
                            importing: Self.importDocument)
     }
-
+    
     @Sendable
-    static func exportDocument(_ document: StitchDocument) async -> SentTransferredFile {
+    static func exportDocument(_ document: Self) async -> SentTransferredFile {
         log("StitchDocumentWrapper: transferRepresentation: exporting: called")
-
-        let projectURL = document.getUrl()
+        assertInDebug(Self.zippedFileType.preferredFilenameExtension != nil)
+        
+        let projectURL = document.rootUrl
+        let fileNameExt = Self.zippedFileType.preferredFilenameExtension ?? ""
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
-        let exportedFileName = (document.name + ".stitch").replacingOccurrences(of: "/", with: ":")
+        let exportedFileName = (document.name + "." + fileNameExt).replacingOccurrences(of: "/", with: ":")
 
         let tempURL = StitchFileManager.tempDir
             .appendingPathComponent(exportedFileName, conformingTo: .stitchDocument)
@@ -132,9 +206,9 @@ extension StitchDocument: Transferable, Sendable {
     }
 
     @Sendable
-    static func importDocument(_ received: ReceivedTransferredFile) async -> StitchDocument {
+    static func importDocument(_ received: ReceivedTransferredFile) async -> Self {
         do {
-            guard let doc = try await Self.openDocument(from: received.file,
+            guard let data = try await Self.openDocument(from: received.file,
                                                         isImport: true) else {
                 //                #if DEBUG
                 //                fatalError()
@@ -142,19 +216,19 @@ extension StitchDocument: Transferable, Sendable {
                 DispatchQueue.main.async {
                     dispatch(DisplayError(error: .unsupportedProject))
                 }
-                return StitchDocument()
+                return .init()
             }
 
-            return doc
+            return data
         } catch {
             fatalErrorIfDebug()
-            return StitchDocument()
+            return .init()
         }
     }
 
     static func openDocument(from importedUrl: URL,
                              isImport: Bool = false,
-                             isNonICloudDocumentsFile: Bool = false ) async throws -> StitchDocument? {
+                             isNonICloudDocumentsFile: Bool = false) async throws -> Self? {
         
         // log("openDocument importedUrl: \(importedUrl)")
                 
@@ -181,27 +255,24 @@ extension StitchDocument: Transferable, Sendable {
         }
 
         // Migrate document content given some URL
-        guard var codableDoc: StitchDocument = try StitchDocumentVersion.migrate(versionedCodableUrl: graphDataUrl) else {
-            //                #if DEBUG
-            //                fatalError()
-            //                #endif
+        guard var codableDoc = try Self.getDocument(from: graphDataUrl) else {
             log("openDocument: could not migrate")
             return nil
         }
 
         if isImport {
             // Change ID as to not overwrite possibly existing document
-            codableDoc.projectId = .init()
+            codableDoc.id = .init()
 
             // Move imported project contents to application sandbox
             try FileManager.default.moveItem(at: projectDataUrl, to: codableDoc.rootUrl)
             // log("openDocument: successfully moved item")
             
             // Encode document contents on import to save newest project data
-            try DocumentLoader.encodeDocument(codableDoc)
+            try DocumentLoader.encodeDocument(codableDoc, to: codableDoc.rootUrl)
             // log("openDocument: successfully encoded item")
         }
-
+        
         graphDataUrl.stopAccessingSecurityScopedResource()
 
         log("openDocument: returning codable doc")
@@ -209,11 +280,11 @@ extension StitchDocument: Transferable, Sendable {
     }
 }
 
-extension StitchDocument {
+extension StitchDocumentEncodable {
     /// Unzips document contents on project import, returning the URL of the unzipped contents.
     static func getUnzippedProjectData(importedUrl: URL) throws -> URL? {
         // .stitchproject is already unzipped so we just return this
-        if importedUrl.pathExtension == UTType.stitchProjectData.preferredFilenameExtension {
+        if importedUrl.pathExtension == Self.unzippedFileType.preferredFilenameExtension {
             return importedUrl
         }
         
@@ -221,21 +292,23 @@ extension StitchDocument {
             fatalErrorIfDebug("Expected .stitch file type but got: \(importedUrl.pathExtension)")
             return nil
         }
-
+        
         let unzipDestinationURL = StitchFileManager.tempDir
             .appendingPathComponent(UUID().uuidString)
         try FileManager.default.unzipItem(at: importedUrl, to: unzipDestinationURL)
-
+        
         // Find .stitchproject file
         let items = try FileManager.default.contentsOfDirectory(at: unzipDestinationURL,
                                                                 includingPropertiesForKeys: nil)
         let projectFile = items.first { file in
-            file.pathExtension == UTType.stitchProjectData.preferredFilenameExtension
+            file.pathExtension == Self.unzippedFileType.preferredFilenameExtension
         }
-
+        
         return projectFile
     }
-    
+}
+
+extension StitchDocument {
     public static let defaultName = "Untitled"
     
     /// Matches iPHone 12, 13, 14 etc

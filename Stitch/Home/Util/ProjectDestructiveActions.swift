@@ -13,7 +13,7 @@ extension StitchStore {
     // Called when user elects to remove project locally after it's been deleted elsewhere
     @MainActor
     func handleDeleteAndExitCurrentProject() {
-        guard let document = self.currentGraph else {
+        guard let document = self.currentDocument else {
             log("DeleteAndExitCurrentProject: current project was not found.")
             self.alertState.stitchFileError = .currentProjectNotFound
             return
@@ -27,10 +27,10 @@ extension StitchStore {
 extension StitchStore {
     @MainActor
     func deleteProject(document: StitchDocument) {
-        let projectId = document.projectId
+        let projectId = document.id
 
         switch StitchFileManager.removeStitchProject(
-            url: document.getUrl(),
+            url: document.rootUrl,
             projectId: projectId) {
 
         case .success:
@@ -84,8 +84,9 @@ extension StitchStore {
         // Reimports deleted project
         Task {
             do {
-                let _ = try await StitchDocument.openDocument(from: deletedProjectURL,
-                                                              isImport: true)
+                let _ = try await StitchDocument
+                    .openDocument(from: deletedProjectURL,
+                                  isImport: true)
             } catch {
                 await MainActor.run { [weak self] in
                     self?.alertState.stitchFileError = .projectWriteFailed

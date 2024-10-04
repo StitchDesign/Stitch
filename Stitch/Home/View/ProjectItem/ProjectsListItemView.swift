@@ -75,8 +75,8 @@ struct ProjectsListItemView: View {
 
     var document: StitchDocument? {
         switch projectLoader.loadingDocument {
-        case .loaded(let document):
-            return document
+        case .loaded(let data):
+            return data
         default:
             return nil
         }
@@ -96,11 +96,12 @@ struct ProjectsListItemView: View {
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: document.getProjectThumbnailImage(),
+                    projectThumbnail: DocumentEncoder.getProjectThumbnailImage(rootUrl: document.rootUrl),
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
-                        dispatch(ProjectTapped(documentURL: projectLoader.url))
+                        store.handleProjectTapped(documentURL: document.rootUrl,
+                                                  isPhoneDevice: GraphUIState.isPhoneDevice)
                     }
                     .transition(.opacity)
             }

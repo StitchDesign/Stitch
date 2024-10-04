@@ -16,7 +16,7 @@ extension StitchStore {
         documentViewModel.isGeneratingProjectThumbnail = true
         
         // Recalculate the entire graph immediately, so that e.g. camera evals run with their image taking setting "off":
-        documentViewModel.calculate(from: documentViewModel.allNodesToCalculate)
+        documentViewModel.graph.calculateFullGraph()
         
         // Note: we pass in the existing `generatedPreview: GeneratePreview` becaue we want to reuse the exact images etc. already inside PreviewImage view etc.; but that doesn't actually help.
         let generatedPreview = GeneratePreview(document: documentViewModel)
@@ -27,7 +27,7 @@ extension StitchStore {
             .clipped()
         
         let document = documentViewModel.createSchema()
-        let rootUrl = documentViewModel.graph.rootUrl
+        let rootUrl = document.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
         
         Task { [weak self] in
@@ -56,8 +56,9 @@ extension StitchStore {
                 
                 // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
                 //                 graph.encodeProjectInBackground()
-                try await store.documentLoader.encodeVersionedContents(
-                    document: document)
+                
+                // TODO: thumbnail hack no longer works
+//                try await DocumentLoader.encodeDocument(documentData, to: documentData.document.rootUrl)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")
             }
