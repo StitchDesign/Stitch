@@ -43,6 +43,8 @@ protocol GraphDelegate: AnyObject, Sendable {
 
     var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
+    var enabledCameraNodeIds: NodeIdSet { get set }
+    
     @MainActor var connections: GraphState.TopologicalData.Connections { get }
     
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?

@@ -100,9 +100,9 @@ extension StitchDocumentViewModel {
 
         // TODO: handle camera undo event
         // Undo event needed for camera feed to update manager if camera feed addition is undo'd
-        if choice == .patch(.cameraFeed) {
-            undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
-        }
+//        if choice == .patch(.cameraFeed) {
+//            undoEvents.append(CameraFeedNodeDeleted(nodeId: nodeId))
+//        }
 
         // Reset doubleTapLocation
         // TODO: where else would we need to reset this?

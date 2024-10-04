@@ -125,7 +125,8 @@ extension GraphState {
 
         //    log("deleteNode called, will delete node \(id)")
         
-        guard let node = self.getNodeViewModel(id) else {
+        guard let node = self.getNodeViewModel(id),
+              let graph = node.graphDelegate else {
             log("deleteNode: node not found")
             return
         }
@@ -173,7 +174,7 @@ extension GraphState {
 
                 if lastOfNode {
                     // Update CameraFeedManager with latest enabled nodes--conditional tear down handled there
-                    self.documentDelegate?.removeCameraNode(id: id)
+                    graph.enabledCameraNodeIds.remove(id)
                 }
             default:
                 break

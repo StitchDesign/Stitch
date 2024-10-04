@@ -44,8 +44,9 @@ struct LocationNode: PatchNodeDefinition {
     }
 }
 
-func createLocationManager(state: GraphDelegate,
-                           nodeId: NodeId) async -> StitchSingletonMediaObject {
+func createLocationManager(_: StitchDocumentViewModel,
+                           _: GraphDelegate,
+                           _: NodeId) async -> StitchSingletonMediaObject {
     .locationManager(LocationManager())
 }
 

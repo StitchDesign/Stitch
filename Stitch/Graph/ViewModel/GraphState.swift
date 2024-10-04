@@ -335,7 +335,9 @@ final class GraphState: Sendable {
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
 
-    // DEVICE MOTION
+    // Tracks nodes with camera enabled
+    var enabledCameraNodeIds = NodeIdSet()
+    
     var motionManagers = StitchMotionManagersDict()
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()

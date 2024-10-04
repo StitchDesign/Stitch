@@ -70,7 +70,7 @@ struct PreviewRealityLayer: View {
                                  parentDisablesPosition: parentDisablesPosition)
                 .onAppear {
                     // Update list of node Ids using camera
-                    cameraFeedManager.enabledNodeIds.insert(nodeId)
+                    graph.enabledCameraNodeIds.insert(nodeId)
                 }
             } else {
                 EmptyView()
@@ -88,7 +88,8 @@ struct PreviewRealityLayer: View {
             // Note that EmptyView won't trigger the onApppear closure
             Color.clear
                 .onAppear {
-                    dispatch(RealityViewCreatedWithoutCamera(nodeId: nodeId))
+                    document.realityViewCreatedWithoutCamera(graph: graph,
+                                                             nodeId: nodeId)
                 }
         }
     }

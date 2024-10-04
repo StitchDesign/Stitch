@@ -85,86 +85,93 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 
 @MainActor
 func createCameraFeedManager(document: StitchDocumentViewModel,
+                             graph: GraphDelegate,
                              nodeId: NodeId) -> StitchSingletonMediaObject {
-    fatalError("ids in camera feed an issue")
-//    let nodeKind = document.getNodeViewModel(nodeId)?.kind
-//    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
-//                                       newNode: nodeId)
-//    return .cameraFeedManager(camera)
+    let _node = graph.getNodeViewModel(nodeId)
+    assertInDebug(_node != nil)
+    let node = _node ?? .createEmpty()
+    let nodeKind = node.kind
+    
+    let camera = document.createCamera(for: nodeKind,
+                                       graph: graph,
+                                       newNode: node.id)
+    return .cameraFeedManager(camera)
 }
 
 /// Logic that checks if we can run the eval for some camera node or if we should tear down this camera.
 /// Used by the camera feed and raycast nodes.
 @MainActor
 func cameraManagerEval(node: PatchNode,
+                       graph: GraphDelegate,
                        document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
                        mediaOp: @escaping AsyncSingletonMediaEvalOp) -> ImpureEvalResult {
-    fatalError("ids in camera feed an issue")
-//    
-//    // Check if any instance is enabled
-//    let isNodeEnabled = node.inputs[safe: cameraEnabledInputIndex]?
-//        .compactMap { $0.getBool }
-//        .contains(where: { $0 }) ?? false
-//
-//    // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
-//    // to possibly tear down camera
-//    guard isNodeEnabled else {
-//        if let enabledNodeIds = document.cameraFeed?.enabledNodeIds,
-//           enabledNodeIds.contains(node.id) {
-//            document.removeCameraNode(id: node.id)
-//        }
-//
-//        // Better: returns two separate outputs, where each output does not contain a loop
-//        return ImpureEvalResult(
-//            outputsValues: [
-//                [mediaDefault],
-//                [.size(.zero)]
-//            ])
-//    }
-//
-//    return asyncSingletonMediaEval(node: node,
-//                                   document: document,
-//                                   mediaCreation: createCameraFeedManager,
-//                                   mediaManagerKeyPath: \.cameraFeedManager,
-//                                   mediaOp: mediaOp)
-//    .toImpureEvalResult()
+    // Check if any instance is enabled
+    let isNodeEnabled = node.inputs[safe: cameraEnabledInputIndex]?
+        .compactMap { $0.getBool }
+        .contains(where: { $0 }) ?? false
+
+    // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
+    // to possibly tear down camera
+    guard isNodeEnabled else {
+        if graph.enabledCameraNodeIds.contains(node.id) {
+            graph.enabledCameraNodeIds.remove(node.id)
+        }
+
+        // Better: returns two separate outputs, where each output does not contain a loop
+        return ImpureEvalResult(
+            outputsValues: [
+                [mediaDefault],
+                [.size(.zero)]
+            ])
+    }
+
+    return asyncSingletonMediaEval(node: node,
+                                   graph: graph,
+                                   mediaCreation: createCameraFeedManager,
+                                   mediaManagerKeyPath: \.cameraFeedManager,
+                                   mediaOp: mediaOp)
+    .toImpureEvalResult()
 }
 
 @MainActor
 func cameraFeedEval(node: PatchNode,
                     graph: GraphDelegate) -> ImpureEvalResult {
-    fatalError("ids in camera feed an issue")
+    guard let document = graph.documentDelegate else {
+        fatalErrorIfDebug()
+        return .noChange(node)
+    }
     
-//    cameraManagerEval(node: node,
-//                      document: document,
-//                      cameraEnabledInputIndex: 0) { values, _, loopIndex in
-//        
-//        guard !document.isGeneratingProjectThumbnail else {
-//            log("cameraFeedEval: generating project thumbnail, so will not use camera image")
-//            return node.defaultOutputs
-//        }
-//        
-//        guard let isEnabled = values.first?.getBool else {
-//            log("cameraFeedEval: issue decoding values")
-//            return node.defaultOutputs
-//        }
-//
-//        guard isEnabled else {
-//            return node.defaultOutputs
-//        }
-//
-//        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
-//            return node.defaultOutputs
-//        }
-//        
-//        let newId = UUID()
-//        
-//        return [
-//            .asyncMedia(AsyncMediaValue(id: newId,
-//                                        dataType: .computed,
-//                                        mediaObject: .image(currentCamearaImage))),
-//            .size(currentCamearaImage.layerSize)
-//        ]
-//    }
+    return cameraManagerEval(node: node,
+                             graph: graph,
+                             document: document,
+                             cameraEnabledInputIndex: 0) { values, _, loopIndex in
+        
+        guard !document.isGeneratingProjectThumbnail else {
+            log("cameraFeedEval: generating project thumbnail, so will not use camera image")
+            return node.defaultOutputs
+        }
+        
+        guard let isEnabled = values.first?.getBool else {
+            log("cameraFeedEval: issue decoding values")
+            return node.defaultOutputs
+        }
+        
+        guard isEnabled else {
+            return node.defaultOutputs
+        }
+        
+        guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
+            return node.defaultOutputs
+        }
+        
+        let newId = UUID()
+        
+        return [
+            .asyncMedia(AsyncMediaValue(id: newId,
+                                        dataType: .computed,
+                                        mediaObject: .image(currentCamearaImage))),
+            .size(currentCamearaImage.layerSize)
+        ]
+    }
 }

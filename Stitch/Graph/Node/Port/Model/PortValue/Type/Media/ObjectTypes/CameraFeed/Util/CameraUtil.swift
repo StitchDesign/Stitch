@@ -71,6 +71,7 @@ extension StitchDocumentViewModel {
     /// Update GraphSchema.CameraSettings and MediaManager after a Camera Feed Node's camera-orientation input received a new orientation value.
     @MainActor
     func cameraOrientationUpdated(input: InputCoordinate,
+                                  graph: GraphDelegate,
                                   cameraOrientation: StitchCameraOrientation) {
         
         guard cameraOrientation != self.cameraSettings.orientation else {
@@ -78,45 +79,45 @@ extension StitchDocumentViewModel {
             return
         }
         
-        fatalError("// TODO: move camera feed to graph, keep session in document")
-//        
-//        guard let node = self.getNodeViewModel(input.nodeId),
-//              node.kind.usesCamera else {
-//            log("CameraOrientationUpdated: the updated input was not on a camera node; will exit early")
-//            return
-//        }
-//        
-//        log("CameraOrientationUpdated: cameraOrientation: \(cameraOrientation)")
-//        
-//        // Update graph schema's camera settings
-//        self.cameraSettings.orientation = cameraOrientation
-//        
-//        self.refreshCamera(for: node.kind)
+        guard let node = graph.getNodeViewModel(input.nodeId),
+              node.kind.usesCamera else {
+            log("CameraOrientationUpdated: the updated input was not on a camera node; will exit early")
+            return
+        }
+        
+        log("CameraOrientationUpdated: cameraOrientation: \(cameraOrientation)")
+        
+        // Update graph schema's camera settings
+        self.cameraSettings.orientation = cameraOrientation
+        
+        self.refreshCamera(for: node.kind,
+                           graph: graph)
     }
     
     @MainActor
     func refreshCamera(for nodeKind: NodeKind,
+                       graph: GraphDelegate,
                        newNode: NodeId? = nil) {
         // Update camera in media manager
-        let cameraFeed = self.createCamera(for: nodeKind, newNode: newNode)
+        let cameraFeed = self.createCamera(for: nodeKind,
+                                           graph: graph,
+                                           newNode: newNode)
         self.cameraFeedManager = .loaded(.cameraFeedManager(cameraFeed))
     }
 
     @MainActor
     func createCamera(for nodeKind: NodeKind,
+                      graph: GraphDelegate,
                       newNode: NodeId? = nil) -> CameraFeedManager {
-        // Keep track of enabled node ids
-        var enabledNodeIds = self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.enabledNodeIds ?? .init()
-
         if let newNode = newNode {
-            enabledNodeIds.insert(newNode)
+            graph.enabledCameraNodeIds.insert(newNode)
         }
 
         // Reset camera
         self.deactivateCamera()
 
         let cameraFeed = CameraFeedManager(cameraSettings: self.cameraSettings,
-                                           enabledNodeIds: enabledNodeIds,
+                                           isEnabled: true,
                                            isCameraFeedNode: nodeKind == .patch(.cameraFeed),
                                            documentDelegate: self)
         return cameraFeed
@@ -124,27 +125,27 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func cameraDirectionUpdated(input: InputCoordinate,
+                                graph: GraphDelegate,
                                 cameraDirection: CameraDirection) {
-        fatalError("// TODO: Camera direction change")
-//
-//        guard cameraDirection != self.cameraSettings.direction else {
-//            log("CameraDirectionUpdated: already using cameraDirection \(cameraDirection); will exit early")
-//            return
-//        }
-//        
-//        guard let node = self.getNodeViewModel(input.nodeId),
-//              node.kind.usesCamera else {
-//            log("CameraDirectionUpdated: the updated input was not on a camera node; will exit early")
-//            return
-//        }
-//        
-//        log("CameraDirectionUpdated: cameraDirection: \(cameraDirection)")
-//        
-//        // Update graph schema's camera settings
-//        self.cameraSettings.direction = cameraDirection
-//        
-//        // Update camera in media manager
-//        self.refreshCamera(for: node.kind)
+        guard cameraDirection != self.cameraSettings.direction else {
+            log("CameraDirectionUpdated: already using cameraDirection \(cameraDirection); will exit early")
+            return
+        }
+        
+        guard let node = graph.getNodeViewModel(input.nodeId),
+              node.kind.usesCamera else {
+            log("CameraDirectionUpdated: the updated input was not on a camera node; will exit early")
+            return
+        }
+        
+        log("CameraDirectionUpdated: cameraDirection: \(cameraDirection)")
+        
+        // Update graph schema's camera settings
+        self.cameraSettings.direction = cameraDirection
+        
+        // Update camera in media manager
+        self.refreshCamera(for: node.kind,
+                           graph: graph)
     }
     
     @MainActor
@@ -152,24 +153,28 @@ extension StitchDocumentViewModel {
                            originalValue: PortValue,
                            coercedValue: PortValue) {
         
-        switch originalValue {
-            
-        case .cameraOrientation(let x):
-            if let y = coercedValue.getCameraOrientation,
-               x != y {
-                self.cameraOrientationUpdated(
-                    input: input,
-                    cameraOrientation: y)
+        self.allGraphs.forEach { graph in
+            switch originalValue {
+                
+            case .cameraOrientation(let x):
+                if let y = coercedValue.getCameraOrientation,
+                   x != y {
+                    self.cameraOrientationUpdated(
+                        input: input,
+                        graph: graph,
+                        cameraOrientation: y)
+                }
+            case .cameraDirection(let x):
+                if let y = coercedValue.getCameraDirection,
+                   x != y {
+                    self.cameraDirectionUpdated(
+                        input: input,
+                        graph: graph,
+                        cameraDirection: y)
+                }
+            default:
+                break
             }
-        case .cameraDirection(let x):
-            if let y = coercedValue.getCameraDirection,
-               x != y {
-                self.cameraDirectionUpdated(
-                    input: input,
-                    cameraDirection: y)
-            }
-        default:
-            break
         }
     }
     

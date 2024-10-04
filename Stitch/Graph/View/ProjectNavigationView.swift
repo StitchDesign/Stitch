@@ -36,5 +36,15 @@ struct ProjectNavigationView: View {
         .onChange(of: upstreamConnections) {
             document.visibleGraph.updateGraphData()
         }
+        .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
+            if !isCameraEnabled {
+                // Tear down if no nodes enabled camera
+                document.deactivateCamera()
+                
+                DispatchQueue.main.async {
+                    dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
+                }
+            }
+        }
     }
 }

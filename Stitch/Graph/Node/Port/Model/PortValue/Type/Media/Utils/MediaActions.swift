@@ -252,16 +252,18 @@ extension NodeRowObserver {
     }
 }
 
-struct RealityViewCreatedWithoutCamera: StitchDocumentEvent {
-    let nodeId: NodeId
-
-    func handle(state: StitchDocumentViewModel) {
-        if state.cameraFeedManager?.isLoading ?? false {
+extension StitchDocumentViewModel {
+    @MainActor
+    func realityViewCreatedWithoutCamera(graph: GraphState,
+                                         nodeId: NodeId) {
+        if self.cameraFeedManager?.isLoading ?? false {
             log("RealityViewCreatedWithoutCamera: already loading")
             return
         }
 
-        state.refreshCamera(for: .layer(.realityView), newNode: nodeId)
+        self.refreshCamera(for: .layer(.realityView),
+                           graph: graph,
+                           newNode: nodeId)
     }
 }
 

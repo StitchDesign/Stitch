@@ -10,7 +10,7 @@ import StitchSchemaKit
 import StitchEngine
 
 typealias MediaManagerSingletonKeyPath = ReferenceWritableKeyPath<StitchDocumentViewModel, LoadingStatus<StitchSingletonMediaObject>?>
-typealias SingletonMediaCreation = @Sendable (GraphDelegate, NodeId) async -> StitchSingletonMediaObject
+typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> StitchSingletonMediaObject
 typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> PortValues
 
 actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
@@ -18,7 +18,9 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
                               nodeId: NodeId,
                               mediaManagerKeyPath: MediaManagerSingletonKeyPath,
                               mediaCreation: @escaping SingletonMediaCreation) async {
-        let media = await mediaCreation(graph, nodeId)
+        guard let document = graph.documentDelegate else { return }
+        
+        let media = await mediaCreation(document, graph, nodeId)
         
         await MainActor.run { [weak graph] in
             graph?.documentDelegate?[keyPath: mediaManagerKeyPath] = .loaded(media)

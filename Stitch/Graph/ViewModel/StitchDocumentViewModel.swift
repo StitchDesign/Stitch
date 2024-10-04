@@ -174,6 +174,14 @@ extension StitchDocumentViewModel {
                                                        temporaryUrl: temporaryURL)
     }
     
+    /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera
+    /// node is enabled. Complexity handled here as there can only be one running camera session.
+    var isCameraEnabled: Bool {
+        self.allGraphs.contains {
+            !$0.enabledCameraNodeIds.isEmpty
+        }
+    }
+    
 //    @MainActor
 //    func willEncodeProject(schema: StitchDocument) {
 //        // Update nodes data
