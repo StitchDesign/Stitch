@@ -40,6 +40,8 @@ extension NodeEntity {
             }
         case .group(let canvas):
             return [canvas]
+        case .component:
+            return []
         }
     }
     
@@ -71,6 +73,8 @@ extension NodeEntity {
         case .group(let canvas):
             let newCanvas = callback(canvas)
             self.nodeTypeEntity = .group(newCanvas)
+        case .component:
+            return
         }
     }
     
@@ -91,7 +95,7 @@ extension NodeEntity {
             return layer.layer.layerGraphNode.inputDefinitions.flatMap {
                 layer[keyPath: $0.schemaPortKeyPath].inputConnections
             }
-        case .group:
+        case .group, .component:
             return []
         }
     }
@@ -104,7 +108,7 @@ extension NodeTypeEntity {
             return .patch(patchEntity.patch)
         case .layer(let layerEntity):
             return .layer(layerEntity.layer)
-        case .group:
+        case .group, .component:
             return .group
         }
     }
@@ -125,5 +129,24 @@ extension NodeTypeEntity {
         default:
             return nil
         }
+    }
+    
+    var componentNodeEntity: ComponentEntity? {
+        switch self {
+        case .component(let componentNodeEntity):
+            return componentNodeEntity
+        default:
+            return nil
+        }
+    }
+}
+
+extension [NodeEntity] {
+    @MainActor
+    func getComponentData(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponentData] {
+        self
+            .compactMap { $0.nodeTypeEntity.componentNodeEntity?.componentId }
+            .toSet
+            .compactMap { masterComponentsDict.get($0)?.componentData }
     }
 }

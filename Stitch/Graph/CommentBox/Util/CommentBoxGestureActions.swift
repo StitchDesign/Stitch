@@ -31,7 +31,7 @@ extension StitchDocumentViewModel {
 
         box.zIndex = self.visibleGraph.highestZIndex + 1
 
-        self.graph.encodeProjectInBackground()
+        self.visibleGraph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -134,7 +134,7 @@ extension StitchDocumentViewModel {
 
         } // for boxId in ...
 
-        self.graph.encodeProjectInBackground()
+        self.visibleGraph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -219,7 +219,7 @@ extension StitchDocumentViewModel {
         box.position = box.expansionBox.anchorCorner
         box.previousPosition = box.position
 
-        self.graph.encodeProjectInBackground()
+        self.visibleGraph.encodeProjectInBackground()
     }
 
     @MainActor
@@ -238,6 +238,6 @@ extension StitchDocumentViewModel {
         // TODO: only redetermine for this single box, not all boxes?
         self.visibleGraph.rebuildCommentBoxes()
 
-        self.graph.encodeProjectInBackground()
+        self.visibleGraph.encodeProjectInBackground()
     }
 }

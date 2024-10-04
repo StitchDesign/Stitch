@@ -41,17 +41,17 @@ extension StitchStore {
     func inputEditCommitted(input: InputNodeRowObserver,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
-        guard let graphState = self.currentGraph else {
+        guard let documentViewModel = self.currentDocument else {
             return
         }
         
-        let oldDocument = graphState.createSchema()
-        graphState
+        let oldDocument = documentViewModel.createSchema()
+        documentViewModel.visibleGraph
             .inputEditCommitted(input: input,
                                 value: value,
                                 wasAdjustmentBarSelection: wasAdjustmentBarSelection)
         
-        let newDocument = graphState.createSchema()
+        let newDocument = documentViewModel.createSchema()
         
         self.saveUndoHistory(oldState: oldDocument,
                              newState: newDocument)

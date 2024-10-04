@@ -104,19 +104,34 @@ extension GraphState {
     }
     
     @MainActor
-    func createGroupNode(newGroupNodeId: GroupNodeId,
-                         center: CGPoint) -> NodeViewModel {
+    func createGroupNode(newGroupNodeId: NodeId,
+                         center: CGPoint,
+                         isComponent: Bool) async -> NodeViewModel {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return .createEmpty()
+        }
+        
+        // If current focused group is component, make parent node ID nil as we're creating a new graph state
+        let focusedGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
+        
         let canvasEntity = CanvasNodeEntity(position: center,
                                             zIndex: self.highestZIndex + 1,
-                                            parentGroupNodeId: self.graphUI.groupNodeFocused?.asNodeId)
+                                            parentGroupNodeId: focusedGroupNodeId)
         
-        let schema = NodeEntity(id: newGroupNodeId.id,
-                                nodeTypeEntity: .group(canvasEntity),
+        // Create new canvas entity if specified
+        let nodeType: NodeTypeEntity = isComponent ? .component(.init(componentId: newGroupNodeId,
+                                                                      inputs: [],   // create ports later
+                                                                      canvasEntity: canvasEntity))
+                                                   : .group(canvasEntity)
+        
+        let schema = NodeEntity(id: newGroupNodeId,
+                                nodeTypeEntity: nodeType,
                                 title: NodeKind.group.getDisplayTitle(customName: nil))
         
-        let newGroupNode = NodeViewModel(from: schema,
-                                         activeIndex: self.activeIndex,
-                                         graphDelegate: self)
+        let newGroupNode = await NodeViewModel(from: schema,
+                                               graphDelegate: self,
+                                               document: document)
         
         self.visibleNodesViewModel.nodes.updateValue(newGroupNode, 
                                                      forKey: newGroupNode.id)
@@ -125,127 +140,167 @@ extension GraphState {
     }
 }
 
-/** Event for creating a group node, which does the following:
- * 1. Determines incoming and outgoing edges to group, whose connections
- *      will need to change to new group node.
- * 2. Creates input and output group nodes.
- * 3. Removes old edges and connections and updates them to new group nodes.
- */
-struct GroupNodeCreatedEvent: StitchDocumentEvent {
-
+extension StitchDocumentViewModel {
+    /** Event for creating a group node, which does the following:
+     * 1. Determines incoming and outgoing edges to group, whose connections
+     *      will need to change to new group node.
+     * 2. Creates input and output group nodes.
+     * 3. Removes old edges and connections and updates them to new group nodes.
+     */
     @MainActor
-    func handle(state: StitchDocumentViewModel) {
-
-        guard !state.llmRecording.isRecording else {
+    func createGroup(isComponent: Bool) async {
+        guard !self.llmRecording.isRecording else {
             log("Do not create GroupNodes during LLM Recording")
             return
         }
         
-        let newGroupNodeId = GroupNodeId(id: NodeId())
-//        let selectedNodeIds = state.selectedNodeIds
-        let selectedCanvasItems = state.visibleGraph.selectedCanvasItems
-        let edges = state.createEdges()
+        let newGroupNodeId = NodeId()
+        let selectedCanvasItems = self.visibleGraph.selectedCanvasItems
+        let edges = self.visibleGraph.createEdges()
+        let center = self.graphUI.center(self.localPosition)
 
-//        #if DEV || DEV_DEBUG
-//        // Every selected node must belong to this traversal level.
-        let nodesAtThisLevel = state.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
-        if state.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }) {
-            fatalErrorIfDebug()
+        // Every selected node must belong to this traversal level.
+        let nodesAtThisLevel = self.visibleGraph.getVisibleCanvasItems().map(\.id).toSet
+        
+        assertInDebug(!self.visibleGraph.selectedNodeIds.contains(where: { selectedNodeId in !nodesAtThisLevel.contains(selectedNodeId) }))
+        
+        // Update selected canvas items with new parent id
+        // Components are set with nil because of new graph state
+        selectedCanvasItems.forEach { $0.parentGroupNodeId = isComponent ? nil : newGroupNodeId }
+
+        // Encode component files if specified
+        if isComponent {
+            // MARK: must create component before calling createGroupNode below
+            await self.createNewMasterComponent(selectedCanvasItems: selectedCanvasItems,
+                                                componentId: newGroupNodeId)
         }
-//        #endif
-
-        let (inputEdgesToUpdate,
-             outputEdgesToUpdate) = state.visibleGraph.getEdgesToUpdate(
-                selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
-                edges: edges)
-
-        // log("GroupNodeCreatedEvent: inputEdgesToUpdate: \(inputEdgesToUpdate)")
-        // log("GroupNodeCreatedEvent: outputEdgesToUpdate: \(outputEdgesToUpdate)")
-
-        let center = state.graphUI.center(state.localPosition)
+        
+        // Create the actual GroupNode itself
+        let newGroupNode = await self.visibleGraph
+            .createGroupNode(newGroupNodeId: newGroupNodeId,
+                             center: center,
+                             isComponent: isComponent)
         
         //input splitters need to be west of the `to` node for the `edge`
-        var oldEdgeToNodeLocations = state.visibleGraph.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate)
-                                                                
-        inputEdgesToUpdate.forEach { edge in
+        self.visibleGraph.createSplitterForNewGroup(splitterType: .input,
+                                                    edges: edges,
+                                                    newGroupNodeId: newGroupNodeId,
+                                                    isComponent: isComponent,
+                                                    center: center)
+        
+        // output edge = an edge going FROM a node in the group, TO a node outside the group
+        self.visibleGraph.createSplitterForNewGroup(splitterType: .output,
+                                                    edges: edges,
+                                                    newGroupNodeId: newGroupNodeId,
+                                                    isComponent: isComponent,
+                                                    center: center)
+        
+        // Delete items from original graph since selected items have been copied
+        // to new component graph
+        if isComponent {
+            selectedCanvasItems.forEach {
+                // TODO: consider layer behavior when selected layers are involved
+                guard let node = $0.nodeDelegate as? NodeViewModel else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                self.visibleGraph.deleteNode(id: node.id)
+            }
+        }
+
+        // wipe selected edges and canvas items
+        self.graphUI.selection = GraphUISelectionState()
+        self.visibleGraph.selectedEdges = .init()
+        self.visibleGraph.resetSelectedCanvasItems()
+        
+        // ... then select the GroupNode and its edges
+        newGroupNode.patchCanvasItem?.select()
+
+        // Stop any active node dragging etc.
+        self.graphMovement.stopNodeMovement()
+
+        // Recalculate graph
+        self.visibleGraph.initializeGraphComputation()
+        
+        self.visibleGraph.encodeProjectInBackground()
+    }
+    
+    /// Updates graph state with brand new component, not yet creating a node view model.
+    @MainActor
+    func createNewMasterComponent(selectedCanvasItems: [CanvasItemViewModel],
+                                  componentId: NodeId) async {
+        let selectedNodeIds = selectedCanvasItems.compactMap { $0.nodeDelegate?.id }.toSet
+        let result = self.createNewStitchComponent(componentId: componentId,
+                                                   groupNodeFocused: self.graphUI.groupNodeFocused,
+                                                   selectedNodeIds: selectedNodeIds)
+        
+        var draftedResult = result
+        var publishedResult = result
+        
+        draftedResult.component.isPublished = false
+        publishedResult.component.isPublished = true
+        
+        let componentData = StitchComponentData(draft: draftedResult.component,
+                                                published: publishedResult.component)
+        
+        // Create new published component matching draft
+        let masterComponent = StitchMasterComponent(componentData: componentData,
+                                                    parentGraph: self.visibleGraph)
+        
+        assertInDebug(result.component.id == componentId)
+        self.visibleGraph.components.updateValue(masterComponent,
+                                                 forKey: result.component.id)
+        
+        // Copy to disk and publish
+        await masterComponent.draftedDocumentEncoder
+            .encodeNewComponent(draftedResult)
+        
+        await masterComponent.publishedDocumentEncoder
+            .encodeNewComponent(publishedResult)
+    }
+}
+
+extension GraphState {
+    @MainActor func createSplitterForNewGroup(splitterType: SplitterType,
+                                              edges: [PortEdgeData],
+                                              newGroupNodeId: NodeId,
+                                              isComponent: Bool,
+                                              center: CGPoint) {
+        let (inputEdgesToUpdate,
+             outputEdgesToUpdate) = self.getEdgesToUpdate(
+                selectedCanvasItems: self.selectedCanvasItems.map(\.id).toSet,
+                edges: edges)
+        
+        var oldEdgeLocations = splitterType == .input ?
+        self.getInitialOldEdgeToNodeLocations(inputEdgesToUpdate: inputEdgesToUpdate) :
+        self.getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
+        
+        let edgesToUpdate = splitterType == .input ? inputEdgesToUpdate : outputEdgesToUpdate
+        
+        edgesToUpdate.enumerated().forEach { portId, edge in
             
             // Retrieve relevant old-edge's destination node's position
-            let to = edge.to
-            var nodePosition = oldEdgeToNodeLocations.get(to) ?? center
+            let port: NodeIOCoordinate = splitterType == .input ? edge.to : edge.from
+            var nodePosition = oldEdgeLocations.get(port) ?? center
             
-            state.visibleGraph.insertIntermediaryNode(
+            self.insertIntermediaryNode(
                 inBetweenNodesOf: edge,
                 newGroupNodeId: newGroupNodeId,
-                splitterType: .input,
+                isComponent: isComponent,
+                splitterType: splitterType,
+                portId: portId,
                 position: nodePosition)
             
             // Increment node position for next input splitter node
             nodePosition.x += NODE_POSITION_STAGGER_SIZE
             nodePosition.y += NODE_POSITION_STAGGER_SIZE
             
-            oldEdgeToNodeLocations[to] = nodePosition
+            oldEdgeLocations[port] = nodePosition
         }
-        
-        var oldEdgeFromNodeLocations = state.visibleGraph
-            .getInitialOldEdgeFromNodeLocations(outputEdgesToUpdate: outputEdgesToUpdate)
-        
-        // output edge = an edge going FROM a node in the group, TO a node outside the group
-        outputEdgesToUpdate.forEach { edge in
-            
-            // Retrieve relevant old-edge's destination node's position
-            let from = edge.from
-            var nodePosition = oldEdgeFromNodeLocations.get(from) ?? center
-            
-            state.visibleGraph.insertIntermediaryNode(
-                inBetweenNodesOf: edge,
-                newGroupNodeId: newGroupNodeId,
-                splitterType: .output,
-                position: nodePosition)
-            
-            // Increment node position for next output splitter node
-            nodePosition.x += NODE_POSITION_STAGGER_SIZE
-            nodePosition.y += NODE_POSITION_STAGGER_SIZE
-            
-            oldEdgeFromNodeLocations[from] = nodePosition
-        }
-        
-        // Update selected canvas items with new parent id
-        selectedCanvasItems.forEach { $0.parentGroupNodeId = newGroupNodeId.id }
-        
-        // Create the actual GroupNode itself
-        let newGroupNode = state.visibleGraph
-            .createGroupNode(newGroupNodeId: newGroupNodeId,
-                             center: center)
-
-        // wipe selected edges and canvas items
-        state.graphUI.selection = GraphUISelectionState()
-        state.visibleGraph.selectedEdges = .init()
-        state.visibleGraph.resetSelectedCanvasItems()
-        
-        // ... then select the GroupNode and its edges
-        // TODO: highlight new group node's incoming and outgoing edges
-        newGroupNode.patchCanvasItem?.select()
-
-        // Stop any active node dragging etc.
-        state.graphMovement.stopNodeMovement()
-
-        // Recalculate graph
-        state.initializeGraphComputation()
-        
-        state.graph.encodeProjectInBackground()
     }
-}
 
-extension GraphMovementObserver {
-    func stopNodeMovement() {
-        self.draggedCanvasItem = nil
-        self.lastCanvasItemTranslation = .zero
-        self.accumulatedGraphTranslation = .zero
-        self.runningGraphTranslationBeforeNodeDragged = nil
-    }
-}
 
-extension GraphState {
     // Helper method which, given an edge, updates state so that a middle-man
     // node is connected to the `from` and `to` coordinates. Used for
     // inserting input and output group nodes.
@@ -253,11 +308,26 @@ extension GraphState {
     // formerly `insertIntermediaryNode`
     @MainActor
     func insertIntermediaryNode(inBetweenNodesOf oldEdge: PortEdgeData,
-                                newGroupNodeId: GroupNodeId,
+                                newGroupNodeId: NodeId,
+                                isComponent: Bool,
                                 splitterType: SplitterType,
+                                portId: Int,
                                 position: CGPoint) {
 
         // log("insertIntermediaryNode: oldEdge: \(oldEdge)")
+        
+        let newSplitterNodeId = NodeId()
+        
+        // Ignores connections from new splitter node to new component
+//        let willCreateNewInputConnection = !(isComponent && splitterType == .output)
+//        let willCreateNewOutputConnection = !(isComponent && splitterType == .input)
+        
+        // Components create connections to parent group node
+        let newConnectionPortId: NodeIOCoordinate = isComponent ?
+            .init(portId: portId,
+                  nodeId: newGroupNodeId) :
+            .init(portId: 0,
+                  nodeId: newSplitterNodeId)
 
         guard outputExists(oldEdge.from) else {
             log("insertIntermediaryNode: Couldn't get output while making input group node.")
@@ -266,21 +336,27 @@ extension GraphState {
 
         // CREATE AND INSERT GROUP SPLITTER NODE
 
-        let newSplitterNodeId = NodeId()
-
         // TODO: create initializer that can receive `position` and `splitterType`?
         let newSplitterNode = SplitterPatchNode.createViewModel(
             id: newSplitterNodeId,
             position: position,
             zIndex: self.highestZIndex + 1,
-            parentGroupNodeId: newGroupNodeId,
-            activeIndex: self.activeIndex,
+            parentGroupNodeId: GroupNodeId(newGroupNodeId),
             graphDelegate: self)
 
         newSplitterNode.patchCanvasItem?.position = position
         newSplitterNode.patchCanvasItem?.previousPosition = position
 
-        newSplitterNode.splitterType = splitterType
+        guard let splitterNode = newSplitterNode.patchNode else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        splitterNode.splitterType = splitterType
+        
+        // Slightly modify date for consistent port ordering
+        splitterNode.splitterNode?.lastModifiedDate = splitterNode.splitterNode?.lastModifiedDate
+            .addingTimeInterval(Double(portId) * 0.01) ?? Date.now
 
         self.visibleNodesViewModel.nodes.updateValue(newSplitterNode, forKey: newSplitterNode.id)
         
@@ -308,14 +384,18 @@ extension GraphState {
         self.removeEdgeAt(input: oldEdge.to)
 
         // Create edge from source patch node to new splitter node
-        self.addEdgeWithoutGraphRecalc(
-            from: oldEdge.from,
-            to: .init(portId: 0, nodeId: newSplitterNodeId))
+//        if willCreateNewInputConnection {
+            self.addEdgeWithoutGraphRecalc(
+                from: oldEdge.from,
+                to: newConnectionPortId)
+//        }
 
         // Create edge from new splitter node to downstream node of old connection
-        self.addEdgeWithoutGraphRecalc(
-            from: .init(portId: 0, nodeId: newSplitterNodeId),
-            to: oldEdge.to)
+//        if willCreateNewOutputConnection {
+            self.addEdgeWithoutGraphRecalc(
+                from: newConnectionPortId,
+                to: oldEdge.to)
+//        }
     }
 
     @MainActor

@@ -37,69 +37,68 @@ extension StitchDocumentViewModel {
         }
         
         for mouseNodeId in mouseNodeIds {
-            if let node = self.graph.getPatchNode(id: mouseNodeId)?.patchCanvasItem {
-                // Always scalar
-                node.outputViewModels[safe: MouseNodeOutputLocations.leftClick]?.rowDelegate?
-                    .updateValues([PortValue.bool(leftClick)])
-                
-                node.outputViewModels[safe: MouseNodeOutputLocations.position]?.rowDelegate?
-                    .updateValues([PortValue.position(position)])
-                
-                node.outputViewModels[safe: MouseNodeOutputLocations.velocity]?.rowDelegate?
-                    .updateValues([PortValue.position(finalVelocity)])
-                
-            } else {
-                log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")
+            self.allGraphs.forEach { graph in
+                if let node = graph.getPatchNode(id: mouseNodeId)?.patchCanvasItem {
+                    // Always scalar
+                    node.outputViewModels[safe: MouseNodeOutputLocations.leftClick]?.rowDelegate?
+                        .updateValues([PortValue.bool(leftClick)])
+                    
+                    node.outputViewModels[safe: MouseNodeOutputLocations.position]?.rowDelegate?
+                        .updateValues([PortValue.position(position)])
+                    
+                    node.outputViewModels[safe: MouseNodeOutputLocations.velocity]?.rowDelegate?
+                        .updateValues([PortValue.position(finalVelocity)])
+                    
+                } else {
+                    log("updateMouseNodesPosition: could not find mouse node \(mouseNodeId)")
+                }
             }
         }
     }
-}
 
-struct LayerHovered: StitchDocumentEvent {
-    let location: CGPoint // HoverPhase.active(location)
-    let velocity: CGPoint
-
-    func handle(state: StitchDocumentViewModel) {
-
+    @MainActor
+    func layerHovered(location: CGPoint,
+                      velocity: CGPoint) {
+        
         // log("LayerHovered: called")
-
-        let mouseNodeIds: NodeIdSet = state.visibleGraph.mouseNodes
-
-        guard !mouseNodeIds.isEmpty else {
-            // log("LayerHovered: no mouse nodes")
-            return
+        self.allGraphs.forEach { graph in
+            let mouseNodeIds: NodeIdSet = graph.mouseNodes
+            
+            guard !mouseNodeIds.isEmpty else {
+                // log("LayerHovered: no mouse nodes")
+                return
+            }
+            
+            self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+                                          gestureLocation: location,
+                                          velocity: velocity,
+                                          previewWindowSize: self.previewWindowSize,
+                                          graphTime: self.graphStepState.graphTime)
+            
+            // Recalculate the graph
+            graph.calculate(mouseNodeIds)
         }
-
-        state
-            .updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
-                                      gestureLocation: location,
-                                      velocity: velocity,
-                                      previewWindowSize: state.previewWindowSize,
-                                      graphTime: state.graphStepState.graphTime)
-
-        // Recalculate the graph
-        state.calculate(mouseNodeIds)
     }
-}
-
-struct LayerHoverEnded: StitchDocumentEvent {
-    func handle(state: StitchDocumentViewModel) {
+    
+    @MainActor
+    func layerHoverEnded() {
         // log("LayerHoverEnded: called")
-
-        let mouseNodeIds: NodeIdSet = state.visibleGraph.mouseNodes
-
-        guard !mouseNodeIds.isEmpty else {
-            // log("LayerHoverEnded: no mouse nodes")
-            return
+        self.allGraphs.forEach { graph in
+            let mouseNodeIds: NodeIdSet = graph.mouseNodes
+            
+            guard !mouseNodeIds.isEmpty else {
+                // log("LayerHoverEnded: no mouse nodes")
+                return
+            }
+            
+            self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+                                          gestureLocation: nil, // hover-ended
+                                          previewWindowSize: self.previewWindowSize,
+                                          graphTime: self.graphStepState.graphTime)
+            
+            // Recalculate the graph
+            graph.calculate(mouseNodeIds)
         }
-
-        state
-            .updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
-                                      gestureLocation: nil, // hover-ended
-                                      previewWindowSize: state.previewWindowSize,
-                                      graphTime: state.graphStepState.graphTime)
-
-        // Recalculate the graph
-        state.calculate(mouseNodeIds)
     }
 }
+

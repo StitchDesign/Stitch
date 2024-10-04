@@ -20,11 +20,11 @@ extension GraphState {
     func graphBounds(_ scale: CGFloat,
                      graphView: CGRect,
                      graphOffset: CGPoint,
-                     groupNodeFocused: GroupNodeId?) -> CGRect? {
+                     groupNodeFocused: NodeId?) -> CGRect? {
 
         // NOTE: nodes are retrieved per active traversal level,
         // ie top level vs some specific, focused group.
-        let canvasItemsAtTraversalLevel = self.canvasItemsAtTraversalLevel(self.graphUI.groupNodeFocused)
+        let canvasItemsAtTraversalLevel = self.canvasItemsAtTraversalLevel(groupNodeFocused)
 
         // If there are no nodes, then there is no graphBounds
         guard let east = Self.easternMostNode(groupNodeFocused,

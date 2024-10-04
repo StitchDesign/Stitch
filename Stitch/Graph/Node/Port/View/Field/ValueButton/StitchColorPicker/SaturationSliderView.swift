@@ -52,7 +52,7 @@ struct SaturationSliderView: View {
 struct SaturationPickerView_Previews: PreviewProvider {
     static var previews: some View {
         SaturationSliderView(chosenColor: Binding.constant(Color.blue),
-                             graph: .init(id: .init(), store: nil))
+                             graph: .createEmpty())
             .rotation3DEffect(Angle(degrees: -90),
                               axis: (x: 0.0, y: 1.0, z: 90.0))
             .scaleEffect(5)

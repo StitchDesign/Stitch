@@ -238,7 +238,7 @@ struct FloatingWindowView_Previews: PreviewProvider {
     @Namespace static var namespace
 
     static var previews: some View {
-        FloatingWindowView(document: .init(from: .init(), store: nil),
+        FloatingWindowView(document: StitchDocumentViewModel.createEmpty(),
                            deviceScreenSize: DEFAULT_LANDSCAPE_SIZE,
                            showPreviewWindow: true,
                            namespace: namespace)

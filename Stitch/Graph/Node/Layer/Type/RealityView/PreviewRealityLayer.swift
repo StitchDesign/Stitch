@@ -11,6 +11,7 @@ import StitchSchemaKit
 
 struct PreviewRealityLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -31,10 +32,11 @@ struct PreviewRealityLayer: View {
         switch document.cameraFeedManager {
         case .loaded(let cameraFeedManager):
             if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-               let node = document.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
+               let node = document.visibleGraph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
                 @Bindable var node = node
                 
                 RealityLayerView(document: document,
+                                 graph: graph,
                                  node: node,
                                  layerViewModel: viewModel,
                                  cameraFeedManager: cameraFeedManager, 
@@ -68,7 +70,7 @@ struct PreviewRealityLayer: View {
                                  parentDisablesPosition: parentDisablesPosition)
                 .onAppear {
                     // Update list of node Ids using camera
-                    cameraFeedManager.enabledNodeIds.insert(nodeId)
+                    graph.enabledCameraNodeIds.insert(nodeId)
                 }
             } else {
                 EmptyView()
@@ -86,7 +88,8 @@ struct PreviewRealityLayer: View {
             // Note that EmptyView won't trigger the onApppear closure
             Color.clear
                 .onAppear {
-                    dispatch(RealityViewCreatedWithoutCamera(nodeId: nodeId))
+                    document.realityViewCreatedWithoutCamera(graph: graph,
+                                                             nodeId: nodeId)
                 }
         }
     }
@@ -94,6 +97,7 @@ struct PreviewRealityLayer: View {
 
 struct RealityLayerView: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var node: NodeViewModel
     let layerViewModel: LayerViewModel
     
@@ -152,6 +156,7 @@ struct RealityLayerView: View {
         }
         .modifier(PreviewCommonModifier(
             document: document,
+            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

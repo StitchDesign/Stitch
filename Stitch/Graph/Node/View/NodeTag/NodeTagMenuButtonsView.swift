@@ -19,7 +19,7 @@ struct NodeTagMenuButtonsView: View {
 
     let canvasItemId: CanvasItemId // id for Node or LayerInputOnGraph
     
-    var activeGroupId: GroupNodeId?
+    var activeGroupId: NodeId?
     var nodeTypeChoices: [UserVisibleType] = []
     
     // Always false for Layer Nodes;
@@ -117,6 +117,9 @@ struct NodeTagMenuButtonsView: View {
                 deleteButton
                 duplicateButton
                 createGroupButton
+                if FeatureFlags.USE_COMPONENTS {
+                    createComponentButton
+                }
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
 //                    createCommentBoxButton
 //                }
@@ -296,7 +299,18 @@ struct NodeTagMenuButtonsView: View {
     @MainActor
     var createGroupButton: some View {
         nodeTagMenuButton(label: "Group Nodes") {
-            dispatch(GroupNodeCreatedEvent())
+            Task { [weak graph] in
+                await graph?.documentDelegate?.createGroup(isComponent: false)
+            }
+        }
+    }
+    
+    @MainActor
+    var createComponentButton: some View {
+        nodeTagMenuButton(label: "Create Component") {
+            Task { [weak graph] in
+                await graph?.documentDelegate?.createGroup(isComponent: true)
+            }
         }
     }
 
@@ -312,7 +326,7 @@ struct NodeTagMenuButtonsView: View {
     var visitGroupButton: some View {
         nodeTagMenuButton(label: "Visit Group") {
             if let nodeId = canvasItemId.nodeCase {
-                dispatch(GroupNodeDoubleTapped(id: GroupNodeId(nodeId)))
+                dispatch(GroupNodeDoubleTapped(id: nodeId))
             }
         }
     }

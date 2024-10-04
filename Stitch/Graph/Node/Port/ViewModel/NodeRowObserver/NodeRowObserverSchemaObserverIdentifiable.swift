@@ -10,12 +10,10 @@ import StitchSchemaKit
 
 extension InputNodeRowObserver: SchemaObserverIdentifiable {
     static func createObject(from entity: NodePortInputEntity) -> Self {
-        self.init(from: entity,
-                  activeIndex: .init(.zero))
+        self.init(from: entity)
     }
 
     /// Updates values for inputs.
-    @MainActor
     func update(from schema: NodePortInputEntity) {
         self.upstreamOutputCoordinate = schema.portData.upstreamConnection
 
@@ -26,7 +24,6 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     }
 
     /// Schema updates from layer.
-    @MainActor
     func update(from nodeConnection: NodeConnectionType,
                 inputType: LayerInputType) {
         switch nodeConnection {

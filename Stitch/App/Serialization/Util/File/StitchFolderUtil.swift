@@ -28,18 +28,22 @@ struct DocumentsURL: Equatable, Codable {
     typealias Id = Tagged<DocumentsURL, URL>
 }
 
-extension StitchDocumentIdentifiable {
+extension DocumentEncodable {
+    var componentsDirUrl: URL {
+        self.rootUrl.appending(component: URL.componentsDirPath)
+    }
+    
     func getImportedFilesURL(forRecentlyDeleted: Bool = false) -> URL {
         self.getUrl(forRecentlyDeleted: forRecentlyDeleted)
             .appendingStitchMediaPath()
     }
     
-    func getProjectThumbnailURL() -> URL {
-        self.rootUrl.appendProjectThumbnailPath()
+    static func getProjectThumbnailURL(rootUrl: URL) -> URL {
+        rootUrl.appendProjectThumbnailPath()
     }
     
-    func getProjectThumbnailImage() -> UIImage? {
-        let thumbnail: URL = self.getProjectThumbnailURL()
+    static func getProjectThumbnailImage(rootUrl: URL) -> UIImage? {
+        let thumbnail: URL = Self.getProjectThumbnailURL(rootUrl: rootUrl)
                         
         let data: Data? = try? Data.init(contentsOf: thumbnail)
         let thumbnailImage: UIImage? = data.flatMap {
@@ -47,6 +51,13 @@ extension StitchDocumentIdentifiable {
         }
         
         return thumbnailImage
+    }
+    
+    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
+        if forRecentlyDeleted {
+            return self.recentlyDeletedUrl
+        }
+        return self.rootUrl
     }
 }
 
