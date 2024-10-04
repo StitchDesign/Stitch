@@ -57,36 +57,6 @@ extension VisibleNodesViewModel {
         }
     }
 
-    /// Mutating function which creates view models for each grouping view, using caching to save
-    /// compute cost on view model creation.
-    /// This funciton has two roles:
-    /// 1. Create, update, and delete all node view models
-    /// 2. Returns the specific list of view models to be visible.
-//    @MainActor
-//    func updateNodeSchemaData(components: [UUID: StitchMasterComponent],
-//                              parentGraphPath: [UUID]) async {
-//
-////        let allNodesDict = newNodes.reduce(into: NodeEntityDict()) { result, schema in
-////            result.updateValue(schema, forKey: schema.id)
-////        }
-////
-////        let existingNodePages: NodesPagingDict = self.nodesByPage
-////
-////        let allNodeIds = newNodes.map(\.id).toSet
-////
-////        let existingNodeIds = self.allNodeIds
-////        let incomingNodeIds = allNodeIds
-////
-////        // Remove now unused view models
-////        self.removeOldViewModels(currentIds: existingNodeIds,
-////                                 newIds: incomingNodeIds)
-//
-//        // Initialize node view data starting with groups
-//        await self.updateNodesPagingDict(nodesDict: allNodesDict,
-//                                         existingNodePages: existingNodePages,
-//                                         components: components,
-//                                         parentGraphPath: parentGraphPath)
-//    }
 
     /// Returns all view data to be used by nodes in groups.
     @MainActor
@@ -105,25 +75,6 @@ extension VisibleNodesViewModel {
             self.nodesByPage.updateValue(.init(zoomData: .init()),
                                          forKey: .group(incomingGroupId))
         }
-
-//        // Create node view models (if not yet created), establishing connection data later
-//        for schema in nodesDict.values {
-//            if let node = self.nodes.get(schema.id) {
-//                await node.update(from: schema,
-//                                  components: components)
-//
-//                // Toggle output downstream connections to false, will correct below
-//                node.getAllOutputsObservers().forEach {
-//                    $0.containsDownstreamConnection = false
-//                }
-//            } else {
-//                let newNode = await NodeViewModel(from: schema,
-//                                                  components: components,
-//                                                  parentGraphPath: parentGraphPath)
-//                nodes.updateValue(newNode,
-//                                  forKey: newNode.id)
-//            }
-//        }
 
         // Toggle output downstream connections to false, will correct later
         self.nodes.values.forEach { node in
@@ -169,7 +120,6 @@ extension VisibleNodesViewModel {
         // Layers use keypaths
         if let layerNodeViewModel = nodeViewModel.layerNode {
             layerNodeViewModel.layer.layerGraphNode.inputDefinitions.forEach { inputType in
-//                let schemaInput = layerEntity[keyPath: inputType.schemaPortKeyPath]
                 
                 // Loop over ports for each layer input--multiple if in unpacked mode
                 layerNodeViewModel[keyPath: inputType.layerNodeKeyPath].allInputData.forEach { inputData in
@@ -178,21 +128,9 @@ extension VisibleNodesViewModel {
                         return
                     }
                     
-//                    let id = inputData.id
-//                    guard let inputSchemaData = schemaInput.getInputData(from: id.portType) else {
-//                        fatalErrorIfDebug()
-//                        return
-//                    }
-                    
-//                    guard let connectedOutputCoordinate = inputSchemaData.inputPort.upstreamConnection else {
-//                        inputObserver.upstreamOutputCoordinate = nil
-//                        return
-//                    }
-                    
                     // Check for connected row observer rather than just setting ID--makes for
                     // a more robust check in ensuring the connection actually exists
                     assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
-//                    inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
                     
                     // Report to output observer that there's an edge (for port colors)
                     // We set this to false on default above
@@ -202,15 +140,12 @@ extension VisibleNodesViewModel {
         } else {
             nodeViewModel.getAllInputsObservers().enumerated().forEach { portId, inputObserver in
                 guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
-//                    inputObserver.upstreamOutputCoordinate = nil
                     return
                 }
-//                
+
                 // Check for connected row observer rather than just setting ID--makes for
                 // a more robust check in ensuring the connection actually exists
                 assertInDebug(self.getOutputRowObserver(for: connectedOutputObserver.id) != nil)
-//
-//                inputObserver.upstreamOutputCoordinate = connectedOutputObserver.id
                 
                 // Report to output observer that there's an edge (for port colors)
                 // We set this to false on default above

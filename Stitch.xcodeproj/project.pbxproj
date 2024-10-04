@@ -137,6 +137,7 @@
 		B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */; };
 		B557806B2CB0458800907BA8 /* StitchComponentData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B557806A2CB0458500907BA8 /* StitchComponentData.swift */; };
 		B557806D2CB045DC00907BA8 /* StitchMasterComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */; };
+		B557806F2CB04CCC00907BA8 /* GroupNodeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B557806E2CB04CC800907BA8 /* GroupNodeType.swift */; };
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
@@ -1050,6 +1051,7 @@
 		B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentViewModel.swift; sourceTree = "<group>"; };
 		B557806A2CB0458500907BA8 /* StitchComponentData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentData.swift; sourceTree = "<group>"; };
 		B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMasterComponent.swift; sourceTree = "<group>"; };
+		B557806E2CB04CC800907BA8 /* GroupNodeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupNodeType.swift; sourceTree = "<group>"; };
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
@@ -3198,6 +3200,7 @@
 		B56FFB5E2C19664C00623CC7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B557806E2CB04CC800907BA8 /* GroupNodeType.swift */,
 				B58F9C23294AE0AA00FFBF2C /* KeyPressState.swift */,
 				ECCE40E227E29B5D0068484B /* ICloudSyncStatus.swift */,
 				EC89F7E027602C0700C4447A /* ExpansionBox.swift */,
@@ -5067,6 +5070,7 @@
 				ECE2AFEA2C0A43D200F5FE87 /* InsertNodeMenuActions.swift in Sources */,
 				EC9AB64728DFEA23002810BC /* ScrollPagingInteractionHelpers.swift in Sources */,
 				ECCF930D2C7908F7002786D5 /* LayerPaddingModifier.swift in Sources */,
+				B557806F2CB04CCC00907BA8 /* GroupNodeType.swift in Sources */,
 				ECF387DF280B61870075F0E5 /* NodeUIKind.swift in Sources */,
 				EC1DE588260AADD7009497CF /* OrNode.swift in Sources */,
 				EC5043A32874C8E000590D07 /* RGBANode.swift in Sources */,

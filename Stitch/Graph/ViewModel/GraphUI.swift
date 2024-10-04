@@ -28,47 +28,6 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
     var activeDragInteractionNodes = NodeIdSet()
 }
 
-// TODO: move
-enum GroupNodeType: Equatable {
-    case groupNode(NodeId)
-    case component(UUID) // NodeID of component node
-}
-
-//struct ComponentGroupNodeId: Equatable {
-//    // Maps to component instance
-//    let component: UUID
-//    // Maps to node entity so we can grab specific graphstate instance
-//    let nodeId: UUID
-//}
-
-extension GroupNodeType {
-    var component: UUID? {
-        switch self {
-        case .groupNode:
-            return nil
-        case .component(let id):
-            return id
-        }
-    }
-    
-    var groupNodeId: NodeId? {
-        switch self {
-        case .groupNode(let id):
-            return id
-        case .component:
-            return nil
-        }
-    }
-    
-    var isComponent: Bool {
-        self.component != nil
-    }
-    
-    var asNodeId: NodeId? {
-        self.groupNodeId
-    }
-}
-
 @Observable
 final class GraphUIState {
 

@@ -30,8 +30,6 @@ protocol SchemaObserverIdentifiable: SchemaObserver where CodableSchema: Codable
     static func createObject(from entity: CodableSchema) -> Self
 }
 
-//extension NodePortInputEntity: Identifiable { }
-
 typealias CodableIdentifiable = StitchVersionedCodable & Identifiable
 
 extension Dictionary where Value: SchemaObserverIdentifiable, Key == Value.ID {

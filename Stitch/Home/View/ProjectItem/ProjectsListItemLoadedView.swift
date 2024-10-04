@@ -61,15 +61,6 @@ struct ProjectThumbnailTextField: View {
     }
 }
 
-//struct ProjectTapped: StitchStoreEvent {
-//    let documentURL: URL
-//    
-//    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-//        store.handleProjectTapped(documentURL: documentURL)
-//        return .noChange
-//    }
-//}
-
 extension StitchStore {
     /// Async attempts to re-load document from URL in case migration is needed.
     /// We only encode and update the project if the user makes an edit, which helps control project sorting order

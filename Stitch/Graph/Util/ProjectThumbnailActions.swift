@@ -57,7 +57,7 @@ extension StitchStore {
                 // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
                 //                 graph.encodeProjectInBackground()
                 
-                // TODO: see if thumbnail hack is needed
+                // TODO: thumbnail hack no longer works
 //                try await DocumentLoader.encodeDocument(documentData, to: documentData.document.rootUrl)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")

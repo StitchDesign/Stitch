@@ -25,11 +25,6 @@ final class GraphState: Sendable {
     // TODO: wrap in a new data structure like `SidebarUIState`
     var sidebarListState: SidebarListState = .init()
     var sidebarSelectionState = SidebarSelectionState()
-    
-    // Should be added to StitchDocument, since we remember which groups are open vs collapsed.
-    //    var sidebarExpandedItems = LayerIdSet() // should be persisted
-    
-//    let documentEncoder: DocumentEncoder
 
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME
