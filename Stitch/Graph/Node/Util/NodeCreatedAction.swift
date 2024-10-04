@@ -100,9 +100,6 @@ extension StitchDocumentViewModel {
         
         self.visibleGraph.calculateFullGraph()
 
-        // Little hack to update node data so first render works proper
-//        self.update(from: self.createSchema())
-
         // TODO: handle camera undo event
         // Undo event needed for camera feed to update manager if camera feed addition is undo'd
 //        if choice == .patch(.cameraFeed) {

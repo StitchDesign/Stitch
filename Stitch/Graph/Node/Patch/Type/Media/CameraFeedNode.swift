@@ -125,6 +125,10 @@ func cameraManagerEval(node: PatchNode,
                 [.size(.zero)]
             ])
     }
+    
+    if isNodeEnabled && !graph.enabledCameraNodeIds.contains(node.id) {
+        graph.enabledCameraNodeIds.insert(node.id)
+    }
 
     return asyncSingletonMediaEval(node: node,
                                    graph: graph,
