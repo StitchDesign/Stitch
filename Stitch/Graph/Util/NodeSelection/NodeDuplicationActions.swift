@@ -45,13 +45,6 @@ extension GraphState {
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory) where T: StitchComponentable {
-//        guard let docId = self.documentDelegate?.id else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-//        
-//        // No encoding work if struct == empty
-//        let hasEffectsToRun = copiedFiles != StitchDocumentDirectory.empty
 
         // Change all IDs
         var newComponent = component
@@ -73,20 +66,6 @@ extension GraphState {
 
             return node
         }
-        
-//        // Update root URL for components
-//        newComponent.graph.draftedComponents = newComponent.graph.draftedComponents.map {
-//            var draftedComponent = $0
-//            draftedComponent.saveLocation = .document(.init(docId: docId,
-//                                                            componentsPath: self.saveLocation))
-//            return draftedComponent
-//        }
-
-//        guard hasEffectsToRun else {
-//            // Update state synchronously
-//            self._insertNewComponent(newComponent)
-//            return
-//        }
 
         // Display loading status for imported media effects
         self.libraryLoadingStatus = .loading
@@ -99,9 +78,6 @@ extension GraphState {
             // Copy files before inserting component
             await encoder.importComponentFiles(copiedFiles)
             await self?._insertNewComponent(newComponent)
-//            { [weak self] in
-//                // Mutates graph before graph is recalcualted after processing new imported files
-//            }
         }
     }
 
