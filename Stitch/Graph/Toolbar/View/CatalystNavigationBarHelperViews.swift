@@ -48,7 +48,7 @@ struct CatalystNavBarTitleEditField: View {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
                     graph.name = graph.name.validateProjectTitle()
                     // Commit project name to disk
-                    self.graph.encodeProjectInBackground()
+                    graph.encodeProjectInBackground()
                 }
             }
     }
@@ -222,10 +222,8 @@ struct GoUpOneTraversalLevel: GraphEvent {
             return
         }
         
-        state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
-
         // Set new active parent
-        state.graphUI.groupNodeFocused = state.graphUI.groupNodeBreadcrumbs.last?.asGroupNodeId
+        state.graphUI.groupNodeBreadcrumbs = state.graphUI.groupNodeBreadcrumbs.dropLast()
 
         // Reset any active selections
         state.resetAlertAndSelectionState()

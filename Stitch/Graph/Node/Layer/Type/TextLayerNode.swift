@@ -69,6 +69,7 @@ struct TextLayerNode: LayerNodeDefinition {
     
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, 
@@ -76,6 +77,7 @@ struct TextLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewTextLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

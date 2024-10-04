@@ -19,7 +19,6 @@ let SIDEBAR_VISIBILITY_STATUS_SECONDARY_HIDDEN_COLOR: Color = Color(uiColor: .da
 let SIDEBAR_VISIBILITY_STATUS_VISIBLE_COLOR: Color = .white
 
 extension GraphState {
-    
     @MainActor
     func getVisibilityStatus(for layerNodeId: NodeId) -> SidebarVisibilityStatus {
         guard let layerNode = self

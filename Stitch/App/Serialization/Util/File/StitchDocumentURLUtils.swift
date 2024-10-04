@@ -9,21 +9,31 @@ import Foundation
 import StitchSchemaKit
 
 extension URL {
-    func appendingStitchProjectDataPath(_ document: StitchDocumentIdentifiable) -> URL {
-        self.appendingPathComponent(document.uniqueInternalDirectoryName, conformingTo: .stitchProjectData)
-    }
+    static let componentsDirPath = "Components"
     
-    func appendingStitchProjectDataPath(_ projectId: ProjectId) -> URL {
-        self.appendingPathComponent(StitchDocument.getFileName(projectId: projectId),
+    func appendingStitchProjectDataPath(_ documentId: UUID) -> URL {
+        self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
     }
 
     func appendingStitchMediaPath() -> URL {
         self.appendingPathComponent(STITCH_IMPORTED_FILES_DIR)
     }
+    
+    func appendingComponentsPath() -> URL {
+        self.appendingPathComponent(Self.componentsDirPath)
+    }
+    
+    func appendingComponentDraftPath() -> URL {
+        self.appendingPathComponent("Draft")
+    }
+    
+    func appendingComponentPublishedPath() -> URL {
+        self.appendingPathComponent("Published")
+    }
 
     func appendingDataJsonPath() -> URL {
-        self.appendingPathComponent(StitchComponent.dataJsonName,
+        self.appendingPathComponent(StitchClipboardContent.dataJsonName,
                                     conformingTo: .json)
     }
 

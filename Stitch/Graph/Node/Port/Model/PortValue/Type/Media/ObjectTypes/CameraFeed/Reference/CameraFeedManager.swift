@@ -34,23 +34,23 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     let session: StitchCameraSession?
 
     // Tracks nodes with enabled camera to determine setup/teardown
-    var enabledNodeIds = Set<NodeId>() {
-        didSet(oldValue) {
-            guard oldValue != enabledNodeIds else {
-                // No change
-                return
-            }
-
-            if enabledNodeIds.isEmpty {
-                // Tear down if no nodes enabled camera
-                self.documentDelegate?.deactivateCamera()
-
-                DispatchQueue.main.async {
-                    dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
-                }
-            }
-        }
-    }
+//    var isEnabledInDocument: Bool = false {
+//        didSet(oldValue) {
+//            guard oldValue != isEnabledInDocument else {
+//                // No change
+//                return
+//            }
+//
+//            if !isEnabledInDocument {
+//                // Tear down if no nodes enabled camera
+//                self.documentDelegate?.deactivateCamera()
+//
+//                DispatchQueue.main.async {
+//                    dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
+//                }
+//            }
+//        }
+//    }
 
     weak var documentDelegate: StitchDocumentViewModel?
 
@@ -61,12 +61,9 @@ final class CameraFeedManager: Sendable, MiddlewareService {
 
     @MainActor
     init(cameraSettings: CameraSettings,
-         enabledNodeIds: Set<NodeId>,
+         isEnabled: Bool,
          isCameraFeedNode: Bool,
          documentDelegate: StitchDocumentViewModel) {
-        let isEnabled = !enabledNodeIds.isEmpty
-
-        self.enabledNodeIds = enabledNodeIds
         self.documentDelegate = documentDelegate
 
         if isEnabled {
@@ -77,9 +74,7 @@ final class CameraFeedManager: Sendable, MiddlewareService {
             self.session = nil
         }
 
-        #if DEBUG
-        assert(enabledNodeIds.isEmpty ? !self.session.isDefined : self.session.isDefined)
-        #endif
+        assertInDebug(!isEnabled ? !self.session.isDefined : self.session.isDefined)
     }
 
     var isRunning: Bool {
@@ -136,16 +131,10 @@ final class CameraFeedManager: Sendable, MiddlewareService {
     }
 }
 
-struct CameraFeedNodeDeleted: StitchDocumentEvent {
+struct CameraFeedNodeDeleted: GraphEvent {
     let nodeId: NodeId
 
-    func handle(state: StitchDocumentViewModel) {
-        state.removeCameraNode(id: nodeId)
-    }
-}
-
-extension StitchDocumentViewModel {
-    func removeCameraNode(id: NodeId) {
-        self.cameraFeedManager?.loadedInstance?.cameraFeedManager?.enabledNodeIds.remove(id)
+    func handle(state: GraphState) {
+        state.enabledCameraNodeIds.remove(nodeId)
     }
 }

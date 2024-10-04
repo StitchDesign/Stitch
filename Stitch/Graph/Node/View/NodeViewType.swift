@@ -19,7 +19,7 @@ struct NodeTypeView: View {
     @Bindable var canvasNode: CanvasItemViewModel
     let atleastOneCommentBoxSelected: Bool
     let activeIndex: ActiveIndex
-    let groupNodeFocused: GroupNodeId?
+    let groupNodeFocused: NodeId?
     let adjustmentBarSessionId: AdjustmentBarSessionId
 
     var boundsReaderDisabled: Bool = false

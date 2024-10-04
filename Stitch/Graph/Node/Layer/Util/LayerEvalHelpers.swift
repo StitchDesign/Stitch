@@ -60,6 +60,7 @@ extension LayerViewModel {
 struct ShapeLayerView: View {
 
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -73,6 +74,7 @@ struct ShapeLayerView: View {
 
         PreviewShapeLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,

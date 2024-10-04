@@ -127,25 +127,23 @@ extension StitchStore {
      ```
      */
     func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
-        var _finalDoc = document
-        _finalDoc.projectId = .init()
-        _finalDoc.name += " copy"
-        let finalDoc = _finalDoc
-
+        let srcRootUrl = document.rootUrl
+        var document = document
+        document.graph.id = .init()
+        document.graph.name += " copy"
+        let destRootUrl = document.rootUrl
+        
         do {
             // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-            try await self.documentLoader.installDocument(document: finalDoc)
-            try await self.documentLoader.encodeVersionedContents(document: finalDoc)
-
-            // Need to manually copy the original project's thumbnail
-            try FileManager.default.copyItem(at: document.getProjectThumbnailURL(),
-                                             to: finalDoc.getProjectThumbnailURL())
+            try await self.documentLoader.installDocument(document: document)
+            try DocumentLoader.encodeDocument(document)
             
-            // Need to manually copy the original project's imported-files-dir url to the duplicated project's imported-files-dir
-            // Note: this is allowed to fail, since a project without media will not have an ImportedFiles directory.
-            let _ = try? FileManager.default.copyItem(at: document.getImportedFilesURL(),
-                                                      to: finalDoc.getImportedFilesURL())
-
+            StitchDocument.subfolderNames.forEach { subfolderName in
+                try? FileManager.default
+                    .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
+                              to: destRootUrl.appendingPathComponent(subfolderName))
+            }
+            
             return .success
         } catch {
             log("copyExistingProject: error: \(error)")

@@ -83,30 +83,14 @@ struct SelectedGraphItemsPasted: GraphEventWithResponse {
             let componentData = try Data(
                 contentsOf: pasteboardUrl.appendingDataJsonPath()
             )
-            let newComponent = try getStitchDecoder().decode(StitchComponent.self, from: componentData)
+            let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let currentDoc = state.createSchema()
-            let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
-            let mediaUrls = StitchFileManager
-                .readMediaFilesDirectory(mediaDirectory: importedFilesDir)
-
-            let mediaEffects: AsyncCallbackList = mediaUrls.map { mediaUrl in {
-                switch await StitchFileManager.copyToMediaDirectory(originalURL: mediaUrl,
-                                                                    in: currentDoc,
-                                                                    forRecentlyDeleted: false) {
-                case .success(let newMediaUrl):
-                    // Update library in GraphState
-                    state.mediaLibrary.updateValue(newMediaUrl, forKey: newMediaUrl.mediaKey)
-                case .failure(let error):
-                    log("SelectedGraphItemsPasted error: could not get imported media URL.")
-                    DispatchQueue.main.async {
-                        dispatch(DisplayError(error: error))
-                    }
-                }
-            }
-            }
-
+            let importedFiles = ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
+            
+            
             state.insertNewComponent(component: newComponent,
-                                     effects: mediaEffects)
+                                     encoder: state.documentEncoderDelegate,
+                                     copiedFiles: importedFiles)
             return .persistenceResponse
         } catch {
             log("SelectedGraphItemsPasted error: \(error)")

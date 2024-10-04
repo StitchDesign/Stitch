@@ -9,7 +9,7 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
-extension StitchDocumentViewModel {
+extension GraphState {
     /**
      User dragged, pressed or tapped a layer in the preview window.
      (i.e. SwiftUI view corresponding to a layer node, visible in the prototype preview window)
@@ -42,12 +42,12 @@ extension StitchDocumentViewModel {
         interactiveLayer.childSize = childSize
         interactiveLayer.parentSize = parentSize
 
-        self.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
-                                      gestureLocation: location,
-                                      velocity: velocity.toCGPoint,
-                                      leftClick: true,
-                                      previewWindowSize: self.previewWindowSize,
-                                      graphTime: self.graphStepState.graphTime)
+        self.documentDelegate?.updateMouseNodesPosition(mouseNodeIds: mouseNodeIds,
+                                                        gestureLocation: location,
+                                                        velocity: velocity.toCGPoint,
+                                                        leftClick: true,
+                                                        previewWindowSize: self.previewWindowSize,
+                                                        graphTime: self.graphStepState.graphTime)
         
         nodesToRecalculate = nodesToRecalculate.union(mouseNodeIds)
         
@@ -67,7 +67,7 @@ extension StitchDocumentViewModel {
             self.graphUI.activeDragInteraction.activeDragInteractionNodes = self.graphUI.activeDragInteraction.activeDragInteractionNodes.union(dragInteractionIdSet)
             
             for dragInteractionId in dragInteractionIdSet {
-                if let node = self.visibleGraph.getPatchNode(id: dragInteractionId),
+                if let node = self.getPatchNode(id: dragInteractionId),
                    node.isDragNodeEnabled {
                     nodesToRecalculate.insert(node.id)
                 } // if let node

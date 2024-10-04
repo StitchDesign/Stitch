@@ -51,7 +51,7 @@ extension NodeViewModel {
     }
 }
 
-extension StitchDocumentViewModel {
+extension GraphState {
     
     @MainActor
     func layerDropdownChoices(isForNode: NodeId,
@@ -68,7 +68,7 @@ extension StitchDocumentViewModel {
         
         let initialChoices: LayerDropdownChoices = isForPinTo ? [.RootLayerDropDownChoice, .ParentLayerDropDownChoice] : [.NilLayerDropDownChoice]
         
-        let layers: LayerDropdownChoices = self.visibleGraph.orderedSidebarLayers
+        let layers: LayerDropdownChoices = self.orderedSidebarLayers
             .getIds()
             .compactMap { layerId in
                 // If A is already pinned to B, then B's pinTo dropdown should not include A as an option.
@@ -84,15 +84,15 @@ extension StitchDocumentViewModel {
                     return nil
                 }
                 
-                return self.visibleGraph.getNodeViewModel(layerId)?.asLayerDropdownChoice
+                return self.getNodeViewModel(layerId)?.asLayerDropdownChoice
             }
         
         return initialChoices + layers
     }
     
-    func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+    @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
         getDescendantsIds(id: layer,
-                          groups: self.visibleGraph.getSidebarGroupsDict(),
+                          groups: self.getSidebarGroupsDict(),
                           acc: .init())
     }
 }
