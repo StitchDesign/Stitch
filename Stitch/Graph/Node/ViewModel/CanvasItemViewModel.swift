@@ -123,12 +123,6 @@ final class CanvasItemViewModel: Identifiable {
                                outputRowObservers: outputRowObservers,
                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                unpackedPortIndex: unpackedPortIndex)
-        
-//        if let node = self?.nodeDelegate {
-//            self?.initializeDelegate(node,
-//                                     unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-//                                     unpackedPortIndex: unpackedPortIndex)
-//        }
     }
 }
 
@@ -165,22 +159,10 @@ extension CanvasItemViewModel {
                   unpackedPortIndex: unpackedPortIndex)
     }
     
-    func createSchema() -> CanvasNodeEntity {
-//        guard let documentDelegate = self.graphDelegate?.documentDelegate else {
-//            fatalErrorIfDebug()
-//            
-//            return .init(position: self.position,
-//                         zIndex: self.zIndex,
-//                         parentGroupNodeId: self.parentGroupNodeId)
-//        }
-//        
-//        // Ignore parent group ID if node is running inside a component
-//        let isVisitingComponent = documentDelegate.graphUI.groupNodeFocused?.isComponent ?? false
-        
+    func createSchema() -> CanvasNodeEntity {        
         .init(position: self.position,
               zIndex: self.zIndex,
               parentGroupNodeId:self.parentGroupNodeId)
-        //              parentGroupNodeId: isVisitingComponent ? nil : self.parentGroupNodeId)
     }
 
     func update(from schema: CanvasNodeEntity) {        

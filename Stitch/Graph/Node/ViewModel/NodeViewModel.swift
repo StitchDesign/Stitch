@@ -621,11 +621,6 @@ extension NodeViewModel: NodeDelegate {
 
 
 extension NodeViewModel {
-//    @MainActor
-//    static func createObject(from entity: NodeEntity) -> Self {
-//        return .init(from: entity)
-//    }
-
     // MARK: main actor needed to prevent view updates from background thread
     func update(from schema: NodeEntity,
                 components: [UUID : StitchMasterComponent]) async {
