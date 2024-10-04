@@ -182,29 +182,22 @@ extension StitchDocumentViewModel {
         }
     }
     
-//    @MainActor
-//    func willEncodeProject(schema: StitchDocument) {
-//        // Update nodes data
-//        self.graph.updateGraphData()
-//    }
+    /// Returns self and all graphs inside component instances.
+    var allGraphs: [GraphState] {
+        [self.graph] + self.graph.allComponentGraphs
+    }
     
-//    @MainActor
-//    func encodeProject(temporaryURL: DocumentsURL? = nil) {
-//        let data = self.createSchema()
-//
-//        // Update nodes data
-//        self.updateGraphData(document: data)
-//
-//        Task(priority: .background) { [weak self] in
-//            switch await self?.documentEncoder.encodeProject(data,
-//                                                             temporaryURL: temporaryURL) {
-//            case .success, .none:
-//                return
-//            case .failure(let error):
-//                log("StitchDocumentViewModel.encodeProject error: \(error)")
-//            }
-//        }
-//    }
+    /// Returns all components inside graph instances.
+    var allComponents: [StitchComponentViewModel] {
+        self.graph.allComponents
+    }
+    
+    @MainActor func calculateAllKeyboardNodes() {
+        self.allGraphs.forEach { graph in
+            let keyboardNodes = graph.keyboardNodes
+            graph.calculate(keyboardNodes)
+        }
+    }
 }
 
 extension GraphState: GraphCalculatable {

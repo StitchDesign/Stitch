@@ -52,8 +52,6 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
     
-    // TODO: interaction logic needs to start from top-level to and calculate nodes no matter where they are
-    
     @MainActor
     var tapGesture: some Gesture {
         TapGesture(count: 2)

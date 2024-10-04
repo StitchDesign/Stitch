@@ -29,58 +29,6 @@ struct CloseGraph: StitchStoreEvent {
     }
 }
 
-/// Starts a graph after first loading
-//extension StitchDocumentViewModel: DocumentEncodableDelegate {
-//    @MainActor
-//    func importedFilesDirectoryReceived(mediaFiles: [URL],
-//                                        components: [StitchComponentData]) {
-//        // Must initialize on main thread
-//        self.graphStepManager.start()
-//
-//        self.graph.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-//                                                  components: components)
-//    }
-//}
-struct StitchComponentData {
-    var draft: StitchComponent
-    var published: StitchComponent
-}
-
-//
-//struct StitchComponentData {
-//    var draft: StitchComponent
-//    let published: StitchComponent
-//}
-
-extension StitchComponentData: Identifiable {
-    var id: UUID {
-        get { self.draft.id }
-        set(newValue) { self.draft.id = newValue }
-    }
-    
-    var saveLocation: GraphSaveLocation {
-        self.draft.saveLocation
-    }
-    
-    var rootUrl: URL {
-        self.draft.saveLocation
-            .getRootDirectoryUrl(componentId: self.id)
-    }
-}
-
-extension MasterComponentsDict {
-    mutating func sync(with data: [StitchComponentData],
-                       parentGraph: GraphState) {
-        self.sync(with: data,
-                  updateCallback: { viewModel, data in
-//            viewModel.update(from: data)
-        }) { data in
-            StitchMasterComponent(componentData: data,
-                                  parentGraph: parentGraph)
-        }
-    }
-}
-
 extension GraphState: DocumentEncodableDelegate {
     func updateOnUndo(schema: GraphEntity) {
         Task(priority: .high) { [weak self] in
@@ -116,32 +64,6 @@ extension GraphState: DocumentEncodableDelegate {
         self.mediaLibrary = allMediaFiles.reduce(into: .init()) { result, url in
             result.updateValue(url, forKey: url.mediaKey)
         }
-        
-        // Update GraphState with latest document data to calculate graph, now that media has been loaded
-        // TODO: need a separate updater for graph
-        
-        // TODO: now get back here so we can update connections and stuff in components
-        
-//        self.documentDelegate?.update(from: <#T##StitchDocument#>)
-        
-//        self.visibleNodesViewModel.updateNodeSchemaData(newNodes: nodes,
-//                                                        components: self.components,
-//                                                        parentGraphPath: self.saveLocation)
-        
-//        self.updateSidebarListStateAfterStateChange()
-//        
-//        // TODO: why is this necessary?
-//        _updateStateAfterListChange(
-//            updatedList: self.sidebarListState,
-////            expanded: self.sidebarExpandedItems,
-//            expanded: self.getSidebarExpandedItems(),
-//            graphState: self)
-//        
-//        // Calculate graph
-//        self.initializeGraphComputation()
-//        
-//        // Initialize preview layers
-//        self.updateOrderedPreviewLayers()
     }
    
     func updateSidebarListStateAfterStateChange() {

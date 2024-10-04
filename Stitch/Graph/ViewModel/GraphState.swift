@@ -15,265 +15,6 @@ import StitchEngine
 import SwiftUI
 import Vision
 
-// TODO: move
-/// Tracks drafted and persisted versions of components, used to populate copies in graph.
-final class StitchMasterComponent {
-    @MainActor var componentData: StitchComponentData {
-        .init(draft: self.draftedDocumentEncoder.lastEncodedDocument,
-              published: self.publishedDocumentEncoder.lastEncodedDocument)
-    }
-    
-    let id: UUID
-    let saveLocation: GraphSaveLocation
-    
-    // Encoded copy of drafted component
-    let draftedDocumentEncoder: ComponentEncoder
-    let publishedDocumentEncoder: ComponentEncoder
-    
-    weak var parentGraph: GraphState?
-    
-    init(componentData: StitchComponentData,
-         parentGraph: GraphState?) {
-        self.id = componentData.draft.id
-        self.saveLocation = componentData.draft.saveLocation
-        self.draftedDocumentEncoder = .init(component: componentData.draft)
-        self.publishedDocumentEncoder = .init(component: componentData.published)
-        self.parentGraph = parentGraph
-        
-        if let parentGraph = parentGraph {
-            self.initializeDelegate(parentGraph: parentGraph)
-        }
-    }
-}
-
-extension StitchMasterComponent {
-    @MainActor var publishedComponent: StitchComponent? {
-        self.componentData.published
-    }
-       
-    @MainActor var draftedComponent: StitchComponent {
-        self.componentData.draft
-    }
-    
-//    func update(from schema: StitchComponentData) {
-//        self.componentData = schema
-//    }
-    
-    @MainActor func createSchema(from graph: GraphState) -> StitchComponent {
-        let graph = graph.createSchema()
-        var component = self.componentData.draft
-        component.graph = graph
-        return component
-    }
-    
-    static func createObject(from entity: StitchComponent) -> Self {
-        fatalError()
-//        .init(componentData: entity,
-//              parentGraph: nil)
-    }
-    
-    func onPrototypeRestart() { }
-    
-    func initializeDelegate(parentGraph: GraphState) {
-        self.parentGraph = parentGraph
-        
-        Task {
-            await MainActor.run { [weak self] in
-                guard let component = self else { return }
-                component.draftedDocumentEncoder.delegate = component
-                component.publishedDocumentEncoder.delegate = component
-            }
-        }
-    }
-}
-
-typealias MasterComponentsDict = [UUID : StitchMasterComponent]
-
-extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
-    func willEncodeProject(schema: StitchComponent) {
-        // Find all graphs using this component
-        guard !schema.isPublished,
-              let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.componentData.id) else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        graphs.forEach { graph in
-            Task(priority: .high) { [weak graph] in
-                await graph?.update(from: schema.graph)
-            }
-        }
-    }
-    
-    func updateOnUndo(schema: StitchComponent) {
-        guard let document = self.parentGraph?.documentDelegate else {
-            return
-        }
-        
-        let componentId = self.id
-        
-        // Find all graph states using this component
-        for component in document.allComponents {
-            guard component.componentId == componentId else {
-                continue
-            }
-            
-            Task(priority: .high) { [weak component] in
-                await component?.graph.update(from: schema.graph)
-            }
-        }
-    }
-    
-    var storeDelegate: StoreDelegate? {
-        self.parentGraph?.storeDelegate
-    }
-    
-//    func importedFilesDirectoryReceived(mediaFiles: [URL],
-//                                        components: [StitchComponentData]) {
-//        guard let parentGraph = parentGraph else {
-//            fatalErrorIfDebug()
-//            return
-//        }
-//        
-//        // Find all graph states leveraging this component
-//        let componentGraphStates = parentGraph.nodes.values
-//            .compactMap { node -> GraphState? in
-//                guard let component = node.nodeType.componentNode,
-//                component.componentId == self.id else {
-//                    return nil
-//                }
-//                return component.graph
-//            }
-//        
-//        componentGraphStates.forEach { graphState in
-//            graphState.importedFilesDirectoryReceived(mediaFiles: mediaFiles,
-//                                                      components: components)
-//        }
-//    }
-}
-
-extension StitchDocumentViewModel {
-    /// Returns self and all graphs inside component instances.
-    var allGraphs: [GraphState] {
-        [self.graph] + self.graph.allComponentGraphs
-    }
-    
-    /// Returns all components inside graph instances.
-    var allComponents: [StitchComponentViewModel] {
-        self.graph.allComponents
-    }
-    
-    @MainActor func calculateAllKeyboardNodes() {
-        self.allGraphs.forEach { graph in
-            let keyboardNodes = graph.keyboardNodes
-            graph.calculate(keyboardNodes)
-        }
-    }
-}
-
-extension GraphState {
-    var allComponents: [StitchComponentViewModel] {
-        self.nodes.values.flatMap { node -> [StitchComponentViewModel] in
-            guard let nodeComponent = node.nodeType.componentNode else {
-                return []
-            }
-            
-            return [nodeComponent] + nodeComponent.graph.allComponents
-        }
-    }
-    
-    var allComponentGraphs: [GraphState] {
-        self.allComponents.map { $0.graph }
-    }
-    
-    /// Finds graph states for a component at this hierarchy.
-    func findComponentGraphStates(componentId: UUID) -> [GraphState] {
-        self.nodes.values
-            .compactMap { node in
-                if let component = node.componentNode,
-                   component.componentId == componentId {
-                    return component.graph
-                }
-                
-                return nil
-            }
-    }
-    
-    /// Finds graph state given a node ID of some component node.
-    func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
-        self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
-//        for node in self.nodes.values {
-//            guard let nodeComponent = node.nodeType.componentNode else {
-//                continue
-//            }
-//            
-//            if nodeComponent.id == nodeId {
-//                return nodeComponent.graph
-//            }
-//            
-//            // Recursive check--we found a match if path isn't empty
-//            let recursivePath = nodeComponent.getComponentPath(to: id)
-//            if let matchedGraph = recursivePath.last?.graph {
-//                return matchedGraph
-//            }
-//        }
-//        
-//        return nil
-    }
-    
-//    func getComponentPath(_ id: UUID) -> [UUID] {
-//        for node in self.nodes.values {
-//            guard let nodeComponent = node.nodeType.componentNode else {
-//                continue
-//            }
-//            
-//            // Recursive check--we found a match if path isn't empty
-//            let recursivePath = nodeComponent.getComponentPath(to: id)
-//            if !recursivePath.isEmpty {
-//                return recursivePath.map { $0.id }
-//            }
-//        }
-//        
-//        return []
-//    }
-    
-    /// Syncs visible nodes and topological data when persistence actions take place.
-    @MainActor
-    func updateGraphData() {
-        self.updateTopologicalData()
-
-        // Update preview layers
-        self.updateOrderedPreviewLayers()
-    }
-}
-
-extension StitchComponentViewModel {
-//    /// Recursively checks node component's `GraphState`'s until a match is found.
-//    func getComponentPath(to id: UUID) -> [StitchComponentViewModel] {
-//        for node in self.graph.nodes.values {
-//            guard let nodeComponent = node.nodeType.componentNode else {
-//                continue
-//            }
-//            
-//            if node.id == id {
-//                if nodeComponent.componentId == id {
-//                    return [nodeComponent]
-//                } else {
-//                    fatalErrorIfDebug("Node ID should match component ID")
-//                }
-//            }
-//            
-//            // Recursive check--we found a match if path isn't empty
-//            let recursivePath = nodeComponent.getComponentPath(to: id)
-//            if !recursivePath.isEmpty {
-//                return [self] + recursivePath
-//            }
-//        }
-//        
-//        return []
-//    }
-}
-
 @Observable
 final class GraphState: Sendable {
     // Updated when connections, new nodes etc change
@@ -360,53 +101,6 @@ final class GraphState: Sendable {
         
         self.libraryLoadingStatus = .loaded
         self.syncMediaFiles(mediaFiles)
-        
-//        self.importedFilesDirectoryReceived(mediaFiles: graphDecodedFiles.mediaFiles,
-//                                             components: graphDecodedFiles.components)
-        
-//        Task(priority: .high) { [weak self] in
-//            guard let graph = self else { return }
-//            await graph.visibleNodesViewModel
-//                .updateNodeSchemaData(newNodes: schema.nodes,
-//                                      components: graph.components,
-//                                      parentGraphPath: graph.saveLocation)
-            
-//            await MainActor.run { [weak self] in
-//                guard let graph = self else { return }
-//                
-//                guard let document = graph.documentDelegate,
-//                      let documentEncoder = graph.documentEncoderDelegate else {
-//                    fatalErrorIfDebug()
-//                    return
-//                }
-//
-//                graph.initializeDelegate(document: document,
-//                                         documentEncoderDelegate: documentEncoder)
-//                
-//                graph.updateSidebarListStateAfterStateChange()
-//                
-//                // TODO: why is this necessary?
-//                _updateStateAfterListChange(
-//                    updatedList: graph.sidebarListState,
-//                    expanded: graph.getSidebarExpandedItems(),
-//                    graphState: graph)
-//                
-//                // Calculate graph
-//                graph.initializeGraphComputation()
-//                
-//                // Initialize preview layers
-//                graph.updateOrderedPreviewLayers()
-//            }
-//        }
-        
-        
-//        // MARK: important we don't initialize nodes until after media is estbalished
-//        DispatchQueue.main.async { [weak self] in
-//            if let graph = self {
-//                dispatch(GraphInitialized(graph: graph,
-//                                          data: data))
-//            }
-//        }
     }
     
     convenience init(from schema: GraphEntity,
@@ -437,11 +131,6 @@ final class GraphState: Sendable {
                   components: components,
                   mediaFiles: decodedFiles.mediaFiles,
                   saveLocation: saveLocation)
-        
-//        await self.visibleNodesViewModel
-//            .updateNodeSchemaData(newNodes: schema.nodes,
-//                                  components: self.components,
-//                                  parentGraphPath: self.saveLocation)
     }
     
     @MainActor
@@ -475,11 +164,6 @@ final class GraphState: Sendable {
         
         // Calculate graph
         self.initializeGraphComputation()
-        
-        // Get media + encoded component files after view models are established
-//        Task(priority: .high) { [weak self] in
-//            await graph.documentEncoderDelegate?.graphInitialized()
-//        }
     }
 }
 
@@ -532,72 +216,48 @@ extension GraphState: GraphDelegate {
     func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
         await self.documentEncoderDelegate?.undoDeletedMedia(mediaKey: mediaKey) ?? .failure(.copyFileFailed)
     }
-}
-
-// extension StitchDocumentViewModel {
-//     @MainActor convenience init(id: ProjectId,
-//                                 projectName: String = STITCH_PROJECT_DEFAULT_NAME,
-//                                 previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-//                                 previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
-//                                 previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
-//                                 localPosition: CGPoint = .zero,
-//                                 zoomData: CGFloat = 1,
-//                                 nodes: [NodeEntity] = [],
-//                                 orderedSidebarLayers: [SidebarLayerData] = [],
-//                                 commentBoxes: [CommentBoxData] = .init(),
-//                                 cameraSettings: CameraSettings = CameraSettings(),
-//                                 store: StoreDelegate?) {
-//         let document = StitchDocument(projectId: id,
-//                                       name: projectName,
-//                                       previewWindowSize: previewWindowSize,
-//                                       previewSizeDevice: previewSizeDevice,
-//                                       previewWindowBackgroundColor: previewWindowBackgroundColor,
-//                                       localPosition: localPosition,
-//                                       zoomData: zoomData,
-//                                       nodes: nodes,
-//                                       orderedSidebarLayers: orderedSidebarLayers,
-//                                       commentBoxes: commentBoxes,
-//                                       cameraSettings: cameraSettings)
-//         self.init(from: document, store: store)
-//     }
-// }
-
-// extension GraphState {
-//     @MainActor convenience init(id: ProjectId,
-//                                 projectName: String = STITCH_PROJECT_DEFAULT_NAME,
-//                                 previewWindowSize: CGSize = PreviewWindowDevice.DEFAULT_PREVIEW_SIZE,
-//                                 previewSizeDevice: PreviewWindowDevice = PreviewWindowDevice.DEFAULT_PREVIEW_OPTION,
-//                                 previewWindowBackgroundColor: Color = DEFAULT_FLOATING_WINDOW_COLOR,
-//                                 localPosition: CGPoint = .zero,
-//                                 zoomData: CGFloat = 1,
-//                                 nodes: [NodeEntity] = [],
-//                                 orderedSidebarLayers: [SidebarLayerData] = [],
-//                                 commentBoxes: [CommentBoxData] = .init(),
-//                                 cameraSettings: CameraSettings = CameraSettings(),
-//                                 store: StoreDelegate?) {
-//         let document = StitchDocument(projectId: id,
-//                                       name: projectName,
-//                                       previewWindowSize: previewWindowSize,
-//                                       previewSizeDevice: previewSizeDevice,
-//                                       previewWindowBackgroundColor: previewWindowBackgroundColor,
-//                                       localPosition: localPosition,
-//                                       zoomData: zoomData,
-//                                       nodes: nodes,
-//                                       orderedSidebarLayers: orderedSidebarLayers,
-//                                       commentBoxes: commentBoxes,
-//                                       cameraSettings: cameraSettings)
-//         self.init(from: document)
-    // }
     
-//    @MainActor
-//    func update(from schema: StitchDocument) {
-//        // Sync project attributes
-//        self.id = schema.projectId
-//        self.name = schema.name
-//        self.orderedSidebarLayers = schema.orderedSidebarLayers
-//        
-//        
-//    }
+    var allComponents: [StitchComponentViewModel] {
+        self.nodes.values.flatMap { node -> [StitchComponentViewModel] in
+            guard let nodeComponent = node.nodeType.componentNode else {
+                return []
+            }
+            
+            return [nodeComponent] + nodeComponent.graph.allComponents
+        }
+    }
+    
+    var allComponentGraphs: [GraphState] {
+        self.allComponents.map { $0.graph }
+    }
+    
+    /// Finds graph states for a component at this hierarchy.
+    func findComponentGraphStates(componentId: UUID) -> [GraphState] {
+        self.nodes.values
+            .compactMap { node in
+                if let component = node.componentNode,
+                   component.componentId == componentId {
+                    return component.graph
+                }
+                
+                return nil
+            }
+    }
+    
+    /// Finds graph state given a node ID of some component node.
+    func findComponentGraphState(_ nodeId: UUID) -> GraphState? {
+        self.documentDelegate?.allComponents.first { $0.id == nodeId }?.graph ?? nil
+    }
+    
+    /// Syncs visible nodes and topological data when persistence actions take place.
+    @MainActor
+    func updateGraphData() {
+        self.updateTopologicalData()
+
+        // Update preview layers
+        self.updateOrderedPreviewLayers()
+    }
+}
 
 extension GraphState {
     @MainActor func createSchema() -> GraphEntity {
@@ -648,40 +308,11 @@ extension GraphState {
         
         await self.syncNodes(with: schema.nodes)
         
-//        if let documentViewModel = self.documentDelegate {
-//            self.initializeDelegate(document: documentViewModel,
-//                                    documentEncoderDelegate: documentViewModel.documentEncoder)
-//        } else {
-//            fatalErrorIfDebug()
-//        }
-        
-//        await self.visibleNodesViewModel.updateNodeSchemaData(newNodes: schema.nodes,
-//                                                              components: self.components,
-//                                                              parentGraphPath: self.saveLocation)
-        
         if let document = self.documentDelegate,
            let documentEncoder = self.documentEncoderDelegate {
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: documentEncoder)
         }
-        
-//        self.updateSidebarListStateAfterStateChange()
-//        
-//        // TODO: why is this necessary?
-//        _updateStateAfterListChange(
-//            updatedList: self.sidebarListState,
-////            expanded: self.sidebarExpandedItems,
-//            expanded: self.getSidebarExpandedItems(),
-//            graphState: self)
-//        
-//        // Sync node view models + cached data
-//        self.updateGraphData()
-//        
-//        // No longer needed, since sidebar-expanded-items handled by node schema
-////        self.sidebarExpandedItems = self.allGroupLayerNodes()
-//        self.calculateFullGraph()
-        
-        // TODO: comment boxes
     }
     
     @MainActor func onPrototypeRestart() {
@@ -732,12 +363,6 @@ extension GraphState {
                 return node
             }
     }
-    
-//    var allGraphs: [GraphState] {
-//        [self] + self.components.values.flatMap {
-//            $0.graph.allGraphs
-//        }
-//    }
     
     // TODO: highestZIndex also needs to take into account comment boxes' z-indices
     @MainActor

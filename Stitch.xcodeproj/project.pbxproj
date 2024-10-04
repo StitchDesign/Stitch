@@ -135,6 +135,8 @@
 		B55780632CAF667900907BA8 /* StitchClipboardContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780622CAF667700907BA8 /* StitchClipboardContent.swift */; };
 		B55780652CAF66D900907BA8 /* StitchComponentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780642CAF66D600907BA8 /* StitchComponentable.swift */; };
 		B55780692CB043B600907BA8 /* StitchComponentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */; };
+		B557806B2CB0458800907BA8 /* StitchComponentData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B557806A2CB0458500907BA8 /* StitchComponentData.swift */; };
+		B557806D2CB045DC00907BA8 /* StitchMasterComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */; };
 		B55979242A215A3400363149 /* EdgeEditModeLabelsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */; };
 		B55C958428CBAB4000ED59B2 /* StitchUndoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */; };
 		B55E4F0A27F7F0E100BFD60A /* NodeUIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */; };
@@ -1046,6 +1048,8 @@
 		B55780622CAF667700907BA8 /* StitchClipboardContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchClipboardContent.swift; sourceTree = "<group>"; };
 		B55780642CAF66D600907BA8 /* StitchComponentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentable.swift; sourceTree = "<group>"; };
 		B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentViewModel.swift; sourceTree = "<group>"; };
+		B557806A2CB0458500907BA8 /* StitchComponentData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchComponentData.swift; sourceTree = "<group>"; };
+		B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMasterComponent.swift; sourceTree = "<group>"; };
 		B55979232A215A3400363149 /* EdgeEditModeLabelsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EdgeEditModeLabelsView.swift; sourceTree = "<group>"; };
 		B55C958328CBAB4000ED59B2 /* StitchUndoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchUndoManager.swift; sourceTree = "<group>"; };
 		B55E4F0927F7F0E100BFD60A /* NodeUIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeUIColor.swift; sourceTree = "<group>"; };
@@ -2862,6 +2866,7 @@
 		B55780672CB0438A00907BA8 /* Component */ = {
 			isa = PBXGroup;
 			children = (
+				B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */,
 				B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */,
 			);
 			path = Component;
@@ -2970,6 +2975,7 @@
 			isa = PBXGroup;
 			children = (
 				EC40812A2C014EAC0047989F /* StitchDocumentEncodable.swift */,
+				B557806A2CB0458500907BA8 /* StitchComponentData.swift */,
 				B56FFB3B2C18F3C700623CC7 /* StitchFileError.swift */,
 				B56FFB3D2C18F52600623CC7 /* StitchFileResult.swift */,
 			);
@@ -4896,6 +4902,7 @@
 				EC844A682B5F20EF00C79B0B /* StitchFontWeight.swift in Sources */,
 				EC9D16E02808D89000684978 /* CanvasItemTitleView.swift in Sources */,
 				EC3A6C4B2C20C4FD00CCBACC /* NodeRowObserverCachedViewDataExtensions.swift in Sources */,
+				B557806B2CB0458800907BA8 /* StitchComponentData.swift in Sources */,
 				EC0FD2DE2B50D4A700CCEAB5 /* CatalystNavigationBarHelperViews.swift in Sources */,
 				EC560E15293A944100350046 /* LoopReverseNode.swift in Sources */,
 				B57F3A802946CE4700DFC0AE /* VisibleNodesViewModel.swift in Sources */,
@@ -5221,6 +5228,7 @@
 				B5E28AEC2A7988420007C0CB /* ProjectWindowSizeReader.swift in Sources */,
 				EC08D5572898879200FEE846 /* StitchPositionUtils.swift in Sources */,
 				EC4A7211274C260C0026B233 /* WirelessPortView.swift in Sources */,
+				B557806D2CB045DC00907BA8 /* StitchMasterComponent.swift in Sources */,
 				B55500E72C1BACA30081C3F1 /* PreviewCommonPositionModifier.swift in Sources */,
 				ECF07B7626EA99780021F56B /* ShareView.swift in Sources */,
 				EC81A3C528936BAA00BE53D8 /* WideAdjustmentBarView.swift in Sources */,
