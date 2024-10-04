@@ -29,7 +29,7 @@ struct StitchProjectView: View {
     }
 
     var body: some View {
-        projectLoadingView
+        projectView()
             #if !targetEnvironment(macCatalyst)
             // TODO: loses animation when exiting full screen mode
             // TODO: why, for iPad and iPhone, must be ignore the safe areas here, rather than further down in the hierarchy? ... perhaps connected with the hiding of the toolbar?
@@ -57,33 +57,6 @@ struct StitchProjectView: View {
                 // TODO: listen to presses of the NavigationStack's back button instead?
                 dispatch(CloseGraph())
             }
-    }
-
-    @ViewBuilder @MainActor
-    var projectLoadingView: some View {
-        // ZStack needed for animation
-        ZStack {
-            // Loading job kicked off in GraphState.init
-            switch graphState.libraryLoadingStatus {
-            case .loading:
-                ProgressView()
-
-            case .loaded:
-                projectView()
-
-            case .failed:
-                // Graph did not load
-                EmptyView()
-                    .onAppear {
-                        #if DEBUG
-                        fatalError()
-                        #endif
-
-                        log("setCurrentProjectResult: had graph schema decoding error")
-                        dispatch(CloseGraph())
-                    }
-            }
-        }
     }
 
     @ViewBuilder @MainActor

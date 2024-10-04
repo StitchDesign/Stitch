@@ -100,7 +100,8 @@ struct ProjectsListItemView: View {
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate)
                     .onTapGesture {
-                        store.handleProjectTapped(documentURL: document.rootUrl,
+                        store.handleProjectTapped(projectLoader: projectLoader,
+                                                  document: document,
                                                   isPhoneDevice: GraphUIState.isPhoneDevice)
                     }
                     .transition(.opacity)
