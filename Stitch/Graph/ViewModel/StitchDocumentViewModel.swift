@@ -47,6 +47,9 @@ final class StitchDocumentViewModel: Sendable {
     var keypressState = KeyPressState()
     var llmRecording = LLMRecordingState()
     
+    // Remains false if an encoding action never happened (used for thumbnail creation)
+    var didDocumentChange: Bool = false
+    
     // Singleton instances
     var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
@@ -114,7 +117,10 @@ extension StitchDocumentViewModel: DocumentEncodableDelegate {
         }
     }
     
-    func willEncodeProject(schema: StitchDocument) { }
+    func willEncodeProject(schema: StitchDocument) {
+        // Signals to project thumbnail logic to create a new one when project closes
+        self.didDocumentChange = true
+    }
 }
 
 extension StitchDocumentViewModel {

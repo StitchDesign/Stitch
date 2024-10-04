@@ -12,6 +12,8 @@ import StitchSchemaKit
 extension StitchStore {
     @MainActor
     func createThumbnail(from documentViewModel: StitchDocumentViewModel) {
+        guard documentViewModel.didDocumentChange else { return }
+        
         // Note: we need to modify some views
         documentViewModel.isGeneratingProjectThumbnail = true
         
