@@ -18,6 +18,8 @@ struct ProjectsListItemIconView: View {
     // so we trigger reunder-upon-thumbnail-write by listening to ProjectLoader's modifiedDate
     var modifiedDate: Date? = nil // nil = project is loading, or failed to load
     
+    var isLoading: Bool = false
+    
     var image: UIImage {
         if let projectThumbnail = projectThumbnail {
             return projectThumbnail
@@ -45,7 +47,14 @@ struct ProjectsListItemIconView: View {
                 }
             }
              .cornerRadius(8)
-            .contentShape(Rectangle()) // for consistent tappable thumbnail area
+             .contentShape(Rectangle()) // for consistent tappable thumbnail area
+             .projectItemBlur(willBlur: isLoading)
+             .overlay {
+                 if isLoading {
+                     ProgressView()
+                         .progressViewStyle(.circular)
+                 }
+             }
     }
 }
 
@@ -67,7 +76,8 @@ struct ProjectsListItemThumbnailView<Thumbnail: View, Label: View>: View {
 
 struct ProjectsListItemView: View {
     
-    @Environment(StitchStore.self) var store // added
+    @Environment(StitchStore.self) var store
+    @State private var isLoadingForPresentation = false // displays loading screen when tapped
     
     @Bindable var projectLoader: ProjectLoader
     let documentLoader: DocumentLoader
@@ -98,10 +108,15 @@ struct ProjectsListItemView: View {
                 ProjectsListItemIconView(
                     projectThumbnail: DocumentEncoder.getProjectThumbnailImage(rootUrl: document.rootUrl),
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
-                    modifiedDate: projectLoader.modifiedDate)
+                    modifiedDate: projectLoader.modifiedDate,
+                    isLoading: self.isLoadingForPresentation)
                     .onTapGesture {
-                        store.handleProjectTapped(documentURL: document.rootUrl,
-                                                  isPhoneDevice: GraphUIState.isPhoneDevice)
+                        self.isLoadingForPresentation = true
+                        
+                        store.handleProjectTapped(document: document,
+                                                  isPhoneDevice: GraphUIState.isPhoneDevice) {
+                            self.isLoadingForPresentation = false
+                        }
                     }
                     .transition(.opacity)
             }

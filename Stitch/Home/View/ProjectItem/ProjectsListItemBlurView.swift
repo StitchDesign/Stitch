@@ -9,8 +9,8 @@ import SwiftUI
 import StitchSchemaKit
 
 extension View {
-    func projectItemBlur() -> some View {
-        self.blur(radius: 3)
+    func projectItemBlur(willBlur: Bool = true) -> some View {
+        self.blur(radius: willBlur ? 3 : 0)
     }
 }
 
