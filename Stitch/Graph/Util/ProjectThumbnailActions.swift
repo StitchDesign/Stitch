@@ -54,7 +54,7 @@ extension StitchStore {
                 
                 // Force reload of home-screen thumbnail by setting local state to initialized
                 // For some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
-                await store.documentLoader.storage.get(rootUrl)?.loadingDocument = .initialized
+                await store.documentLoader.refreshDocument(url: rootUrl)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")
             }

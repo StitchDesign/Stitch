@@ -45,7 +45,7 @@ func handleOnDrop(providers: [NSItemProvider],
                     do {
                         switch await store?.documentLoader.loadDocument(from: tempURL,
                                                                         isImport: true) {
-                        case .loaded(let data):
+                        case .loaded(let data, _):
                             DispatchQueue.main.async { [weak store] in
                                 store?.openProjectAction(from: data)
                             }

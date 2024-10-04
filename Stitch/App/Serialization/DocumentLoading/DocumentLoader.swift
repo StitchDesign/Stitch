@@ -70,19 +70,33 @@ actor DocumentLoader {
                 
                 return .failed
             }
-            return .loaded(document)
+            
+            // thumbnail loading not needed for import
+            let thumbnail = isImport ? nil : DocumentEncoder.getProjectThumbnailImage(rootUrl: url)
+            
+            return .loaded(document, thumbnail)
         } catch {
             log("DocumentLoader.loadDocument error: \(error)")
             return .failed
         }
     }
 
-    nonisolated func loadDocument(_ datedUrl: ProjectLoader, isImport: Bool = false) async {
-        let newLoading = await self.loadDocument(from: datedUrl.url, isImport: isImport)
+    nonisolated func loadDocument(_ projectLoader: ProjectLoader,
+                                  isImport: Bool = false) async {
+        let newLoading = await self.loadDocument(from: projectLoader.url, isImport: isImport)
 
-        await MainActor.run { [weak datedUrl] in
-            datedUrl?.loadingDocument = newLoading
+        await MainActor.run { [weak projectLoader] in
+            projectLoader?.loadingDocument = newLoading
         }
+    }
+    
+    func refreshDocument(url: URL) async {
+        guard let projectLoader = self.storage.get(url) else { return }
+        
+        projectLoader.loadingDocument = .loading
+        projectLoader.thumbnail = nil
+        
+        await self.loadDocument(projectLoader)
     }
 }
 

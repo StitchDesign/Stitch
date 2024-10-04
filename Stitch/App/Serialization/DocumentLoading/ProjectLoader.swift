@@ -14,6 +14,7 @@ final class ProjectLoader: Sendable {
     var modifiedDate: Date
     var url: URL
     var loadingDocument: DocumentLoadingStatus = .initialized
+    var thumbnail: UIImage?
 
     /// Initialzes object with some URL, not yet loading document until loaded in lazy view.
     init(url: URL) {
