@@ -96,7 +96,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     static var nodeIO: NodeIO { get }
     
-    @MainActor func calculatePortColor() -> PortColor
+    func calculatePortColor() -> PortColor
     
     @MainActor func portDragged(gesture: DragGesture.Value, graphState: GraphState)
     
@@ -106,9 +106,7 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     @MainActor func findConnectedCanvasItems() -> CanvasItemIdSet
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
          rowDelegate: RowObserver?,
          canvasItemDelegate: CanvasItemViewModel?)
 }
@@ -119,8 +117,7 @@ extension NodeRowViewModel {
     var computationNode: NodeDelegate? {
         self.rowDelegate?.nodeDelegate
     }
-    
-    @MainActor 
+     
     func initializeDelegate(_ node: NodeDelegate,
                             unpackedPortParentFieldGroupType: FieldGroupType?,
                             unpackedPortIndex: Int?) {
@@ -130,9 +127,11 @@ extension NodeRowViewModel {
         }
         
         self.nodeDelegate = node
+        
         self.initializeValues(rowDelegate: rowDelegate,
                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                              unpackedPortIndex: unpackedPortIndex)
+                              unpackedPortIndex: unpackedPortIndex,
+                              initialValue: rowDelegate.activeValue)
     }
     
     var portViewData: PortViewType? {
@@ -144,23 +143,19 @@ extension NodeRowViewModel {
                      canvasId: canvasId)
     }
     
-    @MainActor
     func initializeValues(rowDelegate: Self.RowObserver,
                           unpackedPortParentFieldGroupType: FieldGroupType?,
-                          unpackedPortIndex: Int?) {
-        let activeIndex = rowDelegate.nodeDelegate?.activeIndex ?? .init(.zero)
+                          unpackedPortIndex: Int?,
+                          initialValue: PortValue) {        
+        self.activeValue = initialValue
         
-        self.activeValue = PortValue.getActiveValue(allLoopedValues: rowDelegate.allLoopedValues,
-                                                    activeIndex: activeIndex)
-        
-        self.createFieldValueTypes(initialValue: self.activeValue,
+        self.createFieldValueTypes(initialValue: initialValue,
                                    nodeIO: Self.nodeIO,
                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                    unpackedPortIndex: unpackedPortIndex,
                                    importedMediaObject: nil)
     }
     
-    @MainActor
     func didPortValuesUpdate(values: PortValues) {
         guard let rowDelegate = self.rowDelegate else {
             return
@@ -191,7 +186,6 @@ extension NodeRowViewModel {
         }
     }
     
-    @MainActor
     func updatePortColor() {
         let newColor = self.calculatePortColor()
         self.setPortColorIfChanged(newColor)
@@ -243,9 +237,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     // TODO: temporary property for old-style layer nodes
     var layerPortId: Int?
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
          rowDelegate: InputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
@@ -307,22 +299,13 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
     
-    @MainActor
     init(id: NodeRowViewModelId,
-         activeValue: PortValue,
          rowDelegate: OutputNodeRowObserver?,
          canvasItemDelegate: CanvasItemViewModel?) {
         self.id = id
         self.nodeDelegate = nodeDelegate
         self.rowDelegate = rowDelegate
         self.canvasItemDelegate = canvasItemDelegate
-        
-        if let rowDelegate = rowDelegate {
-            self.initializeValues(rowDelegate: rowDelegate,
-                                  // Irrelevant for outputs, since an output cannot be unpacked
-                                  unpackedPortParentFieldGroupType: nil,
-                                  unpackedPortIndex: nil)
-        }
     }
 }
 
@@ -375,7 +358,6 @@ extension OutputNodeRowViewModel {
 }
 
 extension Array where Element: NodeRowViewModel {
-    @MainActor
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
@@ -413,15 +395,8 @@ extension Array where Element: NodeRowViewModel {
                                                portId: portIndex)
                 
                 let rowViewModel = Element(id: rowId,
-                                           activeValue: newEntity.activeValue,
                                            rowDelegate: newEntity,
                                            canvasItemDelegate: canvas)
-                
-                if let node = node {
-                    rowViewModel.initializeDelegate(node,
-                                                    unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                                    unpackedPortIndex: unpackedPortIndex)
-                }
                 
                 return rowViewModel
             }

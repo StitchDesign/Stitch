@@ -37,6 +37,7 @@ import StitchSchemaKit
 
 struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let interactiveLayer: InteractiveLayer
     let position: CGPoint
     let pos: StitchPosition // for factoring out .anchoring for press node
@@ -48,7 +49,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
         
     @MainActor
     func getPressInteractionIds() -> NodeIdSet? {
-        document.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
+        graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
     
     @MainActor
@@ -57,7 +58,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             .onEnded {
                 if let pressIds = self.getPressInteractionIds() {
                     self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
-                    document.calculate(pressIds)
+                    graph.calculate(pressIds)
                 }
             }
             .exclusively(before:
@@ -65,7 +66,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 .onEnded {
                     if let pressIds = self.getPressInteractionIds() {
                         self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
-                        document.calculate(pressIds)
+                        graph.calculate(pressIds)
                     }
                 }
             )
@@ -87,17 +88,17 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                 let location = CGPoint(x: $0.location.x - pos.x,
                                        y: $0.location.y - pos.y)
                                 
-                document.layerDragged(interactiveLayer: interactiveLayer,
-                                      location: location, // // PRESS NODE ONLY
-                                      translation: $0.translation,
-                                      velocity: velocity,
-                                      parentSize: parentSize,
-                                      childSize: size,
-                                      childPosition: position)
+                graph.layerDragged(interactiveLayer: interactiveLayer,
+                                   location: location, // // PRESS NODE ONLY
+                                   translation: $0.translation,
+                                   velocity: velocity,
+                                   parentSize: parentSize,
+                                   childSize: size,
+                                   childPosition: position)
             }
             .onEnded {  _ in
                 // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
-                document.layerDragEnded(interactiveLayer: interactiveLayer,
+                graph.layerDragEnded(interactiveLayer: interactiveLayer,
                                      parentSize: parentSize,
                                      childSize: size)
             }

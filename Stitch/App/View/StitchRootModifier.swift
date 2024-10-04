@@ -39,8 +39,9 @@ struct StitchRootModifier: ViewModifier {
                 
                 else if url.pathExtension == UTType.stitchDocument.preferredFilenameExtension {
                     Task { [weak store] in
-                        guard let importedDoc = try? await StitchDocument.openDocument(from: url,
-                                                                                       isImport: true) else {
+                        guard let importedDoc = try? await StitchDocument
+                            .openDocument(from: url,
+                                          isImport: true) else {
                             return
                         }
                         store?.openProjectAction(from: importedDoc)

@@ -16,7 +16,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
     @Bindable var graph: GraphState
     let isSelected: Bool
     let atleastOneCommentBoxSelected: Bool
-    let activeGroupId: GroupNodeId?
+    let activeGroupId: NodeId?
     let canAddInput: Bool
     let canRemoveInput: Bool
 
@@ -81,7 +81,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     if self.stitch.kind.isGroup {
                         log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2)")
                         log("NodeView: node \(stitch.id) .gesture(TapGesture(count: 2): will set active group")
-                        dispatch(GroupNodeDoubleTapped(id: GroupNodeId(stitch.id)))
+                        dispatch(GroupNodeDoubleTapped(id: stitch.id))
                     }
                 }))
             
@@ -218,7 +218,7 @@ func getFakeNode(choice: NodeKind,
                  _ zIndex: ZIndex = 1,
                  customName: String? = nil) -> NodeViewModel? {
 
-    let document = StitchDocumentViewModel(id: .fakeId, store: nil)
+    let document = StitchDocumentViewModel.createEmpty()
     
     if let node = document.nodeCreated(choice: choice) {
                 

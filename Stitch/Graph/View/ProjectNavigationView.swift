@@ -21,7 +21,7 @@ struct ProjectNavigationView: View {
 
     // Tracks edge changes to reset cached data
     @MainActor var upstreamConnections: [NodeIOCoordinate?] {
-        self.document.nodes.values
+        self.document.visibleGraph.nodes.values
             .flatMap { $0.getAllInputsObservers() }
             .map { $0.upstreamOutputCoordinate }
     }
@@ -30,12 +30,21 @@ struct ProjectNavigationView: View {
         GraphBaseView(document: document,
                       graphUI: document.graphUI,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
-        // TODO: what is the best way / place `updateGraphData` (i.e. the node row observers)? Seems okay perf-wise? ... Specifically for input- or output-port colors.
-        .onChange(of: document.nodes.keys.count) {
-            document.updateGraphData()
+        .onChange(of: document.visibleGraph.nodes.keys.count) {
+            document.visibleGraph.updateGraphData()
         }
         .onChange(of: upstreamConnections) {
-            document.updateGraphData()
+            document.visibleGraph.updateGraphData()
+        }
+        .onChange(of: document.isCameraEnabled) { _, isCameraEnabled in
+            if !isCameraEnabled {
+                // Tear down if no nodes enabled camera
+                document.deactivateCamera()
+                
+                DispatchQueue.main.async {
+                    dispatch(SingletonMediaTeardown(keyPath: \.cameraFeedManager))
+                }
+            }
         }
     }
 }

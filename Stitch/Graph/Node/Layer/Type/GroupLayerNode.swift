@@ -89,12 +89,14 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.paddingAndSpacing)
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList, isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
         PreviewGroupLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             layersInGroup: layersInGroup,
             isPinnedViewRendering: isPinnedViewRendering,
@@ -167,7 +169,6 @@ extension GraphState {
         let newNode = Layer.group.graphNode.createViewModel(id: groupLayerData.id,
                                                             position: position,
                                                             zIndex: zIndex,
-                                                            activeIndex: self.activeIndex,
                                                             graphDelegate: self)
         newNode.layerNode?.sizePort.updatePortValues([.size(layerGroupFit.size)])
         newNode.layerNode?.positionPort.updatePortValues([.position(layerGroupFit.position)])

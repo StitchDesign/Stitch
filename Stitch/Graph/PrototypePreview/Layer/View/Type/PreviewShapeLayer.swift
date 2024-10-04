@@ -15,6 +15,7 @@ import StitchSchemaKit
 ///
 struct PreviewShapeLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -86,6 +87,7 @@ struct PreviewShapeLayer: View {
             // TODO: revisit this
                 .modifier(PreviewAbsoluteShapeLayerModifier(
                     document: document,
+                    graph: graph,
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,
@@ -108,6 +110,7 @@ struct PreviewShapeLayer: View {
                 .opacity(opacity)
                 .modifier(PreviewCommonModifier(
                     document: document,
+                    graph: graph,
                     layerViewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,

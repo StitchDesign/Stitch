@@ -262,7 +262,7 @@ struct InputValueView: View {
                 isFieldInsideLayerInspector: viewModel.isFieldInsideLayerInspector,
                 isForPinTo: false,
                 isSelectedInspectorRow: isSelectedInspectorRow,
-                choices: graph.documentDelegate?
+                choices: graph
                     .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                           isForLayerGroup: false,
                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector,
@@ -277,7 +277,7 @@ struct InputValueView: View {
                            isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                            isForPinTo: true,
                            isSelectedInspectorRow: isSelectedInspectorRow,
-                           choices: graph.documentDelegate?
+                           choices: graph
                             .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                   isForLayerGroup: isForLayerGroup,
                                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,

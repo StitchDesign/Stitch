@@ -76,7 +76,6 @@ extension GraphState {
         self.visibleNodesViewModel.nodes.removeValue(forKey: uncreatedGroupNodeId)
 
         // Process and encode changes
-        self.documentDelegate?.updateGraphData()
         self.encodeProjectInBackground()
     }
 }

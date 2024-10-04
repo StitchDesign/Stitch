@@ -14,6 +14,7 @@ struct Preview3DModelLayer: View {
     @State private var mediaObject: StitchMediaObject?
     
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     
     let isPinnedViewRendering: Bool
@@ -47,7 +48,7 @@ struct Preview3DModelLayer: View {
     }
     
     var layerNode: LayerNodeViewModel? {
-        self.document.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
+        self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
             .layerNode
     }
 
@@ -75,6 +76,7 @@ struct Preview3DModelLayer: View {
                                          mediaRowObserver: layerNode?.model3DPort.rowObserver))
         .modifier(PreviewCommonModifier(
             document: document,
+            graph: graph,
             layerViewModel: layerViewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: interactiveLayer,

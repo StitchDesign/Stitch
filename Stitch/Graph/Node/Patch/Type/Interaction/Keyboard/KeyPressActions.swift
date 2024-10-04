@@ -119,8 +119,7 @@ extension StitchStore {
 
         // Not in edge-edit-mode, so recalc the keyboard patch nodes
         else {
-            let keyboardNodes = document.graph.keyboardNodes
-            document.calculate(keyboardNodes)
+            document.calculateAllKeyboardNodes()
         }
     }
 }
@@ -147,7 +146,6 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed is now: \(graphState.graphUI.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        let keyboardNodes = state.graph.keyboardNodes
-        state.calculate(keyboardNodes)
+        state.calculateAllKeyboardNodes()
     }
 }

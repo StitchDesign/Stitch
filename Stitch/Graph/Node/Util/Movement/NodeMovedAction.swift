@@ -237,7 +237,7 @@ struct NodeMoveEndedAction: StitchDocumentEvent {
 
     func handle(state: StitchDocumentViewModel) {
         state.handleNodeMoveEnded(id: id)
-        state.graph.encodeProjectInBackground()
+        state.visibleGraph.encodeProjectInBackground()
     }
 }
 

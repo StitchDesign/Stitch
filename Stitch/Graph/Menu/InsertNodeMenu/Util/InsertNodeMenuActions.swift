@@ -83,22 +83,21 @@ struct CloseAndResetInsertNodeMenu: GraphUIEvent {
 }
 
 // i.e. User has 'committed' their node-menu selection
-struct AddNodeButtonPressed: GraphEventWithResponse {
-    func handle(state: GraphState) -> GraphResponse {
+struct AddNodeButtonPressed: GraphEvent {
+    func handle(state: GraphState) {
         
         // Immediately create a LayerNode; do not animate.
         if let nodeKind = state.graphUI.insertNodeMenuState.activeSelection?.data.kind,
            nodeKind.isLayer {
             guard let newNode = state.documentDelegate?.nodeCreated(choice: nodeKind) else {
                 fatalErrorIfDebug() // should not fail to return
-                return .noChange
+                return
             }
             state.nodeCreationCompleted(newNode.id)
-            return .shouldPersist
+            state.persistNewNode(newNode)
         } else {
             // Allows us to render the 'node-sizing-reading' view, which kicks off the animation as soon as its size has been read.
             state.graphUI.insertNodeMenuState.readActiveSelectionSize = true
-            return .noChange
         }
     }
 }
@@ -132,6 +131,8 @@ struct ActiveSelectionSizeReadingCompleted: GraphEvent {
         // We hide the "real node" (the node that lives in GraphState)
         // until the animation has completed.
         state.graphUI.insertNodeMenuState.hiddenNodeId = node.id
+        
+        state.persistNewNode(node)
         
         // TODO: use the
         withAnimation {
@@ -194,11 +195,10 @@ extension GraphState {
     }
 }
 
-struct InsertNodeAnimationCompleted: GraphEventWithResponse {
+struct InsertNodeAnimationCompleted: GraphEvent {
 
     @MainActor
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: GraphState) {
         state.nodeCreationCompleted()
-        return .shouldPersist
     }
 }

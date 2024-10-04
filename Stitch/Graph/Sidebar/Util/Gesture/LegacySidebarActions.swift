@@ -255,7 +255,7 @@ struct SidebarListItemDragged: GraphEvent {
             graphState: state)
         
         // Recalculate the ordered-preview-layers
-        state.documentDelegate?.updateOrderedPreviewLayers()
+        state.updateOrderedPreviewLayers()
     }
 }
 

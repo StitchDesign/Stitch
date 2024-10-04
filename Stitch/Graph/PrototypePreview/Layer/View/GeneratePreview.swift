@@ -13,19 +13,16 @@ import StitchSchemaKit
 struct GeneratePreview: View {
     @Bindable var document: StitchDocumentViewModel
     
-    var visibleNodes: VisibleNodesViewModel {
-        document.graph.visibleNodesViewModel
-    }
-    
     @MainActor
     var sortedLayerDataList: LayerDataList {
         // see `GraphState.updateOrderedPreviewLayers()`
-        document.cachedOrderedPreviewLayers
+        document.graph.cachedOrderedPreviewLayers
     }
     
     var body: some View {
         // Regular rendering of views in their proper place in the hierarchy
         PreviewLayersView(document: document,
+                          graph: document.graph,
                           layers: sortedLayerDataList,
                           parentSize: document.previewWindowSize,
                           parentId: nil,
@@ -39,6 +36,7 @@ struct GeneratePreview: View {
         .background {
             // Invisible views used for reporting pinning position data
             PreviewLayersView(document: document,
+                              graph: document.graph,
                               layers: sortedLayerDataList,
                               parentSize: document.previewWindowSize,
                               parentId: nil,
@@ -55,13 +53,15 @@ struct GeneratePreview: View {
         // Top-level coordinate space of preview window; for pinning
         .coordinateSpace(name: PREVIEW_WINDOW_COORDINATE_SPACE)
         
-        .modifier(HoverGestureModifier(previewWindowSize: document.previewWindowSize))
+        .modifier(HoverGestureModifier(document: document,
+                                       previewWindowSize: document.previewWindowSize))
     }
 }
 
 /// Similar to `GeneratePreview` but can be called recursively for group layers.
 struct PreviewLayersView: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     let layers: LayerDataList
         
     /*
@@ -180,7 +180,7 @@ struct PreviewLayersView: View {
             
         } // Group
         .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: document.hasInteraction(parentId),
+            hasLayerInteraction: graph.hasInteraction(parentId),
             cornerRadius: parentCornerRadius))
     }
     
@@ -343,8 +343,10 @@ struct NonGroupPreviewLayersView: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+        if layerNode.hasSidebarVisibility,
+           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
             PreviewLayerView(document: document,
+                             graph: graph,
                              layerViewModel: layerViewModel,
                              layer: layerNode.layer,
                              isPinnedViewRendering: isPinnedViewRendering,
@@ -366,8 +368,10 @@ struct GroupPreviewLayersView: View {
     let parentDisablesPosition: Bool
     
     var body: some View {
-        if layerNode.hasSidebarVisibility {
+        if layerNode.hasSidebarVisibility,
+           let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
             GroupLayerNode.content(document: document,
+                                   graph: graph,
                                    viewModel: layerViewModel,
                                    parentSize: parentSize,
                                    layersInGroup: childrenData,

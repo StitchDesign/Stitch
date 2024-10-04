@@ -30,8 +30,8 @@ extension DocumentLoadingStatus: Hashable {
             hasher.combine("failed")
         case .loading:
             hasher.combine("loading")
-        case .loaded(let stitchDocument):
-            hasher.combine(stitchDocument.id)
+        case .loaded(let document):
+            hasher.combine(document.id)
         }
     }
 }

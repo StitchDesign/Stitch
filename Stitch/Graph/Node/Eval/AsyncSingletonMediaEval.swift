@@ -10,19 +10,21 @@ import StitchSchemaKit
 import StitchEngine
 
 typealias MediaManagerSingletonKeyPath = ReferenceWritableKeyPath<StitchDocumentViewModel, LoadingStatus<StitchSingletonMediaObject>?>
-typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, NodeId) async -> StitchSingletonMediaObject
+typealias SingletonMediaCreation = @Sendable (StitchDocumentViewModel, GraphDelegate, NodeId) async -> StitchSingletonMediaObject
 typealias AsyncSingletonMediaEvalOp = (PortValues, StitchSingletonMediaObject, Int) -> PortValues
 
 actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
-    func createSingletonMedia(document: StitchDocumentViewModel,
+    func createSingletonMedia(graph: GraphDelegate,
                               nodeId: NodeId,
                               mediaManagerKeyPath: MediaManagerSingletonKeyPath,
                               mediaCreation: @escaping SingletonMediaCreation) async {
-        let media = await mediaCreation(document, nodeId)
+        guard let document = graph.documentDelegate else { return }
         
-        await MainActor.run { [weak document] in
-            document?[keyPath: mediaManagerKeyPath] = .loaded(media)
-            document?.calculate(nodeId)
+        let media = await mediaCreation(document, graph, nodeId)
+        
+        await MainActor.run { [weak graph] in
+            graph?.documentDelegate?[keyPath: mediaManagerKeyPath] = .loaded(media)
+            graph?.calculate(nodeId)
         }
     }
 }
@@ -30,16 +32,16 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
 /// Used for nodes like location and camera.
 @MainActor
 func asyncSingletonMediaEval(node: PatchNode,
-                             document: StitchDocumentViewModel,
+                             graph: GraphDelegate,
                              mediaCreation: @escaping SingletonMediaCreation,
                              mediaManagerKeyPath: MediaManagerSingletonKeyPath,
                              mediaOp: @escaping AsyncSingletonMediaEvalOp) -> PortValuesList {
     
-    guard let singletonMediaNodeCoordinator = node.ephemeralObservers?.first as? SingletonMediaNodeCoordinator else {
+    guard let document = graph.documentDelegate,
+            let singletonMediaNodeCoordinator = node.ephemeralObservers?.first as? SingletonMediaNodeCoordinator else {
         fatalErrorIfDebug()
         return []
     }
-    
 
     return node.loopedEval { values, loopIndex in
         // Return synchronously if media object already exists
@@ -55,13 +57,13 @@ func asyncSingletonMediaEval(node: PatchNode,
         let nodeId = node.id
         document[keyPath: mediaManagerKeyPath] = .loading
 
-        Task(priority: .high) { [weak document] in
-            guard let document = document else {
+        Task(priority: .high) { [weak graph] in
+            guard let graph = graph else {
                 return
             }
             
             await singletonMediaNodeCoordinator
-                .createSingletonMedia(document: document,
+                .createSingletonMedia(graph: graph,
                                       nodeId: nodeId,
                                       mediaManagerKeyPath: mediaManagerKeyPath,
                                       mediaCreation: mediaCreation)
