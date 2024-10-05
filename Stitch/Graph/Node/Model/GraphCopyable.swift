@@ -524,12 +524,13 @@ extension DocumentEncodable {
         await self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
+    @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
-        let newFiles = self.copyFiles(from: files)
+        let _ = await self.copyFiles(from: files)
     }
 }

@@ -267,6 +267,7 @@ extension GraphState {
         return graph
     }
     
+    @MainActor
     func syncNodes(with entities: [NodeEntity]) async {
         let newDictionary = await self.visibleNodesViewModel.nodes
             .sync(with: entities,
@@ -279,9 +280,7 @@ extension GraphState {
                                 parentGraphPath: self.saveLocation)
         }
         
-        await MainActor.run { [weak self] in
-            self?.visibleNodesViewModel.nodes = newDictionary
-        }
+        self.visibleNodesViewModel.nodes = newDictionary
     }
     
     @MainActor func update(from schema: GraphEntity) async {

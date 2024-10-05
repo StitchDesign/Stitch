@@ -68,21 +68,30 @@ extension CanvasItemViewModel {
 // TODO: this seems to only duplicate a single node?
 // TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
 // What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: GraphEventWithResponse {
+struct NodeDuplicateDraggedAction: GraphEvent {
     let id: NodeId
     let translation: CGSize
+    
+    func handle(state: GraphState) {
+        Task(priority: .high) { [weak state] in
+            await state?.nodeDuplicateDragged(id: id,
+                                              translation: translation)
+        }
+    }
+}
 
-    func handle(state: GraphState) -> GraphResponse {
-        // log("NodeDuplicateDraggedAction called")
-        
-        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at start: \(state.selectedNodeIds)")
+extension GraphState {
+    @MainActor
+    func nodeDuplicateDragged(id: NodeId,
+                              translation: CGSize) async {
+        let state = self
         
         guard state.graphUI.dragDuplication else {
             
             // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
             guard let canvasItem = state.getCanvasItem(.node(id)) else {
                 // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
-                return .noChange
+                return
             }
             
             // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
@@ -93,18 +102,11 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
-            
-            // Copy nodes if no drag started yet
-            Task(priority: .high) { [weak state] in
-                guard let state = state else { return }
-                await state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
-                state.encodeProjectInBackground()
-            }
-            
             state.graphUI.dragDuplication = true
             
-            // Encoded in task above
-            return .noChange
+            // Copy nodes if no drag started yet
+            await state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            return
         }
             
         
@@ -119,8 +121,6 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
                                       translation: translation,
                                       wasDrag: true)
             }
-        
-        return .persistenceResponse
     }
 }
 

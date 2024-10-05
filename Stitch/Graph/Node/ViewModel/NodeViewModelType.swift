@@ -17,6 +17,7 @@ enum NodeViewModelType {
 }
 
 extension NodeViewModelType {
+    @MainActor
     init(from nodeType: NodeTypeEntity,
          nodeId: NodeId,
          components: [UUID: StitchMasterComponent],
