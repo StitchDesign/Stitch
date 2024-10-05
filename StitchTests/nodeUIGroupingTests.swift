@@ -27,10 +27,10 @@ class GroupNodeTests: XCTestCase {
     
     /// Simple GroupNode with two Add nodes inside; no incoming/outgoing edges or splitters.
     @MainActor
-    func createSimpleGroupNode() -> (StitchDocumentViewModel, NodeViewModel) {
-        let document = StitchDocumentViewModel(from: .init(nodes: []),
-                                               store: nil)
+    func createSimpleGroupNode() async -> (StitchDocumentViewModel, NodeViewModel) {
+        let document = StitchDocumentViewModel.createEmpty()
         let graphState = document.graph
+        graphState.documentDelegate = document
         
         // Create two Add nodes
         guard let node1 = graphState.nodeCreated(choice: .patch(.add)),
@@ -50,7 +50,7 @@ class GroupNodeTests: XCTestCase {
         graphState.addNodeToSelections(canvasNode2.id)
             
         // Create the group
-        let _ = GroupNodeCreatedEvent().handle(state: document)
+        let _ = await document.createGroup(isComponent: false)
         
         XCTAssertEqual(graphState.groupNodes.keys.count, 1)
         
@@ -72,14 +72,14 @@ class GroupNodeTests: XCTestCase {
     }
     
     @MainActor
-    func testSimpleGroupNodeCreation() throws {
+    func testSimpleGroupNodeCreation() async throws {
         // MARK: SIMPLE NODE UI GROUP -- TWO ADD NODES, NO INCOMING OR OUTGOING EDGES
-        let _ = createSimpleGroupNode()        //        selectedGraphItemsDuplicated
+        let _ = await createSimpleGroupNode()        //        selectedGraphItemsDuplicated
     }
     
     @MainActor
-    func testSimpleGroupNodeDuplication() throws {
-        let (document, groupNode) = createSimpleGroupNode()
+    func testSimpleGroupNodeDuplication() async throws {
+        let (document, groupNode) = await createSimpleGroupNode()
         let graphState = document.graph
         let groupNodeId = groupNode.id
         
@@ -100,7 +100,8 @@ class GroupNodeTests: XCTestCase {
         XCTAssertEqual(graphState.groupNodes.keys.count, 2)
         
         guard let otherGroupNodeId = graphState.groupNodes.keys.first(where: { $0 != groupNodeId }) else {
-            XCTAbortTest()
+            XCTFail()
+            return
         }
         
         XCTAssertEqual(graphState.nodes.values.filter { $0.patchCanvasItem?.parentGroupNodeId == groupNodeId }.count, 2)
