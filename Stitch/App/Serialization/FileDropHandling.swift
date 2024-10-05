@@ -41,15 +41,13 @@ func handleOnDrop(providers: [NSItemProvider],
 
             // Opens stitch documents
             guard tempURL.pathExtension != STITCH_EXTENSION_RAW else {
-                Task { [weak store] in
+                Task(priority: .high) { [weak store] in
                     do {
                         switch await store?.documentLoader.loadDocument(from: tempURL,
                                                                         isImport: true) {
-                        case .loaded(let data):
-                            DispatchQueue.main.async { [weak store] in
-                                store?.openProjectAction(from: data)
-                            }
-                        default:
+                        case .loaded(let data, _):
+                            await store?.createNewProject(from: data)
+                       default:
                             DispatchQueue.main.async {
                                 dispatch(DisplayError(error: .unsupportedProject))
                             }
