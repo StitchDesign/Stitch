@@ -29,11 +29,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
         rowViewModel.portColor.color(theme)
     }
     
-    @MainActor
-    var isNodeMoving: Bool {
-        rowViewModel.canvasItemDelegate?.isMoving ?? false
-    }
-    
     var body: some View {
         
         ZStack {
