@@ -104,17 +104,37 @@ actor DocumentLoader {
 
 extension DocumentLoader {
     func createNewProject(from document: StitchDocument = .init(),
+                          isPhoneDevice: Bool,
                           store: StitchStore) async throws {
         let projectLoader = try await self.installDocument(document: document)
         projectLoader.loadingDocument = .loaded(document, nil)
         
         self.updateStorage(with: projectLoader)
         
-        await MainActor.run { [weak store, weak projectLoader] in
-            guard let projectLoader = projectLoader else { return }
+        let document = await StitchDocumentViewModel(
+            from: document,
+            isPhoneDevice: isPhoneDevice,
+            projectLoader: projectLoader,
+            store: store
+        )
+
+        document?.didDocumentChange = true // creates fresh thumbnail
+        
+        await MainActor.run { [weak document, weak store] in
+            guard let document = document else { return }
             
-            store?.openProjectAction(projectLoader: projectLoader,
-                                    isNewProject: true)
+            // Get latest preview window size
+            let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+            PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+            
+            guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            document.previewSizeDevice = previewDevice
+            document.previewWindowSize = previewDevice.previewWindowDimensions
+            store?.navPath = [document]
         }
     }
 
