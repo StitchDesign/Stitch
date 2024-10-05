@@ -17,9 +17,19 @@ final class EdgeDrawingObserver {
 
 extension EdgeDrawingObserver {
     func reset() {
-        self.nearestEligibleInput = nil
-        self.drawingGesture = .none
-        self.recentlyDrawnEdge = nil
+        // MARK: we need equality checks to reduce render cycles
+        
+        if self.nearestEligibleInput != nil {
+            self.nearestEligibleInput = nil
+        }
+        
+        if self.drawingGesture != nil {
+            self.drawingGesture = nil
+        }
+        
+        if self.recentlyDrawnEdge != nil {
+            self.recentlyDrawnEdge = nil
+        }
     }
 }
 
