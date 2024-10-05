@@ -58,11 +58,13 @@ final class StitchDocumentViewModel: Sendable {
     
     // Keeps reference to store
     weak var storeDelegate: StoreDelegate?
+    weak var projectLoader: ProjectLoader?
     
     init(from schema: StitchDocument,
          graph: GraphState,
          documentEncoder: DocumentEncoder,
          isPhoneDevice: Bool,
+         projectLoader: ProjectLoader,
          store: StoreDelegate?) {
         self.documentEncoder = documentEncoder
         self.previewWindowSize = schema.previewWindowSize
@@ -72,6 +74,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphMovement.localPosition = schema.localPosition
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
+        self.projectLoader = projectLoader
         
         if let store = store {
             DispatchQueue.main.async { [weak self, weak store] in
@@ -96,6 +99,7 @@ final class StitchDocumentViewModel: Sendable {
     
     convenience init?(from schema: StitchDocument,
                       isPhoneDevice: Bool,
+                      projectLoader: ProjectLoader,
                       store: StoreDelegate?) async {
         let documentEncoder = DocumentEncoder(document: schema)
 
@@ -106,6 +110,7 @@ final class StitchDocumentViewModel: Sendable {
                   graph: graph,
                   documentEncoder: documentEncoder,
                   isPhoneDevice: isPhoneDevice,
+                  projectLoader: projectLoader,
                   store: store)
     }
 }
@@ -291,6 +296,7 @@ extension StitchDocumentViewModel {
               graph: .init(),
               documentEncoder: .init(document: .init()),
               isPhoneDevice: false,
+              projectLoader: .init(url: URL(fileURLWithPath: "")),
               store: nil)
     }
 }

@@ -32,6 +32,8 @@ extension StitchStore {
         let rootUrl = document.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
         
+        documentViewModel.projectLoader?.resetData()
+        
         Task { [weak self] in
             guard let store = self else {
                 log("GenerateProjectThumbnailEvent: no image")

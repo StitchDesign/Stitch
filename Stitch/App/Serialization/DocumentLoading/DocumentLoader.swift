@@ -57,6 +57,10 @@ actor DocumentLoader {
             return nil
         }
     }
+    
+    func updateStorage(with projectLoader: ProjectLoader) {
+        self.storage.updateValue(projectLoader, forKey: projectLoader.url)
+    }
 
     nonisolated func loadDocument(from url: URL, 
                                   isImport: Bool = false,
@@ -93,29 +97,42 @@ actor DocumentLoader {
     func refreshDocument(url: URL) async {
         guard let projectLoader = self.storage.get(url) else { return }
         
-        projectLoader.loadingDocument = .loading
-        projectLoader.thumbnail = nil
-        
+        projectLoader.resetData()
         await self.loadDocument(projectLoader)
     }
 }
 
 extension DocumentLoader {
-    /// Initializer used for new documents.
-    func installNewDocument() async throws -> StitchDocument {
-        let doc = StitchDocument()
-        try await self.installDocument(document: doc)
-        return doc
+    func createNewProject(from document: StitchDocument = .init(),
+                          store: StitchStore) async throws {
+        let projectLoader = try await self.installDocument(document: document)
+        projectLoader.loadingDocument = .loaded(document, nil)
+        
+        self.updateStorage(with: projectLoader)
+        
+        await MainActor.run { [weak store, weak projectLoader] in
+            guard let projectLoader = projectLoader else { return }
+            
+            store?.openProjectAction(projectLoader: projectLoader,
+                                    isNewProject: true)
+        }
     }
 
-    func installDocument(document: StitchDocument) async throws {
+    func installDocument(document: StitchDocument) async throws -> ProjectLoader {
         let rootUrl = document.rootUrl
+        let projectLoader = ProjectLoader(url: rootUrl)
+        
+        self.storage.updateValue(projectLoader,
+                                 forKey: rootUrl)
         
         // Encode projecet directories
         await document.encodeDocumentContents(documentRootUrl: rootUrl)
 
         // Create versioned document
         try Self.encodeDocument(document, to: rootUrl)
+        
+        projectLoader.loadingDocument = .loaded(document, nil)
+        return projectLoader
     }
     
     static func encodeDocument(_ document: StitchDocument) throws {

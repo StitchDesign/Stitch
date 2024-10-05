@@ -11,25 +11,31 @@ import StitchSchemaKit
 // Creating a brand new project: empty state, no imported files
 extension StitchStore {
     @MainActor
-    func projectCreatedAction() {
-        Task { [weak self] in
-            guard let documentLoader = self?.documentLoader else {
-                return
-            }
-            
-            let newDoc = try await documentLoader.installNewDocument()
-
-            // Open doc
-            await MainActor.run { [weak self] in
-                self?.openProjectAction(from: newDoc,
-                                        isNewProject: true)
-            }
+    func createNewProject(from document: StitchDocument = .init()) {
+        Task(priority: .high) { [weak self] in
+            guard let store = self else { return }
+            await store.createNewProject(from: document)
+        }
+    }
+    
+    func createNewProject(from document: StitchDocument = .init()) async {
+        do {
+            try await self.documentLoader.createNewProject(from: document,
+                                                           store: self)
+        } catch {
+            log("StitchStore.createNewProject error: \(error.localizedDescription)")
+            fatalErrorIfDebug(error.localizedDescription)
         }
     }
 
     @MainActor
-    func openProjectAction(from document: StitchDocument,
+    func openProjectAction(projectLoader: ProjectLoader,
                            isNewProject: Bool = false) {
+        guard let document = projectLoader.loadingDocument.document else {
+            fatalErrorIfDebug()
+            return
+        }
+        
         // Get latest preview window size
         let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
             PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
@@ -47,6 +53,7 @@ extension StitchStore {
             let document = await StitchDocumentViewModel(
                 from: document,
                 isPhoneDevice: isPhoneDevice,
+                projectLoader: projectLoader,
                 store: store
             )
             

@@ -113,7 +113,7 @@ struct ProjectsListItemView: View {
                     .onTapGesture {
                         self.isLoadingForPresentation = true
                         
-                        store.handleProjectTapped(document: document,
+                        store.handleProjectTapped(projectLoader: self.projectLoader,
                                                   isPhoneDevice: GraphUIState.isPhoneDevice) {
                             self.isLoadingForPresentation = false
                         }

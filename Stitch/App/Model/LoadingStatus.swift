@@ -35,6 +35,15 @@ extension DocumentLoadingStatus: Hashable {
             hasher.combine(image.hashValue)
         }
     }
+    
+    var document: StitchDocument? {
+        switch self {
+        case .loaded(let document, _):
+            return document
+        default:
+            return nil
+        }
+    }
 }
 
 extension DocumentLoadingStatus: Equatable {

@@ -29,6 +29,11 @@ final class ProjectLoader: Sendable {
 
 extension ProjectLoader: Identifiable {
     var id: Int { self.url.hashValue }
+    
+    func resetData() {
+        self.loadingDocument = .loading
+        self.thumbnail = nil
+    }
 }
 
 extension [ProjectLoader] {
