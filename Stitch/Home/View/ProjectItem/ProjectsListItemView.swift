@@ -85,7 +85,7 @@ struct ProjectsListItemView: View {
 
     var document: StitchDocument? {
         switch projectLoader.loadingDocument {
-        case .loaded(let data):
+        case .loaded(let data, _):
             return data
         default:
             return nil
@@ -101,19 +101,19 @@ struct ProjectsListItemView: View {
                 ProjectsListItemIconView(projectThumbnail: nil,
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
-            case .loaded(let document):
+            case .loaded(let document, let thumbnail):
                 #if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: DocumentEncoder.getProjectThumbnailImage(rootUrl: document.rootUrl),
+                    projectThumbnail: thumbnail,
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
                     modifiedDate: projectLoader.modifiedDate,
                     isLoading: self.isLoadingForPresentation)
                     .onTapGesture {
                         self.isLoadingForPresentation = true
                         
-                        store.handleProjectTapped(document: document,
+                        store.handleProjectTapped(projectLoader: self.projectLoader,
                                                   isPhoneDevice: GraphUIState.isPhoneDevice) {
                             self.isLoadingForPresentation = false
                         }
@@ -122,7 +122,7 @@ struct ProjectsListItemView: View {
             }
         } labelView: {
             switch projectLoader.loadingDocument {
-            case .loaded(let document):
+            case .loaded(let document, _):
                 ProjectThumbnailTextField(document: document,
                                           namespace: namespace)
             default:

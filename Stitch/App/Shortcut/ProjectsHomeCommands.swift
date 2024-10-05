@@ -172,7 +172,7 @@ struct ProjectsHomeCommands: Commands {
                 if activeProject {
                     INSERT_NODE_ACTION()
                 } else {
-                    store.projectCreatedAction()
+                    store.createNewProject()
                 }
             }
 

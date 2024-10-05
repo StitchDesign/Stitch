@@ -77,24 +77,19 @@ func onCampsiteURLOpen(_ url: URL, store: StitchStore) async throws {
         let localURL = try! await downloadFile(from: httpsURL)
         log("onCampsiteURLOpen: localURL: \(localURL)")
         
-        switch await store.documentLoader.loadDocument(
-            from: localURL,
+        guard let document = try await StitchDocument.openDocument(
+            from: url,
             isImport: true,
-            isNonICloudDocumentsFile: true) {
-            
-        case .loaded(let data):
-            DispatchQueue.main.async { [weak store] in
-                log("onCampsiteURLOpen: will open project from document")
-                store?.openProjectAction(from: data)
-            }
-            
-        default:
+            isNonICloudDocumentsFile: true) else {
             DispatchQueue.main.async {
                 log("onCampsiteURLOpen: unsupported project")
                 dispatch(DisplayError(error: .unsupportedProject))
             }
             return
         }
+            
+        log("onCampsiteURLOpen: will open project from document")
+        await store.createNewProject(from: document)
     }
     
     return
