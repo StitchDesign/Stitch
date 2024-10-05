@@ -12,6 +12,8 @@ import StitchSchemaKit
 extension StitchStore {
     @MainActor
     func createThumbnail(from documentViewModel: StitchDocumentViewModel) {
+        guard documentViewModel.didDocumentChange else { return }
+        
         // Note: we need to modify some views
         documentViewModel.isGeneratingProjectThumbnail = true
         
@@ -29,6 +31,8 @@ extension StitchStore {
         let document = documentViewModel.createSchema()
         let rootUrl = document.rootUrl
         let filename = rootUrl.appendProjectThumbnailPath()
+        
+        documentViewModel.projectLoader?.resetData()
         
         Task { [weak self] in
             guard let store = self else {
@@ -50,15 +54,9 @@ extension StitchStore {
             do {
                 try data.write(to: filename)
                 
-                // log("GenerateProjectThumbnailEvent: wrote thumbnail")
-                
-                // TODO: a better way to trigger an update of the project's icon on the homescreen? Even modifying the modifiedDate directly would cause the project to jump to the front of the homescreen grid
-                
-                // TODO: for some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
-                //                 graph.encodeProjectInBackground()
-                
-                // TODO: thumbnail hack no longer works
-//                try await DocumentLoader.encodeDocument(documentData, to: documentData.document.rootUrl)
+                // Force reload of home-screen thumbnail by setting local state to initialized
+                // For some projects, `graph.encodeProject` fails because the StoreDelegate is missing / has no documentLoader
+                await store.documentLoader.refreshDocument(url: rootUrl)
             } catch {
                 log("GenerateProjectThumbnailEvent: error: \(error)")
             }

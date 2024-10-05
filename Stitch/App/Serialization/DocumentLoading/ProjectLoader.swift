@@ -14,6 +14,7 @@ final class ProjectLoader: Sendable {
     var modifiedDate: Date
     var url: URL
     var loadingDocument: DocumentLoadingStatus = .initialized
+    var thumbnail: UIImage?
 
     /// Initialzes object with some URL, not yet loading document until loaded in lazy view.
     init(url: URL) {
@@ -28,6 +29,11 @@ final class ProjectLoader: Sendable {
 
 extension ProjectLoader: Identifiable {
     var id: Int { self.url.hashValue }
+    
+    func resetData() {
+        self.loadingDocument = .loading
+        self.thumbnail = nil
+    }
 }
 
 extension [ProjectLoader] {

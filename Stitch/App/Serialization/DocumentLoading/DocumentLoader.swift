@@ -57,6 +57,10 @@ actor DocumentLoader {
             return nil
         }
     }
+    
+    func updateStorage(with projectLoader: ProjectLoader) {
+        self.storage.updateValue(projectLoader, forKey: projectLoader.url)
+    }
 
     nonisolated func loadDocument(from url: URL, 
                                   isImport: Bool = false,
@@ -70,38 +74,85 @@ actor DocumentLoader {
                 
                 return .failed
             }
-            return .loaded(document)
+            
+            // thumbnail loading not needed for import
+            let thumbnail = isImport ? nil : DocumentEncoder.getProjectThumbnailImage(rootUrl: url)
+            
+            return .loaded(document, thumbnail)
         } catch {
             log("DocumentLoader.loadDocument error: \(error)")
             return .failed
         }
     }
 
-    nonisolated func loadDocument(_ datedUrl: ProjectLoader, isImport: Bool = false) async {
-        let newLoading = await self.loadDocument(from: datedUrl.url, isImport: isImport)
+    nonisolated func loadDocument(_ projectLoader: ProjectLoader,
+                                  isImport: Bool = false) async {
+        let newLoading = await self.loadDocument(from: projectLoader.url, isImport: isImport)
 
-        await MainActor.run { [weak datedUrl] in
-            datedUrl?.loadingDocument = newLoading
+        await MainActor.run { [weak projectLoader] in
+            projectLoader?.loadingDocument = newLoading
         }
+    }
+    
+    func refreshDocument(url: URL) async {
+        guard let projectLoader = self.storage.get(url) else { return }
+        
+        projectLoader.resetData()
+        await self.loadDocument(projectLoader)
     }
 }
 
 extension DocumentLoader {
-    /// Initializer used for new documents.
-    func installNewDocument() async throws -> StitchDocument {
-        let doc = StitchDocument()
-        try await self.installDocument(document: doc)
-        return doc
+    func createNewProject(from document: StitchDocument = .init(),
+                          isPhoneDevice: Bool,
+                          store: StitchStore) async throws {
+        let projectLoader = try await self.installDocument(document: document)
+        projectLoader.loadingDocument = .loaded(document, nil)
+        
+        self.updateStorage(with: projectLoader)
+        
+        let document = await StitchDocumentViewModel(
+            from: document,
+            isPhoneDevice: isPhoneDevice,
+            projectLoader: projectLoader,
+            store: store
+        )
+
+        document?.didDocumentChange = true // creates fresh thumbnail
+        
+        await MainActor.run { [weak document, weak store] in
+            guard let document = document else { return }
+            
+            // Get latest preview window size
+            let previewDeviceString = UserDefaults.standard.string(forKey: DEFAULT_PREVIEW_WINDOW_DEVICE_KEY_NAME) ??
+            PreviewWindowDevice.defaultPreviewWindowDevice.rawValue
+            
+            guard let previewDevice = PreviewWindowDevice(rawValue: previewDeviceString) else {
+                fatalErrorIfDebug()
+                return
+            }
+            
+            document.previewSizeDevice = previewDevice
+            document.previewWindowSize = previewDevice.previewWindowDimensions
+            store?.navPath = [document]
+        }
     }
 
-    func installDocument(document: StitchDocument) async throws {
+    func installDocument(document: StitchDocument) async throws -> ProjectLoader {
         let rootUrl = document.rootUrl
+        let projectLoader = ProjectLoader(url: rootUrl)
+        
+        self.storage.updateValue(projectLoader,
+                                 forKey: rootUrl)
         
         // Encode projecet directories
         await document.encodeDocumentContents(documentRootUrl: rootUrl)
 
         // Create versioned document
         try Self.encodeDocument(document, to: rootUrl)
+        
+        projectLoader.loadingDocument = .loaded(document, nil)
+        return projectLoader
     }
     
     static func encodeDocument(_ document: StitchDocument) throws {
