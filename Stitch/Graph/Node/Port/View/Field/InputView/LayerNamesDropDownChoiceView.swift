@@ -182,11 +182,7 @@ struct LayerNamesDropDownChoiceView: View {
                 self.selection = .NilLayerDropDownChoice
             }
         }
-        
-        // Not needed?
-        .onChange(of: self.selection.id) {
-            self.onSet(self.selection)
-        }
+
         .onChange(of: self.choices) { oldValue, newValue in
             if let currentSelection = self.choices.first(where: { choice in
                 choice.id == self.selection.id
