@@ -14,6 +14,16 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     // Duplicates BOTH nodes AND comments
     @MainActor
     func handle(state: StitchDocumentViewModel) {
+        Task(priority: .high) { [weak state] in
+            await state?.duplicateShortcutKeyPressed()
+        }
+    }
+}
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func duplicateShortcutKeyPressed() async {
+        let state = self
         
         guard !state.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
@@ -27,14 +37,16 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
             state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-            groupNodeFocused: state.graphUI.groupNodeFocused,
-            selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
-        
-            state.visibleGraph.insertNewComponent(copiedComponentResult,
-                                                  encoder: state.visibleGraph.documentEncoderDelegate)
+                groupNodeFocused: state.graphUI.groupNodeFocused,
+                selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            
+            await state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                                        encoder: state.visibleGraph.documentEncoderDelegate)
         }
         
-        state.visibleGraph.encodeProjectInBackground()
+        Task { [weak self] in
+            self?.visibleGraph.encodeProjectInBackground()
+        }
     }
 }
 
@@ -42,16 +54,16 @@ extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
     func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
-                               encoder: (any DocumentEncodable)?) where T: StitchComponentable {
-        self.insertNewComponent(component: copiedComponentResult.component,
-                                encoder: encoder,
-                                copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
+                               encoder: (any DocumentEncodable)?) async where T: StitchComponentable {
+        await self.insertNewComponent(component: copiedComponentResult.component,
+                                      encoder: encoder,
+                                      copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
     }
 
     @MainActor
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
-                               copiedFiles: StitchDocumentDirectory) where T: StitchComponentable {
+                               copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
 
         // Change all IDs
         var newComponent = component
@@ -73,23 +85,14 @@ extension GraphState {
 
             return node
         }
-
-        // Display loading status for imported media effects
-//        self.libraryLoadingStatus = .loading
-
-        Task(priority: .high) { [weak encoder, weak self] in
-            guard let encoder = encoder else {
-                return
-            }
-            
-            // Copy files before inserting component
-            await encoder.importComponentFiles(copiedFiles)
-            await self?._insertNewComponent(newComponent)
+        
+        guard let encoder = encoder else {
+            return
         }
-    }
+        
+        // Copy files before inserting component
+        await encoder.importComponentFiles(copiedFiles)
 
-    @MainActor
-    func _insertNewComponent<T>(_ component: T) async where T: StitchComponentable {
         guard let document = self.documentDelegate,
               let encoderDelegate = self.documentEncoderDelegate else {
             fatalErrorIfDebug()
@@ -99,7 +102,7 @@ extension GraphState {
         var graph = self.createSchema()
 
         // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = component.nodes
+        let newNodes: [NodeEntity] = newComponent.nodes
             .map { stitch in
                 var stitch = stitch
                 stitch.canvasEntityMap { node in
@@ -119,7 +122,7 @@ extension GraphState {
 
         // Add new nodes
         graph.nodes += newNodes
-        graph.orderedSidebarLayers = component.graph.orderedSidebarLayers + graph.orderedSidebarLayers
+        graph.orderedSidebarLayers = newComponent.graph.orderedSidebarLayers + graph.orderedSidebarLayers
         await self.update(from: graph)
         self.initializeDelegate(document: document,
                                 documentEncoderDelegate: encoderDelegate)

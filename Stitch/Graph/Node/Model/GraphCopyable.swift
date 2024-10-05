@@ -488,12 +488,12 @@ extension SidebarLayerList {
 
 extension GraphState {
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) async {
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
-        self.insertNewComponent(copiedComponentResult,
-                                encoder: self.documentEncoderDelegate)
+        await self.insertNewComponent(copiedComponentResult,
+                                      encoder: self.documentEncoderDelegate)
     }
 
     @MainActor
@@ -514,7 +514,7 @@ extension DocumentEncodable {
         await self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
-        pasteboard.url = copiedComponentResult.component.rootUrl
+        pasteboard.url = copiedComponentResult.component.rootUrl.appendingVersionedSchemaPath()
     }
     
     func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {

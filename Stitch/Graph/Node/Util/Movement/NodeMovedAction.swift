@@ -95,12 +95,16 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
             }
             
             // Copy nodes if no drag started yet
-            state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            Task(priority: .high) { [weak state] in
+                guard let state = state else { return }
+                await state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+                state.encodeProjectInBackground()
+            }
             
             state.graphUI.dragDuplication = true
             
-            // log("NodeDuplicateDraggedAction: copied nodes")
-            return .persistenceResponse
+            // Encoded in task above
+            return .noChange
         }
             
         
