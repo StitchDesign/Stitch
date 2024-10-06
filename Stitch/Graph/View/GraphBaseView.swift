@@ -19,6 +19,7 @@ struct GraphBaseView: View {
     @Bindable var graphUI: GraphUIState
     let insertNodeMenuHiddenNodeId: NodeId?
     
+    @MainActor
     var graph: GraphState {
         self.document.visibleGraph
     }
