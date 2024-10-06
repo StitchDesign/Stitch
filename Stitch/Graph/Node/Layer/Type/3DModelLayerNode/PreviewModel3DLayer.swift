@@ -47,6 +47,7 @@ struct Preview3DModelLayer: View {
         mediaObject?.model3DEntity
     }
     
+    @MainActor
     var layerNode: LayerNodeViewModel? {
         self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
             .layerNode
