@@ -103,18 +103,18 @@ struct LayerInspectorView: View {
 
         VStack(alignment: .leading, spacing: 0) {
             
-#if DEV_DEBUG || DEBUG
-            HStack {
-                // Only show editable layer node title if this isn't a multiselect case
-                StitchTitleTextField(graph: graph,
-                                     titleEditType: .layerInspector(node),
-                                     label: layerInspectorHeader,
-                                     font: .title2)
-                Spacer()
-            }
-            .padding()
-            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-#endif
+//#if DEV_DEBUG || DEBUG
+//            HStack {
+//                // Only show editable layer node title if this isn't a multiselect case
+//                StitchTitleTextField(graph: graph,
+//                                     titleEditType: .layerInspector(node),
+//                                     label: layerInspectorHeader,
+//                                     font: .title2)
+//                Spacer()
+//            }
+//            .padding()
+//            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
+//#endif
             
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
