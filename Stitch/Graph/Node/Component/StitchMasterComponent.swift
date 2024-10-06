@@ -82,9 +82,10 @@ extension StitchMasterComponent {
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension MasterComponentsDict {
+    @MainActor
     mutating func sync(with data: [StitchComponentData],
                        parentGraph: GraphState) {
-        self.sync(with: data,
+        self = self.sync(with: data,
                   updateCallback: { viewModel, data in
 //            viewModel.update(from: data)
         }) { data in

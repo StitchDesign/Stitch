@@ -73,17 +73,15 @@ struct NodeDuplicateDraggedAction: GraphEvent {
     let translation: CGSize
     
     func handle(state: GraphState) {
-        Task(priority: .high) { [weak state] in
-            await state?.nodeDuplicateDragged(id: id,
-                                              translation: translation)
-        }
+        state.nodeDuplicateDragged(id: id,
+                                   translation: translation)
     }
 }
 
 extension GraphState {
     @MainActor
     func nodeDuplicateDragged(id: NodeId,
-                              translation: CGSize) async {
+                              translation: CGSize) {
         let state = self
         
         guard state.graphUI.dragDuplication else {
@@ -105,7 +103,22 @@ extension GraphState {
             state.graphUI.dragDuplication = true
             
             // Copy nodes if no drag started yet
-            await state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            let copiedComponentResult = self
+                .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
+                                       selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            
+            let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+            
+            // Update top-level nodes to match current focused group
+            let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+            let graph = self.duplicateCopiedNodes(newComponent: newComponent,
+                                                  newNodes: newNodes)
+            
+
+            self.update(from: graph)
+            
+            self.updateGraphAfterPaste(newNodes: newNodes)
+            
             return
         }
             

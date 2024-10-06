@@ -64,11 +64,29 @@ extension GraphState {
     func insertNewComponent<T>(component: T,
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
-
+        let newComponent = self.updateCopiedNodes(component: component)
+        
+        guard let encoder = encoder else {
+            return
+        }
+        
+        // Copy files before inserting component
+        await encoder.importComponentFiles(copiedFiles)
+        
+        // Update top-level nodes to match current focused group
+        let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+        let graph = self.duplicateCopiedNodes(newComponent: newComponent,
+                                              newNodes: newNodes)
+        await self.update(from: graph)
+        
+        self.updateGraphAfterPaste(newNodes: newNodes)
+    }
+    
+    func updateCopiedNodes<T>(component: T) -> T where T: StitchComponentable {
         // Change all IDs
         var newComponent = component
         newComponent.graph = newComponent.graph.changeIds()
-
+        
         // Update nodes in the follow ways:
         // 1. Stagger position
         // 2. Increment z-index
@@ -82,27 +100,15 @@ extension GraphState {
                 node.zIndex += 1
                 return node
             }
-
+            
             return node
         }
         
-        guard let encoder = encoder else {
-            return
-        }
-        
-        // Copy files before inserting component
-        await encoder.importComponentFiles(copiedFiles)
-
-        guard let document = self.documentDelegate,
-              let encoderDelegate = self.documentEncoderDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        var graph = self.createSchema()
-
-        // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = newComponent.nodes
+        return newComponent
+    }
+    
+    func createNewNodes<T>(from newComponent: T) -> [NodeEntity] where T: StitchComponentable {
+        newComponent.nodes
             .map { stitch in
                 var stitch = stitch
                 stitch.canvasEntityMap { node in
@@ -119,13 +125,36 @@ extension GraphState {
                 
                 return stitch
             }
-
+    }
+    
+    @MainActor
+    func duplicateCopiedNodes<T>(newComponent: T,
+                                 newNodes: [NodeEntity]) -> GraphEntity where T: StitchComponentable {
+        guard let document = self.documentDelegate,
+              let encoderDelegate = self.documentEncoderDelegate else {
+            fatalErrorIfDebug()
+            return .createEmpty()
+        }
+        
+        var graph = self.createSchema()
+        
         // Add new nodes
         graph.nodes += newNodes
         graph.orderedSidebarLayers = newComponent.graph.orderedSidebarLayers + graph.orderedSidebarLayers
-        await self.update(from: graph)
-        self.initializeDelegate(document: document,
-                                documentEncoderDelegate: encoderDelegate)
+        
+        return graph
+    }
+        
+    @MainActor
+    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
+        guard let document = self.documentDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        // MARK: check if we need this
+//        self.initializeDelegate(document: document,
+//                                documentEncoderDelegate: encoderDelegate)
 
         // Reset selected nodes
         self.resetSelectedCanvasItems()
