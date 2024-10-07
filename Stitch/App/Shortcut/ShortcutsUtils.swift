@@ -24,6 +24,10 @@ let ADD_PACK_NODE_SHORTCUT: KeyEquivalent = "P"
 
 let ADD_UNPACK_NODE_SHORTCUT: KeyEquivalent = "U"
 
+// Option + W = add Broadcaster
+// Option + Shift + W = add Receiver
+let ADD_WIRELESS_NODE_SHORTCUT: KeyEquivalent = "W"
+
 let NEW_PROJECT_SHORTCUT: KeyEquivalent = "n"
 
 /*
