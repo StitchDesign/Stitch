@@ -103,11 +103,7 @@ final class GraphState: Sendable {
             return
         }
         
-        let components = decodedFiles.components.reduce(into: MasterComponentsDict()) { result, componentEntity in
-            let newComponent = StitchMasterComponent(componentData: componentEntity,
-                                                     parentGraph: nil)  // assigned later
-            result.updateValue(newComponent, forKey: newComponent.id)
-        }
+        let components = await decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {

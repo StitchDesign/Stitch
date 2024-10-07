@@ -66,18 +66,34 @@ extension GraphState {
                                copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
         let newComponent = self.updateCopiedNodes(component: component)
         
-        guard let encoder = encoder else {
+        guard let encoder = encoder,
+              let document = self.documentDelegate,
+              let encoderDelegate = self.documentEncoderDelegate else {
             return
         }
         
         // Copy files before inserting component
         await encoder.importComponentFiles(copiedFiles,
-                                           rootUrl: component.rootUrl)
+                                           destUrl: encoderDelegate.rootUrl)
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
         let graph = self.duplicateCopiedNodes(newComponent: newComponent,
                                               newNodes: newNodes)
+        
+        // Create master component if any imported
+        if let decodedFiles = GraphDecodedFiles(importedFilesDir: copiedFiles) {
+            let components = decodedFiles.components.createComponentsDict(parentGraph: self)
+            self.components = components.reduce(into: self.components) { result, newComponentEntry in
+                result.updateValue(newComponentEntry.value, forKey: newComponentEntry.key)
+            }
+        } else {
+            fatalErrorIfDebug()
+        }
+        
+        
+        self.initializeDelegate(document: document,
+                                documentEncoderDelegate: encoderDelegate)
         await self.update(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes)
@@ -95,6 +111,9 @@ extension GraphState {
             var node = node
             
             // Update positional data
+            
+            // TODO: explore why position shift didn't work
+            
             node.canvasEntityMap { node in
                 var node = node
                 node.position.shiftNodePosition()
@@ -148,15 +167,6 @@ extension GraphState {
         
     @MainActor
     func updateGraphAfterPaste(newNodes: [NodeEntity]) {
-        guard let document = self.documentDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
-        // MARK: check if we need this
-//        self.initializeDelegate(document: document,
-//                                documentEncoderDelegate: encoderDelegate)
-
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 

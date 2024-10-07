@@ -504,6 +504,9 @@ extension GraphState {
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in
+            // Delete all existing items in clipboard
+            try? FileManager.default.removeItem(at: copiedComponentResult.component.rootUrl)
+            
             await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
     }
@@ -522,18 +525,18 @@ extension DocumentEncodable {
 
         // Process imported media side effects
         await self.importComponentFiles(result.copiedSubdirectoryFiles,
-                                        rootUrl: result.component.rootUrl)
+                                        destUrl: result.component.rootUrl)
     }
     
     @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
-                              rootUrl: URL,
+                              destUrl: URL,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
         let _ = await self.copyFiles(from: files,
-                                     rootUrl: rootUrl)
+                                     destUrl: destUrl)
     }
 }

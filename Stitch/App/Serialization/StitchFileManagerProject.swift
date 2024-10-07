@@ -126,7 +126,7 @@ extension DocumentEncodable {
     
     /// Copies files from another directory.
     func copyFiles(from directory: StitchDocumentDirectory,
-                   rootUrl: URL) -> StitchDocumentDirectory {
+                   destUrl: URL) -> StitchDocumentDirectory {
         // Copy selected media
         let newMediaUrls: [URL] = directory.importedMediaUrls.compactMap { mediaUrl in
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -149,7 +149,7 @@ extension DocumentEncodable {
                 return nil
             }
 
-            let destComponentUrl = rootUrl
+            let destComponentUrl = destUrl
                 .appendingComponentsPath()
             // Append component ID
                 .appendingPathComponent(componentIdPath,
