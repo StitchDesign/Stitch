@@ -24,6 +24,7 @@ final class StitchMasterComponent {
     
     weak var parentGraph: GraphState?
     
+    @MainActor
     init(componentData: StitchComponentData,
          parentGraph: GraphState?) {
         self.id = componentData.draft.id
@@ -66,25 +67,20 @@ extension StitchMasterComponent {
     
     func onPrototypeRestart() { }
     
-    func initializeDelegate(parentGraph: GraphState) {
+    @MainActor func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph
-        
-        Task {
-            await MainActor.run { [weak self] in
-                guard let component = self else { return }
-                component.draftedDocumentEncoder.delegate = component
-                component.publishedDocumentEncoder.delegate = component
-            }
-        }
+        self.draftedDocumentEncoder.delegate = self
+        self.publishedDocumentEncoder.delegate = self
     }
 }
 
 typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension MasterComponentsDict {
+    @MainActor
     mutating func sync(with data: [StitchComponentData],
                        parentGraph: GraphState) {
-        self.sync(with: data,
+        self = self.sync(with: data,
                   updateCallback: { viewModel, data in
 //            viewModel.update(from: data)
         }) { data in

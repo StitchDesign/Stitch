@@ -73,8 +73,11 @@ extension NodeEntity {
         case .group(let canvas):
             let newCanvas = callback(canvas)
             self.nodeTypeEntity = .group(newCanvas)
-        case .component:
-            return
+        case .component(let component):
+            var component = component
+            let newCanvas = callback(component.canvasEntity)
+            component.canvasEntity = newCanvas
+            self.nodeTypeEntity = .component(component)
         }
     }
     

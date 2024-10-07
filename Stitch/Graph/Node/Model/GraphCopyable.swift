@@ -488,12 +488,12 @@ extension SidebarLayerList {
 
 extension GraphState {
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) async {
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
-        self.insertNewComponent(copiedComponentResult,
-                                encoder: self.documentEncoderDelegate)
+        await self.insertNewComponent(copiedComponentResult,
+                                      encoder: self.documentEncoderDelegate)
     }
 
     @MainActor
@@ -504,6 +504,9 @@ extension GraphState {
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in
+            // Delete all existing items in clipboard
+            try? FileManager.default.removeItem(at: copiedComponentResult.component.rootUrl)
+            
             await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
     }
@@ -514,22 +517,26 @@ extension DocumentEncodable {
         await self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
-        pasteboard.url = copiedComponentResult.component.rootUrl
+        pasteboard.url = copiedComponentResult.component.rootUrl.appendingVersionedSchemaPath()
     }
     
     func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
         let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles)
+        await self.importComponentFiles(result.copiedSubdirectoryFiles,
+                                        destUrl: result.component.rootUrl)
     }
     
+    @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
+                              destUrl: URL,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
-        let newFiles = self.copyFiles(from: files)
+        let _ = await self.copyFiles(from: files,
+                                     destUrl: destUrl)
     }
 }

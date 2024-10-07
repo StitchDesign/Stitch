@@ -57,19 +57,21 @@ extension Array where Element: SchemaObserverIdentifiable {
 }
 
 extension Dictionary where Value: Identifiable & AnyObject, Key == Value.ID {
-    mutating func sync<DataElement>(with newEntities: [DataElement],
-                                    updateCallback: @escaping (Value, DataElement) -> (),
-                                    createCallback: @escaping (DataElement) -> Value) where DataElement: Identifiable, DataElement.ID == Value.ID {
+    @MainActor
+    func sync<DataElement>(with newEntities: [DataElement],
+                           updateCallback: @escaping (Value, DataElement) -> (),
+                           createCallback: @escaping (DataElement) -> Value) -> Self where DataElement: Identifiable, DataElement.ID == Value.ID {
         var values = Array(self.values)
         values.sync(with: newEntities,
                     updateCallback: updateCallback,
                     createCallback: createCallback)
         
-        self = values.reduce(into: Self.init()) { result, observer in
+        return values.reduce(into: Self.init()) { result, observer in
             result.updateValue(observer, forKey: observer.id)
         }
     }
     
+    @MainActor
     func sync<DataElement>(with newEntities: [DataElement],
                            updateCallback: @escaping (Value, DataElement) async -> (),
                            createCallback: @escaping (DataElement) async -> Value) async -> Self where DataElement: Identifiable, Element: Sendable, DataElement.ID == Value.ID {
@@ -112,13 +114,14 @@ extension Array where Element: Identifiable & AnyObject {
         }
     }
     
+    @MainActor
     func sync<DataElement>(with newEntities: [DataElement],
-                           updateCallback: @escaping (Element, DataElement) async -> (),
-                           createCallback: @escaping (DataElement) async -> Element) async -> [Element] where DataElement: Identifiable, Element: Sendable, DataElement.ID == Element.ID {
+                           updateCallback: @MainActor @escaping (Element, DataElement) async -> (),
+                           createCallback: @MainActor @escaping (DataElement) async -> Element) async -> [Element] where DataElement: Identifiable, Element: Sendable, DataElement.ID == Element.ID {
         
-        let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
-        let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
-        let entitiesToRemove = currentIds.subtracting(incomingIds)
+//        let incomingIds: Set<Element.ID> = newEntities.map { $0.id }.toSet
+//        let currentIds: Set<Element.ID> = self.map { $0.id }.toSet
+//        let entitiesToRemove = currentIds.subtracting(incomingIds)
 
         let currentEntitiesMap = self.reduce(into: [:]) { result, currentEntity in
             result.updateValue(currentEntity, forKey: currentEntity.id)
