@@ -304,13 +304,10 @@ extension GraphState {
     @MainActor func update(from schema: GraphEntity) async {
         self.updateSynchronousProperties(from: schema)
         
-        guard let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() else {
-            fatalErrorIfDebug()
-            return
+        if let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() {
+            self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
+                                                components: decodedFiles.components)
         }
-        
-        self.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
-                                            components: decodedFiles.components)
         
         await self.syncNodes(with: schema.nodes)
         
