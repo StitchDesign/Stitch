@@ -71,8 +71,12 @@ extension GraphSaveLocation {
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
             
-        case .system:
+        case .userLibrary:
             // TODO: come back to user library
+            fatalError()
+        
+        case .system:
+            // TODO: come back to systems
             fatalError()
         }
     }
