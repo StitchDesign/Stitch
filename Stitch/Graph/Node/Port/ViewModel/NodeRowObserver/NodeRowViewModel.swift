@@ -156,6 +156,7 @@ extension NodeRowViewModel {
                                    importedMediaObject: nil)
     }
     
+    @MainActor
     func didPortValuesUpdate(values: PortValues) {
         guard let rowDelegate = self.rowDelegate else {
             return

@@ -55,10 +55,11 @@ extension LayerNodeViewModel {
     
     // it's more like this should be on the layer node view model itself, not on the layer input observer;
     // but it's the passed in `layer input port` that tells us
+    @MainActor
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
         
-        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
+        // log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
         
         // TODO: Which is better? To look at layer input or port value?
         // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
@@ -103,7 +104,7 @@ extension LayerNodeViewModel {
         // Changing the orientation of a parent (layer group) updates fields on the children
         let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
         
-        log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
+        // log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
@@ -495,7 +496,7 @@ extension LayerNodeViewModel {
 }
 
 extension LayerInputObserver {
-    @MainActor
+//    @MainActor
 //    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
     func setBlockStatus(_ keypathPortType: LayerInputType, // e.g. minSize packed input, or min
                         // blocked = add to blocked-set, else remove

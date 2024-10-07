@@ -247,6 +247,7 @@ extension LayerInputObserver {
         }
     }
     
+    
     func update(from schema: LayerInputEntity,
                 layerInputType: LayerInputPort,
                 layerNode: LayerNodeViewModel,

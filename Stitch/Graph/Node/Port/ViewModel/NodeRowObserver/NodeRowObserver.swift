@@ -388,6 +388,7 @@ extension OutputNodeRowObserver {
 
 extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
+    @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
@@ -397,6 +398,7 @@ extension NodeRowViewModel {
     }
     
     /// Called by parent node view model to update fields.
+    @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
         

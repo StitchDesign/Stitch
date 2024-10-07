@@ -11,6 +11,7 @@ import StitchSchemaKit
 // MARK: non-derived data: values, assigned interactions, label, upstream/downstream connection
 
 extension NodeRowObserver {
+    @MainActor
     func updateValues(_ newValues: PortValues) {
         // Check if this port is for a packed layer input but the set mode is unpacked
         // Valid scenarios here--we use input row observer getters for all-up value getting
@@ -54,6 +55,7 @@ extension NodeRowObserver {
     
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
+    @MainActor
     func updatePortViewModels() {
         self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)

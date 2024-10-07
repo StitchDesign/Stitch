@@ -24,6 +24,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     }
 
     /// Schema updates from layer.
+    @MainActor
     func update(from nodeConnection: NodeConnectionType,
                 inputType: LayerInputType) {
         switch nodeConnection {
