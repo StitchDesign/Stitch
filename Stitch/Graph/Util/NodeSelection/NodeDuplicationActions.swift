@@ -71,7 +71,8 @@ extension GraphState {
         }
         
         // Copy files before inserting component
-        await encoder.importComponentFiles(copiedFiles)
+        await encoder.importComponentFiles(copiedFiles,
+                                           rootUrl: component.rootUrl)
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)

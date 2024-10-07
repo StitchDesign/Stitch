@@ -75,12 +75,10 @@ struct SelectedGraphItemsPasted: GraphEvent {
             return
         }
         
-        guard let pasteboardUrl = UIPasteboard.general.url else {
-            return
-        }
+        let pasteboardUrl = StitchClipboardContent.rootUrl
 
         do {
-            let componentData = try Data(contentsOf: pasteboardUrl)
+            let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
             let importedFiles = ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
             

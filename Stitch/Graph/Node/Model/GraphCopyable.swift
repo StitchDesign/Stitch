@@ -521,16 +521,19 @@ extension DocumentEncodable {
         let _ = await T.exportComponent(result.component)
 
         // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles)
+        await self.importComponentFiles(result.copiedSubdirectoryFiles,
+                                        rootUrl: result.component.rootUrl)
     }
     
     @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
+                              rootUrl: URL,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
-        let _ = await self.copyFiles(from: files)
+        let _ = await self.copyFiles(from: files,
+                                     rootUrl: rootUrl)
     }
 }
