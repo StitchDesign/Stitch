@@ -22,12 +22,6 @@ let STITCH_PROJECT_THUMBNAIL_PATH_COMPONENT = "projectThumbnail.png"
 let STITCH_SCHEMA_NAME = "schema"
 let STITCH_SCHEMA_EXTENSION = "json"
 
-// Could be for iCloud Documents or local Documents
-struct DocumentsURL: Equatable, Codable {
-    let url: URL
-    typealias Id = Tagged<DocumentsURL, URL>
-}
-
 extension DocumentEncodable {
     var componentsDirUrl: URL {
         self.rootUrl.appending(component: URL.componentsDirPath)

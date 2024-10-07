@@ -65,7 +65,7 @@ extension StitchStore {
 
 struct DeleteAllProjects: FileManagerEvent {
     func handle(fileManager: StitchFileManager) -> MiddlewareManagerResponse {
-        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL.url).value {
+        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL).value {
             contents.forEach { url in
                 try? fileManager.removeItem(at: url)
             }

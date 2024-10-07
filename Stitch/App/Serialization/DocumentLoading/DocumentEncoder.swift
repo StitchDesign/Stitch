@@ -35,7 +35,7 @@ protocol DocumentEncodableDelegate: AnyObject {
 
 extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState,
-                                              temporaryUrl: DocumentsURL? = nil,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
@@ -49,7 +49,7 @@ extension DocumentEncodable {
     
     @MainActor func encodeProjectInBackground(from graph: GraphState,
                                               undoEvents: [Action],
-                                              temporaryUrl: DocumentsURL? = nil,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
@@ -63,7 +63,7 @@ extension DocumentEncodable {
     }
     
     @MainActor func encodeProjectInBackground(from graph: GraphState,
-                                              temporaryUrl: DocumentsURL? = nil,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
@@ -93,8 +93,8 @@ extension DocumentEncodable {
     }
     
     func encodeProject(_ document: Self.CodableDocument,
-                       temporaryURL: DocumentsURL? = nil) async -> StitchFileVoidResult {
-        let rootDocUrl = temporaryURL?.url ?? self.rootUrl
+                       temporaryURL: URL? = nil) async -> StitchFileVoidResult {
+        let rootDocUrl = temporaryURL ?? self.rootUrl
         
         do {
             // Encode document
@@ -136,7 +136,6 @@ final actor DocumentEncoder: DocumentEncodable {
 extension DocumentEncoder {
     var rootUrl: URL {
         StitchFileManager.documentsURL
-            .url
             .appendingStitchProjectDataPath(self.id)
     }
 }

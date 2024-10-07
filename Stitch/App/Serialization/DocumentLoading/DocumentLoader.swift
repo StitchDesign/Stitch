@@ -14,7 +14,7 @@ actor DocumentLoader {
 
     func directoryUpdated() -> [ProjectLoader]? {
         switch StitchFileManager
-            .readDirectoryContents(StitchFileManager.documentsURL.url) {
+            .readDirectoryContents(StitchFileManager.documentsURL) {
         case .success(let urls):
             // log("StitchStore.directoryUpdated: urls: \(urls)")
             let filtered = urls

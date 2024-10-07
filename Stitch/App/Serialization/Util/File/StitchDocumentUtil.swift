@@ -87,7 +87,6 @@ extension StitchDocumentEncodable {
     
     static func getRootUrl(from documentId: UUID) -> URL {
         StitchFileManager.documentsURL
-            .url
             .appendingStitchProjectDataPath(documentId)
     }
 

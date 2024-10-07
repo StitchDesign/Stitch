@@ -180,7 +180,7 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor
-    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
+    func encodeProjectInBackground(temporaryURL: URL? = nil) {
         self.documentEncoder.encodeProjectInBackground(from: self.graph,
                                                        temporaryUrl: temporaryURL)
     }
