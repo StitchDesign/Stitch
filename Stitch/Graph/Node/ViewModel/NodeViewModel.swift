@@ -622,18 +622,29 @@ extension NodeViewModel: NodeDelegate {
 
 extension NodeViewModel {
     // MARK: main actor needed to prevent view updates from background thread
+    @MainActor
     func update(from schema: NodeEntity,
                 components: [UUID : StitchMasterComponent]) async {
         await self.nodeType.update(from: schema.nodeTypeEntity,
                                    components: components)
         
-        if self.title != schema.title {
-            self.title = schema.title
+        self.updateTitle(newTitle: schema.title)
+    }
+    
+    func updateTitle(newTitle: String) {
+        if self.title != newTitle {
+            self.title = newTitle
         }
         
         if self._cachedDisplayTitle != self.getDisplayTitle() {
             self._cachedDisplayTitle = self.getDisplayTitle()
         }
+    }
+    
+    @MainActor
+    func update(from schema: NodeEntity) {
+        self.nodeType.update(from: schema.nodeTypeEntity)
+        self.updateTitle(newTitle: schema.title)
     }
 
     @MainActor func createSchema() -> NodeEntity {

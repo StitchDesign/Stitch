@@ -22,14 +22,15 @@ extension DocumentEncodable {
     }
 
     /// Called when GraphState is initialized to build library data and then run first calc.
-    func getDecodedFiles() async -> GraphDecodedFiles? {
+    func getDecodedFiles() -> GraphDecodedFiles? {
         let importedFilesDir = self.readAllImportedFiles()
-        return await self.getDecodedFiles(importedFilesDir: importedFilesDir)
+        return GraphDecodedFiles(importedFilesDir: importedFilesDir)
     }
-    
-    /// Called when GraphState is initialized to build library data and then run first calc.
-    func getDecodedFiles(importedFilesDir: StitchDocumentDirectory,
-                         graphMutation: (@Sendable @MainActor () -> ())? = nil) async -> GraphDecodedFiles? {
+}
+
+extension GraphDecodedFiles {
+    init?(importedFilesDir: StitchDocumentDirectory,
+          graphMutation: (@Sendable @MainActor () -> ())? = nil) {
         let migratedComponents = importedFilesDir.componentDirs.compactMap { componentUrl -> StitchComponentData? in
             do {
                 guard let draft = try StitchComponent.migrateEncodedComponent(from: componentUrl.appendingComponentDraftPath()),
@@ -46,7 +47,7 @@ extension DocumentEncodable {
             }
         }
         
-        return .init(mediaFiles: importedFilesDir.importedMediaUrls,
-                     components: migratedComponents)
+        self.init(mediaFiles: importedFilesDir.importedMediaUrls,
+                  components: migratedComponents)
     }
 }

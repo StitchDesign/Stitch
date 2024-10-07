@@ -50,6 +50,7 @@ extension GraphState: DocumentEncodableDelegate {
         }
     }
     
+    @MainActor
     func importedFilesDirectoryReceived(mediaFiles: [URL],
                                         components: [StitchComponentData]) {        
         // Update draft and published components from disk

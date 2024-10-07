@@ -103,11 +103,7 @@ final class GraphState: Sendable {
             return
         }
         
-        let components = decodedFiles.components.reduce(into: MasterComponentsDict()) { result, componentEntity in
-            let newComponent = StitchMasterComponent(componentData: componentEntity,
-                                                     parentGraph: nil)  // assigned later
-            result.updateValue(newComponent, forKey: newComponent.id)
-        }
+        let components = await decodedFiles.components.createComponentsDict(parentGraph: nil)
         
         var nodes = NodesViewModelDict()
         for nodeEntity in schema.nodes {
@@ -267,6 +263,7 @@ extension GraphState {
         return graph
     }
     
+    @MainActor
     func syncNodes(with entities: [NodeEntity]) async {
         let newDictionary = await self.visibleNodesViewModel.nodes
             .sync(with: entities,
@@ -279,15 +276,33 @@ extension GraphState {
                                 parentGraphPath: self.saveLocation)
         }
         
-        await MainActor.run { [weak self] in
-            self?.visibleNodesViewModel.nodes = newDictionary
-        }
+        self.visibleNodesViewModel.nodes = newDictionary
     }
     
-    @MainActor func update(from schema: GraphEntity) async {
+    @MainActor
+    func syncNodes(with entities: [NodeEntity]) {
+        let newDictionary = self.visibleNodesViewModel.nodes
+            .sync(with: entities,
+                  updateCallback: { nodeViewModel, nodeSchema in
+            nodeViewModel.update(from: nodeSchema)
+        }) { nodeSchema in
+            let nodeType = NodeViewModelType(from: nodeSchema.nodeTypeEntity,
+                                             nodeId: nodeSchema.id)
+            return NodeViewModel(from: nodeSchema,
+                                 nodeType: nodeType)
+        }
+        
+        self.visibleNodesViewModel.nodes = newDictionary
+    }
+    
+    private func updateSynchronousProperties(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
         self.orderedSidebarLayers = schema.orderedSidebarLayers
+    }
+    
+    @MainActor func update(from schema: GraphEntity) async {
+        self.updateSynchronousProperties(from: schema)
         
         guard let decodedFiles = await self.documentEncoderDelegate?.getDecodedFiles() else {
             fatalErrorIfDebug()
@@ -298,6 +313,23 @@ extension GraphState {
                                             components: decodedFiles.components)
         
         await self.syncNodes(with: schema.nodes)
+        
+        if let document = self.documentDelegate,
+           let documentEncoder = self.documentEncoderDelegate {
+            self.initializeDelegate(document: document,
+                                    documentEncoderDelegate: documentEncoder)
+        }
+    }
+    
+    @MainActor func update(from schema: GraphEntity) {
+        self.updateSynchronousProperties(from: schema)
+        
+        Task { [weak self] in
+            // Async update data correctly
+            await self?.update(from: schema)
+        }
+        
+        self.syncNodes(with: schema.nodes)
         
         if let document = self.documentDelegate,
            let documentEncoder = self.documentEncoderDelegate {
