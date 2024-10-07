@@ -28,8 +28,11 @@ extension StitchClipboardContent {
     init() {
         self.init(graph: .createEmpty())
     }
-    
     var rootUrl: URL {
+        Self.rootUrl
+    }
+    
+    static var rootUrl: URL {
         StitchFileManager.tempDir
             .appendingPathComponent("copied-data",
                                     conformingTo: Self.unzippedFileType)

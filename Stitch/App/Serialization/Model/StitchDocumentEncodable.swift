@@ -101,3 +101,20 @@ struct GraphDecodedFiles {
     let mediaFiles: [URL]
     let components: [StitchComponentData]
 }
+
+extension [StitchComponentData] {
+    @MainActor
+    func createComponentsDict(parentGraph: GraphState?) -> [UUID: StitchMasterComponent] {
+        self.reduce(into: MasterComponentsDict()) { result, componentEntity in
+            let newComponent = StitchMasterComponent(componentData: componentEntity,
+                                                     parentGraph: nil)  // assigned later
+            
+            // We can initialize delegates from copy/paste actions
+            if let parentGraph = parentGraph {
+                newComponent.initializeDelegate(parentGraph: parentGraph)
+            }
+            
+            result.updateValue(newComponent, forKey: newComponent.id)
+        }
+    }
+}
