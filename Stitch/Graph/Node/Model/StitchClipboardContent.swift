@@ -34,6 +34,7 @@ extension StitchClipboardContent {
     
     static var rootUrl: URL {
         StitchFileManager.tempDir
+            .appendingPathComponent("ClipboardData")
             .appendingPathComponent("copied-data",
                                     conformingTo: Self.unzippedFileType)
     }
