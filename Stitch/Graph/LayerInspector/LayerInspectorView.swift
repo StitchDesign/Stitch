@@ -103,7 +103,7 @@ struct LayerInspectorView: View {
 
         VStack(alignment: .leading, spacing: 0) {
             
-#if DEV_DEBUG || DEBUG
+#if DEBUG
             HStack {
                 // Only show editable layer node title if this isn't a multiselect case
                 StitchTitleTextField(graph: graph,

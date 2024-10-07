@@ -127,7 +127,7 @@ struct SidebarListItemDragged: GraphEvent {
         
 //        var list = state.sidebarListState
         
-        
+        log("SidebarListItemDragged: state.keypressState.isOptionPressed: \(state.keypressState.isOptionPressed)")
         
         var itemId = itemId
         
