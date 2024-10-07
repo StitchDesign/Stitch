@@ -65,16 +65,18 @@ extension GraphState {
                                encoder: (any DocumentEncodable)?,
                                copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
         let newComponent = self.updateCopiedNodes(component: component)
+        let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
         
-        guard let encoder = encoder,
-              let document = self.documentDelegate,
-              let encoderDelegate = self.documentEncoderDelegate else {
+        guard let document = self.documentDelegate else {
             return
         }
         
         // Copy files before inserting component
-        await encoder.importComponentFiles(copiedFiles,
-                                           destUrl: encoderDelegate.rootUrl)
+        if let encoderDelegate = encoderDelegate,
+           let encoder = encoder {
+            await encoder.importComponentFiles(copiedFiles,
+                                               destUrl: encoderDelegate.rootUrl)
+        }
         
         // Update top-level nodes to match current focused group
         let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
@@ -91,9 +93,11 @@ extension GraphState {
             fatalErrorIfDebug()
         }
         
+        if let encoderDelegate = encoderDelegate {
+            self.initializeDelegate(document: document,
+                                    documentEncoderDelegate: encoderDelegate)
+        }
         
-        self.initializeDelegate(document: document,
-                                documentEncoderDelegate: encoderDelegate)
         await self.update(from: graph)
         
         self.updateGraphAfterPaste(newNodes: newNodes)
@@ -146,13 +150,7 @@ extension GraphState {
     
     @MainActor
     func duplicateCopiedNodes<T>(newComponent: T,
-                                 newNodes: [NodeEntity]) -> GraphEntity where T: StitchComponentable {
-        guard let document = self.documentDelegate,
-              let encoderDelegate = self.documentEncoderDelegate else {
-            fatalErrorIfDebug()
-            return .createEmpty()
-        }
-        
+                                 newNodes: [NodeEntity]) -> GraphEntity where T: StitchComponentable {        
         var graph = self.createSchema()
         
         // Add new nodes
