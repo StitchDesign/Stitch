@@ -146,7 +146,7 @@ extension DocumentLoader {
                                  forKey: rootUrl)
         
         // Encode projecet directories
-        await document.encodeDocumentContents(documentRootUrl: rootUrl)
+        await document.encodeDocumentContents(folderUrl: rootUrl)
 
         // Create versioned document
         try Self.encodeDocument(document, to: rootUrl)
@@ -161,9 +161,6 @@ extension DocumentLoader {
     
     static func encodeDocument<Document>(_ document: Document,
                                          to directoryURL: URL) throws where Document: StitchDocumentEncodable {
-        // Default directory is known by document, sometimes we use a temp URL
-        let directoryURL = document.getEncodingUrl(documentRootUrl: directoryURL)
-        
         let versionedData = try getStitchEncoder().encode(document)
         let filePath = directoryURL.appendingVersionedSchemaPath()
 

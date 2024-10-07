@@ -49,11 +49,6 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
         self.graph.name
     }
     
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        // Don't append anything to parameter
-        documentRootUrl
-    }
-    
     init(nodes: [NodeEntity] = []) {
         self.init(graph: .init(id: .init(),
                                name: STITCH_PROJECT_DEFAULT_NAME,
@@ -106,10 +101,6 @@ extension StitchComponent: StitchDocumentMigratable {
                                                 componentsPath: [])),
                   isPublished: false,
                   graph: GraphEntity.createEmpty())
-    }
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl
     }
 }
 

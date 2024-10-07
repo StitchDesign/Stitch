@@ -171,8 +171,4 @@ extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
     
     static let unzippedFileType: UTType = .stitchSystemUnzipped
     static let zippedFileType: UTType = .stitchSystemZipped
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl
-    }
 }

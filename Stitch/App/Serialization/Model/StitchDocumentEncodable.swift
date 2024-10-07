@@ -40,7 +40,6 @@ protocol StitchDocumentEncodable: Codable, Identifiable {
     var id: UUID { get set }
     var name: String { get }
     
-    func getEncodingUrl(documentRootUrl: URL) -> URL
     static func getDocument(from url: URL) throws -> Self?
 }
 
@@ -50,14 +49,6 @@ extension StitchDocumentEncodable {
             STITCH_IMPORTED_FILES_DIR,
             URL.componentsDirPath
         ]
-    }
-    
-    /// Initializer used for a new project, which creates file paths for contents like media.
-    func encodeDocumentContents(documentRootUrl: URL) async {
-        // Creates new paths with subfolders if relevant (i.e. components)
-        let folderUrl = self.getEncodingUrl(documentRootUrl: documentRootUrl)
-        
-        await self.encodeDocumentContents(folderUrl: folderUrl)
     }
      
     /// Invoked when full path is known.
