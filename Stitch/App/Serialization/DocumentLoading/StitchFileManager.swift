@@ -25,6 +25,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     
     static var tempDir: URL {
         URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+            .appendingPathComponent("Stitch")
     }
     
     /// File removal abstraction which enables possible usage of temporary storage for recently deleted items, enabling undo/redo support on deleted files.

@@ -68,21 +68,28 @@ extension CanvasItemViewModel {
 // TODO: this seems to only duplicate a single node?
 // TODO: we can only dupe-drag nodes and comment boxes, NOT layer-inputs-on-graph
 // What if we have multiple nodes on the graph selected and we hold `Option` + drag?
-struct NodeDuplicateDraggedAction: GraphEventWithResponse {
+struct NodeDuplicateDraggedAction: GraphEvent {
     let id: NodeId
     let translation: CGSize
+    
+    func handle(state: GraphState) {
+        state.nodeDuplicateDragged(id: id,
+                                   translation: translation)
+    }
+}
 
-    func handle(state: GraphState) -> GraphResponse {
-        // log("NodeDuplicateDraggedAction called")
-        
-        // log("NodeDuplicateDraggedAction: state.selectedNodeIds at start: \(state.selectedNodeIds)")
+extension GraphState {
+    @MainActor
+    func nodeDuplicateDragged(id: NodeId,
+                              translation: CGSize) {
+        let state = self
         
         guard state.graphUI.dragDuplication else {
             
             // Might need to adjust the currently selected nodes, if e.g. we're option-dragging a node that wasn't previously selected
             guard let canvasItem = state.getCanvasItem(.node(id)) else {
                 // log("NodeDuplicateDraggedAction: could not find canvas item for id \(id)")
-                return .noChange
+                return
             }
             
             // If we drag a canvas item that is not yet selected, we'll select it and deselect all the others.
@@ -93,14 +100,26 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
                 // add node's edges to highlighted edges; wipe old highlighted edges
                 state.selectedEdges = .init()
             }
-            
-            // Copy nodes if no drag started yet
-            state.copyAndPasteSelectedNodes(selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
-            
             state.graphUI.dragDuplication = true
             
-            // log("NodeDuplicateDraggedAction: copied nodes")
-            return .persistenceResponse
+            // Copy nodes if no drag started yet
+            let copiedComponentResult = self
+                .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
+                                       selectedNodeIds: state.selectedNodeIds.compactMap(\.nodeCase).toSet)
+            
+            let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+            
+            // Update top-level nodes to match current focused group
+            let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+            let graph = self.duplicateCopiedNodes(newComponent: newComponent,
+                                                  newNodes: newNodes)
+            
+
+            self.update(from: graph)
+            
+            self.updateGraphAfterPaste(newNodes: newNodes)
+            
+            return
         }
             
         
@@ -115,8 +134,6 @@ struct NodeDuplicateDraggedAction: GraphEventWithResponse {
                                       translation: translation,
                                       wasDrag: true)
             }
-        
-        return .persistenceResponse
     }
 }
 

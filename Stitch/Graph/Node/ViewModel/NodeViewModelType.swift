@@ -17,10 +17,9 @@ enum NodeViewModelType {
 }
 
 extension NodeViewModelType {
+    @MainActor
     init(from nodeType: NodeTypeEntity,
-         nodeId: NodeId,
-         components: [UUID: StitchMasterComponent],
-         parentGraphPath: [UUID]) async {
+         nodeId: NodeId) {
         switch nodeType {
         case .patch(let patchNode):
             let viewModel = PatchNodeViewModel(from: patchNode)
@@ -29,7 +28,7 @@ extension NodeViewModelType {
             let viewModel = LayerNodeViewModel(from: layerNode)
             self = .layer(viewModel)
         case .group(let canvasNode):
-            self = .group(.init(from: canvasNode, 
+            self = .group(.init(from: canvasNode,
                                 id: .node(nodeId),
                                 // Initialize as empty since splitter row observers might not have yet been created
                                 inputRowObservers: [],
@@ -37,6 +36,33 @@ extension NodeViewModelType {
                                 // Irrelevant
                                 unpackedPortParentFieldGroupType: nil,
                                 unpackedPortIndex: nil))
+        case .component(let component):
+            let componentCanvas = CanvasItemViewModel(from: component.canvasEntity,
+                                                      id: .node(nodeId),
+                                                      // Initialize as empty since splitter row observers might not have yet been created
+                                                      inputRowObservers: [],
+                                                      outputRowObservers: [],
+                                                      unpackedPortParentFieldGroupType: nil,
+                                                      unpackedPortIndex: nil)
+            
+            self = .component(.init(componentId: component.componentId,
+                                    canvas: componentCanvas,
+                                    
+                                    // TODO: thie gets a new reference later
+                                    graph: .createEmpty()))
+        }
+    }
+    
+    @MainActor
+    init(from nodeType: NodeTypeEntity,
+         nodeId: NodeId,
+         components: [UUID: StitchMasterComponent],
+         parentGraphPath: [UUID]) async {
+        switch nodeType {
+        case .patch, .layer, .group:
+            self = .init(from: nodeType,
+                         nodeId: nodeId)
+        
         case .component:
             // TODO: unwrapping component changes the ID. no idea why.
             guard let componentEntity = nodeType.componentNodeEntity else {
@@ -94,8 +120,7 @@ extension NodeViewModelType {
     }
 
     @MainActor
-    func update(from schema: NodeTypeEntity,
-                components: [UUID: StitchMasterComponent]) async {
+    func update(from schema: NodeTypeEntity) {
         switch (self, schema) {
         case (.patch(let patchViewModel), .patch(let patchEntity)):
             patchViewModel.update(from: patchEntity)
@@ -104,11 +129,25 @@ extension NodeViewModelType {
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
         case (.component(let componentViewModel), .component(let component)):
-            await componentViewModel.update(from: component,
-                                            components: components)
+            // not for sync operations
+            return
+//            await componentViewModel.update(from: component,
+//                                            components: components)
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()
+        }
+    }
+    
+    @MainActor
+    func update(from schema: NodeTypeEntity,
+                components: [UUID: StitchMasterComponent]) async {
+        switch (self, schema) {
+        case (.component(let componentViewModel), .component(let component)):
+            await componentViewModel.update(from: component,
+                                            components: components)
+        default:
+            self.update(from: schema)
         }
     }
     

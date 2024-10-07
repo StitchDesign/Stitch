@@ -66,35 +66,32 @@ struct SelectedGraphItemsCopied: GraphEvent {
 
 // "Paste" = past shortcut, which pastes BOTH nodes AND comments
 // struct SelectedGraphNodesPasted: AppEnvironmentEvent {
-struct SelectedGraphItemsPasted: GraphEventWithResponse {
+struct SelectedGraphItemsPasted: GraphEvent {
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: GraphState) {
         
         guard !state.llmRecording.isRecording else {
             log("Paste disabled during LLM Recording")
-            return .noChange
+            return
         }
         
-        guard let pasteboardUrl = UIPasteboard.general.url else {
-            return .noChange
-        }
+        let pasteboardUrl = StitchClipboardContent.rootUrl
 
         do {
-            let componentData = try Data(
-                contentsOf: pasteboardUrl.appendingDataJsonPath()
-            )
+            let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
-            let currentDoc = state.createSchema()
             let importedFiles = ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
             
-            
-            state.insertNewComponent(component: newComponent,
-                                     encoder: state.documentEncoderDelegate,
-                                     copiedFiles: importedFiles)
-            return .persistenceResponse
+            Task(priority: .high) { [weak state] in
+                guard let state = state else { return }
+    
+                await state.insertNewComponent(component: newComponent,
+                                               encoder: state.documentEncoderDelegate,
+                                               copiedFiles: importedFiles)
+                state.encodeProjectInBackground()
+            }
         } catch {
             log("SelectedGraphItemsPasted error: \(error)")
-            return .noChange
         }
     }
 }
