@@ -17,7 +17,7 @@ final class StitchStore: Sendable, StoreDelegate {
     var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
     
-    var systems: [UUID: StitchSystemViewModel] = [:]
+    var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,
     // and loaded when app loads.
@@ -136,33 +136,6 @@ final actor SystemsEncoder: DocumentEncodable {
         self.delegate = delegate
     }
 }
-
-public enum StitchSystem_V25: StitchSchemaVersionable {
-
-    // MARK: - ensure versions are correct
-    public static let version = StitchSchemaVersion._V25
-    public typealias PreviousInstance = Self.StitchSystem
-    // MARK: - end
-
-    public struct StitchSystem: StitchVersionedCodable, Equatable, Sendable {
-        public var id: UUID
-        public var name: String
-        
-        public init(id: UUID,
-                    name: String) {
-            self.id = id
-            self.name = name
-        }
-    }
-}
-
-extension StitchSystem_V25.StitchSystem {
-    public init(previousInstance: StitchSystem_V25.PreviousInstance) {
-        // TODO: fix after version 25 (wasn't encoded ever in version 24)
-        fatalError()
-    }
-}
-
 
 import UniformTypeIdentifiers
 

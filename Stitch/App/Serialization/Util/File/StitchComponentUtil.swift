@@ -70,14 +70,10 @@ extension GraphSaveLocation {
             // lastly append with direct parent folders
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
-            
-        case .userLibrary:
-            // TODO: come back to user library
-            fatalError()
         
-        case .system:
-            // TODO: come back to systems
+        case .system(let systemType):
             fatalError()
+//            return StitchFileManager.documentsURL
         }
     }
 }

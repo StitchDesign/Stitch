@@ -106,7 +106,8 @@ public typealias ComponentEntity = CurrentComponentEntity.ComponentEntity
 public typealias GraphEntity = CurrentGraphEntity.GraphEntity
 public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
 public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
-public typealias StitchSystem = StitchSystem_V25.StitchSystem
+public typealias StitchSystem = CurrentStitchSystem.StitchSystem
+public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument

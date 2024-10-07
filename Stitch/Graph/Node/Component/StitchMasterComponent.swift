@@ -36,6 +36,26 @@ final class StitchMasterComponent {
     }
 }
 
+// TODO: move
+extension [StitchSystemType: StitchSystemViewModel] {
+    func findSystem(forComponent id: UUID) -> StitchSystemViewModel? {
+        for system in self.values {
+            if system.componentEncoders.get(id) != nil {
+                return system
+            }
+        }
+        
+        return nil
+    }
+}
+
+extension StitchStore {
+    func saveComponentToLibrary(_ component: StitchComponent) {
+        // Get "user-system.stitchsystem"
+        fatalError()
+    }
+}
+
 extension StitchMasterComponent {
     var publishedDocumentEncoder: ComponentEncoder? {
         guard let storeDelegate = self.storeDelegate else { return nil }
