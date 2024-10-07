@@ -71,6 +71,22 @@ extension NodeSelectionGestureRecognizer {
 }
 
 extension GraphGestureDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive event: UIEvent) -> Bool {
+        log("GraphGestureDelegate: gestureRecognizer: should receive event")
+
+        if event.modifierFlags.contains(.command) {
+            log("GraphGestureDelegate: CMD DOWN")
+            self.commandHeldDown = true
+        } else {
+            log("GraphGestureDelegate: CMD NOT DOWN")
+            self.commandHeldDown = false
+        }
+        
+        return true
+    }
+        
     @MainActor
     func trackpadGraphBackgroundPan(_ gestureRecognizer: UIPanGestureRecognizer) {
        
@@ -81,7 +97,8 @@ extension GraphGestureDelegate {
         let translation = gestureRecognizer.translation(in: view)
 
         // Check if Command key is pressed
-        if self.document?.keypressState.isCommandPressed == true {
+        // Note: prefer listening to UIGesture delegate's `shouldReceive` vs our currently finicking key listening logic
+        if self.commandHeldDown {
             // Determine zoom direction based on the y-direction of the translation
             switch gestureRecognizer.state {
             case .changed:
