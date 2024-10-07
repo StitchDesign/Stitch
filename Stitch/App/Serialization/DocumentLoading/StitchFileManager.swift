@@ -11,6 +11,9 @@ import StitchSchemaKit
 
 @Observable
 final class StitchFileManager: FileManager, MiddlewareService {
+    static let importedFilesDir = StitchFileManager.tempDir.appendingPathComponent("ImportedData")
+    static let exportedFilesDir = StitchFileManager.tempDir.appendingPathComponent("ExportedData")
+    
     var syncStatus: iCloudSyncStatus = .offline
     
     static var documentsURL: DocumentsURL {
