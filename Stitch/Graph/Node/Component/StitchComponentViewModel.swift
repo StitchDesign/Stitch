@@ -74,7 +74,7 @@ extension StitchComponentViewModel {
                                        unpackedPortParentFieldGroupType: nil,
                                        unpackedPortIndex: nil)
         self.graph.initializeDelegate(document: document,
-                                      documentEncoderDelegate: masterComponent.draftedDocumentEncoder)
+                                      documentEncoderDelegate: masterComponent.localComponentEncoder)
     }
     
     @MainActor func createSchema() -> ComponentEntity {
@@ -98,7 +98,7 @@ extension StitchComponentViewModel {
             return
         }
         
-        await self.graph.update(from: masterComponent.draftedComponent.graph)
+        await self.graph.update(from: masterComponent.componentData.graph)
     }
 }
 

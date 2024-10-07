@@ -9,6 +9,8 @@ import Foundation
 
 protocol StoreDelegate: AnyObject {
     var documentLoader: DocumentLoader { get }
+    
+    var systems: [UUID: StitchSystemViewModel] { get }
 
     @MainActor
     func saveUndoHistory(undoActions: [Action],

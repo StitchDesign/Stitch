@@ -394,7 +394,6 @@ extension StitchDocumentViewModel {
             let newPath = GraphDocumentPath(docId: self.id,
                                             componentsPath: self.visibleGraph.saveLocation)
             return StitchComponent(saveLocation: .document(newPath),
-                                   isPublished: false,
                                    graph: graph)
         }
     }
@@ -429,7 +428,7 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
         
-        let copiedComponentData: [StitchComponentData] = selectedNodes
+        let copiedComponentData: [StitchComponent] = selectedNodes
             .getComponentData(masterComponentsDict: self.components)
         
         let newGraph = GraphEntity(id: componentId,

@@ -16,6 +16,8 @@ final class StitchStore: Sendable, StoreDelegate {
     
     var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
+    
+    var systems: [UUID: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,
     // and loaded when app loads.
@@ -97,6 +99,9 @@ extension StitchStore {
 // TODO: move
 final class StitchSystemViewModel {
     var data: StitchSystem
+    
+    var componentEncoders: [UUID: ComponentEncoder] = [:]
+    
     weak var storeDelegate: StoreDelegate?
 
     init(data: StitchSystem,

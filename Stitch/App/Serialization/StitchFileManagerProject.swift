@@ -157,8 +157,7 @@ extension DocumentEncodable {
             
             let _ = srcComponentUrl.startAccessingSecurityScopedResource()
             
-            let subfolders = [srcComponentUrl.appendingComponentDraftPath(),
-                              srcComponentUrl.appendingComponentPublishedPath()]
+            let subfolders = [srcComponentUrl]
             
             do {
                 // Silently fail directory creation if already exists

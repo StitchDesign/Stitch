@@ -90,10 +90,10 @@ extension StitchDocumentDirectory {
 
 struct GraphDecodedFiles {
     let mediaFiles: [URL]
-    let components: [StitchComponentData]
+    let components: [StitchComponent]
 }
 
-extension [StitchComponentData] {
+extension [StitchComponent] {
     @MainActor
     func createComponentsDict(parentGraph: GraphState?) -> [UUID: StitchMasterComponent] {
         self.reduce(into: MasterComponentsDict()) { result, componentEntity in

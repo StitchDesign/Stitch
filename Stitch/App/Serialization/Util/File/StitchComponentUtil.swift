@@ -28,10 +28,7 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        let dir = self.saveLocation.getRootDirectoryUrl(componentId: self.id)
-        
-        return self.isPublished ? dir.appendingComponentPublishedPath() :
-        dir.appendingComponentDraftPath()
+        self.saveLocation.getRootDirectoryUrl(componentId: self.id)
     }
 }
 
@@ -68,14 +65,13 @@ extension GraphSaveLocation {
                 url = url
                     .appendingComponentsPath()
                     .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
-                    .appendingComponentDraftPath()     // Always use draft path
             }
             
             // lastly append with direct parent folders
             .appendingComponentsPath()
             .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
             
-        case .userLibrary:
+        case .system:
             // TODO: come back to user library
             fatalError()
         }
