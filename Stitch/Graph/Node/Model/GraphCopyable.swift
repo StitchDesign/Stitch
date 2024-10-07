@@ -487,13 +487,25 @@ extension SidebarLayerList {
 
 
 extension GraphState {
+    /// Synchronous caller for node copying, used for Option + drag.
     @MainActor
-    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) async {
+    func copyAndPasteSelectedNodes(selectedNodeIds: NodeIdSet) {
+        // Copy nodes if no drag started yet
         let copiedComponentResult = self
             .createCopiedComponent(groupNodeFocused: self.graphUI.groupNodeFocused,
                                    selectedNodeIds: selectedNodeIds)
-        await self.insertNewComponent(copiedComponentResult,
-                                      encoder: self.documentEncoderDelegate)
+        
+        let newComponent = self.updateCopiedNodes(component: copiedComponentResult.component)
+        
+        // Update top-level nodes to match current focused group
+        let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+        let graph = self.duplicateCopiedNodes(newComponent: newComponent,
+                                              newNodes: newNodes)
+        
+
+        self.update(from: graph)
+        
+        self.updateGraphAfterPaste(newNodes: newNodes)
     }
 
     @MainActor
