@@ -48,7 +48,7 @@ extension NodeViewModelType {
             self = .component(.init(componentId: component.componentId,
                                     canvas: componentCanvas,
                                     
-                                    // TODO: fix this for components
+                                    // TODO: thie gets a new reference later
                                     graph: .createEmpty()))
         }
     }

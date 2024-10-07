@@ -110,10 +110,7 @@ extension GraphState {
         newComponent.graph.nodes = newComponent.nodes.map { node in
             var node = node
             
-            // Update positional data
-            
-            // TODO: explore why position shift didn't work
-            
+            // Update positional data            
             node.canvasEntityMap { node in
                 var node = node
                 node.position.shiftNodePosition()
