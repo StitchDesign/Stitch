@@ -18,6 +18,8 @@ enum StitchDocumentError: Error {
 extension UTType {
     static let stitchDocument: UTType = UTType(exportedAs: "app.stitchdesign.stitch.document")
     static let stitchProjectData: UTType = UTType(exportedAs: "app.stitchdesign.stitch.projectdata")
+    static let stitchSystemZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.system")
+    static let stitchSystemUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.systemdata")
     static let stitchComponentZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
     static let stitchComponentUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.componentdata")
     static let stitchClipboard: UTType = UTType(exportedAs: "app.stitchdesign.stitch.clipboard")
