@@ -168,6 +168,7 @@ extension GraphState {
          Normally this is fine, except when we hold command:
          long press would fire and see that the node was not yet selected, so it would select it; then tap would fire and see that the node was already selected, so it would de-select that same node.
          */
+        // TODO: pass isCommandPressed down from the gesture handler
         if !wasDrag && (self.documentDelegate?.keypressState.isCommandPressed ?? false) {
             #if DEV_DEBUG
             log("canvasItemMoved: we long pressed while holding command; doing nothing; this logic will instead be handled by NodeTapped")
