@@ -517,7 +517,7 @@ extension GraphState {
 
         Task { [weak self] in
             // Delete all existing items in clipboard
-            try? FileManager.default.removeItem(at: copiedComponentResult.component.rootUrl)
+            try? FileManager.default.removeItem(at: StitchClipboardContent.rootUrl)
             
             await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
