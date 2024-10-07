@@ -13,6 +13,7 @@ extension StitchDocumentViewModel {
     @MainActor
     func commentBoxTapped(box: CommentBoxViewModel) {
         // If CMD held:
+        // TODO: pass this down from the gesture handler
         if self.keypressState.isCommandPressed {
             if self.graphUI.selection
                 .selectedCommentBoxes.contains(id) {

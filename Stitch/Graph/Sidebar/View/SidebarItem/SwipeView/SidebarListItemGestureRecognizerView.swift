@@ -282,7 +282,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 
         let selections = self.graph.sidebarSelectionState
         let groups = self.graph.getSidebarGroupsDict()
-        let sidebarDeps =  SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
+        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
                                        groups: groups,
                                        expandedItems: self.graph.getSidebarExpandedItems())
         let layerNodes = sidebarDeps.layerNodes

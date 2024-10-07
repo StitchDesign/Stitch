@@ -70,6 +70,8 @@ class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     
     weak var document: StitchDocumentViewModel?
 
+    var commandHeldDown: Bool = false 
+    
     init(document: StitchDocumentViewModel) {
         super.init()
         self.document = document
