@@ -170,12 +170,13 @@ extension StitchDocumentMigratable {
         
         let projectURL = document.rootUrl
         let fileNameExt = Self.zippedFileType.preferredFilenameExtension ?? ""
+        let tempURLDir = StitchFileManager.exportedFilesDir
         
         /* This is needed because we cna't create files that have "/" characters in them. In order to support that, we have to replace any instane of "/" with ":".
          The file system will handle the conversion for us. See this SO post for details: https://stackoverflow.com/questions/78942602/supporting-custom-files-with-characters-in-swift/78942629#78942629 */
         let exportedFileName = (document.name + "." + fileNameExt).replacingOccurrences(of: "/", with: ":")
 
-        let tempURL = StitchFileManager.tempDir
+        let tempURL = tempURLDir
             .appendingPathComponent(exportedFileName, conformingTo: .stitchDocument)
 
         log("StitchDocumentWrapper: transferRepresentation: projectURL: \(projectURL)")
@@ -184,7 +185,10 @@ extension StitchDocumentMigratable {
         do {
             // First remove any existing projects at tempURL;
             // Note: it's okay for this to fail when there's no URL already existing there
-            try? FileManager.default.removeItem(at: tempURL)
+            try? FileManager.default.removeItem(at: tempURLDir)
+            
+            // Create exported folder if not yet made
+            try? FileManager.default.createDirectory(at: tempURLDir, withIntermediateDirectories: true)
 
             //            try FileManager.default.createDirectory(at: tempURL,
             //                                                    withIntermediateDirectories: true)
@@ -293,8 +297,12 @@ extension StitchDocumentEncodable {
             return nil
         }
         
-        let unzipDestinationURL = StitchFileManager.tempDir
+        let unzipDestinationURL = StitchFileManager.importedFilesDir
             .appendingPathComponent(UUID().uuidString)
+        
+        // Create imported folder if not yet made
+        try? FileManager.default.createDirectory(at: unzipDestinationURL, withIntermediateDirectories: true)
+        
         try FileManager.default.unzipItem(at: importedUrl, to: unzipDestinationURL)
         
         // Find .stitchproject file
