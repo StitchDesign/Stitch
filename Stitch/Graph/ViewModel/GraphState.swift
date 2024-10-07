@@ -325,14 +325,8 @@ extension GraphState {
         self.updateSynchronousProperties(from: schema)
         
         Task { [weak self] in
+            // Async update data correctly
             await self?.update(from: schema)
-//            guard let decodedFiles = await self?.documentEncoderDelegate?.getDecodedFiles() else {
-//                fatalErrorIfDebug()
-//                return
-//            }
-//            
-//            self?.importedFilesDirectoryReceived(mediaFiles: decodedFiles.mediaFiles,
-//                                                 components: decodedFiles.components)
         }
         
         self.syncNodes(with: schema.nodes)
