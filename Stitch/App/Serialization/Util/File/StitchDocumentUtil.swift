@@ -38,6 +38,16 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
         self.init(nodes: [])
     }
     
+    static func getRootUrl(from documentId: Self.ID) -> URL {
+        StitchFileManager.documentsURL
+            .appendingStitchProjectDataPath("\(documentId)")
+    }
+    
+    /// URL location for document contents, i.e. imported media
+    var rootUrl: URL {
+        Self.getRootUrl(from: self.id)
+    }
+    
     public var id: ProjectId {
         get {
             self.graph.id
@@ -82,16 +92,6 @@ extension StitchDocumentEncodable {
         let versionString = "v\(version.rawValue)"
         let fileExt = "\(versionString).json"
         return fileExt
-    }
-    
-    static func getRootUrl(from documentId: Self.ID) -> URL {
-        StitchFileManager.documentsURL
-            .appendingStitchProjectDataPath("\(documentId)")
-    }
-
-    /// URL location for document contents, i.e. imported media
-    var rootUrl: URL {
-        Self.getRootUrl(from: self.id)
     }
 }
 

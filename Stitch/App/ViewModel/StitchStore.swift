@@ -163,4 +163,9 @@ extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
     
     static let unzippedFileType: UTType = .stitchSystemUnzipped
     static let zippedFileType: UTType = .stitchSystemZipped
+    
+    var rootUrl: URL {
+        StitchFileManager.documentsURL
+            .appendingStitchSystemUnzippedPath(self.id.description)
+    }
 }

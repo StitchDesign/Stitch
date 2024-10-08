@@ -15,6 +15,11 @@ extension URL {
         self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
     }
+    
+    func appendingStitchSystemUnzippedPath(_ documentId: String) -> URL {
+        self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
+                                    conformingTo: .stitchSystemUnzipped)
+    }
 
     func appendingStitchMediaPath() -> URL {
         self.appendingPathComponent(STITCH_IMPORTED_FILES_DIR)
