@@ -20,7 +20,7 @@ struct SmoothValueNode: PatchNodeDefinition {
                     label: "Value"
                 ),
                 .init(
-                    defaultValues: [.number(0)],
+                    defaultValues: [.number(0.4)],
                     label: "Hysteresis"
                 ),
                 .init(
