@@ -91,7 +91,9 @@ struct LayerSizeModifier: ViewModifier {
                 .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
                 .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
                 .frame(width: width)
-                .frame(minHeight: minHeight, maxHeight: maxHeight)
+                .frame(minHeight: minHeight, maxHeight: maxHeight,
+                       // added
+                       alignment: alignment)
         }
         
         // Height is pt, but width is auto (so can use min/max width)
@@ -102,19 +104,31 @@ struct LayerSizeModifier: ViewModifier {
                 .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
                 .frame(maxHeight: usesParentPercentForHeight ? maxHeight : nil)
                 .frame(height: height)
-                .frame(minWidth: minWidth, maxWidth: maxWidth)
+                .frame(minWidth: minWidth, maxWidth: maxWidth,
+                       // added
+                       alignment: alignment)
         }
         
         // Both height and width are pt (so no min/max size at all)
         else if let width = width, let height = height {
             // logInView("LayerSizeModifier: defined width and height")
-            content
-                .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
-                .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
-                .frame(width: width)
-                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
-                .frame(maxHeight: usesParentPercentForHeight ? maxHeight : nil)
-                .frame(height: height)
+            // If we have a static width and height, and we're not using an parent-percents,
+            // then we can use the SwiftUI API with the specified alignment
+            if !usesParentPercentForWidth && !usesParentPercentForHeight {
+                // logInView("LayerSizeModifier: defined width and height and not using parent percent for width or height")
+                content.frame(width: width,
+                              height: height,
+                              alignment: alignment)
+            } else {
+                
+                content
+                    .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
+                    .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
+                    .frame(width: width)
+                    .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
+                    .frame(maxHeight: usesParentPercentForHeight ? maxHeight : nil)
+                    .frame(height: height)
+            }
         }
         
         // Both height and width are auto, so use min/max height and width
