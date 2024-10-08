@@ -71,11 +71,8 @@ struct SidebarListItemSwipeInnerView: View {
         
 #endif
         
-        if isBeingEdited {
-            return selection.color(isHidden)
-        } else {
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-        }
+        // Note: this means secondarily-selected layers (i.e. children of a primarily-selected parent) are gray even when not in edit mode
+        return selection.color(isHidden)
     }
     
     var layerNodeId: LayerNodeId {
