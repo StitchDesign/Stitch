@@ -26,6 +26,8 @@ extension UTType {
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
 
+extension UUID: StitchDocumentIdentifiable { }
+
 extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     typealias VersionType = StitchDocumentVersion
     
@@ -67,11 +69,11 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
 }
 
 extension StitchDocumentEncodable {
-    static func getUniqueInternalDirectoryName(from id: UUID) -> String {
+    static func getUniqueInternalDirectoryName(from id: String) -> String {
         Self.getFileName(projectId: id)
     }
     
-    static func getFileName(projectId: UUID) -> String {
+    static func getFileName(projectId: String) -> String {
         "stitch--\(projectId)"
     }
 
@@ -82,9 +84,9 @@ extension StitchDocumentEncodable {
         return fileExt
     }
     
-    static func getRootUrl(from documentId: UUID) -> URL {
+    static func getRootUrl(from documentId: Self.ID) -> URL {
         StitchFileManager.documentsURL
-            .appendingStitchProjectDataPath(documentId)
+            .appendingStitchProjectDataPath("\(documentId)")
     }
 
     /// URL location for document contents, i.e. imported media

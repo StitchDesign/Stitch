@@ -109,7 +109,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     
     @MainActor
     static func removeStitchProject(url: URL,
-                                    projectId: ProjectId,
+                                    projectId: UUID,
                                     permanently: Bool = false) -> StitchFileVoidResult {
         
         // let _ = url.startAccessingSecurityScopedResource()
@@ -126,7 +126,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
                                                      withIntermediateDirectories: true)
 
             let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
-                .appendingStitchProjectDataPath(projectId)
+                .appendingStitchProjectDataPath("\(projectId)")
             
             do {
                 // Save to recently deleted

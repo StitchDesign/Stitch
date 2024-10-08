@@ -330,7 +330,7 @@ struct NodeTagMenuButtonsView: View {
             }
         } else {
             return nodeTagMenuButton(label: "Save Component to Library") {
-                store.saveComponentToLibrary(component)
+                store.saveComponentToUserLibrary(component)
             }
         }
     }

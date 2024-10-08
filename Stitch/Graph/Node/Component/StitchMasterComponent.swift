@@ -50,9 +50,43 @@ extension [StitchSystemType: StitchSystemViewModel] {
 }
 
 extension StitchStore {
-    func saveComponentToLibrary(_ component: StitchComponent) {
-        // Get "user-system.stitchsystem"
-        fatalError()
+    @MainActor func saveComponentToUserLibrary(_ component: StitchComponent) {
+        guard let userSystem = self.systems.get(.userLibrary) else {
+            let systemData = StitchSystem(id: .userLibrary,
+                                          name: StitchSystemType.userLibraryName)
+            let userSystem = StitchSystemViewModel(data: systemData,
+                                                   storeDelegate: self)
+            // Save system to store
+            self.systems.updateValue(userSystem, forKey: userSystem.data.id)
+            
+            userSystem.saveComponentToSystem(component: component)
+            return
+        }
+        
+        userSystem.saveComponentToSystem(component: component)
+    }
+}
+
+extension StitchSystemViewModel {
+    func saveComponentToSystem(component: StitchComponent) {
+        let srcComponentUrl = component.rootUrl
+        
+        Task(priority: .high) { [weak self] in
+            guard let system = self else { return }
+            
+            let destComponentUrl = await system.encoder.componentsDirUrl
+            
+            do {
+                // Copy component data
+                try FileManager.default.copyItem(at: srcComponentUrl,
+                                                 to: destComponentUrl)
+                
+                // Encode new system
+                await system.encoder.encodeProjectInBackground(from: nil)
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -81,8 +115,12 @@ extension StitchMasterComponent {
 //        self.componentData = schema
 //    }
     
-    @MainActor func createSchema(from graph: GraphState) -> StitchComponent {
-        let graph = graph.createSchema()
+    @MainActor func createSchema(from graph: GraphState?) -> StitchComponent {
+        guard let graph = graph?.createSchema() else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
         var component = self.componentData
         component.graph = graph
         return component

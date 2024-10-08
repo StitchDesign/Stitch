@@ -14,7 +14,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     
-    var id: UUID { get set }
+    var id: CodableDocument.ID { get set }
     
     var rootUrl: URL { get }
     
@@ -24,7 +24,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
 protocol DocumentEncodableDelegate: AnyObject {
     associatedtype CodableDocument: Codable
     
-    @MainActor func createSchema(from graph: GraphState) -> CodableDocument
+    @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
     
     @MainActor func willEncodeProject(schema: CodableDocument)
 
@@ -34,35 +34,40 @@ protocol DocumentEncodableDelegate: AnyObject {
 }
 
 extension DocumentEncodable {
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                 oldSchema: oldSchema,
-                                                 newSchema: newSchema,
-                                                 undoEffectsData: nil)
+            
+            if let graph = graph {
+                graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                     oldSchema: oldSchema,
+                                                     newSchema: newSchema,
+                                                     undoEffectsData: nil)
+            }
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               undoEvents: [Action],
                                               temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                 oldSchema: oldSchema,
-                                                 newSchema: newSchema,
-                                                 undoEvents: undoEvents,
-                                                 redoEvents: [])
+            if let graph = graph {
+                graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                     oldSchema: oldSchema,
+                                                     newSchema: newSchema,
+                                                     undoEvents: undoEvents,
+                                                     redoEvents: [])
+            }
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
@@ -89,7 +94,7 @@ extension DocumentEncodable {
     }
     
     var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.id)")
     }
     
     func encodeProject(_ document: Self.CodableDocument,

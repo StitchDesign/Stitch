@@ -79,7 +79,7 @@ extension StitchStore {
     func undoDeleteProject(projectId: ProjectId) {
         // Find URL from recently deleted
         let deletedProjectURL = StitchDocument.recentlyDeletedURL
-            .appendingStitchProjectDataPath(projectId)
+            .appendingStitchProjectDataPath("\(projectId)")
 
         // Reimports deleted project
         Task {

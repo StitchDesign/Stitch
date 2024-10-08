@@ -97,22 +97,30 @@ extension StitchStore {
 }
 
 // TODO: move
+extension StitchSystem {
+    static let userLibraryName = "User Library"
+}
+
 final class StitchSystemViewModel {
     var data: StitchSystem
-    
     var componentEncoders: [UUID: ComponentEncoder] = [:]
+    let encoder: StitchSystemEncoder
     
     weak var storeDelegate: StoreDelegate?
 
-    init(data: StitchSystem,
+    @MainActor init(data: StitchSystem,
          storeDelegate: StoreDelegate?) {
         self.data = data
+        self.encoder = .init(system: data,
+                             delegate: nil)
+        
+        self.encoder.delegate = self
         self.storeDelegate = storeDelegate
     }
 }
 
 extension StitchSystemViewModel: DocumentEncodableDelegate {
-    @MainActor func createSchema(from graph: GraphState) -> StitchSystem {
+    @MainActor func createSchema(from graph: GraphState?) -> StitchSystem {
         self.data
     }
     
@@ -121,15 +129,15 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
     func updateOnUndo(schema: StitchSystem) { }
 }
 
-final actor SystemsEncoder: DocumentEncodable {
-    var id: UUID
+final actor StitchSystemEncoder: DocumentEncodable {
+    var id: StitchSystemType
     let rootUrl: URL
     
     @MainActor var lastEncodedDocument: StitchSystem
     @MainActor weak var delegate: StitchSystemViewModel?
     
     init(system: StitchSystem,
-         delegate: StitchSystemViewModel) {
+         delegate: StitchSystemViewModel?) {
         self.id = system.id
         self.lastEncodedDocument = system
         self.rootUrl = system.rootUrl
@@ -138,6 +146,12 @@ final actor SystemsEncoder: DocumentEncodable {
 }
 
 import UniformTypeIdentifiers
+
+extension StitchSystemType: StitchDocumentIdentifiable {
+    init() {
+        self = .system(.init())
+    }
+}
 
 extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
     init() {

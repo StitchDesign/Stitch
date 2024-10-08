@@ -273,7 +273,7 @@ extension StitchDocumentViewModel {
                        cameraSettings: self.cameraSettings)
     }
     
-    @MainActor func createSchema(from grpah: GraphState) -> StitchDocument {
+    @MainActor func createSchema(from graph: GraphState?) -> StitchDocument {
         self.createSchema()
     }
     

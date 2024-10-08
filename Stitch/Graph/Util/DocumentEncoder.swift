@@ -24,7 +24,7 @@ final actor DocumentEncoder: DocumentEncodable {
 extension DocumentEncoder {
     var rootUrl: URL {
         StitchFileManager.documentsURL
-            .appendingStitchProjectDataPath(self.id)
+            .appendingStitchProjectDataPath("\(self.id)")
     }
 }
 

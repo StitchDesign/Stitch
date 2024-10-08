@@ -11,7 +11,7 @@ import StitchSchemaKit
 extension URL {
     static let componentsDirPath = "Components"
     
-    func appendingStitchProjectDataPath(_ documentId: UUID) -> URL {
+    func appendingStitchProjectDataPath(_ documentId: String) -> URL {
         self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
     }

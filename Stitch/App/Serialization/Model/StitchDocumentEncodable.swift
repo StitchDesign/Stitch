@@ -30,14 +30,18 @@ extension StitchDocumentMigratable {
     }
 }
 
+protocol StitchDocumentIdentifiable: CustomStringConvertible {
+    init()
+}
+
 /// Used for `StitchDocument` and `StitchComponent`
-protocol StitchDocumentEncodable: Codable, Identifiable {
+protocol StitchDocumentEncodable: Codable, Identifiable where ID: StitchDocumentIdentifiable {
     static var unzippedFileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
 
     init()
     var rootUrl: URL { get }
-    var id: UUID { get set }
+    var id: ID { get set }
     var name: String { get }
     
     static func getDocument(from url: URL) throws -> Self?
