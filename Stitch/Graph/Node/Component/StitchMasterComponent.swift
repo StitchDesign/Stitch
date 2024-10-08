@@ -82,6 +82,8 @@ extension StitchSystemViewModel {
             guard let system = self else { return }
             
             let destComponentUrl = await system.encoder.componentsDirUrl
+            try? FileManager.default.createDirectory(at: destComponentUrl.deletingLastPathComponent(),
+                                                     withIntermediateDirectories: true)
             
             do {
                 // Copy component data
