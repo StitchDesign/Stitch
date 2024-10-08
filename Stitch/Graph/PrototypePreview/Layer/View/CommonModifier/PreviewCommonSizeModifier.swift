@@ -14,11 +14,15 @@ extension LayerDimension {
      - a shape (e.g. `Ellipse`) without a .frame *grows* to take up as much space as possible inside its parent.
      - a stack (e.g. `ZStack`) without a .frame *shrinks* to take up only as much space as required by the stack's contents.
      */
-    func asFrameDimension(_ parentLength: CGFloat, isStack: Bool) -> CGFloat? {
+    func asFrameDimension(_ parentLength: CGFloat, 
+                          isStack: Bool,
+                          hasInherentSwiftUISize: Bool) -> CGFloat? {
            switch self {
                
            case .fill:
-               if isStack { // a stack like ZStack, VStack
+               // stack = ZStack, VStack
+               // hasInherentSwiftUI = a view like
+               if isStack || hasInherentSwiftUISize {
                    return parentLength // 100% of parent length
                } else { // e.g. a shpe
                    return nil
@@ -85,27 +89,41 @@ struct PreviewCommonSizeModifier: ViewModifier {
         viewModel.layer == .group
     }
     
+    var hasInherentSwiftUISize: Bool {
+        viewModel.layer.hasInherentSwiftUISize
+    }
+    
     var finalMinWidth: CGFloat? {
-        minWidth?.asFrameDimension(parentSize.width, isStack: isStack)
+        minWidth?.asFrameDimension(parentSize.width, 
+                                   isStack: isStack,
+                                   hasInherentSwiftUISize: hasInherentSwiftUISize)
     }
     
     var finalMaxWidth: CGFloat? {
-        maxWidth?.asFrameDimension(parentSize.width, isStack: isStack)
+        maxWidth?.asFrameDimension(parentSize.width, 
+                                   isStack: isStack,
+                                   hasInherentSwiftUISize: hasInherentSwiftUISize)
     }
     
     var finalMinHeight: CGFloat? {
-        minHeight?.asFrameDimension(parentSize.height, isStack: isStack)
+        minHeight?.asFrameDimension(parentSize.height, 
+                                    isStack: isStack,
+                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
     }
     
     var finalMaxHeight: CGFloat? {
-        maxHeight?.asFrameDimension(parentSize.height, isStack: isStack)
+        maxHeight?.asFrameDimension(parentSize.height, 
+                                    isStack: isStack,
+                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
     }
     
     var finalWidth: CGFloat? {
         if usesParentPercentForWidth && (finalMinWidth.isDefined || finalMaxWidth.isDefined) {
             return nil
         } else {
-            return width.asFrameDimension(parentSize.width, isStack: isStack)
+            return width.asFrameDimension(parentSize.width, 
+                                          isStack: isStack,
+                                          hasInherentSwiftUISize: hasInherentSwiftUISize)
         }
     }
     
@@ -113,7 +131,9 @@ struct PreviewCommonSizeModifier: ViewModifier {
         if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
             return nil
         } else {
-            return height.asFrameDimension(parentSize.height, isStack: isStack)
+            return height.asFrameDimension(parentSize.height, 
+                                           isStack: isStack,
+                                           hasInherentSwiftUISize: hasInherentSwiftUISize)
         }
     }
     

@@ -18,6 +18,25 @@ extension CGFloat {
     }
 }
 
+extension Layer {
+    /*
+     Does this layer's view has an 'inherent SwiftUI size'?
+     
+     e.g. Text and Toggle views in SwiftUI have inherent sizes which do not expand when we apply a larger .frame;
+     compare vs. a SwiftUI Ellipse which expands to fill its provided .frame.
+     
+     Note: for now, we consider media layers to NOT have an inherent SwiftUI size, although the resource has an inherent size.
+     */
+    var hasInherentSwiftUISize: Bool {
+        switch self {
+        case .text, .textField, .progressIndicator, .switchLayer:
+            return true
+        case .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .canvasSketch, .map, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming:
+            return false
+        }
+    }
+}
+
 // Directly calling SwiftUI's .frame API
 // NOTE: it is the responsibility of the caller to make sure that sensible nil/non-nil params are passed in
 struct LayerSizeModifier: ViewModifier {
