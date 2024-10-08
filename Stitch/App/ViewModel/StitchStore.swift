@@ -109,14 +109,32 @@ final class StitchSystemViewModel {
     weak var storeDelegate: StoreDelegate?
 
     @MainActor init(data: StitchSystem,
-         storeDelegate: StoreDelegate?) {
+                    storeDelegate: StoreDelegate?) {
         self.data = data
         self.encoder = .init(system: data,
                              delegate: nil)
         
         self.encoder.delegate = self
         self.storeDelegate = storeDelegate
+
+        Task { [weak self] in
+            await self?.refreshComponents()
+        }
     }
+    
+    func refreshComponents() async {
+        if let decodedFiles = await self.encoder.getDecodedFiles() {
+            self.componentEncoders = await self.componentEncoders.sync(with: decodedFiles.components,
+                                                                       updateCallback: { encoder, data in
+            }) { data in
+                ComponentEncoder(component: data)
+            }
+        }
+    }
+}
+
+extension StitchSystemViewModel: Identifiable {
+    var id: StitchSystemType { data.id }
 }
 
 extension StitchSystemViewModel: DocumentEncodableDelegate {
@@ -130,7 +148,7 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
 }
 
 final actor StitchSystemEncoder: DocumentEncodable {
-    var id: StitchSystemType
+    var documentId: StitchSystemType
     let rootUrl: URL
     
     @MainActor var lastEncodedDocument: StitchSystem
@@ -138,7 +156,7 @@ final actor StitchSystemEncoder: DocumentEncodable {
     
     init(system: StitchSystem,
          delegate: StitchSystemViewModel?) {
-        self.id = system.id
+        self.documentId = system.id
         self.lastEncodedDocument = system
         self.rootUrl = system.rootUrl
         self.delegate = delegate
@@ -166,6 +184,6 @@ extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
     
     var rootUrl: URL {
         StitchFileManager.documentsURL
-            .appendingStitchSystemUnzippedPath(self.id.description)
+            .appendingStitchSystemUnzippedPath("\(self.id)")
     }
 }

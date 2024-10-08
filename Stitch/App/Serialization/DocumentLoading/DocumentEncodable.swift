@@ -14,7 +14,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     
-    var id: CodableDocument.ID { get set }
+    var documentId: CodableDocument.ID { get set }
     
     var rootUrl: URL { get }
     
@@ -94,7 +94,7 @@ extension DocumentEncodable {
     }
     
     var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.id)")
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.documentId)")
     }
     
     func encodeProject(_ document: Self.CodableDocument,

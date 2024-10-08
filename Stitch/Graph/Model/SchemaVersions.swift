@@ -203,7 +203,7 @@ extension StitchSystemVersion {
             fatalError("No StitchSystem version expected before v24.")
             
         case ._V25:
-            return StitchComponent_V25.StitchComponent.self
+            return StitchSystem_V25.StitchSystem.self
         }
     }
 }

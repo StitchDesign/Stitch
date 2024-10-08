@@ -10,7 +10,7 @@ import StitchSchemaKit
 import DirectoryWatcher
 
 protocol DirectoryObserverDelegate: AnyObject {
-    func directoryUpdated()
+    func directoryUpdated() async
 }
 
 /// Class for notifying changes in a directory. Used for tracking updates to the `ProjectsView`.
@@ -24,11 +24,15 @@ final class DirectoryObserver {
         self.source = DirectoryWatcher.watch(url)
 
         self.source?.onNewFiles = { _ in
-            self.delegate?.directoryUpdated()
+            Task { [weak self] in
+                await self?.delegate?.directoryUpdated()
+            }
         }
         
         self.source?.onDeletedFiles = { _ in
-            self.delegate?.directoryUpdated()
+            Task { [weak self] in
+                await self?.delegate?.directoryUpdated()
+            }
         }
     }
 }

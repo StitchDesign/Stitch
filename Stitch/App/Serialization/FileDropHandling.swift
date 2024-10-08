@@ -55,7 +55,7 @@ func handleOnDrop(providers: [NSItemProvider],
             }
 
             // Opens stitch documents
-            guard tempURL.pathExtension != STITCH_EXTENSION_RAW else {
+            guard tempURL.pathExtension != UTType.stitchDocument.preferredFilenameExtension else {
                 Task(priority: .high) { [weak store] in
                     do {
                         switch await store?.documentLoader.loadDocument(from: tempURL,

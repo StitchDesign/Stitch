@@ -10,10 +10,6 @@ import StitchSchemaKit
 import Tagged
 import SwiftUI
 
-let STITCH_EXTENSION_RAW = "stitch"
-let STITCH_PROJECT_EXTENSION_RAW = "stitchproject"
-let STITCH_JSON_EXTENSION = "stitchjson"
-
 let STITCH_IMPORTED_FILES_DIR = "ImportedFiles"
 let STITCH_TEMPORARY_MEDIA_DIR = "TemporaryMedia"
 
