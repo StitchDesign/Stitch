@@ -59,7 +59,7 @@ struct Preview3DModelLayer: View {
                 Color.clear
             } else if let entity = entity {
                 Model3DView(entity: entity,
-                            sceneSize: size.asCGSize!,
+                            sceneSize: size.asAlgebraicCGSize,
                             modelOpacity: opacity)
                 .onAppear {
                     // Mark as layer so we regenerate views when finished loading
