@@ -117,42 +117,26 @@ final class StitchFileManager: FileManager, MiddlewareService {
         let allowUndo = !permanently && !isPhoneDevice()
         
         if allowUndo {
+            log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId)")
             
-            log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId) at url \(url)")
-            
-             log("StitchFileManager.removeStitchProject: url.absoluteString \(url.absoluteString)")
+            // Wipe directory for recently deleted projects
+            try? FileManager.default.removeItem(at: StitchDocument.recentlyDeletedURL)
+            try? FileManager.default.createDirectory(at: StitchDocument.recentlyDeletedURL,
+                                                     withIntermediateDirectories: true)
 
-            // Remove any possibly existing file with same name
             let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
                 .appendingStitchProjectDataPath(projectId)
             
-             log("StitchFileManager.removeStitchProject: recentlyDeletedProjectUrl: \(recentlyDeletedProjectUrl)")
-            
-            // Silently fail if it doesn't exist
-//            try! Self.default.removeItem(at: recentlyDeletedProjectUrl)
-            if let _ = try? StitchFileManager.default.removeItem(at: recentlyDeletedProjectUrl) {
-                log("StitchFileManager.removeStitchProject: failed to delete \(recentlyDeletedProjectUrl)")
-            }
-            
             do {
                 // Save to recently deleted
-                // TODO: Encode project on removal
-                //                fatalError()
-                
                 try StitchFileManager.default.moveItem(at: url,
                                                        to: recentlyDeletedProjectUrl)
-                
-                //                try Self.default.moveItem(atPath: url.absoluteString,
-                //                                          toPath: recentlyDeletedProjectUrl.absoluteString)
-                
-                //                try self.moveItem(at: url,
-                //                                  to: recentlyDeletedProjectUrl)
             } catch {
                 log("StitchFileManager.removeStitchProject error: \(error)")
                 return .failure(.deleteFileFailed)
             }
         } else {
-            log("StitchFileManager.removeStitchProject: Will permanently delete StitchProject \(projectId) at url \(url)")
+            log("StitchFileManager.removeStitchProject: Will permanently delete StitchProject \(projectId)")
             do {
                 try StitchFileManager.default.removeItem(at: url)
             } catch {
