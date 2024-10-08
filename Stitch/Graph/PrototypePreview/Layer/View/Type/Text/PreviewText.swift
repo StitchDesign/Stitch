@@ -68,7 +68,7 @@ struct PreviewTextLayer: View {
                                  textDecoration: textDecoration,
                                  textFont: textFont)
             .opacity(opacity)
-            .padding()
+//            .padding()
 
         return view.modifier(PreviewCommonModifier(
             document: document,
