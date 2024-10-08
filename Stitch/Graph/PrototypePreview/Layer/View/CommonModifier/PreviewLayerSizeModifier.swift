@@ -90,9 +90,10 @@ struct LayerSizeModifier: ViewModifier {
             // Note: parent-percentage supports min/max along a dimension
                 .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
                 .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
-                .frame(width: width)
-                .frame(minHeight: minHeight, maxHeight: maxHeight,
-                       // added
+                .frame(width: width, 
+                       alignment: alignment)
+                .frame(minHeight: minHeight,
+                       maxHeight: maxHeight,
                        alignment: alignment)
         }
         
@@ -103,9 +104,10 @@ struct LayerSizeModifier: ViewModifier {
             content
                 .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
                 .frame(maxHeight: usesParentPercentForHeight ? maxHeight : nil)
-                .frame(height: height)
-                .frame(minWidth: minWidth, maxWidth: maxWidth,
-                       // added
+                .frame(height: height, 
+                       alignment: alignment)
+                .frame(minWidth: minWidth,
+                       maxWidth: maxWidth,
                        alignment: alignment)
         }
         
@@ -124,10 +126,10 @@ struct LayerSizeModifier: ViewModifier {
                 content
                     .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
                     .frame(maxWidth: usesParentPercentForWidth ? maxWidth : nil)
-                    .frame(width: width)
+                    .frame(width: width, alignment: alignment)
                     .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
                     .frame(maxHeight: usesParentPercentForHeight ? maxHeight : nil)
-                    .frame(height: height)
+                    .frame(height: height, alignment: alignment)
             }
         }
         
