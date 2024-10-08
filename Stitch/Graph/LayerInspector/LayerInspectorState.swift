@@ -148,15 +148,30 @@ extension LayerInspectorView {
         
         // Required
         .scale,
-        .opacity,
         .pivot, // pivot point for scaling; put with
         
+        .opacity,
+        
+        
+        // SFSymbol
+        .sfSymbol,
+        
+        .color, // Text color vs Rectangle color
+        
+        
+        // Media
+        .image,
+        .video,
+        .model3D,
+        .fitStyle,
+        
 //        .init(.shadow, layer.supportsShadowInputs ? Self.shadow : []),
+        
         
         .masks,
         .clipped,
         
-        .color, // Text color vs Rectangle color
+        
         
         // Hit Area
         .enabled,
@@ -176,12 +191,7 @@ extension LayerInspectorView {
         .canvasLineColor,
         .canvasLineWidth,
                 
-        // Media
-        .image,
-        .video,
-        .model3D,
-        .fitStyle,
-        
+    
         // Progress Indicator
         .progressIndicatorStyle,
         .progress,
@@ -209,8 +219,7 @@ extension LayerInspectorView {
         .startRadius,
         .endRadius,
         
-        // SFSymbol
-        .sfSymbol,
+
         
         // Video
         .videoURL,
