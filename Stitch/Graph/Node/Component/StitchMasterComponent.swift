@@ -54,6 +54,13 @@ extension StitchStore {
         guard let userSystem = self.systems.get(.userLibrary) else {
             let systemData = StitchSystem(id: .userLibrary,
                                           name: StitchSystemType.userLibraryName)
+            
+            do {
+                try systemData.installDocument()
+            } catch {
+                fatalErrorIfDebug(error.localizedDescription)
+            }
+            
             let userSystem = StitchSystemViewModel(data: systemData,
                                                    storeDelegate: self)
             // Save system to store

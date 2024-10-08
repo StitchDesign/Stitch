@@ -135,8 +135,7 @@ extension StitchStore {
         
         do {
             // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-            try await self.documentLoader.installDocument(document: document)
-            try DocumentLoader.encodeDocument(document)
+            try document.installDocument()
             
             StitchDocument.subfolderNames.forEach { subfolderName in
                 try? FileManager.default

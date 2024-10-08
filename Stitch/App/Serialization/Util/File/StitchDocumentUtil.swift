@@ -266,7 +266,7 @@ extension StitchDocumentMigratable {
             // log("openDocument: successfully moved item")
             
             // Encode document contents on import to save newest project data
-            try DocumentLoader.encodeDocument(codableDoc, to: codableDoc.rootUrl)
+            try Self.encodeDocument(codableDoc)
             // log("openDocument: successfully encoded item")
         }
         

@@ -518,21 +518,26 @@ extension GraphState {
             // Delete all existing items in clipboard
             try? FileManager.default.removeItem(at: StitchClipboardContent.rootUrl)
             
-            await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
+            try? await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
     }
 }
 
 extension DocumentEncodable {
-    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
-        await self.encodeNewComponent(copiedComponentResult)
+    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async throws {
+        // Create directories if it doesn't exist
+        let rootUrl = copiedComponentResult.component.rootUrl
+        let _ = try? StitchFileManager.createDirectories(at: rootUrl,
+                                                         withIntermediate: true)
+        
+        try await self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
-        pasteboard.url = copiedComponentResult.component.rootUrl.appendingVersionedSchemaPath()
+        pasteboard.url = rootUrl.appendingVersionedSchemaPath()
     }
     
-    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
-        let _ = await T.exportComponent(result.component)
+    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async throws where T: StitchComponentable {        
+        let _ = try T.encodeDocument(result.component)
 
         // Process imported media side effects
         await self.importComponentFiles(result.copiedSubdirectoryFiles,

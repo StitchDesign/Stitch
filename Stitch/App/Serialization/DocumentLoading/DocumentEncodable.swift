@@ -99,12 +99,12 @@ extension DocumentEncodable {
     
     func encodeProject(_ document: Self.CodableDocument,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
-        let rootDocUrl = temporaryURL ?? self.rootUrl
+        let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         
         do {
             // Encode document
-            try DocumentLoader.encodeDocument(document,
-                                              to: rootDocUrl)
+            try Self.CodableDocument.encodeDocument(document,
+                                                    to: rootDocUrl)
             
             log("encodeProject success")
 

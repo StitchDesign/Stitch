@@ -106,7 +106,7 @@ extension DocumentLoader {
     func createNewProject(from document: StitchDocument = .init(),
                           isPhoneDevice: Bool,
                           store: StitchStore) async throws {
-        let projectLoader = try await self.installDocument(document: document)
+        let projectLoader = try self.installDocument(document: document)
         projectLoader.loadingDocument = .loaded(document, nil)
         
         self.updateStorage(with: projectLoader)
@@ -138,33 +138,27 @@ extension DocumentLoader {
         }
     }
 
-    func installDocument(document: StitchDocument) async throws -> ProjectLoader {
+    func installDocument(document: StitchDocument) throws -> ProjectLoader {
         let rootUrl = document.rootUrl
         let projectLoader = ProjectLoader(url: rootUrl)
         
+        try document.installDocument()
+        
         self.storage.updateValue(projectLoader,
                                  forKey: rootUrl)
-        
-        // Encode projecet directories
-        await document.encodeDocumentContents(folderUrl: rootUrl)
-
-        // Create versioned document
-        try Self.encodeDocument(document, to: rootUrl)
         
         projectLoader.loadingDocument = .loaded(document, nil)
         return projectLoader
     }
     
-    static func encodeDocument(_ document: StitchDocument) throws {
-        try Self.encodeDocument(document, to: document.rootUrl)
-    }
-    
-    static func encodeDocument<Document>(_ document: Document,
-                                         to directoryURL: URL) throws where Document: StitchDocumentEncodable {
-        let versionedData = try getStitchEncoder().encode(document)
-        let filePath = directoryURL.appendingVersionedSchemaPath()
+}
 
-        try versionedData.write(to: filePath,
-                                options: .atomic)
+extension StitchDocumentEncodable {
+    func installDocument() throws {        
+        // Create project directories
+        self.createUnzippedFileWrapper()
+
+        // Create versioned document
+        try Self.encodeDocument(self)
     }
 }

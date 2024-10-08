@@ -35,7 +35,7 @@ struct ProjectThumbnailTextField: View {
                     var document = document
                     document.graph.name = projectName
                     // Must write a version of the project with an updated name
-                    try DocumentLoader.encodeDocument(document)
+                    try StitchDocument.encodeDocument(document)
                 } catch {
                     log("editProjectName: onSubmit: error: \(error)")
                 }

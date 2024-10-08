@@ -243,9 +243,16 @@ extension StitchDocumentViewModel {
         self.visibleGraph.components.updateValue(masterComponent,
                                                  forKey: result.component.id)
         
+        // Create project directories
+        result.component.createUnzippedFileWrapper()
+        
         // Copy to disk and publish
-        await masterComponent.localComponentEncoder
-            .encodeNewComponent(result)
+        do {
+            try await masterComponent.localComponentEncoder
+                .encodeNewComponent(result)
+        } catch {
+            fatalErrorIfDebug(error.localizedDescription)
+        }
     }
 }
 

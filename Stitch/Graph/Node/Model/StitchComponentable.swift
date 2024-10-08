@@ -12,28 +12,16 @@ protocol StitchComponentable: StitchDocumentEncodable {
     var graph: GraphEntity { get set }
 }
 
-extension StitchComponentable {
+extension StitchDocumentEncodable {
     @Sendable
-    static func exportComponent(_ component: Self,
-                                rootUrl: URL? = nil) async {
-        let rootUrl = rootUrl ?? component.rootUrl
-        
-        // Create directories if it doesn't exist
-        let _ = try? StitchFileManager.createDirectories(at: rootUrl,
-                                                         withIntermediate: true)
-        await component.encodeDocumentContents(folderUrl: rootUrl)
-        
-        let url = rootUrl.appendingVersionedSchemaPath()
-        await Self.exportComponent(component, url: url)
+    static func encodeDocument(_ document: Self) throws {
+        try Self.encodeDocument(document,
+                                to: document.rootUrl.appendingVersionedSchemaPath())
     }
     
     @Sendable
-    static func exportComponent(_ component: Self, url: URL) async {
-        do {
-            let encodedData = try getStitchEncoder().encode(component)
-            try encodedData.write(to: url, options: .atomic)
-        } catch {
-            fatalErrorIfDebug("exportComponent error: \(error)")
-        }
+    static func encodeDocument(_ document: Self, to url: URL) throws {
+        let encodedData = try getStitchEncoder().encode(document)
+        try encodedData.write(to: url, options: .atomic)
     }
 }
