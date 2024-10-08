@@ -59,7 +59,6 @@ struct Preview3DModelLayer: View {
                 Color.clear
             } else if let entity = entity {
                 Model3DView(entity: entity,
-                            sceneSize: size.asCGSize!,
                             sceneSize: size.asAlgebraicCGSize,
                             modelOpacity: opacity)
                 .onAppear {
