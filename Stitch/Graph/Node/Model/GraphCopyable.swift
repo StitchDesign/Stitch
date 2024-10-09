@@ -393,7 +393,7 @@ extension StitchDocumentViewModel {
                                           selectedNodeIds: selectedNodeIds) { graph in
             let newPath = GraphDocumentPath(docId: self.id,
                                             componentsPath: self.visibleGraph.saveLocation)
-            return StitchComponent(saveLocation: .document(newPath),
+            return StitchComponent(saveLocation: .localComponent(newPath),
                                    graph: graph)
         }
     }
@@ -540,19 +540,17 @@ extension DocumentEncodable {
         let _ = try T.encodeDocument(result.component)
 
         // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles,
-                                        destUrl: result.component.rootUrl)
+        await self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
     @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
-                              destUrl: URL,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
         let _ = await self.copyFiles(from: files,
-                                     destUrl: destUrl)
+                                     newSaveLocation: self.saveLocation)
     }
 }

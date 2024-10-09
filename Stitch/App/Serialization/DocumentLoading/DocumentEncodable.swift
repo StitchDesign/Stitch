@@ -16,7 +16,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     var documentId: CodableDocument.ID { get set }
     
-    var rootUrl: URL { get }
+    var saveLocation: GraphSaveLocation { get }
     
     @MainActor var delegate: DocumentDelegate? { get }
 }
@@ -91,6 +91,10 @@ extension DocumentEncodable {
             await self.encodeProject(newSchema,
                                      temporaryURL: temporaryUrl)
         }
+    }
+    
+    var rootUrl: URL {
+        self.saveLocation.getRootDirectoryUrl()
     }
     
     var recentlyDeletedUrl: URL {

@@ -58,7 +58,10 @@ extension StitchDocumentEncodable {
     /// Invoked when full path is known.
     func createUnzippedFileWrapper() {
         let folderUrl = self.rootUrl
-        
+        Self.createUnzippedFileWrapper(folderUrl: folderUrl)
+    }
+    
+    static func createUnzippedFileWrapper(folderUrl: URL) {
         // Only proceed if folder doesn't exist
         guard !FileManager.default.fileExists(atPath: folderUrl.path) else {
             return

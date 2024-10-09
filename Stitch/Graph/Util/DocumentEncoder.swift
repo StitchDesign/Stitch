@@ -10,27 +10,23 @@ import StitchSchemaKit
 
 final actor DocumentEncoder: DocumentEncodable {
     var documentId: UUID
+    var saveLocation: GraphSaveLocation
     
     // Keeps track of last saved StitchDocument to disk
     @MainActor var lastEncodedDocument: StitchDocument
     @MainActor weak var delegate: StitchDocumentViewModel?
     
     init(document: StitchDocument) {
+        self.saveLocation = .document(document.id)
         self.documentId = document.graph.id
         self.lastEncodedDocument = document
     }
 }
 
-extension DocumentEncoder {
-    var rootUrl: URL {
-        StitchFileManager.documentsURL
-            .appendingStitchProjectDataPath("\(self.documentId)")
-    }
-}
 
 final actor ComponentEncoder: DocumentEncodable {
     var documentId: UUID
-    let rootUrl: URL
+    let saveLocation: GraphSaveLocation
     
     // Keeps track of last saved StitchDocument to disk
     @MainActor var lastEncodedDocument: StitchComponent
@@ -39,7 +35,7 @@ final actor ComponentEncoder: DocumentEncodable {
     init(component: StitchComponent) {
         self.documentId = component.id
         self.lastEncodedDocument = component
-        self.rootUrl = component.rootUrl
+        self.saveLocation = component.saveLocation
     }
 }
 

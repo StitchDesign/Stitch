@@ -50,7 +50,7 @@ extension [StitchSystemType: StitchSystemViewModel] {
 }
 
 extension StitchStore {
-    @MainActor func saveComponentToUserLibrary(_ component: StitchComponent) {
+    @MainActor func saveComponentToUserLibrary(_ component: StitchComponent) throws {
         guard let userSystem = self.systems.get(.userLibrary) else {
             let systemData = StitchSystem(id: .userLibrary,
                                           name: StitchSystemType.userLibraryName)
@@ -66,36 +66,23 @@ extension StitchStore {
             // Save system to store
             self.systems.updateValue(userSystem, forKey: userSystem.data.id)
             
-            userSystem.saveComponentToSystem(component: component)
+            try userSystem.data.saveComponentToSystem(component: component,
+                                                      systemType: .userLibrary)
             return
         }
         
-        userSystem.saveComponentToSystem(component: component)
+        try userSystem.data.saveComponentToSystem(component: component,
+                                                  systemType: .userLibrary)
     }
 }
 
-extension StitchSystemViewModel {
-    func saveComponentToSystem(component: StitchComponent) {
-        let srcComponentUrl = component.rootUrl
-        
-        Task(priority: .high) { [weak self] in
-            guard let system = self else { return }
-            
-            let destComponentUrl = await system.encoder.componentsDirUrl
-            try? FileManager.default.createDirectory(at: destComponentUrl.deletingLastPathComponent(),
-                                                     withIntermediateDirectories: true)
-            
-            do {
-                // Copy component data
-                try FileManager.default.copyItem(at: srcComponentUrl,
-                                                 to: destComponentUrl)
-                
-                // Encode new system
-                await system.encoder.encodeProjectInBackground(from: nil)
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
-        }
+extension StitchSystem {
+    func saveComponentToSystem(component: StitchComponent,
+                               systemType: StitchSystemType) throws {
+        let srcUrl = component.rootUrl
+        var newComponent = component
+        newComponent.saveLocation = .systemComponent(systemType)
+        try newComponent.encodeNewDocument(srcRootUrl: srcUrl)
     }
 }
 

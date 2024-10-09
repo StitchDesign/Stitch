@@ -28,7 +28,7 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        self.saveLocation.getRootDirectoryUrl(componentId: self.id)
+        self.saveLocation.getRootDirectoryUrl()
             .appendingPathComponent(self.id.uuidString, conformingTo: .stitchComponentUnzipped)
     }
 }
@@ -57,10 +57,14 @@ extension StitchComponentable {
 }
 
 extension GraphSaveLocation {
-    func getRootDirectoryUrl(componentId: UUID) -> URL {
+    func getRootDirectoryUrl() -> URL {
         switch self {
-        case .document(let graphDocumentPath):
-            let rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
+        case .document(let id):
+            return StitchDocument.getRootUrl(from: id)
+        
+        case .localComponent(let graphDocumentPath):
+            let rootDocPath = GraphSaveLocation.document(graphDocumentPath.docId)
+                .getRootDirectoryUrl()
             
             return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
@@ -70,10 +74,15 @@ extension GraphSaveLocation {
             
             // lastly append with direct parent folders
             .appendingComponentsPath()
+            
+        case .systemComponent(let systemType):
+            return GraphSaveLocation.system(systemType)
+                .getRootDirectoryUrl()
+                .appendingComponentsPath()
         
         case .system(let systemType):
-            fatalError()
-//            return StitchFileManager.documentsURL
+            return StitchFileManager.documentsURL
+                .appendingStitchSystemUnzippedPath("\(systemType)")
         }
     }
 }
