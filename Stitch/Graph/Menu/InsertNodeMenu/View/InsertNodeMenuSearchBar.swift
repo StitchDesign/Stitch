@@ -56,7 +56,8 @@ struct InsertNodeMenuSearchBar: View {
 
                     // Hack: additional focus-setting after a slight delay; it seems that StitchHostingController contributes to the field being sometimes defocused after .onAppear
                     //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                         // log("InsertNodeMenuSearchBar: onAppear: inner: callback")
                         self.isFocused = true
                     }
