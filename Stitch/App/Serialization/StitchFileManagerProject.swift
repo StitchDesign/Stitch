@@ -131,8 +131,8 @@ extension DocumentEncodable {
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
                                              forRecentlyDeleted: false) {
-            case .success(let _):
-                return
+            case .success:
+                continue
             case .failure(let error):
                 log("SelectedGraphItemsPasted error: could not get imported media URL.")
                 await MainActor.run {
