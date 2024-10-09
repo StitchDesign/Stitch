@@ -44,7 +44,7 @@ struct CommonEditingViewWrapper: View {
         }
     }
     
-    var isFieldInMultfieldInspectorInput: Bool {
+    var isFieldInMultifieldInspectorInputAndNotFlyout: Bool {
         isFieldInMultifieldInput && forPropertySidebar && !isForFlyout
     }
         
@@ -53,7 +53,7 @@ struct CommonEditingViewWrapper: View {
     // Maybe don't care whether it's inside the inspector or not?
     @MainActor
     var isPaddingFieldInsideInspector: Bool {
-        isFieldInMultfieldInspectorInput
+        isFieldInMultifieldInspectorInputAndNotFlyout
         && (layerInputObserver?.activeValue.getPadding.isDefined ?? false)
     }
     
@@ -61,16 +61,15 @@ struct CommonEditingViewWrapper: View {
     var fieldWidth: CGFloat {
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
-        } else if isFieldInMultfieldInspectorInput {
-            // is this accurate for a spacing-field in the inspector?
-            // ah but spacing is a dropdown
-            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
         } else if isForSpacingField {
             return SPACING_FIELD_WIDTH
         } else if nodeKind.getPatch == .soulver {
-            return SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH
-        }
-        else {
+            return SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH
+        } else if isFieldInMultifieldInspectorInputAndNotFlyout {
+            // is this accurate for a spacing-field in the inspector?
+            // ah but spacing is a dropdown
+            return INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH
+        } else {
             return NODE_INPUT_OR_OUTPUT_WIDTH
         }
     }
@@ -92,6 +91,7 @@ struct CommonEditingViewWrapper: View {
                 fieldWidth: fieldWidth,
                 fieldHasHeterogenousValues: fieldHasHeterogenousValues,
                 isSelectedInspectorRow: isSelectedInspectorRow,
+                isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
                 onTap: {
                     if !isForFlyout {
                         dispatch(FlyoutToggled(flyoutInput: layerInput,
@@ -114,7 +114,7 @@ struct CommonEditingViewWrapper: View {
                               isForFlyout: isForFlyout,
                               isForSpacingField: isForSpacingField,
                               isSelectedInspectorRow: isSelectedInspectorRow,
-                              isFieldInMultfieldInspectorInput: isFieldInMultfieldInspectorInput,
+                              isFieldInMultifieldInspectorInputAndNotFlyout: isFieldInMultifieldInspectorInputAndNotFlyout,
                               fieldWidth: fieldWidth)
         }
     }
