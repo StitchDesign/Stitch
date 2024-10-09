@@ -16,6 +16,8 @@ final class StitchStore: Sendable, StoreDelegate {
     
     var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
+    let clipboardEncoder = ClipboardEncoder()
+    let clipboardDelegate = ClipboardEncoderDelegate()
     
     var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
@@ -45,6 +47,8 @@ final class StitchStore: Sendable, StoreDelegate {
 
         self.environment.dirObserver.delegate = self
         self.environment.store = self
+        self.clipboardEncoder.delegate = self.clipboardDelegate
+        self.clipboardDelegate.store = self
     }
 
     // Gets the Redux-style state for legacy purposes
@@ -60,8 +64,25 @@ final class StitchStore: Sendable, StoreDelegate {
     }
 }
 
-extension StitchStore {
+final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
+    weak var store: StitchStore?
     
+    init() { }
+    
+    func createSchema(from graph: GraphState?) -> StitchClipboardContent {
+        fatalError()
+    }
+    
+    func willEncodeProject(schema: StitchClipboardContent) {}
+    
+    func updateOnUndo(schema: StitchClipboardContent) { }
+    
+    var storeDelegate: (any StoreDelegate)? {
+        self.store
+    }
+}
+
+extension StitchStore {
     @MainActor
     func displayError(error: StitchFileError) {
         self.alertState.stitchFileError = error

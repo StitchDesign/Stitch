@@ -516,10 +516,12 @@ extension GraphState {
                                    selectedNodeIds: selectedNodeIds)
 
         Task { [weak self] in
-            // Delete all existing items in clipboard
-            try? FileManager.default.removeItem(at: StitchClipboardContent.rootUrl)
+            guard let store = self?.storeDelegate else { return }
             
-            try? await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
+            // Delete all existing items in clipboard
+            try? await store.clipboardEncoder.removeContents()
+            
+            try? await store.clipboardEncoder.processGraphCopyAction(copiedComponentResult)
         }
     }
 }
@@ -554,6 +556,6 @@ extension DocumentEncodable {
         }
         
         let _ = await self.copyFiles(from: files,
-                                     newSaveLocation: self.saveLocation)
+                                     newSaveLocation: self.saveLocation.documentSaveLocation)
     }
 }
