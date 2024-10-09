@@ -16,6 +16,8 @@ final class StitchStore: Sendable, StoreDelegate {
     
     var allProjectUrls = [ProjectLoader]()
     let documentLoader = DocumentLoader()
+    
+    var systems: [StitchSystemType: StitchSystemViewModel] = [:]
 
     // Components are unqiue to a user, not to a project,
     // and loaded when app loads.

@@ -31,16 +31,14 @@ extension DocumentEncodable {
 extension GraphDecodedFiles {
     init?(importedFilesDir: StitchDocumentDirectory,
           graphMutation: (@Sendable @MainActor () -> ())? = nil) {
-        let migratedComponents = importedFilesDir.componentDirs.compactMap { componentUrl -> StitchComponentData? in
+        let migratedComponents = importedFilesDir.componentDirs.compactMap { componentUrl -> StitchComponent? in
             do {
-                guard let draft = try StitchComponent.migrateEncodedComponent(from: componentUrl.appendingComponentDraftPath()),
-                      let published = try StitchComponent.migrateEncodedComponent(from: componentUrl.appendingComponentPublishedPath()) else {
+                guard let component = try StitchComponent.migrateEncodedComponent(from: componentUrl) else {
                     fatalErrorIfDebug()
                     return nil
                 }
                 
-                return StitchComponentData(draft: draft,
-                                           published: published)
+                return component
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
                 return nil

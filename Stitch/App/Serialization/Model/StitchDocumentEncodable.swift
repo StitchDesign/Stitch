@@ -30,17 +30,20 @@ extension StitchDocumentMigratable {
     }
 }
 
+protocol StitchDocumentIdentifiable: CustomStringConvertible {
+    init()
+}
+
 /// Used for `StitchDocument` and `StitchComponent`
-protocol StitchDocumentEncodable: Codable, Identifiable {
+protocol StitchDocumentEncodable: Codable, Identifiable where ID: StitchDocumentIdentifiable {
     static var unzippedFileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
 
     init()
     var rootUrl: URL { get }
-    var id: UUID { get set }
+    var id: ID { get set }
     var name: String { get }
     
-    func getEncodingUrl(documentRootUrl: URL) -> URL
     static func getDocument(from url: URL) throws -> Self?
 }
 
@@ -51,21 +54,23 @@ extension StitchDocumentEncodable {
             URL.componentsDirPath
         ]
     }
-    
-    /// Initializer used for a new project, which creates file paths for contents like media.
-    func encodeDocumentContents(documentRootUrl: URL) async {
-        // Creates new paths with subfolders if relevant (i.e. components)
-        let folderUrl = self.getEncodingUrl(documentRootUrl: documentRootUrl)
-        
-        await self.encodeDocumentContents(folderUrl: folderUrl)
-    }
      
     /// Invoked when full path is known.
-    func encodeDocumentContents(folderUrl: URL) async {
+    func createUnzippedFileWrapper() {
+        let folderUrl = self.rootUrl
+        Self.createUnzippedFileWrapper(folderUrl: folderUrl)
+    }
+    
+    static func createUnzippedFileWrapper(folderUrl: URL) {
         // Only proceed if folder doesn't exist
         guard !FileManager.default.fileExists(atPath: folderUrl.path) else {
             return
         }
+
+        // Create directory if need be
+        let dir = folderUrl.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: dir,
+                                                 withIntermediateDirectories: true)
 
         do {
             // Create file wrapper which creates the .stitch folder
@@ -78,6 +83,25 @@ extension StitchDocumentEncodable {
 
     static var fileWrapper: FileWrapper {
         FileWrapper(directoryWithFileWrappers: [:])
+    }
+    
+    func encodeNewDocument(srcRootUrl: URL) throws {
+        let destRootUrl = self.rootUrl
+        
+        // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
+        try self.installDocument()
+        
+        Self.copySubfolders(srcRootUrl: srcRootUrl,
+                            destRootUrl: destRootUrl)
+    }
+    
+    static func copySubfolders(srcRootUrl: URL,
+                               destRootUrl: URL) {
+        StitchDocument.subfolderNames.forEach { subfolderName in
+            try? FileManager.default
+                .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
+                          to: destRootUrl.appendingPathComponent(subfolderName))
+        }
     }
 }
 
@@ -99,10 +123,10 @@ extension StitchDocumentDirectory {
 
 struct GraphDecodedFiles {
     let mediaFiles: [URL]
-    let components: [StitchComponentData]
+    let components: [StitchComponent]
 }
 
-extension [StitchComponentData] {
+extension [StitchComponent] {
     @MainActor
     func createComponentsDict(parentGraph: GraphState?) -> [UUID: StitchMasterComponent] {
         self.reduce(into: MasterComponentsDict()) { result, componentEntity in

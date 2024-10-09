@@ -126,63 +126,32 @@ extension DocumentEncodable {
     
     /// Copies files from another directory.
     func copyFiles(from directory: StitchDocumentDirectory,
-                   destUrl: URL) -> StitchDocumentDirectory {
+                   newSaveLocation: GraphSaveLocation) async {
         // Copy selected media
-        let newMediaUrls: [URL] = directory.importedMediaUrls.compactMap { mediaUrl in
+        for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
                                              forRecentlyDeleted: false) {
             case .success(let newMediaUrl):
-                return newMediaUrl
+                return
             case .failure(let error):
                 log("SelectedGraphItemsPasted error: could not get imported media URL.")
-                DispatchQueue.main.async {
+                await MainActor.run {
                     dispatch(DisplayError(error: error))
                 }
-                
-                return nil
             }
         }
         
-        let newComponentUrls = directory.componentDirs.compactMap { srcComponentUrl -> URL? in
-            guard let componentIdPath = srcComponentUrl.pathComponents.last else {
-                fatalErrorIfDebug()
-                return nil
-            }
-
-            let destComponentUrl = destUrl
-                .appendingComponentsPath()
-            // Append component ID
-                .appendingPathComponent(componentIdPath,
-                                        conformingTo: .stitchComponentUnzipped)
-            
-            let _ = srcComponentUrl.startAccessingSecurityScopedResource()
-            
-            let subfolders = [srcComponentUrl.appendingComponentDraftPath(),
-                              srcComponentUrl.appendingComponentPublishedPath()]
-            
+        for srcComponentUrl in directory.componentDirs {
             do {
-                // Silently fail directory creation if already exists
-                try FileManager.default.createDirectory(at: destComponentUrl,
-                                                         withIntermediateDirectories: true)
-                
-                subfolders.forEach { subfile in
-                    let name = subfile.lastPathComponent
-                    
-                    try? FileManager.default
-                        .copyItem(at: subfile,
-                                  to: destComponentUrl.appendingPathComponent(name))
+                guard var srcComponent = try await StitchComponent.openDocument(from: srcComponentUrl) else {
+                    fatalErrorIfDebug()
+                    return
                 }
-                
-                srcComponentUrl.stopAccessingSecurityScopedResource()
-                return destComponentUrl
+                srcComponent.saveLocation = newSaveLocation
+                try srcComponent.encodeNewDocument(srcRootUrl: srcComponentUrl)
             } catch {
-                // Usually means direcory already exists--valid when we copy an already-existing component
-                srcComponentUrl.stopAccessingSecurityScopedResource()
-                return nil
+                fatalErrorIfDebug(error.localizedDescription)
             }
         }
-        
-        return .init(importedMediaUrls: newMediaUrls,
-                     componentDirs: newComponentUrls)
     }
 }

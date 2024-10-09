@@ -14,9 +14,9 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     
-    var id: UUID { get set }
+    var documentId: CodableDocument.ID { get set }
     
-    var rootUrl: URL { get }
+    var saveLocation: GraphSaveLocation { get }
     
     @MainActor var delegate: DocumentDelegate? { get }
 }
@@ -24,7 +24,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
 protocol DocumentEncodableDelegate: AnyObject {
     associatedtype CodableDocument: Codable
     
-    @MainActor func createSchema(from graph: GraphState) -> CodableDocument
+    @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
     
     @MainActor func willEncodeProject(schema: CodableDocument)
 
@@ -34,36 +34,41 @@ protocol DocumentEncodableDelegate: AnyObject {
 }
 
 extension DocumentEncodable {
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
-                                              temporaryUrl: DocumentsURL? = nil,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                 oldSchema: oldSchema,
-                                                 newSchema: newSchema,
-                                                 undoEffectsData: nil)
+            
+            if let graph = graph {
+                graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                     oldSchema: oldSchema,
+                                                     newSchema: newSchema,
+                                                     undoEffectsData: nil)
+            }
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               undoEvents: [Action],
-                                              temporaryUrl: DocumentsURL? = nil,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            graph.storeDelegate?.saveUndoHistory(from: delegate,
-                                                 oldSchema: oldSchema,
-                                                 newSchema: newSchema,
-                                                 undoEvents: undoEvents,
-                                                 redoEvents: [])
+            if let graph = graph {
+                graph.storeDelegate?.saveUndoHistory(from: delegate,
+                                                     oldSchema: oldSchema,
+                                                     newSchema: newSchema,
+                                                     undoEvents: undoEvents,
+                                                     redoEvents: [])
+            }
         }
     }
     
-    @MainActor func encodeProjectInBackground(from graph: GraphState,
-                                              temporaryUrl: DocumentsURL? = nil,
+    @MainActor func encodeProjectInBackground(from graph: GraphState?,
+                                              temporaryUrl: URL? = nil,
                                               wasUndo: Bool = false,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
@@ -88,18 +93,22 @@ extension DocumentEncodable {
         }
     }
     
+    var rootUrl: URL {
+        self.saveLocation.getRootDirectoryUrl()
+    }
+    
     var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath(self.id)
+        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.documentId)")
     }
     
     func encodeProject(_ document: Self.CodableDocument,
-                       temporaryURL: DocumentsURL? = nil) async -> StitchFileVoidResult {
-        let rootDocUrl = temporaryURL?.url ?? self.rootUrl
+                       temporaryURL: URL? = nil) async -> StitchFileVoidResult {
+        let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         
         do {
             // Encode document
-            try DocumentLoader.encodeDocument(document,
-                                              to: rootDocUrl)
+            try Self.CodableDocument.encodeDocument(document,
+                                                    to: rootDocUrl)
             
             log("encodeProject success")
 
@@ -119,40 +128,3 @@ extension DocumentEncodable {
         }
     }
 }
-
-final actor DocumentEncoder: DocumentEncodable {
-    var id: UUID
-    
-    // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedDocument: StitchDocument
-    @MainActor weak var delegate: StitchDocumentViewModel?
-    
-    init(document: StitchDocument) {
-        self.id = document.graph.id
-        self.lastEncodedDocument = document
-    }
-}
-
-extension DocumentEncoder {
-    var rootUrl: URL {
-        StitchFileManager.documentsURL
-            .url
-            .appendingStitchProjectDataPath(self.id)
-    }
-}
-
-final actor ComponentEncoder: DocumentEncodable {
-    var id: UUID
-    let rootUrl: URL
-    
-    // Keeps track of last saved StitchDocument to disk
-    @MainActor var lastEncodedDocument: StitchComponent
-    @MainActor weak var delegate: StitchMasterComponent?
-    
-    init(component: StitchComponent) {
-        self.id = component.id
-        self.lastEncodedDocument = component
-        self.rootUrl = component.rootUrl
-    }
-}
-

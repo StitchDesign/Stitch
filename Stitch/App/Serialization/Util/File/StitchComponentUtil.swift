@@ -28,10 +28,7 @@ extension StitchComponent: StitchComponentable {
 
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
-        let dir = self.saveLocation.getRootDirectoryUrl(componentId: self.id)
-        
-        return self.isPublished ? dir.appendingComponentPublishedPath() :
-        dir.appendingComponentDraftPath()
+        self.saveLocation.getRootDirectoryUrl()
     }
 }
 
@@ -59,25 +56,37 @@ extension StitchComponentable {
 }
 
 extension GraphSaveLocation {
-    func getRootDirectoryUrl(componentId: UUID) -> URL {
+    func getRootDirectoryUrl() -> URL {
         switch self {
-        case .document(let graphDocumentPath):
-            let rootDocPath = StitchDocument.getRootUrl(from: graphDocumentPath.docId)
+        case .document(let id):
+            return StitchDocument.getRootUrl(from: id)
+        
+        case .localComponent(let graphDocumentPath):
+            let rootDocPath = GraphSaveLocation.document(graphDocumentPath.docId)
+                .getRootDirectoryUrl()
             
             return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
                     .appendingComponentsPath()
-                    .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
-                    .appendingComponentDraftPath()     // Always use draft path
+                    .appendingPathComponent(docId.uuidString,
+                                            conformingTo: .stitchComponentUnzipped)
             }
             
             // lastly append with direct parent folders
             .appendingComponentsPath()
-            .appendingPathComponent(componentId.uuidString, conformingTo: .stitchComponentUnzipped)
+            .appendingPathComponent(graphDocumentPath.componentId.uuidString,
+                                    conformingTo: .stitchComponentUnzipped)
             
-        case .userLibrary:
-            // TODO: come back to user library
-            fatalError()
+        case .systemComponent(let systemType, let componentId):
+            return GraphSaveLocation.system(systemType)
+                .getRootDirectoryUrl()
+                .appendingComponentsPath()
+                .appendingPathComponent(componentId.uuidString,
+                                        conformingTo: .stitchComponentUnzipped)
+        
+        case .system(let systemType):
+            return StitchFileManager.documentsURL
+                .appendingStitchSystemUnzippedPath("\(systemType)")
         }
     }
 }

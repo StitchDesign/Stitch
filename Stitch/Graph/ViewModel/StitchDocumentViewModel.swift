@@ -180,7 +180,7 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor
-    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil) {
+    func encodeProjectInBackground(temporaryURL: URL? = nil) {
         self.documentEncoder.encodeProjectInBackground(from: self.graph,
                                                        temporaryUrl: temporaryURL)
     }
@@ -273,7 +273,7 @@ extension StitchDocumentViewModel {
                        cameraSettings: self.cameraSettings)
     }
     
-    @MainActor func createSchema(from grpah: GraphState) -> StitchDocument {
+    @MainActor func createSchema(from graph: GraphState?) -> StitchDocument {
         self.createSchema()
     }
     

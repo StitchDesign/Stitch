@@ -37,7 +37,6 @@ struct NodeTagMenuButtonsView: View {
         self.graph.graphUI
     }
 
-     
     @MainActor
     var moreThanOneNodeSelected: Bool {
         graph.selectedCanvasItems.count > 1
@@ -100,6 +99,14 @@ struct NodeTagMenuButtonsView: View {
                 duplicateButton
                 visitGroupButton
                 ungroupGroupButton
+                
+                if FeatureFlags.USE_COMPONENTS {
+                    if let componentId = node.nodeType.componentNode?.componentId,
+                       let component = graph.components.get(componentId)?.componentData {
+                        componentLinkingButton(component: component)
+                    }
+                }
+                
 //                if FeatureFlags.USE_COMMENT_BOX_FLAG {
 //                    createCommentBoxButton
 //                }
@@ -310,6 +317,24 @@ struct NodeTagMenuButtonsView: View {
         nodeTagMenuButton(label: "Create Component") {
             Task { [weak graph] in
                 await graph?.documentDelegate?.createGroup(isComponent: true)
+            }
+        }
+    }
+    
+    @MainActor
+    func componentLinkingButton(component: StitchComponent) -> some View {
+        // Check if button is already linked
+        if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
+            return nodeTagMenuButton(label: "Unlink Component") {
+                fatalError()
+            }
+        } else {
+            return nodeTagMenuButton(label: "Save Component to Library") {
+                do {
+                    try store.saveComponentToUserLibrary(component)
+                } catch {
+                    fatalErrorIfDebug(error.localizedDescription)
+                }
             }
         }
     }

@@ -395,7 +395,7 @@ extension GraphState {
     }
     
     @MainActor
-    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil,
+    func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    wasUndo: Bool = false) {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
@@ -403,7 +403,7 @@ extension GraphState {
     }
     
     @MainActor
-    func encodeProjectInBackground(temporaryURL: DocumentsURL? = nil,
+    func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    undoEvents: [Action],
                                    wasUndo: Bool = false) {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,

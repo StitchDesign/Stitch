@@ -146,7 +146,7 @@ extension NodeTypeEntity {
 
 extension [NodeEntity] {
     @MainActor
-    func getComponentData(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponentData] {
+    func getComponentData(masterComponentsDict: [UUID : StitchMasterComponent]) -> [StitchComponent] {
         self
             .compactMap { $0.nodeTypeEntity.componentNodeEntity?.componentId }
             .toSet

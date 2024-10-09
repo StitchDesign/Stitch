@@ -134,16 +134,7 @@ extension StitchStore {
         let destRootUrl = document.rootUrl
         
         do {
-            // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-            try await self.documentLoader.installDocument(document: document)
-            try DocumentLoader.encodeDocument(document)
-            
-            StitchDocument.subfolderNames.forEach { subfolderName in
-                try? FileManager.default
-                    .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
-                              to: destRootUrl.appendingPathComponent(subfolderName))
-            }
-            
+            try document.encodeNewDocument(srcRootUrl: srcRootUrl)
             return .success
         } catch {
             log("copyExistingProject: error: \(error)")
