@@ -58,7 +58,7 @@ extension LayerNodeViewModel {
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
         
-        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
+        // log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
         
         // TODO: Which is better? To look at layer input or port value?
         // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
