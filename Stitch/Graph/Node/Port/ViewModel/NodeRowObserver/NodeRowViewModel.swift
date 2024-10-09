@@ -88,6 +88,8 @@ protocol NodeRowViewModel: AnyObject, Observable, Identifiable {
     
     var portColor: PortColor { get set }
     
+    var portViewData: PortViewType? { get set }
+    
     var nodeDelegate: NodeDelegate? { get set }
     
     var rowDelegate: RowObserver? { get set }
@@ -132,9 +134,12 @@ extension NodeRowViewModel {
                               unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                               unpackedPortIndex: unpackedPortIndex,
                               initialValue: rowDelegate.activeValue)
+        
+        self.portViewData = self.getPortViewData()
     }
     
-    var portViewData: PortViewType? {
+    /// Considerable perf cost from `ConnectedEdgeView`, so now a function.
+    func getPortViewData() -> PortViewType? {
         guard let canvasId = self.canvasItemDelegate?.id else {
             return nil
         }
@@ -230,6 +235,7 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
@@ -295,6 +301,7 @@ final class OutputNodeRowViewModel: NodeRowViewModel {
     var anchorPoint: CGPoint?
     var connectedCanvasItems: Set<CanvasItemId> = .init()
     var portColor: PortColor = .noEdge
+    var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: OutputNodeRowObserver?
     weak var canvasItemDelegate: CanvasItemViewModel?
