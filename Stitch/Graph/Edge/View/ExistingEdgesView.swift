@@ -11,7 +11,7 @@ import StitchSchemaKit
 struct GraphConnectedEdgesView: View {
     @Bindable var graph: GraphState
     @Bindable var graphUI: GraphUIState
-    let allInputs: [InputNodeRowViewModel]
+    let allConnectedInputs: [InputNodeRowViewModel]
     
     var animatingEdges: PossibleEdgeSet {
         graphUI.edgeEditingState?.possibleEdges ?? .init()
@@ -38,7 +38,7 @@ struct GraphConnectedEdgesView: View {
     }
     
     var body: some View {
-        ForEach(allInputs) { inputObserver in
+        ForEach(allConnectedInputs) { inputObserver in
             
             let possibleEdge = animatingEdges.first(where: { $0.edge.to == inputObserver.portViewData })
             
