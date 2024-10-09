@@ -15,7 +15,6 @@ final class StitchMasterComponent {
     }
     
     let id: UUID
-//    let saveLocation: GraphSaveLocation
     
     // Encoded copy of drafted component
     let localComponentEncoder: ComponentEncoder
@@ -26,63 +25,12 @@ final class StitchMasterComponent {
     init(componentData: StitchComponent,
          parentGraph: GraphState?) {
         self.id = componentData.id
-//        self.saveLocation = componentData.saveLocation
         self.localComponentEncoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
         if let parentGraph = parentGraph {
             self.initializeDelegate(parentGraph: parentGraph)
         }
-    }
-}
-
-// TODO: move
-extension [StitchSystemType: StitchSystemViewModel] {
-    func findSystem(forComponent id: UUID) -> StitchSystemViewModel? {
-        for system in self.values {
-            if system.componentEncoders.get(id) != nil {
-                return system
-            }
-        }
-        
-        return nil
-    }
-}
-
-extension StitchStore {
-    @MainActor func saveComponentToUserLibrary(_ component: StitchComponent) throws {
-        guard let userSystem = self.systems.get(.userLibrary) else {
-            let systemData = StitchSystem(id: .userLibrary,
-                                          name: StitchSystemType.userLibraryName)
-            
-            do {
-                try systemData.installDocument()
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
-            
-            let userSystem = StitchSystemViewModel(data: systemData,
-                                                   storeDelegate: self)
-            // Save system to store
-            self.systems.updateValue(userSystem, forKey: userSystem.data.id)
-            
-            try userSystem.data.saveComponentToSystem(component: component,
-                                                      systemType: .userLibrary)
-            return
-        }
-        
-        try userSystem.data.saveComponentToSystem(component: component,
-                                                  systemType: .userLibrary)
-    }
-}
-
-extension StitchSystem {
-    func saveComponentToSystem(component: StitchComponent,
-                               systemType: StitchSystemType) throws {
-        let srcUrl = component.rootUrl
-        var newComponent = component
-        newComponent.saveLocation = .systemComponent(systemType, component.id)
-        try newComponent.encodeNewDocument(srcRootUrl: srcUrl)
     }
 }
 
@@ -98,18 +46,6 @@ extension StitchMasterComponent {
         
         return nil
     }
-    
-//    @MainActor var publishedComponent: StitchComponent? {
-//        self.componentData.published
-//    }
-//       
-//    @MainActor var draftedComponent: StitchComponent {
-//        self.componentData.draft
-//    }
-    
-//    func update(from schema: StitchComponentData) {
-//        self.componentData = schema
-//    }
     
     @MainActor func createSchema(from graph: GraphState?) -> StitchComponent {
         guard let graph = graph?.createSchema() else {
