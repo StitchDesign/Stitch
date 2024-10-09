@@ -9,8 +9,7 @@ import SwiftUI
 
 final actor StitchSystemEncoder: DocumentEncodable {
     var documentId: StitchSystemType
-    let rootUrl: URL
-    let saveLocation: GraphSaveLocation
+    let saveLocation: EncoderDirectoryLocation
     
     @MainActor var lastEncodedDocument: StitchSystem
     @MainActor weak var delegate: StitchSystemViewModel?
@@ -19,8 +18,21 @@ final actor StitchSystemEncoder: DocumentEncodable {
          delegate: StitchSystemViewModel?) {
         self.documentId = system.id
         self.lastEncodedDocument = system
-        self.rootUrl = system.rootUrl
-        self.saveLocation = .system(system.id)
+        self.saveLocation = .document(.system(system.id))
         self.delegate = delegate
+    }
+}
+
+// TODO: move
+final actor ClipboardEncoder: DocumentEncodable {
+    var documentId: UUID = .init()
+    let saveLocation: EncoderDirectoryLocation
+    
+    @MainActor var lastEncodedDocument: StitchClipboardContent
+    @MainActor weak var delegate: ClipboardEncoderDelegate?
+    
+    init() {
+        self.lastEncodedDocument = .init()
+        self.saveLocation = .clipboard
     }
 }
