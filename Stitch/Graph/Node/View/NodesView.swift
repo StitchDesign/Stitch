@@ -65,10 +65,9 @@ struct NodesView: View {
                     //                        commentBoxes
                     nodesOnlyView(nodePageData: nodePageData)
                     
-                    if let component = graphUI.groupNodeFocused?.component {
-                        Rectangle()
-                            .foregroundColor(.red)
-                            .frame(height: 40)
+                    if let componentId = graphUI.groupNodeFocused?.component {
+                        ComponentNodesView(componentId: componentId,
+                                           graph: self.graph)
                     }
                 }
                 .background {
