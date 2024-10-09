@@ -392,9 +392,9 @@ extension StitchDocumentViewModel {
                                           groupNodeFocused: groupNodeFocused,
                                           selectedNodeIds: selectedNodeIds) { graph in
             let newPath = GraphDocumentPath(docId: self.id,
+                                            componentId: componentId,
                                             componentsPath: self.visibleGraph.saveLocation)
-            return StitchComponent(saveLocation: .document(newPath),
-                                   isPublished: false,
+            return StitchComponent(saveLocation: .localComponent(newPath),
                                    graph: graph)
         }
     }
@@ -429,7 +429,7 @@ extension GraphState {
         let selectedSidebarLayers = self.orderedSidebarLayers
             .getSubset(from: selectedNodes.map { $0.id }.toSet)
         
-        let copiedComponentData: [StitchComponentData] = selectedNodes
+        let copiedComponentData: [StitchComponent] = selectedNodes
             .getComponentData(masterComponentsDict: self.components)
         
         let newGraph = GraphEntity(id: componentId,
@@ -519,36 +519,41 @@ extension GraphState {
             // Delete all existing items in clipboard
             try? FileManager.default.removeItem(at: StitchClipboardContent.rootUrl)
             
-            await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
+            try? await self?.documentEncoderDelegate?.processGraphCopyAction(copiedComponentResult)
         }
     }
 }
 
 extension DocumentEncodable {
-    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async {
-        await self.encodeNewComponent(copiedComponentResult)
+    func processGraphCopyAction(_ copiedComponentResult: StitchComponentCopiedResult<StitchClipboardContent>) async throws {
+        // Create directories if it doesn't exist
+        let rootUrl = copiedComponentResult.component.rootUrl
+        let _ = try? StitchFileManager.createDirectories(at: rootUrl,
+                                                         withIntermediate: true)
+        
+        try await self.encodeNewComponent(copiedComponentResult)
         
         let pasteboard = UIPasteboard.general
-        pasteboard.url = copiedComponentResult.component.rootUrl.appendingVersionedSchemaPath()
+        pasteboard.url = rootUrl.appendingVersionedSchemaPath()
     }
     
-    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async where T: StitchComponentable {
-        let _ = await T.exportComponent(result.component)
+    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async throws where T: StitchComponentable {
+        result.component.createUnzippedFileWrapper()
+        
+        let _ = try T.encodeDocument(result.component)
 
         // Process imported media side effects
-        await self.importComponentFiles(result.copiedSubdirectoryFiles,
-                                        destUrl: result.component.rootUrl)
+        await self.importComponentFiles(result.copiedSubdirectoryFiles)
     }
     
     @MainActor
     func importComponentFiles(_ files: StitchDocumentDirectory,
-                              destUrl: URL,
                               graphMutation: (@Sendable @MainActor () -> ())? = nil) async {
         guard !files.isEmpty else {
             return
         }
         
         let _ = await self.copyFiles(from: files,
-                                     destUrl: destUrl)
+                                     newSaveLocation: self.saveLocation)
     }
 }

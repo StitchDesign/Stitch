@@ -84,7 +84,7 @@ extension StitchDocumentViewModel {
                     let data = try JSONEncoder().encode(recordedData)
                     
                     // need to create a directory
-                    let docsURL = StitchFileManager.documentsURL.url
+                    let docsURL = StitchFileManager.documentsURL
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
                     let filename = "\(self.graph.name)_\(self.graph.id)_\(Date().description).json"
                     let url = dataCollectionURL.appending(path: filename)

@@ -11,9 +11,14 @@ import StitchSchemaKit
 extension URL {
     static let componentsDirPath = "Components"
     
-    func appendingStitchProjectDataPath(_ documentId: UUID) -> URL {
+    func appendingStitchProjectDataPath(_ documentId: String) -> URL {
         self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
+    }
+    
+    func appendingStitchSystemUnzippedPath(_ documentId: String) -> URL {
+        self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
+                                    conformingTo: .stitchSystemUnzipped)
     }
 
     func appendingStitchMediaPath() -> URL {
@@ -22,14 +27,6 @@ extension URL {
     
     func appendingComponentsPath() -> URL {
         self.appendingPathComponent(Self.componentsDirPath)
-    }
-    
-    func appendingComponentDraftPath() -> URL {
-        self.appendingPathComponent("Draft")
-    }
-    
-    func appendingComponentPublishedPath() -> URL {
-        self.appendingPathComponent("Published")
     }
 
     func appendingDataJsonPath() -> URL {
