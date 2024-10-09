@@ -72,8 +72,7 @@ extension GraphState {
         }
         
         // Copy files before inserting component
-        if let encoderDelegate = encoderDelegate,
-           let encoder = encoder {
+        if let encoder = encoder {
             await encoder.importComponentFiles(copiedFiles)
         }
         

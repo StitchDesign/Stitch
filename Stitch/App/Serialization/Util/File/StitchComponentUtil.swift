@@ -55,6 +55,17 @@ extension StitchComponentable {
     }
 }
 
+extension EncoderDirectoryLocation {
+    func getRootDirectoryUrl() -> URL {
+        switch self {
+        case .document(let graphSaveLocation):
+            return graphSaveLocation.getRootDirectoryUrl()
+        case .clipboard:
+            return StitchClipboardContent.rootUrl
+        }
+    }
+}
+
 extension GraphSaveLocation {
     func getRootDirectoryUrl() -> URL {
         switch self {
