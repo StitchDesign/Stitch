@@ -62,11 +62,11 @@ struct SidebarListItemSwipeInnerView: View {
         
         switch selection {
         case .primary:
-            return .blue
+            return .brown
         case .secondary:
             return .green
         case .none:
-            return .yellow
+            return .blue
         }
         
 #endif
