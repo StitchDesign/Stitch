@@ -126,13 +126,13 @@ extension DocumentEncodable {
     
     /// Copies files from another directory.
     func copyFiles(from directory: StitchDocumentDirectory,
-                   newSaveLocation: GraphSaveLocation) async {
+                   newSaveLocation: GraphSaveLocation?) async {
         // Copy selected media
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
                                              forRecentlyDeleted: false) {
-            case .success(let newMediaUrl):
-                return
+            case .success:
+                continue
             case .failure(let error):
                 log("SelectedGraphItemsPasted error: could not get imported media URL.")
                 await MainActor.run {
@@ -147,11 +147,19 @@ extension DocumentEncodable {
                     fatalErrorIfDebug()
                     return
                 }
-                srcComponent.saveLocation = newSaveLocation
+                
+                if let newSaveLocation = newSaveLocation {
+                    srcComponent.saveLocation = newSaveLocation
+                }
+                
                 try srcComponent.encodeNewDocument(srcRootUrl: srcComponentUrl)
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
             }
         }
+    }
+    
+    func removeContents() throws {
+        try FileManager.default.removeItem(at: self.rootUrl)
     }
 }

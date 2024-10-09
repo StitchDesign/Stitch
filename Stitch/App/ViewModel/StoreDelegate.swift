@@ -11,6 +11,8 @@ protocol StoreDelegate: AnyObject {
     var documentLoader: DocumentLoader { get }
     
     var systems: [StitchSystemType: StitchSystemViewModel] { get }
+    
+    var clipboardEncoder: ClipboardEncoder { get }
 
     @MainActor
     func saveUndoHistory(undoActions: [Action],
