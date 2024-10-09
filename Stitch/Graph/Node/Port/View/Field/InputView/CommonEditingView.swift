@@ -30,7 +30,7 @@ let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WID
 // node field input/output width, per Figma Spec
 let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
 // the soulver node needs more width
-let SOUVLER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
+let SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
 
 let TEXT_FONT_DROPDOWN_WIDTH: CGFloat = 200
 //let SPACING_FIELD_WIDTH: CGFloat = 72
@@ -40,6 +40,7 @@ let PADDING_FIELD_WDITH: CGFloat = 36
 
 // TODO: alternatively, allow these fields to size themselves?
 let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44
+//let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = NODE_INPUT_OR_OUTPUT_WIDTH
 
 // Used for single-field portvalues like .number or .text,
 // and as a single editable field for a multifield portvalues like .size
@@ -62,7 +63,7 @@ struct CommonEditingView: View {
 
     // Only for field-types that use a "TextField + Dropdown" view,
     // e.g. `LayerDimension`
-    var choices: [String]? = nil // ["fill", "auto"]
+    var choices: [String]?  = nil // ["fill", "auto"]
 
     var isAdjustmentBarInUse: Bool = false
     var isLargeString: Bool = false
@@ -74,7 +75,7 @@ struct CommonEditingView: View {
     let isForSpacingField: Bool
     let isSelectedInspectorRow: Bool
     
-    let isFieldInMultfieldInspectorInput: Bool
+    let isFieldInMultifieldInspectorInputAndNotFlyout: Bool
     let fieldWidth: CGFloat
     
     var id: FieldCoordinate {
@@ -141,10 +142,14 @@ struct CommonEditingView: View {
         }
     }
     
+    var hasPicker: Bool {
+        choices.isDefined && !isFieldInMultifieldInspectorInputAndNotFlyout
+    }
+    
     var body: some View {
         Group {
             // Show dropdown
-            if let choices = choices, !isFieldInMultfieldInspectorInput {
+            if let choices = choices, self.hasPicker {
                 
                 HStack(spacing: 0) {
                     
@@ -275,7 +280,7 @@ struct CommonEditingView: View {
 #endif
         .modifier(InputViewBackground(
             show: true, // always show background for a focused input
-            hasDropdown: choices.isDefined,
+            hasDropdown: self.hasPicker,
             forPropertySidebar: forPropertySidebar,
             isSelectedInspectorRow: isSelectedInspectorRow,
             width: fieldWidth))
@@ -295,10 +300,11 @@ struct CommonEditingView: View {
             choices: choices,
             fieldWidth: fieldWidth,
             fieldHasHeterogenousValues: fieldHasHeterogenousValues,
-            isSelectedInspectorRow: isSelectedInspectorRow, 
+            isSelectedInspectorRow: isSelectedInspectorRow,
+            isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
             onTap: {
                 // Every multifield input in the inspector uses a flyout
-                if isFieldInMultfieldInspectorInput,
+                if isFieldInMultifieldInspectorInputAndNotFlyout,
                    let layerInput = inputField.layerInput,
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
@@ -350,18 +356,14 @@ struct InputViewBackground: ViewModifier {
     
     @Environment(\.appTheme) var theme
     
-//    var backgroundColor: Color
     let show: Bool // if hovering, selected or for sidebar
     let hasDropdown: Bool
     let forPropertySidebar: Bool
     let isSelectedInspectorRow: Bool
-    var width: CGFloat? // nil for a field inside a multifield input in the inspector
+    var width: CGFloat
     
-    var finalWidth: CGFloat? {
-        if let width = width {
-            return width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
-        }
-        return nil
+    var widthAdjustedForDropdown: CGFloat {
+        width - (hasDropdown ? (COMMON_EDITING_DROPDOWN_CHEVRON_WIDTH + 2) : 0.0)
     }
     
     var backgroundColor: Color {
@@ -378,12 +380,10 @@ struct InputViewBackground: ViewModifier {
         // When this field uses a dropdown,
         // we shrink the "typeable" area of the input,
         // so that typing never touches the dropdown's menu indicator.
-            .frame(width: finalWidth,
-                   alignment: .leading)
+            .frame(width: widthAdjustedForDropdown, alignment: .leading)
         
         // ... But we always use a full-width background for the focus/hover effect.
-            .frame(width: finalWidth,
-                   alignment: .leading)
+            .frame(width: width, alignment: .leading)
             .padding([.leading, .top, .bottom], 2)
             .background {
                 // Why is `RoundedRectangle.fill` so much lighter than `RoundedRectangle.background` ?

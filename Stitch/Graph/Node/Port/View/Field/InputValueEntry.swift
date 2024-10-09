@@ -266,7 +266,7 @@ struct InputValueView: View {
                     .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                           isForLayerGroup: false,
                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                          isForPinTo: false) ?? .init())
+                                          isForPinTo: false))
             
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
@@ -281,7 +281,7 @@ struct InputValueView: View {
                             .layerDropdownChoices(isForNode: rowObserverId.nodeId,
                                                   isForLayerGroup: isForLayerGroup,
                                                   isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                                  isForPinTo: true) ?? [])
+                                                  isForPinTo: true))
 
         case .anchorPopover(let anchor):
             AnchorPopoverView(input: rowObserverId,
