@@ -403,6 +403,9 @@ extension GraphState {
 extension CanvasItemViewModel {
     @MainActor
     func select() {
+        // Prevent render cycles if already selected
+        guard !self.isSelected else { return }
+        
         self.isSelected = true
         
         // Anytime we select a canvas item,
@@ -413,6 +416,8 @@ extension CanvasItemViewModel {
     
     @MainActor
     func deselect() {
+        // Prevent render cycles if already unselected
+        guard self.isSelected else { return }
         self.isSelected = false
     }
 }
