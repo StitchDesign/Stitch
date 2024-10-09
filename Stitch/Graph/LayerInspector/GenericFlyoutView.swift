@@ -71,7 +71,6 @@ struct GenericFlyoutView: View {
                     graph: graph,
                     viewModel: inputFieldViewModel,
                     layerInputObserver: layerInputObserver,
-                    layerInput: layerInput,
                     nodeId: nodeId,
                     fieldIndex: inputFieldViewModel.fieldIndex,
                     isMultifield: isMultifield,
@@ -99,6 +98,19 @@ extension Int {
     }
 }
 
+extension LayerInputObserver {
+    func layerInputType(_ fieldIndex: Int) -> LayerInputType {
+        switch self.observerMode {
+        case .packed(let x):
+            return .init(layerInput: self.port,
+                         portType: .packed)
+        case .unpacked(let x):
+            return .init(layerInput: self.port,
+                         portType: .unpacked(fieldIndex.asUnpackedPortType))
+        }
+    }
+}
+
 struct GenericFlyoutRowView: View {
     
     @Bindable var graph: GraphState
@@ -106,7 +118,7 @@ struct GenericFlyoutRowView: View {
         
     let layerInputObserver: LayerInputObserver
     
-    let layerInput: LayerInputPort
+    
     let nodeId: NodeId
     let fieldIndex: Int
     
@@ -114,26 +126,25 @@ struct GenericFlyoutRowView: View {
     let nodeKind: NodeKind
     
     @State var isHovered: Bool = false
-        
+    
+    var layerInput: LayerInputPort {
+        layerInputObserver.port
+    }
+    
     var layerInputType: LayerInputType {
-        .init(layerInput: layerInput,
-              portType: .unpacked(fieldIndex.asUnpackedPortType))
+        layerInputObserver.layerInputType(fieldIndex)
     }
     
     var layerInspectorRowId: LayerInspectorRowId {
         .layerInput(layerInputType)
     }
     
+    // Coordinate is used for editing, which needs to know the
     var coordinate: NodeIOCoordinate {
         .init(portType: .keyPath(layerInputType),
               nodeId: nodeId)
     }
-    
-    @MainActor
-    var isSelectedRow: Bool {
-        graph.graphUI.propertySidebar.selectedProperty == layerInspectorRowId
-    }
-    
+        
     @MainActor
     var canvasItemId: CanvasItemId? {
         // Is this particular unpacked-port already on the canvas?
@@ -141,12 +152,20 @@ struct GenericFlyoutRowView: View {
     }
     
     var body: some View {
+        
+        //        logInView("GenericFlyoutRowView: layerInputType: \(layerInputType)")
+        //        logInView("GenericFlyoutRowView: coordinate: \(coordinate)")
+        //        logInView("GenericFlyoutRowView: viewModel.rowViewModelDelegate?.activeValue: \(viewModel.rowViewModelDelegate?.activeValue)")
+        //        logInView("GenericFlyoutRowView: viewModel.fieldValue: \(viewModel.fieldValue)")
+        //
+        
         HStack {
             LayerInspectorRowButton(layerInputObserver: layerInputObserver,
                                     layerInspectorRowId: layerInspectorRowId,
                                     coordinate: coordinate,
                                     canvasItemId: canvasItemId,
-                                    isPortSelected: isSelectedRow,
+                                    // Always false for a flyout row
+                                    isPortSelected: false,
                                     isHovered: isHovered)
             
             InputValueEntry(graph: graph,
@@ -160,7 +179,8 @@ struct GenericFlyoutRowView: View {
                             propertyIsAlreadyOnGraph: canvasItemId.isDefined,
                             isFieldInMultifieldInput: isMultifield,
                             isForFlyout: true,
-                            isSelectedInspectorRow: isSelectedRow)
+                            // Always false for flyout row
+                            isSelectedInspectorRow: false)
         } // HStack
         .contentShape(Rectangle())
         .onHover(perform: { hovering in
