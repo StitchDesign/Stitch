@@ -16,7 +16,7 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     
     var documentId: CodableDocument.ID { get set }
     
-    var saveLocation: GraphSaveLocation { get }
+    var saveLocation: EncoderDirectoryLocation { get }
     
     @MainActor var delegate: DocumentDelegate? { get }
 }
