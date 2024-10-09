@@ -10,27 +10,22 @@ import StitchSchemaKit
 
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 final class StitchMasterComponent {
-    @MainActor var componentData: StitchComponentData {
-        .init(draft: self.draftedDocumentEncoder.lastEncodedDocument,
-              published: self.publishedDocumentEncoder.lastEncodedDocument)
+    @MainActor var componentData: StitchComponent {
+        self.localComponentEncoder.lastEncodedDocument
     }
     
     let id: UUID
-    let saveLocation: GraphSaveLocation
     
     // Encoded copy of drafted component
-    let draftedDocumentEncoder: ComponentEncoder
-    let publishedDocumentEncoder: ComponentEncoder
+    let localComponentEncoder: ComponentEncoder
     
     weak var parentGraph: GraphState?
     
     @MainActor
-    init(componentData: StitchComponentData,
+    init(componentData: StitchComponent,
          parentGraph: GraphState?) {
-        self.id = componentData.draft.id
-        self.saveLocation = componentData.draft.saveLocation
-        self.draftedDocumentEncoder = .init(component: componentData.draft)
-        self.publishedDocumentEncoder = .init(component: componentData.published)
+        self.id = componentData.id
+        self.localComponentEncoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
         if let parentGraph = parentGraph {
@@ -40,21 +35,25 @@ final class StitchMasterComponent {
 }
 
 extension StitchMasterComponent {
-    @MainActor var publishedComponent: StitchComponent? {
-        self.componentData.published
-    }
-       
-    @MainActor var draftedComponent: StitchComponent {
-        self.componentData.draft
+    var publishedDocumentEncoder: ComponentEncoder? {
+        guard let storeDelegate = self.storeDelegate else { return nil }
+        
+        for system in storeDelegate.systems.values {
+            if let componentEncoder = system.componentEncoders.get(self.id) {
+                return componentEncoder
+            }
+        }
+        
+        return nil
     }
     
-//    func update(from schema: StitchComponentData) {
-//        self.componentData = schema
-//    }
-    
-    @MainActor func createSchema(from graph: GraphState) -> StitchComponent {
-        let graph = graph.createSchema()
-        var component = self.componentData.draft
+    @MainActor func createSchema(from graph: GraphState?) -> StitchComponent {
+        guard let graph = graph?.createSchema() else {
+            fatalErrorIfDebug()
+            return .init()
+        }
+        
+        var component = self.componentData
         component.graph = graph
         return component
     }
@@ -69,8 +68,7 @@ extension StitchMasterComponent {
     
     @MainActor func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph
-        self.draftedDocumentEncoder.delegate = self
-        self.publishedDocumentEncoder.delegate = self
+        self.localComponentEncoder.delegate = self
     }
 }
 
@@ -78,7 +76,7 @@ typealias MasterComponentsDict = [UUID : StitchMasterComponent]
 
 extension MasterComponentsDict {
     @MainActor
-    mutating func sync(with data: [StitchComponentData],
+    mutating func sync(with data: [StitchComponent],
                        parentGraph: GraphState) {
         self = self.sync(with: data,
                   updateCallback: { viewModel, data in
@@ -93,8 +91,7 @@ extension MasterComponentsDict {
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     func willEncodeProject(schema: StitchComponent) {
         // Find all graphs using this component
-        guard !schema.isPublished,
-              let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.componentData.id) else {
+        guard let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.componentData.id) else {
             fatalErrorIfDebug()
             return
         }
