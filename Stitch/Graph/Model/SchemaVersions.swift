@@ -106,9 +106,21 @@ public typealias ComponentEntity = CurrentComponentEntity.ComponentEntity
 public typealias GraphEntity = CurrentGraphEntity.GraphEntity
 public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
 public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
+public typealias StitchSystem = CurrentStitchSystem.StitchSystem
+public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
+    
+    public var version: StitchSchemaVersion
+    
+    public init(version: StitchSchemaVersion) {
+        self.version = version
+    }
+}
+
+public struct StitchSystemVersion: StitchSchemaVersionType {
+    public typealias NewestVersionType = StitchSystem
     
     public var version: StitchSchemaVersion
     
@@ -180,6 +192,18 @@ extension StitchDocumentVersion {
             return StitchDocument_V24.StitchDocument.self
         case ._V25:
             return StitchDocument_V25.StitchDocument.self
+        }
+    }
+}
+
+extension StitchSystemVersion {
+    public static func getCodableType(from version: StitchSchemaVersion) -> any StitchVersionedCodable.Type {
+        switch version {
+        case ._V1, ._V2, ._V3, ._V4, ._V5, ._V6, ._V7, ._V8, ._V9, ._V10, ._V11, ._V12, ._V13, ._V14, ._V15, ._V16, ._V17, ._V18, ._V19, ._V20, ._V21, ._V22, ._V23, ._V24:
+            fatalError("No StitchSystem version expected before v24.")
+            
+        case ._V25:
+            return StitchSystem_V25.StitchSystem.self
         }
     }
 }

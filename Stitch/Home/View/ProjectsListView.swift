@@ -46,7 +46,9 @@ struct ProjectsListView: View {
         }
         .refreshable {
             log("ProjectsListView .refreshable")
-            store.directoryUpdated()
+            Task(priority: .high) { [weak store] in
+                await store?.directoryUpdated()
+            }
         }
     }
 }

@@ -16,10 +16,11 @@ final class StitchFileManager: FileManager, MiddlewareService {
     
     var syncStatus: iCloudSyncStatus = .offline
     
-    static var documentsURL: DocumentsURL {
-        switch getCloudDocumentURL() {
+    static var documentsURL: URL {
+        switch getCloudKitRootURL() {
         case .success(let documentsURL):
             return documentsURL
+                .appendingPathComponent("Documents")
         case .failure(let error):
             log("getDocumentsURL: failed to retrieve cloud documents: \(error)")
             return getLocalDocumentURL()
@@ -56,7 +57,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
 
     // Succeeds even in offline mode.
     // Fails just when iCloud Drive is disabled for Stitch or in general.
-    static func getCloudDocumentURL() -> StitchFileResult<DocumentsURL> {
+    static func getCloudKitRootURL() -> URLResult {
         #if LOCAL_ONLY
         return .failure(.cloudDocsContainerNotFound)
         #else
@@ -64,21 +65,21 @@ final class StitchFileManager: FileManager, MiddlewareService {
         guard let url = Self.default.url(forUbiquityContainerIdentifier: nil) else {
             return .failure(.cloudDocsContainerNotFound)
         }
-        return .success(DocumentsURL(url: url.appendingPathComponent("Documents")))
+        return .success(url)
         #endif
     }
     
-    static func getLocalDocumentURL() -> DocumentsURL {
+    static func getLocalDocumentURL() -> URL {
         let paths = Self.default.urls(for: .documentDirectory, in: .userDomainMask)
         let documentsDirectory: URL = paths[0]
-        return DocumentsURL(url: documentsDirectory)
+        return documentsDirectory
     }
 
     static func cloudEnabled() -> Bool {
         #if LOCAL_ONLY
         false
         #else
-        !Self.getCloudDocumentURL().isFailure
+        !Self.getCloudKitRootURL().isFailure
         #endif
     }
 
@@ -108,7 +109,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
     
     @MainActor
     static func removeStitchProject(url: URL,
-                                    projectId: ProjectId,
+                                    projectId: UUID,
                                     permanently: Bool = false) -> StitchFileVoidResult {
         
         // let _ = url.startAccessingSecurityScopedResource()
@@ -125,7 +126,7 @@ final class StitchFileManager: FileManager, MiddlewareService {
                                                      withIntermediateDirectories: true)
 
             let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
-                .appendingStitchProjectDataPath(projectId)
+                .appendingStitchProjectDataPath("\(projectId)")
             
             do {
                 // Save to recently deleted

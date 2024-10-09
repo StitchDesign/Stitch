@@ -234,18 +234,9 @@ extension StitchDocumentViewModel {
         let result = self.createNewStitchComponent(componentId: componentId,
                                                    groupNodeFocused: self.graphUI.groupNodeFocused,
                                                    selectedNodeIds: selectedNodeIds)
-        
-        var draftedResult = result
-        var publishedResult = result
-        
-        draftedResult.component.isPublished = false
-        publishedResult.component.isPublished = true
-        
-        let componentData = StitchComponentData(draft: draftedResult.component,
-                                                published: publishedResult.component)
-        
+ 
         // Create new published component matching draft
-        let masterComponent = StitchMasterComponent(componentData: componentData,
+        let masterComponent = StitchMasterComponent(componentData: result.component,
                                                     parentGraph: self.visibleGraph)
         
         assertInDebug(result.component.id == componentId)
@@ -253,11 +244,12 @@ extension StitchDocumentViewModel {
                                                  forKey: result.component.id)
         
         // Copy to disk and publish
-        await masterComponent.draftedDocumentEncoder
-            .encodeNewComponent(draftedResult)
-        
-        await masterComponent.publishedDocumentEncoder
-            .encodeNewComponent(publishedResult)
+        do {
+            try await masterComponent.localComponentEncoder
+                .encodeNewComponent(result)
+        } catch {
+            fatalErrorIfDebug(error.localizedDescription)
+        }
     }
 }
 

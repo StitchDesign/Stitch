@@ -18,11 +18,15 @@ enum StitchDocumentError: Error {
 extension UTType {
     static let stitchDocument: UTType = UTType(exportedAs: "app.stitchdesign.stitch.document")
     static let stitchProjectData: UTType = UTType(exportedAs: "app.stitchdesign.stitch.projectdata")
+    static let stitchSystemZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.system")
+    static let stitchSystemUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.systemdata")
     static let stitchComponentZipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.component")
     static let stitchComponentUnzipped: UTType = UTType(exportedAs: "app.stitchdesign.stitch.componentdata")
     static let stitchClipboard: UTType = UTType(exportedAs: "app.stitchdesign.stitch.clipboard")
     static let stitchJSON: UTType = UTType(exportedAs: "app.stitchdesign.stitch-json-data")
 }
+
+extension UUID: StitchDocumentIdentifiable { }
 
 extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     typealias VersionType = StitchDocumentVersion
@@ -32,6 +36,16 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     
     init() {
         self.init(nodes: [])
+    }
+    
+    static func getRootUrl(from documentId: Self.ID) -> URL {
+        StitchFileManager.documentsURL
+            .appendingStitchProjectDataPath("\(documentId)")
+    }
+    
+    /// URL location for document contents, i.e. imported media
+    var rootUrl: URL {
+        Self.getRootUrl(from: self.id)
     }
     
     public var id: ProjectId {
@@ -45,11 +59,6 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     
     var name: String {
         self.graph.name
-    }
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        // Don't append anything to parameter
-        documentRootUrl
     }
     
     init(nodes: [NodeEntity] = []) {
@@ -70,11 +79,11 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
 }
 
 extension StitchDocumentEncodable {
-    static func getUniqueInternalDirectoryName(from id: UUID) -> String {
+    static func getUniqueInternalDirectoryName(from id: String) -> String {
         Self.getFileName(projectId: id)
     }
     
-    static func getFileName(projectId: UUID) -> String {
+    static func getFileName(projectId: String) -> String {
         "stitch--\(projectId)"
     }
 
@@ -84,31 +93,16 @@ extension StitchDocumentEncodable {
         let fileExt = "\(versionString).json"
         return fileExt
     }
-    
-    static func getRootUrl(from documentId: UUID) -> URL {
-        StitchFileManager.documentsURL
-            .url
-            .appendingStitchProjectDataPath(documentId)
-    }
-
-    /// URL location for document contents, i.e. imported media
-    var rootUrl: URL {
-        Self.getRootUrl(from: self.id)
-    }
 }
 
 extension StitchComponent: StitchDocumentMigratable {
     typealias VersionType = StitchComonentVersion
     
     init() {
-        self.init(saveLocation: .document(.init(docId: .init(),
-                                                componentsPath: [])),
-                  isPublished: false,
+        self.init(saveLocation: .localComponent(.init(docId: .init(),
+                                                      componentId: .init(),
+                                                      componentsPath: [])),
                   graph: GraphEntity.createEmpty())
-    }
-    
-    func getEncodingUrl(documentRootUrl: URL) -> URL {
-        documentRootUrl
     }
 }
 
@@ -273,7 +267,7 @@ extension StitchDocumentMigratable {
             // log("openDocument: successfully moved item")
             
             // Encode document contents on import to save newest project data
-            try DocumentLoader.encodeDocument(codableDoc, to: codableDoc.rootUrl)
+            try Self.encodeDocument(codableDoc)
             // log("openDocument: successfully encoded item")
         }
         
