@@ -58,10 +58,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         self.stitch.kind.isLayer
     }
 
-    var position: CGPoint {
-        self.node.position
-    }
-    
     var body: some View {
         
         ZStack {
@@ -105,7 +101,6 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
         }
         .canvasItemPositionHandler(document: document,
                                    node: node,
-                                   position: position,
                                    zIndex: zIndex,
                                    usePositionHandler: usePositionHandler)
         .opacity(isHiddenDuringAnimation ? 0 : 1)
