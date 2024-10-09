@@ -50,12 +50,14 @@ struct NodesView: View {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
                 
-                let connectedInputs: [InputNodeRowViewModel] = self.graph
+                let allInputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
-                            .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
                     }
+                
+                let connectedInputs = allInputs
+                    .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
                 
                 // CommentBox needs to be affected by graph offset and zoom
                 // but can live somewhere else?
@@ -74,10 +76,10 @@ struct NodesView: View {
                     connectedEdgesView(allConnectedInputs: connectedInputs)
                 }
                 .overlay {
-                    edgeDrawingView(inputs: connectedInputs,
+                    edgeDrawingView(inputs: allInputs,
                                     graph: self.graph)
                     
-                    EdgeInputLabelsView(inputs: connectedInputs,
+                    EdgeInputLabelsView(inputs: allInputs,
                                         document: document,
                                         graphUI: document.graphUI)
                 }
