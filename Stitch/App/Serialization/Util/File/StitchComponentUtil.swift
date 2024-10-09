@@ -29,7 +29,6 @@ extension StitchComponent: StitchComponentable {
     /// Builds path given possible nesting inside other components
     var rootUrl: URL {
         self.saveLocation.getRootDirectoryUrl()
-            .appendingPathComponent(self.id.uuidString, conformingTo: .stitchComponentUnzipped)
     }
 }
 
@@ -69,16 +68,21 @@ extension GraphSaveLocation {
             return graphDocumentPath.componentsPath.reduce(into: rootDocPath) { url, docId in
                 url = url
                     .appendingComponentsPath()
-                    .appendingPathComponent(docId.uuidString, conformingTo: .stitchComponentUnzipped)
+                    .appendingPathComponent(docId.uuidString,
+                                            conformingTo: .stitchComponentUnzipped)
             }
             
             // lastly append with direct parent folders
             .appendingComponentsPath()
+            .appendingPathComponent(graphDocumentPath.componentId.uuidString,
+                                    conformingTo: .stitchComponentUnzipped)
             
-        case .systemComponent(let systemType):
+        case .systemComponent(let systemType, let componentId):
             return GraphSaveLocation.system(systemType)
                 .getRootDirectoryUrl()
                 .appendingComponentsPath()
+                .appendingPathComponent(componentId.uuidString,
+                                        conformingTo: .stitchComponentUnzipped)
         
         case .system(let systemType):
             return StitchFileManager.documentsURL

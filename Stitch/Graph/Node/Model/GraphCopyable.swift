@@ -392,6 +392,7 @@ extension StitchDocumentViewModel {
                                           groupNodeFocused: groupNodeFocused,
                                           selectedNodeIds: selectedNodeIds) { graph in
             let newPath = GraphDocumentPath(docId: self.id,
+                                            componentId: componentId,
                                             componentsPath: self.visibleGraph.saveLocation)
             return StitchComponent(saveLocation: .localComponent(newPath),
                                    graph: graph)
@@ -536,7 +537,9 @@ extension DocumentEncodable {
         pasteboard.url = rootUrl.appendingVersionedSchemaPath()
     }
     
-    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async throws where T: StitchComponentable {        
+    func encodeNewComponent<T>(_ result: StitchComponentCopiedResult<T>) async throws where T: StitchComponentable {
+        result.component.createUnzippedFileWrapper()
+        
         let _ = try T.encodeDocument(result.component)
 
         // Process imported media side effects

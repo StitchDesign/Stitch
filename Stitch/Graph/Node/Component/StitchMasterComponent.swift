@@ -81,7 +81,7 @@ extension StitchSystem {
                                systemType: StitchSystemType) throws {
         let srcUrl = component.rootUrl
         var newComponent = component
-        newComponent.saveLocation = .systemComponent(systemType)
+        newComponent.saveLocation = .systemComponent(systemType, component.id)
         try newComponent.encodeNewDocument(srcRootUrl: srcUrl)
     }
 }

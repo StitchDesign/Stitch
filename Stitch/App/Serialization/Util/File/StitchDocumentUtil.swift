@@ -100,6 +100,7 @@ extension StitchComponent: StitchDocumentMigratable {
     
     init() {
         self.init(saveLocation: .localComponent(.init(docId: .init(),
+                                                      componentId: .init(),
                                                       componentsPath: [])),
                   graph: GraphEntity.createEmpty())
     }

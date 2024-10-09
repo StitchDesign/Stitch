@@ -244,7 +244,7 @@ extension StitchDocumentViewModel {
                                                  forKey: result.component.id)
         
         // Create project directories
-        result.component.createUnzippedFileWrapper()
+//        result.component.createUnzippedFileWrapper()
         
         // Copy to disk and publish
         do {
