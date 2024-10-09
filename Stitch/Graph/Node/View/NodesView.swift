@@ -50,10 +50,11 @@ struct NodesView: View {
             if let nodePageData = visibleNodesViewModel
                 .getViewData(groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId) {
                 
-                let inputs: [InputNodeRowViewModel] = self.graph
+                let connectedInputs: [InputNodeRowViewModel] = self.graph
                     .getVisibleCanvasItems()
                     .flatMap { canvasItem -> [InputNodeRowViewModel] in
                         canvasItem.inputViewModels
+                            .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
                     }
                 
                 // CommentBox needs to be affected by graph offset and zoom
@@ -70,13 +71,13 @@ struct NodesView: View {
                 }
                 .background {
                     // Using background ensures edges z-index are always behind ndoes
-                    connectedEdgesView(allInputs: inputs)
+                    connectedEdgesView(allConnectedInputs: connectedInputs)
                 }
                 .overlay {
-                    edgeDrawingView(inputs: inputs,
+                    edgeDrawingView(inputs: connectedInputs,
                                     graph: self.graph)
                     
-                    EdgeInputLabelsView(inputs: inputs,
+                    EdgeInputLabelsView(inputs: connectedInputs,
                                         document: document,
                                         graphUI: document.graphUI)
                 }
@@ -98,10 +99,10 @@ struct NodesView: View {
     }
     
     @MainActor
-    func connectedEdgesView(allInputs: [InputNodeRowViewModel]) -> some View {
+    func connectedEdgesView(allConnectedInputs: [InputNodeRowViewModel]) -> some View {
         GraphConnectedEdgesView(graph: graph,
                                 graphUI: graphUI,
-                                allInputs: allInputs)
+                                allConnectedInputs: allConnectedInputs)
     }
     
     // TODO: better location for CommentBoxes?
