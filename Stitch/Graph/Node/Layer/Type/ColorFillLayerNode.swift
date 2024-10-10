@@ -23,9 +23,7 @@ struct ColorFillLayerNode: LayerNodeDefinition {
         .opacity,
         .zIndex
     ])
-        .union(.layerEffects)
-        .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.layerEffects).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
                         graph: GraphState,
