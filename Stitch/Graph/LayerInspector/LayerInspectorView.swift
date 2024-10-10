@@ -385,7 +385,7 @@ extension GraphState {
             guard let inspectedLayerId = self.sidebarSelectionState.inspectorFocusedLayers.focused.first?.id,
                   let node = self.getNodeViewModel(inspectedLayerId),
                   let layerNode = node.layerNode else {
-                log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
+                // log("LayerInspectorView: No inspector-focused layers?:  \(self.sidebarSelectionState.inspectorFocusedLayers)")
                 return nil
             }
             
