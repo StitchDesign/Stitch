@@ -171,9 +171,7 @@ extension ProjectAlertResponse {
         return AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: updatedAppState,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }
 
@@ -185,9 +183,7 @@ extension MiddlewareManagerResponse {
         AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: nil,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }
 
@@ -199,8 +195,6 @@ extension GraphResponse {
         AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: nil,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }

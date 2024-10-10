@@ -36,12 +36,15 @@ protocol DocumentEncodableDelegate: AnyObject {
 extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
+                                              enableUndo: Bool = true,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
+                                       enableUndo: enableUndo,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
             
-            if let graph = graph {
+            if enableUndo,
+               let graph = graph {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
                                                      newSchema: newSchema,
@@ -53,11 +56,14 @@ extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               undoEvents: [Action],
                                               temporaryUrl: URL? = nil,
+                                              enableUndo: Bool = true,
                                               wasUndo: Bool = false) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
+                                       enableUndo: enableUndo,
                                        wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            if let graph = graph {
+            if enableUndo,
+                let graph = graph {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
                                                      newSchema: newSchema,
@@ -69,6 +75,7 @@ extension DocumentEncodable {
     
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
+                                              enableUndo: Bool = true,
                                               wasUndo: Bool = false,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
@@ -83,12 +90,13 @@ extension DocumentEncodable {
         let oldSchema = self.lastEncodedDocument
         
         // Update undo only if the caller here wasn't undo itself--this breaks redo
-        if !wasUndo {
+        if !wasUndo && enableUndo {
             saveUndoHistory(delegate, oldSchema, newSchema)
         }
         
         Task(priority: .background) {
             await self.encodeProject(newSchema,
+                                     enableUndo: enableUndo,
                                      temporaryURL: temporaryUrl)
         }
     }
@@ -102,6 +110,7 @@ extension DocumentEncodable {
     }
     
     func encodeProject(_ document: Self.CodableDocument,
+                       enableUndo: Bool,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
         let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         
@@ -112,9 +121,11 @@ extension DocumentEncodable {
             
             log("encodeProject success")
 
-            // Save data for last encoded document
-            await MainActor.run { [weak self] in
-                self?.lastEncodedDocument = document
+            // Save data for last encoded document whenever there was undo history saved
+            if enableUndo {
+                await MainActor.run { [weak self] in
+                    self?.lastEncodedDocument = document
+                }
             }
             
             // Gets home screen to update with latest doc version
