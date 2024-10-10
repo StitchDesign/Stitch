@@ -258,6 +258,7 @@
 		E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */; };
 		E40B2F4E2CB86BC3005F5479 /* StitchAIPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */; };
 		E40B2F502CB86D21005F5479 /* StitchAIEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */; };
+		E40B2F532CB86E48005F5479 /* StitchAIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */; };
 		E40EBAD22BB5D8DD00CCA3C3 /* SwitchLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */; };
 		E4100F9E29B83E0C00656871 /* Resnet50.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */; };
 		E41140F12BB23054000C34E3 /* MapLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41140F02BB23054000C34E3 /* MapLayerNode.swift */; };
@@ -1176,6 +1177,7 @@
 		E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertPositionNode.swift; sourceTree = "<group>"; };
 		E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPromptView.swift; sourceTree = "<group>"; };
 		E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIEvents.swift; sourceTree = "<group>"; };
+		E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIConstants.swift; sourceTree = "<group>"; };
 		E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchLayerNode.swift; sourceTree = "<group>"; };
 		E4100F9B29B83E0900656871 /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
 		E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Resnet50.mlmodel; sourceTree = "<group>"; };
@@ -3739,6 +3741,7 @@
 				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
 				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
+				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
 			);
 			path = StitchAI;
 			sourceTree = "<group>";
@@ -5210,6 +5213,7 @@
 				EC3A5C49270D1C5800C369CB /* PulseEvaluationHelpers.swift in Sources */,
 				EC609DCC29354A7800BF60A5 /* PowerNode.swift in Sources */,
 				B55500FD2C1BC3AD0081C3F1 /* VisualEffectView.swift in Sources */,
+				E40B2F532CB86E48005F5479 /* StitchAIConstants.swift in Sources */,
 				EC609DC02935337E00BF60A5 /* Point3D.swift in Sources */,
 				EC1B41B626BCB1380016C2C2 /* NodeDeletedAction.swift in Sources */,
 				EC16EF6A27E1683B00B732EE /* SidebarListState.swift in Sources */,
