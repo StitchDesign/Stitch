@@ -91,7 +91,10 @@ struct NodesView: View {
                                                     currentNodePage: nodePageData,
                                                     groupNodeFocused: graphUI.groupNodeFocused))
             } else {
-                EmptyView()
+                Color.clear
+                    .onAppear {
+                        fatalErrorIfDebug()
+                    }
             }
         }
 //        .onChange(of: groupNodeFocused) {
