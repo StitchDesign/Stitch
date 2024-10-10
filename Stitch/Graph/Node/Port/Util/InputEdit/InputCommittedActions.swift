@@ -53,8 +53,9 @@ extension StitchStore {
         
         let newDocument = documentViewModel.createSchema()
         
-        self.saveUndoHistory(oldState: oldDocument,
-                             newState: newDocument)
+        // TODO: check input edit
+//        self.saveUndoHistory(oldState: oldDocument,
+//                             newState: newDocument)
     }
 }
 

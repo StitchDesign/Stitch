@@ -31,66 +31,18 @@ func _handleAction(store: StitchStore, action: Action) {
     let response: AppResponse = _getResponse(from: action,
                                              store: store)
 
-    // 1. Run side-effects
+    // Run side-effects
     response.sideEffectCoordinator?.runEffects(dispatch: dispatch)
 
-    // 2. Handle legacy update, if we had one.
+    // Handle legacy update, if we had one.
     // Updates StitchStore/GraphState in-place.
     if let legacyStateUpdate = response.state {
         handleLegacyStateUpdate(store: store,
                                 legacyState: legacyStateUpdate)
     }
 
-    // 3. Write undo history
-    Task { [weak store] in
-        guard let store = store else {
-            return
-        }
-        
-        await store.currentDocument?.documentEncoder
-            .writeUndoHistory(store: store,
-                              response: response)
-    }
-
-    // 4. Write current StitchStore/GraphState to disk.
+    // Write current StitchStore/GraphState to disk.
     if response.shouldPersist {
-        // self.currentGraph?.updateGraphData() // from runStitchDispatchMiddleware
         store.encodeCurrentProject()
-    }
-}
-
-extension DocumentEncoder {
-    func writeUndoHistory(store: StitchStore,
-                          response: AppResponse) async {
-
-        guard let documentState = store.currentDocument else {
-            // log("writeUndoHistory: did not have documentState")
-            return
-        }
-
-        // TODO: can we ever write undo-history if we had undo-events but shouldPersist=false ?
-        if StitchUndoManager.shouldUpdateUndo(
-            willPersist: response.shouldPersist,
-            containsUndoEvents: !(response.undoEvents ?? []).isEmpty) {
-
-            // log("handleResponse: will update undo history")
-            await MainActor.run { [weak store, weak documentState, weak self] in
-                guard let documentState = documentState,
-                      let encoder = self else {
-                    return
-                }
-                
-                let lastEncodedData = encoder.lastEncodedDocument
-                let nextData = documentState.createSchema()
-                
-                // Create copy of next state to be saved in the UndoManager stack
-                // If no reframe response but undo, we use StitchDocument
-                store?.environment.undoManager.prepareAndSaveUndoHistory(
-                    prevDocument: lastEncodedData,
-                    nextDocument: nextData,
-                    undoEvents: response.undoEvents,
-                    redoEvents: response.redoEvents)
-            }
-        }
     }
 }
