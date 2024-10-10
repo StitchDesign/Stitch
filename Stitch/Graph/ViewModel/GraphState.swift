@@ -256,7 +256,7 @@ extension GraphState {
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
         
         let graph = GraphEntity(id: self.projectId,
-                                name: documentDelegate.projectName,
+                                name: self.name,
                                 nodes: nodes,
                                 orderedSidebarLayers: self.orderedSidebarLayers,
                                 commentBoxes: commentBoxes)

@@ -36,7 +36,6 @@ extension DocumentEncodable {
         case .success(let urls):
             return urls
         case .failure(let error):
-            log("readImportedFilesDirectory: unable to read directory contents, creating a new imported files directory.\nerror:\(error)")
             return []
         }
     }

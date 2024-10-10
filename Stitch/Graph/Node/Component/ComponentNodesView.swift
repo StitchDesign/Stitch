@@ -24,29 +24,28 @@ struct ComponentNodesView: View {
             .componentEncoders.get(componentData.id)?.lastEncodedDocument
     }
     
-    func getSubheader(from componentData: StitchComponent) -> String {
-        switch componentData.saveLocation {
-        case .localComponent:
-            return "Local Component"
-            
-        case .systemComponent:
-            return "Linked Component"
-            
-        default:
-            fatalErrorIfDebug()
-            return ""
-        }
+    func getSubheader(isLinkedToSystem: Bool) -> String {
+        !isLinkedToSystem ? "Local Component" : "Linked Component"
     }
     
     var body: some View {
         if let componentData = componentData {
+            let linkedComponentData = self.getLinkedSystemComponent(from: componentData)
+            
             VStack {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(componentData.name)
                             .font(.headline)
-                        Text(self.getSubheader(from: componentData))
+                        Text(self.getSubheader(isLinkedToSystem: linkedComponentData != nil))
                             .font(.subheadline)
+                    }
+                    
+                    if let linkedComponentData = linkedComponentData {
+                        if linkedComponentData.componentHash != componentData.componentHash {
+                            Text("Non-Equal")
+                                .font(.callout)
+                        }
                     }
                     
                     Spacer()
