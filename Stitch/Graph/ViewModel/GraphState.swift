@@ -75,6 +75,7 @@ final class GraphState: Sendable {
     
     var networkRequestCompletedTimes = NetworkRequestLatestCompletedTimeDict()
     
+    var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
 
@@ -83,6 +84,7 @@ final class GraphState: Sendable {
          components: MasterComponentsDict,
          mediaFiles: [URL],
          saveLocation: [UUID]) {
+        self.lastEncodedDocument = schema
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name

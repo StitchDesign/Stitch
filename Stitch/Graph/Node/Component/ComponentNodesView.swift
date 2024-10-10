@@ -11,13 +11,17 @@ struct ComponentNodesView: View {
     let componentId: UUID
     let graph: GraphState
     
-    func getLocalComponentEncoder() -> ComponentEncoder? {
-        self.graph.documentEncoderDelegate as? ComponentEncoder
+    func getLocalComponent() -> StitchMasterComponent? {
+        guard let componentEncoder = self.graph.documentEncoderDelegate as? ComponentEncoder else {
+            return nil
+        }
+        
+        return componentEncoder.delegate
     }
 
-    func getLinkedComponentEncoder(from componentData: StitchComponent) -> ComponentEncoder? {
+    func getLinkedComponent(from componentData: StitchComponent) -> StitchMasterComponent? {
         graph.storeDelegate?.systems.findSystem(forComponent: componentData.id)?
-            .componentEncoders.get(componentData.id)
+            .components.get(componentData.id)
     }
     
     func getSubheader(isLinkedToSystem: Bool) -> String {
@@ -25,22 +29,22 @@ struct ComponentNodesView: View {
     }
     
     var body: some View {
-        if let localComponentEncoder = self.getLocalComponentEncoder() {
-            let localComponentData = localComponentEncoder.lastEncodedDocument
-            let linkedComponentEncoder = self.getLinkedComponentEncoder(from: localComponentData)
+        if let localComponent = self.getLocalComponent() {
+            let localComponentData = localComponent.lastEncodedDocument
+            let linkedComponent = self.getLinkedComponent(from: localComponentData)
             
             VStack {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(localComponentData.name)
                             .font(.headline)
-                        Text(self.getSubheader(isLinkedToSystem: linkedComponentEncoder != nil))
+                        Text(self.getSubheader(isLinkedToSystem: linkedComponent != nil))
                             .font(.subheadline)
                     }
                     
                     // Linked system component controls
-                    if let linkedComponentEncoder = linkedComponentEncoder {
-                        let linkedComponentData = linkedComponentEncoder.lastEncodedDocument
+                    if let linkedComponent = linkedComponent {
+                        let linkedComponentData = linkedComponent.lastEncodedDocument
 
                         Button {
                             let oldComponentUrl = localComponentData.rootUrl
@@ -48,12 +52,12 @@ struct ComponentNodesView: View {
                             var localComponentData = localComponentData
                             localComponentData.graph.id = .init()
                             
-                            Task(priority: .high) { [weak graph, weak localComponentEncoder] in
+                            Task(priority: .high) { [weak graph, weak localComponent] in
                                 // Need to remove old draft component files
                                 try? FileManager.default.removeItem(at: oldComponentUrl)
                                 
                                 await graph?.update(from: localComponentData.graph)
-                                localComponentEncoder?.encodeProjectInBackground(from: graph)
+                                localComponent?.encoder.encodeProjectInBackground(from: graph)
                             }
                             
                         } label: {
@@ -61,7 +65,7 @@ struct ComponentNodesView: View {
                         }
     
                         if linkedComponentData.componentHash != localComponentData.componentHash {
-                            ComponentVersionControlButtons(linkedEncoder: linkedComponentEncoder,
+                            ComponentVersionControlButtons(linkedComponent: linkedComponent,
                                                            componentGraph: graph)
                         }
                     }
@@ -89,7 +93,7 @@ struct ComponentNodesView: View {
 }
 
 struct ComponentVersionControlButtons: View {
-    let linkedEncoder: ComponentEncoder
+    let linkedComponent: StitchMasterComponent
     let componentGraph: GraphState
     
     var body: some View {
@@ -97,11 +101,11 @@ struct ComponentVersionControlButtons: View {
             // Overwrite local changes to linked component
             Button {
                 let newSchema = componentGraph.createSchema()
-                var newComponentSchema = linkedEncoder.lastEncodedDocument
+                var newComponentSchema = linkedComponent.lastEncodedDocument
                 newComponentSchema.graph = newSchema
                 
-                Task { [weak linkedEncoder] in
-                    await linkedEncoder?.encodeProject(newComponentSchema)
+                Task { [weak linkedComponent] in
+                    await linkedComponent?.encoder.encodeProject(newComponentSchema)
                 }
 
             } label: {
@@ -110,7 +114,7 @@ struct ComponentVersionControlButtons: View {
 
             // Reset local changes
             Button {
-                let linkedComponent = linkedEncoder.lastEncodedDocument
+                let linkedComponent = linkedComponent.lastEncodedDocument
                 
                 Task(priority: .high) { [weak componentGraph] in
                     await componentGraph?.update(from: linkedComponent.graph)

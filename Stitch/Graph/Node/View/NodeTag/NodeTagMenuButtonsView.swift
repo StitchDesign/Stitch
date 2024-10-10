@@ -102,7 +102,7 @@ struct NodeTagMenuButtonsView: View {
                 
                 if FeatureFlags.USE_COMPONENTS {
                     if let componentId = node.nodeType.componentNode?.componentId,
-                       let component = graph.components.get(componentId)?.componentData {
+                       let component = graph.components.get(componentId)?.lastEncodedDocument {
                         componentLinkingButton(component: component)
                     }
                 }

@@ -85,10 +85,10 @@ extension NodeViewModelType {
             
             let component = await StitchComponentViewModel(
                 componentId: componentEntity.componentId,
-                componentEntity: masterComponent.componentData,
+                componentEntity: masterComponent.lastEncodedDocument,
                 canvas: componentCanvas,
                 parentGraphPath: parentGraphPath,
-                componentEncoder: masterComponent.localComponentEncoder)
+                componentEncoder: masterComponent.encoder)
             self = .component(component)
         }
     }

@@ -253,7 +253,7 @@ extension StitchDocumentViewModel {
         
         // Copy to disk and publish
         do {
-            try await masterComponent.localComponentEncoder
+            try await masterComponent.encoder
                 .encodeNewComponent(result)
         } catch {
             fatalErrorIfDebug(error.localizedDescription)
