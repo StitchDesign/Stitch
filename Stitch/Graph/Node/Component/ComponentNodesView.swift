@@ -43,10 +43,15 @@ struct ComponentNodesView: View {
                         let linkedComponentData = linkedComponentEncoder.lastEncodedDocument
 
                         Button {
+                            let oldComponentUrl = localComponentData.rootUrl
+                            
                             var localComponentData = localComponentData
                             localComponentData.graph.id = .init()
                             
                             Task(priority: .high) { [weak graph, weak localComponentEncoder] in
+                                // Need to remove old draft component files
+                                try? FileManager.default.removeItem(at: oldComponentUrl)
+                                
                                 await graph?.update(from: localComponentData.graph)
                                 localComponentEncoder?.encodeProjectInBackground(from: graph)
                             }
