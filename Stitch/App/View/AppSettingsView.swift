@@ -278,6 +278,10 @@ struct AppSettingsView: View {
                     .disableAutocorrection(true)
                     .autocapitalization(.none)
                     .textContentType(.none)
+                    .onChange(of: openAIAPIKey) {
+                        UserDefaults.standard.set(openAIAPIKey, forKey: OPENAI_API_KEY_NAME)
+                    }
+                
             }
             StitchCaptionView("Enter your OpenAI API Key to enable AI features")
         }

@@ -216,3 +216,20 @@ extension StitchDocumentViewModel {
 
     
 }
+
+
+struct OpenAIAPIKeyChanged: StitchStoreEvent {
+    
+    let apiKey: String
+    
+    func handle(store: StitchStore) -> ReframeResponse<NoState> {
+        log("OpenAIAPIKeySet")
+        
+        // Also update the UserDefaults:
+        UserDefaults.standard.setValue(
+            apiKey,
+            forKey: OPENAI_API_KEY_NAME)
+        
+        return .noChange
+    }
+}
