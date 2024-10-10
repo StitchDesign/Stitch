@@ -1,6 +1,6 @@
 //
-//  PrototypeActions.swift
-//  prototype
+//  StitchActions.swift
+//  Stitch
 //
 //  Created by Christian J Clampitt on 7/30/21.
 //

@@ -1,6 +1,6 @@
 //
 //  SampleRangeNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 6/21/21.
 //

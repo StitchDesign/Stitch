@@ -1,6 +1,6 @@
 //
 //  Patch.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 2/3/21.
 //
