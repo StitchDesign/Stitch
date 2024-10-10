@@ -102,34 +102,32 @@ extension StitchStore {
     
     /// Saves undo history using actions. Used for project deletion.
     @MainActor 
-    func saveUndoHistory(undoActions: [Action],
-                         redoActions: [Action]) {
+    func saveProjectDeletionUndoHistory(undoActions: [Action],
+                                        redoActions: [Action]) {
         let undoEvents: [@MainActor () -> ()] = undoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
         let redoEvents: [@MainActor () -> ()] = redoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
-        self.saveUndoHistory(undoEvents: undoEvents,
-                             redoEvents: redoEvents)
+        self.saveProjectDeletionUndoHistory(undoEvents: undoEvents,
+                                            redoEvents: redoEvents)
     }
     
     /// Saves undo history using actions. Used for project deletion.
     @MainActor
-    func saveUndoHistory(undoEvents: [@MainActor () -> ()],
-                         redoEvents: [@MainActor () -> ()]) {
+    func saveProjectDeletionUndoHistory(undoEvents: [@MainActor () -> ()],
+                                        redoEvents: [@MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
-
+        
         undoManager.registerUndo(withTarget: self) { _ in
-//            self.undoManagerInvoked()
-
             undoEvents.forEach { undoEvent in
                 undoEvent()
             }
-
+            
             // Make redo effects the opposite of undo effects
             let onRedoUndoEvents = redoEvents
             let onRedoRedoEvents = undoEvents
-
+            
             // Register the redo action
-            self.saveUndoHistory(undoEvents: onRedoUndoEvents,
-                                 redoEvents: onRedoRedoEvents)
+            self.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
+                                                redoEvents: onRedoRedoEvents)
         }
     }
 }
