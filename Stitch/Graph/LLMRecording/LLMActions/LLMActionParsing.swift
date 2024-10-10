@@ -9,6 +9,10 @@ import Foundation
 import SwiftyJSON
 import StitchSchemaKit
 
+
+
+let STITCH_AI_SF_SYMBOL = "lasso.badge.sparkles"
+
 // MARK: turning a JSON of LLM Actions into state changes in the app
 
 let LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL = "rectangle.and.pencil.and.ellipsis"
@@ -45,6 +49,39 @@ extension StitchDocumentViewModel {
             fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")
         }
     }
+    
+    @MainActor func openedStitchAIModal() {
+        self.stitchAI.promptEntryState.showModal = true
+        self.graphUI.reduxFocusedField = .stitchAIPromptModal
+    }
+
+    // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
+    @MainActor func closedStitchAIModal() {
+        let jsonEntry = self.llmRecording.jsonEntryState.jsonEntry
+        
+        self.llmRecording.jsonEntryState.showModal = false
+        self.llmRecording.jsonEntryState.jsonEntry = ""
+        self.graphUI.reduxFocusedField = nil
+        
+        guard !jsonEntry.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            log("LLMActionsJSONEntryModalClosed: json entry")
+            return
+        }
+        
+        do {
+            let json = JSON(parseJSON: jsonEntry) // returns null json if parsing fails
+            let data = try json.rawData()
+            let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
+                                                               from: data)
+            actions.forEach { self.handleLLMAction($0) }
+            self.llmRecording.jsonEntryState = .init() // reset
+            self.visibleGraph.encodeProjectInBackground()
+        } catch {
+            log("LLMActionsJSONEntryModalClosed: Error: \(error)")
+            fatalErrorIfDebug("LLMActionsJSONEntryModalClosed: could not retrieve")
+        }
+    }
+
 }
 
 extension StitchDocumentViewModel {

@@ -9,6 +9,16 @@ import Foundation
 
 let LLM_COLLECTION_DIRECTORY = "StitchDataCollection"
 
+
+struct StitchAIState: Equatable {
+    var promptEntryState = StitchAIPromptState()
+}
+
+struct StitchAIPromptState: Equatable {
+    var showModal = false
+    var prompt: String = ""
+}
+
 struct LLMRecordingState: Equatable {
     
     // Are we actively recording redux-actions which we then turn into LLM-actions?
