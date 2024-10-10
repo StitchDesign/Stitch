@@ -47,8 +47,8 @@ extension StitchStore {
             }
             // self.alertState.deletedProjectId = projectId
 
-            self.saveUndoHistory(undoActions: undoEvents,
-                                 redoActions: redoEvents)
+            self.saveProjectDeletionUndoHistory(undoActions: undoEvents,
+                                                redoActions: redoEvents)
 
         case .failure(let error):
             log("StitchStore: deleteProject: failure")

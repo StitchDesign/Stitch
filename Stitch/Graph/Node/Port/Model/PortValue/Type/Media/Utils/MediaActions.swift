@@ -180,8 +180,7 @@ extension GraphState {
     /// Takes some imported media and applies it directly to the input of some node.
     @MainActor
     func mediaCopiedToExistingNode(nodeImportPayload: NodeMediaImportPayload,
-                                   newURL: URL,
-                                   store: StitchStore) {
+                                   newURL: URL) {
         let mediaKey = newURL.mediaKey
         let destinationInputs = nodeImportPayload.destinationInputs
         
@@ -212,9 +211,8 @@ extension GraphState {
             }
             
             // Create async task to load media
-            Task { [weak self, weak store] in
+            Task { [weak self] in
                 guard let graph = self,
-                      let store = store,
                       let newMedia = await MediaEvalOpCoordinator
                     .createMediaValue(from: mediaKey,
                                       isComputedCopy: false,
@@ -224,18 +222,18 @@ extension GraphState {
                     return
                 }
                 
-                store.inputEditCommitted(input: destinationInput,
+                graph.inputEditCommitted(input: destinationInput,
                                          value: newMedia.portValue)
                 
                 // Persist project once media has loaded
-                store.encodeCurrentProject()
+                graph.encodeProjectInBackground()
             }
 
             // Nil value for now while media loads
             let portValue = PortValue.asyncMedia(nil)
 
-            store.inputEditCommitted(input: destinationInput,
-                                     value: portValue)
+            self.inputEditCommitted(input: destinationInput,
+                                    value: portValue)
             
         } // for destinationInput in ...        
     }

@@ -15,12 +15,8 @@ protocol StoreDelegate: AnyObject {
     var clipboardEncoder: ClipboardEncoder { get }
 
     @MainActor
-    func saveUndoHistory(undoActions: [Action],
-                         redoActions: [Action])
-    
-    @MainActor
-    func saveUndoHistory(undoEvents: [@MainActor () -> ()],
-                         redoEvents: [@MainActor () -> ()])
+    func saveProjectDeletionUndoHistory(undoActions: [Action],
+                                        redoActions: [Action])
     
     @MainActor func undoManagerInvoked(newState: StitchDocument?)
 
