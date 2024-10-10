@@ -11,15 +11,11 @@ struct ComponentNodesView: View {
     let componentId: UUID
     let graph: GraphState
     
-    var componentData: StitchComponent? {
-        guard let componentDelegate = self.graph.documentEncoderDelegate as? ComponentEncoder else {
-            return nil
-        }
-        
-        return componentDelegate.lastEncodedDocument
+    func getLocalComponentEncoder() -> ComponentEncoder? {
+        self.graph.documentEncoderDelegate as? ComponentEncoder
     }
 
-    func getLinkedSystemComponentEncoder(from componentData: StitchComponent) -> ComponentEncoder? {
+    func getLinkedComponentEncoder(from componentData: StitchComponent) -> ComponentEncoder? {
         graph.storeDelegate?.systems.findSystem(forComponent: componentData.id)?
             .componentEncoders.get(componentData.id)
     }
@@ -29,31 +25,48 @@ struct ComponentNodesView: View {
     }
     
     var body: some View {
-        if let componentData = componentData {
-            let linkedComponentEncoder = self.getLinkedSystemComponentEncoder(from: componentData)
+        if let localComponentEncoder = self.getLocalComponentEncoder() {
+            let localComponentData = localComponentEncoder.lastEncodedDocument
+            let linkedComponentEncoder = self.getLinkedComponentEncoder(from: localComponentData)
             
             VStack {
                 HStack {
                     VStack(alignment: .leading) {
-                        Text(componentData.name)
+                        Text(localComponentData.name)
                             .font(.headline)
                         Text(self.getSubheader(isLinkedToSystem: linkedComponentEncoder != nil))
                             .font(.subheadline)
                     }
                     
-                    
+                    // Linked system component controls
                     if let linkedComponentEncoder = linkedComponentEncoder {
                         let linkedComponentData = linkedComponentEncoder.lastEncodedDocument
 
                         Button {
+                            var localComponentData = localComponentData
+                            localComponentData.graph.id = .init()
+                            
+                            Task(priority: .high) { [weak graph, weak localComponentEncoder] in
+                                await graph?.update(from: localComponentData.graph)
+                                localComponentEncoder?.encodeProjectInBackground(from: graph)
+                            }
                             
                         } label: {
                             Text("Unlink")
                         }
     
-                        if linkedComponentData.componentHash != componentData.componentHash {
+                        if linkedComponentData.componentHash != localComponentData.componentHash {
                             ComponentVersionControlButtons(linkedEncoder: linkedComponentEncoder,
                                                            componentGraph: graph)
+                        }
+                    }
+                    
+                    // Unlinked component
+                    else {
+                        Button {
+                            try? graph.storeDelegate?.saveComponentToUserLibrary(localComponentData)
+                        } label: {
+                            Text("Link to User Library")
                         }
                     }
                     
