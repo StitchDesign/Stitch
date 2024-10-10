@@ -103,7 +103,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
         }
     }
     
-    func updateOnUndo(schema: StitchComponent) {
+    func update(from schema: StitchComponent) async {
         guard let document = self.parentGraph?.documentDelegate else {
             return
         }
@@ -116,9 +116,7 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
                 continue
             }
             
-            Task(priority: .high) { [weak component] in
-                await component?.graph.update(from: schema.graph)
-            }
+            await component.graph.update(from: schema.graph)
         }
     }
     

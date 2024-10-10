@@ -50,5 +50,8 @@ extension StitchSystemViewModel: DocumentEncodableDelegate {
     
     @MainActor func willEncodeProject(schema: StitchSystem) { }
 
-    func updateOnUndo(schema: StitchSystem) { }
+    func update(from schema: StitchSystem) async {
+        // TODO: come back here
+        fatalError()
+    }
 }
