@@ -74,13 +74,13 @@ extension GraphGestureDelegate {
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldReceive event: UIEvent) -> Bool {
-        log("GraphGestureDelegate: gestureRecognizer: should receive event")
+        // log("GraphGestureDelegate: gestureRecognizer: should receive event")
 
         if event.modifierFlags.contains(.command) {
-            log("GraphGestureDelegate: CMD DOWN")
+            // log("GraphGestureDelegate: CMD DOWN")
             self.commandHeldDown = true
         } else {
-            log("GraphGestureDelegate: CMD NOT DOWN")
+            // log("GraphGestureDelegate: CMD NOT DOWN")
             self.commandHeldDown = false
         }
         

@@ -103,7 +103,7 @@ extension LayerNodeViewModel {
         // Changing the orientation of a parent (layer group) updates fields on the children
         let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
         
-        log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
+        // log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
@@ -496,7 +496,6 @@ extension LayerNodeViewModel {
 
 extension LayerInputObserver {
     @MainActor
-//    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
     func setBlockStatus(_ keypathPortType: LayerInputType, // e.g. minSize packed input, or min
                         // blocked = add to blocked-set, else remove
                         isBlocked: Bool) {
@@ -506,10 +505,10 @@ extension LayerInputObserver {
         if isBlocked {
             
             if allChanged {
-                log("LayerInputObserver: setBlockStatus: will block all")
+                // log("LayerInputObserver: setBlockStatus: will block all")
                 self.blockedFields = .init([.packed])
             } else {
-                log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
+                // log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
                 self.blockedFields.insert(keypathPortType.portType)
             }
             
@@ -517,7 +516,7 @@ extension LayerInputObserver {
             if allChanged {
                 self.blockedFields = .init()
             } else {
-                log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
+                // log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
                 self.blockedFields.remove(keypathPortType.portType)
             }
         }
