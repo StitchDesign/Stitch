@@ -78,7 +78,14 @@ struct ComponentVersionControlButtons: View {
         HStack {
             // Overwrite local changes to linked component
             Button {
-                linkedEncoder.encodeProjectInBackground(from: componentGraph)
+                let newSchema = componentGraph.createSchema()
+                var newComponentSchema = linkedEncoder.lastEncodedDocument
+                newComponentSchema.graph = newSchema
+                
+                Task { [weak linkedEncoder] in
+                    await linkedEncoder?.encodeProject(newComponentSchema)
+                }
+
             } label: {
                 Text("Publish")
             }
