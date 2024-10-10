@@ -118,8 +118,9 @@ extension InputNodeRowObserver {
                              isCommitting: isCommitting)
         }
         
-        // TODO: fix to only persist once, at end of potential batch update
-        graph.encodeProjectInBackground(enableUndo: false)
+        if isCommitting {
+            graph.encodeProjectInBackground()
+        }
     }
 }
 
