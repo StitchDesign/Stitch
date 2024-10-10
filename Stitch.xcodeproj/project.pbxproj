@@ -256,6 +256,7 @@
 		B5FEE4C828AEF11100B50BCD /* AVCaptureUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE4C728AEF11100B50BCD /* AVCaptureUtil.swift */; };
 		B5FEE4CA28AEF88100B50BCD /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5FEE4C928AEF88100B50BCD /* AppSettingsView.swift */; };
 		E4085DC629BF899C0057AAAF /* ConvertPositionNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */; };
+		E40B2F4E2CB86BC3005F5479 /* StitchAIPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */; };
 		E40EBAD22BB5D8DD00CCA3C3 /* SwitchLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */; };
 		E4100F9E29B83E0C00656871 /* Resnet50.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */; };
 		E41140F12BB23054000C34E3 /* MapLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E41140F02BB23054000C34E3 /* MapLayerNode.swift */; };
@@ -1172,6 +1173,7 @@
 		B5FEE4C728AEF11100B50BCD /* AVCaptureUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCaptureUtil.swift; sourceTree = "<group>"; };
 		B5FEE4C928AEF88100B50BCD /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		E4085DC529BF899C0057AAAF /* ConvertPositionNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertPositionNode.swift; sourceTree = "<group>"; };
+		E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIPromptView.swift; sourceTree = "<group>"; };
 		E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchLayerNode.swift; sourceTree = "<group>"; };
 		E4100F9B29B83E0900656871 /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
 		E4100F9C29B83E0C00656871 /* Resnet50.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Resnet50.mlmodel; sourceTree = "<group>"; };
@@ -3103,6 +3105,7 @@
 				B56FFB552C195F3300623CC7 /* ViewModel */,
 				B56FFB682C19686C00623CC7 /* View */,
 				B56FFB5B2C19612100623CC7 /* Util */,
+				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
 			);
 			path = Graph;
 			sourceTree = "<group>";
@@ -5325,6 +5328,7 @@
 				B549AD7229CFC30D002F3252 /* NodePositionUtils.swift in Sources */,
 				EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */,
 				20308FAB25AD1721008CE3BE /* MiscUtils.swift in Sources */,
+				E40B2F4E2CB86BC3005F5479 /* StitchAIPromptView.swift in Sources */,
 				EC004DD32B44D24300C5DB33 /* CanvasSketchUtils.swift in Sources */,
 				ECF387E1280B61A80075F0E5 /* NodeConstants.swift in Sources */,
 				EC26144F2B897BD800BEB066 /* PositionUnpackNode.swift in Sources */,

@@ -180,7 +180,7 @@ struct ContentView: View, KeyboardReadable {
                      titleLabel: "Stitch AI",
                      hideAction: document.closedStitchAIModal,
                      sheetBody: {
-            LLMActionsJSONEntryModalView()
+            StitchAIPromptEntryModalView()
         })
     }
 
