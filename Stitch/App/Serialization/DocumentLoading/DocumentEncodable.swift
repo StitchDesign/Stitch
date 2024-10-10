@@ -110,7 +110,7 @@ extension DocumentEncodable {
     }
     
     func encodeProject(_ document: Self.CodableDocument,
-                       enableUndo: Bool,
+                       enableUndo: Bool = true,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
         let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         
