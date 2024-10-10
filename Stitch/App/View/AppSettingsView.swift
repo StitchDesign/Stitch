@@ -150,6 +150,7 @@ struct AppSettingsView: View {
     @AppStorage(SAVED_EDGE_STYLE_KEY_NAME) private var savedEdgeStyle: String = EdgeStyle.defaultEdgeStyle.rawValue
     
     @AppStorage(LLM_RECORDING_MODE_KEY_NAME) private var llmRecordingMode: Bool = false
+    @AppStorage("OpenAIAPIKey") private var openAIAPIKey: String = ""
 
     @Environment(\.appTheme) var theme
     @Environment(\.edgeStyle) var edgeStyle
@@ -162,6 +163,7 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
+            openAIAPIKeyField
 #if DEV_DEBUG || DEBUG
             llmRecordingModePicker
 #endif
@@ -262,7 +264,22 @@ struct AppSettingsView: View {
                     isForProject: false)
             }
             StitchCaptionView("Set the default preview window device for new projects")
-        } // VStack
+        }
+    }
+    
+    var openAIAPIKeyField: some View {
+        VStack(alignment: .leading) {
+            HStack(alignment: .center) {
+                Text("OpenAI API Key").fontWeight(.bold)
+                SecureField("Enter your OpenAI API Key", text: $openAIAPIKey)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width: 200)
+                    .disableAutocorrection(true)
+                    .autocapitalization(.none)
+                    .textContentType(.none)
+            }
+            StitchCaptionView("Enter your OpenAI API Key to enable AI features")
+        }
     }
     
     @MainActor
