@@ -155,9 +155,10 @@ struct LayerInspectorView: View {
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
             
-            // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style
+            // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
+            // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
-            
+            .padding([.leading, .trailing])            
         } // VStack
     }
 }

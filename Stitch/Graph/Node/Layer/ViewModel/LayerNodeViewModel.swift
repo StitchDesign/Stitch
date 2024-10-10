@@ -155,6 +155,9 @@ final class LayerNodeViewModel {
             DispatchQueue.main.async { [weak self] in
                 if let layerNode = self {
                     dispatch(AssignedLayerUpdated(changedLayerNode: layerNode.id.asLayerNodeId))
+                    dispatch(LayerGroupIdChanged(
+                        layerNodeId: layerNode.id.asLayerNodeId,
+                        layerGroupParentId: layerNode.layerGroupId))
                 }
             }
         }
