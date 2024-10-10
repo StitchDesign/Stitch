@@ -1,6 +1,6 @@
 //
 //  SidebarListItemSelectionActions.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/7/22.
 //

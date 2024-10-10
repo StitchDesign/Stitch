@@ -1,6 +1,6 @@
 //
 //  FloatingWindowView.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 12/14/20.
 //

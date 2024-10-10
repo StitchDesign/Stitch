@@ -1,6 +1,6 @@
 //
 //  PulseOnChangeNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/1/21.
 //

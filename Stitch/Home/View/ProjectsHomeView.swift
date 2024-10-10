@@ -1,6 +1,6 @@
 //
 //  ProjectsHomeView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 9/20/21.
 //

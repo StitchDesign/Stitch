@@ -1,6 +1,6 @@
 //
 //  VelocityNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 7/19/21.
 //

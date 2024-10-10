@@ -1,6 +1,6 @@
 //
 //  DirectoryObserver.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 10/18/21.
 //

@@ -1,6 +1,6 @@
 //
 //  VideoFramerate.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/17/21.
 //

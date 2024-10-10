@@ -1,6 +1,6 @@
 //
 //  KeyboardHeightReader.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/22/22.
 //

@@ -1,6 +1,6 @@
 //
 //  ValueImageView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 2/16/22.
 //

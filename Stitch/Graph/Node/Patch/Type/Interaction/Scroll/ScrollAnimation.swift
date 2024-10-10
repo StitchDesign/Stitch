@@ -1,6 +1,6 @@
 //
 //  scrollAnimation.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 12/15/21.
 //

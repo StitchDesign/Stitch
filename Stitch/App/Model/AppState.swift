@@ -1,6 +1,6 @@
 //
 //  AppState.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 8/19/21.
 //

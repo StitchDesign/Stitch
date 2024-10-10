@@ -1,6 +1,6 @@
 //
 //  GraphUIActions.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 10/10/21.
 //
