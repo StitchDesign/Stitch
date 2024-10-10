@@ -155,11 +155,9 @@ struct LayerInspectorView: View {
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
             
-//            .listStyle(.plain)
-//            .background(Color.SWIFTUI_LIST_BACKGROUND_COLOR)
-                        
-            // Note: hard to be exact here
-            // The default ListStyle adds padding (visible if we do not use Color.clear as list row background), but using e.g. ListStyle.plain introduces sticky header sections that we do not want.
+            // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style
+            .listStyle(.plain)
+            
         } // VStack
     }
 }

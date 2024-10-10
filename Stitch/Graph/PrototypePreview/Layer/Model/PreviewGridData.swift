@@ -247,7 +247,7 @@ extension LayerNodeViewModel {
     @MainActor
     func sizingScenarioUpdated(scenario: SizingScenario) {
         
-        log("sizingScenarioUpdated: scenario: \(scenario)")
+        // log("sizingScenarioUpdated: scenario: \(scenario)")
         
         let stitch = self
                 
