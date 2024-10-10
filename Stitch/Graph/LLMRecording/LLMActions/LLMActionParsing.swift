@@ -16,7 +16,7 @@ let LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL = "rectangle.and.pencil.and.ellipsis"
 extension StitchDocumentViewModel {
     @MainActor func openedLLMActionsJSONEntryModal() {
         self.llmRecording.jsonEntryState.showModal = true
-        self.graphUI.reduxFocusedField = .llmModal
+        self.graphUI.reduxFocusedField = .llmRecordingModal
     }
 
     // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
