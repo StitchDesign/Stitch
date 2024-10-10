@@ -1,6 +1,6 @@
 //
 //  LayerSize.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 3/1/22.
 //

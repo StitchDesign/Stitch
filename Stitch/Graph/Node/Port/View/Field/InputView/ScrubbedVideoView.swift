@@ -1,6 +1,6 @@
 //
 //  ScrubbedVideoView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 7/8/21.
 //

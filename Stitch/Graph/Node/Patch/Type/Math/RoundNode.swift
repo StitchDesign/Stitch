@@ -1,6 +1,6 @@
 //
 //  RoundNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 8/25/21.
 //

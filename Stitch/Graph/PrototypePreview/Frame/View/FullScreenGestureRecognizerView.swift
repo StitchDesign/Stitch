@@ -1,6 +1,6 @@
 //
 //  FullScreenGestureRecognizerView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 1/26/22.
 //

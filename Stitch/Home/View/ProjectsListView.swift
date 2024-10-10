@@ -1,6 +1,6 @@
 //
 //  ProjectsListView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 5/19/22.
 //

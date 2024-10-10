@@ -1,6 +1,6 @@
 //
 //  Loops.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 1/11/21.
 //

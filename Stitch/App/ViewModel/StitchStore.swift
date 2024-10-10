@@ -1,6 +1,6 @@
 //
 //  StitchStore.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 5/24/22.
 //
