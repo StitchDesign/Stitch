@@ -11,6 +11,30 @@ import StitchSchemaKit
 let WIDTH_FIELD_INDEX = 0
 let HEIGHT_FIELD_INDEX = 1
 
+struct LayerGroupIdChanged: GraphEvent {
+    let layerNodeId: LayerNodeId
+    let layerGroupParentId: NodeId?
+    
+    func handle(state: GraphState) {
+        
+        // If this layer node now has a layer group parent, block the position and unblock
+        guard let layerNode = state.getLayerNode(id: layerNodeId.id)?.layerNode else {
+            log("LayerGroupIdChanged: could not find layer node for node \(layerNodeId)")
+            return
+        }
+        
+        if layerGroupParentId.isDefined {
+            layerNode.blockPositionInput()
+            layerNode.unblockOffsetInput()
+        } else {
+            layerNode.unblockPositionInput()
+            layerNode.blockOffsetInput()
+        }
+        
+    }
+    
+}
+
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
     
@@ -103,7 +127,7 @@ extension LayerNodeViewModel {
         // Changing the orientation of a parent (layer group) updates fields on the children
         let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
         
-        // log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
+        log("layerGroupOrientationUpdated: layer group \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
