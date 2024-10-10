@@ -1,6 +1,6 @@
 //
 //  Fields.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/26/21.
 //

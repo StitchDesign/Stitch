@@ -1,6 +1,6 @@
 //
 //  PreviewVideo.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 6/17/21.
 //

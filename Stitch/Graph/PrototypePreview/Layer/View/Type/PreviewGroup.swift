@@ -1,6 +1,6 @@
 //
 //  PreviewGroup.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/4/21.
 //

@@ -1,6 +1,6 @@
 //
 //  DrawerState.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/26/22.
 //

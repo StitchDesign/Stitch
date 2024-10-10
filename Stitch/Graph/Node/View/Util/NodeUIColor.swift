@@ -1,6 +1,6 @@
 //
 //  NodeColor.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 4/1/22.
 //

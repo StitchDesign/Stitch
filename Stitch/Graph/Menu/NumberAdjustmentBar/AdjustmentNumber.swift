@@ -1,6 +1,6 @@
 //
 //  Adjustment.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 2/17/22.
 //

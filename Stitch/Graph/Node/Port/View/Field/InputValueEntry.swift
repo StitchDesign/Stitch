@@ -1,6 +1,6 @@
 //
 //  ValueEntry.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/14/22.
 //

@@ -1,6 +1,6 @@
 //
 //  StitchApp.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 11/1/20.
 //

@@ -1,6 +1,6 @@
 //
 //  State.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 1/13/21.
 //

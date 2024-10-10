@@ -1,6 +1,6 @@
 //
 //  ProjectsListItemBlurView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 5/15/22.
 //

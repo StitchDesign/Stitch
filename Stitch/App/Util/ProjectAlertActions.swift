@@ -1,6 +1,6 @@
 //
 //  ProjectAlertActions.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 12/1/21.
 //

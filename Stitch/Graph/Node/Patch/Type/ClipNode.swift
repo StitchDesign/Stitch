@@ -1,6 +1,6 @@
 //
 //  ClipNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 7/20/21.
 //
