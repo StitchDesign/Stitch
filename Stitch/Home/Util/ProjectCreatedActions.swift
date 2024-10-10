@@ -36,11 +36,11 @@ extension StitchStore {
     /// Called in the event where project saved in iCloud is deleted
     /// from another device, but user opts to re-save.
     @MainActor
-    func encodeCurrentProject() {
+    func encodeCurrentProject(wasUndo: Bool = false) {
         guard let graphState = self.currentDocument?.visibleGraph else {
             return
         }
 
-        graphState.encodeProjectInBackground()
+        graphState.encodeProjectInBackground(wasUndo: wasUndo)
     }
 }

@@ -115,13 +115,7 @@ final class StitchDocumentViewModel: Sendable {
     }
 }
 
-extension StitchDocumentViewModel: DocumentEncodableDelegate {
-    func updateOnUndo(schema: StitchDocument) {
-        DispatchQueue.main.async { [weak self] in
-            self?.storeDelegate?.undoManagerInvoked(newState: schema)
-        }
-    }
-    
+extension StitchDocumentViewModel: DocumentEncodableDelegate {    
     func willEncodeProject(schema: StitchDocument) {
         // Signals to project thumbnail logic to create a new one when project closes
         self.didDocumentChange = true

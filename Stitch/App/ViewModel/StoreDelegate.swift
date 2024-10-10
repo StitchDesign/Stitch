@@ -17,8 +17,6 @@ protocol StoreDelegate: AnyObject {
     @MainActor
     func saveProjectDeletionUndoHistory(undoActions: [Action],
                                         redoActions: [Action])
-    
-    @MainActor func undoManagerInvoked(newState: StitchDocument?)
 
     @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
