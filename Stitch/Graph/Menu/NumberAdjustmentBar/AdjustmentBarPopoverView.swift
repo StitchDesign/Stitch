@@ -49,9 +49,6 @@ struct AdjustmentBarPopoverView: View {
 
     @State var centerSelectionDisabled = false
 
-    // Used for undo purposes. We save the starting number so it can immediately undo to this value.
-    @State private var startingNumber: Double = .zero
-
     var body: some View {
         VStack(spacing: 12) {
             autoButtonsRow
@@ -74,29 +71,13 @@ struct AdjustmentBarPopoverView: View {
         }
         .onAppear {
             centerSelectionDisabled = false
-            startingNumber = stateNumber
             barNumber = stateNumber
         }
         .onDisappear {
             self.isPopoverOpen = false
-
-            let fieldValue: FieldValue = fieldValueNumberType.createFieldValueForAdjustmentBar(from: startingNumber)
-
-            let undoEvent = {
-                graph.inputEdited(fieldValue: fieldValue,
-                                  fieldIndex: fieldCoordinate.fieldIndex,
-                                  coordinate: rowObserverCoordinate,
-                                  isFieldInsideLayerInspector: isFieldInsideLayerInspector,
-                                  isCommitting: true)
-            }
-
-            // Only persist when we close
-            Task(priority: .background) { [weak graph] in
-                // TODO: test undo on adjustment bar close
-                let _ = graph?.encodeProjectInBackground()
-                graph?.storeDelegate?.saveUndoHistory(undoEvents: [undoEvent],
-                                                      redoEvents: [])
-            }
+            
+            // Encoding was ignored with adjustment bar until this point
+            self.graph.encodeProjectInBackground()
         } // .onDisappear
     }
 

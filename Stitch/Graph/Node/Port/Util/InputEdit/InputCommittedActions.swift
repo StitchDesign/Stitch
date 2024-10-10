@@ -20,14 +20,12 @@ extension GraphState {
             value: .json(json.toStitchJSON),
             isFieldInsideLayerInspector: isFieldInsideLayerInspector)
     }
-}
 
-extension StitchStore {
     @MainActor
     func inputEditCommitted(input: NodeIOCoordinate,
                             value: PortValue?,
                             wasAdjustmentBarSelection: Bool = false) {
-        guard let node = self.currentGraph?.getNodeViewModel(input.nodeId),
+        guard let node = self.getNodeViewModel(input.nodeId),
               let input = node.getInputRowObserver(for: input.portType) else {
             return
         }
@@ -36,29 +34,7 @@ extension StitchStore {
                                 value: value,
                                 wasAdjustmentBarSelection: wasAdjustmentBarSelection)
     }
-    
-    @MainActor
-    func inputEditCommitted(input: InputNodeRowObserver,
-                            value: PortValue?,
-                            wasAdjustmentBarSelection: Bool = false) {
-        guard let documentViewModel = self.currentDocument else {
-            return
-        }
-        
-        let oldDocument = documentViewModel.createSchema()
-        documentViewModel.visibleGraph
-            .inputEditCommitted(input: input,
-                                value: value,
-                                wasAdjustmentBarSelection: wasAdjustmentBarSelection)
-        
-        let newDocument = documentViewModel.createSchema()
-        
-        self.saveUndoHistory(oldState: oldDocument,
-                             newState: newDocument)
-    }
-}
 
-extension GraphState {
     /*
      Used in two different cases:
      1. text field commit: edits have actively been parsed and coerced; no need to update input again.

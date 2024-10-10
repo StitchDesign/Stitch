@@ -31,14 +31,6 @@ struct KeyCharacterPressBegan: StitchStoreEvent {
     }
 }
 
-struct UndoManagerInvoked: StitchStoreEvent {
-    let newState: StitchDocument?
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.undoManagerInvoked(newState: newState)
-        return .shouldPersist
-    }
-}
 
 struct UndoEvent: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
