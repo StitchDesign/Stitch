@@ -22,28 +22,7 @@ final class StitchUndoManager: MiddlewareService {
     let undoManager = UndoManager()
 }
 
-extension StitchStore {
-    @MainActor
-    func undoManagerInvoked(newState: StitchDocument? = nil) {
-        guard let document = self.currentDocument else {
-            return
-        }
-
-        // HACK: see notes in `GraphUIState.adjustmentBarSessionId`
-        document.graphUI.adjustmentBarSessionId = .init(id: .init())
-
-        // Update schema data
-        if let newState = newState {
-            Task(priority: .high) {
-                await document.update(from: newState)
-            }
-
-            // Persist graph
-            document.visibleGraph.encodeProjectInBackground(wasUndo: true)
-            
-        }
-    }
-    
+extension StitchStore {    
     /// Saves undo history of some graph using copies of StitchDocument.
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
@@ -88,8 +67,11 @@ extension StitchStore {
                                           undoEffectsData: UndoEffectsData? = nil) where EncoderDelegate: DocumentEncodableDelegate {
         
         // Update undo
-        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in
-            delegate.updateOnUndo(schema: oldSchema)
+        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in            
+            Task(priority: .high) { [weak self, weak delegate] in
+                await delegate?.update(from: oldSchema)
+                await self?.encodeCurrentProject(wasUndo: true)
+            }
             
             undoEffectsData?.undoCallback?()
             
