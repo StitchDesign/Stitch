@@ -1,6 +1,6 @@
 //
 //  MaxNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 8/16/21.
 //

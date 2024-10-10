@@ -1,6 +1,6 @@
 //
 //  PreviewContent.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 4/6/22.
 //

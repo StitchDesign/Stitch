@@ -1,6 +1,6 @@
 //
 //  OvalNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 3/23/21.
 //

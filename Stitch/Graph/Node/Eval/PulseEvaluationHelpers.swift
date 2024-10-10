@@ -1,6 +1,6 @@
 //
 //  PulseEvaluationHelpers.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 10/5/21.
 //

@@ -1,6 +1,6 @@
 //
 //  FullScreenPreviewViewWrapper.swift
-//  prototype
+//  Stitch
 //
 //  Created by Elliot Boschwitz on 1/19/22.
 //
