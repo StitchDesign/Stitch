@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct StitchAIPromptEntryModalView: View {
-    
+    @AppStorage(OPENAI_API_KEY_NAME) var OPEN_AI_API_KEY: String = ""
+
     @State var prompt: String = ""
     
     var body: some View {
