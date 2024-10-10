@@ -219,6 +219,14 @@ extension StitchDocumentViewModel {
 
         // Stop any active node dragging etc.
         self.graphMovement.stopNodeMovement()
+        
+        // Updates graph data in VisibleNodesViewModel
+        if let encoderDelegate = self.visibleGraph.documentEncoderDelegate {
+            self.visibleGraph.initializeDelegate(document: self,
+                                                 documentEncoderDelegate: encoderDelegate)
+        } else {
+            fatalErrorIfDebug()
+        }
 
         // Recalculate graph
         self.visibleGraph.initializeGraphComputation()
