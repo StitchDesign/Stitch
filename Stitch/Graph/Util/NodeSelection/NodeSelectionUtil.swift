@@ -148,9 +148,7 @@ extension GraphState {
         let graphState = self
 
         guard cursorSelectionBox.size != .zero else {
-            #if DEV_DEBUG
-            log("processNodeSelectionBoxChange error: expansion box was size zero")
-            #endif
+            // log("processNodeSelectionBoxChange error: expansion box was size zero")
             return
         }
 
