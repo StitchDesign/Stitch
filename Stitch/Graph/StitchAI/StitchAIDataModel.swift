@@ -1,73 +1,73 @@
-////
-////  StitchAIDataModel.swift
-////  Stitch
-////
-////  Created by Nicholas Arner on 10/10/24.
-////
 //
-//import Foundation
+//  StitchAIDataModel.swift
+//  Stitch
 //
-//struct OpenAIResponse: Codable {
-//    var choices: [Choice]
-//}
+//  Created by Nicholas Arner on 10/10/24.
 //
-//struct Choice: Codable {
-//    var message: MessageStruct
-//}
-//
-//struct MessageStruct: Codable {
-//    var content: String
-//    
-//    func parseContent() throws -> ContentJSON {
-//        guard let contentData = content.data(using: .utf8) else {
-//            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
-//        }
-//        return try JSONDecoder().decode(ContentJSON.self, from: contentData)
-//    }
-//}
-//
-//struct ContentJSON: Codable {
-//    var steps: [Step]
-//}
-//
-//struct Step: Codable {
-//    var stepType: String
-//    var nodeId: String?
-//    var nodeName: String?
-//    var port: StringOrNumber?  // Updated to handle String or Int
-//    var fromNodeId: String?
-//    var toNodeId: String?
-//    var value: StringOrNumber?  // Updated to handle String or Int
-//    var valueType: String?
-//    
-//    enum CodingKeys: String, CodingKey {
-//        case stepType = "step_type"
-//        case nodeId = "node_id"
-//        case nodeName = "node_name"
-//        case port
-//        case fromNodeId = "from_node_id"
-//        case toNodeId = "to_node_id"
-//        case value
-//        case valueType = "value_type"
-//    }
-//}
-//
-//struct StringOrNumber: Codable {
-//    let value: String
-//    
-//    init(from decoder: Decoder) throws {
-//        let container = try decoder.singleValueContainer()
-//        if let intValue = try? container.decode(Int.self) {
-//            self.value = String(intValue)
-//        } else if let doubleValue = try? container.decode(Double.self) {
-//            self.value = String(doubleValue)
-//        } else if let stringValue = try? container.decode(String.self) {
-//            self.value = stringValue
-//        } else {
-//            throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double"))
-//        }
-//    }
-//}
+
+import Foundation
+
+struct OpenAIResponse: Codable {
+    var choices: [Choice]
+}
+
+struct Choice: Codable {
+    var message: MessageStruct
+}
+
+struct MessageStruct: Codable {
+    var content: String
+    
+    func parseContent() throws -> ContentJSON {
+        guard let contentData = content.data(using: .utf8) else {
+            throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "Invalid content data"))
+        }
+        return try JSONDecoder().decode(ContentJSON.self, from: contentData)
+    }
+}
+
+struct ContentJSON: Codable {
+    var steps: [Step]
+}
+
+struct Step: Codable {
+    var stepType: String
+    var nodeId: String?
+    var nodeName: String?
+    var port: StringOrNumber?  // Updated to handle String or Int
+    var fromNodeId: String?
+    var toNodeId: String?
+    var value: StringOrNumber?  // Updated to handle String or Int
+    var valueType: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case stepType = "step_type"
+        case nodeId = "node_id"
+        case nodeName = "node_name"
+        case port
+        case fromNodeId = "from_node_id"
+        case toNodeId = "to_node_id"
+        case value
+        case valueType = "value_type"
+    }
+}
+
+struct StringOrNumber: Codable {
+    let value: String
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let intValue = try? container.decode(Int.self) {
+            self.value = String(intValue)
+        } else if let doubleValue = try? container.decode(Double.self) {
+            self.value = String(doubleValue)
+        } else if let stringValue = try? container.decode(String.self) {
+            self.value = stringValue
+        } else {
+            throw DecodingError.typeMismatch(String.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected String, Int, or Double"))
+        }
+    }
+}
 //
 //
 //struct LLMAction: Codable {
