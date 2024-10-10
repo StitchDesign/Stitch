@@ -75,7 +75,7 @@ final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
     
     func willEncodeProject(schema: StitchClipboardContent) {}
     
-    func updateOnUndo(schema: StitchClipboardContent) { }
+    func update(from schema: StitchClipboardContent) async { }
     
     var storeDelegate: (any StoreDelegate)? {
         self.store
