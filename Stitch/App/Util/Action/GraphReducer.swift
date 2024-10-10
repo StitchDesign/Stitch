@@ -20,15 +20,13 @@ struct MediaCopiedToNewNode: StitchStoreEvent {
     }
 }
 
-struct MediaCopiedToExistingNode: StitchStoreEvent {
+struct MediaCopiedToExistingNode: GraphEvent {
     let url: URL
     let nodeMediaImportPayload: NodeMediaImportPayload
     
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.currentGraph?.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
-                                                      newURL: url,
-                                                      store: store)
-        return .noChange
+    func handle(state: GraphState) {
+        state.mediaCopiedToExistingNode(nodeImportPayload: nodeMediaImportPayload,
+                                        newURL: url)
     }
 }
 

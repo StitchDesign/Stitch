@@ -35,8 +35,6 @@ struct ReframeResponse<T> {
 
     // If an undo action is called on file write/deletion, we may need the diametrically opposed effect.
     // i.e., for "new project" we would have "delete project" effect and vice versa
-    var undoEvents: Actions?
-    var redoEvents: Actions?
 
     static var noChange: ReframeResponse<T> {
         ReframeResponse<T>()
@@ -62,12 +60,6 @@ struct ReframeResponse<T> {
     static func backgroundEffectOnly(_ effect: @escaping Effect) -> ReframeResponse<T> {
         let effectCoordinator = SideEffectCoordinator(backgroundEffects: [effect])
         return ReframeResponse<T>(sideEffectCoordinator: effectCoordinator)
-    }
-
-    static func undoEventsOnly(undoEvents: Actions, redoEvents: Actions) -> ReframeResponse<T> {
-        ReframeResponse(effects: nil,
-                        undoEvents: undoEvents,
-                        redoEvents: redoEvents)
     }
 
     var effects: SideEffects? {
@@ -114,15 +106,11 @@ extension ReframeResponse {
     /// Convenience init uses user initiated effects by default
     init(effects: SideEffects? = nil,
          state: T? = nil,
-         willPersist: Bool = false,
-         undoEvents: Actions? = nil,
-         redoEvents: Actions? = nil) {
+         willPersist: Bool = false) {
         if let effects = effects {
             self.sideEffectCoordinator = SideEffectCoordinator(userInitiatedEffects: effects)
         }
         self.state = state
         self.shouldPersist = willPersist
-        self.undoEvents = undoEvents
-        self.redoEvents = redoEvents
     }
 }
