@@ -22,7 +22,7 @@ struct StitchAIPromptEntryModalView: View {
         }
         .padding()
         .onChange(of: self.prompt) { oldValue, newValue in
-            dispatch(LLMJsonEdited(jsonEntry: prompt))
+            dispatch(LLMPromptEdited(prompt: prompt))
         }
     }
 }
