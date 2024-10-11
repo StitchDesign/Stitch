@@ -65,6 +65,16 @@ extension LayerSize {
                height: self.height.asNumber)
     }
 
+    var asSceneSize: CGSize {
+        var sceneSize: CGSize = self.asAlgebraicCGSize
+        
+        sceneSize.width =  sceneSize.width >= max1DTextureWidth ? max1DTextureWidth : sceneSize.width
+        
+        sceneSize.height =  sceneSize.height >= max1DTextureWidth ? max1DTextureWidth : sceneSize.height
+        
+        return sceneSize
+    }
+    
     static var zero: LayerSize {
         CGSize.zero.toLayerSize
     }
