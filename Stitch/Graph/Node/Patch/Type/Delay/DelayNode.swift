@@ -117,12 +117,21 @@ func delayEval(node: PatchNode) -> EvalResult {
 //        let inputCoordinate = InputCoordinate(portId: 0, nodeId: node.id)
         let prevDelayInputValue = timerObserver.prevDelayInputValue
 
-        guard let inputValue = values.first,
-              let delayValue = values[safe: 1]?.getNumber,
-              let style = values[safe: 2]?.delayStyle,
-              // This MUST be the `PortValueComparable` type
-              let currentOutput = values[safe: 3] else {
-            return node.defaultOutputs
+        guard let inputValue = values.first else {
+            return [node.userVisibleType?.defaultPortValue ?? .number(.zero)]
+        }
+        
+        guard let delayValue = values[safe: 1]?.getNumber,
+              let style = values[safe: 2]?.delayStyle else {
+            return [inputValue.defaultFalseValue]
+        }
+        
+        // If there's no current output (graph just opened or reset),
+        // use the default-false-value for this same input kind.
+        
+        var currentOutput = values[safe: 3] ?? inputValue.defaultFalseValue
+        if currentOutput.toNodeType != inputValue.toNodeType {
+            currentOutput = inputValue.defaultFalseValue
         }
 
         let createTimer = {
