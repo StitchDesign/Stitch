@@ -12,19 +12,24 @@ import SwiftyJSON
 extension StitchDocumentViewModel {
 
     @MainActor func openedStitchAIModal() {
-        self.stitchAI.promptEntryState.showModal = true
+        self.stitchAI.promptState.showModal = true
         self.graphUI.reduxFocusedField = .stitchAIPromptModal
     }
 
     // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
     @MainActor func closedStitchAIModal() {
-        let prompt = self.stitchAI.promptEntryState.prompt
+        let prompt = self.stitchAI.promptState.prompt
         
-        self.stitchAI.promptEntryState.showModal = false
+        self.stitchAI.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
  
+        
+        //HACK until we figure out why this is called twice
+        if prompt == "" {
+            return
+        }
         makeAPIRequest(userInput: prompt)
-        self.stitchAI.promptEntryState.prompt = ""
+        self.stitchAI.promptState.prompt = ""
     }
     
     @MainActor func makeAPIRequest(userInput: String) {

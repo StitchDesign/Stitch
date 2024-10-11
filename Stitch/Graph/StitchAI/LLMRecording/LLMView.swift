@@ -42,6 +42,8 @@ struct LLMPromptEdited: StitchDocumentEvent {
     }
 }
 
+
+
 struct LLMJsonEdited: StitchDocumentEvent {
     let jsonEntry: String
     

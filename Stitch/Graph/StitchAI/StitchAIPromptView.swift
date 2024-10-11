@@ -22,15 +22,25 @@ struct StitchAIPromptEntryModalView: View {
         }
         .padding()
         .onChange(of: self.prompt) { oldValue, newValue in
-            dispatch(LLMPromptEdited(prompt: prompt))
+            print(newValue)
+            dispatch(StitchAIPromptEdited(prompt: newValue))
         }
     }
 }
 
-struct PromptEdited: StitchDocumentEvent {
+struct StitchAIState: Equatable {
+    var promptState = StitchAIPromptState()
+}
+
+struct StitchAIPromptState: Equatable {
+    var showModal = false
+    var prompt: String = ""
+}
+
+struct StitchAIPromptEdited: StitchDocumentEvent {
     let prompt: String
     
     func handle(state: StitchDocumentViewModel) {
-        state.stitchAI.promptEntryState.prompt = prompt
+        state.stitchAI.promptState.prompt = prompt
     }
 }
