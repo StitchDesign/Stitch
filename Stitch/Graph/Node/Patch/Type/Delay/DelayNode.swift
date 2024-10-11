@@ -119,11 +119,13 @@ func delayEval(node: PatchNode) -> EvalResult {
 
         guard let inputValue = values.first,
               let delayValue = values[safe: 1]?.getNumber,
-              let style = values[safe: 2]?.delayStyle,
-              // This MUST be the `PortValueComparable` type
-              let currentOutput = values[safe: 3] else {
+              let style = values[safe: 2]?.delayStyle else {
             return node.defaultOutputs
         }
+        
+        // If there's no current output (graph just opened or reset),
+        // use the default-false-value for this same input kind.
+        let currentOutput = values[safe: 3] ?? inputValue.defaultFalseValue
 
         let createTimer = {
             let id = UUID()
