@@ -90,6 +90,7 @@ extension StitchStore {
 }
 
 extension StitchStore: GlobalDispatchDelegate {
+    @MainActor
     func reswiftDispatch(_ legacyAction: Action) {
         _handleAction(store: self, action: legacyAction)
     }
