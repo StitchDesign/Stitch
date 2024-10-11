@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct KeyModifierPressEnded: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         // log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
@@ -23,6 +24,7 @@ struct KeyModifierPressEnded: StitchDocumentEvent {
 struct KeyModifierPressBegan: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
          // log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
@@ -51,6 +53,8 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
 // TODO: more like?: `RemoveCommandKeyModifier`
 struct KeyModifierReset: StitchDocumentEvent {
+    
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         // BAD: resets all key press state, including isSpacePressed etc.
         //        state.keypressState = .init()
@@ -127,6 +131,7 @@ extension StitchStore {
 struct KeyCharacterPressEnded: StitchDocumentEvent {
     let char: Character
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
