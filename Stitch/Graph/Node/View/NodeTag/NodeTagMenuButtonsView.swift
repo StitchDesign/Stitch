@@ -327,7 +327,7 @@ struct NodeTagMenuButtonsView: View {
         if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
             return nodeTagMenuButton(label: "Unlink Component") {
                 do {
-                    try self.graph.unlinkComponent(localComponent: component)
+                    try self.graph.documentDelegate?.unlinkComponent(localComponent: component)
                 } catch {
                     log(error.localizedDescription)
                 }

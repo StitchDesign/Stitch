@@ -129,10 +129,8 @@ extension NodeViewModelType {
         case (.group(let canvasViewModel), .group(let canvasEntity)):
             canvasViewModel.update(from: canvasEntity)
         case (.component(let componentViewModel), .component(let component)):
-            // not for sync operations
-            return
-//            await componentViewModel.update(from: component,
-//                                            components: components)
+            // Rest of updates done with initializeDelegate fn
+            componentViewModel.componentId = component.componentId
         default:
             log("NodeViewModelType.update error: found unequal view model and schema types for some node type.")
             fatalErrorIfDebug()

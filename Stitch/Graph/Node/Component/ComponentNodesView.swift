@@ -48,7 +48,7 @@ struct ComponentNodesView: View {
 
                         Button {
                             do {
-                                try graph.unlinkComponent(localComponent: localComponent)
+                                try graph.documentDelegate?.unlinkComponent(localComponent: localComponent)
                             } catch {
                                 log(error.localizedDescription)
                             }
@@ -85,7 +85,7 @@ struct ComponentNodesView: View {
 }
 
 // TODO: move
-extension GraphState {
+extension StitchDocumentViewModel {
     func unlinkComponent(localComponent: StitchMasterComponent) throws {
         let localComponentData = localComponent.lastEncodedDocument
         let oldComponentUrl = localComponentData.rootUrl
@@ -94,7 +94,7 @@ extension GraphState {
             let newId = UUID()
             
             // Set new ID in save location, which determines URLs
-            var _saveLocation = component.saveLocation.localComponentPath
+            let _saveLocation = component.saveLocation.localComponentPath
             assertInDebug(_saveLocation != nil)
             var saveLocation = _saveLocation ?? GraphDocumentPath(docId: self.id,
                                                                   componentId: newId,
@@ -109,9 +109,29 @@ extension GraphState {
         // Delete old local component
         try? FileManager.default.removeItem(at: oldComponentUrl)
         
-        Task(priority: .high) { [weak self, weak localComponent] in
-            guard let graph = self else { return }
-            await graph.update(from: newComponentData.graph)
+        // Update all component nodes to use new ID
+        self.changeComponentId(from: localComponent.id,
+                               to: newComponentData.id)
+        
+        Task(priority: .high) { [weak self] in
+            guard let document = self,
+            let store = document.storeDelegate else {
+                return
+            }
+            await document.update(from: document.createSchema())
+            await document.initializeDelegate(store: store)
+            await document.encodeProjectInBackground()
+        }
+    }
+}
+
+extension StitchDocumentViewModel {
+    func changeComponentId(from: UUID, to: UUID) {
+        self.allComponents.forEach { componentNode in
+            if componentNode.componentId == from {
+                componentNode.componentId = to
+                componentNode.graph.id = to
+            }
         }
     }
 }
