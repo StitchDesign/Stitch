@@ -33,10 +33,17 @@ final class StitchSystemViewModel {
         if let decodedFiles = await self.encoder.getDecodedFiles() {
             self.components = await self.components.sync(with: decodedFiles.components,
                                                          updateCallback: { component, data in
+                var data = data
+                data.saveLocation = .systemComponent(self.id,
+                                                     data.id)
                 await component.update(from: data)
             }) { data in
-                await StitchMasterComponent(componentData: data,
-                                            parentGraph: nil)
+                var data = data
+                data.saveLocation = .systemComponent(self.id,
+                                                     data.id)
+                
+                return await StitchMasterComponent(componentData: data,
+                                                   parentGraph: nil)
             }
         }
     }

@@ -145,22 +145,22 @@ extension DocumentEncodable {
         }
         
         for srcComponentUrl in directory.componentDirs {
-            do {
-                let srcUrl = srcComponentUrl
-                let destUrl = self.rootUrl
-                    .appendingComponentsPath()
-                    .appendingPathComponent(srcComponentUrl.lastPathComponent)
-                
-                StitchComponent.createUnzippedFileWrapper(folderUrl: destUrl)
-                
-                StitchComponent.copySubfolders(srcRootUrl: srcUrl,
-                                               destRootUrl: destUrl)
-                
-                try FileManager.default.copyItem(at: srcUrl.appendingVersionedSchemaPath(),
-                                                 to: destUrl.appendingVersionedSchemaPath())
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
+            let srcUrl = srcComponentUrl
+            
+            // Clipboard uses non-document root url
+            let destRootUrl = self.rootUrl// self.saveLocation.documentSaveLocation?.getRootDirectoryUrl() ?? self.rootUrl
+            let destUrl = destRootUrl
+                .appendingComponentsPath()
+                .appendingPathComponent(srcComponentUrl.lastPathComponent)
+
+            StitchComponent.createUnzippedFileWrapper(folderUrl: destUrl)
+            
+            StitchComponent.copySubfolders(srcRootUrl: srcUrl,
+                                           destRootUrl: destUrl)
+
+            // Fail silently if already exists
+            try? FileManager.default.copyItem(at: srcUrl.appendingVersionedSchemaPath(),
+                                              to: destUrl.appendingVersionedSchemaPath())
         }
     }
     
