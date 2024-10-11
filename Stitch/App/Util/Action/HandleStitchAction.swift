@@ -25,6 +25,7 @@ struct ESCKeyPressed: StitchStoreEvent {
 struct KeyCharacterPressBegan: StitchStoreEvent {
     let char: Character
     
+    @MainActor
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.keyCharacterPressBegan(char: char)
         return .noChange

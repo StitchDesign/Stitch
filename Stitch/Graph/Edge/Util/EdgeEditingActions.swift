@@ -26,62 +26,62 @@ extension GraphState {
             self.graphUI.edgeEditingState = nil
             return
         }
-
+        
         if self.graphMovement.canvasItemIsDragged || self.nodeIsMoving {
             log("OutputHovered called during node drag; exiting")
             self.graphUI.edgeAnimationEnabled = false
             self.graphUI.edgeEditingState = nil
             return
         }
-
+        
         guard let nearbyNodeId = self.getEligibleNearbyNode(eastOf: outputCoordinate.canvasId) else {
             log("OutputHovered: no nearby node")
             return
         }
-
+        
         guard let nearbyNode = self.getCanvasItem(nearbyNodeId) else {
             log("OutputHovered: could not retrieve nearby node \(nearbyNodeId)")
             return
         }
-
+        
         // log("OutputHovered: nearbyNodeId: \(nearbyNodeId)")
-
+        
         var alreadyShownEdges = Set<PossibleEdgeId>()
-
+        
         let possibleEdges: PossibleEdgeSet = nearbyNode
             .edgeFriendlyInputCoordinates(from: self.visibleNodesViewModel,
                                           focusedGroupId: self.groupNodeFocused)
             .reduce(into: PossibleEdgeSet()) { partialResult, inputCoordinate in
-
+                
                 let edgeUI = PortEdgeUI(from: outputCoordinate,
                                         to: inputCoordinate)
                 guard let edgeData = PortEdgeData(viewData: edgeUI, graph: self) else {
                     return
                 }
-
+                
                 /*
                  If there's already an edge to this input,
                  then start out with the possible-edge committed.
                  Note: `graphSchema.connections.hasEdge` checks whether the input has any edges, not this specific edge
                  */
                 let isCommitted = self.edgeExists(edgeData)
-
+                
                 let possibleEdge = PossibleEdge(
                     edge: edgeUI,
                     isCommitted: isCommitted)
-
+                
                 if isCommitted {
                     alreadyShownEdges.insert(possibleEdge.id)
                 }
-
+                
                 partialResult.insert(possibleEdge)
             }
-
+        
         // log("OutputHovered: possibleEdges: \(possibleEdges)")
         // log("OutputHovered: alreadyShownEdges: \(alreadyShownEdges)")
-
+        
         self.graphUI.edgeAnimationEnabled = true
-
+        
         self.graphUI.edgeEditingState = .init(
             originOutput: outputCoordinate,
             nearbyCanvasItem: nearbyNodeId,
@@ -91,7 +91,7 @@ extension GraphState {
 }
 
 extension CanvasItemViewModel {
-
+    
     // Get the "edge-friendly" coordinates,
     // i.e. the real input coords for a non-group node,
     // or the input-splitter coords for a group node.
@@ -117,7 +117,7 @@ extension GraphState {
 }
 
 struct OutputHoverEnded: GraphEvent {
-
+    
     func handle(state: GraphState) {
         // log("OutputHoverEnded called")
         state.graphUI.edgeEditingState = nil
@@ -126,64 +126,64 @@ struct OutputHoverEnded: GraphEvent {
 }
 
 struct PossibleEdgeCommitmentCompleted: ProjectEnvironmentEvent {
-
+    
     let possibleEdgeId: PossibleEdgeId
     let edge: PortEdgeUI
-
+    
     func handle(graphState: GraphState,
                 environment: StitchEnvironment) -> GraphResponse {
-
+        
         log("PossibleEdgeCommitmentCompleted: possibleEdgeId: \(possibleEdgeId)")
         log("PossibleEdgeCommitmentCompleted: edge: \(edge)")
-
+        
         graphState.graphUI.edgeEditingState?.animationInProgressIds.remove(possibleEdgeId)
-
+        
         graphState.edgeAdded(
             edge: edge)
-
+        
         return .persistenceResponse
     }
 }
 
 struct PossibleEdgeDecommitmentCompleted: GraphEvent {
-
+    
     let possibleEdgeId: PossibleEdgeId
     let edge: PortEdgeUI
-
+    
     func handle(state: GraphState) {
-
+        
         // log("PossibleEdgeDecommitmentCompleted: possibleEdgeId: \(possibleEdgeId)")
         // log("PossibleEdgeDecommitmentCompleted: edge: \(edge)")
-
+        
         state.graphUI.edgeEditingState?.animationInProgressIds.remove(possibleEdgeId)
         state.graphUI.edgeEditingState?.shownIds.remove(possibleEdgeId)
-
+        
         state.removeEdgeAt(input: edge.to)
     }
 }
 
 extension GraphState {
-
+    
     @MainActor
     func getEligibleNearbyNode(eastOf originOutputNodeId: CanvasItemId) -> CanvasItemId? {
-
+        
         guard let originOutputNode = self.getCanvasItem(originOutputNodeId) else {
             log("GraphState.closesNodeEast: node not found: \(originOutputNodeId)")
             return nil
         }
-
+        
         let groupNodeFouced = self.graphUI.groupNodeFocused?.asNodeId
         let nodes = self.visibleNodesViewModel
             .getVisibleCanvasItems(at: groupNodeFouced)
-            // "Nearby node" for edge-edit mode can never be a wireless receiver node
+        // "Nearby node" for edge-edit mode can never be a wireless receiver node
             .filter { $0.nodeDelegate?.kind.getPatch != .wirelessReceiver }
-
+        
         // Note: we compare the origin node's output against the other nodes' inputs.
         // The *input* must be east of the output.
         let nodesEast = nodes.filter { node in
             /*
              Note: although SwiftUI's .position modifier is from top-left corner, we actually adjust the node's `position: CGPoint`, such that position = center of node.
-
+             
              So:
              `node.center.x - node.width/2` = east face, where inputs are.
              the `node.center.x + node.width/2` = west face, where outputs are.
@@ -279,16 +279,18 @@ extension StitchDocumentViewModel {
             
             // Animate the withdrawal
             withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
-                // log("removal animation started")
+                log("removal animation started")
                 
                 // insert a new version that is not committed
-                self.graphUI.edgeEditingState?.possibleEdges = self.graphUI.edgeEditingState?.possibleEdges.filter {
+                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
                     $0.id != thisPossibleEdge.id
                 } ?? .init()
+                //            self.graphUI.edgeEditingState?.possibleEdges.remove(thisPossibleEdge)
+                self.graphUI.edgeEditingState?.possibleEdges = filtered
                 thisPossibleEdge.isCommitted = false
                 self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
             } completion: {
-                // log("removal animation completed")
+                log("removal animation completed")
                 // On animation completion, hide the edge and remove it from 'currently animating'
                 // NOTE: we also redundantly remove the edge again; helps with key spamming.
                 dispatch(PossibleEdgeDecommitmentCompleted(
@@ -306,12 +308,13 @@ extension StitchDocumentViewModel {
             self.graphUI.edgeEditingState?.animationInProgressIds.insert(thisPossibleEdge.id)
             
             withAnimation(.linear(duration: .POSSIBLE_EDGE_ANIMATION_DURATION)) {
-                // log("addition animation started")
+                log("addition animation started")
                 
                 // setting isCommitted=true for this edge; triggers the change of the `to` from the origin to the destination
-                self.graphUI.edgeEditingState?.possibleEdges = self.graphUI.edgeEditingState?.possibleEdges.filter {
+                let filtered = self.graphUI.edgeEditingState?.possibleEdges.filter {
                     $0.id != thisPossibleEdge.id
                 } ?? .init()
+                self.graphUI.edgeEditingState?.possibleEdges = filtered
                 thisPossibleEdge.isCommitted = true
                 self.graphUI.edgeEditingState?.possibleEdges.insert(thisPossibleEdge)
                 
@@ -328,8 +331,8 @@ extension StitchDocumentViewModel {
                 dispatch(PossibleEdgeCommitmentCompleted(possibleEdgeId: thisPossibleEdge.id,
                                                          edge: edge))
             }
-        }
-
+        } // else
+        
         return self.visibleGraph.removeEdgeAt(input: edge.to)
     }
 }
