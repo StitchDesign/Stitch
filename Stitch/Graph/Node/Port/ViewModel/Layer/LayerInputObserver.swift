@@ -40,6 +40,14 @@ final class LayerInputObserver {
         self.layer = schema.layer
         self.port = port
         
+        if port == .size {
+            log("LayerInputObserver: had size port: schema.positionPort.encodedValues: \(schema.positionPort.encodedValues)")
+        }
+        
+        if port == .position {
+            log("LayerInputObserver: had position port: schema.positionPort.encodedValues: \(schema.positionPort.encodedValues)")
+        }
+            
         self._packedData = .empty(.init(layerInput: port,
                                         portType: .packed),
                                   layer: schema.layer)

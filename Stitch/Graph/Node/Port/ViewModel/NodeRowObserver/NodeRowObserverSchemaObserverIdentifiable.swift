@@ -13,6 +13,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
         self.init(from: entity)
     }
 
+    // for easier search: `updateInputNodeRowObserverFromSchema`
     /// Updates values for inputs.
     func update(from schema: NodePortInputEntity) {
         self.upstreamOutputCoordinate = schema.portData.upstreamConnection
@@ -23,9 +24,20 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
         }
     }
 
+    // for easier search: `updateInputNodeRowObserverFromConnectionType`
     /// Schema updates from layer.
     func update(from nodeConnection: NodeConnectionType,
                 inputType: LayerInputType) {
+        
+        let isSize = self.id.keyPath?.layerInput == .size
+        let isPosition = self.id.keyPath?.layerInput == .position
+        if isSize {
+            log("InputNodeRowObserver: had size input: nodeConnection: \(nodeConnection)")
+        }
+        if isPosition {
+            log("InputNodeRowObserver: had position input: nodeConnection: \(nodeConnection)")
+        }
+                
         switch nodeConnection {
         case .upstreamConnection(let upstreamOutputCoordinate):
             self.upstreamOutputCoordinate = upstreamOutputCoordinate

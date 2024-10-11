@@ -118,6 +118,13 @@ final class CanvasItemViewModel: Identifiable {
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
         
+        log("CanvasItemViewModel: id: \(id)")
+        log("CanvasItemViewModel: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
+        
+        if id.layerInputCase?.keyPath.layerInput == .size {
+            log("CanvasItemViewModel: had size input")
+        }
+        
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
                                outputRowObservers: outputRowObservers,
@@ -149,6 +156,16 @@ extension CanvasItemViewModel {
                      outputRowObservers: [OutputNodeRowObserver],
                      unpackedPortParentFieldGroupType: FieldGroupType?,
                      unpackedPortIndex: Int?) {
+        
+        // ONLY CALLED AT PROJECT OPEN, AND ROW OBSERVERS HAVE DEFAULT VALUES
+        if id.layerInputCase?.keyPath.layerInput == .size {
+            log("CanvasItemViewModel: convenience init: had size input: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
+        }
+        
+        if id.layerInputCase?.keyPath.layerInput == .position {
+            log("CanvasItemViewModel: convenience init: had position input: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
+        }
+        
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
@@ -241,6 +258,7 @@ extension CanvasItemViewModel {
 extension InputLayerNodeRowData {
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
+        // Take the data from the schema!! 
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(layer),
                                                userVisibleType: nil,

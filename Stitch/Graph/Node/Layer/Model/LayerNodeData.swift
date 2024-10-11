@@ -204,11 +204,23 @@ extension InputLayerNodeRowData {
                 unpackedPortParentFieldGroupType: FieldGroupType?,
                 unpackedPortIndex: Int?) {
         self.rowObserver.id.nodeId = nodeId
+            
+        if layerInputType.layerInput == .size {
+            log("InputLayerNodeRowData: update: size input")
+        }
                 
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
+                if layerInputType.layerInput == .size {
+                    log("InputLayerNodeRowData: update: size input: had canvas observer")
+                }
                 canvasObserver.update(from: canvas)
+                
             } else {
+                if layerInputType.layerInput == .size {
+                    log("InputLayerNodeRowData: update: size input: will create canvas observer")
+                }
+                
                 // Make new canvas observer since none yet created
                 let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
                                                              keyPath: layerInputType))
@@ -223,6 +235,9 @@ extension InputLayerNodeRowData {
                 self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
         } else {
+            if layerInputType.layerInput == .size {
+                log("InputLayerNodeRowData: update: size input: no canvas on schema")
+            }
             self.canvasObserver = nil
         }
     }
@@ -291,7 +306,7 @@ extension LayerInputObserver {
                                     unpackedPortIndex: portId)
         }
         
-        // Update values once mode is known (requires updating canvas items first
+        // Update values once mode is known (requires updating canvas items first)
         // This logic is needed to prevent a bug where unpacked mode updates packed observer values despite upstream connection
         switch self.observerMode {
         case .packed(let packedObserver):

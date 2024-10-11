@@ -364,12 +364,31 @@ extension OutputNodeRowViewModel {
     }
 }
 
+
+/// this is impossible to find via a code search and impossible to remember as a concept
 extension Array where Element: NodeRowViewModel {
+    // easier search: `syncRowViewModelsViaSchemaEntities`
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
                        unpackedPortIndex: Int?) {
+        
+        let isSizeLIG = canvas.id.layerInputCase?.keyPath.layerInput == .size
+        let isPositionLIG = canvas.id.layerInputCase?.keyPath.layerInput == .position
+        
+        // The actual initializer of the `InputNodeRowViewModel` doesn't really do anything besides assigning the canvas item, node and node row observer delegates
+        
+        // You want to know, why did we not create a node row view model for
+        
+        if isSizeLIG {
+            log("Array where Element: NodeRowViewModel: sync: had size")
+        } // ^^ never gets hit
+        
+        if isPositionLIG {
+            log("Array where Element: NodeRowViewModel: sync: had position")
+        }
+        
         // This will be nil for some inits--that's ok, just need to set delegate after
         let node = canvas.nodeDelegate
         
@@ -388,7 +407,10 @@ extension Array where Element: NodeRowViewModel {
 
         // Create or update entities from new list
         self = newEntities.enumerated().map { portIndex, newEntity in
+            log("Array where Element: NodeRowViewModel: sync: portIndex \(portIndex), newEntity.id \(newEntity.id)")
+            
             if let entity = currentEntitiesMap.get(newEntity.id) {
+                log("Array where Element: NodeRowViewModel: sync: ENTITY ALREADY EXISTS")
                 // Update index if ports for node were removed
                 entity.id = .init(graphItemType: entity.id.graphItemType,
                                   nodeId: entity.id.nodeId,
@@ -396,6 +418,7 @@ extension Array where Element: NodeRowViewModel {
                 
                 return entity
             } else {
+                log("Array where Element: NodeRowViewModel: sync: WILL CREATE NEW NODE ROW VIEW MODEL")
                 let rowId = NodeRowViewModelId(graphItemType: .node(canvas.id),
                                                // Important this is the node ID from canvas for group nodes
                                                nodeId: canvas.nodeDelegate?.id ?? newEntity.id.nodeId,
