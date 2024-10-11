@@ -158,8 +158,19 @@ struct ComponentVersionControlButtons: View {
                 var newComponentSchema = linkedComponent.lastEncodedDocument
                 newComponentSchema.graph = newSchema
                 
+                
                 Task { [weak linkedComponent] in
-                    await linkedComponent?.encoder.encodeProject(newComponentSchema)
+                    guard let linkedComponent = linkedComponent else { return }
+                    
+                    guard let newSaveLocation = linkedComponent.encoder.saveLocation.documentSaveLocation else {
+                        fatalErrorIfDebug()
+                        return
+                    }
+                    
+                    // Update save location of component to update url
+                    newComponentSchema.saveLocation = newSaveLocation
+
+                    let _ = await linkedComponent.encoder.encodeProject(newComponentSchema)
                 }
 
             } label: {

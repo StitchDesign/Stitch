@@ -105,6 +105,8 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     func update(from schema: StitchComponent) async {
+        self.lastEncodedDocument = schema
+        
         guard let document = self.parentGraph?.documentDelegate else {
             return
         }
