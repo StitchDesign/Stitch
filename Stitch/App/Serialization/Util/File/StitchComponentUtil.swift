@@ -100,4 +100,13 @@ extension GraphSaveLocation {
                 .appendingStitchSystemUnzippedPath("\(systemType)")
         }
     }
+    
+    var localComponentPath: GraphDocumentPath? {
+        switch self {
+        case .localComponent(let documentPath):
+            return documentPath
+        default:
+            return nil
+        }
+    }
 }

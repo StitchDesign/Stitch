@@ -47,19 +47,11 @@ struct ComponentNodesView: View {
                         let linkedComponentData = linkedComponent.lastEncodedDocument
 
                         Button {
-                            let oldComponentUrl = localComponentData.rootUrl
-                            
-                            var localComponentData = localComponentData
-                            localComponentData.graph.id = .init()
-                            
-                            Task(priority: .high) { [weak graph, weak localComponent] in
-                                // Need to remove old draft component files
-                                try? FileManager.default.removeItem(at: oldComponentUrl)
-                                
-                                await graph?.update(from: localComponentData.graph)
-                                localComponent?.encoder.encodeProjectInBackground(from: graph)
+                            do {
+                                try graph.unlinkComponent(localComponent: localComponent)
+                            } catch {
+                                log(error.localizedDescription)
                             }
-                            
                         } label: {
                             Text("Unlink")
                         }
@@ -88,6 +80,38 @@ struct ComponentNodesView: View {
             }
         } else {
             EmptyView()
+        }
+    }
+}
+
+// TODO: move
+extension GraphState {
+    func unlinkComponent(localComponent: StitchMasterComponent) throws {
+        let localComponentData = localComponent.lastEncodedDocument
+        let oldComponentUrl = localComponentData.rootUrl
+        
+        let newComponentData = try localComponentData.copyProject() { component in
+            let newId = UUID()
+            
+            // Set new ID in save location, which determines URLs
+            var _saveLocation = component.saveLocation.localComponentPath
+            assertInDebug(_saveLocation != nil)
+            var saveLocation = _saveLocation ?? GraphDocumentPath(docId: self.id,
+                                                                  componentId: newId,
+                                                                  componentsPath: [])
+            
+            saveLocation.componentId = newId
+            
+            component.saveLocation = .localComponent(saveLocation)
+            component.graph.id = newId
+        }
+        
+        // Delete old local component
+        try? FileManager.default.removeItem(at: oldComponentUrl)
+        
+        Task(priority: .high) { [weak self, weak localComponent] in
+            guard let graph = self else { return }
+            await graph.update(from: newComponentData.graph)
         }
     }
 }
