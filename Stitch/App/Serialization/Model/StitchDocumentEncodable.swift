@@ -97,9 +97,19 @@ extension StitchDocumentEncodable {
     static func copySubfolders(srcRootUrl: URL,
                                destRootUrl: URL) {
         StitchDocument.subfolderNames.forEach { subfolderName in
-            try? FileManager.default
-                .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
-                          to: destRootUrl.appendingPathComponent(subfolderName))
+            do {
+                let srcFolderUrl = srcRootUrl.appendingPathComponent(subfolderName)
+                let destFolderUrl = destRootUrl.appendingPathComponent(subfolderName)
+                
+                guard FileManager.default.fileExists(atPath: srcFolderUrl.path) else {
+                    return
+                }
+                
+                try FileManager.default
+                    .copyItem(at: srcFolderUrl, to: destFolderUrl)
+            } catch {
+                log("StitchDocumentEncodable.copySubfolders error: \(error.localizedDescription)")
+            }
         }
     }
 }
