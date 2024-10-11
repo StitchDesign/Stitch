@@ -40,6 +40,7 @@ final class GraphUIState {
     // e.g. user is hovering over or has selected a layer in the sidebar, which we then highlight in the preview window itself
     var highlightedSidebarLayers: LayerIdSet = .init()
 
+    @MainActor
     var edgeEditingState: EdgeEditingState?
 
     var restartPrototypeWindowIconRotationZ: CGFloat = .zero
