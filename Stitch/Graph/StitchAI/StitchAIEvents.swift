@@ -21,15 +21,13 @@ extension StitchDocumentViewModel {
         let prompt = self.stitchAI.promptEntryState.prompt
         
         self.stitchAI.promptEntryState.showModal = false
-        self.stitchAI.promptEntryState.prompt = ""
         self.graphUI.reduxFocusedField = nil
  
         makeAPIRequest(userInput: prompt)
         self.stitchAI.promptEntryState.prompt = ""
-
     }
     
-    func makeAPIRequest(userInput: String) {
+    @MainActor func makeAPIRequest(userInput: String) {
            guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL),
                  let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME) else {
                print("Invalid URL or no API Key found")
@@ -47,20 +45,26 @@ extension StitchDocumentViewModel {
                return
            }
            
-           let body: [String: Any] = [
-               "model": OPEN_AI_MODEL,
-               "messages": [
-                   ["role": "system", "content": SYSTEM_PROMPT],
-                   ["role": "user", "content": userInput]
-               ],
-               "response_format": [
-                   "type": "json_schema",
-                   "json_schema": [
-                       "name": "visual_programming_actions_schema",
-                       "schema": responseSchema
-                   ]
-               ]
-           ]
+        let body: [String: Any] = [
+            "model": OPEN_AI_MODEL,
+            "messages": [
+                [
+                    "role": "system",
+                    "content": SYSTEM_PROMPT
+                ],
+                [
+                    "role": "user",
+                    "content": userInput
+                ]
+            ],
+            "response_format": [
+                "type": "json_schema",
+                "json_schema": [
+                    "name": "visual_programming_actions_schema",
+                    "schema": responseSchema
+                ]
+            ]
+        ]
            
            guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
                print("Error encoding JSON")
@@ -96,8 +100,8 @@ extension StitchDocumentViewModel {
                            return
                        }
                        
-                       let json = JSON(parseJSON: transformedResponse)
-                       
+                    
+                       let json = JSON(parseJSON: transformedResponse) // returns null json if parsing fails
                        let data = try json.rawData()
                        let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
                                                                           from: data)
@@ -105,11 +109,6 @@ extension StitchDocumentViewModel {
                        self?.llmRecording.jsonEntryState = .init() // reset
                        self?.visibleGraph.encodeProjectInBackground()
 
-                       
-                       
-                       DispatchQueue.main.async {
-                           self?.visibleGraph.encodeProjectInBackground()
-                       }
                    } else {
                        print("Error transforming response to LLM Actions string")
                    }
