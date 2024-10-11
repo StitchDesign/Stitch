@@ -41,8 +41,13 @@ extension DocumentEncodable {
     }
     
     static func readComponentsDirectory(rootUrl: URL) -> [URL] {
-        (try? FileManager.default.contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
-                                                      includingPropertiesForKeys: nil)) ?? []
+        guard let componentFiles = try? FileManager.default
+            .contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
+                                 includingPropertiesForKeys: nil) else {
+            return []
+        }
+        
+        return componentFiles.filter { $0.pathExtension == StitchComponent.unzippedFileType.preferredFilenameExtension }
     }
     
     func readAllImportedFiles() -> StitchDocumentDirectory {
@@ -124,8 +129,7 @@ extension DocumentEncodable {
     }
     
     /// Copies files from another directory.
-    func copyFiles(from directory: StitchDocumentDirectory,
-                   newSaveLocation: GraphSaveLocation?) async {
+    func copyFiles(from directory: StitchDocumentDirectory) async {
         // Copy selected media
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -142,16 +146,18 @@ extension DocumentEncodable {
         
         for srcComponentUrl in directory.componentDirs {
             do {
-                guard var srcComponent = try await StitchComponent.openDocument(from: srcComponentUrl) else {
-                    fatalErrorIfDebug()
-                    return
-                }
+                let srcUrl = srcComponentUrl
+                let destUrl = self.rootUrl
+                    .appendingComponentsPath()
+                    .appendingPathComponent(srcComponentUrl.lastPathComponent)
                 
-                if let newSaveLocation = newSaveLocation {
-                    srcComponent.saveLocation = newSaveLocation
-                }
+                StitchComponent.createUnzippedFileWrapper(folderUrl: destUrl)
                 
-                try srcComponent.encodeNewDocument(srcRootUrl: srcComponentUrl)
+                StitchComponent.copySubfolders(srcRootUrl: srcUrl,
+                                               destRootUrl: destUrl)
+                
+                try FileManager.default.copyItem(at: srcUrl.appendingVersionedSchemaPath(),
+                                                 to: destUrl.appendingVersionedSchemaPath())
             } catch {
                 fatalErrorIfDebug(error.localizedDescription)
             }
