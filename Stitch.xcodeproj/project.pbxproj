@@ -1111,7 +1111,6 @@
 		B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaNodesUtil.swift; sourceTree = "<group>"; };
 		B59F03AF2CB6E66D00A9422C /* EncoderDirectoryLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncoderDirectoryLocation.swift; sourceTree = "<group>"; };
 		B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentNavBarView.swift; sourceTree = "<group>"; };
-		B59F03B32CB7206000A9422C /* StitchSchemaKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = StitchSchemaKit; path = ../StitchSchemaKit; sourceTree = SOURCE_ROOT; };
 		B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphComponentHashable.swift; sourceTree = "<group>"; };
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
@@ -1900,7 +1899,6 @@
 		200BD859254F66EB00692903 /* Stitch */ = {
 			isa = PBXGroup;
 			children = (
-				B59F03B32CB7206000A9422C /* StitchSchemaKit */,
 				EC15E425260271C6006F2E08 /* Stitch.entitlements */,
 				200BD863254F66EE00692903 /* Info.plist */,
 				B5617A7B2C175C3C00B53DAF /* App */,
@@ -6132,7 +6130,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 868613f078c29f850cd30c293e1d62461adfcfd6;
+				revision = 43ddf22d6002381105f6b15c9d39d13cc436d01c;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
