@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftyJSON
 
 extension StitchDocumentViewModel {
 
@@ -29,106 +30,95 @@ extension StitchDocumentViewModel {
     }
     
     func makeAPIRequest(userInput: String) {
-        let openAIAPIURL = URL(string: OPEN_AI_BASE_URL)!
-        var request = URLRequest(url: openAIAPIURL)
-        request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        if let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME) {
-            request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-            
-            // Parse the VISUAL_PROGRAMMING_ACTIONS schema
-            let responseSchema: [String: Any]
-            do {
-                if let data = VISUAL_PROGRAMMING_ACTIONS.data(using: .utf8) {
-                    responseSchema = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
-                } else {
-                    print("Failed to convert VISUAL_PROGRAMMING_ACTIONS to Data")
-                    return
-                }
-            } catch {
-                print("Error parsing VISUAL_PROGRAMMING_ACTIONS JSON: \(error)")
-                return
-            }
-            
-            let body: [String: Any] = [
-                "model": OPEN_AI_MODEL,
-                "messages": [
-                    [
-                        "role": "system",
-                        "content": SYSTEM_PROMPT
-                    ],
-                    [
-                        "role": "user",
-                        "content": userInput
-                    ]
-                ],
-                "response_format": [
-                    "type": "json_schema",
-                    "json_schema": [
-                        "name": "visual_programming_actions_schema",
-                        "schema": responseSchema
-                    ]
-                ]
-            ]
-            
-            do {
-                let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
-                request.httpBody = jsonData
-            } catch {
-                print("Error encoding JSON: \(error)")
-                return
-            }
-            
-            let task = URLSession.shared.dataTask(with: request) { [self] data, response, error in
-                if let error = error {
-                    print("Error making request: \(error)")
-                    return
-                }
-                
-                guard let data = data else {
-                    print("No data received")
-                    return
-                }
-                
-                // Print the raw JSON response
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Raw JSON Response: \(jsonString)")
-                } else {
-                    print("Failed to convert data to string.")
-                }
-                
-                
-                do {
-                    let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-                    
-                    // Convert the OpenAIResponse object to JSON Data
-                    let jsonData = try JSONEncoder().encode(openAIResponse)
-                    
-                    // Convert JSON Data to a pretty-printed string
-                    if let jsonString = String(data: jsonData, encoding: .utf8) {
-                        print(jsonString)
-                    }
-                    // Access steps
-                } catch {
-                    print("Error decoding JSON: \(error)")
-                }
-                
-                
-                if let transformedResponse = transformOpenAIResponseToLLMActionsString(data: data) {
-                    
-                    DispatchQueue.main.async {
-                        dispatch(LLMJsonEdited(jsonEntry: transformedResponse))
-                    }
-                } else {
-                    print("Error transforming response to LLM Actions string")
-                }
-            }
-            task.resume()
-        } else {
-            print("No API Key found")
-        }
-    }
+           guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL),
+                 let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME) else {
+               print("Invalid URL or no API Key found")
+               return
+           }
+
+           var request = URLRequest(url: openAIAPIURL)
+           request.httpMethod = "POST"
+           request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+           request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+           
+           // Parse the VISUAL_PROGRAMMING_ACTIONS schema
+           guard let responseSchema = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS.utf8), options: []) as? [String: Any] else {
+               print("Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON")
+               return
+           }
+           
+           let body: [String: Any] = [
+               "model": OPEN_AI_MODEL,
+               "messages": [
+                   ["role": "system", "content": SYSTEM_PROMPT],
+                   ["role": "user", "content": userInput]
+               ],
+               "response_format": [
+                   "type": "json_schema",
+                   "json_schema": [
+                       "name": "visual_programming_actions_schema",
+                       "schema": responseSchema
+                   ]
+               ]
+           ]
+           
+           guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
+               print("Error encoding JSON")
+               return
+           }
+           request.httpBody = jsonData
+           
+           let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+               if let error = error {
+                   print("Error making request: \(error)")
+                   return
+               }
+               
+               guard let data = data else {
+                   print("No data received")
+                   return
+               }
+               
+               // Print the raw JSON response
+               if let jsonString = String(data: data, encoding: .utf8) {
+                   print("Raw JSON Response: \(jsonString)")
+               }
+               
+               do {
+                   let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+                   if let jsonString = String(data: try JSONEncoder().encode(openAIResponse), encoding: .utf8) {
+                       print(jsonString)
+                   }
+                   
+                   if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
+                       guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                           print("LLMActionsJSONEntryModalClosed: json entry")
+                           return
+                       }
+                       
+                       let json = JSON(parseJSON: transformedResponse)
+                       
+                       let data = try json.rawData()
+                       let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
+                                                                          from: data)
+                       actions.forEach { self?.handleLLMAction($0) }
+                       self?.llmRecording.jsonEntryState = .init() // reset
+                       self?.visibleGraph.encodeProjectInBackground()
+
+                       
+                       
+                       DispatchQueue.main.async {
+                           self?.visibleGraph.encodeProjectInBackground()
+                       }
+                   } else {
+                       print("Error transforming response to LLM Actions string")
+                   }
+               } catch {
+                   print("Error processing response: \(error)")
+               }
+           }
+           task.resume()
+       }
 
     func transformOpenAIResponseToLLMActionsString(data: Data) -> String? {
         do {
