@@ -9,6 +9,24 @@ import SwiftUI
 import SceneKit
 import StitchSchemaKit
 
+// https://stackoverflow.com/questions/63515452/how-do-i-determine-the-maximum-allowed-size-of-an-mtltexturedescriptor
+
+let max1DTextureWidth: CGFloat = {
+    var maxLength = 8192;
+
+    // It's recommended to use your shared device
+    let device = MTLCreateSystemDefaultDevice()!
+
+    if device.supportsFamily(.apple1) || device.supportsFamily(.apple2) {
+        maxLength = 8192 // A7 and A8 chips
+    } else {
+        maxLength = 16384 // A9 and later chips
+    }
+    let k = CGFloat(maxLength)
+    // log("max1DTextureWidth: k: \(k)")
+    return k
+}()
+
 struct Preview3DModelLayer: View {
     // State for media needed if we need to async load an import
     @State private var mediaObject: StitchMediaObject?
@@ -53,13 +71,19 @@ struct Preview3DModelLayer: View {
             .layerNode
     }
 
+    var sceneSize: CGSize {
+        let _sceneSize = size.asSceneSize
+        // log("sceneSize: \(_sceneSize)")
+        return _sceneSize
+    }
+    
     var body: some View {
         Group {
             if document.isGeneratingProjectThumbnail {
                 Color.clear
             } else if let entity = entity {
                 Model3DView(entity: entity,
-                            sceneSize: size.asAlgebraicCGSize,
+                            sceneSize: sceneSize,
                             modelOpacity: opacity)
                 .onAppear {
                     // Mark as layer so we regenerate views when finished loading
@@ -85,8 +109,7 @@ struct Preview3DModelLayer: View {
             rotationX: rotationX,
             rotationY: rotationY,
             rotationZ: rotationZ,
-            //            size: size.asCGSize(parentSize),
-            size: size,
+            size: sceneSize.toLayerSize,
             scale: scale,
             anchoring: anchoring,
             blurRadius: blurRadius,
