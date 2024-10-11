@@ -64,12 +64,6 @@ struct NodesView: View {
                 ZStack {
                     //                        commentBoxes
                     nodesOnlyView(nodePageData: nodePageData)
-                    
-                    if graphUI.groupNodeFocused?.component != nil,
-                       let store = self.graph.storeDelegate as? StitchStore {
-                        ComponentNodesView(graph: self.graph,
-                                           store: store)
-                    }
                 }
                 .background {
                     // Using background ensures edges z-index are always behind ndoes

@@ -1,5 +1,5 @@
 //
-//  ComponentNodesView.swift
+//  ComponentNavBarView.swift
 //  Stitch
 //
 //  Created by Elliot Boschwitz on 10/9/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ComponentNodesView: View {
+struct ComponentNavBarView: View {
     @State private var linkedSystem: StitchSystemViewModel?
     
     @Bindable var graph: GraphState
@@ -82,8 +82,6 @@ struct ComponentNodesView: View {
                 }
                 .padding()
                 .background(.ultraThinMaterial)
-                
-                Spacer()
             }
         } else {
             EmptyView()
