@@ -134,20 +134,6 @@ extension StitchStore {
     }
 }
 
-// TODO: move
-extension StitchDocumentEncodable {
-    func copyProject(documentMutator: (inout Self) -> ()) throws -> Self {
-        let srcRootUrl = self.rootUrl
-        
-        var document = self
-        documentMutator(&document)
-        
-        try document.encodeNewDocument(srcRootUrl: srcRootUrl)
-        
-        return document
-    }
-}
-
 struct ProjectContextMenuModifer: ViewModifier {
     @Environment(StitchStore.self) private var store
     @State var willPresentShareSheet = false

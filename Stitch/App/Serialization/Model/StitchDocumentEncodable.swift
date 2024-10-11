@@ -94,6 +94,17 @@ extension StitchDocumentEncodable {
                             destRootUrl: destRootUrl)
     }
     
+    func copyProject(documentMutator: (inout Self) -> ()) throws -> Self {
+        let srcRootUrl = self.rootUrl
+        
+        var document = self
+        documentMutator(&document)
+        
+        try document.encodeNewDocument(srcRootUrl: srcRootUrl)
+        
+        return document
+    }
+    
     static func copySubfolders(srcRootUrl: URL,
                                destRootUrl: URL) {
         StitchDocument.subfolderNames.forEach { subfolderName in
