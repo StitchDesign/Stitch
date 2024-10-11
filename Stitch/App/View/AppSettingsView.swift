@@ -279,7 +279,7 @@ struct AppSettingsView: View {
                     .autocapitalization(.none)
                     .textContentType(.none)
                     .onChange(of: openAIAPIKey) {
-                        UserDefaults.standard.set(openAIAPIKey, forKey: OPENAI_API_KEY_NAME)
+                        dispatch(OpenAIAPIKeyChanged(apiKey: openAIAPIKey))
                     }
                 
             }
