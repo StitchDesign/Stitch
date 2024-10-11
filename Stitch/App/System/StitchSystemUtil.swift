@@ -72,6 +72,11 @@ extension StitchStore {
         
         try userSystem.lastEncodedDocument.saveComponentToSystem(component: component,
                                                                  systemType: .userLibrary)
+        
+        // Refreshing directory makes view update on linking--pretty hacky but **DON'T TOUCH IT!**
+        Task { [weak self] in
+            await self?.directoryUpdated()
+        }
     }
 }
 

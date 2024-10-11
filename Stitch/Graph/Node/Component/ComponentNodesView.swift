@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct ComponentNodesView: View {
-    let componentId: UUID
-    let graph: GraphState
+    @State private var linkedSystem: StitchSystemViewModel?
+    
+    @Bindable var graph: GraphState
+    @Bindable var store: StitchStore
+    
+    var componentId: UUID {
+        self.graph.id
+    }
     
     func getLocalComponent() -> StitchMasterComponent? {
         guard let componentEncoder = self.graph.documentEncoderDelegate as? ComponentEncoder else {
@@ -20,7 +26,7 @@ struct ComponentNodesView: View {
     }
 
     func getLinkedComponent(from componentData: StitchComponent) -> StitchMasterComponent? {
-        graph.storeDelegate?.systems.findSystem(forComponent: componentData.id)?
+        store.systems.findSystem(forComponent: componentData.id)?
             .components.get(componentData.id)
     }
     
@@ -44,6 +50,7 @@ struct ComponentNodesView: View {
                     
                     // Linked system component controls
                     if let linkedComponent = linkedComponent {
+                        @Bindable var linkedComponent = linkedComponent
                         let linkedComponentData = linkedComponent.lastEncodedDocument
 
                         Button {
@@ -65,7 +72,7 @@ struct ComponentNodesView: View {
                     // Unlinked component
                     else {
                         Button {
-                            try? graph.storeDelegate?.saveComponentToUserLibrary(localComponentData)
+                            try? store.saveComponentToUserLibrary(localComponentData)
                         } label: {
                             Text("Link to User Library")
                         }
@@ -109,15 +116,19 @@ extension StitchDocumentViewModel {
         // Delete old local component
         try? FileManager.default.removeItem(at: oldComponentUrl)
         
+        let oldId = localComponentData.id
+        let newId = newComponentData.id
+        
         // Update all component nodes to use new ID
-        self.changeComponentId(from: localComponent.id,
-                               to: newComponentData.id)
+        self.changeComponentId(from: oldId,
+                               to: newId)
         
         Task(priority: .high) { [weak self] in
             guard let document = self,
             let store = document.storeDelegate else {
                 return
             }
+            
             await document.update(from: document.createSchema())
             await document.initializeDelegate(store: store)
             await document.encodeProjectInBackground()
@@ -127,6 +138,7 @@ extension StitchDocumentViewModel {
 
 extension StitchDocumentViewModel {
     func changeComponentId(from: UUID, to: UUID) {
+        // Change node data
         self.allComponents.forEach { componentNode in
             if componentNode.componentId == from {
                 componentNode.componentId = to

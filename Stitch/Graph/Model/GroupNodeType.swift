@@ -19,8 +19,8 @@ extension GroupNodeType {
         switch self {
         case .groupNode:
             return nil
-        case .component(let id):
-            return id
+        case .component(let nodeId):
+            return nodeId
         }
     }
     

@@ -65,9 +65,10 @@ struct NodesView: View {
                     //                        commentBoxes
                     nodesOnlyView(nodePageData: nodePageData)
                     
-                    if let componentId = graphUI.groupNodeFocused?.component {
-                        ComponentNodesView(componentId: componentId,
-                                           graph: self.graph)
+                    if graphUI.groupNodeFocused?.component != nil,
+                       let store = self.graph.storeDelegate as? StitchStore {
+                        ComponentNodesView(graph: self.graph,
+                                           store: store)
                     }
                 }
                 .background {
