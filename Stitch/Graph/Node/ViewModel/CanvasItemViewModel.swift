@@ -143,6 +143,7 @@ extension CanvasItemViewModel {
                                    unpackedPortIndex: nil)
     }
     
+    // Only called at project open?
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
@@ -241,6 +242,7 @@ extension CanvasItemViewModel {
 extension InputLayerNodeRowData {
     static func empty(_ layerInputType: LayerInputType,
                       layer: Layer) -> Self {
+        // Take the data from the schema!! 
         let rowObserver = InputNodeRowObserver(values: [layerInputType.getDefaultValue(for: layer)],
                                                nodeKind: .layer(layer),
                                                userVisibleType: nil,
