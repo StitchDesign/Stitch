@@ -42,6 +42,9 @@ final class StitchStore: Sendable, StoreDelegate {
 
     @MainActor
     init() {
+        // Remove cached data from previous session
+        try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
+        
         // Sets up action dispatching
         GlobalDispatch.shared.delegate = self
 
@@ -105,15 +108,11 @@ extension StitchStore {
     }
 
     var currentProjectId: ProjectId? {
-        currentGraph?.projectId
+        currentDocument?.projectId
     }
 
     var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
-    }
-    
-    var currentGraph: GraphState? {
-        self.currentDocument?.graph
     }
     
     var undoManager: StitchUndoManager {

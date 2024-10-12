@@ -80,7 +80,7 @@ struct SelectedGraphItemsPasted: GraphEvent {
         do {
             let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
             let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
-            let importedFiles = ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
+            let importedFiles = try ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
             
             Task(priority: .high) { [weak state] in
                 guard let state = state else { return }
