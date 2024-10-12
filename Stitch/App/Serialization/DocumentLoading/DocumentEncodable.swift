@@ -79,7 +79,6 @@ extension DocumentEncodable {
     
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
-//                                              enableUndo: Bool = true,
                                               willUpdateUndoHistory: Bool = true,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
