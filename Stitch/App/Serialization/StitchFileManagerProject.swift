@@ -9,17 +9,7 @@ import Foundation
 import StitchSchemaKit
 
 /// Helpers focused on reading/writing with a specific project URL.
-extension DocumentEncodable {
-//    static func getAllMediaURLs(in importedFilesDir: URL) -> [URL] {
-//        let importedFiles = Self.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
-//
-//        // use temp directory rather than documentsURL
-//        let tempFiles = Self.readMediaFilesDirectory(mediaDirectory: StitchDocument.temporaryMediaURL)
-//
-//        let allMedia = importedFiles + tempFiles
-//        return allMedia
-//    }
-    
+extension DocumentEncodable {    
     func getFolderUrl(for subfolder: StitchEncodableSubfolder,
                       isTemp: Bool = false) -> URL {
         if isTemp {
@@ -64,37 +54,6 @@ extension DocumentEncodable {
         
         return mainResources + tempResources
     }
-//
-//    func getAllMediaURLs() -> [URL] {
-//        Self.getAllMediaURLs(in: self.getImportedFilesURL())
-//    }
-
-//    // TODO: how to handle deleted
-//    func readMediaFilesDirectory(forRecentlyDeleted: Bool) -> [URL] {
-//        // Assumes usage of DocumentsURL
-//        let mediaDirectory = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
-//        return self.readMediaFilesDirectory()
-//    }
-
-//    static func readMediaFilesDirectory(mediaDirectory: URL) -> [URL] {
-//        let readContentsResult = StitchFileManager.readDirectoryContents(mediaDirectory)
-//        switch readContentsResult {
-//        case .success(let urls):
-//            return urls
-//        case .failure(let error):
-//            return []
-//        }
-//    }
-    
-//    static func readComponentsDirectory(rootUrl: URL) -> [URL] {
-//        guard let componentFiles = try? FileManager.default
-//            .contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
-//                                 includingPropertiesForKeys: nil) else {
-//            return []
-//        }
-//        
-//        return componentFiles.filter { $0.pathExtension == StitchComponent.unzippedFileType.preferredFilenameExtension }
-//    }
     
     func readAllImportedFiles() throws -> StitchDocumentDirectory {
         try Self.readAllImportedFiles(rootUrl: self.rootUrl)

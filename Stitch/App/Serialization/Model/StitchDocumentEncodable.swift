@@ -48,21 +48,12 @@ protocol StitchDocumentEncodable: Codable, Identifiable where ID: StitchDocument
     static func getDocument(from url: URL) throws -> Self?
 }
 
-//let STITCH_TEMPORARY_MEDIA_DIR = "TemporaryMedia"
-
 enum StitchEncodableSubfolder: String, CaseIterable {
     case media = "ImportedFiles"
     case components = "Components"
 }
 
-extension StitchDocumentEncodable {
-//    static var subfolderNames: [String] {
-//        [
-//            STITCH_IMPORTED_FILES_DIR,
-//            URL.componentsDirPath
-//        ]
-//    }
-     
+extension StitchDocumentEncodable {     
     /// Invoked when full path is known.
     func createUnzippedFileWrapper() {
         let folderUrl = self.rootUrl

@@ -15,12 +15,7 @@ let STITCH_PROJECT_THUMBNAIL_PATH_COMPONENT = "projectThumbnail.png"
 let STITCH_SCHEMA_NAME = "schema"
 let STITCH_SCHEMA_EXTENSION = "json"
 
-extension DocumentEncodable {
-//    func getImportedFilesURL(forRecentlyDeleted: Bool = false) -> URL {
-//        self.getUrl(forRecentlyDeleted: forRecentlyDeleted)
-//            .appendingStitchMediaPath()
-//    }
-    
+extension DocumentEncodable {    
     static func getProjectThumbnailURL(rootUrl: URL) -> URL {
         rootUrl.appendProjectThumbnailPath()
     }
@@ -35,13 +30,6 @@ extension DocumentEncodable {
         
         return thumbnailImage
     }
-    
-//    func getUrl(forRecentlyDeleted: Bool = false) -> URL {
-//        if forRecentlyDeleted {
-//            return self.recentlyDeletedUrl
-//        }
-//        return self.rootUrl
-//    }
 }
 
 extension URL {
