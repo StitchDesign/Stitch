@@ -38,6 +38,7 @@ protocol StitchDocumentIdentifiable: CustomStringConvertible {
 protocol StitchDocumentEncodable: Codable, Identifiable where ID: StitchDocumentIdentifiable {
     static var unzippedFileType: UTType { get }
     static var fileWrapper: FileWrapper { get }
+    static var subfolders: [StitchEncodableSubfolder] { get }
 
     init()
     var rootUrl: URL { get }
@@ -47,14 +48,12 @@ protocol StitchDocumentEncodable: Codable, Identifiable where ID: StitchDocument
     static func getDocument(from url: URL) throws -> Self?
 }
 
-extension StitchDocumentEncodable {
-    static var subfolderNames: [String] {
-        [
-            STITCH_IMPORTED_FILES_DIR,
-            URL.componentsDirPath
-        ]
-    }
-     
+enum StitchEncodableSubfolder: String, CaseIterable {
+    case media = "ImportedFiles"
+    case components = "Components"
+}
+
+extension StitchDocumentEncodable {     
     /// Invoked when full path is known.
     func createUnzippedFileWrapper() {
         let folderUrl = self.rootUrl
@@ -107,7 +106,9 @@ extension StitchDocumentEncodable {
     
     static func copySubfolders(srcRootUrl: URL,
                                destRootUrl: URL) {
-        StitchDocument.subfolderNames.forEach { subfolderName in
+        Self.subfolders.forEach { subfolder in
+            let subfolderName = subfolder.rawValue
+            
             do {
                 let srcFolderUrl = srcRootUrl.appendingPathComponent(subfolderName)
                 let destFolderUrl = destRootUrl.appendingPathComponent(subfolderName)

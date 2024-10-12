@@ -9,11 +9,10 @@ import Foundation
 import StitchSchemaKit
 
 extension DocumentEncodable {
-    func deleteMediaFromNode(mediaKey: MediaKey) async {
-        switch self.getMediaURL(for: mediaKey,
-                                forRecentlyDeleted: false) {
+    func deleteMediaFromNode(mediaKey: MediaKey) {
+        switch self.getMediaURL(for: mediaKey) {
         case .success(let url):
-            let _ = await self.removeStitchMedia(at: url)
+            let _ = self.removeStitchMedia(at: url)
 
         case .failure(let error):
             // Silently report error
@@ -23,8 +22,13 @@ extension DocumentEncodable {
 
     /// Called when GraphState is initialized to build library data and then run first calc.
     func getDecodedFiles() -> GraphDecodedFiles? {
-        let importedFilesDir = self.readAllImportedFiles()
-        return GraphDecodedFiles(importedFilesDir: importedFilesDir)
+        do {
+            let importedFilesDir = try self.readAllImportedFiles()
+            return GraphDecodedFiles(importedFilesDir: importedFilesDir)
+        } catch {
+            fatalErrorIfDebug("DocumentEncodable.getDecodedFiles error: \(error.localizedDescription)")
+            return nil
+        }
     }
 }
 

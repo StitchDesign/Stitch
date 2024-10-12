@@ -121,11 +121,11 @@ final class StitchFileManager: FileManager, MiddlewareService {
             log("StitchFileManager.removeStitchProject: Will non-permanently delete StitchProject \(projectId)")
             
             // Wipe directory for recently deleted projects
-            try? FileManager.default.removeItem(at: StitchDocument.recentlyDeletedURL)
-            try? FileManager.default.createDirectory(at: StitchDocument.recentlyDeletedURL,
+            try? FileManager.default.removeItem(at: StitchFileManager.recentlyDeletedURL)
+            try? FileManager.default.createDirectory(at: StitchFileManager.recentlyDeletedURL,
                                                      withIntermediateDirectories: true)
 
-            let recentlyDeletedProjectUrl = StitchDocument.recentlyDeletedURL
+            let recentlyDeletedProjectUrl = StitchFileManager.recentlyDeletedURL
                 .appendingStitchProjectDataPath("\(projectId)")
             
             do {
@@ -154,24 +154,27 @@ final class StitchFileManager: FileManager, MiddlewareService {
 
 extension DocumentEncodable {
     func removeStitchMedia(at URL: URL,
-                           permanently: Bool = false) async -> StitchFileVoidResult {
+                           permanently: Bool = false) -> StitchFileVoidResult {
         if !permanently {
             // Copy file to recentely deleted URL
-            let _ = await self.copyToMediaDirectory(originalURL: URL,
-                                                    forRecentlyDeleted: true)
+            let _ = self.copyToMediaDirectory(originalURL: URL,
+                                              forRecentlyDeleted: true)
         }
         return StitchFileManager.removeItem(at: URL)
     }
     
-    func getMediaURL(for mediaKey: MediaKey,
-                     forRecentlyDeleted: Bool) -> URLResult {
-
-        let importedFiles = self.readMediaFilesDirectory(forRecentlyDeleted: forRecentlyDeleted)
-
-        guard let url = importedFiles.first(where: { $0.mediaKey == mediaKey }) else {
+    func getMediaURL(for mediaKey: MediaKey) -> URLResult {
+        do {
+            let importedFiles = try self.getAllResources(for: .media)
+            
+            guard let url = importedFiles.first(where: { $0.mediaKey == mediaKey }) else {
+                return .failure(.mediaNotFoundInLibrary)
+            }
+            
+            return .success(url)
+        } catch {
+            fatalErrorIfDebug("getMediaURL: \(error.localizedDescription)")
             return .failure(.mediaNotFoundInLibrary)
         }
-
-        return .success(url)
     }
 }

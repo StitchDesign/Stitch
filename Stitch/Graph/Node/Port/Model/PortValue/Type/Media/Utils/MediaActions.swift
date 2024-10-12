@@ -23,7 +23,7 @@ extension StitchStore {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
-        guard let graphState = self.currentGraph else {
+        guard let graphState = self.currentDocument?.visibleGraph else {
             self.alertState.stitchFileError = .currentProjectNotFound
             return
         }
@@ -53,7 +53,7 @@ extension StitchStore {
         // Toggle alert state
         self.alertState.fileImportModalState = .notImporting
 
-        guard let graphState = self.currentGraph else {
+        guard let graphState = self.currentDocument?.visibleGraph else {
             self.alertState.stitchFileError = .currentProjectNotFound
             return
         }
@@ -76,7 +76,7 @@ extension StitchStore {
 /// Called when a media import from the top bar file picker or drag-and-drop event happens.
 extension DocumentEncodable {
     func importFileToNewNode(fileURL: URL, droppedLocation: CGPoint) async {
-        let copyResult = await self.copyToMediaDirectory(
+        let copyResult = self.copyToMediaDirectory(
             originalURL: fileURL,
             forRecentlyDeleted: false)
         
@@ -93,8 +93,8 @@ extension DocumentEncodable {
     
     /// Called when media is imported from a patch node's file picker.
     func importFileToExistingNode(fileURL: URL, nodeImportPayload: NodeMediaImportPayload) async {
-        let copyResult = await self.copyToMediaDirectory(originalURL: fileURL,
-                                                         forRecentlyDeleted: false)
+        let copyResult = self.copyToMediaDirectory(originalURL: fileURL,
+                                                   forRecentlyDeleted: false)
         await MainActor.run {
             switch copyResult {
             case .success(let newURL):
@@ -107,15 +107,16 @@ extension DocumentEncodable {
     }
     
     /// Called when recently-deleted media is undo-ed.
-    func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
+    func undoDeletedMedia(mediaKey: MediaKey) -> URLResult {
         // Look for media in expected "recently deleted" location"
-        let expectedMediaURL = self.getImportedFilesURL(forRecentlyDeleted: true)
+        let expectedMediaURL = self.getFolderUrl(for: .media,
+                                                 isTemp: true)
             .appendingPathComponent(mediaKey.filename)
             .appendingPathExtension(mediaKey.fileExtension)
         
         // We import back to the current opened project
-        return await self.copyToMediaDirectory(originalURL: expectedMediaURL,
-                                               forRecentlyDeleted: false)
+        return self.copyToMediaDirectory(originalURL: expectedMediaURL,
+                                         forRecentlyDeleted: false)
     }
 }
 

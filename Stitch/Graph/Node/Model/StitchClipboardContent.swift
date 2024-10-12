@@ -9,11 +9,14 @@ import SwiftUI
 import UniformTypeIdentifiers
 import StitchSchemaKit
 
-extension StitchComponent: StitchDocumentEncodable { }
+extension StitchComponent: StitchDocumentEncodable {
+    static let subfolders: [StitchEncodableSubfolder] = StitchEncodableSubfolder.allCases
+}
 
 struct StitchClipboardContent: StitchComponentable, StitchDocumentEncodable {
     static let unzippedFileType = UTType.stitchClipboard
     static let dataJsonName = StitchDocument.graphDataFileName
+    static let subfolders: [StitchEncodableSubfolder] = StitchEncodableSubfolder.allCases
     
     var graph: GraphEntity
 }

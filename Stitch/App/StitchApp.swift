@@ -42,7 +42,7 @@ struct StitchApp: App {
         //        #endif
         .commands {
             StitchCommands(store: store,
-                           activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)
+                           activeReduxFocusedField: store.currentDocument?.graphUI.reduxFocusedField)
         }
     }
 }
