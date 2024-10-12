@@ -44,14 +44,12 @@ extension DocumentEncodable {
     
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
-                                              enableUndo: Bool = true,
-                                              wasUndo: Bool = false) {
+                                              willUpdateUndoHistory: Bool = true) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
-                                       enableUndo: enableUndo,
-                                       wasUndo: wasUndo) { delegate, oldSchema, newSchema in
+                                       willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
             
-            if enableUndo,
+            if willUpdateUndoHistory,
                let graph = graph {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
@@ -64,13 +62,11 @@ extension DocumentEncodable {
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               undoEvents: [Action],
                                               temporaryUrl: URL? = nil,
-                                              enableUndo: Bool = true,
-                                              wasUndo: Bool = false) {
+                                              willUpdateUndoHistory: Bool = true) {
         self.encodeProjectInBackground(from: graph,
                                        temporaryUrl: temporaryUrl,
-                                       enableUndo: enableUndo,
-                                       wasUndo: wasUndo) { delegate, oldSchema, newSchema in
-            if enableUndo,
+                                       willUpdateUndoHistory: willUpdateUndoHistory) { delegate, oldSchema, newSchema in
+            if willUpdateUndoHistory,
                 let graph = graph {
                 graph.storeDelegate?.saveUndoHistory(from: delegate,
                                                      oldSchema: oldSchema,
@@ -83,8 +79,7 @@ extension DocumentEncodable {
     
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
-                                              enableUndo: Bool = true,
-                                              wasUndo: Bool = false,
+                                              willUpdateUndoHistory: Bool = true,
                                               saveUndoHistory: @escaping (DocumentDelegate, CodableDocument, CodableDocument) -> ()) {
         guard let delegate = self.delegate else {
             fatalErrorIfDebug()
@@ -98,13 +93,13 @@ extension DocumentEncodable {
         let oldSchema = self.lastEncodedDocument
         
         // Update undo only if the caller here wasn't undo itself--this breaks redo
-        if !wasUndo && enableUndo {
+        if willUpdateUndoHistory {
             saveUndoHistory(delegate, oldSchema, newSchema)
         }
         
         Task(priority: .background) {
             await self.encodeProject(newSchema,
-                                     enableUndo: enableUndo,
+                                     willUpdateUndoHistory: willUpdateUndoHistory,
                                      temporaryURL: temporaryUrl)
         }
     }
@@ -118,7 +113,7 @@ extension DocumentEncodable {
     }
     
     func encodeProject(_ document: Self.CodableDocument,
-                       enableUndo: Bool = true,
+                       willUpdateUndoHistory: Bool = true,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
         let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         
@@ -130,7 +125,7 @@ extension DocumentEncodable {
             log("encodeProject success")
 
             // Save data for last encoded document whenever there was undo history saved
-            if enableUndo {
+            if willUpdateUndoHistory {
                 await MainActor.run { [weak self] in
                     self?.lastEncodedDocument = document
                 }
