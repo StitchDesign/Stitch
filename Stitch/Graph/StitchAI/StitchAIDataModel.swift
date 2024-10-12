@@ -241,6 +241,7 @@ enum NodeTypeTest: String, CaseIterable {
     case rectangle = "Rectangle"
     case shape = "Shape"
     case colorFill = "ColorFill"
+    case image = "Image"
     case video = "Video"
     case videoStreaming = "VideoStreaming"
     case realityView = "RealityView"

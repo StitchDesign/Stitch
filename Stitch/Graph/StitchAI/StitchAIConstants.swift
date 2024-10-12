@@ -270,6 +270,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "rectangle || Layer - displays a rectangle in the preview window.",
                 "shape || Layer - takes a Shape as an input and displays it in the preview window.",
                 "colorFill || Layer - displays a color fill in the preview window.",
+                "image || Layer - displays an imported image in the preview window.",
                 "video || Layer - displays an imported video in the preview window.",
                 "videoStreaming || Layer - displays an imported video in the preview window.",
                 "realityView || Layer - displays the output of an augmented reality scene in the preview window.",
