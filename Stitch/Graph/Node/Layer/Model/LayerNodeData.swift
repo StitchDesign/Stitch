@@ -208,7 +208,8 @@ extension InputLayerNodeRowData {
         if layerInputType.layerInput == .size {
             log("InputLayerNodeRowData: update: size input")
         }
-                
+        
+        
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
                 if layerInputType.layerInput == .size {
@@ -232,7 +233,7 @@ extension InputLayerNodeRowData {
                                             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                             unpackedPortIndex: unpackedPortIndex)
                 
-                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
+//                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
         } else {
             if layerInputType.layerInput == .size {

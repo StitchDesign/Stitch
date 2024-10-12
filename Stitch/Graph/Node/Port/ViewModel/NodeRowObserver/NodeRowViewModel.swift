@@ -238,6 +238,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
+    
+    // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
     weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
