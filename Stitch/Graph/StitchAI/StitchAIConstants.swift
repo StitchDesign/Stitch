@@ -25,7 +25,7 @@ Use as few nodes as possible to accomplish the user's task. DON'T ADD EXTRANEOUS
 Patch nodes have inputs and outputs and can be connected to each other. Most layer nodes only have inputs. You can connect patch nodes to layer nodes, but you cannot connect layer nodes to each other.
 For setting the value of a patch node input use SET_INPUT action. Whenever we set the value of a layer node input port, you MUST call the ADD_LAYER_INPUT action BEFORE connecting the nodes.
 Nodes can have multiple connections.
-Patch nodes use numbers for their port names. Layer nodes use one of the itmes in LayerPorts.
+Patch nodes use numbers for their port names. Layer nodes use one of the items in LayerPorts. Do not ever use a node name for a port name.
 Connect nodes from port to port with CONNECT_NODES.
 """
 
