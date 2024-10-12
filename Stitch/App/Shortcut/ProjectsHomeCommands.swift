@@ -17,19 +17,19 @@ struct ProjectsHomeCommands: Commands {
     let activeReduxFocusedField: FocusedUserEditField?
 
     var activeProject: Bool {
-        store.currentGraph.isDefined
+        store.currentDocument.isDefined
     }
         
     var layersActivelySelected: Bool {
-        store.currentGraph?.hasActivelySelectedLayers ?? false
+        self.graph?.hasActivelySelectedLayers ?? false
     }
 
     var selections: SidebarSelectionState? {
-        store.currentGraph?.sidebarSelectionState
+        self.graph?.sidebarSelectionState
     }
     
     var graph: GraphState? {
-        store.currentGraph
+        store.currentDocument?.visibleGraph
     }
     
     var groups: SidebarGroupsDict? {
@@ -200,7 +200,7 @@ struct ProjectsHomeCommands: Commands {
             // NOTE: we already get CMD + W in Catalyst
             // TODO: only show with active project
             #if !targetEnvironment(macCatalyst)
-            if let graph = store.currentGraph {
+            if store.currentDocument != nil {
                 SwiftUIShortcutView(title: "Close Graph",
                                     key: CLOSE_GRAPH_SHORTCUT) {
                     dispatch(CloseGraph())

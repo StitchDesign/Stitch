@@ -33,7 +33,8 @@ extension URL {
         let _ = self.startAccessingSecurityScopedResource()
 
         let duration = endTime - startTime
-        let outUrl = StitchDocument.temporaryMediaURL
+        let outUrl = StitchFileManager.tempDocumentResources
+            .appendingPathComponent("TrimmedVideos")
             .appendingPathComponent(UUID().uuidString)
             .appendingPathExtension(self.pathExtension)
 

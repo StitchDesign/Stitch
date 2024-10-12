@@ -10,6 +10,7 @@ import UniformTypeIdentifiers
 
 extension StitchSystem {
     static let userLibraryName = "User Library"
+    static let subfolders: [StitchEncodableSubfolder] = [.components]
 }
 
 
