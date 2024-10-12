@@ -204,24 +204,12 @@ extension InputLayerNodeRowData {
                 unpackedPortParentFieldGroupType: FieldGroupType?,
                 unpackedPortIndex: Int?) {
         self.rowObserver.id.nodeId = nodeId
-            
-        if layerInputType.layerInput == .size {
-            log("InputLayerNodeRowData: update: size input")
-        }
-        
-        
+                    
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
-                if layerInputType.layerInput == .size {
-                    log("InputLayerNodeRowData: update: size input: had canvas observer")
-                }
                 canvasObserver.update(from: canvas)
                 
             } else {
-                if layerInputType.layerInput == .size {
-                    log("InputLayerNodeRowData: update: size input: will create canvas observer")
-                }
-                
                 // Make new canvas observer since none yet created
                 let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
                                                              keyPath: layerInputType))
@@ -232,13 +220,11 @@ extension InputLayerNodeRowData {
                                             outputRowObservers: [],
                                             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                             unpackedPortIndex: unpackedPortIndex)
-                
+
+                // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
 //                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
         } else {
-            if layerInputType.layerInput == .size {
-                log("InputLayerNodeRowData: update: size input: no canvas on schema")
-            }
             self.canvasObserver = nil
         }
     }

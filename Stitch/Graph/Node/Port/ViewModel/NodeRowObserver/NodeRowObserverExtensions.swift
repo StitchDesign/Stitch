@@ -55,43 +55,7 @@ extension NodeRowObserver {
     /// Updates port view models when the backend port observer has been updated.
     /// Also invoked when nodes enter the viewframe incase they need to be udpated.
     func updatePortViewModels() {
-        let rowViewModels = self.getVisibleRowViewModels()
-        
-        let isPositionInput = self.id.keyPath?.layerInput == .position
-        let isSizeInput = self.id.keyPath?.layerInput == .size
-        
-//        if self.activeValue.getPosition.isDefined {
-        if isPositionInput {
-            log("NodeRowObserver: updatePortViewModels: row observer for: position, rowViewModels.count: \(rowViewModels.count)")
-        }
-
-        // .getSize is for min and max size as well
-        if isSizeInput {
-//            if self.activeValue.getSize.isDefined {
-            log("NodeRowObserver: updatePortViewModels: row observer for: size, rowViewModels.count: \(rowViewModels.count)")
-        }
-        
-        rowViewModels.forEach { rowViewModel in
-            
-            switch rowViewModel.id.graphItemType {
-            case .layerInspector(let x):
-                log("NodeRowObserver: updatePortViewModels: layer inspector x \(x)")
-                if isPositionInput {
-                    log("NodeRowObserver: updatePortViewModels: layer inspector x: position")
-                }
-                if isSizeInput {
-                    log("NodeRowObserver: updatePortViewModels: layer inspector x: size")
-                }
-            case .node(let x):
-                log("NodeRowObserver: updatePortViewModels: node x \(x)")
-                if isPositionInput {
-                    log("NodeRowObserver: updatePortViewModels: node x: position")
-                }
-                if isSizeInput {
-                    log("NodeRowObserver: updatePortViewModels: node x: size")
-                }
-            }
-                
+        self.getVisibleRowViewModels().forEach { rowViewModel in
             rowViewModel.didPortValuesUpdate(values: self.allLoopedValues)
         }
     }

@@ -118,13 +118,6 @@ final class CanvasItemViewModel: Identifiable {
         self.parentGroupNodeId = parentGroupNodeId
         self.nodeDelegate = nodeDelegate
         
-        log("CanvasItemViewModel: id: \(id)")
-        log("CanvasItemViewModel: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
-        
-        if id.layerInputCase?.keyPath.layerInput == .size {
-            log("CanvasItemViewModel: had size input")
-        }
-        
         // Instantiate input and output row view models
         self.syncRowViewModels(inputRowObservers: inputRowObservers,
                                outputRowObservers: outputRowObservers,
@@ -150,22 +143,13 @@ extension CanvasItemViewModel {
                                    unpackedPortIndex: nil)
     }
     
+    // Only called at project open?
     convenience init(from canvasEntity: CanvasNodeEntity,
                      id: CanvasItemId,
                      inputRowObservers: [InputNodeRowObserver],
                      outputRowObservers: [OutputNodeRowObserver],
                      unpackedPortParentFieldGroupType: FieldGroupType?,
                      unpackedPortIndex: Int?) {
-        
-        // ONLY CALLED AT PROJECT OPEN, AND ROW OBSERVERS HAVE DEFAULT VALUES
-        if id.layerInputCase?.keyPath.layerInput == .size {
-            log("CanvasItemViewModel: convenience init: had size input: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
-        }
-        
-        if id.layerInputCase?.keyPath.layerInput == .position {
-            log("CanvasItemViewModel: convenience init: had position input: inputRowObservers.first?.allLoopedValues: \(inputRowObservers.first?.allLoopedValues)")
-        }
-        
         self.init(id: id,
                   position: canvasEntity.position,
                   zIndex: canvasEntity.zIndex,
