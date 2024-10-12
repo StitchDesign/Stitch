@@ -72,19 +72,19 @@ extension StitchDocumentViewModel {
         ]
            
            guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
-               print("Error encoding JSON")
+               print("Error encoding JSON from OpenAI")
                return
            }
            request.httpBody = jsonData
            
            let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
                if let error = error {
-                   print("Error making request: \(error)")
+                   print("Error making OpenAI request: \(error)")
                    return
                }
                
                guard let data = data else {
-                   print("No data received")
+                   print("No data received from OpenAI")
                    return
                }
                
