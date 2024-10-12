@@ -86,7 +86,7 @@ struct StitchRootView: View {
                 fn(false)
             }
         }
-        .onChange(of: self.store.currentGraph?.graphUI.leftSidebarOpen ?? false) { oldValue, newValue in
+        .onChange(of: self.store.currentDocument?.graphUI.leftSidebarOpen ?? false) { oldValue, newValue in
 //            dispatch(LeftSidebarSet(open: true))
             if newValue {
                 self.columnVisibility = .doubleColumn
@@ -154,7 +154,7 @@ struct StitchRootView: View {
         .onChange(of: isShowingDrawer) { newValue in
             columnVisibility = newValue ? .all : .detailOnly
         }
-        .onChange(of: self.store.currentGraph.isDefined) { isProjectOpened in
+        .onChange(of: self.store.currentDocument.isDefined) { isProjectOpened in
             // If we close graph while sidebar is open,
             // we need to also close sidebar
             // since otherwise the native nav bar's sidebar icon can get lost.

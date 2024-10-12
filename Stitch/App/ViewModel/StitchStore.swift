@@ -108,15 +108,11 @@ extension StitchStore {
     }
 
     var currentProjectId: ProjectId? {
-        currentGraph?.projectId
+        currentDocument?.projectId
     }
 
     var currentDocument: StitchDocumentViewModel? {
         self.navPath.first
-    }
-    
-    var currentGraph: GraphState? {
-        self.currentDocument?.graph
     }
     
     var undoManager: StitchUndoManager {

@@ -13,9 +13,9 @@ struct MediaCopiedToNewNode: StitchStoreEvent {
     let location: CGPoint
     
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.currentGraph?.mediaCopiedToNewNode(newURL: url,
-                                                 nodeLocation: location,
-                                                 store: store)
+        store.currentDocument?.visibleGraph.mediaCopiedToNewNode(newURL: url,
+                                                                 nodeLocation: location,
+                                                                 store: store)
         return .noChange
     }
 }
