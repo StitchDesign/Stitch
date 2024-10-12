@@ -176,9 +176,11 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor
-    func encodeProjectInBackground(temporaryURL: URL? = nil) {
+    func encodeProjectInBackground(temporaryURL: URL? = nil,
+                                   willUpdateUndoHistory: Bool = true) {
         self.documentEncoder.encodeProjectInBackground(from: self.graph,
-                                                       temporaryUrl: temporaryURL)
+                                                       temporaryUrl: temporaryURL,
+                                                       willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
     /// Determines if camera is in use by looking at main graph + all component graphs to determine if any camera

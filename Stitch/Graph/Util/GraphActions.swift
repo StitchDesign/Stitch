@@ -39,7 +39,12 @@ extension GraphState: DocumentEncodableDelegate {
         }
     }
     
-    func willEncodeProject(schema: GraphEntity) { }
+    func willEncodeProject(schema: GraphEntity) {
+        // Updates thumbnail
+         if let document = self.documentDelegate {
+             document.encodeProjectInBackground(willUpdateUndoHistory: false)
+         }
+    }
     
     func createSchema(from graph: GraphState?) -> GraphEntity {
         self.createSchema()
