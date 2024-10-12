@@ -24,7 +24,8 @@ When generating the solution, follow these steps:
 Use as few nodes as possible to accomplish the user's task. DON'T ADD EXTRANEOUS NODES TO THE GRAPH.
 Patch nodes have inputs and outputs and can be connected to each other. Most layer nodes only have inputs. You can connect patch nodes to layer nodes, but you cannot connect layer nodes to each other.
 For setting the value of a patch node input use SET_INPUT action. Whenever we set the value of a layer node input port, you MUST call the ADD_LAYER_INPUT action BEFORE connecting the nodes.
-Patch nodes use numbers for their ports. Nodes can have multiple connections. Every layer port can be connected with one of the items in LayerPorts.
+Nodes can have multiple connections.
+Patch nodes use numbers for their port names. Layer nodes use one of the itmes in LayerPorts.
 Connect nodes from port to port with CONNECT_NODES.
 """
 
