@@ -30,4 +30,7 @@ protocol StoreDelegate: AnyObject {
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
                                           undoEffectsData: UndoEffectsData?) where EncoderDelegate: DocumentEncodableDelegate
+    
+    @MainActor
+    func saveComponentToUserLibrary(_ component: StitchComponent) throws
 }

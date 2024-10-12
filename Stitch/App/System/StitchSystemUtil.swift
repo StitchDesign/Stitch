@@ -39,7 +39,7 @@ extension StitchSystem: StitchDocumentEncodable, StitchDocumentMigratable {
 extension [StitchSystemType: StitchSystemViewModel] {
     func findSystem(forComponent id: UUID) -> StitchSystemViewModel? {
         for system in self.values {
-            if system.componentEncoders.get(id) != nil {
+            if system.components.get(id) != nil {
                 return system
             }
         }
@@ -63,15 +63,20 @@ extension StitchStore {
             let userSystem = StitchSystemViewModel(data: systemData,
                                                    storeDelegate: self)
             // Save system to store
-            self.systems.updateValue(userSystem, forKey: userSystem.data.id)
+            self.systems.updateValue(userSystem, forKey: userSystem.lastEncodedDocument.id)
             
-            try userSystem.data.saveComponentToSystem(component: component,
-                                                      systemType: .userLibrary)
+            try userSystem.lastEncodedDocument.saveComponentToSystem(component: component,
+                                                                     systemType: .userLibrary)
             return
         }
         
-        try userSystem.data.saveComponentToSystem(component: component,
-                                                  systemType: .userLibrary)
+        try userSystem.lastEncodedDocument.saveComponentToSystem(component: component,
+                                                                 systemType: .userLibrary)
+        
+        // Refreshing directory makes view update on linking--pretty hacky but **DON'T TOUCH IT!**
+        Task { [weak self] in
+            await self?.directoryUpdated()
+        }
     }
 }
 

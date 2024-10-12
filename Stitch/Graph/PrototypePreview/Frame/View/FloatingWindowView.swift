@@ -220,15 +220,9 @@ struct FloatingWindowView: View {
     
     @ViewBuilder
     var floatingWindow: some View {
-        VStack {
-            HStack(spacing: .zero) {
-                Spacer()
-                PreviewContent(document: document,
-                               isFullScreen: false)
-                .frame(self.previewWindowSizing.dimensions)
-            }
-            Spacer()
-        }
+        PreviewContent(document: document,
+                       isFullScreen: false)
+        .frame(self.previewWindowSizing.dimensions)
         .padding(.top, PREVIEW_WINDOW_Y_PADDING)
     }
 }

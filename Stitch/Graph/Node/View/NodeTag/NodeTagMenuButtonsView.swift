@@ -102,7 +102,7 @@ struct NodeTagMenuButtonsView: View {
                 
                 if FeatureFlags.USE_COMPONENTS {
                     if let componentId = node.nodeType.componentNode?.componentId,
-                       let component = graph.components.get(componentId)?.componentData {
+                       let component = graph.components.get(componentId) {
                         componentLinkingButton(component: component)
                     }
                 }
@@ -322,16 +322,20 @@ struct NodeTagMenuButtonsView: View {
     }
     
     @MainActor
-    func componentLinkingButton(component: StitchComponent) -> some View {
+    func componentLinkingButton(component: StitchMasterComponent) -> some View {
         // Check if button is already linked
         if let linkedSystem = self.store.systems.findSystem(forComponent: component.id) {
             return nodeTagMenuButton(label: "Unlink Component") {
-                fatalError()
+                do {
+                    try self.graph.documentDelegate?.unlinkComponent(localComponent: component)
+                } catch {
+                    log(error.localizedDescription)
+                }
             }
         } else {
             return nodeTagMenuButton(label: "Save Component to Library") {
                 do {
-                    try store.saveComponentToUserLibrary(component)
+                    try store.saveComponentToUserLibrary(component.lastEncodedDocument)
                 } catch {
                     fatalErrorIfDebug(error.localizedDescription)
                 }
