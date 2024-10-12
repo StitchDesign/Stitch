@@ -398,22 +398,20 @@ extension GraphState {
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
-                                   enableUndo: Bool = true,
-                                   wasUndo: Bool = false) {
+                                   willUpdateUndoHistory: Bool = true) {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 temporaryUrl: temporaryURL,
-                                                                enableUndo: enableUndo,
-                                                                wasUndo: wasUndo)
+                                                                willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
     @MainActor
     func encodeProjectInBackground(temporaryURL: URL? = nil,
                                    undoEvents: [Action],
-                                   wasUndo: Bool = false) {
+                                   willUpdateUndoHistory: Bool = true) {
         self.documentEncoderDelegate?.encodeProjectInBackground(from: self,
                                                                 undoEvents: undoEvents,
                                                                 temporaryUrl: temporaryURL,
-                                                                wasUndo: false)
+                                                                willUpdateUndoHistory: willUpdateUndoHistory)
     }
     
     func getPatchNode(id nodeId: NodeId) -> PatchNode? {
