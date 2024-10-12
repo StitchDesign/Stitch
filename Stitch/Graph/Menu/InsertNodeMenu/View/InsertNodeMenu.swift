@@ -68,7 +68,7 @@ struct InsertNodeMenuView: View {
                     searchResults: insertNodeMenuState.searchResults,
                     activeSelection: insertNodeMenuState.activeSelection,
                     footerRect: self.$footerRect,
-                    show: store.currentGraph?.graphUI.insertNodeMenuState.show ?? false,
+                    show: store.currentDocument?.graphUI.insertNodeMenuState.show ?? false,
                     animatingNodeOpacity: animatingNodeOpacity)
                     //                    .frame(width: 170, height: 300) // Figma
                     .frame(width: INSERT_NODE_MENU_SEARCH_RESULTS_WIDTH)
@@ -94,9 +94,7 @@ struct InsertNodeMenuView: View {
         HStack {
             Spacer()
             StitchButton(action: {
-                if let activeSelection = self.store.currentGraph?.graphUI.insertNodeMenuState.activeSelection {
-                    dispatch(AddNodeButtonPressed())
-                }
+                dispatch(AddNodeButtonPressed())
             }, label: {
                 Text("Add Node")
                     .font(.subheadline)

@@ -114,7 +114,7 @@ extension DocumentEncodable {
     }
     
     var recentlyDeletedUrl: URL {
-        StitchDocument.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.documentId)")
+        StitchFileManager.recentlyDeletedURL.appendingStitchProjectDataPath("\(self.documentId)")
     }
     
     func encodeProject(_ document: Self.CodableDocument,

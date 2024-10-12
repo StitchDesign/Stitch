@@ -9,54 +9,64 @@ import Foundation
 import StitchSchemaKit
 
 /// Helpers focused on reading/writing with a specific project URL.
-extension DocumentEncodable {
-    static func getAllMediaURLs(in importedFilesDir: URL) -> [URL] {
-        let importedFiles = Self.readMediaFilesDirectory(mediaDirectory: importedFilesDir)
-
-        // use temp directory rather than documentsURL
-        let tempFiles = Self.readMediaFilesDirectory(mediaDirectory: StitchDocument.temporaryMediaURL)
-
-        let allMedia = importedFiles + tempFiles
-        return allMedia
-    }
-    
-    func getAllMediaURLs() -> [URL] {
-        Self.getAllMediaURLs(in: self.getImportedFilesURL())
-    }
-
-    func readMediaFilesDirectory(forRecentlyDeleted: Bool) -> [URL] {
-        // Assumes usage of DocumentsURL
-        let mediaDirectory = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
-        return Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
-    }
-
-    static func readMediaFilesDirectory(mediaDirectory: URL) -> [URL] {
-        let readContentsResult = StitchFileManager.readDirectoryContents(mediaDirectory)
-        switch readContentsResult {
-        case .success(let urls):
-            return urls
-        case .failure(let error):
-            return []
-        }
-    }
-    
-    static func readComponentsDirectory(rootUrl: URL) -> [URL] {
-        guard let componentFiles = try? FileManager.default
-            .contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
-                                 includingPropertiesForKeys: nil) else {
-            return []
+extension DocumentEncodable {    
+    func getFolderUrl(for subfolder: StitchEncodableSubfolder,
+                      isTemp: Bool = false) -> URL {
+        if isTemp {
+            return StitchFileManager.tempDocumentResources.appendingPathComponent(subfolder.rawValue)
         }
         
-        return componentFiles.filter { $0.pathExtension == StitchComponent.unzippedFileType.preferredFilenameExtension }
+        return self.rootUrl.appendingPathComponent(subfolder.rawValue)
     }
     
-    func readAllImportedFiles() -> StitchDocumentDirectory {
-        Self.readAllImportedFiles(rootUrl: self.rootUrl)
+    /// Gets in-use and temp resources for a specific file type.
+    func getAllResources(for subfolder: StitchEncodableSubfolder) throws -> [URL] {
+        try Self.getAllResources(rootUrl: self.rootUrl,
+                                 subfolder: subfolder)
     }
     
-    static func readAllImportedFiles(rootUrl: URL) -> StitchDocumentDirectory {
-        let importedFilesDir = Self.getAllMediaURLs(in: rootUrl.appendingStitchMediaPath())
-        let componentFilesDir = Self.readComponentsDirectory(rootUrl: rootUrl)
+    /// Gets in-use and temp resources for a specific file type.
+    static func getAllResources(rootUrl: URL,
+                                subfolder: StitchEncodableSubfolder,
+                                includeTempFiles: Bool = false) throws -> [URL] {
+        // Skip if unsupported here
+        guard Self.CodableDocument.subfolders.contains(subfolder) else { return [] }
+        
+        let mainUrl = rootUrl.appendingPathComponent(subfolder.rawValue)
+        let tempUrl = StitchFileManager.tempDocumentResources.appendingPathComponent(subfolder.rawValue)
+        return try Self.getAllResources(mainDir: mainUrl, tempDir: tempUrl)
+    }
+    
+    /// Gets in-use and temp resources for a specific file type.
+    static func getAllResources(mainDir: URL,
+                                tempDir: URL?) throws -> [URL] {
+        guard FileManager.default.fileExists(atPath: mainDir.path) else { return [] }
+        
+        let mainResources = try FileManager.default
+            .contentsOfDirectory(at: mainDir,
+                                 includingPropertiesForKeys: nil)
+        
+        guard let tempDir = tempDir else { return mainResources }
+        
+        let tempResources = (try? FileManager.default
+            .contentsOfDirectory(at: tempDir,
+                                 includingPropertiesForKeys: nil)) ?? []
+        
+        return mainResources + tempResources
+    }
+    
+    func readAllImportedFiles() throws -> StitchDocumentDirectory {
+        try Self.readAllImportedFiles(rootUrl: self.rootUrl)
+    }
+    
+    static func readAllImportedFiles(rootUrl: URL) throws -> StitchDocumentDirectory {
+        // Gets temp URLs as well
+        let importedFilesDir = try Self.getAllResources(rootUrl: rootUrl,
+                                                        subfolder: .media,
+                                                        includeTempFiles: true)
+        
+        let componentFilesDir = try Self.getAllResources(rootUrl: rootUrl,
+                                                         subfolder: .components)
         
         return .init(importedMediaUrls: importedFilesDir,
                      componentDirs: componentFilesDir)
@@ -65,7 +75,7 @@ extension DocumentEncodable {
     func copyToMediaDirectory(originalURL: URL,
                               forRecentlyDeleted: Bool,
                               customMediaKey: MediaKey? = nil) -> URLResult {
-        let importedFilesURL = self.getImportedFilesURL(forRecentlyDeleted: forRecentlyDeleted)
+        let importedFilesURL = self.getFolderUrl(for: .media, isTemp: forRecentlyDeleted)
         return Self.copyToMediaDirectory(originalURL: originalURL,
                                          importedFilesURL: importedFilesURL,
                                          customMediaKey: customMediaKey)
@@ -120,12 +130,18 @@ extension DocumentEncodable {
     static func createUniqueFilename(filename: String,
                                      mediaType: SupportedMediaFormat,
                                      mediaDirectory: URL) -> String {
-        let existingFileNames = Self.readMediaFilesDirectory(mediaDirectory: mediaDirectory)
-            .map { $0.filename }
-
-        return Stitch.createUniqueFilename(filename: filename,
-                                           existingFilenames: existingFileNames,
-                                           mediaType: mediaType)
+        do {
+            let existingFileNames = try FileManager.default.contentsOfDirectory(at: mediaDirectory,
+                                                                                includingPropertiesForKeys: nil)
+                .map { $0.filename }
+            
+            return Stitch.createUniqueFilename(filename: filename,
+                                               existingFilenames: existingFileNames,
+                                               mediaType: mediaType)
+        } catch {
+            fatalErrorIfDebug(error.localizedDescription)
+            return filename
+        }
     }
     
     /// Copies files from another directory.

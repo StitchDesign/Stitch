@@ -17,7 +17,7 @@ struct StitchSidebarView: View {
     let syncStatus: iCloudSyncStatus
 
     var body: some View {
-        if let graph = store.currentGraph {
+        if let graph = store.currentDocument?.visibleGraph {
             ProjectSidebarView(graph: graph,
                                syncStatus: syncStatus)
 

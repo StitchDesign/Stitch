@@ -33,6 +33,7 @@ extension StitchDocument: StitchDocumentEncodable, StitchDocumentMigratable {
     
     static let unzippedFileType: UTType = .stitchProjectData
     static let zippedFileType: UTType = .stitchDocument
+    static let subfolders: [StitchEncodableSubfolder] = StitchEncodableSubfolder.allCases
     
     init() {
         self.init(nodes: [])
