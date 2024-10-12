@@ -92,9 +92,9 @@ extension MasterComponentsDict {
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     func willEncodeProject(schema: StitchComponent) {
         // Updates thumbnail
-//        if let document = self.parentGraph?.documentDelegate {
-//            document.encodeProjectInBackground(willUpdateUndoHistory: false)
-//        }
+        if let document = self.parentGraph?.documentDelegate {
+            document.encodeProjectInBackground(willUpdateUndoHistory: false)
+        }
         
         // Find all graphs using this component
         guard let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.lastEncodedDocument.id) else {

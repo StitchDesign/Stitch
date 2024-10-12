@@ -134,8 +134,10 @@ struct ProjectsListItemView: View {
             if self.projectLoader.loadingDocument == .initialized {
                 projectLoader.loadingDocument = .loading
                 
-                Task.detached(priority: .background) {
-                    await documentLoader.loadDocument(projectLoader)
+                Task.detached(priority: .background) { [weak documentLoader, weak projectLoader] in
+                    if let projectLoader = projectLoader {
+                        await documentLoader?.loadDocument(projectLoader)                        
+                    }
                 }
             }
         }
