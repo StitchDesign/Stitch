@@ -238,6 +238,8 @@ final class InputNodeRowViewModel: NodeRowViewModel {
     var portViewData: PortViewType?
     weak var nodeDelegate: NodeDelegate?
     weak var rowDelegate: InputNodeRowObserver?
+    
+    // TODO: input node row view model for an inspector should NEVER have canvasItemDelegate
     weak var canvasItemDelegate: CanvasItemViewModel? // also nil when the layer input is not on the canvas
     
     // TODO: temporary property for old-style layer nodes
@@ -365,11 +367,24 @@ extension OutputNodeRowViewModel {
 }
 
 extension Array where Element: NodeRowViewModel {
+    // easier code search
+    mutating func syncRowViewModelsWithCanvasItem(with newEntities: [Element.RowObserver],
+                                                  canvas: CanvasItemViewModel,
+                                                  unpackedPortParentFieldGroupType: FieldGroupType?,
+                                                  unpackedPortIndex: Int?) {
+        self.sync(with: newEntities,
+                  canvas: canvas,
+                  unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                  unpackedPortIndex: unpackedPortIndex)
+    }
+    
+    // TODO: This is impossible to find via a code search; too many methods are called `sync`
     /// Syncing logic as influced from `SchemaObserverIdentifiable`.
     mutating func sync(with newEntities: [Element.RowObserver],
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
                        unpackedPortIndex: Int?) {
+            
         // This will be nil for some inits--that's ok, just need to set delegate after
         let node = canvas.nodeDelegate
         
