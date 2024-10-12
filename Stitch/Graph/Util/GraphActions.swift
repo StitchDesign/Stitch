@@ -15,6 +15,9 @@ struct CloseGraph: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         log("CloseGraph called")
         
+        // Clear temporary data
+        try? FileManager.default.removeItem(at: StitchFileManager.tempDocumentResources)
+        
         store.alertState = ProjectAlertState()
 
         // reset any project title edit;

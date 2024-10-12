@@ -107,15 +107,16 @@ extension DocumentEncodable {
     }
     
     /// Called when recently-deleted media is undo-ed.
-    func undoDeletedMedia(mediaKey: MediaKey) async -> URLResult {
+    func undoDeletedMedia(mediaKey: MediaKey) -> URLResult {
         // Look for media in expected "recently deleted" location"
-        let expectedMediaURL = self.getImportedFilesURL(forRecentlyDeleted: true)
+        let expectedMediaURL = self.getFolderUrl(for: .media,
+                                                 isTemp: true)
             .appendingPathComponent(mediaKey.filename)
             .appendingPathExtension(mediaKey.fileExtension)
         
         // We import back to the current opened project
-        return await self.copyToMediaDirectory(originalURL: expectedMediaURL,
-                                               forRecentlyDeleted: false)
+        return self.copyToMediaDirectory(originalURL: expectedMediaURL,
+                                         forRecentlyDeleted: false)
     }
 }
 

@@ -42,6 +42,9 @@ final class StitchStore: Sendable, StoreDelegate {
 
     @MainActor
     init() {
+        // Remove cached data from previous session
+        try? FileManager.default.removeItem(at: StitchFileManager.tempDir)
+        
         // Sets up action dispatching
         GlobalDispatch.shared.delegate = self
 

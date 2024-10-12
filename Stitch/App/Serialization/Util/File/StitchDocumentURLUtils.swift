@@ -9,8 +9,6 @@ import Foundation
 import StitchSchemaKit
 
 extension URL {
-    static let componentsDirPath = "Components"
-    
     func appendingStitchProjectDataPath(_ documentId: String) -> URL {
         self.appendingPathComponent(StitchDocument.getUniqueInternalDirectoryName(from: documentId),
                                     conformingTo: .stitchProjectData)
@@ -22,11 +20,11 @@ extension URL {
     }
 
     func appendingStitchMediaPath() -> URL {
-        self.appendingPathComponent(STITCH_IMPORTED_FILES_DIR)
+        self.appendingPathComponent(StitchEncodableSubfolder.media.rawValue)
     }
     
     func appendingComponentsPath() -> URL {
-        self.appendingPathComponent(Self.componentsDirPath)
+        self.appendingPathComponent(StitchEncodableSubfolder.components.rawValue)
     }
 
     func appendingDataJsonPath() -> URL {
