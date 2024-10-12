@@ -114,13 +114,25 @@ struct ContentView: View, KeyboardReadable {
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
                 .overlay {
-                    // Floating preview kept outside NavigationSplitView for animation purposes
-                    if !showFullScreen.isTrue {
-                        FloatingWindowView(
-                            document: document,
-                            deviceScreenSize: graphUI.frame.size,
-                            showPreviewWindow: showPreviewWindow,
-                            namespace: graphNamespace)
+                    VStack {
+                        if graphUI.groupNodeFocused?.component != nil {
+                            ComponentNavBarView(graph: document.visibleGraph,
+                                                store: store)
+                        }
+                        
+                        HStack(spacing: .zero) {
+                            Spacer()
+                            // Floating preview kept outside NavigationSplitView for animation purposes
+                            if !showFullScreen.isTrue {
+                                FloatingWindowView(
+                                    document: document,
+                                    deviceScreenSize: graphUI.frame.size,
+                                    showPreviewWindow: showPreviewWindow,
+                                    namespace: graphNamespace)
+                            }
+                        }
+                        
+                        Spacer()
                     }
                 }
 //                // Layer Inspector Flyout must sit above preview window

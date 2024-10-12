@@ -150,6 +150,6 @@ extension [NodeEntity] {
         self
             .compactMap { $0.nodeTypeEntity.componentNodeEntity?.componentId }
             .toSet
-            .compactMap { masterComponentsDict.get($0)?.componentData }
+            .compactMap { masterComponentsDict.get($0)?.lastEncodedDocument }
     }
 }

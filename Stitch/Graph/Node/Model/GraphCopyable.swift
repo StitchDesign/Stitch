@@ -555,7 +555,6 @@ extension DocumentEncodable {
             return
         }
         
-        let _ = await self.copyFiles(from: files,
-                                     newSaveLocation: self.saveLocation.documentSaveLocation)
+        let _ = await self.copyFiles(from: files)
     }
 }

@@ -36,14 +36,18 @@ extension DocumentEncodable {
         case .success(let urls):
             return urls
         case .failure(let error):
-            log("readImportedFilesDirectory: unable to read directory contents, creating a new imported files directory.\nerror:\(error)")
             return []
         }
     }
     
     static func readComponentsDirectory(rootUrl: URL) -> [URL] {
-        (try? FileManager.default.contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
-                                                      includingPropertiesForKeys: nil)) ?? []
+        guard let componentFiles = try? FileManager.default
+            .contentsOfDirectory(at: rootUrl.appendingComponentsPath(),
+                                 includingPropertiesForKeys: nil) else {
+            return []
+        }
+        
+        return componentFiles.filter { $0.pathExtension == StitchComponent.unzippedFileType.preferredFilenameExtension }
     }
     
     func readAllImportedFiles() -> StitchDocumentDirectory {
@@ -125,8 +129,7 @@ extension DocumentEncodable {
     }
     
     /// Copies files from another directory.
-    func copyFiles(from directory: StitchDocumentDirectory,
-                   newSaveLocation: GraphSaveLocation?) async {
+    func copyFiles(from directory: StitchDocumentDirectory) async {
         // Copy selected media
         for mediaUrl in directory.importedMediaUrls {
             switch self.copyToMediaDirectory(originalURL: mediaUrl,
@@ -142,20 +145,22 @@ extension DocumentEncodable {
         }
         
         for srcComponentUrl in directory.componentDirs {
-            do {
-                guard var srcComponent = try await StitchComponent.openDocument(from: srcComponentUrl) else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                if let newSaveLocation = newSaveLocation {
-                    srcComponent.saveLocation = newSaveLocation
-                }
-                
-                try srcComponent.encodeNewDocument(srcRootUrl: srcComponentUrl)
-            } catch {
-                fatalErrorIfDebug(error.localizedDescription)
-            }
+            let srcUrl = srcComponentUrl
+            
+            // Clipboard uses non-document root url
+            let destRootUrl = self.rootUrl// self.saveLocation.documentSaveLocation?.getRootDirectoryUrl() ?? self.rootUrl
+            let destUrl = destRootUrl
+                .appendingComponentsPath()
+                .appendingPathComponent(srcComponentUrl.lastPathComponent)
+
+            StitchComponent.createUnzippedFileWrapper(folderUrl: destUrl)
+            
+            StitchComponent.copySubfolders(srcRootUrl: srcUrl,
+                                           destRootUrl: destUrl)
+
+            // Fail silently if already exists
+            try? FileManager.default.copyItem(at: srcUrl.appendingVersionedSchemaPath(),
+                                              to: destUrl.appendingVersionedSchemaPath())
         }
     }
     

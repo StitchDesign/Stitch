@@ -9,23 +9,20 @@ import SwiftUI
 import StitchSchemaKit
 
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
+@Observable
 final class StitchMasterComponent {
-    @MainActor var componentData: StitchComponent {
-        self.localComponentEncoder.lastEncodedDocument
-    }
-    
-    let id: UUID
+    var lastEncodedDocument: StitchComponent
     
     // Encoded copy of drafted component
-    let localComponentEncoder: ComponentEncoder
+    let encoder: ComponentEncoder
     
     weak var parentGraph: GraphState?
     
     @MainActor
     init(componentData: StitchComponent,
          parentGraph: GraphState?) {
-        self.id = componentData.id
-        self.localComponentEncoder = .init(component: componentData)
+        self.lastEncodedDocument = componentData
+        self.encoder = .init(component: componentData)
         self.parentGraph = parentGraph
         
         if let parentGraph = parentGraph {
@@ -35,11 +32,15 @@ final class StitchMasterComponent {
 }
 
 extension StitchMasterComponent {
+    var id: UUID {
+        self.lastEncodedDocument.graph.id
+    }
+    
     var publishedDocumentEncoder: ComponentEncoder? {
         guard let storeDelegate = self.storeDelegate else { return nil }
         
         for system in storeDelegate.systems.values {
-            if let componentEncoder = system.componentEncoders.get(self.id) {
+            if let componentEncoder = system.components.get(self.id)?.encoder {
                 return componentEncoder
             }
         }
@@ -53,7 +54,7 @@ extension StitchMasterComponent {
             return .init()
         }
         
-        var component = self.componentData
+        var component = self.lastEncodedDocument
         component.graph = graph
         return component
     }
@@ -68,7 +69,7 @@ extension StitchMasterComponent {
     
     @MainActor func initializeDelegate(parentGraph: GraphState) {
         self.parentGraph = parentGraph
-        self.localComponentEncoder.delegate = self
+        self.encoder.delegate = self
     }
 }
 
@@ -91,7 +92,7 @@ extension MasterComponentsDict {
 extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     func willEncodeProject(schema: StitchComponent) {
         // Find all graphs using this component
-        guard let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.componentData.id) else {
+        guard let graphs = self.parentGraph?.findComponentGraphStates(componentId: self.lastEncodedDocument.id) else {
             fatalErrorIfDebug()
             return
         }
@@ -104,6 +105,8 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     func update(from schema: StitchComponent) async {
+        self.lastEncodedDocument = schema
+        
         guard let document = self.parentGraph?.documentDelegate else {
             return
         }

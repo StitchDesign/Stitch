@@ -65,9 +65,12 @@ final class StitchStore: Sendable, StoreDelegate {
 }
 
 final class ClipboardEncoderDelegate: DocumentEncodableDelegate {
+    var lastEncodedDocument: StitchClipboardContent
     weak var store: StitchStore?
     
-    init() { }
+    init() {
+        self.lastEncodedDocument = .init()
+    }
     
     func createSchema(from graph: GraphState?) -> StitchClipboardContent {
         fatalError()

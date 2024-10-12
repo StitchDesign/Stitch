@@ -87,20 +87,40 @@ extension StitchDocumentEncodable {
     
     func encodeNewDocument(srcRootUrl: URL) throws {
         let destRootUrl = self.rootUrl
-        
-        // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
+
         try self.installDocument()
         
         Self.copySubfolders(srcRootUrl: srcRootUrl,
                             destRootUrl: destRootUrl)
     }
     
+    func copyProject(documentMutator: (inout Self) -> ()) throws -> Self {
+        let srcRootUrl = self.rootUrl
+        
+        var document = self
+        documentMutator(&document)
+        
+        try document.encodeNewDocument(srcRootUrl: srcRootUrl)
+        
+        return document
+    }
+    
     static func copySubfolders(srcRootUrl: URL,
                                destRootUrl: URL) {
         StitchDocument.subfolderNames.forEach { subfolderName in
-            try? FileManager.default
-                .copyItem(at: srcRootUrl.appendingPathComponent(subfolderName),
-                          to: destRootUrl.appendingPathComponent(subfolderName))
+            do {
+                let srcFolderUrl = srcRootUrl.appendingPathComponent(subfolderName)
+                let destFolderUrl = destRootUrl.appendingPathComponent(subfolderName)
+                
+                guard FileManager.default.fileExists(atPath: srcFolderUrl.path) else {
+                    return
+                }
+                
+                try FileManager.default
+                    .copyItem(at: srcFolderUrl, to: destFolderUrl)
+            } catch {
+                log("StitchDocumentEncodable.copySubfolders error: \(error.localizedDescription)")
+            }
         }
     }
 }

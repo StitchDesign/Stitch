@@ -83,8 +83,17 @@ extension GraphState {
         
         // Create master component if any imported
         if let decodedFiles = GraphDecodedFiles(importedFilesDir: copiedFiles) {
-            let components = decodedFiles.components.createComponentsDict(parentGraph: self)
-            self.components = components.reduce(into: self.components) { result, newComponentEntry in
+            // Update save location for components
+            let components = decodedFiles.components.map { component in
+                var component = component
+                component.saveLocation = .localComponent(.init(docId: document.id,
+                                                               componentId: component.id,
+                                                               componentsPath: self.saveLocation))
+                return component
+            }
+            
+            let componentsDict = components.createComponentsDict(parentGraph: self)
+            self.components = componentsDict.reduce(into: self.components) { result, newComponentEntry in
                 result.updateValue(newComponentEntry.value, forKey: newComponentEntry.key)
             }
         } else {
