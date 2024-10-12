@@ -140,7 +140,9 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             "enum": [
                 "Text",
                 "Scale",
-                "Shape"
+                "Shape",
+                "Image",
+                "Position"
             ],
             "title": "LayerPorts",
             "type": "string"
