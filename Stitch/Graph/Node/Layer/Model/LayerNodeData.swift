@@ -204,10 +204,11 @@ extension InputLayerNodeRowData {
                 unpackedPortParentFieldGroupType: FieldGroupType?,
                 unpackedPortIndex: Int?) {
         self.rowObserver.id.nodeId = nodeId
-                
+                    
         if let canvas = schema.canvasItem {
             if let canvasObserver = self.canvasObserver {
                 canvasObserver.update(from: canvas)
+                
             } else {
                 // Make new canvas observer since none yet created
                 let canvasId = CanvasItemId.layerInput(.init(node: nodeId,
@@ -219,8 +220,9 @@ extension InputLayerNodeRowData {
                                             outputRowObservers: [],
                                             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                             unpackedPortIndex: unpackedPortIndex)
-                
-                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
+
+                // NOTE: DO NOT SET A CANVAS ITEM DELEGATE ON AN INSPECTOR ROW VIEW MODEL
+//                self.inspectorRowViewModel.canvasItemDelegate = self.canvasObserver
             }
         } else {
             self.canvasObserver = nil
@@ -291,7 +293,7 @@ extension LayerInputObserver {
                                     unpackedPortIndex: portId)
         }
         
-        // Update values once mode is known (requires updating canvas items first
+        // Update values once mode is known (requires updating canvas items first)
         // This logic is needed to prevent a bug where unpacked mode updates packed observer values despite upstream connection
         switch self.observerMode {
         case .packed(let packedObserver):

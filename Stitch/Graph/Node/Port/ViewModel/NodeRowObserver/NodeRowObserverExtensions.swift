@@ -61,30 +61,41 @@ extension NodeRowObserver {
     }
     
     func getVisibleRowViewModels() -> [Self.RowViewModelType] {
-        // Make sure we're not in full screen mode
         guard let graph = self.nodeDelegate?.graphDelegate,
-              !graph.isFullScreenMode else {
+              // Make sure we're not in full screen mode
+              !graph.isFullScreenMode,
+              // Make sure we have can access whether inspector is open or not
+              let showsLayerInspector = graph.documentDelegate?.graphUI.showsLayerInspector else {
             return []
         }
         
-        return self.allRowViewModels.compactMap { rowViewModel in
-            // No canvas means inspector, which for here practically speaking is visible
-            guard let canvas = rowViewModel.canvasItemDelegate else {
-                return rowViewModel
+        return self.allRowViewModels.filter { rowViewModel in
+            
+            switch rowViewModel.id.graphItemType {
+                
+            // A row for a layer inspector is visible just if layer inspector is open
+            case .layerInspector:
+                
+                let layerFocused = graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(rowViewModel.id.nodeId.asLayerNodeId)
+                
+                // TODO: why can't we the proper condition here? Why must we always return `true`? For perf, we only want to update inspector UI-fields if that inspector is open and this row observer's layer is actually focused; otherwise it's same as if we're updating an off-screen node
+                // return showsLayerInspector && layerFocused
+                return true
+                
+            case .node:
+                
+                guard let canvas = rowViewModel.canvasItemDelegate else {
+                    log("Had row view model for canvas item but no canvas item delegate")
+                    return false
+                }
+                
+                let isVisibleInCurrentGroup = canvas.isVisibleInFrame && canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
+             
+                // always update group node, whose row view models don't otherwise update
+                let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
+                   
+                return isVisibleInCurrentGroup || isGroupNode
             }
-            
-            // view model is rendering at this group context
-            let isVisibleInCurrentGroup = canvas.isVisibleInFrame &&
-            canvas.parentGroupNodeId == self.nodeDelegate?.graphDelegate?.groupNodeFocused
-            
-            // always update group node, whose row view models don't otherwise update
-            let isGroupNode = canvas.nodeDelegate?.nodeType.groupNode.isDefined ?? false
-               
-            if isVisibleInCurrentGroup || isGroupNode {
-                return rowViewModel
-            }
-            
-            return nil
         }
     }
     

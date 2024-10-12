@@ -39,7 +39,7 @@ final class LayerInputObserver {
         
         self.layer = schema.layer
         self.port = port
-        
+                    
         self._packedData = .empty(.init(layerInput: port,
                                         portType: .packed),
                                   layer: schema.layer)
