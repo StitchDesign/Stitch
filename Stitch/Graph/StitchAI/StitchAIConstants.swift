@@ -212,7 +212,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "imageClassification || Patch - performs image classification on an image or video.",
                 "objectDetection || Patch - performs an object detection operation to an image or video.",
                 "cameraFeed || Patch - creates a live camera feed.",
-                "deviceInfo || Gets info of the device the prototype is running on.",
+                "deviceInfo || Patch - gets info of the device the prototype is running on.",
                 "deviceMotion || Patch - gets the acceleration and rotation values of the device the prototyping is running on.",
                 "hapticFeedback || Patch - generates haptic feedback.",
                 "keyboard || Patch - creates a live camera feed.",
