@@ -64,12 +64,6 @@ struct NodesView: View {
                 ZStack {
                     //                        commentBoxes
                     nodesOnlyView(nodePageData: nodePageData)
-                    
-                    if let component = graphUI.groupNodeFocused?.component {
-                        Rectangle()
-                            .foregroundColor(.red)
-                            .frame(height: 40)
-                    }
                 }
                 .background {
                     // Using background ensures edges z-index are always behind ndoes

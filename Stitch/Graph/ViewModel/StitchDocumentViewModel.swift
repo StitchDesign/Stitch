@@ -54,6 +54,7 @@ final class StitchDocumentViewModel: Sendable {
     var locationManager: LoadingStatus<StitchSingletonMediaObject>?
     var cameraFeedManager: LoadingStatus<StitchSingletonMediaObject>?
     
+    var lastEncodedDocument: StitchDocument
     let documentEncoder: DocumentEncoder
     
     // Keeps reference to store
@@ -75,6 +76,7 @@ final class StitchDocumentViewModel: Sendable {
         self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
         self.graph = graph
         self.projectLoader = projectLoader
+        self.lastEncodedDocument = schema
         
         if let store = store {
             DispatchQueue.main.async { [weak self, weak store] in

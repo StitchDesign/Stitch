@@ -191,6 +191,8 @@
 		B59C01342B4552F6001CDF87 /* NodeRowDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */; };
 		B59C01372B4625F1001CDF87 /* SchemaNodesUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */; };
 		B59F03B02CB6E67200A9422C /* EncoderDirectoryLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03AF2CB6E66D00A9422C /* EncoderDirectoryLocation.swift */; };
+		B59F03B22CB705D100A9422C /* ComponentNavBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */; };
+		B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */; };
 		B5A2D11B286E358E002BFB97 /* MediaPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */; };
 		B5A2D11D286F7A5A002BFB97 /* VisualMedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */; };
 		B5A6D0412A148FBD00434ED2 /* LayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5A6D0402A148FBD00434ED2 /* LayerData.swift */; };
@@ -1108,6 +1110,8 @@
 		B59C01332B4552F6001CDF87 /* NodeRowDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeRowDefinitions.swift; sourceTree = "<group>"; };
 		B59C01362B4625F1001CDF87 /* SchemaNodesUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaNodesUtil.swift; sourceTree = "<group>"; };
 		B59F03AF2CB6E66D00A9422C /* EncoderDirectoryLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncoderDirectoryLocation.swift; sourceTree = "<group>"; };
+		B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComponentNavBarView.swift; sourceTree = "<group>"; };
+		B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphComponentHashable.swift; sourceTree = "<group>"; };
 		B5A2D11A286E358E002BFB97 /* MediaPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPickerView.swift; sourceTree = "<group>"; };
 		B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualMedia.swift; sourceTree = "<group>"; };
 		B5A6D0402A148FBD00434ED2 /* LayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerData.swift; sourceTree = "<group>"; };
@@ -2884,6 +2888,7 @@
 			children = (
 				B557806C2CB045D600907BA8 /* StitchMasterComponent.swift */,
 				B55780682CB043AF00907BA8 /* StitchComponentViewModel.swift */,
+				B59F03B12CB705CE00A9422C /* ComponentNavBarView.swift */,
 			);
 			path = Component;
 			sourceTree = "<group>";
@@ -3105,6 +3110,7 @@
 		B56FFB532C195EC900623CC7 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B59F03B62CB75B8800A9422C /* GraphComponentHashable.swift */,
 				B56FFB492C19002500623CC7 /* Definition */,
 				B5657D372C0B947B00287362 /* RowData */,
 				B58723BC2B28D5FE00EAB0E5 /* NodeEntity.swift */,
@@ -4943,6 +4949,7 @@
 				B55501072C1BCAD60081C3F1 /* SidebarListItemActions.swift in Sources */,
 				EC11B5A7289886A10097E5A8 /* AdjustmentBarHelpers.swift in Sources */,
 				EC731CB92A37F05100241CB2 /* PatchDescription.swift in Sources */,
+				B59F03B72CB75B8D00A9422C /* GraphComponentHashable.swift in Sources */,
 				B5B00FFA2BBFC7E000E83CE7 /* LayerInputType.swift in Sources */,
 				ECD0E1A028D3697D00133045 /* Base64StringToImagePatchNode.swift in Sources */,
 				B5F8D6A82C224A6600B99E5C /* LayerNodeData.swift in Sources */,
@@ -5351,6 +5358,7 @@
 				B586D16527FE7FD500E56106 /* PreviewUtils.swift in Sources */,
 				B5B20BB2279A171E008A2B5A /* GestureHostingController.swift in Sources */,
 				EC281EFD2949037E0094BA5D /* PreviewHitAreaLayer.swift in Sources */,
+				B59F03B22CB705D100A9422C /* ComponentNavBarView.swift in Sources */,
 				EC60B8652C18044D00984FC8 /* ProjectThumbnailActions.swift in Sources */,
 				EC2BD63426CACD2E00D45154 /* MaxNode.swift in Sources */,
 				8B0A6B15271E7978002D6BD9 /* DirectoryObserver.swift in Sources */,
@@ -6122,7 +6130,7 @@
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
 				kind = revision;
-				revision = 868613f078c29f850cd30c293e1d62461adfcfd6;
+				revision = 43ddf22d6002381105f6b15c9d39d13cc436d01c;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
