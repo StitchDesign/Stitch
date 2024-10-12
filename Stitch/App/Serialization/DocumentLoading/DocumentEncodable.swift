@@ -12,8 +12,6 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     associatedtype DocumentDelegate: DocumentEncodableDelegate
     associatedtype CodableDocument: StitchDocumentEncodable & Sendable
     
-    @MainActor var lastEncodedDocument: CodableDocument { get set }
-    
     var documentId: CodableDocument.ID { get set }
     
     var saveLocation: EncoderDirectoryLocation { get }
@@ -21,8 +19,10 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     @MainActor var delegate: DocumentDelegate? { get }
 }
 
-protocol DocumentEncodableDelegate: AnyObject {
+protocol DocumentEncodableDelegate: Observable, AnyObject {
     associatedtype CodableDocument: Codable
+    
+    @MainActor var lastEncodedDocument: CodableDocument { get set }
     
     @MainActor func createSchema(from graph: GraphState?) -> CodableDocument
     
@@ -34,6 +34,14 @@ protocol DocumentEncodableDelegate: AnyObject {
 }
 
 extension DocumentEncodable {
+    @MainActor var lastEncodedDocument: CodableDocument {
+        get {
+            self.delegate?.lastEncodedDocument ?? Self.CodableDocument()
+        } set(newValue) {
+            self.delegate?.lastEncodedDocument = newValue
+        }
+    }
+    
     @MainActor func encodeProjectInBackground(from graph: GraphState?,
                                               temporaryUrl: URL? = nil,
                                               enableUndo: Bool = true,
@@ -110,7 +118,7 @@ extension DocumentEncodable {
     }
     
     func encodeProject(_ document: Self.CodableDocument,
-                       enableUndo: Bool,
+                       enableUndo: Bool = true,
                        temporaryURL: URL? = nil) async -> StitchFileVoidResult {
         let rootDocUrl = temporaryURL ?? self.rootUrl.appendingVersionedSchemaPath()
         

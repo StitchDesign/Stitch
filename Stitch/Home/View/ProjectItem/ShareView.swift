@@ -126,19 +126,10 @@ extension StitchStore {
     } // do
      ```
      */
-    func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
-        let srcRootUrl = document.rootUrl
-        var document = document
-        document.graph.id = .init()
-        document.graph.name += " copy"
-        let destRootUrl = document.rootUrl
-        
-        do {
-            try document.encodeNewDocument(srcRootUrl: srcRootUrl)
-            return .success
-        } catch {
-            log("copyExistingProject: error: \(error)")
-            return .failure(.projectDuplicationFailed)
+    func copyExistingProject(_ document: StitchDocument) throws {
+        let _ = try document.copyProject() { document in
+            document.graph.id = .init()
+            document.graph.name += " copy"
         }
     }
 }
@@ -158,8 +149,10 @@ struct ProjectContextMenuModifer: ViewModifier {
                                               document: document)
                     
                     StitchButton(action: {
-                        Task { [weak store] in
-                            await store?.copyExistingProject(document)
+                        do {
+                            try store.copyExistingProject(document)
+                        } catch {
+                            store.displayError(error: .projectDuplicationFailed)
                         }
                     }, label: {
                         Text("Duplicate")

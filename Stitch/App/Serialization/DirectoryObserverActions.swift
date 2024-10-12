@@ -28,7 +28,7 @@ extension StitchStore: DirectoryObserverDelegate {
         
         self.systems = await self.systems.sync(with: response.systems,
                                                updateCallback: { viewModel, data in
-            viewModel.data = data
+            viewModel.lastEncodedDocument = data
             await viewModel.refreshComponents()
         }) { data in
             await StitchSystemViewModel(data: data,

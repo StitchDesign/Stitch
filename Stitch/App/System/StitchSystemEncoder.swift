@@ -11,13 +11,11 @@ final actor StitchSystemEncoder: DocumentEncodable {
     var documentId: StitchSystemType
     let saveLocation: EncoderDirectoryLocation
     
-    @MainActor var lastEncodedDocument: StitchSystem
     @MainActor weak var delegate: StitchSystemViewModel?
     
     init(system: StitchSystem,
          delegate: StitchSystemViewModel?) {
         self.documentId = system.id
-        self.lastEncodedDocument = system
         self.saveLocation = .document(.system(system.id))
         self.delegate = delegate
     }
