@@ -70,7 +70,9 @@ extension StitchStore {
         self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in            
             Task(priority: .high) { [weak self, weak delegate] in
                 await delegate?.update(from: oldSchema)
-                await self?.encodeCurrentProject(wasUndo: true)
+                
+                // Don't update undo history from this action
+                await self?.encodeCurrentProject(willUpdateUndoHistory: false)
             }
             
             undoEffectsData?.undoCallback?()

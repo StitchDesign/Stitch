@@ -176,7 +176,8 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor
-    func encodeProjectInBackground(temporaryURL: URL? = nil) {
+    func encodeProjectInBackground(temporaryURL: URL? = nil,
+                                   willUpdateUndoHistory: Bool = true) {
         self.documentEncoder.encodeProjectInBackground(from: self.graph,
                                                        temporaryUrl: temporaryURL)
     }
