@@ -28,16 +28,7 @@ extension InputNodeRowObserver: SchemaObserverIdentifiable {
     /// Schema updates from layer.
     func update(from nodeConnection: NodeConnectionType,
                 inputType: LayerInputType) {
-        
-        let isSize = self.id.keyPath?.layerInput == .size
-        let isPosition = self.id.keyPath?.layerInput == .position
-        if isSize {
-            log("InputNodeRowObserver: had size input: nodeConnection: \(nodeConnection)")
-        }
-        if isPosition {
-            log("InputNodeRowObserver: had position input: nodeConnection: \(nodeConnection)")
-        }
-                
+                        
         switch nodeConnection {
         case .upstreamConnection(let upstreamOutputCoordinate):
             self.upstreamOutputCoordinate = upstreamOutputCoordinate
