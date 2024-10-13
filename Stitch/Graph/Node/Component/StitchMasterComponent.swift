@@ -10,7 +10,7 @@ import StitchSchemaKit
 
 /// Tracks drafted and persisted versions of components, used to populate copies in graph.
 @Observable
-final class StitchMasterComponent {
+final class StitchMasterComponent: Sendable {
     var lastEncodedDocument: StitchComponent
     
     // Encoded copy of drafted component
@@ -110,7 +110,9 @@ extension StitchMasterComponent: DocumentEncodableDelegate, Identifiable {
     }
     
     func update(from schema: StitchComponent) async {
-        self.lastEncodedDocument = schema
+        await MainActor.run { [weak self] in
+            self?.lastEncodedDocument = schema
+        }
         
         guard let document = self.parentGraph?.documentDelegate else {
             return
