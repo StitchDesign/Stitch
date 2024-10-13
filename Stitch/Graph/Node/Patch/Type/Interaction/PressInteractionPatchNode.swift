@@ -67,6 +67,12 @@ final class PressInteractionNodeObserver: NodeEphemeralObservable, Sendable {
     let actor: PressInteractionActor = .init()
 }
 
+extension PressInteractionNodeObserver {
+    func onPrototypeRestart() {
+        self.prevTapTime = nil
+    }
+}
+
 actor PressInteractionActor {
     func delayTap(delayValue: Double,
                   newTapTime: Double,

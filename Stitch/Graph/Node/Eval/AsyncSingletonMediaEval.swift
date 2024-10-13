@@ -29,6 +29,10 @@ actor SingletonMediaNodeCoordinator: NodeEphemeralObservable {
     }
 }
 
+extension SingletonMediaNodeCoordinator {
+    nonisolated func onPrototypeRestart() { }
+}
+
 /// Used for nodes like location and camera.
 @MainActor
 func asyncSingletonMediaEval(node: PatchNode,
