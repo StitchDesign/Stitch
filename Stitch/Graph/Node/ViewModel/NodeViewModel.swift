@@ -655,7 +655,9 @@ extension NodeViewModel {
     
     @MainActor func onPrototypeRestart() {
         // Reset ephemeral observers
-        self.createEphemeralObservers()
+        self.ephemeralObservers?.forEach {
+            $0.onPrototypeRestart()
+        }
         
         // Reset outputs
         // TODO: should we really be resetting inputs?
