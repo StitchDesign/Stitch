@@ -240,17 +240,6 @@ extension GraphState {
     }
 }
 
-extension NodeRowObserver {
-    @MainActor
-    func mediaObjectCreationFailed(loopIndex: Int) {
-        guard self.allLoopedValues.count > loopIndex else {
-            return
-        }
-        
-        self.allLoopedValues[loopIndex] = .asyncMedia(nil)
-    }
-}
-
 extension StitchDocumentViewModel {
     @MainActor
     func realityViewCreatedWithoutCamera(graph: GraphState,
