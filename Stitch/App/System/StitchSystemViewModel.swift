@@ -8,7 +8,7 @@
 import SwiftUI
 
 @Observable
-final class StitchSystemViewModel {
+final class StitchSystemViewModel: Sendable {
     var lastEncodedDocument: StitchSystem
     var components: [UUID: StitchMasterComponent] = [:]
     let encoder: StitchSystemEncoder
@@ -31,7 +31,7 @@ final class StitchSystemViewModel {
     
     func refreshComponents() async {
         if let decodedFiles = await self.encoder.getDecodedFiles() {
-            self.components = await self.components.sync(with: decodedFiles.components,
+            let newComponents = await self.components.sync(with: decodedFiles.components,
                                                          updateCallback: { component, data in
                 var data = data
                 data.saveLocation = .systemComponent(self.id,
@@ -44,6 +44,10 @@ final class StitchSystemViewModel {
                 
                 return await StitchMasterComponent(componentData: data,
                                                    parentGraph: nil)
+            }
+            
+            await MainActor.run { [weak self] in
+                self?.components = newComponents
             }
         }
     }
