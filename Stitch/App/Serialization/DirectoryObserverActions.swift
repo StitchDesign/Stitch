@@ -19,6 +19,10 @@ struct DirectoryUpdated: StitchStoreEvent {
     }
 }
 
+typealias SystemsDict = [StitchSystemType : StitchSystemViewModel]
+
+extension StitchSystemType: Sendable { }
+
 extension StitchStore: DirectoryObserverDelegate {
     func directoryUpdated() async {
         guard let response = await self.documentLoader.directoryUpdated() else {
@@ -26,9 +30,11 @@ extension StitchStore: DirectoryObserverDelegate {
             return
         }
         
-        self.systems = await self.systems.sync(with: response.systems,
+        let newSystems = await self.systems.sync(with: response.systems,
                                                updateCallback: { viewModel, data in
-            viewModel.lastEncodedDocument = data
+            await MainActor.run { [weak viewModel] in
+                viewModel?.lastEncodedDocument = data
+            }
             await viewModel.refreshComponents()
         }) { data in
             await StitchSystemViewModel(data: data,
@@ -39,6 +45,8 @@ extension StitchStore: DirectoryObserverDelegate {
             guard let store = self else {
                 return
             }
+
+            store.systems = newSystems
             
             store.allProjectUrls = response.projects
         }
