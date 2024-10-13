@@ -60,6 +60,10 @@ final class LoopingEphemeralObserver: NodeEphemeralObservable {
     var previousValues: PortValues = []
 }
 
+extension LoopingEphemeralObserver {
+    func onPrototypeRestart() { }
+}
+
 extension PortValues {
     var unwrapAsPulses: [TimeInterval] {
         let asPulses = self.compactMap(\.getPulse)

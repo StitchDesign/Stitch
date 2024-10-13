@@ -63,6 +63,13 @@ final class NodeTimerEphemeralObserver: NodeEphemeralObservable {
     var prevDelayInputValue: PortValue?
 }
 
+extension NodeTimerEphemeralObserver {
+    @MainActor func onPrototypeRestart() {
+        self.runningTimers = .init()
+        self.prevDelayInputValue = nil
+    }
+}
+
 final class DelayNodeTimer {
     private var timer: Timer?
 
