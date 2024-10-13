@@ -65,3 +65,9 @@ Delays the incoming value by one frame. Note that Stitch runs between 60-120 FPS
 final class DelayOneEvalObserver: NodeEphemeralObservable {
     var nextOutput = DelayOneNode.defaultUserVisibleType.defaultPortValue
 }
+
+extension DelayOneEvalObserver {
+    func onPrototypeRestart() {
+        self.nextOutput = DelayOneNode.defaultUserVisibleType.defaultPortValue
+    }
+}

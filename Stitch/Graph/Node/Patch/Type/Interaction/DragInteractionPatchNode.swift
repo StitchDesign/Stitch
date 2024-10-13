@@ -86,6 +86,15 @@ final class DragInteractionNodeState: NodeEphemeralObservable {
     var prevPositionStart: CGPoint = .zero
 }
 
+extension DragInteractionNodeState {
+    func onPrototypeRestart() {
+        self.momentum = .init()
+        self.reset = .init()
+        self.wasDragging = false
+        self.prevPositionStart = .zero
+    }
+}
+
 /*
  This node eval is called in several different cases,
  and we use guard statements to handle the d

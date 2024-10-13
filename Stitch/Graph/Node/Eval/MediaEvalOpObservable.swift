@@ -26,6 +26,23 @@ final class MediaEvalOpObserver: MediaEvalOpObservable {
     internal let mediaActor = MediaEvalOpCoordinator()
 }
 
+extension MediaEvalOpObserver {
+    @MainActor func onPrototypeRestart() {
+        switch currentMedia?.mediaObject {
+        case .video(let videoPlayer):
+            videoPlayer.resetPlayer()
+        case .soundfile(let soundPlayer):
+            soundPlayer.delegate.setJumpTime(.zero)
+        case .model3D(let stitchEntity):
+            stitchEntity.entityStatus.loadedInstance?.transform = .init()
+        case .arAnchor(let anchorEntity):
+            anchorEntity.transform = .init()
+        default:
+            return
+        }
+    }
+}
+
 extension MediaEvalOpObservable {
     /// Condtionally gets or creates new media object based on input media and possible existence of current media
     /// at this loop index.

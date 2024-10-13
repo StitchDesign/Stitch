@@ -19,6 +19,8 @@ protocol NodeEphemeralObservable: AnyObject {
     func nodeTypeChanged(oldType: UserVisibleType,
                          newType: UserVisibleType,
                          kind: NodeKind)
+    
+    @MainActor func onPrototypeRestart()
 }
 
 extension NodeEphemeralObservable {
@@ -54,6 +56,18 @@ final class ComputedNodeState: NodeEphemeralObservable {
 }
 
 extension ComputedNodeState {
+    func onPrototypeRestart() {
+        self.previousValue = nil
+        self.preservedValues = .init()
+        self.stopwatchIsRunning = false
+        self.stopwatchStartGraphTime = nil
+        self.queue = nil
+        self.springAnimationState = nil
+        self.classicAnimationState = nil
+        self.smoothValueAnimationState = nil
+        self.sampleRangeState = nil
+    }
+    
     func nodeTypeChanged(oldType: UserVisibleType,
                          newType: UserVisibleType,
                          kind: NodeKind) {
