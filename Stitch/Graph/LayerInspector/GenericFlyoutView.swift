@@ -36,6 +36,8 @@ struct GenericFlyoutView: View {
         
     var body: some View {
         
+        UIKitWrapper(ignoresKeyCommands: false,
+                     name: "PaddingFlyout") {
         VStack(alignment: .leading) {
             // TODO: need better padding here; but confounding factor is UIKitWrapper
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
@@ -44,15 +46,25 @@ struct GenericFlyoutView: View {
             // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
             
             // TODO: UIKitWrapper adds a bit of padding at the bottom?
-            //            UIKitWrapper(ignoresKeyCommands: false,
-            //                         name: "PaddingFlyout") {
-            // TODO: finalize this logic once fields are in?
-            flyoutRows
-            //            }
+//            UIKitWrapper(ignoresKeyCommands: false,
+//                         name: "PaddingFlyout") {
+                // TODO: finalize this logic once fields are in?
+//                VStack {
+                    flyoutRows
+//                }
+//                .border(.purple)
+//                .frame(width: 300, height: 600)
+//                .border(.green)
+//                
+            }
         }
+//        .border(.purple)
+//        .frame(width: 300, height: 600)
+//        .border(.green)
         .modifier(FlyoutBackgroundColorModifier(
             width: Self.DEFAULT_FLYOUT_WIDTH,
-            height: self.$height))
+//            height: self.$height))
+            height: .constant(36 + (CGFloat(fieldValueTypes.count) * 2 * NODE_ROW_HEIGHT))))
     }
     
     @State var selectedFlyoutRow: Int? = nil
