@@ -35,36 +35,13 @@ struct GenericFlyoutView: View {
     let fieldValueTypes: [FieldGroupTypeViewModel<InputNodeRowViewModel.FieldType>]
         
     var body: some View {
-        
-        UIKitWrapper(ignoresKeyCommands: false,
-                     name: "PaddingFlyout") {
         VStack(alignment: .leading) {
-            // TODO: need better padding here; but confounding factor is UIKitWrapper
             FlyoutHeader(flyoutTitle: layerInput.label(useShortLabel: true))
-            
-            // TODO: better keypress listening situation; want to define a keypress press once in the view hierarchy, not multiple places etc.
-            // Note: keypress listener needed for TAB, but UIKitWrapper messes up view's height if specific height not provided
-            
-            // TODO: UIKitWrapper adds a bit of padding at the bottom?
-//            UIKitWrapper(ignoresKeyCommands: false,
-//                         name: "PaddingFlyout") {
-                // TODO: finalize this logic once fields are in?
-//                VStack {
-                    flyoutRows
-//                }
-//                .border(.purple)
-//                .frame(width: 300, height: 600)
-//                .border(.green)
-//                
-            }
+            flyoutRows
         }
-//        .border(.purple)
-//        .frame(width: 300, height: 600)
-//        .border(.green)
         .modifier(FlyoutBackgroundColorModifier(
             width: Self.DEFAULT_FLYOUT_WIDTH,
-//            height: self.$height))
-            height: .constant(36 + (CGFloat(fieldValueTypes.count) * 2 * NODE_ROW_HEIGHT))))
+            height: self.$height))
     }
     
     @State var selectedFlyoutRow: Int? = nil
