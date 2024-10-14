@@ -142,15 +142,17 @@ struct LayerInspectorView: View {
                         LayerInspectorInputsSectionView(
                             sectionName: sectionName,
                             layerInputs: filteredInputs,
-                            graph: graph, 
+                            graph: graph,
                             nodeId: node
                         )
                     }
                 } // ForEach
+                .padding(.horizontal)
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
                     graph: graph)
+                .padding(.horizontal)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
@@ -158,7 +160,6 @@ struct LayerInspectorView: View {
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
-            .padding([.leading, .trailing])            
         } // VStack
     }
 }
