@@ -59,6 +59,18 @@ struct NodesView: View {
                 let connectedInputs = allInputs
                     .filter { $0.rowDelegate?.containsUpstreamConnection ?? false }
                 
+                // Including "possible" inputs enables edge animation
+                let candidateInputs: [InputNodeRowViewModel] = graphUI.edgeEditingState?.possibleEdges.compactMap {
+                    let inputData = $0.edge.to
+                    
+                    guard let node = self.graph.getCanvasItem(inputData.canvasId),
+                          let inputRow = node.inputViewModels[safe: inputData.portId] else {
+                        return nil
+                    }
+                    
+                    return inputRow
+                } ?? []
+                
                 // CommentBox needs to be affected by graph offset and zoom
                 // but can live somewhere else?
                 ZStack {
@@ -67,7 +79,7 @@ struct NodesView: View {
                 }
                 .background {
                     // Using background ensures edges z-index are always behind ndoes
-                    connectedEdgesView(allConnectedInputs: connectedInputs)
+                    connectedEdgesView(allConnectedInputs: connectedInputs + candidateInputs)
                 }
                 .overlay {
                     edgeDrawingView(inputs: allInputs,
