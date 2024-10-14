@@ -149,7 +149,8 @@ final class GraphState: Sendable {
                                    parentGraphPath: self.saveLocation)
         
         // Initialize preview layers and topological data
-        self.updateGraphData()
+        self.updateTopologicalData()
+        self.updateOrderedPreviewLayers()
         
         // Calculate graph
         self.initializeGraphComputation()
@@ -240,19 +241,17 @@ extension GraphState: GraphDelegate {
     
     /// Syncs visible nodes and topological data when persistence actions take place.
     @MainActor
-    func updateGraphData() {
-        self.updateTopologicalData()
-
-        // Update preview layers
-        self.updateOrderedPreviewLayers()
+    func updateGraphData() {        
+        if let document = self.documentDelegate,
+           let encoderDelegate = self.documentEncoderDelegate {
+            self.initializeDelegate(document: document,
+                                    documentEncoderDelegate: encoderDelegate)
+        }
     }
 }
 
 extension GraphState {
-    @MainActor func createSchema() -> GraphEntity {
-        assertInDebug(self.documentDelegate != nil)
-        let documentDelegate = self.documentDelegate ?? .createEmpty()
-        
+    @MainActor func createSchema() -> GraphEntity {        
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }
