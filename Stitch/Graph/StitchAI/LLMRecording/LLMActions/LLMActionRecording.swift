@@ -52,7 +52,7 @@ extension StitchDocumentViewModel {
         // If we stopped recording and have LLMActions, show the prompt
         if !self.llmRecording.actions.isEmpty {
             self.llmRecording.promptState.showModal = true
-            self.graphUI.reduxFocusedField = .llmModal
+            self.graphUI.reduxFocusedField = .llmRecordingModal
         }
     }
     

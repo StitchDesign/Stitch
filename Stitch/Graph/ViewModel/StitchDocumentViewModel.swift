@@ -46,7 +46,8 @@ final class StitchDocumentViewModel: Sendable {
     
     var keypressState = KeyPressState()
     var llmRecording = LLMRecordingState()
-    
+    var stitchAI = StitchAIState()
+
     // Remains false if an encoding action never happened (used for thumbnail creation)
     var didDocumentChange: Bool = false
     
