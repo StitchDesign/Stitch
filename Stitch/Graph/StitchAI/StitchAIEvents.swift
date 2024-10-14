@@ -33,6 +33,8 @@ extension StitchDocumentViewModel {
     }
     
     @MainActor func makeAPIRequest(userInput: String) {
+        stitchAI.promptState.isGenerating = true
+
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
             showErrorModal(message: "Invalid URL", userPrompt: userInput, jsonResponse: nil)
             return
@@ -82,52 +84,57 @@ extension StitchDocumentViewModel {
         }
 
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-            if let error = error {
-                self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
-                return
-            }
+                DispatchQueue.main.async {
+                    self?.stitchAI.promptState.isGenerating = false
 
-            guard let data = data else {
-                self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
-                return
-            }
-
-            let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-            
-            do {
-                // Decode the response to OpenAIResponse
-                let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
-                
-                // Try to transform the OpenAI response to LLM Actions
-                if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
-                    guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                        self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
+                    if let error = error {
+                        self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
                         return
                     }
+
+                    guard let data = data else {
+                        self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
+                        return
+                    }
+
+                    let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
                     
-                    // Handle the successful response (continue your logic here)
-                    let json = JSON(parseJSON: transformedResponse)
-                    let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
-                    
-                    // For each action, perform appropriate handling
-                    actions.forEach { self?.handleLLMAction($0) }
-                    
-                    // Trigger any additional functionality like saving or updating state
-                    self?.visibleGraph.encodeProjectInBackground()
-                    
-                } else {
-                    self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
+                    do {
+                        if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
+                            guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                                self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
+                                return
+                            }
+                            
+                            let json = JSON(parseJSON: transformedResponse)
+                            let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
+                            
+                            // Process actions
+                            actions.forEach { self?.handleLLMAction($0) }
+                            
+                            // Trigger additional functionality
+                            self?.visibleGraph.encodeProjectInBackground()
+                            
+                            // Close the modal after successful processing
+                            self?.closeStitchAIModal()
+                        } else {
+                            self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
+                        }
+                    } catch {
+                        self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
+                    }
                 }
-                
-            } catch {
-                // Handle decoding or transformation errors
-                self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
             }
+            task.resume()
         }
-        task.resume()
+
+
+    @MainActor private func closeStitchAIModal() {
+        self.stitchAI.promptState.showModal = false
+        self.stitchAI.promptState.prompt = ""
+        self.graphUI.reduxFocusedField = nil
     }
-
-
+    
     func showErrorModal(message: String, userPrompt: String, jsonResponse: String?) {
         DispatchQueue.main.async {
             if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
