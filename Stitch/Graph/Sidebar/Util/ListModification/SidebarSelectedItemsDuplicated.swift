@@ -19,6 +19,7 @@ struct SidebarSelectedItemsDuplicated: GraphEventWithResponse {
 extension GraphState {
     @MainActor
     func sidebarSelectedItemsDuplicatedViaEditMode() {
-        self.copyAndPasteSelectedNodes(selectedNodeIds: self.sidebarSelectionState.all.map(\.asNodeId).toSet)
+        let nodeIds = self.layersSidebarViewModel.selectionState.all
+        self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds)
     }
 }

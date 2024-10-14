@@ -15,7 +15,7 @@ extension LayerNodeId {
     }
 
     var asItemId: SidebarListItemId {
-        SidebarListItemId(id)
+        self.asNodeId
     }
 
     var asNodeId: NodeId {

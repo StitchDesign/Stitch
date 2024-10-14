@@ -9,19 +9,19 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeButton: View {
-    var action: Action?
+struct SidebarListItemSwipeButton<Item: SidebarItemSwipable>: View {
     let sfImageName: String
     let backgroundColor: Color
     var willLeftAlign: Bool = false
 
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
+    @Bindable var gestureViewModel: Item
+    
+    let action: @MainActor () -> Void
     
     var body: some View {
         UIKitTappableWrapper(tapCallback: {
-            if let action = action {
-                dispatch(action)
-            }
+            action()
+            
             withAnimation {
                 gestureViewModel.resetSwipePosition()
             }

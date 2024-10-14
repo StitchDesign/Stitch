@@ -165,8 +165,6 @@ final class LayerNodeViewModel {
             }
         }
     }
-    
-    var isExpandedInSidebar: Bool?
 
     init(from schema: LayerNodeEntity) {
         
@@ -180,7 +178,6 @@ final class LayerNodeViewModel {
         self.layer = schema.layer
         self.hasSidebarVisibility = schema.hasSidebarVisibility
         self.layerGroupId = schema.layerGroupId
-        self.isExpandedInSidebar = schema.isExpandedInSidebar
         
         self.outputPorts = rowDefinitions
             .createOutputLayerPorts(schema: schema,
@@ -412,8 +409,7 @@ extension LayerNodeViewModel: SchemaObserver {
         var schema = LayerNodeEntity(nodeId: self.id,
                                      layer: layer,
                                      hasSidebarVisibility: hasSidebarVisibility,
-                                     layerGroupId: layerGroupId,
-                                     isExpandedInSidebar: self.isExpandedInSidebar)
+                                     layerGroupId: layerGroupId)
         
         // Only encode keypaths used by this layer
         self.layer.layerGraphNode.inputDefinitions.forEach { inputType in
@@ -560,12 +556,6 @@ extension LayerNodeViewModel {
             previewViewModel.update(with: lengthenedValuesList,
                                     changedPortId: changedPortId)
         }
-    }
-    
-    var visibilityStatusIcon: String {
-        self.hasSidebarVisibility
-        ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON
-        : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
     }
 }
 

@@ -66,7 +66,7 @@ struct GraphGestureView<T: View>: UIViewControllerRepresentable {
     }
 }
 
-class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
+final class GraphGestureDelegate: NSObject, UIGestureRecognizerDelegate {
     static let zoomScrollRate = 0.04
     
     weak var document: StitchDocumentViewModel?

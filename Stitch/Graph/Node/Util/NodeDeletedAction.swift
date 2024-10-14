@@ -22,7 +22,7 @@ struct DeleteShortcutKeyPressed: GraphEventWithResponse {
 
         // Check which we have focused: layers or canvas items
         if state.hasActivelySelectedLayers {
-            state.sidebarSelectedItemsDeletingViaEditMode()
+            state.layersSidebarViewModel.sidebarSelectedItemsDeletingViaEditMode()
             state.updateInspectorFocusedLayers()
         }
         

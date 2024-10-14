@@ -13,7 +13,7 @@ import StitchSchemaKit
 extension GraphDelegate {
     // TODO: cache these for perf
     var nonEditModeSelectedLayerInLayerSidebar: NodeId? {
-        self.sidebarSelectionState.inspectorFocusedLayers.focused.first?.id
+        self.sidebarSelectionState.inspectorFocusedLayers.focused.first
     }
     
     // TODO: cache these for perf

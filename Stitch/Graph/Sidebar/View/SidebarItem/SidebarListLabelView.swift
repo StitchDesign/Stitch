@@ -8,80 +8,37 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemLeftLabelView: View {
-
-    @Bindable var graph: GraphState
-    
-    let name: String
-    let layer: Layer
-    let nodeId: LayerNodeId // debug
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
-    let isBeingEdited: Bool
-    let isGroup: Bool
-    let isClosed: Bool
-   
+struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     @State private var isBeingEditedAnimated = false
-        
-    // TODO: perf: will this GraphState-reading computed variable cause SidebarListItemLeftLabelView to render too often?
     
-    // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
-    @MainActor
-    var masks: Bool {
-        
-        // TODO: why is this not animated? and why does it jitter?
-//        // index of this layer
-//        guard let index = graph.sidebarListState.masterList.items
-//            .firstIndex(where: { $0.id.asLayerNodeId == nodeId }) else {
-//            return withAnimation { false }
-//        }
-//        
-//        // hasSidebarLayerImmediatelyAbove
-//        guard graph.sidebarListState.masterList.items[safe: index - 1].isDefined else {
-//            return withAnimation { false }
-//        }
-//        
-        let atleastOneIndexMasks = graph
-            .getLayerNode(id: nodeId.id)?
-            .layerNode?.masksPort.allLoopedValues
-            .contains(where: { $0.getBool ?? false })
-        ?? false
-        
-        return withAnimation {
-            atleastOneIndexMasks
-        }
+    @Bindable var graph: GraphState
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
+    
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isEditing
     }
     
+    @MainActor
+    var masks: Bool {
+        self.itemViewModel.isMasking
+    }
     
-    var _name: String {
-//        return name
-        
-#if DEV_DEBUG
-        name + " \(nodeId.id.debugFriendlyId)"
-#else
-        name
-#endif
+    var fontColor: Color {
+        self.itemViewModel.fontColor
     }
     
     var body: some View {
         HStack(spacing: 4) {
             
-//            if isGroup {
-                SidebarListItemChevronView(isClosed: isClosed,
-                                           parentId: nodeId,
-                                           fontColor: fontColor,
-                                           isHidden: isHidden)
-                .opacity(isGroup ? 1 : 0)
+            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
+                                       item: itemViewModel)
+//                                           isHidden: isHidden)
+            .opacity(itemViewModel.isGroup ? 1 : 0)
                 // .border(.green)
 //            }
   
-            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
-                                                        layerId: nodeId.asNodeId,
-                                                        activeIndex: graph.activeIndex))
+            Image(systemName: itemViewModel.sidebarLeftSideIcon)
                 .scaledToFit()
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
@@ -116,8 +73,7 @@ struct SidebarListItemLeftLabelView: View {
     var label: some View {
         Group {
             if isBeingEdited {
-                SidebarListLabelEditView(id: nodeId,
-                                         name: _name,
+                SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
                                          graph: graph)
                 .truncationMode(.tail)
@@ -127,8 +83,7 @@ struct SidebarListItemLeftLabelView: View {
                 .padding(.trailing, 60)
 #endif
             } else {
-                SidebarListLabelEditView(id: nodeId,
-                                         name: _name,
+                SidebarListLabelEditView(item: self.itemViewModel,
                                          fontColor: fontColor,
                                          graph: graph)
             }
@@ -137,24 +92,32 @@ struct SidebarListItemLeftLabelView: View {
     }
 }
 
-struct SidebarListLabelEditView: View {
+struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
     
     // Do we need to add another focused field type here?
     // If this is focused, you don't want
     
-    let id: LayerNodeId
-    let name: String
+    @Bindable var item: ItemViewModel
     let fontColor: Color
     
     @Bindable var graph: GraphState
         
     @State var edit: String = ""
     
+    var name: String {
+        let name = self.item.name
+#if DEV_DEBUG
+        return name + " \(self.item.id.debugFriendlyId)"
+#else
+        return name
+#endif
+    }
+    
     @MainActor
     var isFocused: Bool {
         switch graph.graphUI.reduxFocusedField {
-        case .sidebarLayerTitle(let layerNodeId):
-            let k = layerNodeId == id
+        case .sidebarLayerTitle(let idString):
+            let k = item.id.description == idString
             // log("SidebarListLabelEditView: isFocused: \(k) for \(id)")
             return k
         default:
@@ -170,14 +133,12 @@ struct SidebarListLabelEditView: View {
             if isFocused {
                 // logInView("SidebarListLabelEditView: editable field")
                 StitchTextEditingBindingField(currentEdit: self.$edit,
-                                              fieldType: .sidebarLayerTitle(id),
+                                              fieldType: .sidebarLayerTitle(self.item.id.description),
                                               font: SIDEBAR_LIST_ITEM_FONT,
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
-                    // Treat this is as a "layer inspector edit" ?
-                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id.asNodeId),
-                                             edit: newEdit,
-                                             isCommitting: isCommitting))
+                    self.item.didLabelEdit(to: newEdit,
+                                           isCommitting: isCommitting)
                 })
             } else {
                 // logInView("SidebarListLabelEditView: read only")
@@ -191,45 +152,35 @@ struct SidebarListLabelEditView: View {
             self.edit = name
         }
         .onTapGesture(count: 2) {
-            log("SidebarListLabelEditView: double tap \(id)")
-            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(id)))
+            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
         }
     }
     
 }
 
 
-struct SidebarListItemRightLabelView: View {
-
-    let item: SidebarListItem
-    let isGroup: Bool
-    let isClosed: Bool
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool // is sidebar being edited?
-    let isHidden: Bool
-
+struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
     @State private var isBeingEditedAnimated = false
-    
+
+    let item: ItemViewModel
+    let selectionState: SidebarSelectionObserver<ItemViewModel.ID>
+    let isBeingEdited: Bool // is sidebar being edited?
+
     var body: some View {
 
-        let id = item.id.asLayerNodeId
+//        let id = item.id.asLayerNodeId
 
         HStack(spacing: .zero) {
             
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
-                    SidebarListItemSelectionCircleView(id: id,
-                                                       fontColor: fontColor,
-                                                       selection: selection,
-                                                       isHidden: isHidden,
+                    SidebarListItemSelectionCircleView(item: item,
+                                                       selectionState: selectionState,
+                                                       fontColor: item.fontColor,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 
-                    SidebarListDragIconView(item: item)
+                    SidebarListDragIconView()
                         .padding(.trailing, 4)
                 }
                 .transition(.slideInAndOut)
@@ -249,9 +200,6 @@ let EDIT_MODE_HAMBURGER_DRAG_ICON_COLOR: Color = .gray // Always gray, whether l
 
 // TODO: on iPad, dragging the hamburger icon should immediately drag the sidebar-item without need for long press first
 struct SidebarListDragIconView: View {
-
-    let item: SidebarListItem
-
     var body: some View {
         Image(systemName: EDIT_MODE_HAMBURGER_DRAG_ICON)
         // TODO: Should use white if this sidebar layer is selected?

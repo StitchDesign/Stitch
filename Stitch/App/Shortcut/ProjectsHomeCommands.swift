@@ -23,44 +23,18 @@ struct ProjectsHomeCommands: Commands {
     var layersActivelySelected: Bool {
         self.graph?.hasActivelySelectedLayers ?? false
     }
-
-    var selections: SidebarSelectionState? {
-        self.graph?.sidebarSelectionState
-    }
     
     var graph: GraphState? {
         store.currentDocument?.visibleGraph
     }
     
-    var groups: SidebarGroupsDict? {
-        graph?.getSidebarGroupsDict()
-    }
-    
-    var layerNodes: LayerNodesForSidebarDict? {
-        if let graph = graph {
-            return LayerNodesForSidebarDict.fromLayerNodesDict(
-                nodes: graph.layerNodes,
-                orderedSidebarItems: graph.orderedSidebarLayers)
-        }
-        return nil
-    }
-    
     var ungroupButtonEnabled: Bool {
-        if let selections = selections,
-           let layerNodes = layerNodes {
-            return canUngroup(selections.primary, nodes: layerNodes)
-        }
-        return false
+        self.graph?.layersSidebarViewModel.canUngroup() ?? false
     }
 
     var groupButtonEnabled: Bool {
-        if let selections = selections,
-           let groups = groups {
-            return selections.nonEmptyPrimary.map { canBeGrouped($0, groups: groups) } ?? false
-        }
-        return false
+        self.graph?.layersSidebarViewModel.canBeGrouped() ?? false
     }
-    
     
     var textFieldFocused: Bool {
         let k = activeReduxFocusedField.isDefined || focusedField.isDefined
@@ -315,7 +289,7 @@ struct ProjectsHomeCommands: Commands {
                                     // Disabled if no layers are actively selected
                                     disabled: !layersActivelySelected || !groupButtonEnabled) {
                     // deletes both selected nodes and selected comments
-                    dispatch(SidebarGroupCreated())
+                    self.graph?.layersSidebarViewModel.sidebarGroupCreated()
                 }
                 
                 SwiftUIShortcutView(title: "Ungroup Layers",
@@ -325,7 +299,7 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !layersActivelySelected || !ungroupButtonEnabled) {
 //                                    disabled: !layersActivelySelected) {
                     // deletes both selected nodes and selected comments
-                    dispatch(SidebarGroupUncreated())
+                    self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
                 }
                 
             } // replacing: .pasteboard

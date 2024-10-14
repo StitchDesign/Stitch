@@ -14,9 +14,9 @@ typealias LongPressAndDragGestureType = SequenceGesture<_EndedGesture<LongPressG
 
 typealias DragGestureType = _EndedGesture<_ChangedGesture<DragGesture>>
 
-enum SidebarListActiveGesture: Equatable {
+enum SidebarListActiveGesture<SidebarID>: Equatable where SidebarID: Equatable {
     case scrolling, // scrolling the entire list
-         dragging(SidebarListItemId), // drag or (long press + drag); on a single item
+         dragging(SidebarID), // drag or (long press + drag); on a single item
          swiping, // swiping single item
          none
 
@@ -38,7 +38,7 @@ enum SidebarListActiveGesture: Equatable {
         }
     }
 
-    var dragId: SidebarListItemId? {
+    var dragId: SidebarID? {
         switch self {
         case .dragging(let x):
             return x

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import StitchViewKit
 
 // MARK: SIDEBAR ITEM SWIPE CONSTANTS
 
@@ -23,190 +24,228 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-final class SidebarItemGestureViewModel: ObservableObject {
-    let item: SidebarListItem
+let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = Int(SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
+@Observable
+final class SidebarItemGestureViewModel: SidebarItemSwipable {
+    var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
+    var id: NodeId
+    var children: [SidebarItemGestureViewModel]?
+    
+    var isExpandedInSidebar: Bool?
+    
+    var dragPosition: CGPoint?
+    var prevDragPosition: CGPoint?
+    
     // published property to be read in view
-    @Published var swipeSetting: SidebarSwipeSetting = .closed
+    var swipeSetting: SidebarSwipeSetting = .closed
 
-    private var previousSwipeX: CGFloat = 0
-    @Binding var activeGesture: SidebarListActiveGesture {
-        didSet {
-            switch activeGesture {
-            // scrolling or dragging resets swipe-menu
-            case .scrolling, .dragging:
-                resetSwipePosition()
-            default:
-                return
-            }
-        }
-    }
+    internal var previousSwipeX: CGFloat = 0
+    
+    weak var sidebarDelegate: LayersSidebarViewModel?
+    weak var parentDelegate: SidebarItemGestureViewModel?
 
-    // Tracks if the edit menu is open
-    var editOn: Bool = false
-    @Binding var activeSwipeId: SidebarListItemId?
-
-    init(item: SidebarListItem,
-         activeGesture: Binding<SidebarListActiveGesture>,
-         activeSwipeId: Binding<SidebarListItemId?>) {
-        self.item = item
-        self._activeGesture = activeGesture
-        self._activeSwipeId = activeSwipeId
-    }
-
-    // MARK: GESTURE HANDLERS
-
-    @MainActor
-    var onItemDragChanged: OnItemDragChangedHandler {
-        return { (translation: CGSize) in
-            // print("SidebarItemGestureViewModel: itemDragChangedGesture called")
-            self.activeGesture = .dragging(self.item.id)
-            dispatch(SidebarListItemDragged(
-                        itemId: self.item.id,
-                        translation: translation))
-        }
-    }
-
-    @MainActor
-    var onItemDragEnded: OnDragEndedHandler {
-        return {
-            // print("SidebarItemGestureViewModel: itemDragEndedGesture called")
-            if self.activeGesture == .none {
-                // print("SidebarItemGestureViewModel: onItemDragEnded: no active gesture, so will do nothing")
-                self.activeGesture = .none
-            } else {
-                self.activeGesture = .none
-                dispatch(SidebarListItemDragEnded(itemId: self.item.id))
-            }
-        }
-    }
-
-    @MainActor
-    var macDragGesture: DragGestureTypeSignature {
-
-        // print("SidebarItemGestureViewModel: macDragGesture: called")
+    init(data: SidebarLayerData,
+         parentDelegate: SidebarItemGestureViewModel?,
+         sidebarViewModel: LayersSidebarViewModel) {
+        self.id = data.id
+        self.isExpandedInSidebar = data.isExpandedInSidebar
+        self.parentDelegate = parentDelegate
+        self.sidebarDelegate = sidebarViewModel
         
-//        let itemDrag = DragGesture(minimumDistance: 0)
-        // Use a tiny min-distance so that we can distinguish between a tap vs a drag
-        let itemDrag = DragGesture(minimumDistance: 5)
-            .onChanged { value in
-                // print("SidebarItemGestureViewModel: macDragGesture: itemDrag onChanged")
-                self.onItemDragChanged(value.translation)
-            }.onEnded { _ in
-                // print("SidebarItemGestureViewModel: macDragGesture: itemDrag onEnded")
-                self.onItemDragEnded()
-            }
+        self.children = data.children?.map {
+            SidebarItemGestureViewModel(data: $0,
+                                        parentDelegate: self,
+                                        sidebarViewModel: sidebarViewModel)
+        }
+    }
+    
+    init(id: NodeViewModel.ID,
+         children: [SidebarItemGestureViewModel]?,
+         isExpandedInSidebar: Bool?) {
+        self.id = id
+        self.children = children
+        self.isExpandedInSidebar = isExpandedInSidebar
+    }
+}
 
-        return itemDrag
+extension SidebarItemGestureViewModel {
+    static func createId() -> NodeViewModel.ID {
+        .init()
+    }
+    
+    func createSchema() -> SidebarLayerData {
+        .init(id: self.id,
+              children: self.children?.map { $0.createSchema() },
+              isExpandedInSidebar: self.isExpandedInSidebar)
+    }
+    
+    func update(from schema: EncodedItemData) {
+        self.id = schema.id
+        self.isExpandedInSidebar = isExpandedInSidebar
+    }
+    
+    @MainActor var name: String {
+        guard let node = self.graphDelegate?.getNodeViewModel(self.id) else {
+//            fatalErrorIfDebug()
+            return ""
+        }
+        
+        return node.getDisplayTitle()
+    }
+    
+    @MainActor var isVisible: Bool {
+        guard let node = self.graphDelegate?.getLayerNode(id: self.id)?.layerNode else {
+//            fatalErrorIfDebug()
+            return true
+        }
+            
+        return node.hasSidebarVisibility
     }
     
     @MainActor
-    var longPressDragGesture: LongPressAndDragGestureType {
-
-        let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
-            print("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
-            self.activeGesture = .dragging(self.item.id)
-            dispatch(SidebarListItemLongPressed(id: self.item.id))
-        }
-
-        // TODO: Does `minimumDistance` matter?
-//        let itemDrag = DragGesture(minimumDistance: 0)
-        let itemDrag = DragGesture(minimumDistance: 5)
-            .onChanged { value in
-                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onChanged")
-                self.onItemDragChanged(value.translation)
-            }.onEnded { _ in
-                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onEnded")
-                self.onItemDragEnded()
-            }
-
-        return longPress.sequenced(before: itemDrag)
+    func didLabelEdit(to newString: String,
+                      isCommitting: Bool) {
+        // Treat this is as a "layer inspector edit" ?
+        dispatch(NodeTitleEdited(titleEditType: .layerInspector(self.id),
+                                 edit: newString,
+                                 isCommitting: isCommitting))
     }
-
-    var onItemSwipeChanged: OnDragChangedHandler {
-        
-        let onSwipeChanged: OnDragChangedHandler = { (translationWidth: CGFloat) in
-            if self.editOn {
-                //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: currently in edit mode, so cannot swipe")
-                return
-            }
-            
-#if targetEnvironment(macCatalyst)
-        return
-#endif
-            
-            // if we have no active gesture,
-            // and we met the swipe threshold,
-            // then we can begin swiping
-            if self.activeGesture.isNone
-                && translationWidth.magnitude > SIDEBAR_ACTIVE_GESTURE_SWIPE_THRESHOLD {
-                //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: setting us to swipe")
-                self.activeGesture = .swiping
-            }
-            if self.activeGesture.isSwipe {
-                //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: updating per swipe")
-                // never let us drag the list eastward beyond its frame
-                let newSwipeX = max(self.previousSwipeX - translationWidth, 0)
-                self.swipeSetting = .swiping(newSwipeX)
-
-                self.activeSwipeId = self.item.id
-            }
-        }
-
-        return onSwipeChanged
+    
+    func sidebarLayerHovered(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
     }
-
-    // not redefined when a passed in redux value changes?
-    // unless we make a function?
+    
+    func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
+    }
+    
     @MainActor
-    var onItemSwipeEnded: OnDragEndedHandler {
-        
-        let onSwipeEnded: OnDragEndedHandler = {
-            //            print("SidebarItemGestureViewModel: itemSwipeEndedGesture called")
-
-            if self.editOn {
-                //                print("SidebarItemGestureViewModel: itemSwipeEndedGesture: currently in edit mode, so cannot swipe")
-                return
-            }
-            
-#if targetEnvironment(macCatalyst)
-        return
-#endif
-
-            // if we had been swiping, then we reset activeGesture
-            if self.activeGesture.isSwipe {
-                //                print("SidebarItemGestureViewModel: itemSwipeEndedGesture onEnded: resetting swipe")
-                self.activeGesture = .none
-                if self.atDefaultActionThreshold {
-                    // Don't need to change x position here,
-                    // since redOption's offset handles that.
-                    dispatch(SidebarItemDeleted(itemId: self.item.id))
-                } else if self.hasCrossedRestingThreshold {
-                    self.swipeSetting = .open
-                }
-                // we didn't pull it out far enough -- set x = 0
-                else {
-                    self.swipeSetting = .closed
-                }
-                self.previousSwipeX = self.swipeSetting.distance
-                self.activeSwipeId = self.item.id
-            } // if active...
+    func didDeleteItem() {
+        self.graphDelegate?.sidebarItemDeleted(itemId: self.id)
+    }
+    
+    @MainActor
+    func didToggleVisibility() {
+        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id))
+    }
+    
+    @MainActor
+    func didSelectOnEditMode() {
+        dispatch(SidebarItemSelected(id: self.id.asLayerNodeId))
+    }
+    
+    @MainActor
+    func didUnselectOnEditMode() {
+        dispatch(SidebarItemDeselected(id: self.id))
+    }
+    
+    var isNonEditModeFocused: Bool {
+        guard let sidebar = self.sidebarDelegate else { return false }
+        return sidebar.inspectorFocusedLayers.focused.contains(self.id)
+    }
+    
+    var isNonEditModeActivelySelected: Bool {
+        guard let sidebar = self.sidebarDelegate else { return false }
+        return sidebar.inspectorFocusedLayers.activelySelected.contains(self.id)
+    }
+    
+    var isNonEditModeSelected: Bool {
+        isNonEditModeFocused || isNonEditModeActivelySelected
+    }
+    
+    var backgroundOpacity: CGFloat {
+        if isImplicitlyDragged {
+            return 0.5
+        } else if (isNonEditModeFocused || isBeingDragged) {
+            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
+        } else {
+            return 0
         }
-        return onSwipeEnded
     }
-
-    // MARK: SWIPE LOGIC
-
-    func resetSwipePosition() {
-        swipeSetting = .closed
-        previousSwipeX = 0
+    
+    var useHalfOpacityBackground: Bool {
+        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
     }
-
-    var atDefaultActionThreshold: Bool {
-        swipeSetting.distance >= DEFAULT_ACTION_THRESHOLD
+    
+    @MainActor
+    var isHidden: Bool {
+        self.graphDelegate?.getVisibilityStatus(for: self.id) != .visible
     }
-
-    var hasCrossedRestingThreshold: Bool {
-        swipeSetting.distance >= RESTING_THRESHOLD
+    
+    @MainActor
+    var fontColor: Color {
+        guard let selection = self.sidebarDelegate?.selectionState.getSelectionStatus(self.id) else { return .white }
+        
+#if DEV_DEBUG
+        if isHidden {
+            return .purple
+        }
+#endif
+        
+        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
+        if isNonEditModeSelected {
+#if DEV_DEBUG
+            return .red
+#else
+            return .white
+#endif
+        }
+        
+#if DEV_DEBUG
+        // Easier to see secondary selections for debug
+        //        return selection.color(isHidden)
+        
+        switch selection {
+        case .primary:
+            return .brown
+        case .secondary:
+            return .green
+        case .none:
+            return .blue
+        }
+        
+#endif
+        
+        if isBeingEdited || isHidden {
+            return selection.color(isHidden)
+        } else {
+            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+        }
+    }
+    
+    // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
+    @MainActor
+    var masks: Bool {
+        guard let graph = self.graphDelegate else { return false }
+        
+        // TODO: why is this not animated? and why does it jitter?
+//        // index of this layer
+//        guard let index = graph.sidebarListState.masterList.items
+//            .firstIndex(where: { $0.id.asLayerNodeId == nodeId }) else {
+//            return withAnimation { false }
+//        }
+//
+//        // hasSidebarLayerImmediatelyAbove
+//        guard graph.sidebarListState.masterList.items[safe: index - 1].isDefined else {
+//            return withAnimation { false }
+//        }
+//
+        let atleastOneIndexMasks = graph
+            .getLayerNode(id: self.id)?
+            .layerNode?.masksPort.allLoopedValues
+            .contains(where: { $0.getBool ?? false })
+        ?? false
+        
+        return withAnimation {
+            atleastOneIndexMasks
+        }
+    }
+    
+    @MainActor
+    func sidebarItemDeleted(itemId: SidebarListItemId) {
+        self.graphDelegate?.sidebarItemDeleted(itemId: itemId)
     }
 }

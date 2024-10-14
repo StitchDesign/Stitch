@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-enum SidebarListItemSelectionStatus: Codable, Equatable {
+enum SidebarListItemSelectionStatus {
     case primary, secondary, none // ie not selected
 
     // both primary and secondary count as 'being selected'
@@ -34,18 +34,4 @@ enum SidebarListItemSelectionStatus: Codable, Equatable {
             return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR.opacity(0.5)
         }
     }
-}
-
-// what about when a group is collapsed?
-func getSelectionStatus(_ id: LayerNodeId,
-                        _ selections: SidebarSelectionState) -> SidebarListItemSelectionStatus {
-
-    if selections.primary.contains(id) {
-        return .primary
-    } else if selections.secondary.contains(id) {
-        return .secondary
-    } else {
-        return .none
-    }
-
 }

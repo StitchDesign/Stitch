@@ -69,8 +69,7 @@ extension NodeViewModel {
             let layerNode = LayerNodeEntity(nodeId: id,
                                             layer: layerNode.layer,
                                             hasSidebarVisibility: true,
-                                            layerGroupId: nil,
-                                            isExpandedInSidebar: nil)
+                                            layerGroupId: nil)
             let nodeEntity = NodeEntity(id: id,
                                         nodeTypeEntity: .layer(layerNode),
                                         title: graphNode.defaultTitle)

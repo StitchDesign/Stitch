@@ -28,15 +28,12 @@ struct StitchSidebarView: View {
 }
 
 struct ProjectSidebarView: View {
-    @State private var isEditing = false
     @Bindable var graph: GraphState
     let syncStatus: iCloudSyncStatus
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            
             SidebarListView(graph: graph,
-                            isBeingEdited: isEditing,
                             syncStatus: syncStatus)
             //#if !targetEnvironment(macCatalyst)
             //            .padding(.top)
@@ -62,26 +59,19 @@ struct ProjectSidebarView: View {
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
 #endif
-        
-        .onChange(of: self.isEditing, initial: true) { _, newValue in
-            dispatch(SidebarEditModeToggled(isEditing: newValue))
-        }
     }
 }
 
-struct SidebarEditModeToggled: GraphEvent {
-    let isEditing: Bool
-    
-    func handle(state: GraphState) {
+extension LayersSidebarViewModel {
+    func editModeToggled(to isEditing: Bool) {
         // Reset selection-state, but preserve inspector's focused layers
-        let inspectorFocusedLayers = state.sidebarSelectionState.inspectorFocusedLayers
         
         // Don't actually reset these?
 //        state.sidebarSelectionState.resetEditModeSelections()
         
-        state.sidebarSelectionState.inspectorFocusedLayers = inspectorFocusedLayers
+//        self.inspectorFocusedLayers = inspectorFocusedLayers
         
         // Do not set until the end; otherwise selection-state resets loses the change.
-        state.sidebarSelectionState.isEditMode = isEditing
+//        self.selectionState.isEditMode = isEditing
     }
 }

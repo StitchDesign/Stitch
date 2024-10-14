@@ -415,7 +415,7 @@ extension CanvasItemViewModel {
         // Anytime we select a canvas item,
         // we "de-actively-select" any sidebar layers,
         // but do not touch the "focused" layers.
-        self.graphDelegate?.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init()
+        self.graphDelegate?.layersSidebarViewModel.inspectorFocusedLayers.activelySelected = .init()
     }
     
     @MainActor
