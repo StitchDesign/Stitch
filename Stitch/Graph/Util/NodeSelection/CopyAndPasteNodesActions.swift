@@ -33,19 +33,7 @@ struct SelectedGraphItemsCut: GraphEvent {
             state.deleteCanvasItem($0)
         }
 
-//        state.updateSidebarListStateAfterStateChange(state.sidebarExpandedItems)
-        state.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
-        
-        // TODO: delete comment boxes for cut
-        //        graphSchema = deleteSelectedCommentBoxes(
-        //            graphSchema: graphSchema,
-        //            graphState: graphState)
+        state.updateGraphData()
     }
 }
 
