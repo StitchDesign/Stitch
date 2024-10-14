@@ -229,7 +229,7 @@ extension StitchDocumentViewModel {
         }
 
         // Recalculate graph
-        self.visibleGraph.initializeGraphComputation()
+        self.graph.updateGraphData()
         
         self.visibleGraph.encodeProjectInBackground()
     }

@@ -180,14 +180,8 @@ struct SidebarItemDeleted: GraphEvent {
 
     func handle(state: GraphState) {
         state.deleteNode(id: itemId.asNodeId)
-        state.updateSidebarListStateAfterStateChange()
                 
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
-        
+        state.updateGraphData()
         state.encodeProjectInBackground()
     }
 }
