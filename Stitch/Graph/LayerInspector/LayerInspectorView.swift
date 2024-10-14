@@ -55,35 +55,12 @@ struct LayerInspectorView: View {
     var body: some View {
         
         if let layerInspectorData = graph.getLayerInspectorData() {
-            
-            // Note: UIHostingController is adding safe area padding which is difficult to remove; so we read the safe areas and pad accordingly
-            GeometryReader { geometry in
-                UIKitWrapper(ignoresKeyCommands: false,
-                             name: "LayerInspectorView") {
-                    
-                    selectedLayerView(
-                        layerInspectorHeader: layerInspectorData.header,
-                        node: layerInspectorData.node,
-                        layerInputObserverDict: layerInspectorData.inputs,
-                        layerOutputs: layerInspectorData.outputs)
-                }
-                //                // TODO: Why subtract only half?
-                //                             .padding(.top, (-self.safeAreaInsets.top/2 + 8))
-                             .padding(.bottom, (-self.safeAreaInsets.bottom))
-                
-                // TODO: why is this inaccurate?
-                //                             .padding(.top, graph.graphUI.propertySidebar.safeAreaTopPadding)
-                //                             .padding(.bottom, graph.graphUI.propertySidebar.safeAreaBottomPadding)
-                
-                             .onChange(of: geometry.safeAreaInsets, initial: true) { oldValue, newValue in
-                                 //                                 log("safeAreaInsets: oldValue: \(oldValue)")
-                                 //                                 log("safeAreaInsets: newValue: \(newValue)")
-                                 self.safeAreaInsets = newValue
-                                 graph.graphUI.propertySidebar.safeAreaTopPadding = -(newValue.top/2 + 8)
-                                 //                                 graph.graphUI.propertySidebar.safeAreaBottomPadding = -newValue.bottom
-                             }
-            }
-            
+            selectedLayerView(
+                layerInspectorHeader: layerInspectorData.header,
+                node: layerInspectorData.node,
+                layerInputObserverDict: layerInspectorData.inputs,
+                layerOutputs: layerInspectorData.outputs)
+            .padding(.bottom)
         } else {
             // Empty List, so have same background
             List { }
