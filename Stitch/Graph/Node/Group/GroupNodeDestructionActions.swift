@@ -20,6 +20,7 @@ struct GroupNodeDeletedAction: ProjectEnvironmentEvent {
         log("GroupNodeDeletedAction called: groupNodeId: \(groupNodeId)")
 
         graphState.deleteNode(id: groupNodeId.asNodeId)
+        graphState.updateGraphData()
         return .persistenceResponse
     }
 }
@@ -74,6 +75,8 @@ extension GraphState {
         // Delete group node
         // NOTE: CANNOT USE `GraphState.deleteNode` because that deletes the group node's children as well
         self.visibleNodesViewModel.nodes.removeValue(forKey: uncreatedGroupNodeId)
+        
+        self.updateGraphData()
 
         // Process and encode changes
         self.encodeProjectInBackground()

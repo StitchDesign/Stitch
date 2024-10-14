@@ -79,19 +79,9 @@ extension GraphState {
         // and so deleting the selected nodes means de-selecting those associated edges)
         self.selectedEdges = .init()
 
-        // BATCH OPERATION: Update sidebar state ONCE, after deleting all nodes
-        // Recreate topological order
-        self.updateTopologicalData()
-
         self.graphMovement.draggedCanvasItem = nil
         
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
+        self.updateGraphData()
     }
     
     // Varies by node vs LayerInputOnGraph vs comment box

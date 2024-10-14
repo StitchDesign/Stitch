@@ -52,7 +52,7 @@ extension GraphState {
         self.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
-        self.updateSidebarListStateAfterStateChange()
+        self.updateGraphData()
         
         // reset selection-state
         self.sidebarSelectionState = .init()
