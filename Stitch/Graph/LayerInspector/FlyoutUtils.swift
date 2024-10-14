@@ -107,6 +107,7 @@ struct FlyoutToggled: GraphUIEvent {
     
     let flyoutInput: LayerInputPort
     let flyoutNodeId: NodeId
+    let fieldToFocus: FocusedUserEditField?
     
     func handle(state: GraphUIState) {
         if let flyoutState = state.propertySidebar.flyoutState,
@@ -119,6 +120,11 @@ struct FlyoutToggled: GraphUIEvent {
                     // TODO: assuming flyout state is packed here
                     flyoutInput: flyoutInput,
                     flyoutNode: flyoutNodeId)
+            
+            if let fieldToFocus = fieldToFocus {
+                state.reduxFieldFocused(focusedField: fieldToFocus)
+            }
+            
 //            }
         }
     }

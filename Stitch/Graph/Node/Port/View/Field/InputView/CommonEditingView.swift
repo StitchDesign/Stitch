@@ -48,7 +48,12 @@ let INSPECTOR_MULTIFIELD_INDIVIDUAL_FIELD_WIDTH: CGFloat = 44
 struct CommonEditingView: View {
     @Environment(\.isSelectionBoxInUse) private var isSelectionBoxInUse
     
+    #if DEV_DEBUG
+    @State private var currentEdit = "no entry"
+    #else
     @State private var currentEdit = ""
+    #endif
+    
     @State private var isBase64 = false
     
     @Bindable var inputField: InputFieldViewModel
@@ -97,6 +102,11 @@ struct CommonEditingView: View {
             return false
         }
         
+        // Can never focus the field of a multifield input (must happen via flyout)
+        if forPropertySidebar && isFieldInMultifieldInspectorInputAndNotFlyout {
+            return false
+        }
+                
         if forPropertySidebar {
             return thisFieldIsFocused
         } else {
@@ -176,7 +186,13 @@ struct CommonEditingView: View {
         }
         .onChange(of: showEditingView) { _, newValue in
             // Fixes beach balls for base 64 strings
-            if showEditingView {
+            if newValue {
+                self.updateCurrentEdit()
+            }
+        }
+        // TODO: why is `.onChange(of: showEditingView)` not enough for a field focused in a flyout from an inspector-field click ?
+        .onAppear {
+            if isForFlyout {
                 self.updateCurrentEdit()
             }
         }
@@ -308,11 +324,11 @@ struct CommonEditingView: View {
                    let layerInput = inputField.layerInput,
                    !isForFlyout {
                     dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                           flyoutNodeId: nodeId))
+                                           flyoutNodeId: nodeId,
+                                           fieldToFocus: .textInput(id)))
                 } else {
                     dispatch(ReduxFieldFocused(focusedField: .textInput(id)))
                 }
-                
             })
         
         
