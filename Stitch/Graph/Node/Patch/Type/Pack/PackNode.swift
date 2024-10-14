@@ -228,9 +228,7 @@ func transformPackOp(values: PortValues) -> PortValue {
        let rotationZ = values[safe: PackNodeMatrixLocations.rotationZ]?.getNumber {
         return .transform(StitchTransform.init(positionX: x, positionY: y, positionZ: z, scaleX: scaleX, scaleY: scaleY, scaleZ: scaleZ, rotationX: rotationX, rotationY: rotationY, rotationZ: rotationZ))
     } else {
-        #if DEV_DEBUG
-        fatalError("matrixEvaluation")
-        #endif
+        fatalErrorIfDebug("matrixEvaluation")
         return defaultTransform
     }
 }

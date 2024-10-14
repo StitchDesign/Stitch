@@ -51,8 +51,9 @@ final class NodeViewModel: Sendable {
     weak var graphDelegate: GraphDelegate?
 
     /// Called on initialization or prototype restart.
-    func createEphemeralObservers() {
-        if let ephemeralObserver = self.createEphemeralObserver() {
+    func syncEphemeralObservers() {
+        if self.ephemeralObservers == nil,
+           let ephemeralObserver = self.createEphemeralObserver() {
             self.ephemeralObservers = [ephemeralObserver]
         }
     }
@@ -252,7 +253,7 @@ extension NodeViewModel {
         self.nodeType.initializeDelegate(self,
                                          components: graph.components,
                                          document: document)
-        self.createEphemeralObservers()
+        self.syncEphemeralObservers()
     }
     
     var computedStates: [ComputedNodeState]? {
