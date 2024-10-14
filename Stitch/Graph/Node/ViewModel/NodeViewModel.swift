@@ -253,7 +253,7 @@ extension NodeViewModel {
         self.nodeType.initializeDelegate(self,
                                          components: graph.components,
                                          document: document)
-        self.createEphemeralObservers()
+        self.syncEphemeralObservers()
     }
     
     var computedStates: [ComputedNodeState]? {
