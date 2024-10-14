@@ -21,6 +21,17 @@ struct NodeTitleTextField: View {
                              font: font)
     }
 }
+
+extension String {
+   func widthOfString(usingFont font: UIFont) -> CGFloat {
+       let fontAttributes = [NSAttributedString.Key.font: font]
+       let size = self.size(withAttributes: fontAttributes)
+       let width = size.width
+       log("widthOfString: \(widthOfString)")
+       return width
+    }
+}
+
     /// A wrapper view for `TextField` which renders a read-only view when the input isn't in focus. This fixes a performance
     /// issue with `TextField` which becomes exacerbated by many rendered `TextField`'s in a view.
 struct StitchTitleTextField: View {
@@ -35,6 +46,8 @@ struct StitchTitleTextField: View {
         graph.graphUI.reduxFocusedField?.getNodeTitleEdit == titleEditType
     }
 
+    @State private var labelWidth: CGFloat? = nil
+    
     var body: some View {
         Group {
             if isFocused {
@@ -49,18 +62,24 @@ struct StitchTitleTextField: View {
                                                  edit: newEdit,
                                                  isCommitting: isCommitting))
                     }
-                    .frame(height: NODE_TITLE_HEIGHT,
+                    .border(.red)
+                    .frame(width: labelWidth,
+                           height: NODE_TITLE_HEIGHT,
                            alignment: .center)
+                    .border(.blue)
                 
 #if targetEnvironment(macCatalyst)
 //.offset(y: -1)  // Matches y axis for read-only string--only needed for Catalyst
-                    .offset(y: -0.5)  // Matches y axis for read-only string--only needed for Catalyst
+                    // .offset(y: -0.5)  // Matches y axis for read-only string--only needed for Catalyst
 #endif
+                
+                
 //                    .border(.green)
             } else {
                 StitchTextView(string: label,
                                font: font)
-                    .frame(height: NODE_TITLE_HEIGHT,
+                    .frame(width: labelWidth,
+                           height: NODE_TITLE_HEIGHT,
                            alignment: .center)
                    //  .border(.blue)
                 // Manually focus this field when user taps.
@@ -72,5 +91,9 @@ struct StitchTitleTextField: View {
             }
         }
         .frame(minWidth: 20)
+        .onChange(of: label.count, initial: true) { oldValue, newValue in
+//            self.labelWidth = label.widthOfString(usingFont: STITCH_UIFONT) + 40
+            self.labelWidth = label.widthOfString(usingFont: STITCH_UIFONT) + 12
+        }
     }
 }

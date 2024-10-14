@@ -25,7 +25,7 @@ struct StitchTextEditingFieldFixedSize: ViewModifier {
 
     func body(content: Content) -> some View {
         if isForNodeTitle {
-            content.fixedSize()
+            content // .fixedSize()
         } else {
             content
         }
@@ -85,6 +85,8 @@ struct StitchTextEditingBindingField: View {
     // .leading alignment for inputs,
     // .center alignment for node titles etc.
     var isForNodeTitle = false
+//    var nodeTitlePlaceholder: String = ""
+    var nodeTitlePlaceholder: String = "Value"
 
     var font: Font = STITCH_FONT
     var fontColor: Color = STITCH_TITLE_FONT_COLOR
@@ -108,7 +110,8 @@ struct StitchTextEditingBindingField: View {
 
     func titleFieldValidator() {
         if isEmptyTitleEdit {
-            self.currentEdit = Self.longEmptyString
+//            self.currentEdit = Self.longEmptyString
+            self.currentEdit = self.nodeTitlePlaceholder
         }
     }
 
@@ -120,7 +123,8 @@ struct StitchTextEditingBindingField: View {
     }
 
     // For easier clickability of node titles when user has edited the string to otherwise be empty
-    static let longEmptyString = "                 "
+//    static let longEmptyString = "                 "
+//    static let longEmptyString = "         "
 
     var body: some View {
         TextField(isBase64 ? "base64" : "", text: $currentEdit)
@@ -140,10 +144,10 @@ struct StitchTextEditingBindingField: View {
             // we turn that long empty string into the regular empty string,
             // so as not to have extra spaces in the user's edit.
             .onTapGesture {
-                if isForNodeTitle,
-                   self.currentEdit == Self.longEmptyString {
-                    self.currentEdit = ""
-                }
+//                if isForNodeTitle,
+//                   self.currentEdit == Self.longEmptyString {
+//                    self.currentEdit = ""
+//                }
             }
             .onAppear {
                 // log("StitchTextEditingBindingField: onAppear")
