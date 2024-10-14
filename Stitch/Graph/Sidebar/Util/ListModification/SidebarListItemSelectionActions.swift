@@ -187,5 +187,7 @@ struct SidebarItemDeleted: GraphEvent {
             updatedList: state.sidebarListState,
             expanded: state.getSidebarExpandedItems(),
             graphState: state)
+        
+        state.encodeProjectInBackground()
     }
 }
