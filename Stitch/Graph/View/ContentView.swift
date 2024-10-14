@@ -177,11 +177,17 @@ struct ContentView: View, KeyboardReadable {
             LLMActionsJSONEntryModalView()
         })
         .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
-                     titleLabel: "Stitch AI",
-                     hideAction: document.closedStitchAIModal,
-                     sheetBody: {
-            StitchAIPromptEntryModalView()
-        })
+                      titleLabel: "Stitch AI",
+                      hideAction: document.closedStitchAIModal,
+                      sheetBody: {
+             StitchAIPromptEntryModalView(
+                 prompt: $document.stitchAI.promptState.prompt,
+                 isGenerating: document.stitchAI.promptState.isGenerating,
+                 onSubmit: { prompt in
+                     document.makeAPIRequest(userInput: prompt)
+                 }
+             )
+         })
     }
 
     private var fullScreenPreviewView: some View {
