@@ -9,49 +9,44 @@ import SwiftUI
 import StitchSchemaKit
 import GameController
 
-struct SidebarListItemView: View {
+struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    typealias ItemID = SidebarViewModel.ItemID
 
-    @Environment(\.appTheme) var theme
+    @Environment(\.appTheme) private var theme
+    @EnvironmentObject private var keyboardObserver: KeyboardObserver
     
     @Bindable var graph: GraphState
-    
-    @EnvironmentObject var keyboardObserver: KeyboardObserver
-    
-    var item: SidebarListItem
-    let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
-    var isClosed: Bool
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
-    let isHidden: Bool
-
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var item: SidebarViewModel.ItemViewModel
     let swipeOffset: CGFloat
+    
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isEditing
+    }
+//    
+//    var current: SidebarViewModel.ItemViewModel? {
+//        self.sidebarViewModel.currentItemDragged
+//    }
+    
+    var proposedGroup: SidebarViewModel.ItemViewModel? {
+        self.sidebarViewModel.proposedGroup
+    }
 
     // TODO: should be for *all* selected-layers during a drag
-    var isBeingDragged: Bool {
-        current.map { $0.current == item.id } ?? false
-    }
+//    var isBeingDragged: Bool {
+//        current.map { $0.current == item.id } ?? false
+//    }
 
     var isProposedGroup: Bool {
-        proposedGroup?.parentId == item.id
-    }
-
-    var layerNodeId: LayerNodeId {
-        item.id.asLayerNodeId
+        proposedGroup?.id == item.id
     }
     
     var isNonEditModeFocused: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+        sidebarViewModel.inspectorFocusedLayers.focused.contains(item.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+        sidebarViewModel.inspectorFocusedLayers.activelySelected.contains(item.id)
     }
     
     var isNonEditModeSelected: Bool {
@@ -63,15 +58,8 @@ struct SidebarListItemView: View {
         HStack(spacing: 0) {
             SidebarListItemLeftLabelView(
                 graph: graph,
-                name: name,
-                layer: layer,
-                nodeId: layerNodeId,
-                fontColor: fontColor,
-                selection: selection,
-                isHidden: isHidden,
-                isBeingEdited: isBeingEdited,
-                isGroup: item.isGroup,
-                isClosed: isClosed)
+                sidebarViewModel: sidebarViewModel,
+                itemViewModel: item)
             
 //            .padding(.leading)
                 .offset(x: -swipeOffset)

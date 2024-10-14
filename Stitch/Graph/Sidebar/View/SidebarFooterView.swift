@@ -9,16 +9,47 @@ import SwiftUI
 import StitchSchemaKit
 import StitchViewKit
 
-struct SidebarFooterView: View {
+struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
 
-    static let SIDEBAR_FOOTER_HEIGHT: CGFloat = 64
-    static let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
+    private let SIDEBAR_FOOTER_HEIGHT: CGFloat = 64
+    private let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
     
-    let groups: SidebarGroupsDict
-    let selections: SidebarSelectionState
-    let isBeingEdited: Bool
+    @Bindable var sidebarViewModel: SidebarViewModel
     let syncStatus: iCloudSyncStatus
-    let layerNodes: LayerNodesForSidebarDict
+//    let layerNodes: LayerNodesForSidebarDict
+
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isEditing
+    }
+    
+    var selections: SidebarViewModel.SidebarSelectionState {
+        self.sidebarViewModel.selectionState
+    }
+
+    var groups: SidebarViewModel.SidebarGroupsDict {
+        self.sidebarViewModel.getSidebarGroupsDict()
+    }
+    
+//    var groups: SidebarGroupsDict {
+//        graph.getSidebarGroupsDict()
+//    }
+    
+//    var sidebarDeps: SidebarDeps {
+//        SidebarDeps(
+////            layerNodes: .fromLayerNodesDict(
+////                nodes: graph.layerNodes,
+////                orderedSidebarItems: graph.orderedSidebarLayers),
+//            groups: groups,
+//            expandedItems: graph.getSidebarExpandedItems())
+//    }
+
+//    var layerNodesForSidebarDict: LayerNodesForSidebarDict {
+//        sidebarDeps.layerNodes
+//    }
+
+//    var masterList: SidebarListItemsCoordinator {
+//        sidebarListState.masterList
+//    }
 
     var showEditModeFooter: Bool {
         #if targetEnvironment(macCatalyst)
@@ -40,14 +71,24 @@ struct SidebarFooterView: View {
                     .animation(.default, value: isBeingEdited)
             }
         }
+        // NOTE: only listen for changes to expandedItems or sidebar-groups,
+        // not the layerNodes, since layerNodes change constantly
+        // when eg a Time Node is attached to a Text Layer.
+//        .onChange(of: sidebarViewModel.expandedSidebarItems) {
+//            sidebarViewModel.activeSwipeId = nil
+//        }
+        .onChange(of: groups) {
+            sidebarViewModel.activeSwipeId = nil
+        }
         .padding()
         .animation(.default, value: showEditModeFooter)
-        .animation(.default, value: selections)
+        .animation(.default, value: selections.primary)
+        .animation(.default, value: selections.secondary)
         .animation(.default, value: groups)
-        .animation(.default, value: layerNodes)
+//        .animation(.default, value: layerNodes)
         .frame(maxWidth: .infinity)
-        .height(Self.SIDEBAR_FOOTER_HEIGHT)
-        .background(Self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
+        .height(self.SIDEBAR_FOOTER_HEIGHT)
+        .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
     }
 
     var normalFooter: some View {
@@ -61,10 +102,11 @@ struct SidebarFooterView: View {
     var editModeFooter: some View {
         HStack(spacing: 10) {
             Spacer()
-            SidebarFooterButtonsView(groups: groups,
-                                     selections: selections,
-                                     isBeingEdited: isBeingEdited,
-                                     layerNodes: layerNodes)
+            SidebarFooterButtonsView(sidebarViewModel: sidebarViewModel,
+//                                     groups: groups,
+//                                     selections: selections,
+                                     isBeingEdited: isBeingEdited)
+//                                     layerNodes: layerNodes)
         }
     } // editModeFooter
 }
@@ -79,37 +121,34 @@ struct DisabledButtonModifier: ViewModifier {
     }
 }
 
-struct SidebarFooterButtonsView: View {
-    
-    let groups: SidebarGroupsDict
-    let selections: SidebarSelectionState
+struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    @Bindable var sidebarViewModel: SidebarViewModel
+//    let groups: SidebarViewModel.SidebarGroupsDict
     let isBeingEdited: Bool
-    let layerNodes: LayerNodesForSidebarDict
+//    let layerNodes: LayerNodesForSidebarDict
+
+    var selections: SidebarViewModel.SidebarSelectionState {
+        self.sidebarViewModel.selectionState
+    }
     
     var body: some View {
         let allButtonsDisabled = selections.all.isEmpty
-        
-        let ungroupButtonEnabled = canUngroup(selections.primary,
-                                              nodes: layerNodes)
-
-        let groupButtonEnabled = selections
-            .nonEmptyPrimary
-            .map { canBeGrouped($0, groups: groups) } ?? false
-
-        let duplicateButtonEnabled = canDuplicate(selections.primary)
+        let ungroupButtonEnabled = sidebarViewModel.canUngroup()
+        let groupButtonEnabled = sidebarViewModel.canBeGrouped()
+        let duplicateButtonEnabled = sidebarViewModel.canDuplicate()
 
 //        return HStack(spacing: 10) {
         return Group {
 //            Spacer()
             StitchButton {
-                dispatch(SidebarGroupUncreated())
+                self.sidebarViewModel.sidebarGroupUncreated()
             } label: {
                 Text("Ungroup")
                     .modifier(DisabledButtonModifier(buttonEnabled: ungroupButtonEnabled))
             }.disabled(!ungroupButtonEnabled)
             
             StitchButton {
-                dispatch(SidebarGroupCreated())
+                sidebarViewModel.sidebarGroupCreated()
             } label: {
                 Text("Group")
                     .modifier(DisabledButtonModifier(buttonEnabled: groupButtonEnabled))
