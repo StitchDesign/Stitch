@@ -142,14 +142,12 @@ struct CatalystTopBarGraphButtons: View {
                 document.openedStitchAIModal()
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
-            #endif
             
             CatalystNavBarButton(LLM_OPEN_JSON_ENTRY_MODAL_SF_SYMBOL) {
                 document.openedLLMActionsJSONEntryModal()
             }
             .opacity(llmRecordingModeEnabled ? 1 : 0)
             
-            #if DEV_DEBUG || DEBUG || STITCH_AI
             CatalystNavBarButton(llmRecordingModeActive ? LLM_STOP_RECORDING_SF_SYMBOL : LLM_START_RECORDING_SF_SYMBOL) {
                 dispatch(LLMRecordingToggled())
             }
