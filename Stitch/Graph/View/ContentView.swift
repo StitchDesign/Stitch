@@ -50,7 +50,11 @@ struct ContentView: View, KeyboardReadable {
 
     var nodeAndMenu: some View {
         ZStack {
-            contentView // the graph
+            
+            // Best place to listen for TAB key for flyout
+            UIKitWrapper(ignoresKeyCommands: true, name: "nodeAndMenu") {
+                contentView // the graph
+            }
             
             if showMenu {
                 InsertNodeMenuWrapper(document: document,
