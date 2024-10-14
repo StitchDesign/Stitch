@@ -282,6 +282,7 @@
 		E4CC7D1528F48EF6008EA1C0 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4CC7D1328F48EF6008EA1C0 /* MainInterface.storyboard */; };
 		E4CC7D1928F48EF6008EA1C0 /* StitchQuickLookExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4CC7D0B28F48EF6008EA1C0 /* StitchQuickLookExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E4D7EA152BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */; };
+		E4E860022CBD5448006763DA /* StitchAIErrorModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */; };
 		E4F7AC242974AF5300B7F55A /* RealityNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F7AC232974AF5300B7F55A /* RealityNode.swift */; };
 		E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */; };
 		E4F8AABB2BD6ED8500E9BA4D /* RadialGradientNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */; };
@@ -1219,6 +1220,7 @@
 		E4CC7D1628F48EF6008EA1C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E4CC7D1A28F48EF6008EA1C0 /* StitchQuickLookExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StitchQuickLookExtension.entitlements; sourceTree = "<group>"; };
 		E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressIndicatorLayerNode.swift; sourceTree = "<group>"; };
+		E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchAIErrorModalView.swift; sourceTree = "<group>"; };
 		E4F7AC232974AF5300B7F55A /* RealityNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealityNode.swift; sourceTree = "<group>"; };
 		E4F7AC252974B6E700B7F55A /* PreviewRealityLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewRealityLayer.swift; sourceTree = "<group>"; };
 		E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadialGradientNode.swift; sourceTree = "<group>"; };
@@ -3742,6 +3744,7 @@
 			children = (
 				ECD83F0C2C193AB400722AD7 /* LLMRecording */,
 				E40B2F4D2CB86BC3005F5479 /* StitchAIPromptView.swift */,
+				E4E860012CBD5448006763DA /* StitchAIErrorModalView.swift */,
 				E40B2F4F2CB86D21005F5479 /* StitchAIEvents.swift */,
 				E40B2F522CB86E48005F5479 /* StitchAIConstants.swift */,
 				E40B2F542CB86F2B005F5479 /* StitchAIDataModel.swift */,
@@ -5258,6 +5261,7 @@
 				B51C3B8C29A9462A00043089 /* ARAnchorNode.swift in Sources */,
 				EC6DF0A929FA04F60052545E /* StitchJSON.swift in Sources */,
 				20A9F9B325D6F685003462A9 /* NodeEvaluationHelpers.swift in Sources */,
+				E4E860022CBD5448006763DA /* StitchAIErrorModalView.swift in Sources */,
 				B53857B02B50682400428962 /* NodeDefinitionKinds.swift in Sources */,
 				E4AE5B7C28AAFE4A001C823D /* LightType.swift in Sources */,
 				ECA92A60260A6CDA00281B52 /* EdgeAnchorData.swift in Sources */,

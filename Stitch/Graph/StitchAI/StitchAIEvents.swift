@@ -31,15 +31,15 @@ extension StitchDocumentViewModel {
         makeAPIRequest(userInput: prompt)
         self.stitchAI.promptState.prompt = ""
     }
-
+    
     @MainActor func makeAPIRequest(userInput: String) {
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
-            showAlert(message: "Invalid OPEN AI URL")
+            showErrorModal(message: "Invalid URL", userPrompt: userInput, jsonResponse: nil)
             return
         }
         
         guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME), !apiKey.isEmpty else {
-            showAlert(message: "No Open AI API Key found")
+            showErrorModal(message: "No API Key found or API Key is empty", userPrompt: userInput, jsonResponse: nil)
             return
         }
 
@@ -47,9 +47,8 @@ extension StitchDocumentViewModel {
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        
         guard let responseSchema = try? JSONSerialization.jsonObject(with: Data(VISUAL_PROGRAMMING_ACTIONS.utf8), options: []) as? [String: Any] else {
-            showAlert(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON")
+            showErrorModal(message: "Failed to parse VISUAL_PROGRAMMING_ACTIONS JSON", userPrompt: userInput, jsonResponse: VISUAL_PROGRAMMING_ACTIONS)
             return
         }
         
@@ -73,58 +72,71 @@ extension StitchDocumentViewModel {
                 ]
             ]
         ]
-        
+
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
         } catch {
-            showAlert(message: "Error decoding JSON from OpenAI: \(error.localizedDescription)")
+            showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
             return
         }
-        
-        let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+
+        let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
             if let error = error {
-                self?.showAlert(message: "Error making OpenAI request: \(error.localizedDescription)")
+                self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
                 return
             }
-            
+
             guard let data = data else {
-                self?.showAlert(message: "No data received from OpenAI")
+                self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
                 return
             }
+
+            let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
             
             do {
+                // Decode the response to OpenAIResponse
+                let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
+                
+                // Try to transform the OpenAI response to LLM Actions
                 if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
                     guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                        self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
                         return
                     }
                     
+                    // Handle the successful response (continue your logic here)
                     let json = JSON(parseJSON: transformedResponse)
                     let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
+                    
+                    // For each action, perform appropriate handling
                     actions.forEach { self?.handleLLMAction($0) }
+                    
+                    // Trigger any additional functionality like saving or updating state
                     self?.visibleGraph.encodeProjectInBackground()
-
+                    
                 } else {
-                    self?.showAlert(message: "Error transforming response to LLM Actions string")
+                    self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
                 }
+                
             } catch {
-                self?.showAlert(message: "Error processing response: \(error.localizedDescription)")
+                // Handle decoding or transformation errors
+                self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
             }
         }
         task.resume()
     }
 
-    func showAlert(message: String) {
+
+    func showErrorModal(message: String, userPrompt: String, jsonResponse: String?) {
         DispatchQueue.main.async {
             if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
-                let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                
-                alert.addAction(UIAlertAction(title: "Copy", style: .default, handler: { _ in
-                    UIPasteboard.general.string = message
-                }))
-                
-                rootViewController.present(alert, animated: true, completion: nil)
+                let hostingController = UIHostingController(rootView: StitchAIErrorModalView(
+                    message: message,
+                    userPrompt: userPrompt,
+                    jsonResponse: jsonResponse
+                ))
+                rootViewController.present(hostingController, animated: true, completion: nil)
             }
         }
     }
