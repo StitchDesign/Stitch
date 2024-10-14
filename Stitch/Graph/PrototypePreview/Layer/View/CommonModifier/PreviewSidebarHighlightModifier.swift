@@ -32,6 +32,9 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
     }
     
     var isHighlighted: Bool {
+        
+        return highlightedSidebarLayers.contains(nodeId)
+        
         // TODO: reads here cause a crash nodes once connected to layer inputs nodes
         /// https://github.com/StitchDesign/Stitch/issues/264
         #if DEV_DEBUG

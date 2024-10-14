@@ -24,7 +24,7 @@ struct ActiveIndex: Equatable, Codable, Hashable {
 
     static let defaultActiveIndex: Self = .init(0)
 
-    // activeIndex adjsuted for loopLength
+    // activeIndex adjusted for loopLength
     func adjustedIndex(_ loopLength: Int) -> Int {
         getAdjustedActiveIndex(activeIndex: self.value,
                                loopLength: loopLength)

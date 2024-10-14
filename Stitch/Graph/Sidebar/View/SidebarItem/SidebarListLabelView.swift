@@ -79,9 +79,10 @@ struct SidebarListItemLeftLabelView: View {
                 // .border(.green)
 //            }
   
-            Image(systemName: layer.sidebarLeftSideIcon)
-                .resizable()
-                .padding(2)
+            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
+                                                        layerId: nodeId.asNodeId,
+                                                        activeIndex: graph.activeIndex))
+                .scaledToFit()
                 .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
                        height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 .foregroundColor(fontColor)
