@@ -27,6 +27,8 @@ For setting the value of a patch node input use SET_INPUT action. Whenever we se
 Nodes can have multiple connections.
 Patch nodes use numbers for their port names. Layer nodes use one of the items in LayerPorts. Do not ever use a node name for a port name.
 Connect nodes from port to port with CONNECT_NODES.
+
+Additionally, each node is identified by a unique NodeID, which must be a valid UUID (Universally Unique Identifier) string. You should generate a new UUID for each node when it is created and assign it to the node's "node_id". Ensure that the same UUID is used consistently when referring to the same node throughout the process. For connecting nodes, the "from_node_id" and "to_node_id" fields should also reference the correct UUID string values of the nodes being connected.
 """
 
 let VISUAL_PROGRAMMING_ACTIONS = """
@@ -149,20 +151,9 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             "type": "string"
         },
         "NodeID": {
-            "enum": [
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "10"
-            ],
-            "title": "NodeID",
-            "type": "string"
+            "type": "string",
+            "format": "uuid",
+            "description": "The unique identifier for the node (UUID)"
         },
         "NodeName": {
             "enum": [
@@ -229,7 +220,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "circleShape || Patch - generates a circle shape from a position and radius.",
                 "ovalShape || Patch - generates an oval shape from a position and radius.",
                 "roundedRectangleShape || Patch - generates a rounded rectangle shape from a position, size and radius.",
-                "triangleShape || Patch - generates a triangle shape from 3 points. ",
+                "triangleShape || Patch - generates a triangle shape from 3 points.",
                 "shapeToCommands || Patch - takes a shape as input, and outputs the commands used to generate the shape.",
                 "commandsToShape || Patch - generates a shape from a loop of given shape commands.",
                 "transformPack || Patch - packs given input values into a transform.",
