@@ -9,8 +9,9 @@ import SwiftUI
 
 struct StitchAIPromptEntryModalView: View {
     @AppStorage(OPENAI_API_KEY_NAME) var OPEN_AI_API_KEY: String = ""
-
-    @State var prompt: String = ""
+    @Binding var prompt: String
+    let isGenerating: Bool
+    let onSubmit: (String) -> Void
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -19,14 +20,23 @@ struct StitchAIPromptEntryModalView: View {
             TextEditor(text: $prompt)
                 .font(STITCH_FONT)
                 .scrollContentBackground(.hidden)
+            
+            if isGenerating {
+                Text("Generating response...")
+                    .font(STITCH_FONT)
+                    .foregroundColor(.gray)
+                    .padding(.top)
+            } else {
+                Button("Submit") {
+                    onSubmit(prompt)
+                }
+                .disabled(prompt.isEmpty)
+                .padding(.top)
+            }
         }
         .padding()
-        .onChange(of: self.prompt) { oldValue, newValue in
-            dispatch(StitchAIPromptEdited(prompt: newValue))
-        }
     }
 }
-
 struct StitchAIState: Equatable {
     var promptState = StitchAIPromptState()
 }
@@ -34,6 +44,7 @@ struct StitchAIState: Equatable {
 struct StitchAIPromptState: Equatable {
     var showModal = false
     var prompt: String = ""
+    var isGenerating = false
 }
 
 struct StitchAIPromptEdited: StitchDocumentEvent {
