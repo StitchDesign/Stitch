@@ -82,6 +82,8 @@ struct GraphGestureBackgroundView<T: View>: UIViewControllerRepresentable {
 final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
     weak var document: StitchDocumentViewModel?
 
+    var shiftHeld: Bool = false
+    
     init(document: StitchDocumentViewModel) {
         super.init()
         self.document = document
@@ -91,6 +93,22 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
         true
     }
 
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldReceive event: UIEvent) -> Bool {
+         log("NodeSelectionGestureRecognizer: gestureRecognizer: should receive event")
+
+        if event.modifierFlags.contains(.shift) {
+             log("NodeSelectionGestureRecognizer: SHIFT DOWN")
+            self.shiftHeld = true
+        } else {
+             log("NodeSelectionGestureRecognizer: SHIFT NOT DOWN")
+            self.shiftHeld = false
+        }
+        
+        return true
+    }
+        
+    
     @objc func longPressInView(_ gestureRecognizer: UILongPressGestureRecognizer) {
         switch gestureRecognizer.state {
         case .began:
@@ -122,7 +140,8 @@ final class NodeSelectionGestureRecognizer: NSObject, UIGestureRecognizerDelegat
             location: location,
             velocity: velocity,
             numberOfTouches: gestureRecognizer.numberOfTouches,
-            gestureState: gestureRecognizer.state)
+            gestureState: gestureRecognizer.state,
+            shiftHeld: self.shiftHeld)
     }
 
     @MainActor
