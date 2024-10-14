@@ -31,6 +31,7 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
         isPinned && !isPinnedViewRendering
     }
     
+    @MainActor
     var isHighlighted: Bool {
                 
         // TODO: reads here cause a crash nodes once connected to layer inputs nodes
@@ -54,6 +55,7 @@ struct PreviewSidebarHighlightModifier: ViewModifier {
         }
     }
     
+    @MainActor
     var borderOpacity: CGFloat {
         (isHighlighted && !isGhostView) ? 1 : 0
     }
