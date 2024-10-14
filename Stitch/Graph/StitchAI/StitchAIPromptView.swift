@@ -22,7 +22,6 @@ struct StitchAIPromptEntryModalView: View {
         }
         .padding()
         .onChange(of: self.prompt) { oldValue, newValue in
-            print(newValue)
             dispatch(StitchAIPromptEdited(prompt: newValue))
         }
     }
