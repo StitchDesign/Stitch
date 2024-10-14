@@ -22,9 +22,74 @@ let SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT: CGFloat = 32.0
 let SIDEBAR_LIST_ITEM_FONT: Font = stitchFont(18)
 #endif
 
+// TODO: move
+enum ProjectSidebarTab: String, Identifiable, CaseIterable {
+    case layers = "Layers"
+    case assets = "Assets"
+}
+
+extension ProjectSidebarTab {
+    var id: String {
+        self.rawValue
+    }
+    
+    var iconName: String {
+        switch self {
+        case .layers:
+            return "square.3.layers.3d.down.left"
+        case .assets:
+            return "folder"
+        }
+    }
+    
+    @ViewBuilder func content(graph: GraphState,
+                              isBeingEdited: Bool,
+                              syncStatus: iCloudSyncStatus) -> some View {
+        switch self {
+        case .layers:
+            LayersSidebarView(graph: graph,
+                              isBeingEdited: isBeingEdited,
+                              syncStatus: syncStatus)
+        case .assets:
+            Text("Assets")
+        }
+    }
+}
 
 struct SidebarListView: View {
+    static let tabs = ["Layers", "Assets"]
+    @State private var currentTab = ProjectSidebarTab.layers.rawValue
+    
+    @Bindable var graph: GraphState
+    let isBeingEdited: Bool
+    let syncStatus: iCloudSyncStatus
+    
+    var body: some View {
+        VStack {
+            Picker("Sidebar Tabs", selection: self.$currentTab) {
+                ForEach(Self.tabs, id: \.self) { tab in
+//                    HStack {
+                        //                        Image(systemName: tab.iconName)
+                        Text(tab)
+                        .width(200)
+//                    }
+                }
+            }
+            .pickerStyle(.segmented)
+            
+            switch ProjectSidebarTab(rawValue: self.currentTab) {
+            case .none:
+                FatalErrorIfDebugView()
+            case .some(let tab):
+                tab.content(graph: graph,
+                            isBeingEdited: isBeingEdited,
+                            syncStatus: syncStatus)
+            }
+        }
+    }
+}
 
+struct LayersSidebarView: View {
     @Bindable var graph: GraphState
 
     let isBeingEdited: Bool
@@ -79,14 +144,14 @@ struct SidebarListView: View {
         // NOTE: only listen for changes to expandedItems or sidebar-groups,
         // not the layerNodes, since layerNodes change constantly
         // when eg a Time Node is attached to a Text Layer.
-        .onChange(of: sidebarDeps.expandedItems, perform: { _ in
+        .onChange(of: sidebarDeps.expandedItems) {
             activeSwipeId = nil
-        })
-        .onChange(of: sidebarDeps.groups, perform: { _ in
+        }
+        .onChange(of: sidebarDeps.groups) {
             activeSwipeId = nil
-        })
+        }
         // TODO: see note in `DeriveSidebarList`
-        .onChange(of: graph.nodes.keys.count) { _, _ in
+        .onChange(of: graph.nodes.keys.count) {
             dispatch(DeriveSidebarList())
         }
     }

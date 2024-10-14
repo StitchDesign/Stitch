@@ -15,7 +15,7 @@ struct SidebarListItemSwipeButton: View {
     let backgroundColor: Color
     var willLeftAlign: Bool = false
 
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
+    @Bindable var gestureViewModel: SidebarItemGestureViewModel
     
     var body: some View {
         UIKitTappableWrapper(tapCallback: {

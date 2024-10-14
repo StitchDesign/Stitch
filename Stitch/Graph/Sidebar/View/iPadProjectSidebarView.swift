@@ -34,7 +34,6 @@ struct ProjectSidebarView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: .zero) {
-            
             SidebarListView(graph: graph,
                             isBeingEdited: isEditing,
                             syncStatus: syncStatus)

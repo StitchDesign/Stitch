@@ -23,37 +23,21 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-final class SidebarItemGestureViewModel: ObservableObject {
-    let item: SidebarListItem
-
+protocol SidebarItemSwipable: AnyObject, Observable {
+    associatedtype Item: Identifiable
+    typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
+    
+    var item: Item { get }
+    
     // published property to be read in view
-    @Published var swipeSetting: SidebarSwipeSetting = .closed
+    var swipeSetting: SidebarSwipeSetting { get set }
 
-    private var previousSwipeX: CGFloat = 0
-    @Binding var activeGesture: SidebarListActiveGesture {
-        didSet {
-            switch activeGesture {
-            // scrolling or dragging resets swipe-menu
-            case .scrolling, .dragging:
-                resetSwipePosition()
-            default:
-                return
-            }
-        }
-    }
+    var previousSwipeX: CGFloat { get set }
+    
+    var activeGesture: ActiveGesture { get set }
+}
 
-    // Tracks if the edit menu is open
-    var editOn: Bool = false
-    @Binding var activeSwipeId: SidebarListItemId?
-
-    init(item: SidebarListItem,
-         activeGesture: Binding<SidebarListActiveGesture>,
-         activeSwipeId: Binding<SidebarListItemId?>) {
-        self.item = item
-        self._activeGesture = activeGesture
-        self._activeSwipeId = activeSwipeId
-    }
-
+extension SidebarItemSwipable {
     // MARK: GESTURE HANDLERS
 
     @MainActor
@@ -197,5 +181,39 @@ final class SidebarItemGestureViewModel: ObservableObject {
 
     var hasCrossedRestingThreshold: Bool {
         swipeSetting.distance >= RESTING_THRESHOLD
+    }
+}
+
+@Observable
+final class SidebarItemGestureViewModel: SidebarItemSwipable {
+    let item: SidebarListItem
+    
+    // published property to be read in view
+    var swipeSetting: SidebarSwipeSetting = .closed
+
+    internal var previousSwipeX: CGFloat = 0
+    
+    @Binding var activeGesture: SidebarListActiveGesture {
+        didSet {
+            switch activeGesture {
+            // scrolling or dragging resets swipe-menu
+            case .scrolling, .dragging:
+                resetSwipePosition()
+            default:
+                return
+            }
+        }
+    }
+
+    // Tracks if the edit menu is open
+    var editOn: Bool = false
+    @Binding var activeSwipeId: SidebarListItemId?
+
+    init(item: SidebarListItem,
+         activeGesture: Binding<SidebarItemGestureViewModel.ActiveGesture>,
+         activeSwipeId: Binding<SidebarListItemId?>) {
+        self.item = item
+        self._activeGesture = activeGesture
+        self._activeSwipeId = activeSwipeId
     }
 }
