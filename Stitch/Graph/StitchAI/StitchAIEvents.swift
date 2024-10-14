@@ -33,9 +33,13 @@ extension StitchDocumentViewModel {
     }
 
     @MainActor func makeAPIRequest(userInput: String) {
-        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL),
-              let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME) else {
-            showAlert(message: "Invalid URL or no API Key found")
+        guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
+            showAlert(message: "Invalid OPEN AI URL")
+            return
+        }
+        
+        guard let apiKey = UserDefaults.standard.string(forKey: OPENAI_API_KEY_NAME), !apiKey.isEmpty else {
+            showAlert(message: "No Open AI API Key found")
             return
         }
 
@@ -70,11 +74,13 @@ extension StitchDocumentViewModel {
             ]
         ]
         
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) else {
-            showAlert(message: "Error encoding JSON from OpenAI")
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
+            request.httpBody = jsonData
+        } catch {
+            showAlert(message: "Error decoding JSON from OpenAI: \(error.localizedDescription)")
             return
         }
-        request.httpBody = jsonData
         
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             if let error = error {
@@ -87,7 +93,7 @@ extension StitchDocumentViewModel {
                 return
             }
             
-            do {                
+            do {
                 if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
                     guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
                         return
@@ -211,8 +217,6 @@ extension StitchDocumentViewModel {
             return nil
         }
     }
-
-    
 }
 
 
