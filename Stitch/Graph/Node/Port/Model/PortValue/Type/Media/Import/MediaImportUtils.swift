@@ -104,7 +104,7 @@ func createUniqueFilename(filename: String,
     var incrementor = 1
     while existingFilenames.contains(candidateName) {
         incrementor += 1
-        candidateName = "\(filename)\(incrementor)"
+        candidateName = "\(filename)--\(incrementor)"
     }
 
     return candidateName

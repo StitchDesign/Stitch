@@ -193,24 +193,11 @@ extension GraphState {
             self.mediaLibrary.updateValue(newURL, forKey: newURL.mediaKey)
 
             // Can now be patch- OR layer-node
-            guard let existingNode = self.getNodeViewModel(nodeId),
-                  let mediaObserver = existingNode.ephemeralObservers?.first as? MediaEvalOpObserver else {
+            guard let existingNode = self.getNodeViewModel(nodeId) else {
                 dispatch(DisplayError(error: .mediaCopiedFailed))
                 return
             }
 
-            existingNode.inputs.findImportedMediaKeys().forEach { mediaKey in
-                // If existing node already contains imported media, then we need to delete the old media
-                if mediaLibrary.get(mediaKey) != newURL {
-                    self.mediaLibrary.removeValue(forKey: mediaKey)
-
-                    Task { [weak self] in
-                        await self?.documentEncoderDelegate?
-                            .deleteMediaFromNode(mediaKey: mediaKey)
-                    }
-                }
-            }
-            
             // Create async task to load media
             Task { [weak self] in
                 guard let graph = self,
