@@ -13,6 +13,8 @@ struct StitchApp: App {
     @State var store = StitchStore()
     @StateObject var keyboardObserver = KeyboardObserver()
 
+    
+    
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
         WindowGroup {
