@@ -245,7 +245,9 @@ struct ShadowInputInspectorRow: View {
                 .onTapGesture {
                     dispatch(FlyoutToggled(
                         flyoutInput: SHADOW_FLYOUT_LAYER_INPUT_PROXY,
-                        flyoutNodeId: nodeId))
+                        flyoutNodeId: nodeId,
+                        // No particular field to focus
+                        fieldToFocus: nil))
                 }
         }
     }
