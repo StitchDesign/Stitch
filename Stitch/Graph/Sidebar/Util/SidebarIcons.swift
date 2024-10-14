@@ -10,9 +10,13 @@ import StitchSchemaKit
 
 let MASKS_LAYER_ABOVE_ICON_NAME = "arrow.turn.left.up"
 
-extension Layer {
-    var sidebarLeftSideIcon: String {
-        switch self {
+//extension Layer {
+extension GraphState {
+    @MainActor
+    func sidebarLeftSideIcon(layer: Layer,
+                             layerId: NodeId,
+                             activeIndex: ActiveIndex) -> String {
+        switch layer {
         case .group:
             return "folder"
         case .image:
@@ -52,7 +56,13 @@ extension Layer {
         case .angularGradient:
             return "line.3.crossed.swirl.circle.fill"
         case .sfSymbol:
-            return "star"
+            let defaultSymbol = "star"
+            if let sfSymbolInputValues = self.getNode(layerId)?.layerNode?.sfSymbolPort.allLoopedValues {
+                let adjustedActiveIndex = activeIndex.adjustedIndex(sfSymbolInputValues.count)
+                return sfSymbolInputValues[safe: adjustedActiveIndex]?.getString?.string ?? defaultSymbol
+            } else {
+                return defaultSymbol
+            }
         case .videoStreaming:
             return "video.bubble.left"
         }
