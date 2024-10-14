@@ -94,8 +94,10 @@ struct CommonEditingViewWrapper: View {
                 isFieldInMultfieldInspectorInput: isFieldInMultifieldInspectorInputAndNotFlyout,
                 onTap: {
                     if !isForFlyout {
-                        dispatch(FlyoutToggled(flyoutInput: layerInput,
-                                               flyoutNodeId: fieldCoordinate.rowId.nodeId))
+                        dispatch(FlyoutToggled(
+                            flyoutInput: layerInput,
+                            flyoutNodeId: fieldCoordinate.rowId.nodeId,
+                            fieldToFocus: .textInput(fieldCoordinate)))
                     }
                 })
             
