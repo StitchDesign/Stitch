@@ -31,6 +31,9 @@ struct ActiveDragInteractionNodeVelocityData: Equatable, Hashable {
 @Observable
 final class GraphUIState {
 
+    // Only for node cursor selection box done when shift held
+    var nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag: CanvasItemIdSet? = nil
+    
     let propertySidebar = PropertySidebarObserver()
         
     var nodesThatWereOnScreenPriorToEnteringFullScreen = CanvasItemIdSet()

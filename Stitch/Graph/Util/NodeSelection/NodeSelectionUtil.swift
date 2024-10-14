@@ -135,8 +135,7 @@ struct DetermineSelectedCanvasItems: GraphEvent {
     let selectionBounds: CGRect
 
     func handle(state: GraphState) {
-        state.processCanvasSelectionBoxChange(
-            cursorSelectionBox: selectionBounds)
+        state.processCanvasSelectionBoxChange(cursorSelectionBox: selectionBounds)
     }
 }
 
@@ -146,17 +145,38 @@ extension GraphState {
     // fka `processNodeSelectionBoxChange`
     func processCanvasSelectionBoxChange(cursorSelectionBox: CGRect) {
         let graphState = self
+        
+        // TODO: pass shift down via the UIKit gesture handler
+        let shiftHeld = graphState.keypressState.shiftHeldDuringGesture
+        log("processCanvasSelectionBoxChange: shiftHeld: \(shiftHeld)")
 
         guard cursorSelectionBox.size != .zero else {
             // log("processNodeSelectionBoxChange error: expansion box was size zero")
             return
         }
+        
+        if shiftHeld,
+           self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag == nil {
+            self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = self.selectedCanvasItems.map(\.id).toSet
+        }
+        
+        // Note: alternatively?: wipe this collection/set when gesure ends
+        if !shiftHeld {
+            self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag = nil
+        }
+        
 
         var smallestDistance: CGFloat?
 
         let allCanvasItems = self.visibleNodesViewModel.getVisibleCanvasItems(at: self.groupNodeFocused)
         
         for canvasItem in allCanvasItems {
+            
+            if self.graphUI.nodesAlreadySelectedAtStartOfShiftNodeCursorBoxDrag?.contains(canvasItem.id) ?? false {
+                log("skipping canvasItem \(canvasItem.id) since was held as part of shift etc.")
+                continue
+            }
+            
             
             let doesSelectionIntersectCanvasItem = cursorSelectionBox.intersects(canvasItem.bounds.graphBaseViewBounds)
             
@@ -178,6 +198,8 @@ extension GraphState {
             // De-selected
             else {
                 // Remove from selected canvas items
+                
+                // Only remove from
                 canvasItem.deselect()
             }
         }
