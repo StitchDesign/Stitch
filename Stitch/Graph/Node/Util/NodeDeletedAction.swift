@@ -199,15 +199,6 @@ extension GraphState {
 
         // Update comment box data
         self.deleteCommentBox(id)
-        
-        // Delete media from file manager if it's the "source" media
-        node.inputs.findImportedMediaKeys().forEach { mediaKey in
-            self.mediaLibrary.removeValue(forKey: mediaKey)
-            
-            Task { [weak self] in
-                await self?.documentEncoderDelegate?.deleteMediaFromNode(mediaKey: mediaKey)
-            }
-        }
     }
 }
 
