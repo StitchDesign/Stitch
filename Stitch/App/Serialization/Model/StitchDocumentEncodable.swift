@@ -89,6 +89,10 @@ extension StitchDocumentEncodable {
 
         try self.installDocument()
         
+        // Copy thumbnail if exists
+        try? FileManager.default.copyItem(at: srcRootUrl.appendProjectThumbnailPath(),
+                                          to: destRootUrl.appendProjectThumbnailPath())
+        
         Self.copySubfolders(srcRootUrl: srcRootUrl,
                             destRootUrl: destRootUrl)
     }
