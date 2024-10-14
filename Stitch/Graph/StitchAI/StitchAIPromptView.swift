@@ -37,6 +37,7 @@ struct StitchAIPromptEntryModalView: View {
         .padding()
     }
 }
+
 struct StitchAIState: Equatable {
     var promptState = StitchAIPromptState()
 }
