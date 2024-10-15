@@ -34,7 +34,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     var instantDrag: Bool = false
     
     var graph: GraphState
-//    var layerNodeId: LayerNodeId
+    var itemId: GestureViewModel.Item.ID
 
     func makeUIViewController(context: Context) -> GestureHostingController<T> {
         let vc = GestureHostingController(
@@ -90,20 +90,20 @@ struct SidebarListItemGestureRecognizerView<T: View,
         delegate.instantDrag = instantDrag
         
         delegate.graph = graph
-        delegate.layerNodeId = layerNodeId
+        delegate.itemId = itemId
     }
 
-    func makeCoordinator() -> SidebarListGestureRecognizer {
-        SidebarListGestureRecognizer(
+    func makeCoordinator() -> SidebarListGestureRecognizer<GestureViewModel> {
+        SidebarListGestureRecognizer<GestureViewModel>(
             gestureViewModel: gestureViewModel,
             keyboardObserver: keyboardObserver,
             instantDrag: instantDrag,
             graph: graph,
-            layerNodeId: layerNodeId)
+            itemId: itemId)
     }
 }
 
-final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate {
+final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>: NSObject, UIGestureRecognizerDelegate {
     // Handles:
     // - one finger on screen item-swiping
     // - two fingers on trackpad item-swiping
@@ -113,22 +113,22 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     // - one finger long-press-drag item-dragging: see `SwiftUI .simultaneousGesture`
     // - two fingers on trackpad list scrolling
     
-    let gestureViewModel: SidebarItemGestureViewModel
+    let gestureViewModel: GestureViewModel
     var keyboardObserver: KeyboardObserver
 
     var instantDrag: Bool
     
     var graph: GraphState
-    var itemId: SidebarItemGestureViewModel.Item.ID
+    var itemId: GestureViewModel.Item.ID
     
     var shiftHeldDown = false
     var commandHeldDown = false
 
-    init(gestureViewModel: SidebarItemGestureViewModel,
+    init(gestureViewModel: GestureViewModel,
          keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          graph: GraphState,
-         itemId: SidebarItemGestureViewModel.Item.ID) {
+         itemId: GestureViewModel.Item.ID) {
         
         self.gestureViewModel = gestureViewModel
         self.keyboardObserver = keyboardObserver
