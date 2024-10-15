@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-enum SidebarListItemSelectionStatus: Codable, Equatable {
+enum SidebarListItemSelectionStatus {
     case primary, secondary, none // ie not selected
 
     // both primary and secondary count as 'being selected'

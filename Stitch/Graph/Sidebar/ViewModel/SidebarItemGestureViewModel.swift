@@ -35,6 +35,14 @@ protocol SidebarItemSwipable: AnyObject, Observable {
     var previousSwipeX: CGFloat { get set }
     
     var activeGesture: ActiveGesture { get set }
+    
+    @MainActor
+    func sidebarItemTapped(id: Item.ID,
+                           shiftHeld: Bool,
+                           commandHeld: Bool)
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
+                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration?
 }
 
 extension SidebarItemSwipable {
@@ -193,7 +201,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 
     internal var previousSwipeX: CGFloat = 0
     
-    @Binding var activeGesture: SidebarListActiveGesture {
+    @Binding var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
         didSet {
             switch activeGesture {
             // scrolling or dragging resets swipe-menu
@@ -215,5 +223,16 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         self.item = item
         self._activeGesture = activeGesture
         self._activeSwipeId = activeSwipeId
+    }
+}
+
+extension SidebarItemGestureViewModel {
+    @MainActor
+    func sidebarItemTapped(id: SidebarItemGestureViewModel.Item.ID,
+                           shiftHeld: Bool,
+                           commandHeld: Bool) {
+        dispatch(SidebarItemTapped(id: id.asLayerNodeId,
+                                   shiftHeld: shiftHeld,
+                                   commandHeld: commandHeld))
     }
 }

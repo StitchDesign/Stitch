@@ -8,53 +8,54 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeView: View {
+struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
     @Bindable var graph: GraphState
     
-    @StateObject var gestureViewModel: SidebarItemGestureViewModel
+    @State var gestureViewModel: GestureViewModel
 
-    var item: SidebarListItem
-    let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
+    var item: GestureViewModel.Item
+    
+//    let name: String
+//    let layer: Layer
+//    var current: SidebarDraggedItem?
+//    var proposedGroup: ProposedGroup?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
 
-    @Binding var activeGesture: SidebarListActiveGesture
+    @Binding var activeGesture: GestureViewModel.ActiveGesture
 
-    @Binding var activeSwipeId: SidebarListItemId?
+    @Binding var activeSwipeId: GestureViewModel.Item.ID?
 
-    init(graph: Bindable<GraphState>,
-         item: SidebarListItem,
-         name: String,
-         layer: Layer,
-         current: SidebarDraggedItem? = nil,
-         proposedGroup: ProposedGroup? = nil,
-         isClosed: Bool,
-         selection: SidebarListItemSelectionStatus,
-         isBeingEdited: Bool,
-         activeGesture: Binding<SidebarListActiveGesture>,
-         activeSwipeId: Binding<SidebarListItemId?> = .constant(nil)) {
-        
-        self._graph = graph
-
-        self.item = item
-        self.name = name
-        self.layer = layer
-        self.current = current
-        self.proposedGroup = proposedGroup
-        self.isClosed = isClosed
-        self.selection = selection
-        self.isBeingEdited = isBeingEdited
-        self._activeGesture = activeGesture
-        self._activeSwipeId = activeSwipeId
-
-        self._gestureViewModel = StateObject(wrappedValue: SidebarItemGestureViewModel(item: item,
-                                                                                       activeGesture: activeGesture,
-                                                                                       activeSwipeId: activeSwipeId))
-    }
+//    init(graph: Bindable<GraphState>,
+//         item: SidebarListItem,
+//         name: String,
+//         layer: Layer,
+//         current: SidebarDraggedItem? = nil,
+//         proposedGroup: ProposedGroup? = nil,
+//         isClosed: Bool,
+//         selection: SidebarListItemSelectionStatus,
+//         isBeingEdited: Bool,
+//         activeGesture: Binding<SidebarListActiveGesture>,
+//         activeSwipeId: Binding<SidebarListItemId?> = .constant(nil)) {
+//        
+//        self._graph = graph
+//
+//        self.item = item
+//        self.name = name
+//        self.layer = layer
+//        self.current = current
+//        self.proposedGroup = proposedGroup
+//        self.isClosed = isClosed
+//        self.selection = selection
+//        self.isBeingEdited = isBeingEdited
+//        self._activeGesture = activeGesture
+//        self._activeSwipeId = activeSwipeId
+//
+//        self._gestureViewModel = StateObject(wrappedValue: SidebarItemGestureViewModel(item: item,
+//                                                                                       activeGesture: activeGesture,
+//                                                                                       activeSwipeId: activeSwipeId))
+//    }
     
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
