@@ -42,9 +42,10 @@ extension ProjectSidebarTab {
         }
     }
     
-    @ViewBuilder func content(graph: GraphState,
-                              isBeingEdited: Bool,
-                              syncStatus: iCloudSyncStatus) -> some View {
+    @ViewBuilder @MainActor
+    func content(graph: GraphState,
+                 isBeingEdited: Bool,
+                 syncStatus: iCloudSyncStatus) -> some View {
         switch self {
         case .layers:
             LayersSidebarView(graph: graph,
@@ -54,52 +55,27 @@ extension ProjectSidebarTab {
             Text("Assets")
         }
     }
+    
+    var viewModelType: any ProjectSidebarObservable.Type {
+        switch self {
+        case .layers:
+            return LayersSidebarViewModel.self
+        default:
+            fatalError()
+        }
+    }
 }
 
 struct SidebarListView: View {
     static let tabs = ["Layers", "Assets"]
     @State private var currentTab = ProjectSidebarTab.layers.rawValue
+    @State private var layersViewModel = LayersSidebarViewModel()
+    @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
     let isBeingEdited: Bool
     let syncStatus: iCloudSyncStatus
     
-    var body: some View {
-        VStack {
-            Picker("Sidebar Tabs", selection: self.$currentTab) {
-                ForEach(Self.tabs, id: \.self) { tab in
-//                    HStack {
-                        //                        Image(systemName: tab.iconName)
-                        Text(tab)
-                        .width(200)
-//                    }
-                }
-            }
-            .pickerStyle(.segmented)
-            
-            switch ProjectSidebarTab(rawValue: self.currentTab) {
-            case .none:
-                FatalErrorIfDebugView()
-            case .some(let tab):
-                tab.content(graph: graph,
-                            isBeingEdited: isBeingEdited,
-                            syncStatus: syncStatus)
-            }
-        }
-    }
-}
-
-struct LayersSidebarView: View {
-    @Bindable var graph: GraphState
-
-    let isBeingEdited: Bool
-    let syncStatus: iCloudSyncStatus
-
-    @State var activeSwipeId: SidebarListItemId?
-    @State var activeGesture: SidebarListActiveGesture = .none
-
-    // Animated state
-    @State var isBeingEditedAnimated = false
 
     var selections: SidebarSelectionState {
         graph.sidebarSelectionState
@@ -131,7 +107,89 @@ struct LayersSidebarView: View {
     }
     
     var body: some View {
+        VStack {
+            Picker("Sidebar Tabs", selection: self.$currentTab) {
+                ForEach(Self.tabs, id: \.self) { tab in
+//                    HStack {
+                        //                        Image(systemName: tab.iconName)
+                        Text(tab)
+                        .width(200)
+//                    }
+                }
+            }
+            .pickerStyle(.segmented)
+            
+            switch ProjectSidebarTab(rawValue: self.currentTab) {
+            case .none:
+                FatalErrorIfDebugView()
+            case .some(let tab):
+                @Bindable var viewModel = tab.viewModelType.init()
+                SidebarListScrollView(sidebarViewModel: viewModel,
+                                      tab: tab)
+            }
+        }
+        // NOTE: only listen for changes to expandedItems or sidebar-groups,
+        // not the layerNodes, since layerNodes change constantly
+        // when eg a Time Node is attached to a Text Layer.
+        .onChange(of: sidebarDeps.expandedItems) {
+            layersViewModel.activeSwipeId = nil
+        }
+        .onChange(of: sidebarDeps.groups) {
+            layersViewModel.activeSwipeId = nil
+        }
+        // TODO: see note in `DeriveSidebarList`
+        .onChange(of: graph.nodes.keys.count) {
+            dispatch(DeriveSidebarList())
+        }
+    }
+}
+
+struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: ProjectSidebarObservable {
+    @Binding var sidebarViewModel: SidebarObservable
+    let tab: ProjectSidebarTab
+    
+    var body: some View {
         VStack(spacing: 0) {
+            listView
+            Spacer()
+        }
+        .onChange(of: sidebarViewModel.activeGesture) {
+            switch sidebarViewModel.activeGesture {
+            // scrolling or dragging resets swipe-menu
+            case .scrolling, .dragging:
+                resetSwipePosition()
+            default:
+                return
+            }
+        }
+    }
+}
+
+// TODO: move
+protocol ProjectSidebarObservable: AnyObject, Observable {
+    associatedtype SidebarListItemId: Equatable
+    
+    init()
+    var activeSwipeId: SidebarListItemId? { get set }
+    var activeGesture: SidebarListActiveGesture<SidebarListItemId> { get set }
+}
+
+@Observable
+final class LayersSidebarViewModel: ProjectSidebarObservable {
+    var activeSwipeId: SidebarListItemId?
+    var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
+}
+
+struct LayersSidebarView: View {
+    @State private var sidebarViewModel = LayersSidebarViewModel()
+    
+    @Bindable var graph: GraphState
+
+    let isBeingEdited: Bool
+    let syncStatus: iCloudSyncStatus
+    
+    var body: some View {
+        VStack {
             listView
             Spacer()
             // Note: previously was in an `.overlay(footer, alignment: .bottom)` which now seems unnecessary
@@ -140,19 +198,6 @@ struct LayersSidebarView: View {
                                isBeingEdited: isBeingEditedAnimated,
                                syncStatus: syncStatus,
                                layerNodes: layerNodesForSidebarDict)
-        }
-        // NOTE: only listen for changes to expandedItems or sidebar-groups,
-        // not the layerNodes, since layerNodes change constantly
-        // when eg a Time Node is attached to a Text Layer.
-        .onChange(of: sidebarDeps.expandedItems) {
-            activeSwipeId = nil
-        }
-        .onChange(of: sidebarDeps.groups) {
-            activeSwipeId = nil
-        }
-        // TODO: see note in `DeriveSidebarList`
-        .onChange(of: graph.nodes.keys.count) {
-            dispatch(DeriveSidebarList())
         }
     }
 

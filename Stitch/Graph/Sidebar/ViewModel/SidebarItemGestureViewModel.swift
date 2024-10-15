@@ -34,11 +34,13 @@ protocol SidebarItemSwipable: AnyObject, Observable {
 
     var previousSwipeX: CGFloat { get set }
     
-    var activeGesture: ActiveGesture { get set }
+//    var activeGesture: ActiveGesture { get set }
     
     var editOn: Bool { get set }
     
-    var activeSwipeId: Item.ID? { get set }
+    var sidebarDelegate: ProjectSidebarViewModel? { get }
+    
+//    var activeSwipeId: Item.ID? { get set }
     
     @MainActor
     func sidebarItemTapped(id: Item.ID,
@@ -65,6 +67,15 @@ protocol SidebarItemSwipable: AnyObject, Observable {
 }
 
 extension SidebarItemSwipable {
+    var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
+        get {
+            self.sidebarDelegate?.activeGesture ?? .none
+        }
+        set(newValue) {
+            self.sidebarDelegate?.activeGesture = newValue
+        }
+    }
+    
     // MARK: GESTURE HANDLERS
 
     @MainActor
@@ -220,28 +231,28 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 
     internal var previousSwipeX: CGFloat = 0
     
-    @Binding var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
-        didSet {
-            switch activeGesture {
-            // scrolling or dragging resets swipe-menu
-            case .scrolling, .dragging:
-                resetSwipePosition()
-            default:
-                return
-            }
-        }
-    }
+    weak var sidebarDelegate: ProjectSidebarViewModel?
+    
+//    @Binding var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
+//        didSet {
+//            switch activeGesture {
+//            // scrolling or dragging resets swipe-menu
+//            case .scrolling, .dragging:
+//                resetSwipePosition()
+//            default:
+//                return
+//            }
+//        }
+//    }
 
     // Tracks if the edit menu is open
     var editOn: Bool = false
-    @Binding var activeSwipeId: SidebarListItemId?
+//    @Binding var activeSwipeId: SidebarListItemId?
 
     init(item: SidebarListItem,
-         activeGesture: Binding<SidebarItemGestureViewModel.ActiveGesture>,
-         activeSwipeId: Binding<SidebarListItemId?>) {
+         sidebarViewModel: ProjectSidebarViewModel) {
         self.item = item
-        self._activeGesture = activeGesture
-        self._activeSwipeId = activeSwipeId
+        self.sidebarDelegate = sidebarViewModel
     }
 }
 
