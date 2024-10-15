@@ -23,8 +23,9 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-protocol SidebarItemSwipable: AnyObject, Observable {
+protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.SidebarListItemId {
     associatedtype Item: Identifiable
+    associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
     
     var item: Item { get }
@@ -35,12 +36,13 @@ protocol SidebarItemSwipable: AnyObject, Observable {
     var previousSwipeX: CGFloat { get set }
     
 //    var activeGesture: ActiveGesture { get set }
+    //    var activeSwipeId: Item.ID? { get set }
     
     var editOn: Bool { get set }
     
-    var sidebarDelegate: ProjectSidebarViewModel? { get }
+    var sidebarDelegate: SidebarViewModel? { get }
     
-//    var activeSwipeId: Item.ID? { get set }
+    var location: CGPoint { get }
     
     @MainActor
     func sidebarItemTapped(id: Item.ID,
@@ -67,12 +69,21 @@ protocol SidebarItemSwipable: AnyObject, Observable {
 }
 
 extension SidebarItemSwipable {
-    var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
+    var activeGesture: SidebarListActiveGesture<Self.Item.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
         }
         set(newValue) {
             self.sidebarDelegate?.activeGesture = newValue
+        }
+    }
+    
+    var activeSwipeId: Self.Item.ID? {
+        get {
+            self.sidebarDelegate?.activeSwipeId ?? nil
+        }
+        set(newValue) {
+            self.sidebarDelegate?.activeSwipeId = newValue
         }
     }
     
@@ -231,7 +242,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 
     internal var previousSwipeX: CGFloat = 0
     
-    weak var sidebarDelegate: ProjectSidebarViewModel?
+    weak var sidebarDelegate: LayersSidebarViewModel?
+    weak var graphDelegate: GraphState?
     
 //    @Binding var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
 //        didSet {
@@ -250,27 +262,39 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 //    @Binding var activeSwipeId: SidebarListItemId?
 
     init(item: SidebarListItem,
-         sidebarViewModel: ProjectSidebarViewModel) {
+         sidebarViewModel: LayersSidebarViewModel,
+         graph: GraphState) {
         self.item = item
         self.sidebarDelegate = sidebarViewModel
+        self.graphDelegate = graph
     }
 }
 
 extension SidebarItemGestureViewModel {
-    func sidebarListItemDragged(itemId: SidebarListItemId, translation: CGSize) {
-        <#code#>
+    var location: CGPoint {
+        self.item.location
     }
     
+    @MainActor
+    func sidebarListItemDragged(itemId: SidebarListItemId,
+                                translation: CGSize) {
+        self.graphDelegate?.sidebarListItemDragged(itemId: itemId,
+                                                   translation: translation)
+    }
+    
+    @MainActor
     func sidebarListItemDragEnded(itemId: SidebarListItemId) {
-        <#code#>
+        self.graphDelegate?.sidebarListItemDragEnded(itemId: itemId)
     }
     
+    @MainActor
     func sidebarListItemLongPressed(id: SidebarListItemId) {
-        <#code#>
+        self.graphDelegate?.sidebarListItemLongPressed(id: id)
     }
     
+    @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {
-        <#code#>
+        self.graphDelegate?.sidebarItemDeleted(itemId: itemId)
     }
     
     

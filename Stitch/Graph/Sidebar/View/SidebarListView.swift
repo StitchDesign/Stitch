@@ -163,44 +163,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             }
         }
     }
-}
-
-// TODO: move
-protocol ProjectSidebarObservable: AnyObject, Observable {
-    associatedtype SidebarListItemId: Equatable
     
-    init()
-    var activeSwipeId: SidebarListItemId? { get set }
-    var activeGesture: SidebarListActiveGesture<SidebarListItemId> { get set }
-}
-
-@Observable
-final class LayersSidebarViewModel: ProjectSidebarObservable {
-    var activeSwipeId: SidebarListItemId?
-    var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
-}
-
-struct LayersSidebarView: View {
-    @State private var sidebarViewModel = LayersSidebarViewModel()
-    
-    @Bindable var graph: GraphState
-
-    let isBeingEdited: Bool
-    let syncStatus: iCloudSyncStatus
-    
-    var body: some View {
-        VStack {
-            listView
-            Spacer()
-            // Note: previously was in an `.overlay(footer, alignment: .bottom)` which now seems unnecessary
-            SidebarFooterView(groups: sidebarDeps.groups,
-                               selections: selections,
-                               isBeingEdited: isBeingEditedAnimated,
-                               syncStatus: syncStatus,
-                               layerNodes: layerNodesForSidebarDict)
-        }
-    }
-
     // Note: sidebar-list-items is a flat list;
     // indentation is handled by calculated indentations.
     @MainActor
@@ -278,6 +241,45 @@ struct LayersSidebarView: View {
         }
         
     }
+}
+
+// TODO: move
+protocol ProjectSidebarObservable: AnyObject, Observable {
+    associatedtype SidebarListItemId: Equatable
+    
+    init()
+    var activeSwipeId: SidebarListItemId? { get set }
+    var activeGesture: SidebarListActiveGesture<SidebarListItemId> { get set }
+}
+
+@Observable
+final class LayersSidebarViewModel: ProjectSidebarObservable {
+    var activeSwipeId: SidebarListItemId?
+    var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
+}
+
+struct LayersSidebarView: View {
+    @State private var sidebarViewModel = LayersSidebarViewModel()
+    
+    @Bindable var graph: GraphState
+
+    let isBeingEdited: Bool
+    let syncStatus: iCloudSyncStatus
+    
+    var body: some View {
+        VStack {
+            listView
+            Spacer()
+            // Note: previously was in an `.overlay(footer, alignment: .bottom)` which now seems unnecessary
+            SidebarFooterView(groups: sidebarDeps.groups,
+                               selections: selections,
+                               isBeingEdited: isBeingEditedAnimated,
+                               syncStatus: syncStatus,
+                               layerNodes: layerNodesForSidebarDict)
+        }
+    }
+
+    
     
     // HACK for proper width even when sidebar is empty
     // TODO: revisit and re-organize UI to avoid this hack
