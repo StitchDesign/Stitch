@@ -55,7 +55,6 @@ struct PreviewGroupLayer: View {
     let pivot: Anchoring
 
     let orientation: StitchOrientation
-    let padding: StitchPadding
     let spacing: StitchSpacing
     
     let cornerRadius: CGFloat
@@ -201,7 +200,6 @@ struct PreviewGroupLayer: View {
                           parentSize: _size,
                           parentId: interactiveLayer.id.layerNodeId,
                           parentOrientation: orientation,
-                          parentPadding: padding, 
                           parentSpacing: spacing,
                           parentCornerRadius: cornerRadius,
                           // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.

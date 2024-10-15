@@ -85,7 +85,10 @@ struct GroupLayerNode: LayerNodeDefinition {
         .union(.layerEffects)
         .union(.strokeInputs)
         .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.sizing)
+        .union(.pinning)
+        .union(.layerPaddingAndMargin)
+        .union(.offsetInGroup)
         .union(.paddingAndSpacing)
     
     static func content(document: StitchDocumentViewModel,
@@ -114,7 +117,6 @@ struct GroupLayerNode: LayerNodeDefinition {
             opacity: viewModel.opacity.getNumber ?? 1,
             pivot: viewModel.pivot.getAnchoring ?? .defaultPivot,
             orientation: viewModel.orientation.getOrientation ?? .defaultOrientation,
-            padding: viewModel.padding.getPadding ?? .defaultPadding,
             spacing: viewModel.spacing.getStitchSpacing ?? .defaultStitchSpacing,
             cornerRadius: viewModel.cornerRadius.getNumber ?? .zero,
             blurRadius: viewModel.blur.getNumber ?? .zero,
