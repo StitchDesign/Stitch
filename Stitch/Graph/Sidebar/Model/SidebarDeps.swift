@@ -10,12 +10,12 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
-
-struct SidebarDeps {
-
-    // replace with LayerNodesForSidebarDict
-    //    var layerNodes: LayerNodesDict
-//    var layerNodes: LayerNodesForSidebarDict
-    var groups = SidebarGroupsDict()
-    var expandedItems = LayerIdSet()
-}
+//
+//struct SidebarDeps {
+//
+//    // replace with LayerNodesForSidebarDict
+//    //    var layerNodes: LayerNodesDict
+////    var layerNodes: LayerNodesForSidebarDict
+//    var groups = SidebarGroupsDict()
+//    var expandedItems = LayerIdSet()
+//}

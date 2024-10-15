@@ -45,23 +45,26 @@ extension ProjectSidebarObservable {
     }
     
     // children to deselect
-    static func getDescendantsIds(id: Self.ItemID,
-                                  groups: SidebarGroupsDict,
-                                  acc: Set<ItemId>) -> Set<ItemId> {
+    func getDescendantsIds(id: Self.ItemID) -> Set<ItemId> {
+//                                  groups: SidebarGroupsDict,
+//                                  acc: Set<ItemID>) -> Set<ItemId> {
+        guard let children = self.orderedEncodedData.get(id)?.children else { return .init() }
+        return children.flatMap { $0.allElementIds }
         
-        var acc = acc
-        acc.insert(id)
-        
-        // recur on children
-        if let children = groups[id] {
-            children.forEach { (child: Self.ItemID) in
-                acc = acc.union(getDescendantsIds(id: child,
-                                                  groups: groups,
-                                                  acc: acc))
-            }
-        }
-        
-        return acc
+        //
+//        var acc = acc
+//        acc.insert(id)
+//        
+//        // recur on children
+//        if let children = groups[id] {
+//            children.forEach { (child: Self.ItemID) in
+//                acc = acc.union(getDescendantsIds(id: child,
+//                                                  groups: groups,
+//                                                  acc: acc))
+//            }
+//        }
+//        
+//        return acc
     }
     
     static func removeFromSelections(_ id: Self.ItemID,

@@ -85,7 +85,7 @@ final class SidebarSelectionObserver<ItemID: Hashable> {
 //        self.primary.nonEmptyPrimary
 //    }
 
-    func isSelected(_ id: LayerNodeId) -> Bool {
+    func isSelected(_ id: ItemId) -> Bool {
         all.contains(id)
     }
 

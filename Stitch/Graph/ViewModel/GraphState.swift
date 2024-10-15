@@ -48,6 +48,7 @@ final class GraphState: Sendable {
 
     // Ordered list of layers in sidebar
     var orderedSidebarLayers: SidebarLayerList = []
+    let layersSidebarViewModel: LayersSidebarViewModel
     
     var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
     
@@ -94,6 +95,8 @@ final class GraphState: Sendable {
         self.components = components
         self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.visibleNodesViewModel.nodes = nodes
+        self.layersSidebarViewModel = .init(data: schema.orderedSidebarLayers,
+                                            graph: self)
         
         self.syncMediaFiles(mediaFiles)
     }

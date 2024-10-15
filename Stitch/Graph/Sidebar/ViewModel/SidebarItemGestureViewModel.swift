@@ -125,7 +125,7 @@ extension SidebarItemSwipable {
             self.item.location
         }
         set(newValue) {
-            self.item = newValue
+            self.item.location = newValue
         }
     }
     

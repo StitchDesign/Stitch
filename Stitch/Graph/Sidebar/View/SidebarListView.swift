@@ -69,7 +69,7 @@ extension ProjectSidebarTab {
 struct SidebarListView: View {
     static let tabs = ["Layers", "Assets"]
     @State private var currentTab = ProjectSidebarTab.layers.rawValue
-    @State private var layersViewModel = LayersSidebarViewModel()
+    @Bindable var layersViewModel: LayersSidebarViewModel
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
@@ -244,6 +244,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
+    var orderedEncodedData: [EncodedItemData] { get }
+    var graphDelegate: GraphDelegate? { get }
     
     func editModeToggled(to isEditing: Bool)
     func canBeGrouped() -> Bool
@@ -253,12 +255,26 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
+    let items: [SidebarItemGestureViewModel]
     let selectionState = SidebarSelectionState()
     
     var activeSwipeId: SidebarListItemId?
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()
     var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
+    weak var graphDelegate: GraphDelegate?
+    
+    init(data: [OrderedSidebarLayers],
+         graph: GraphDelegate? = nil) {
+        self.graphDelegate = graph
+        fatalError()
+    }
+}
+
+extension LayersSidebarViewModel {
+    var orderedEncodedData: [OrderedSidebarLayers] {
+        self.graphDelegate?.orderedSidebarLayers ?? []
+    }
 }
 
 struct LayersSidebarView: View {
