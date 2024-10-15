@@ -103,6 +103,10 @@ struct PreviewGroupLayer: View {
             parentSize: parentSize)
     }
     
+    var strokeAdjustedCornerRadius: CGFloat {
+        cornerRadius - (stroke.stroke == .outside ? stroke.width : 0)
+    }
+    
     var body: some View {
 
         groupLayer
@@ -124,7 +128,11 @@ struct PreviewGroupLayer: View {
                 sizingScenario: layerViewModel.getSizingScenario,
                 frameAlignment: anchoring.toAlignment))
 
-            .background(backgroundColor)
+            .background {
+                // TODO: Better way to handle slight gap between outside stroke and background edge when using corner radius? Outside stroke is actually an .overlay'd shape that is slightly larger than the stroked shape.
+//                backgroundColor.cornerRadius(cornerRadius - (stroke.stroke == .outside ? stroke.width/2 : 0))
+                backgroundColor.cornerRadius(strokeAdjustedCornerRadius)
+            }
         
         //            // DEBUG ONLY
         //        #if DEV_DEBUG
@@ -149,12 +157,14 @@ struct PreviewGroupLayer: View {
         // .clipped modifier should come before the offset/position modifier,
         // so that it's affected by the offset/position modifier
             .modifier(ClippedModifier(isClipped: isClipped,
-                                     cornerRadius: cornerRadius))
+                                      cornerRadius: strokeAdjustedCornerRadius))
         
         // Stroke needs to come AFTER the .clipped modifier, so that .outsideStroke is not cut off.
             .modifier(ApplyStroke(viewModel: layerViewModel,
                                   isPinnedViewRendering: isPinnedViewRendering,
-                                  stroke: stroke))
+                                  stroke: stroke,
+                                  // Uses non-stroke adjusted corner radius, since .stitchStroke will handle the adjustment 
+                                  cornerRadius: cornerRadius))
 
             .opacity(opacity) // opacity on group and all its contents
         
