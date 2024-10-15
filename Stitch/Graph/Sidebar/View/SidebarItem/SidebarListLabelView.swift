@@ -170,9 +170,9 @@ struct SidebarListLabelEditView: View {
 }
 
 
-struct SidebarListItemRightLabelView: View {
+struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
 
-    let item: SidebarListItem
+    let item: ItemViewModel
     let isGroup: Bool
     let isClosed: Bool
     
@@ -181,13 +181,13 @@ struct SidebarListItemRightLabelView: View {
     
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool // is sidebar being edited?
-    let isHidden: Bool
+//    let isHidden: Bool
 
     @State private var isBeingEditedAnimated = false
     
     var body: some View {
 
-        let id = item.id.asLayerNodeId
+//        let id = item.id.asLayerNodeId
 
         HStack(spacing: .zero) {
             
@@ -196,7 +196,6 @@ struct SidebarListItemRightLabelView: View {
                     SidebarListItemSelectionCircleView(id: id,
                                                        fontColor: fontColor,
                                                        selection: selection,
-                                                       isHidden: isHidden,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 

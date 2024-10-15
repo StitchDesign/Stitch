@@ -76,6 +76,18 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     
     @MainActor
     func sidebarLayerHoverEnded(itemId: Item.ID)
+    
+    @MainActor
+    func didSelectOnEditMode()
+    
+    @MainActor
+    func didUnselectOnEditMode()
+    
+    @MainActor
+    func didDeleteItem()
+    
+    @MainActor
+    func didToggleVisibility()
 }
 
 extension SidebarItemSwipable {
@@ -281,6 +293,26 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    @MainActor
+    func didDeleteItem() {
+        dispatch(SidebarItemDeleted(itemId: item.id))
+    }
+    
+    @MainActor
+    func didToggleVisibility() {
+        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id.asLayerNodeId))
+    }
+    
+    @MainActor
+    func didSelectOnEditMode() {
+        dispatch(SidebarItemSelected(id: id))
+    }
+    
+    @MainActor
+    func didUnselectOnEditMode() {
+        dispatch(SidebarItemDeselected(id: id))
+    }
+    
     var layerNodeId: LayerNodeId {
         item.id.asLayerNodeId
     }

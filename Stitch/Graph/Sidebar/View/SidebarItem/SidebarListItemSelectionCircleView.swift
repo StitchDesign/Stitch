@@ -8,18 +8,17 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSelectionCircleView: View {
+struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwipable {
     
     static let SELECTION_CIRCLE_SELECTED = "circle.inset.filled"
     static let SELECTION_CIRCLE = "circle"
 
-    let id: LayerNodeId
+    @Bindable var item: Item
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
     let isBeingEdited: Bool
         
     var iconName: String {
@@ -53,9 +52,9 @@ struct SidebarListItemSelectionCircleView: View {
                 // - if was 80% or 0% selected, then 100% select
                 switch selection {
                 case .primary:
-                    dispatch(SidebarItemDeselected(id: id))
+                    item.didUnselectOnEditMode()
                 case .secondary, .none:
-                    dispatch(SidebarItemSelected(id: id))
+                    item.didSelectOnEditMode()
                 }
             }
     }

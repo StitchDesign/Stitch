@@ -9,12 +9,11 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeMenu: View {
-    let item: SidebarListItem
+struct SidebarListItemSwipeMenu<Item>: View where Item: SidebarItemSwipable {
+//    let item: SidebarListItem
+    @Bindable var gestureViewModel: Item
     let swipeOffset: CGFloat
     let visStatusIconName: String
-
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
     
     var showNonDefaultOptions: Bool { swipeOffset < DEFAULT_ACTION_THRESHOLD }
 
@@ -24,19 +23,21 @@ struct SidebarListItemSwipeMenu: View {
             if showNonDefaultOptions {
                 SidebarListItemSwipeButton(sfImageName: "ellipsis.circle",
                                            backgroundColor: GREY_SWIPE_MENU_OPTION_COLOR,
-                                           gestureViewModel: gestureViewModel)
+                                           gestureViewModel: gestureViewModel) { }
                 
-                SidebarListItemSwipeButton(action: SidebarItemHiddenStatusToggled(clickedId: item.id.asLayerNodeId),
-                                           sfImageName: visStatusIconName,
+                SidebarListItemSwipeButton(sfImageName: visStatusIconName,
                                            backgroundColor: STITCH_PURPLE,
-                                           gestureViewModel: gestureViewModel)
+                                           gestureViewModel: gestureViewModel) {
+                    gestureViewModel.didToggleVisibility()
+                }
             }
             
-            SidebarListItemSwipeButton(action: SidebarItemDeleted(itemId: item.id),
-                                       sfImageName: "trash",
+            SidebarListItemSwipeButton(sfImageName: "trash",
                                        backgroundColor: Color(.stitchRed),
                                        willLeftAlign: !showNonDefaultOptions,
-                                       gestureViewModel: gestureViewModel)
+                                       gestureViewModel: gestureViewModel) {
+                gestureViewModel.didDeleteItem()
+            }
         }
         .animation(.stitchAnimation(duration: 0.25), value: showNonDefaultOptions)
         .disabled(swipeOffset == 0)

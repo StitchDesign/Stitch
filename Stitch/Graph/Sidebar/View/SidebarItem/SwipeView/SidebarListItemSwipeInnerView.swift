@@ -82,8 +82,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
                         isClosed: isClosed,
                         fontColor: fontColor,
                         selection: selection,
-                        isBeingEdited: isBeingEdited,
-                        isHidden: isHidden)
+                        isBeingEdited: isBeingEdited)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 }
                 .padding(.trailing, 2)
