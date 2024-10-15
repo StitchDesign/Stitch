@@ -41,8 +41,10 @@ protocol SidebarItemSwipable: AnyObject, Observable {
                            shiftHeld: Bool,
                            commandHeld: Bool)
     
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration?
+    @MainActor
+    func contextMenuInteraction(itemId: Item.ID,
+                                graph: GraphState,
+                                keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration?
 }
 
 extension SidebarItemSwipable {

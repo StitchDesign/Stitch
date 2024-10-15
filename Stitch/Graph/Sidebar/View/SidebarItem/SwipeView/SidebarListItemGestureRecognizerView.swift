@@ -103,7 +103,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     }
 }
 
-final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>: NSObject, UIGestureRecognizerDelegate {
+final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>: NSObject, UIGestureRecognizerDelegate, UIContextMenuInteractionDelegate {
     // Handles:
     // - one finger on screen item-swiping
     // - two fingers on trackpad item-swiping
@@ -254,9 +254,6 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
             }
         }
     } // trackpadGestureHandler
-}
-
-extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     
     // // NOTE: Not needed, since the required `contextMenuInteraction` delegate method is called every time the menu appears?
     //    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, willDisplayMenuFor configuration: UIContextMenuConfiguration, animator: (any UIContextMenuInteractionAnimating)?) {
@@ -265,33 +262,36 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        self.gestureViewModel.contextMenuInteraction(interaction,
-                                                     configurationForMenuAtLocation: location)
+        self.gestureViewModel.contextMenuInteraction(itemId: self.itemId,
+                                                     graph: self.graph,
+                                                     keyboardObserver: self.keyboardObserver)
     }
 }
 
 extension SidebarItemGestureViewModel {
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
-                                configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+    @MainActor
+    func contextMenuInteraction(itemId: SidebarListItemId,
+                                graph: GraphState,
+                                keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
-        if !self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(self.layerNodeId) {
+        if !graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(itemId.asLayerNodeId) {
             
             let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
             
             // Note: we do the selection logic in here so that
-            self.gestureViewModel.sidebarItemTapped(
-                id: self.itemId,
+            self.sidebarItemTapped(
+                id: itemId,
                 shiftHeld: isShiftDown,
-                commandHeld: self.graph.keypressState.isCommandPressed)
+                commandHeld: graph.keypressState.isCommandPressed)
         }
                 
-        let selections = self.graph.sidebarSelectionState
-        let groups = self.graph.getSidebarGroupsDict()
-        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
+        let selections = graph.sidebarSelectionState
+        let groups = graph.getSidebarGroupsDict()
+        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: graph.layerNodes, orderedSidebarItems: graph.orderedSidebarLayers),
                                        groups: groups,
-                                       expandedItems: self.graph.getSidebarExpandedItems())
+                                       expandedItems: graph.getSidebarExpandedItems())
         let layerNodes = sidebarDeps.layerNodes
         
         let primary = selections.primary
