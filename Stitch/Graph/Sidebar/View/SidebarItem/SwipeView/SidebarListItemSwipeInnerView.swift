@@ -43,14 +43,6 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
 //        item.id.asLayerNodeId
 //    }
     
-    var isBeingDragged: Bool {
-        current.map { $0.current == item.id } ?? false
-    }
-    
-    var isImplicitlyDragged: Bool {
-        self.sidebarViewModel.implicitlyDragged.contains(item.id)
-    }
-    
     var body: some View {
         HStack(spacing: .zero) {
             
@@ -71,7 +63,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
                 .padding(.leading, itemIndent + 5)
                 .background {
                     theme.fontColor
-                        .opacity(self.backgroundOpacity)
+                        .opacity(gestureViewModel.backgroundOpacity)
                 }
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.

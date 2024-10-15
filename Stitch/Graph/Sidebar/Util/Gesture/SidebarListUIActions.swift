@@ -12,39 +12,41 @@ import SwiftUI
 
 // functions just for onDragged and onDragEnded
 
-// you're just updating a single item
-// but need to update all the descendants as well?
-@MainActor
-func moveSidebarListItemIntoGroup(_ item: SidebarListItem,
-                                  _ items: SidebarListItems,
-                                  otherSelections: SidebarListItemIdSet,
-                                  draggedAlong: SidebarListItemIdSet,
-                                  _ proposedGroup: ProposedGroup) -> SidebarListItems {
-    
-    let newParent = proposedGroup.parentId
-    
-    var items = items
+extension ProjectSidebarObservable {
+    // you're just updating a single item
+    // but need to update all the descendants as well?
+    @MainActor
+    static func moveSidebarListItemIntoGroup(_ item: ItemID,
+                                             _ items: [ItemID],
+                                             otherSelections: Set<ItemID>,
+                                             draggedAlong: Set<ItemID>,
+                                             _ proposedGroup: ProposedGroup<ItemID>) -> [ItemID] {
         
-    // Every explicitly dragged item gets the new parent
-    for otherSelection in ([item.id] + otherSelections) {
-        guard var otherItem = retrieveItem(otherSelection, items) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            continue
+        let newParent = proposedGroup.parentId
+        
+        var items = items
+        
+        // Every explicitly dragged item gets the new parent
+        for otherSelection in ([item.id] + otherSelections) {
+            guard var otherItem = retrieveItem(otherSelection, items) else {
+                fatalErrorIfDebug("Could not retrieve item")
+                continue
+            }
+            otherItem.parentId = proposedGroup.parentId
+            otherItem.location.x = proposedGroup.indentationLevel.toXLocation
+            items = updateSidebarListItem(otherItem, items)
         }
-        otherItem.parentId = proposedGroup.parentId
-        otherItem.location.x = proposedGroup.indentationLevel.toXLocation
-        items = updateSidebarListItem(otherItem, items)
+        
+        guard let updatedItem = retrieveItem(item.id, items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            return items
+        }
+        
+        return maybeSnapDescendants(updatedItem,
+                                    items,
+                                    draggedAlong: draggedAlong,
+                                    startingIndentationLevel: proposedGroup.indentationLevel)
     }
-    
-    guard let updatedItem = retrieveItem(item.id, items) else {
-        fatalErrorIfDebug("Could not retrieve item")
-        return items
-    }
-    
-    return maybeSnapDescendants(updatedItem,
-                                items,
-                                draggedAlong: draggedAlong,
-                                startingIndentationLevel: proposedGroup.indentationLevel)
 }
 
 @MainActor

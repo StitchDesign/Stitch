@@ -245,18 +245,13 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 
 // TODO: move
 protocol ProjectSidebarObservable: AnyObject, Observable {
-    associatedtype ItemId: Hashable
+    associatedtype ItemID: Hashable
     
     init()
-    var activeSwipeId: ItemId? { get set }
-    var activeGesture: SidebarListActiveGesture<ItemId> { get set }
-    var implicitlyDragged: Set<ItemId> { get set }
-}
-
-extension ProjectSidebarObservable {
-    var isImplicitlyDragged: Bool {
-        self.implicitlyDragged.contains(item.id)
-    }
+    var activeSwipeId: ItemID? { get set }
+    var activeGesture: SidebarListActiveGesture<ItemID> { get set }
+    var implicitlyDragged: Set<ItemID> { get set }
+    var currentItemDragged: SidebarDraggedItem<ItemId>?
 }
 
 @Observable
@@ -264,6 +259,7 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var activeSwipeId: SidebarListItemId?
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()
+    var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
 }
 
 struct LayersSidebarView: View {

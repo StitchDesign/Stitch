@@ -48,6 +48,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     
     var fontColor: Color { get }
     
+    var backgroundOpacity: CGFloat { get }
+    
     @MainActor
     func sidebarItemTapped(id: Item.ID,
                            shiftHeld: Bool,
@@ -107,6 +109,15 @@ extension SidebarItemSwipable {
         set(newValue) {
             self.sidebarDelegate?.activeSwipeId = newValue
         }
+    }
+    
+    var isImplicitlyDragged: Bool {
+        self.sidebarDelegate?.implicitlyDragged.contains(item.id) ?? false
+    }
+    
+    var isBeingDragged: Bool {
+        guard let current = self.sidebarDelegate?.currentItemDragged else { return false }
+        return current.map { $0.current == item.id } ?? false
     }
     
     // MARK: GESTURE HANDLERS
@@ -257,6 +268,16 @@ extension SidebarItemSwipable {
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
+    var name: String
+    
+    func sidebarLayerHovered(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
+    }
+    
+    func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
+    }
+    
     let item: SidebarListItem
     
     // published property to be read in view
@@ -295,22 +316,22 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 extension SidebarItemGestureViewModel {
     @MainActor
     func didDeleteItem() {
-        dispatch(SidebarItemDeleted(itemId: item.id))
+        self.graphDelegate?.sidebarItemDeleted(itemId: self.item.id)
     }
     
     @MainActor
     func didToggleVisibility() {
-        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id.asLayerNodeId))
+        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.item.id.asLayerNodeId))
     }
     
     @MainActor
     func didSelectOnEditMode() {
-        dispatch(SidebarItemSelected(id: id))
+        dispatch(SidebarItemSelected(id: self.item.id.asLayerNodeId))
     }
     
     @MainActor
     func didUnselectOnEditMode() {
-        dispatch(SidebarItemDeselected(id: id))
+        dispatch(SidebarItemDeselected(id: self.item.id.asLayerNodeId))
     }
     
     var layerNodeId: LayerNodeId {
@@ -322,11 +343,13 @@ extension SidebarItemGestureViewModel {
     }
     
     var isNonEditModeFocused: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+        guard let graph = self.graphDelegate else { return false }
+        return graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+        guard let graph = self.graphDelegate else { return false }
+        return graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
     }
     
     var isNonEditModeSelected: Bool {
@@ -396,6 +419,7 @@ extension SidebarItemGestureViewModel {
     // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
     @MainActor
     var masks: Bool {
+        guard let graph = self.graphDelegate else { return false }
         
         // TODO: why is this not animated? and why does it jitter?
 //        // index of this layer
@@ -410,7 +434,7 @@ extension SidebarItemGestureViewModel {
 //        }
 //
         let atleastOneIndexMasks = graph
-            .getLayerNode(id: nodeId.id)?
+            .getLayerNode(id: self.item.id.asNodeId.id)?
             .layerNode?.masksPort.allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false

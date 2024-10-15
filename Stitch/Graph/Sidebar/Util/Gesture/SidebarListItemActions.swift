@@ -14,7 +14,7 @@ extension GraphUIState {
     }
 
     func sidebarLayerHoverEnded(layerId: LayerNodeId) {
-        state.highlightedSidebarLayers.remove(layerId)
+        self.highlightedSidebarLayers.remove(layerId)
     }
 }
 
