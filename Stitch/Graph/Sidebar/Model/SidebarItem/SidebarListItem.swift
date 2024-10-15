@@ -43,7 +43,7 @@ struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
 extension Identifiable {
     // this item's index
     func itemIndex(_ items: [Self]) -> Int {
-        guard let index = items.firstIndex { $0.id == self.id } else {
+        guard let index = items.firstIndex(where: { $0.id == self.id }) else {
             fatalErrorIfDebug()
             return -1
         }

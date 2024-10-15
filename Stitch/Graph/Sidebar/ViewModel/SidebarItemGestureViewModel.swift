@@ -23,7 +23,7 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-protocol SidebarItemData: Identifiable {
+protocol SidebarItemData: Identifiable, Equatable {
     var parentId: Self.ID? { get set }
     var location: CGPoint { get set }
 }

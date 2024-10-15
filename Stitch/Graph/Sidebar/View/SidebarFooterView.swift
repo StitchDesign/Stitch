@@ -9,13 +9,13 @@ import SwiftUI
 import StitchSchemaKit
 import StitchViewKit
 
-struct SidebarFooterView: View {
+struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
 
-    static let SIDEBAR_FOOTER_HEIGHT: CGFloat = 64
-    static let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
+    private let SIDEBAR_FOOTER_HEIGHT: CGFloat = 64
+    private let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
     
-    let groups: SidebarGroupsDict
-    let selections: SidebarSelectionState
+    let groups: SidebarViewModel.SidebarGroupsDict
+    let selections: SidebarViewModel.SidebarSelectionState
     let isBeingEdited: Bool
     let syncStatus: iCloudSyncStatus
     let layerNodes: LayerNodesForSidebarDict
@@ -46,8 +46,8 @@ struct SidebarFooterView: View {
         .animation(.default, value: groups)
         .animation(.default, value: layerNodes)
         .frame(maxWidth: .infinity)
-        .height(Self.SIDEBAR_FOOTER_HEIGHT)
-        .background(Self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
+        .height(self.SIDEBAR_FOOTER_HEIGHT)
+        .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
     }
 
     var normalFooter: some View {

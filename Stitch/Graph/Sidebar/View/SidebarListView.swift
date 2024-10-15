@@ -244,10 +244,17 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 }
 
 // TODO: move
-protocol ProjectSidebarObservable: AnyObject, Observable {
+import StitchViewKit
+import OrderedCollections
+
+protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID {
     associatedtype ItemViewModel: SidebarItemSwipable
+    associatedtype EncodedItemData = StitchNestedListElement
+
     typealias ItemData = ItemViewModel.Item
     typealias ItemID = ItemData.ID
+    typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
+    typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
     
     init()
     var items: [ItemViewModel] { get set }

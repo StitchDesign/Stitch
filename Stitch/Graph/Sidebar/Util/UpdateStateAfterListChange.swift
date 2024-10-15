@@ -82,72 +82,72 @@ import StitchSchemaKit
 
 // creates new expandedItem
 // creates new (LayerNodesForSidebarDict, SidebarGroups, ExpandedItems)
-func sidebarListItemsToSidebarDeps(_ sidebar: SidebarDeps,
-                                   _ masterList: SidebarListItemsCoordinator) -> SidebarDeps {
-
-    let expanded = expandedItemsFromCollapsedGroups(
-        sidebar.layerNodes,
-        masterList.collapsedGroups)
-
-    // log("sidebarListItemsToSidebarDeps: expanded: \(expanded)")
-
-    var updatedNodes = LayerNodesForSidebarDict() // LayerNodesDict()
-    var updatedGroups = SidebarGroupsDict()
-
-    // `items` will be in order; and so will children in excluded groups
-    let allItems = masterList.items + flattenExcludedGroups(masterList.excludedGroups)
-
-    // Rebuild the ordered-dict of layer-nodes in same order of sidebarListItems.
-    allItems.forEach { (item: SidebarListItem) in
-
-        //        log("sidebarListItemsToSidebarDeps: item.id: \(item.id)")
-
-        guard let node: LayerNodeForSidebar = sidebar.layerNodes[item.id.asLayerNodeId] else {
-            // we had a rect item that had no corresponding layer node!
-            fatalError()
-        }
-
-        // Always add the layer node to the rebuilt layer-nodes-dict
-
-        // Additionally: if the item is a child of the group,
-        // add it to the sidebar groups dict
-        if let parentId = item.parentId {
-            // log("sidebarListItemsToSidebarDeps: item \(item.id) had parent id: \(parentId)")
-            // log("sidebarListItemsToSidebarDeps: updatedGroups was: \(updatedGroups)")
-
-            updatedGroups = appendToSidebarGroup(
-                for: parentId.asLayerNodeId,
-                [item.id.asLayerNodeId],
-                updatedGroups)
-
-            // log("sidebarListItemsToSidebarDeps: updatedGroups is now: \(updatedGroups)")
-        }
-
-        // Always add [] when we encounter the group itself;
-        // ensures we create a `sidebarGroups` entry for every group,
-        // even if group is empty.
-        if item.isGroup {
-            // log("sidebarListItemsToSidebarDeps: item \(item.id) was a parent")
-            // log("sidebarListItemsToSidebarDeps: updatedGroups was: \(updatedGroups)")
-            updatedGroups = appendToSidebarGroup(
-                for: item.id.asLayerNodeId,
-                [],
-                updatedGroups)
-            // log("sidebarListItemsToSidebarDeps: updatedGroups is now: \(updatedGroups)")
-        }
-
-        // presumably appends to end?
-        // ie `insertingAt: currentIndex + 1`
-        updatedNodes.updateValue(node, forKey: node.id)
-    }
-
-    var sidebar = sidebar
-    sidebar.layerNodes = updatedNodes
-    sidebar.groups = updatedGroups
-    sidebar.expandedItems = expanded
-
-    return sidebar
-}
+//func sidebarListItemsToSidebarDeps(_ sidebar: SidebarDeps,
+//                                   _ masterList: SidebarListItemsCoordinator) -> SidebarDeps {
+//
+//    let expanded = expandedItemsFromCollapsedGroups(
+//        sidebar.layerNodes,
+//        masterList.collapsedGroups)
+//
+//    // log("sidebarListItemsToSidebarDeps: expanded: \(expanded)")
+//
+//    var updatedNodes = LayerNodesForSidebarDict() // LayerNodesDict()
+//    var updatedGroups = SidebarGroupsDict()
+//
+//    // `items` will be in order; and so will children in excluded groups
+//    let allItems = masterList.items + flattenExcludedGroups(masterList.excludedGroups)
+//
+//    // Rebuild the ordered-dict of layer-nodes in same order of sidebarListItems.
+//    allItems.forEach { (item: SidebarListItem) in
+//
+//        //        log("sidebarListItemsToSidebarDeps: item.id: \(item.id)")
+//
+//        guard let node: LayerNodeForSidebar = sidebar.layerNodes[item.id.asLayerNodeId] else {
+//            // we had a rect item that had no corresponding layer node!
+//            fatalError()
+//        }
+//
+//        // Always add the layer node to the rebuilt layer-nodes-dict
+//
+//        // Additionally: if the item is a child of the group,
+//        // add it to the sidebar groups dict
+//        if let parentId = item.parentId {
+//            // log("sidebarListItemsToSidebarDeps: item \(item.id) had parent id: \(parentId)")
+//            // log("sidebarListItemsToSidebarDeps: updatedGroups was: \(updatedGroups)")
+//
+//            updatedGroups = appendToSidebarGroup(
+//                for: parentId.asLayerNodeId,
+//                [item.id.asLayerNodeId],
+//                updatedGroups)
+//
+//            // log("sidebarListItemsToSidebarDeps: updatedGroups is now: \(updatedGroups)")
+//        }
+//
+//        // Always add [] when we encounter the group itself;
+//        // ensures we create a `sidebarGroups` entry for every group,
+//        // even if group is empty.
+//        if item.isGroup {
+//            // log("sidebarListItemsToSidebarDeps: item \(item.id) was a parent")
+//            // log("sidebarListItemsToSidebarDeps: updatedGroups was: \(updatedGroups)")
+//            updatedGroups = appendToSidebarGroup(
+//                for: item.id.asLayerNodeId,
+//                [],
+//                updatedGroups)
+//            // log("sidebarListItemsToSidebarDeps: updatedGroups is now: \(updatedGroups)")
+//        }
+//
+//        // presumably appends to end?
+//        // ie `insertingAt: currentIndex + 1`
+//        updatedNodes.updateValue(node, forKey: node.id)
+//    }
+//
+//    var sidebar = sidebar
+//    sidebar.layerNodes = updatedNodes
+//    sidebar.groups = updatedGroups
+//    sidebar.expandedItems = expanded
+//
+//    return sidebar
+//}
 
 func appendToSidebarGroup(for key: LayerNodeId,
                           _ newChildren: [LayerNodeId],

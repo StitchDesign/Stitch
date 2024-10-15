@@ -26,32 +26,28 @@ extension GraphState {
 }
 
 extension ProjectSidebarObservable {
-    static func secondarilySelectAllChildren(id: Self.ItemID,
-                                      groups: SidebarGroupsDict,
-                                      acc: SidebarSelectionState) -> SidebarSelectionState {
+    func secondarilySelectAllChildren(id: Self.ItemID,
+                                      groups: SidebarGroupsDict) {
         
-        var acc = acc
+        let acc = self.selectionState
         
         // add to acc
-        acc = addExclusivelyToSecondary(id, acc)
+        self.addExclusivelyToSecondary(id)
         
         // recur on children
         if let children = groups[id] {
             children.forEach { (child: Self.ItemID) in
-                acc.combine(other: secondarilySelectAllChildren(
+                self.secondarilySelectAllChildren(
                     id: child,
-                    groups: groups,
-                    acc: acc))
+                    groups: groups)
             }
         }
-        
-        return acc
     }
     
     // children to deselect
     static func getDescendantsIds(id: Self.ItemID,
-                           groups: SidebarGroupsDict,
-                           acc: LayerIdSet) -> LayerIdSet {
+                                  groups: SidebarGroupsDict,
+                                  acc: Set<ItemId>) -> Set<ItemId> {
         
         var acc = acc
         acc.insert(id)
@@ -93,15 +89,10 @@ extension ProjectSidebarObservable {
         return selection
     }
     
-    static func addExclusivelyToSecondary(_ id: Self.ItemID,
-                                   _ selection: SidebarSelectionState) -> SidebarSelectionState {
-        
-        var selection = selection
-        
+    func addExclusivelyToSecondary(_ id: Self.ItemID) {
+        let selection = self.selectionState
         selection.secondary.insert(id)
         selection.primary.remove(id)
-        
-        return selection
     }
     
     

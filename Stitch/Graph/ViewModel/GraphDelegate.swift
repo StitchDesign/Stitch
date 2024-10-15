@@ -69,7 +69,7 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
-    var sidebarSelectionState: SidebarSelectionState { get set }
+//    var sidebarSelectionState: SidebarSelectionState { get set }
     
     var orderedSidebarLayers: OrderedSidebarLayers { get }
 

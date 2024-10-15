@@ -54,7 +54,7 @@ extension SidebarSelections {
 }
 
 // if a group is selected,
-final class SidebarSelectionState<ItemID: Hashable> {
+final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
     
     var isEditMode: Bool = false
@@ -95,8 +95,8 @@ final class SidebarSelectionState<ItemID: Hashable> {
     }
 
     // better
-    func combine(other: SidebarSelectionState) {
-        self.primary = self.primary.union(other.primary)
-        self.secondary = self.secondary.union(other.secondary)
-    }
+//    func combine(other: Self) {
+//        self.primary = self.primary.union(other.primary)
+//        self.secondary = self.secondary.union(other.secondary)
+//    }
 }
