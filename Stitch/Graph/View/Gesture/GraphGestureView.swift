@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 // MUST LISTEN FOR KEY PRESSES ON GraphGesture as well, otherwise selecting a node stops key presses.
 
-typealias GraphGestureViewController = StitchHostingController
-// typealias GraphGestureViewController = NoKeyPressHostingController
+//typealias GraphGestureViewController = StitchHostingController
+ typealias GraphGestureViewController = NoKeyPressHostingController
 
 /// A wrapper view controller representable for the entire graph view. Handles scroll, pinch, and long press gestures.
 struct GraphGestureView<T: View>: UIViewControllerRepresentable {
