@@ -59,19 +59,19 @@ func getMasterListFrom(layerNodes: NodesViewModelDict,
     return state
 }
 
-extension LayerNodesForSidebarDict {
-    // assumes `nodes` is layer nodes only
-    static func fromLayerNodesDict(nodes: NodesViewModelDict,
-                                   orderedSidebarItems: OrderedSidebarLayers) -> LayerNodesForSidebarDict {
-        
-        orderedSidebarItems.reduce(into: LayerNodesForSidebarDict()) { partialResult, osi in
-            partialResult = addLayerNodeForSidebarToDict(
-                nodes: nodes,
-                orderedSidebarItem: osi,
-                partialResult: partialResult)
-        }
-    }
-}
+//extension LayerNodesForSidebarDict {
+//    // assumes `nodes` is layer nodes only
+//    static func fromLayerNodesDict(nodes: NodesViewModelDict,
+//                                   orderedSidebarItems: OrderedSidebarLayers) -> LayerNodesForSidebarDict {
+//        
+//        orderedSidebarItems.reduce(into: LayerNodesForSidebarDict()) { partialResult, osi in
+//            partialResult = addLayerNodeForSidebarToDict(
+//                nodes: nodes,
+//                orderedSidebarItem: osi,
+//                partialResult: partialResult)
+//        }
+//    }
+//}
 
 func addLayerNodeForSidebarToDict(nodes: NodesViewModelDict,
                                   orderedSidebarItem: SidebarLayerData,

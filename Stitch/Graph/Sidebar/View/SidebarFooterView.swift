@@ -14,11 +14,39 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     private let SIDEBAR_FOOTER_HEIGHT: CGFloat = 64
     private let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
     
-    let groups: SidebarViewModel.SidebarGroupsDict
-    let selections: SidebarViewModel.SidebarSelectionState
+    @Bindable var sidebarViewModel: SidebarViewModel
     let isBeingEdited: Bool
     let syncStatus: iCloudSyncStatus
     let layerNodes: LayerNodesForSidebarDict
+
+    var selections: SidebarViewModel.SidebarSelectionState {
+        self.sidebarViewModel.selectionState
+    }
+
+    var groups: SidebarViewModel.SidebarGroupsDict {
+        self.sidebarViewModel.getSidebarGroupsDict()
+    }
+    
+    var groups: SidebarGroupsDict {
+        graph.getSidebarGroupsDict()
+    }
+    
+    var sidebarDeps: SidebarDeps {
+        SidebarDeps(
+//            layerNodes: .fromLayerNodesDict(
+//                nodes: graph.layerNodes,
+//                orderedSidebarItems: graph.orderedSidebarLayers),
+            groups: groups,
+            expandedItems: graph.getSidebarExpandedItems())
+    }
+
+//    var layerNodesForSidebarDict: LayerNodesForSidebarDict {
+//        sidebarDeps.layerNodes
+//    }
+
+//    var masterList: SidebarListItemsCoordinator {
+//        sidebarListState.masterList
+//    }
 
     var showEditModeFooter: Bool {
         #if targetEnvironment(macCatalyst)
@@ -39,6 +67,15 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
                 normalFooter
                     .animation(.default, value: isBeingEdited)
             }
+        }
+        // NOTE: only listen for changes to expandedItems or sidebar-groups,
+        // not the layerNodes, since layerNodes change constantly
+        // when eg a Time Node is attached to a Text Layer.
+        .onChange(of: sidebarDeps.expandedItems) {
+            sidebarViewModel.activeSwipeId = nil
+        }
+        .onChange(of: sidebarDeps.groups) {
+            sidebarViewModel.activeSwipeId = nil
         }
         .padding()
         .animation(.default, value: showEditModeFooter)
@@ -61,7 +98,8 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     var editModeFooter: some View {
         HStack(spacing: 10) {
             Spacer()
-            SidebarFooterButtonsView(groups: groups,
+            SidebarFooterButtonsView(sidebarViewModel: sidebarViewModel,
+                                     groups: groups,
                                      selections: selections,
                                      isBeingEdited: isBeingEdited,
                                      layerNodes: layerNodes)
@@ -81,9 +119,9 @@ struct DisabledButtonModifier: ViewModifier {
 
 struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     @Bindable var sidebarViewModel: SidebarViewModel
-    let groups: SidebarGroupsDict
+    let groups: SidebarViewModel.SidebarGroupsDict
     let isBeingEdited: Bool
-    let layerNodes: LayerNodesForSidebarDict
+//    let layerNodes: LayerNodesForSidebarDict
 
     var selections: SidebarSelectionState {
         self.sidebarViewModel.selectionState

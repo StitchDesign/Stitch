@@ -114,9 +114,6 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     // - one finger long-press-drag item-dragging: see `SwiftUI .simultaneousGesture`
     // - two fingers on trackpad list scrolling
     
-    let gestureViewModel: GestureViewModel
-    var keyboardObserver: KeyboardObserver
-
     var instantDrag: Bool
     
     var graph: GraphState
@@ -125,7 +122,12 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     var shiftHeldDown = false
     var commandHeldDown = false
 
+    weak var sidebarViewModel: GestureViewModel.SidebarViewModel?
+    weak var gestureViewModel: GestureViewModel?
+    weak var keyboardObserver: KeyboardObserver?
+
     init(gestureViewModel: GestureViewModel,
+         sidebarViewModel: GestureViewModel.SidebarViewModel,
          keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          graph: GraphState,
@@ -164,13 +166,16 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     }
       
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard let sidebarViewModel = self.sidebarViewModel,
+              let gestureViewModel = self.gestureViewModel else { return }
+        
         if sidebarViewModel.selectionState.isEditMode || gestureViewModel.swipeSetting == .open {
             return
         }
         
         gestureViewModel.sidebarItemTapped(id: self.itemId,
                                            shiftHeld: self.shiftHeldDown,
-                                           commandHeld: self.commandHeldDown)        
+                                           commandHeld: self.commandHeldDown)
     }
     
     // finger on screen
@@ -191,10 +196,10 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
             case .changed:
 
                 if instantDrag {
-                    gestureViewModel.onItemDragChanged(translation.toCGSize)
+                    gestureViewModel?.onItemDragChanged(translation.toCGSize)
                 }
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
-                gestureViewModel.onItemSwipeChanged(translation.x)
+                gestureViewModel?.onItemSwipeChanged(translation.x)
             default:
                 break // do nothing
             }
@@ -206,9 +211,9 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
             switch gestureRecognizer.state {
             case .ended, .cancelled:
                 if instantDrag {
-                    gestureViewModel.onItemDragEnded()
+                    gestureViewModel?.onItemDragEnded()
                 }
-                gestureViewModel.onItemSwipeEnded()
+                gestureViewModel?.onItemSwipeEnded()
             default:
                 break
             }
@@ -233,11 +238,11 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
                         
             switch gestureRecognizer.state {
             case .changed:
-                gestureViewModel.onItemSwipeChanged(translation.x)
+                gestureViewModel?.onItemSwipeChanged(translation.x)
                 // let velocity = gestureRecognizer.velocity(in: gestureRecognizer.view)
             case .ended, .cancelled:
-                gestureViewModel.onItemSwipeEnded()
-                gestureViewModel.onItemDragEnded()
+                gestureViewModel?.onItemSwipeEnded()
+                gestureViewModel?.onItemDragEnded()
             default:
 //                log("CustomListItemGestureRecognizerVC: touches 0: trackpadGestureHandler: default")
                 break
@@ -248,7 +253,7 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
         else if gestureRecognizer.numberOfTouches == 1 {
             switch gestureRecognizer.state {
             case .changed:
-                gestureViewModel.onItemDragChanged(translation.toCGSize)
+                gestureViewModel?.onItemDragChanged(translation.toCGSize)
             default:
                 // log("CustomListItemGestureRecognizerVC: trackpadGestureHandler: default")
                 break
@@ -263,9 +268,11 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        self.gestureViewModel.contextMenuInteraction(itemId: self.itemId,
-                                                     graph: self.graph,
-                                                     keyboardObserver: self.keyboardObserver)
+        if let keyboardObserver = self.keyboardObserver {
+            self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
+                                                          graph: self.graph,
+                                                          keyboardObserver: keyboardObserver)
+        }
     }
 }
 
@@ -291,11 +298,11 @@ extension SidebarItemGestureViewModel {
                 commandHeld: graph.keypressState.isCommandPressed)
         }
                 
-        let groups = sidebarViewModel.getSidebarGroupsDict()
-        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: graph.layerNodes, orderedSidebarItems: graph.orderedSidebarLayers),
-                                       groups: groups,
-                                       expandedItems: graph.getSidebarExpandedItems())
-        let layerNodes = sidebarDeps.layerNodes
+//        let groups = sidebarViewModel.getSidebarGroupsDict()
+//        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: graph.layerNodes, orderedSidebarItems: graph.orderedSidebarLayers),
+//        let sidebarDeps = SidebarDeps(groups: groups,
+//                                      expandedItems: graph.getSidebarExpandedItems())
+//        let layerNodes = sidebarDeps.layerNodes
         
         let primary = selections.primary
         
@@ -303,21 +310,21 @@ extension SidebarItemGestureViewModel {
         
             var buttons: [UIMenuElement] = []
             
-            if canUngroup(primary, nodes: layerNodes) {
+            if sidebarViewModel.canUngroup() {
                 buttons.append(UIAction(title: "Ungroup", image: nil) { action in
                     // Handle action here
                     dispatch(SidebarGroupUncreated())
                 })
             }
             
-            let canGroup = primary.nonEmptyPrimary.map { canBeGrouped($0, groups: groups) } ?? false
+            let canGroup = primary.nonEmptyPrimary.map { sidebarViewModel.canBeGrouped() } ?? false
             if canGroup {
                 buttons.append(UIAction(title: "Group", image: nil) { action in
-                    dispatch(SidebarGroupCreated())
+                    sidebarViewModel.sidebarGroupCreated()
                 })
             }
             
-            if canDuplicate(primary) {
+            if canDuplicate() {
                 let groupButton = UIAction(title: "Duplicate", image: nil) { action in
                     dispatch(SidebarSelectedItemsDuplicated())
                 }

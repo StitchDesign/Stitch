@@ -9,11 +9,11 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
-typealias LayerNodesForSidebarDict = OrderedDictionary<LayerNodeId, LayerNodeForSidebar>
-
-// All the data the sidebar needs about a layer
-struct LayerNodeForSidebar: Equatable, Codable, Hashable {
-    let id: LayerNodeId
-    let layer: Layer
-    let displayTitle: String
-}
+//typealias LayerNodesForSidebarDict = OrderedDictionary<LayerNodeId, LayerNodeForSidebar>
+//
+//// All the data the sidebar needs about a layer
+//struct LayerNodeForSidebar: Equatable, Codable, Hashable {
+//    let id: LayerNodeId
+//    let layer: Layer
+//    let displayTitle: String
+//}

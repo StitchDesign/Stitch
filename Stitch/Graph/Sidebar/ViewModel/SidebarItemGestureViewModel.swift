@@ -37,6 +37,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     
     var name: String { get set }
     
+    var isGroup: Bool { get set }
+    
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
 
@@ -96,6 +98,10 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
 }
 
 extension SidebarItemSwipable {
+    var id: Self.Item.ID {
+        self.item.id
+    }
+    
     var activeGesture: SidebarListActiveGesture<Self.Item.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none

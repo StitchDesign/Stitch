@@ -69,7 +69,7 @@ final class SidebarSelectionObserver<ItemID: Hashable> {
 //    var implicitlyDragged = SidebarListItemIdSet()
     
     // Layers focused in the inspector
-    var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
+//    var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()

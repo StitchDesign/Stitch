@@ -90,11 +90,16 @@ extension GraphState {
         return initialChoices + layers
     }
     
-//    @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+    @MainActor func getDescendants(for layer: LayerNodeId) -> LayerIdSet {
+        guard let children = self.orderedSidebarLayers.get(layer.asNodeId)?.children else { return .init() }
+        return children.flatMap { $0.allElementIds }
+            .map { $0.asLayerNodeId }
+            .toSet
+        
 //        getDescendantsIds(id: layer,
 //                          groups: self.getSidebarGroupsDict(),
 //                          acc: .init())
-//    }
+    }
 }
 
 struct LayerNamesDropDownChoiceView: View {

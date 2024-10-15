@@ -111,8 +111,9 @@ extension ProjectSidebarObservable {
     
     // selections can only be grouped if they ALL belong to EXACT SAME PARENT (or top level)
     // ASSUMES NON-EMPTY
-    static func canBeGrouped(_ selections: NonEmptySidebarSelections,
-                      groups: SidebarGroupsDict) -> Bool {
+    func canBeGrouped() -> Bool {
+        let selections = self.selectionState.primary
+        let groups = self.getSidebarGroupsDict()
         
         // items are on same level if they are all top level
         let allTopLevel = selections.allSatisfy {
@@ -128,42 +129,33 @@ extension ProjectSidebarObservable {
     // Can ungroup selections just if:
     // 1. at least one group is 100% selected, and
     // 2. no non-group items are 100% selected
-    static func canUngroup(_ primarySelections: SidebarSelections,
-                    nodes: LayerNodesForSidebarDict) -> Bool {
-        
-        !groupPrimarySelections(primarySelections,
-                                nodes: nodes).isEmpty
-        
-        && nonGroupPrimarySelections(primarySelections,
-                                     nodes: nodes).isEmpty
+    func canUngroup() -> Bool {
+        !groupPrimarySelections().isEmpty &&
+        nonGroupPrimarySelections().isEmpty
     }
     
     // 100% selected items that ARE groups
-    static func groupPrimarySelections(_ primarySelections: SidebarSelections,
-                                nodes: LayerNodesForSidebarDict) -> LayerIdList {
-        
-        primarySelections.filter { (selected: LayerNodeId) in
-            if let node = nodes[selected] {
-                return node.layer == .group
+    func groupPrimarySelections() -> [Self.ItemID] {
+        self.selectionState.primary.filter { selected in
+            if let item = self.items.first(where: { $0.id == selected }) {
+                return item.isGroup
             }
             return false
         }
     }
     
     // 100% selected items that are NOT groups
-    static func nonGroupPrimarySelections(_ primarySelections: SidebarSelections,
-                                   nodes: LayerNodesForSidebarDict) -> LayerIdList {
-        
-        primarySelections.filter { (selected: LayerNodeId) in
-            if let node = nodes[selected] {
-                return node.layer != .group
+    func nonGroupPrimarySelections() -> LayerIdList {
+        self.selectionState.primary.filter { selected in
+            if let item = self.items.first(where: { $0.id == selected }) {
+                return !item.isGroup
             }
             return false
         }
     }
     
-    func canDuplicate(_ primarySelections: SidebarSelections) -> Bool {
-        !primarySelections.isEmpty
+    func canDuplicate() -> Bool {
+        !self.selectionState.primary.isEmpty
     }
 }
 

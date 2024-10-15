@@ -77,34 +77,14 @@ struct SidebarListView: View {
     let syncStatus: iCloudSyncStatus
     
 
-    var selections: SidebarSelectionState {
-        graph.sidebarSelectionState
-    }
+//    var selections: SidebarSelectionState {
+//        graph.sidebarSelectionState
+//    }
+//    
+//    var sidebarListState: SidebarListState {
+//        graph.sidebarListState
+//    }
     
-    var sidebarListState: SidebarListState {
-        graph.sidebarListState
-    }
-    
-    var groups: SidebarGroupsDict {
-        graph.getSidebarGroupsDict()
-    }
-    
-    var sidebarDeps: SidebarDeps {
-        SidebarDeps(
-            layerNodes: .fromLayerNodesDict(
-                nodes: graph.layerNodes,
-                orderedSidebarItems: graph.orderedSidebarLayers),
-            groups: groups,
-            expandedItems: graph.getSidebarExpandedItems())
-    }
-
-    var layerNodesForSidebarDict: LayerNodesForSidebarDict {
-        sidebarDeps.layerNodes
-    }
-
-    var masterList: SidebarListItemsCoordinator {
-        sidebarListState.masterList
-    }
     
     var body: some View {
         VStack {
@@ -127,15 +107,6 @@ struct SidebarListView: View {
                 SidebarListScrollView(sidebarViewModel: viewModel,
                                       tab: tab)
             }
-        }
-        // NOTE: only listen for changes to expandedItems or sidebar-groups,
-        // not the layerNodes, since layerNodes change constantly
-        // when eg a Time Node is attached to a Text Layer.
-        .onChange(of: sidebarDeps.expandedItems) {
-            layersViewModel.activeSwipeId = nil
-        }
-        .onChange(of: sidebarDeps.groups) {
-            layersViewModel.activeSwipeId = nil
         }
         // TODO: see note in `DeriveSidebarList`
         .onChange(of: graph.nodes.keys.count) {
@@ -238,8 +209,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         .onChange(of: isBeingEdited) { newValue in
             // This handler enables all animations
             isBeingEditedAnimated = newValue
+            self.sidebarViewModel.editModeToggled(to: isBeingEdited)
         }
-        
     }
 }
 
@@ -273,6 +244,11 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
+    
+    func editModeToggled(to isEditing: Bool)
+    func canBeGrouped() -> Bool
+    func canUngroup() -> Bool
+    func canDuplicate() -> Bool
 }
 
 @Observable

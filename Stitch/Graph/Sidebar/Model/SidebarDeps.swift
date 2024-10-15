@@ -11,11 +11,11 @@ import SwiftUI
 import StitchSchemaKit
 import OrderedCollections
 
-struct SidebarDeps: Equatable {
+struct SidebarDeps {
 
     // replace with LayerNodesForSidebarDict
     //    var layerNodes: LayerNodesDict
-    var layerNodes: LayerNodesForSidebarDict
+//    var layerNodes: LayerNodesForSidebarDict
     var groups = SidebarGroupsDict()
     var expandedItems = LayerIdSet()
 }
