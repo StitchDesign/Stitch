@@ -20,27 +20,35 @@ struct SidebarListItemSwipeMenu: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            // Hide other options after sufficient swipe
-            if showNonDefaultOptions {
-                SidebarListItemSwipeButton(sfImageName: "ellipsis.circle",
-                                           backgroundColor: GREY_SWIPE_MENU_OPTION_COLOR,
-                                           gestureViewModel: gestureViewModel)
-                
-                SidebarListItemSwipeButton(action: SidebarItemHiddenStatusToggled(clickedId: item.id.asLayerNodeId),
-                                           sfImageName: visStatusIconName,
-                                           backgroundColor: STITCH_PURPLE,
-                                           gestureViewModel: gestureViewModel)
-            }
+            Text("P")
+                .frame(width: 200, height: 60)
+                .onTapGesture {
+                    log("sidebar swipe menu item tapped")
+                }
             
-            SidebarListItemSwipeButton(action: SidebarItemDeleted(itemId: item.id),
-                                       sfImageName: "trash",
-                                       backgroundColor: Color(.stitchRed),
-                                       willLeftAlign: !showNonDefaultOptions,
-                                       gestureViewModel: gestureViewModel)
+//            // Hide other options after sufficient swipe
+//            if showNonDefaultOptions {
+//                SidebarListItemSwipeButton(sfImageName: "ellipsis.circle",
+//                                           backgroundColor: GREY_SWIPE_MENU_OPTION_COLOR,
+//                                           gestureViewModel: gestureViewModel)
+//                
+//                SidebarListItemSwipeButton(action: SidebarItemHiddenStatusToggled(clickedId: item.id.asLayerNodeId),
+//                                           sfImageName: visStatusIconName,
+//                                           backgroundColor: STITCH_PURPLE,
+//                                           gestureViewModel: gestureViewModel)
+//            }
+//            
+//            SidebarListItemSwipeButton(action: SidebarItemDeleted(itemId: item.id),
+//                                       sfImageName: "trash",
+//                                       backgroundColor: Color(.stitchRed),
+//                                       willLeftAlign: !showNonDefaultOptions,
+//                                       gestureViewModel: gestureViewModel)
         }
-        .animation(.stitchAnimation(duration: 0.25), value: showNonDefaultOptions)
-        .disabled(swipeOffset == 0)
-        .width(showNonDefaultOptions ? swipeOffset : .infinity)
+//        .animation(.stitchAnimation(duration: 0.25), value: showNonDefaultOptions)
+//        .disabled(swipeOffset == 0)
+//        .width(showNonDefaultOptions ? swipeOffset : .infinity)
+//        .width(showNonDefaultOptions ? swipeOffset : 300)
+        .width(showNonDefaultOptions ? 300 : 300)
         .frame(height: SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
         .cornerRadius(SWIPE_FULL_CORNER_RADIUS)
     }

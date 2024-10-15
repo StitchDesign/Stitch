@@ -157,6 +157,10 @@ struct SidebarListItemSwipeInnerView: View {
                 
             }
             
+//            if swipeX > 0 {
+//                
+//            }
+            
             SidebarListItemSwipeMenu(
                 item: item,
                 swipeOffset: swipeX,

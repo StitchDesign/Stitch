@@ -137,24 +137,24 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
         self.layerNodeId = layerNodeId
     }
     
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
-                           shouldReceive event: UIEvent) -> Bool {
-        if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.alphaShift) {
-            log("SHIFT DOWN")
-            self.shiftHeldDown = true
-        } else {
-            log("SHIFT NOT DOWN")
-            self.shiftHeldDown = false
-        }
-        
-        if event.modifierFlags.contains(.command) {
-            self.commandHeldDown = true
-        } else {
-            self.commandHeldDown = false
-        }
-        
-        return true
-    }
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
+//                           shouldReceive event: UIEvent) -> Bool {
+//        if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.alphaShift) {
+//            log("SHIFT DOWN")
+//            self.shiftHeldDown = true
+//        } else {
+//            log("SHIFT NOT DOWN")
+//            self.shiftHeldDown = false
+//        }
+//        
+//        if event.modifierFlags.contains(.command) {
+//            self.commandHeldDown = true
+//        } else {
+//            self.commandHeldDown = false
+//        }
+//        
+//        return true
+//    }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
