@@ -80,7 +80,8 @@ struct PreviewCommonModifierWithoutFrame: ViewModifier {
             .modifier(ApplyStroke(
                 viewModel: layerViewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
-                stroke: stroke))
+                stroke: stroke,
+                cornerRadius: layerViewModel.cornerRadius.getNumber ?? .zero))
         
             .modifier(PreviewLayerEffectsModifier(
                 blurRadius: blurRadius,
