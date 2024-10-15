@@ -15,10 +15,10 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
 
     var item: GestureViewModel.Item
     
-//    let name: String
+    let name: String
 //    let layer: Layer
-//    var current: SidebarDraggedItem?
-//    var proposedGroup: ProposedGroup?
+    var current: SidebarDraggedItem<GestureViewModel.Item.ID>?
+    var proposedGroup: ProposedGroup<GestureViewModel.Item.ID>?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
@@ -103,7 +103,7 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
                 graph: graph,
                 item: item,
                 name: name,
-                layer: layer,
+//                layer: layer,
                 current: current,
                 proposedGroup: proposedGroup,
                 isClosed: isClosed,
@@ -116,9 +116,9 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
                 // log("hovering: sidebar item \(item.id.id)")
                 // log("hovering: \(hovering)")
                 if hovering {
-                    dispatch(SidebarLayerHovered(layer: item.id.asLayerNodeId))
+                    self.gestureViewModel.sidebarLayerHovered(itemId: item.id)
                 } else {
-                    dispatch(SidebarLayerHoverEnded(layer: item.id.asLayerNodeId))
+                    self.gestureViewModel.sidebarLayerHoverEnded(itemId: item.id)
                 }
             }
             .padding(1) // ensures .clipped doesn't cut off proposed-group border

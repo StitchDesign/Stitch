@@ -66,6 +66,12 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     func contextMenuInteraction(itemId: Item.ID,
                                 graph: GraphState,
                                 keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration?
+    
+    @MainActor
+    func sidebarLayerHovered(itemId: Item.ID)
+    
+    @MainActor
+    func sidebarLayerHoverEnded(itemId: Item.ID)
 }
 
 extension SidebarItemSwipable {

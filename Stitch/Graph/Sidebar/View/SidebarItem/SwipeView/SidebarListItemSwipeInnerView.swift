@@ -9,17 +9,17 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeInnerView: View {
+struct SidebarListItemSwipeInnerView<GestureViewModel>: View where GestureViewModel: SidebarItemSwipable {
     
-    @Environment(\.appTheme) var theme
+    @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
     
-    var item: SidebarListItem
+    var item: GestureViewModel.Item
     let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
+//    let layer: Layer
+    var current: SidebarDraggedItem<GestureViewModel.Item.ID>?
+    var proposedGroup: ProposedGroup<GestureViewModel.Item.ID>?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
@@ -28,7 +28,7 @@ struct SidebarListItemSwipeInnerView: View {
     
     // The actual rendered distance for the swipe distance
     @State var swipeX: CGFloat = 0
-    @ObservedObject var gestureViewModel: SidebarItemGestureViewModel
+    @Bindable var gestureViewModel: GestureViewModel
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     

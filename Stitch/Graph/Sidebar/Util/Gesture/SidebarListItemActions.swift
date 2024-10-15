@@ -8,22 +8,15 @@
 import Foundation
 import StitchSchemaKit
 
-struct SidebarLayerHovered: GraphUIEvent {
-    let layer: LayerNodeId
-    
-    func handle(state: GraphUIState) {
-        state.highlightedSidebarLayers.insert(layer)
+extension GraphUIState {
+    func sidebarLayerHovered(layerId: LayerNodeId) {
+        self.highlightedSidebarLayers.insert(layerId)
+    }
+
+    func sidebarLayerHoverEnded(layerId: LayerNodeId) {
+        state.highlightedSidebarLayers.remove(layerId)
     }
 }
-
-struct SidebarLayerHoverEnded: GraphUIEvent {
-    let layer: LayerNodeId
-    
-    func handle(state: GraphUIState) {
-        state.highlightedSidebarLayers.remove(layer)
-    }
-}
-
 
 /*
  "Sidebar item's hide-icon clicked"

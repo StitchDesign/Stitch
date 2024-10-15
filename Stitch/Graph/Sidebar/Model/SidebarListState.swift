@@ -11,7 +11,7 @@ import StitchSchemaKit
 
 // // MARK: DATA
 
-struct SidebarListState: Codable, Equatable, Hashable {
+struct SidebarListState: Equatable, Hashable {
     var masterList: SidebarListItemsCoordinator
     var current: SidebarDraggedItem?
     var proposedGroup: ProposedGroup?
@@ -31,9 +31,9 @@ struct SidebarListState: Codable, Equatable, Hashable {
 
 // if nil, then the 'proposed group' is top level
 // and xIdentation = 0
-struct ProposedGroup: Equatable, Codable, Hashable {
+struct ProposedGroup<ItemId> {
 
-    let parentId: SidebarListItemId
+    let parentId: ItemId
     let xIndentation: CGFloat
 
     var indentationLevel: IndentationLevel {
@@ -41,7 +41,7 @@ struct ProposedGroup: Equatable, Codable, Hashable {
     }
 }
 
-struct IndentationLevel: Equatable {
+struct IndentationLevel {
     let value: Int
 
     init(_ value: Int) {
@@ -65,12 +65,12 @@ struct IndentationLevel: Equatable {
     }
 }
 
-struct SidebarDraggedItem: Equatable, Codable, Hashable {
+struct SidebarDraggedItem<ItemID: Hashable> {
     // directly dragged
-    var current: SidebarListItemId
+    var current: ItemID
 
     // layers dragged along as part of children or which were otherwise explcitly-selected etc.
-    var draggedAlong: SidebarListItemIdSet
+    var draggedAlong: Set<ItemID>
 }
 
 typealias SidebarListItems = [SidebarListItem]
