@@ -59,7 +59,7 @@ extension LayerInputTypeSet {
     // LayerGroup only?
     @MainActor
     static let paddingAndSpacing: LayerInputTypeSet = [
-        .padding,
+//        .padding,
         .spacing
     ]
     
