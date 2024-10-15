@@ -65,18 +65,18 @@ struct SidebarListItemGestureRecognizerView<T: View>: UIViewControllerRepresenta
         trackpadPanGesture.delegate = delegate
         vc.view.addGestureRecognizer(trackpadPanGesture)
 
-        let tapGesture = UITapGestureRecognizer(
-            target: delegate,
-            action: #selector(delegate.tapInView))
-        tapGesture.delegate = delegate
-        vc.view.addGestureRecognizer(tapGesture)
+//        let tapGesture = UITapGestureRecognizer(
+//            target: delegate,
+//            action: #selector(delegate.tapInView))
+//        tapGesture.delegate = delegate
+//        vc.view.addGestureRecognizer(tapGesture)
         
-        // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
-        #if targetEnvironment(macCatalyst)
-        // We define the
-        let interaction = UIContextMenuInteraction(delegate: delegate)
-        vc.view.addInteraction(interaction)
-        #endif
+//        // Use a UIKit UIContextMenuInteraction so that we can detect when contextMenu opens
+//        #if targetEnvironment(macCatalyst)
+//        // We define the
+//        let interaction = UIContextMenuInteraction(delegate: delegate)
+//        vc.view.addInteraction(interaction)
+//        #endif
         
         vc.delegate = delegate
         return vc
