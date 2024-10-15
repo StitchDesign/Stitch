@@ -14,58 +14,29 @@ struct SidebarListItemLeftLabelView: View {
     
     let name: String
     let layer: Layer
-    let nodeId: LayerNodeId // debug
+//    let nodeId: LayerNodeId // debug
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
-    let isHidden: Bool
+//    let isHidden: Bool
     let isBeingEdited: Bool
     let isGroup: Bool
     let isClosed: Bool
    
     @State private var isBeingEditedAnimated = false
-        
-    // TODO: perf: will this GraphState-reading computed variable cause SidebarListItemLeftLabelView to render too often?
     
-    // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
-    @MainActor
-    var masks: Bool {
-        
-        // TODO: why is this not animated? and why does it jitter?
-//        // index of this layer
-//        guard let index = graph.sidebarListState.masterList.items
-//            .firstIndex(where: { $0.id.asLayerNodeId == nodeId }) else {
-//            return withAnimation { false }
-//        }
+    // TODO: debug names
+//    var _name: String {
+////        return name
 //        
-//        // hasSidebarLayerImmediatelyAbove
-//        guard graph.sidebarListState.masterList.items[safe: index - 1].isDefined else {
-//            return withAnimation { false }
-//        }
-//        
-        let atleastOneIndexMasks = graph
-            .getLayerNode(id: nodeId.id)?
-            .layerNode?.masksPort.allLoopedValues
-            .contains(where: { $0.getBool ?? false })
-        ?? false
-        
-        return withAnimation {
-            atleastOneIndexMasks
-        }
-    }
-    
-    
-    var _name: String {
-//        return name
-        
-#if DEV_DEBUG
-        name + " \(nodeId.id.debugFriendlyId)"
-#else
-        name
-#endif
-    }
+//#if DEV_DEBUG
+//        name + " \(nodeId.id.debugFriendlyId)"
+//#else
+//        name
+//#endif
+//    }
     
     var body: some View {
         HStack(spacing: 4) {
@@ -74,7 +45,7 @@ struct SidebarListItemLeftLabelView: View {
                 SidebarListItemChevronView(isClosed: isClosed,
                                            parentId: nodeId,
                                            fontColor: fontColor,
-                                           isHidden: isHidden)
+//                                           isHidden: isHidden)
                 .opacity(isGroup ? 1 : 0)
                 // .border(.green)
 //            }

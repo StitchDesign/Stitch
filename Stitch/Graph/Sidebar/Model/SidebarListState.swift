@@ -11,23 +11,23 @@ import StitchSchemaKit
 
 // // MARK: DATA
 
-struct SidebarListState: Equatable, Hashable {
-    var masterList: SidebarListItemsCoordinator
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
-    var cursorDrag: SidebarCursorHorizontalDrag?
-
-    // empty initialization
-    init(_ masterList: MasterList = MasterList([]),
-         _ current: SidebarDraggedItem? = nil,
-         _ proposedGroup: ProposedGroup? = nil,
-         _ cursorDrag: SidebarCursorHorizontalDrag? = nil) {
-        self.masterList = masterList
-        self.current = current
-        self.proposedGroup = proposedGroup
-        self.cursorDrag = cursorDrag
-    }
-}
+//struct SidebarListState {
+//    var masterList: SidebarListItemsCoordinator
+//    var current: SidebarDraggedItem?
+//    var proposedGroup: ProposedGroup?
+//    var cursorDrag: SidebarCursorHorizontalDrag?
+//
+//    // empty initialization
+//    init(_ masterList: MasterList = MasterList([]),
+//         _ current: SidebarDraggedItem? = nil,
+//         _ proposedGroup: ProposedGroup? = nil,
+//         _ cursorDrag: SidebarCursorHorizontalDrag? = nil) {
+//        self.masterList = masterList
+//        self.current = current
+//        self.proposedGroup = proposedGroup
+//        self.cursorDrag = cursorDrag
+//    }
+//}
 
 // if nil, then the 'proposed group' is top level
 // and xIdentation = 0

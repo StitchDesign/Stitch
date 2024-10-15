@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
     @Bindable var graph: GraphState
-    
-    @State var gestureViewModel: GestureViewModel
+    @Bindable var sidebarViewModel: GestureViewModel.SidebarViewModel
+    @Bindable var gestureViewModel: GestureViewModel
 
     var item: GestureViewModel.Item
     
@@ -101,6 +101,7 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
         GeometryReader { geometry in
             SidebarListItemSwipeInnerView(
                 graph: graph,
+                sidebarViewModel: sidebarViewModel,
                 item: item,
                 name: name,
 //                layer: layer,

@@ -9,19 +9,19 @@ import SwiftUI
 import StitchSchemaKit
 import GameController
 
-struct SidebarListItemView: View {
+struct SidebarListItemView<SidebarItemViewModel>: View where SidebarItemViewModel: SidebarItemSwipable {
 
-    @Environment(\.appTheme) var theme
+    @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
     
     @EnvironmentObject var keyboardObserver: KeyboardObserver
     
-    var item: SidebarListItem
+    var item: SidebarItemViewModel.Item
     let name: String
-    let layer: Layer
-    var current: SidebarDraggedItem?
-    var proposedGroup: ProposedGroup?
+//    let layer: Layer
+    var current: SidebarDraggedItem<SidebarItemViewModel.Item.ID>?
+    var proposedGroup: ProposedGroup<SidebarItemViewModel.Item.ID>?
     var isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
@@ -29,7 +29,7 @@ struct SidebarListItemView: View {
     
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
-    let isHidden: Bool
+//    let isHidden: Bool
 
     let swipeOffset: CGFloat
 
@@ -64,11 +64,11 @@ struct SidebarListItemView: View {
             SidebarListItemLeftLabelView(
                 graph: graph,
                 name: name,
-                layer: layer,
+//                layer: layer,
                 nodeId: layerNodeId,
                 fontColor: fontColor,
                 selection: selection,
-                isHidden: isHidden,
+//                isHidden: isHidden,
                 isBeingEdited: isBeingEdited,
                 isGroup: item.isGroup,
                 isClosed: isClosed)

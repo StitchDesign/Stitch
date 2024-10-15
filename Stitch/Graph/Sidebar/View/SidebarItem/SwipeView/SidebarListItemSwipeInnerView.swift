@@ -9,17 +9,18 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeInnerView<GestureViewModel>: View where GestureViewModel: SidebarItemSwipable {
+struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarItemViewModel: SidebarItemSwipable {
     
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
+    @Bindable var sidebarViewModel: SidebarItemViewModel.SidebarViewModel
     
-    var item: GestureViewModel.Item
+    var item: SidebarItemViewModel.Item
     let name: String
 //    let layer: Layer
-    var current: SidebarDraggedItem<GestureViewModel.Item.ID>?
-    var proposedGroup: ProposedGroup<GestureViewModel.Item.ID>?
+    var current: SidebarDraggedItem<SidebarItemViewModel.Item.ID>?
+    var proposedGroup: ProposedGroup<SidebarItemViewModel.Item.ID>?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
@@ -28,94 +29,26 @@ struct SidebarListItemSwipeInnerView<GestureViewModel>: View where GestureViewMo
     
     // The actual rendered distance for the swipe distance
     @State var swipeX: CGFloat = 0
-    @Bindable var gestureViewModel: GestureViewModel
+    @Bindable var gestureViewModel: SidebarItemViewModel
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
-    var itemIndent: CGFloat { item.location.x }
-    
-    @MainActor
-    var isHidden: Bool {
-        graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
-    }
+    var itemIndent: CGFloat { gestureViewModel.location.x }
     
     var fontColor: Color {
-        
-        #if DEV_DEBUG
-        if isHidden {
-            return .purple
-        }
-        #endif
-        
-        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
-        if isNonEditModeSelected {
-#if DEV_DEBUG
-            return .red
-#else
-            return .white
-#endif
-        }
-        
-#if DEV_DEBUG
-        // Easier to see secondary selections for debug
-        //        return selection.color(isHidden)
-        
-        switch selection {
-        case .primary:
-            return .brown
-        case .secondary:
-            return .green
-        case .none:
-            return .blue
-        }
-        
-#endif
-        
-        if isBeingEdited || isHidden {
-            return selection.color(isHidden)
-        } else {
-            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
-            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
-        }
-        
+        self.gestureViewModel.fontColor
     }
     
-    var layerNodeId: LayerNodeId {
-        item.id.asLayerNodeId
-    }
+//    var layerNodeId: LayerNodeId {
+//        item.id.asLayerNodeId
+//    }
     
     var isBeingDragged: Bool {
         current.map { $0.current == item.id } ?? false
     }
     
-    var isNonEditModeFocused: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
-    }
-    
-    var isNonEditModeActivelySelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
-    }
-    
-    var isNonEditModeSelected: Bool {
-        isNonEditModeFocused || isNonEditModeActivelySelected
-    }
-    
     var isImplicitlyDragged: Bool {
-        graph.sidebarSelectionState.implicitlyDragged.contains(item.id)
-    }
-    
-    var useHalfOpacityBackground: Bool {
-        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
-    }
-    
-    var backgroundOpacity: CGFloat {
-        if isImplicitlyDragged {
-            return 0.5
-        } else if (isNonEditModeFocused || isBeingDragged) {
-            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
-        } else {
-            return 0
-        }
+        self.sidebarViewModel.implicitlyDragged.contains(item.id)
     }
     
     var body: some View {
@@ -126,14 +59,14 @@ struct SidebarListItemSwipeInnerView<GestureViewModel>: View where GestureViewMo
                 SidebarListItemView(graph: graph,
                                     item: item,
                                     name: name,
-                                    layer: layer,
+//                                    layer: layer,
                                     current: current,
                                     proposedGroup: proposedGroup,
                                     isClosed: isClosed,
                                     fontColor: fontColor,
                                     selection: selection,
                                     isBeingEdited: isBeingEdited,
-                                    isHidden: isHidden,
+//                                    isHidden: isHidden,
                                     swipeOffset: swipeX)
                 .padding(.leading, itemIndent + 5)
                 .background {

@@ -23,12 +23,14 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.SidebarListItemId {
+protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.ItemID {
     associatedtype Item: Identifiable
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
     
     var item: Item { get }
+    
+    var name: String { get set }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
@@ -43,6 +45,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     var sidebarDelegate: SidebarViewModel? { get }
     
     var location: CGPoint { get }
+    
+    var fontColor: Color { get }
     
     @MainActor
     func sidebarItemTapped(id: Item.ID,
@@ -277,8 +281,111 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    var layerNodeId: LayerNodeId {
+        item.id.asLayerNodeId
+    }
+    
     var location: CGPoint {
         self.item.location
+    }
+    
+    var isNonEditModeFocused: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+    }
+    
+    var isNonEditModeActivelySelected: Bool {
+        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+    }
+    
+    var isNonEditModeSelected: Bool {
+        isNonEditModeFocused || isNonEditModeActivelySelected
+    }
+    
+    var backgroundOpacity: CGFloat {
+        if isImplicitlyDragged {
+            return 0.5
+        } else if (isNonEditModeFocused || isBeingDragged) {
+            return (isNonEditModeFocused && !isNonEditModeActivelySelected) ? 0.5 : 1
+        } else {
+            return 0
+        }
+    }
+    
+    var useHalfOpacityBackground: Bool {
+        isImplicitlyDragged || (isNonEditModeFocused && !isNonEditModeActivelySelected)
+    }
+    
+    @MainActor
+    var isHidden: Bool {
+        self.graphDelegate?.getVisibilityStatus(for: item.id.asNodeId) != .visible
+    }
+    
+    var fontColor: Color {
+        guard let graph = self.graphDelegate else { return .white }
+        
+#if DEV_DEBUG
+        if isHidden {
+            return .purple
+        }
+#endif
+        
+        // Any 'focused' (doesn't have to be 'actively selected') layer uses white text
+        if isNonEditModeSelected {
+#if DEV_DEBUG
+            return .red
+#else
+            return .white
+#endif
+        }
+        
+#if DEV_DEBUG
+        // Easier to see secondary selections for debug
+        //        return selection.color(isHidden)
+        
+        switch selection {
+        case .primary:
+            return .brown
+        case .secondary:
+            return .green
+        case .none:
+            return .blue
+        }
+        
+#endif
+        
+        if isBeingEdited || isHidden {
+            return selection.color(isHidden)
+        } else {
+            // i.e. if we are not in edit mode, do NOT show secondarily-selected layers (i.e. children of a primarily-selected parent) as gray
+            return SIDE_BAR_OPTIONS_TITLE_FONT_COLOR
+        }
+    }
+    
+    // TODO: should we only show the arrow icon when we have a sidebar layer immediately above?
+    @MainActor
+    var masks: Bool {
+        
+        // TODO: why is this not animated? and why does it jitter?
+//        // index of this layer
+//        guard let index = graph.sidebarListState.masterList.items
+//            .firstIndex(where: { $0.id.asLayerNodeId == nodeId }) else {
+//            return withAnimation { false }
+//        }
+//
+//        // hasSidebarLayerImmediatelyAbove
+//        guard graph.sidebarListState.masterList.items[safe: index - 1].isDefined else {
+//            return withAnimation { false }
+//        }
+//
+        let atleastOneIndexMasks = graph
+            .getLayerNode(id: nodeId.id)?
+            .layerNode?.masksPort.allLoopedValues
+            .contains(where: { $0.getBool ?? false })
+        ?? false
+        
+        return withAnimation {
+            atleastOneIndexMasks
+        }
     }
     
     @MainActor

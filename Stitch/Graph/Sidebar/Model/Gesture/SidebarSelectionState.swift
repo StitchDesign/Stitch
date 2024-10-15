@@ -65,7 +65,7 @@ struct SidebarSelectionState: Codable, Equatable, Hashable {
     var optionDragInProgress: Bool = false 
     
     // non-empty only during active layer drag (multi-drag only?)
-    var implicitlyDragged = SidebarListItemIdSet()
+//    var implicitlyDragged = SidebarListItemIdSet()
     
     // Layers focused in the inspector
     var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
