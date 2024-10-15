@@ -27,7 +27,6 @@ struct GeneratePreview: View {
                           parentSize: document.previewWindowSize,
                           parentId: nil,
                           parentOrientation: .none,
-                          parentPadding: .zero,
                           parentSpacing: .zero,
                           parentCornerRadius: 0,
                           parentUsesHug: false,
@@ -41,7 +40,6 @@ struct GeneratePreview: View {
                               parentSize: document.previewWindowSize,
                               parentId: nil,
                               parentOrientation: .none,
-                              parentPadding: .zero,
                               parentSpacing: .zero,
                               parentCornerRadius: 0,
                               parentUsesHug: false,
@@ -78,10 +76,7 @@ struct PreviewLayersView: View {
     
     // Are we a ZStack, an HStack, a VStack or an Adaptive Grid?
     var parentOrientation: StitchOrientation // = .none
-    
-    // Padding on the children overall
-    var parentPadding: StitchPadding // = .init()
-    
+        
     // Spacing between the children; N/A for ZStack
     var parentSpacing: StitchSpacing // = .defaultStitchSpacing
     
@@ -164,10 +159,6 @@ struct PreviewLayersView: View {
             ZStack {
                 // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
                 orientationFromParent
-                    .padding(.top, parentPadding.top)
-                    .padding(.bottom, parentPadding.bottom)
-                    .padding(.leading, parentPadding.left)
-                    .padding(.trailing, parentPadding.right)
 
                 ForEach(pinsInOrientationView) { layerData in
                     LayerDataView(document: document,

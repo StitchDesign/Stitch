@@ -243,7 +243,7 @@ extension LayerInspectorView {
         
         .orientation,
         
-        .padding,
+//        .padding,
         .spacing, // added
         
         // Grid
