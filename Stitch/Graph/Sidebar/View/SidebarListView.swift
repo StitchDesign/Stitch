@@ -245,17 +245,33 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 
 // TODO: move
 protocol ProjectSidebarObservable: AnyObject, Observable {
-    associatedtype ItemID: Hashable
+    associatedtype ItemViewModel: SidebarItemSwipable
+    typealias ItemData = ItemViewModel.Item
+    typealias ItemID = ItemData.ID
     
     init()
+    var items: [ItemViewModel] { get set }
+    // the [parentId: child-ids] that are not currently shown
+    var excludedGroups: ExcludedGroups<ItemData> { get set }
+
+    // groups currently opened or closed;
+    // an item's id is added when its group closed,
+    // removed when its group opened;
+    // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
+    var collapsedGroups: Set<ItemID> { get set }
+    
+    var selectionState: SidebarSelectionState { get set }
+
     var activeSwipeId: ItemID? { get set }
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
-    var currentItemDragged: SidebarDraggedItem<ItemId>?
+    var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
 }
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
+    let selectionState = SidebarSelectionState()
+    
     var activeSwipeId: SidebarListItemId?
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()

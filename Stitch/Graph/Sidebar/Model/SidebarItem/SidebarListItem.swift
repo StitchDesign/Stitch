@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
-struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
+struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
     let id: SidebarListItemId
     let layer: LayerNodeTitle
     var location: CGPoint
@@ -33,15 +33,22 @@ struct SidebarListItem: Equatable, Codable, Hashable, Identifiable {
         self.isGroup = isGroup
     }
 
-    // this item's index
-    func itemIndex(_ items: SidebarListItems) -> Int {
-        items.firstIndex { $0.id == self.id }!
-    }
-
     // use previousLocation, which is not changed during drag,
     // to know the item's indentation before being dragged.
     var indentationLevel: IndentationLevel {
         IndentationLevel.fromXLocation(x: self.previousLocation.x)
+    }
+}
+
+extension Identifiable {
+    // this item's index
+    func itemIndex(_ items: [Self]) -> Int {
+        guard let index = items.firstIndex { $0.id == self.id } else {
+            fatalErrorIfDebug()
+            return -1
+        }
+        
+        return index
     }
 }
 

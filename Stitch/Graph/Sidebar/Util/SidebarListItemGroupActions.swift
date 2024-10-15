@@ -33,14 +33,14 @@ extension GraphState {
     func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        guard let closedParent = retrieveItem(closedParentId.asItemId,
-                                              self.sidebarListState.masterList.items) else {
+        guard let closedParent = retrieveItem(closedParentId.asItemId.id,
+                                              self.orderedSidebarLayers.getFlattenedList()) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
         
         let descendants = Stitch.getDescendants(closedParent,
-                                                self.sidebarListState.masterList.items)
+                                                self.orderedSidebarLayers.getFlattenedList())
         
         for childen in descendants {
             self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(childen.id.asLayerNodeId)

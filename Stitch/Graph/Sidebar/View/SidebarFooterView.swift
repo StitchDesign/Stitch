@@ -79,12 +79,15 @@ struct DisabledButtonModifier: ViewModifier {
     }
 }
 
-struct SidebarFooterButtonsView: View {
-    
+struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    @Bindable var sidebarViewModel: SidebarViewModel
     let groups: SidebarGroupsDict
-    let selections: SidebarSelectionState
     let isBeingEdited: Bool
     let layerNodes: LayerNodesForSidebarDict
+
+    var selections: SidebarSelectionState {
+        self.sidebarViewModel.selectionState
+    }
     
     var body: some View {
         let allButtonsDisabled = selections.all.isEmpty

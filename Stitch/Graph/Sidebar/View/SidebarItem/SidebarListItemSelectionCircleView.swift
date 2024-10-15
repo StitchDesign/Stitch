@@ -10,8 +10,8 @@ import StitchSchemaKit
 
 struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwipable {
     
-    static let SELECTION_CIRCLE_SELECTED = "circle.inset.filled"
-    static let SELECTION_CIRCLE = "circle"
+    private let SELECTION_CIRCLE_SELECTED = "circle.inset.filled"
+    private let SELECTION_CIRCLE = "circle"
 
     @Bindable var item: Item
     
@@ -23,8 +23,8 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
         
     var iconName: String {
         selection.isSelected
-              ? Self.SELECTION_CIRCLE_SELECTED
-              : Self.SELECTION_CIRCLE
+              ? self.SELECTION_CIRCLE_SELECTED
+              : self.SELECTION_CIRCLE
     }
     
     var body: some View {

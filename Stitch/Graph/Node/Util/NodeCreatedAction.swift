@@ -93,16 +93,17 @@ extension StitchDocumentViewModel {
                 node.layerNode?.isExpandedInSidebar = true
             }
             
-            self.visibleGraph.sidebarListState = getMasterListFrom(
-                layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
-                expanded: self.visibleGraph.getSidebarExpandedItems(),
-                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
-            
-            // TODO: why is this necessary?
-            _updateStateAfterListChange(
-                updatedList: self.visibleGraph.sidebarListState,
-                expanded: self.visibleGraph.getSidebarExpandedItems(),
-                graphState: self.visibleGraph)
+            // TODO: revisit node created
+//            self.visibleGraph.sidebarListState = getMasterListFrom(
+//                layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
+//                expanded: self.visibleGraph.getSidebarExpandedItems(),
+//                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
+//            
+//            // TODO: why is this necessary?
+//            _updateStateAfterListChange(
+//                updatedList: self.visibleGraph.sidebarListState,
+//                expanded: self.visibleGraph.getSidebarExpandedItems(),
+//                graphState: self.visibleGraph)
         }
         
         node.initializeDelegate(graph: self.visibleGraph,

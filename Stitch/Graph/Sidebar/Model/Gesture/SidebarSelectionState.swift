@@ -10,8 +10,8 @@ import StitchSchemaKit
 import OrderedCollections
 
 typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
-typealias SidebarSelections = LayerIdSet
-typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
+//typealias SidebarSelections = LayerIdSet
+//typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
 extension LayerIdSet {
     var asSidebarListItemIdSet: SidebarListItemIdSet {
@@ -54,7 +54,8 @@ extension SidebarSelections {
 }
 
 // if a group is selected,
-struct SidebarSelectionState: Codable, Equatable, Hashable {
+final class SidebarSelectionState<ItemID: Hashable> {
+    typealias SidebarSelections = Set<ItemID>
     
     var isEditMode: Bool = false
     
@@ -80,21 +81,21 @@ struct SidebarSelectionState: Codable, Equatable, Hashable {
         primary.union(secondary)
     }
 
-    var nonEmptyPrimary: NonEmptySidebarSelections? {
-        self.primary.nonEmptyPrimary
-    }
+//    var nonEmptyPrimary: SidebarSelections? {
+//        self.primary.nonEmptyPrimary
+//    }
 
     func isSelected(_ id: LayerNodeId) -> Bool {
         all.contains(id)
     }
 
-    mutating func resetEditModeSelections() {
+    func resetEditModeSelections() {
         self.primary = SidebarSelections()
         self.secondary = SidebarSelections()
     }
 
     // better
-    mutating func combine(other: SidebarSelectionState) {
+    func combine(other: SidebarSelectionState) {
         self.primary = self.primary.union(other.primary)
         self.secondary = self.secondary.union(other.secondary)
     }

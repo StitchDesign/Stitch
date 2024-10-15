@@ -329,8 +329,8 @@ func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
     }
 }
 
-func retrieveItem(_ id: SidebarListItemId,
-                  _ items: SidebarListItems) -> SidebarListItem? {
+func retrieveItem<Element>(_ id: Element.ID,
+                           _ items: [Element]) -> Element? where Element: Identifiable {
     items.first { $0.id == id }
 }
 

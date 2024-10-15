@@ -109,9 +109,9 @@ func getImplicitlyDragged(items: SidebarListItems,
     }
 }
 
-extension GraphState {
+extension ProjectSidebarObservable {
     @MainActor
-    func sidebarListItemDragged(itemId: SidebarListItemId,
+    func sidebarListItemDragged(itemId: Self.ItemID,
                                 translation: CGSize) {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
@@ -125,7 +125,7 @@ extension GraphState {
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
-        if state.sidebarSelectionState.optionDragInProgress {
+        if state.optionDragInProgress {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             

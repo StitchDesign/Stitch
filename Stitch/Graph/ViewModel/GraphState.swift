@@ -22,9 +22,9 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    // TODO: wrap in a new data structure like `SidebarUIState`
-    var sidebarListState: SidebarListState = .init()
-    var sidebarSelectionState = SidebarSelectionState()
+
+//    var sidebarListState: SidebarListState = .init()
+//    var sidebarSelectionState = SidebarSelectionState()
 
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME

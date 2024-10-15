@@ -16,11 +16,11 @@ extension ProjectSidebarObservable {
     // you're just updating a single item
     // but need to update all the descendants as well?
     @MainActor
-    static func moveSidebarListItemIntoGroup(_ item: ItemID,
-                                             _ items: [ItemID],
-                                             otherSelections: Set<ItemID>,
-                                             draggedAlong: Set<ItemID>,
-                                             _ proposedGroup: ProposedGroup<ItemID>) -> [ItemID] {
+    static func moveSidebarListItemIntoGroup(_ item: [ItemData],
+                                             _ items: [ItemData],
+                                             otherSelections: Set<ItemData.ID>,
+                                             draggedAlong: Set<ItemData.ID>,
+                                             _ proposedGroup: ProposedGroup<ItemData.ID>) -> [ItemData] {
         
         let newParent = proposedGroup.parentId
         
@@ -28,7 +28,7 @@ extension ProjectSidebarObservable {
         
         // Every explicitly dragged item gets the new parent
         for otherSelection in ([item.id] + otherSelections) {
-            guard var otherItem = retrieveItem(otherSelection, items) else {
+            guard var otherItem = items.first(where: { $0.id == otherSelection }) else {
                 fatalErrorIfDebug("Could not retrieve item")
                 continue
             }
@@ -80,41 +80,43 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
 
 }
 
-@MainActor
-func maybeSnapDescendants(_ item: SidebarListItem,
-                          _ items: SidebarListItems,
-                          draggedAlong: SidebarListItemIdSet,
-                          // the indentation level from the proposed group
-                          // (if top level then = 0)
-                          startingIndentationLevel: IndentationLevel) -> SidebarListItems {
-
-    log("maybeSnapDescendants: item at start: \(item)")
-
-    let descendants = items.filter { draggedAlong.contains($0.id) }
-
-    if descendants.isEmpty {
-        log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
+extension ProjectSidebarObservable {
+    @MainActor
+    static func maybeSnapDescendants(_ item: ItemData,
+                                     _ items: [ItemData],
+                                     draggedAlong: Set<ItemID>,
+                                     // the indentation level from the proposed group
+                                     // (if top level then = 0)
+                                     startingIndentationLevel: IndentationLevel) -> [ItemData] {
+        
+        log("maybeSnapDescendants: item at start: \(item)")
+        
+        let descendants = items.filter { draggedAlong.contains($0.id) }
+        
+        if descendants.isEmpty {
+            log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
+            return items
+        }
+        
+        let indentDiff: Int = startingIndentationLevel.value - item.indentationLevel.value
+        
+        var items = items
+        
+        for child in descendants {
+            var child = child
+            let childExistingIndent = child.indentationLevel.value
+            let newIndent = childExistingIndent + indentDiff
+            let finalChildIndent = IndentationLevel(newIndent)
+            child = setXLocationByIndentation(child, finalChildIndent)
+            items = updateSidebarListItem(child, items)
+        }
+        
         return items
     }
-
-    let indentDiff: Int = startingIndentationLevel.value - item.indentationLevel.value
-
-    var items = items
-
-    for child in descendants {
-        var child = child
-        let childExistingIndent = child.indentationLevel.value
-        let newIndent = childExistingIndent + indentDiff
-        let finalChildIndent = IndentationLevel(newIndent)
-        child = setXLocationByIndentation(child, finalChildIndent)
-        items = updateSidebarListItem(child, items)
-    }
-
-    return items
 }
 
-func setXLocationByIndentation(_ item: SidebarListItem,
-                               _ indentationLevel: IndentationLevel) -> SidebarListItem {
+func setXLocationByIndentation<Element>(_ item: Element,
+                                        _ indentationLevel: IndentationLevel) -> Element where Element: SidebarItemData {
     var item = item
     item.location.x = indentationLevel.toXLocation
     return item
@@ -406,8 +408,8 @@ func proposeGroup(_ item: SidebarListItem, // the moved-item
 }
 
 @MainActor
-func updateSidebarListItem(_ item: SidebarListItem,
-                           _ items: SidebarListItems) -> SidebarListItems {
+func updateSidebarListItem<Element>(_ item: Element,
+                                    _ items: [Element]) -> [Element] where Element: Identifiable {
     let index = item.itemIndex(items)
     var items = items
     items[index] = item

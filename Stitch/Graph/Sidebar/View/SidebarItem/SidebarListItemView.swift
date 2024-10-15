@@ -9,7 +9,7 @@ import SwiftUI
 import StitchSchemaKit
 import GameController
 
-struct SidebarListItemView<SidebarItemViewModel>: View where SidebarItemViewModel: SidebarItemSwipable {
+struct SidebarListItemView<ItemData>: View where ItemData: SidebarItemData {
 
     @Environment(\.appTheme) private var theme
     
@@ -17,11 +17,11 @@ struct SidebarListItemView<SidebarItemViewModel>: View where SidebarItemViewMode
     
     @EnvironmentObject var keyboardObserver: KeyboardObserver
     
-    var item: SidebarItemViewModel.Item
+    var item: ItemData
     let name: String
 //    let layer: Layer
-    var current: SidebarDraggedItem<SidebarItemViewModel.Item.ID>?
-    var proposedGroup: ProposedGroup<SidebarItemViewModel.Item.ID>?
+    var current: SidebarDraggedItem<ItemData.ID>?
+    var proposedGroup: ProposedGroup<ItemData.ID>?
     var isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status

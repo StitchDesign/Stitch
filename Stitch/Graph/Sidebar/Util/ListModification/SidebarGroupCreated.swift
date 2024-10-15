@@ -11,25 +11,29 @@ import SwiftUI
 
 // when a sidebar group is created from a selection of sidebar items,
 // we should insert the group at the location of the
-struct SidebarGroupCreated: StitchDocumentEvent {
-
-    func handle(state: StitchDocumentViewModel) {
+extension ProjectSidebarObservable {
+    func sidebarGroupCreated() {
         log("SidebarGroupCreated called")
+        
+        guard let graph = self.graphDelegate,
+              let state = graph.documentDelegate else {
+            return
+        }
         
         // Create node view model for the new Layer Group
         
         let newNode = Layer.group.layerGraphNode.createViewModel(
             position: state.newNodeCenterLocation,
-            zIndex: state.visibleGraph.highestZIndex + 1,
-            graphDelegate: state.visibleGraph)
+            zIndex: graph.highestZIndex + 1,
+            graphDelegate: graph)
         
-        let primarilySelectedLayers = state.visibleGraph.sidebarSelectionState.primary.map { $0.asNodeId }.toSet
+        let primarilySelectedLayers = self.selectionState.primary.map { $0.asNodeId }.toSet
         
         // Are any of these selections already part of a group?
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
-        let existingParentForSelections = state.visibleGraph.layerGroupForSelections(primarilySelectedLayers)
+        let existingParentForSelections = graph.layerGroupForSelections(primarilySelectedLayers)
         
-        guard let newGroupData = state.visibleGraph.orderedSidebarLayers
+        guard let newGroupData = graph.orderedSidebarLayers
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {
@@ -38,13 +42,13 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         }
         
 //        newNode.adjustPosition(center: state.newNodeCenterLocation)
-        newNode.graphDelegate = state.visibleGraph // redundant?
+        newNode.graphDelegate = graph // redundant?
                 
         // Add to state
         state.nodeCreated(node: newNode)
             
         // Update sidebar state
-        state.visibleGraph.orderedSidebarLayers.insertGroup(group: newGroupData,
+        graph.orderedSidebarLayers.insertGroup(group: newGroupData,
                                                selections: primarilySelectedLayers)
         
         newNode.layerNode?.layerGroupId = existingParentForSelections
@@ -55,18 +59,18 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // Iterate through primarly selected layers,
         // assigning new LG as their layerGoupId.
         primarilySelectedLayers.forEach { layerId in
-            if let layerNode = state.visibleGraph.getLayerNode(id: layerId)?.layerNode {
+            if let layerNode = graph.getLayerNode(id: layerId)?.layerNode {
                 layerNode.layerGroupId = newNode.id
             }
         }
         
         // Update legacy state
-        state.visibleGraph.updateSidebarListStateAfterStateChange()
+        graph.updateSidebarListStateAfterStateChange()
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
-        if state.graph.sidebarSelectionState.isEditMode {
+        if self.selectionState.isEditMode {
             // Reset selections
-            state.visibleGraph.sidebarSelectionState.resetEditModeSelections()
+            self.selectionState.resetEditModeSelections()
         }
 
         
@@ -74,9 +78,9 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         
         // TODO: adjust position of children
         // TODO: determine real size of just-created LayerGroup
-        let groupFit: LayerGroupFit = state.visibleGraph.getLayerGroupFit(
+        let groupFit: LayerGroupFit = graph.getLayerGroupFit(
             primarilySelectedLayers,
-            parentSize: state.visibleGraph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
+            parentSize: graph.getParentSizeForSelectedNodes(selectedNodes: primarilySelectedLayers))
 
         // TODO: any reason to not use .auto x .auto for a nearly created group? ... perhaps for .background, which can become too big in a group whose children use .position modifiers?
         // TODO: how important is the LayerGroupFit.adjustment/offset etc. ?
@@ -86,7 +90,7 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
                 
-        state.visibleGraph.persistNewNode(newNode)
+        graph.persistNewNode(newNode)
     }
 }
 

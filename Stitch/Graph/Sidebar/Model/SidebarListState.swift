@@ -41,7 +41,7 @@ struct ProposedGroup<ItemId> {
     }
 }
 
-struct IndentationLevel {
+struct IndentationLevel: Equatable {
     let value: Int
 
     init(_ value: Int) {
@@ -76,30 +76,30 @@ struct SidebarDraggedItem<ItemID: Hashable> {
 typealias SidebarListItems = [SidebarListItem]
 
 // parentId: [children in order]
-typealias ExcludedGroups = [SidebarListItemId: SidebarListItems]
+typealias ExcludedGroups<SidebarItemData> = [SidebarItemData.ID: [SidebarItemData]]
 typealias SidebarListItemIdSet = Set<SidebarListItemId>
 typealias CollapsedGroups = SidebarListItemIdSet
 
 // TODO: better name or abstraction here?
-struct SidebarListItemsCoordinator: Codable, Equatable, Hashable {
-    var items: SidebarListItems
-    // the [parentId: child-ids] that are not currently shown
-    var excludedGroups: ExcludedGroups
-
-    // groups currently opened or closed;
-    // an item's id is added when its group closed,
-    // removed when its group opened;
-    // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
-    var collapsedGroups: SidebarListItemIdSet
-
-    init(_ items: SidebarListItems,
-         _ excludedGroups: ExcludedGroups = ExcludedGroups(),
-         _ collapsedGroups: SidebarListItemIdSet = SidebarListItemIdSet()) {
-        self.items = items
-        self.excludedGroups = excludedGroups
-        self.collapsedGroups = collapsedGroups
-    }
-}
+//struct SidebarListItemsCoordinator: Codable, Equatable, Hashable {
+//    var items: SidebarListItems
+//    // the [parentId: child-ids] that are not currently shown
+//    var excludedGroups: ExcludedGroups
+//
+//    // groups currently opened or closed;
+//    // an item's id is added when its group closed,
+//    // removed when its group opened;
+//    // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
+//    var collapsedGroups: SidebarListItemIdSet
+//
+//    init(_ items: SidebarListItems,
+//         _ excludedGroups: ExcludedGroups = ExcludedGroups(),
+//         _ collapsedGroups: SidebarListItemIdSet = SidebarListItemIdSet()) {
+//        self.items = items
+//        self.excludedGroups = excludedGroups
+//        self.collapsedGroups = collapsedGroups
+//    }
+//}
 
 extension SidebarListItemsCoordinator {
     @MainActor

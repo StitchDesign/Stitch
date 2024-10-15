@@ -23,8 +23,13 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
+protocol SidebarItemData: Identifiable {
+    var parentId: Self.ID? { get set }
+    var location: CGPoint { get set }
+}
+
 protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.ItemID {
-    associatedtype Item: Identifiable
+    associatedtype Item: SidebarItemData
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
     
@@ -43,8 +48,6 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     var editOn: Bool { get set }
     
     var sidebarDelegate: SidebarViewModel? { get }
-    
-    var location: CGPoint { get }
     
     var fontColor: Color { get }
     
@@ -108,6 +111,15 @@ extension SidebarItemSwipable {
         }
         set(newValue) {
             self.sidebarDelegate?.activeSwipeId = newValue
+        }
+    }
+    
+    var location: CGPoint {
+        get {
+            self.item.location
+        }
+        set(newValue) {
+            self.item = newValue
         }
     }
     

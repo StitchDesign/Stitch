@@ -72,12 +72,13 @@ extension GraphState: DocumentEncodableDelegate {
         }
     }
    
+    // TODO: updateSidebarListStateAfterStateChange
     func updateSidebarListStateAfterStateChange() {
-        self.sidebarListState = getMasterListFrom(
-            layerNodes: self.visibleNodesViewModel.layerNodes,
-            // TODO: use real, persisted expanded sidebar items
-            expanded: self.getSidebarExpandedItems(),
-            orderedSidebarItems: self.orderedSidebarLayers)
+//        self.sidebarListState = getMasterListFrom(
+//            layerNodes: self.visibleNodesViewModel.layerNodes,
+//            // TODO: use real, persisted expanded sidebar items
+//            expanded: self.getSidebarExpandedItems(),
+//            orderedSidebarItems: self.orderedSidebarLayers)
     }
 }
 

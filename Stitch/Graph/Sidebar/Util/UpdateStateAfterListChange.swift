@@ -10,75 +10,75 @@ import SwiftUI
 import StitchSchemaKit
 
 // MasterList
-typealias MasterList = SidebarListItemsCoordinator
+//typealias MasterList = SidebarListItemsCoordinator
 
 // e.g. we dragged a sidebar item, and we need to now update the view models (ordered-sidebar-items and layer nodes dict) based on the new SidebarListState
 // should make this function smaller; not take all of graphState but return specific values etc.
-func _updateStateAfterListChange(updatedList: SidebarListState,
-                                 expanded: LayerIdSet,
-                                 graphState: GraphState) {
-
-    let orderedSidebarLayers: SidebarLayerList = graphState.orderedSidebarLayers
-    let layerNodes: NodesViewModelDict = graphState.layerNodes
-    
-    let layerNodeSidebarState: LayerNodesForSidebarDict = .fromLayerNodesDict(
-        nodes: layerNodes,
-        orderedSidebarItems: orderedSidebarLayers)
-
-    // put the update sidebar-list-state in graph state
-    graphState.sidebarListState = updatedList
-    
-    let groups = graphState.getSidebarGroupsDict()
-    
-    // we have an updated sidebarListState;
-    // we need to turn that into an update of the view models: (ordered-sidebar-items, layer nodes dict)
-    
-    let oldDeps = SidebarDeps(
-        layerNodes: layerNodeSidebarState,
-        groups: groups,
-        expandedItems: expanded)
-    
-    // ie list state -> redux state
-    let updatedDeps: SidebarDeps = sidebarListItemsToSidebarDeps(
-        oldDeps,
-        updatedList.masterList)
-
-    let newGroups: SidebarGroupsDict = updatedDeps.groups
-    let newLayerNodesForSidebar: LayerNodesForSidebarDict = updatedDeps.layerNodes
-    
-    
-    // two steps:
-    // 1. update layer nodes' layerGroupId; some layer node may now be part of a different group, or not in a group at alll anymore
-    // 2. update ordered-sidebar-items
-    
-    // step 1:
-    graphState.layerNodes.values.forEach { node in
-//        log("_updateStateAfterListChange: updated layer group parent id for node.id: \(node.id)")
+//func _updateStateAfterListChange(updatedList: SidebarListState,
+//                                 expanded: LayerIdSet,
+//                                 graphState: GraphState) {
 //
-        // TODO: Can skip this check and just assume layerNodes has a `LayerNodeViewModel` ?
-        if node.layerNode.isDefined {
-            
-            // find parent for this layer node, based on new sidebar-groups-dict
-            let groupLayerParent = findGroupLayerParentForLayerNode(node.id.asLayerNodeId,
-                                                                    newGroups)
-            
-            
-            node.layerNode?.layerGroupId = groupLayerParent?.id
-        }
-//        else {
-//            log("_updateStateAfterListChange: wasn't a layer node?")
+//    let orderedSidebarLayers: SidebarLayerList = graphState.orderedSidebarLayers
+//    let layerNodes: NodesViewModelDict = graphState.layerNodes
+//    
+//    let layerNodeSidebarState: LayerNodesForSidebarDict = .fromLayerNodesDict(
+//        nodes: layerNodes,
+//        orderedSidebarItems: orderedSidebarLayers)
+//
+//    // put the update sidebar-list-state in graph state
+//    graphState.sidebarListState = updatedList
+//    
+//    let groups = graphState.getSidebarGroupsDict()
+//    
+//    // we have an updated sidebarListState;
+//    // we need to turn that into an update of the view models: (ordered-sidebar-items, layer nodes dict)
+//    
+//    let oldDeps = SidebarDeps(
+//        layerNodes: layerNodeSidebarState,
+//        groups: groups,
+//        expandedItems: expanded)
+//    
+//    // ie list state -> redux state
+//    let updatedDeps: SidebarDeps = sidebarListItemsToSidebarDeps(
+//        oldDeps,
+//        updatedList.masterList)
+//
+//    let newGroups: SidebarGroupsDict = updatedDeps.groups
+//    let newLayerNodesForSidebar: LayerNodesForSidebarDict = updatedDeps.layerNodes
+//    
+//    
+//    // two steps:
+//    // 1. update layer nodes' layerGroupId; some layer node may now be part of a different group, or not in a group at alll anymore
+//    // 2. update ordered-sidebar-items
+//    
+//    // step 1:
+//    graphState.layerNodes.values.forEach { node in
+////        log("_updateStateAfterListChange: updated layer group parent id for node.id: \(node.id)")
+////
+//        // TODO: Can skip this check and just assume layerNodes has a `LayerNodeViewModel` ?
+//        if node.layerNode.isDefined {
+//            
+//            // find parent for this layer node, based on new sidebar-groups-dict
+//            let groupLayerParent = findGroupLayerParentForLayerNode(node.id.asLayerNodeId,
+//                                                                    newGroups)
+//            
+//            
+//            node.layerNode?.layerGroupId = groupLayerParent?.id
 //        }
-    }
-        
-    // better?: use logic from `GraphSchema.getOrderedLayers` to create SidebarItems from layerNodesForSidebarDict and sidebarGroups, and then turn those SidebarItems into OSIs
-    let newSidebarItems = asSidebarItems(groups: newGroups,
-                                         layerNodes: newLayerNodesForSidebar)
-        
-    let newOrderedSidebarLayers: OrderedSidebarLayers = newSidebarItems.map {  $0.toSidebarLayerData()
-    }
-    
-    graphState.orderedSidebarLayers = newOrderedSidebarLayers
-}
+////        else {
+////            log("_updateStateAfterListChange: wasn't a layer node?")
+////        }
+//    }
+//        
+//    // better?: use logic from `GraphSchema.getOrderedLayers` to create SidebarItems from layerNodesForSidebarDict and sidebarGroups, and then turn those SidebarItems into OSIs
+//    let newSidebarItems = asSidebarItems(groups: newGroups,
+//                                         layerNodes: newLayerNodesForSidebar)
+//        
+//    let newOrderedSidebarLayers: OrderedSidebarLayers = newSidebarItems.map {  $0.toSidebarLayerData()
+//    }
+//    
+//    graphState.orderedSidebarLayers = newOrderedSidebarLayers
+//}
 
 // creates new expandedItem
 // creates new (LayerNodesForSidebarDict, SidebarGroups, ExpandedItems)
