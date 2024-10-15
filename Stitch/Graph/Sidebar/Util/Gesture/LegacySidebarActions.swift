@@ -9,23 +9,16 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemLongPressed: GraphEvent {
-
-    let id: SidebarListItemId
-
-    func handle(state: GraphState) {
-    
-        // log("SidebarListItemLongPressed called: id: \(id)")
-
-        state.sidebarListState.current = SidebarDraggedItem(
+extension GraphState {
+    @MainActor
+    func sidebarListItemLongPressed(id: SidebarListItemId) {
+        self.sidebarListState.current = SidebarDraggedItem(
             current: id,
             // can be empty just because
             // we're first starting the drag
             draggedAlong: SidebarListItemIdSet())
     }
 }
-
-import Foundation
 
 // Function to find the set item whose index in the list is the smallest
 func findSetItemWithSmallestIndex(from set: LayerIdSet,
@@ -116,16 +109,14 @@ func getImplicitlyDragged(items: SidebarListItems,
     }
 }
 
-struct SidebarListItemDragged: GraphEvent {
-
-    let itemId: SidebarListItemId
-    let translation: CGSize
-
-    func handle(state: GraphState) {
+extension GraphState {
+    @MainActor
+    func sidebarListItemDragged(itemId: SidebarListItemId,
+                                translation: CGSize) {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
         
-//        var list = state.sidebarListState
+        let state = self
         
         log("SidebarListItemDragged: state.keypressState.isOptionPressed: \(state.keypressState.isOptionPressed)")
         
@@ -345,14 +336,13 @@ struct SidebarListItemDraggedResult {
     let cursorDrag: SidebarCursorHorizontalDrag
 }
 
-struct SidebarListItemDragEnded: GraphEventWithResponse {
-
-    let itemId: SidebarListItemId
-    
-    func handle(state: GraphState) -> GraphResponse {
+extension GraphState {
+    @MainActor
+    func sidebarListItemDragEnded(itemId: SidebarListItemId) {
     
         log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
+        let state = self
         var itemId = itemId
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
@@ -373,7 +363,7 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         guard let item = item else {
             // if we couldn't find the item, it's been deleted
              log("SidebarListItemDragEnded: item \(itemId) was already deleted")
-            return .noChange
+            return
         }
 
         // if no `current`, then we were just swiping?
@@ -402,7 +392,7 @@ struct SidebarListItemDragEnded: GraphEventWithResponse {
         state.sidebarSelectionState.optionDragInProgress = false
         state.sidebarSelectionState.implicitlyDragged = .init()
     
-        return .persistenceResponse
+        state.encodeProjectInBackground()
     }
 }
 

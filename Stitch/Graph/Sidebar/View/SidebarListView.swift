@@ -179,7 +179,7 @@ struct LayersSidebarView: View {
                         selections)
                     
                     SidebarListItemSwipeView(
-                        graph: $graph,
+                        graph: graph,
                         item: item,
                         name: graph.getNodeViewModel(item.id.asNodeId)?.getDisplayTitle() ?? item.layer.value,
                         layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,

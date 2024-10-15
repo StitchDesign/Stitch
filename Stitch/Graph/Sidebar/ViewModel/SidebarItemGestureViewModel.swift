@@ -36,10 +36,27 @@ protocol SidebarItemSwipable: AnyObject, Observable {
     
     var activeGesture: ActiveGesture { get set }
     
+    var editOn: Bool { get set }
+    
+    var activeSwipeId: Item.ID? { get set }
+    
     @MainActor
     func sidebarItemTapped(id: Item.ID,
                            shiftHeld: Bool,
                            commandHeld: Bool)
+    
+    @MainActor
+    func sidebarListItemDragged(itemId: Item.ID,
+                                translation: CGSize)
+    
+    @MainActor
+    func sidebarListItemDragEnded(itemId: Item.ID)
+    
+    @MainActor
+    func sidebarListItemLongPressed(id: Item.ID)
+    
+    @MainActor
+    func sidebarItemDeleted(itemId: Item.ID)
     
     @MainActor
     func contextMenuInteraction(itemId: Item.ID,
@@ -55,9 +72,9 @@ extension SidebarItemSwipable {
         return { (translation: CGSize) in
             // print("SidebarItemGestureViewModel: itemDragChangedGesture called")
             self.activeGesture = .dragging(self.item.id)
-            dispatch(SidebarListItemDragged(
-                        itemId: self.item.id,
-                        translation: translation))
+            self.sidebarListItemDragged(
+                itemId: self.item.id,
+                translation: translation)
         }
     }
 
@@ -70,7 +87,7 @@ extension SidebarItemSwipable {
                 self.activeGesture = .none
             } else {
                 self.activeGesture = .none
-                dispatch(SidebarListItemDragEnded(itemId: self.item.id))
+                self.sidebarListItemDragEnded(itemId: self.item.id)
             }
         }
     }
@@ -100,7 +117,7 @@ extension SidebarItemSwipable {
         let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
             print("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
             self.activeGesture = .dragging(self.item.id)
-            dispatch(SidebarListItemLongPressed(id: self.item.id))
+            self.sidebarListItemLongPressed(id: self.item.id)
         }
 
         // TODO: Does `minimumDistance` matter?
@@ -163,7 +180,7 @@ extension SidebarItemSwipable {
                 if self.atDefaultActionThreshold {
                     // Don't need to change x position here,
                     // since redOption's offset handles that.
-                    dispatch(SidebarItemDeleted(itemId: self.item.id))
+                    self.sidebarItemDeleted(itemId: self.item.id)
                 } else if self.hasCrossedRestingThreshold {
                     self.swipeSetting = .open
                 }
@@ -229,6 +246,23 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    func sidebarListItemDragged(itemId: SidebarListItemId, translation: CGSize) {
+        <#code#>
+    }
+    
+    func sidebarListItemDragEnded(itemId: SidebarListItemId) {
+        <#code#>
+    }
+    
+    func sidebarListItemLongPressed(id: SidebarListItemId) {
+        <#code#>
+    }
+    
+    func sidebarItemDeleted(itemId: SidebarListItemId) {
+        <#code#>
+    }
+    
+    
     @MainActor
     func sidebarItemTapped(id: SidebarItemGestureViewModel.Item.ID,
                            shiftHeld: Bool,

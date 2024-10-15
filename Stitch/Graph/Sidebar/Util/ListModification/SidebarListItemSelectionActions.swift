@@ -174,14 +174,12 @@ func canDuplicate(_ primarySelections: SidebarSelections) -> Bool {
     !primarySelections.isEmpty
 }
 
-// When an individual sidebar item is deleted via the swipe menu
-struct SidebarItemDeleted: GraphEvent {
-    let itemId: SidebarListItemId
-
-    func handle(state: GraphState) {
-        state.deleteNode(id: itemId.asNodeId)
+extension GraphState {
+    // When an individual sidebar item is deleted via the swipe menu
+    func sidebarItemDeleted(itemId: SidebarListItemId) {
+        self.deleteNode(id: itemId.asNodeId)
                 
-        state.updateGraphData()
-        state.encodeProjectInBackground()
+        self.updateGraphData()
+        self.encodeProjectInBackground()
     }
 }
