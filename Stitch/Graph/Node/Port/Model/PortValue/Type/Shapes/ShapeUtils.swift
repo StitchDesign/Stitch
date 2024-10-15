@@ -19,6 +19,8 @@ struct ApplyStroke: ViewModifier {
     
     let stroke: LayerStrokeData
     
+    let cornerRadius: CGFloat
+    
     var isPinned: Bool {
         viewModel.isPinned.getBool ?? false
     }
@@ -42,7 +44,8 @@ struct ApplyStroke: ViewModifier {
                 
             case .inside, .outside:
                 content.overlay {
-                    Rectangle().stitchStroke(stroke)
+//                    Rectangle().stitchStroke(stroke)
+                    RoundedRectangle(cornerRadius: cornerRadius).stitchStroke(stroke)
                 }
             }
         }
