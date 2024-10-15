@@ -29,6 +29,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     @EnvironmentObject private var keyboardObserver: KeyboardObserver
 
     let view: T
+    @Bindable var sidebarViewModel: GestureViewModel.SidebarViewModel
     @Bindable var gestureViewModel: GestureViewModel
     
     var instantDrag: Bool = false
@@ -163,7 +164,7 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     }
       
     @objc func tapInView(_ gestureRecognizer: UITapGestureRecognizer) {
-        if graph.sidebarSelectionState.isEditMode || gestureViewModel.swipeSetting == .open {
+        if sidebarViewModel.selectionState.isEditMode || gestureViewModel.swipeSetting == .open {
             return
         }
         
@@ -274,9 +275,12 @@ extension SidebarItemGestureViewModel {
                                 graph: GraphState,
                                 keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration? {
         // log("UIContextMenuInteractionDelegate: contextMenuInteraction")
+        
+        guard let sidebarViewModel = self.sidebarDelegate else { return nil }
+        let selections = sidebarViewModel.selectionState
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
-        if !graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(itemId.asLayerNodeId) {
+        if !selections.inspectorFocusedLayers.activelySelected.contains(itemId.asLayerNodeId) {
             
             let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
             
@@ -287,8 +291,7 @@ extension SidebarItemGestureViewModel {
                 commandHeld: graph.keypressState.isCommandPressed)
         }
                 
-        let selections = graph.sidebarSelectionState
-        let groups = graph.getSidebarGroupsDict()
+        let groups = sidebarViewModel.getSidebarGroupsDict()
         let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: graph.layerNodes, orderedSidebarItems: graph.orderedSidebarLayers),
                                        groups: groups,
                                        expandedItems: graph.getSidebarExpandedItems())

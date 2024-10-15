@@ -61,6 +61,7 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
             view: customSwipeItem,
+            sidebarViewModel: sidebarViewModel,
             gestureViewModel: gestureViewModel,
             graph: graph,
             itemId: item.id)

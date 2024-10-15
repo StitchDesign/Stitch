@@ -136,13 +136,13 @@ final class GraphState: Sendable {
             $0.initializeDelegate(parentGraph: self)
         }
         
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
+//        self.updateSidebarListStateAfterStateChange()
+//        
+//        // TODO: why is this necessary?
+//        _updateStateAfterListChange(
+//            updatedList: self.sidebarListState,
+//            expanded: self.getSidebarExpandedItems(),
+//            graphState: self)
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,

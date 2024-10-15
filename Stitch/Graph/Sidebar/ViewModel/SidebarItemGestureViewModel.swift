@@ -128,8 +128,7 @@ extension SidebarItemSwipable {
     }
     
     var isBeingDragged: Bool {
-        guard let current = self.sidebarDelegate?.currentItemDragged else { return false }
-        return current.map { $0.current == item.id } ?? false
+        self.sidebarDelegate?.currentItemDragged != nil
     }
     
     // MARK: GESTURE HANDLERS
@@ -290,7 +289,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
         self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
     }
     
-    let item: SidebarListItem
+    var item: SidebarListItem
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting = .closed

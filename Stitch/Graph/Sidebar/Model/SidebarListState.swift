@@ -76,7 +76,7 @@ struct SidebarDraggedItem<ItemID: Hashable> {
 typealias SidebarListItems = [SidebarListItem]
 
 // parentId: [children in order]
-typealias ExcludedGroups<SidebarItemData> = [SidebarItemData.ID: [SidebarItemData]]
+typealias ExcludedGroups<ItemData: SidebarItemData> = [ItemData.ID: [ItemData]]
 typealias SidebarListItemIdSet = Set<SidebarListItemId>
 typealias CollapsedGroups = SidebarListItemIdSet
 
