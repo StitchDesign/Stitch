@@ -50,8 +50,6 @@ final class GraphState: Sendable {
     var orderedSidebarLayers: SidebarLayerList = []
     let layersSidebarViewModel: LayersSidebarViewModel
     
-    var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
-    
     // Cache of ordered list of preview layer view models;
     // updated in various scenarious, e.g. sidebar list item dragged
     var cachedOrderedPreviewLayers: LayerDataList = .init()

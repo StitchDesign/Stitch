@@ -57,7 +57,7 @@ extension SidebarSelections {
 final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
     
-    var isEditMode: Bool = false
+//    var isEditMode: Bool = false
     
     // avoid this?
     var madeStack: Bool = false
@@ -84,8 +84,8 @@ final class SidebarSelectionObserver<ItemID: Hashable> {
 //    var nonEmptyPrimary: SidebarSelections? {
 //        self.primary.nonEmptyPrimary
 //    }
-
-    func isSelected(_ id: ItemId) -> Bool {
+    
+    func isSelected(_ id: ItemID) -> Bool {
         all.contains(id)
     }
 

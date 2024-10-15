@@ -17,53 +17,52 @@ import SwiftUI
 
 // functions for opening and closing groups
 
-// ONLY USEFUL FOR NON-DRAGGING CASES
-// ie when closing or opening a group
-@MainActor
-func getDescendants(_ parentItem: SidebarListItem,
-                    _ items: SidebarListItems) -> SidebarListItems {
-
-    var descendants = SidebarListItems()
-
-    for item in getItemsBelow(parentItem, items) {
-        //        log("itemBelow: \(item.id), \(item.location.x)")
-        // if you encounter an item at or west of the parentXLocation,
-        // then you've finished the parent's nested groups
-        if item.location.x <= parentItem.location.x {
-            //            log("getDescendants: exiting early")
-            //            log("getDescendants: early exit: descendants: \(descendants)")
-            return descendants
-        } else {
-            descendants.append(item)
-        }
-    }
-    //    log("getDescendants: returning: descendants: \(descendants)")
-    return descendants
-}
-
-// if "parent" does not have an iimte
-// Better?: `!getDescendents.isEmpty`
-func hasOpenChildren(_ item: SidebarListItem, _ items: SidebarListItems) -> Bool {
-
-    let parentIndex = item.itemIndex(items)
-    let nextChildIndex = parentIndex + 1
-
-    if let child = items[safeIndex: nextChildIndex],
-       let childParent = child.parentId,
-       childParent == item.id {
-        return true
-    }
-    return false
-}
-
 extension ProjectSidebarObservable {
+    // ONLY USEFUL FOR NON-DRAGGING CASES
+    // ie when closing or opening a group
+    @MainActor
+    func getDescendants(_ parentItem: Self.ItemViewModel) -> [Self.ItemViewModel] {
+        
+        var descendants = SidebarListItems()
+        
+        for item in self.getItemsBelow(parentItem) {
+            //        log("itemBelow: \(item.id), \(item.location.x)")
+            // if you encounter an item at or west of the parentXLocation,
+            // then you've finished the parent's nested groups
+            if item.location.x <= parentItem.location.x {
+                //            log("getDescendants: exiting early")
+                //            log("getDescendants: early exit: descendants: \(descendants)")
+                return descendants
+            } else {
+                descendants.append(item)
+            }
+        }
+        //    log("getDescendants: returning: descendants: \(descendants)")
+        return descendants
+    }
+    
+    // if "parent" does not have an iimte
+    // Better?: `!getDescendents.isEmpty`
+    func hasOpenChildren(_ item: SidebarListItem, _ items: SidebarListItems) -> Bool {
+        
+        let parentIndex = item.itemIndex(items)
+        let nextChildIndex = parentIndex + 1
+        
+        if let child = items[safeIndex: nextChildIndex],
+           let childParent = child.parentId,
+           childParent == item.id {
+            return true
+        }
+        return false
+    }
+    
     // only called if parent has children
     @MainActor
     func hideChildren(closedParentId: Self.ItemID) {
         
         guard let closedParent = retrieveItem(closedParentId, self.items) else {
             fatalErrorIfDebug("Could not retrieve item")
-            return masterList
+            return
         }
         
         // if there are no descendants, then we're basically done
@@ -118,25 +117,24 @@ extension ProjectSidebarObservable {
         
         // finally, remove descendants from items list
         let descendentsIdSet: Set<SidebarListItemId> = Set(descendants.map(\.id))
-        masterList.items.removeAll { descendentsIdSet.contains($0.id) }
+        self.items.removeAll { descendentsIdSet.contains($0.id) }
+    }
+    
+    func appendToExcludedGroup(for key: Self.ItemID,
+                               _ newItems: [Self.ItemData],
+                               _ excludedGroups: Self.ExcludedGroups) {
+        //    log("appendToExcludedGroup called")
         
-        return masterList
+        var existing: SidebarListItems = excludedGroups[key] ?? []
+        existing.append(contentsOf: newItems)
+        
+        var excludedGroups = excludedGroups
+        excludedGroups.updateValue(existing, forKey: key)
+        
+        self.excludedGroups = excludedGroups
     }
 }
 
-func appendToExcludedGroup(for key: SidebarListItemId,
-                           _ newItems: SidebarListItems,
-                           _ excludedGroups: ExcludedGroups) -> ExcludedGroups {
-    //    log("appendToExcludedGroup called")
-
-    var existing: SidebarListItems = excludedGroups[key] ?? []
-    existing.append(contentsOf: newItems)
-
-    var excludedGroups = excludedGroups
-    excludedGroups.updateValue(existing, forKey: key)
-
-    return excludedGroups
-}
 
 // retrieve children
 // nil = parentId had no
@@ -159,125 +157,112 @@ func popExcludedChildren(parentId: SidebarListItemId,
     return nil
 }
 
-func setOpenedChildHeight(_ item: SidebarListItem,
-                          _ height: CGFloat) -> SidebarListItem {
-    var item = item
-    // set height only; preserve indentation
-    item.location = CGPoint(x: item.location.x, y: height)
-    item.previousLocation = item.location
-    return item
+extension SidebarItemSwipable {
+    func setOpenedChildHeight(height: CGFloat) {
+        // set height only; preserve indentation
+        self.location = CGPoint(x: self.location.x, y: height)
+        self.previousLocation = self.location
+    }
 }
 
-func unhideChildrenHelper(item: SidebarListItem, // item that could be a parent or not
-                          currentHighestIndex: Int, // starts: opened parent's index
-                          currentHighestHeight: CGFloat, // starts: opened parent's height
-                          _ masterList: MasterList,
-                          isRoot: Bool) -> (MasterList, Int, CGFloat) {
-
-    var masterList = masterList
-    var currentHighestIndex = currentHighestIndex
-    var currentHighestHeight = currentHighestHeight
-
-    // insert item
-    if !isRoot {
-        let (updatedMaster,
-             updatedHighestIndex,
-             updatedHighestHeight) = insertUnhiddenItem(item: item,
-                                                        currentHighestIndex: currentHighestIndex,
-                                                        currentHighestHeight: currentHighestHeight,
-                                                        masterList)
-
-        masterList = updatedMaster
-        currentHighestIndex = updatedHighestIndex
-        currentHighestHeight = updatedHighestHeight
-    } 
-    //    else {
-    //        log("unhideChildrenHelper: had root item \(item.id), so will not add root item again")
-    //    }
-
-    // does this `item` have children of its own?
-    // if so, recur
-    if let (excludedChildren, updatedGroups) = popExcludedChildren(
-        parentId: item.id, masterList) {
-
-        // log("unhideChildrenHelper: had children")
-
-        masterList.excludedGroups = updatedGroups
-
-        // excluded children must be handled in IN ORDER
-        for child in excludedChildren {
-            // log("unhideChildrenHelper: on child \(child.id) of item \(item.id)")
-            let (updatedMaster,
-                 updatedHighestIndex,
-                 updatedHighestHeight) = unhideChildrenHelper(
-                    item: child,
-                    currentHighestIndex: currentHighestIndex,
-                    currentHighestHeight: currentHighestHeight,
-                    masterList,
-                    isRoot: false)
-
-            masterList = updatedMaster
+extension ProjectSidebarObservable {
+    func unhideChildrenHelper(item: Self.ItemViewModel, // item that could be a parent or not
+                              currentHighestIndex: Int, // starts: opened parent's index
+                              currentHighestHeight: CGFloat, // starts: opened parent's height
+                              isRoot: Bool) -> (Int, CGFloat) {
+        
+        var currentHighestIndex = currentHighestIndex
+        var currentHighestHeight = currentHighestHeight
+        
+        // insert item
+        if !isRoot {
+            let (updatedHighestIndex,
+                 updatedHighestHeight) = self.insertUnhiddenItem(item: item,
+                                                                 currentHighestIndex: currentHighestIndex,
+                                                                 currentHighestHeight: currentHighestHeight)
+            
             currentHighestIndex = updatedHighestIndex
             currentHighestHeight = updatedHighestHeight
         }
-    } 
-    //    else {
-    //        log("unhideChildrenHelper: did not have children")
-    //    }
-
-    return (masterList, currentHighestIndex, currentHighestHeight)
-}
-
-func insertUnhiddenItem(item: SidebarListItem, // item that could be a parent or not
-                        currentHighestIndex: Int, // starts: opened parent's index
-                        currentHighestHeight: CGFloat, // starts: opened parent's height
-                        _ masterList: MasterList) -> (MasterList, Int, CGFloat) {
-
-    var item = item
-    var currentHighestIndex = currentHighestIndex
-    var currentHighestHeight = currentHighestHeight
-    var masterList = masterList
-
-    // + 1 so inserted AFTER previous currentHighestIndex
-    currentHighestIndex += 1
-    currentHighestHeight += CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
-
-    item = setOpenedChildHeight(item, currentHighestHeight)
-    masterList.items.insert(item, at: currentHighestIndex)
-
-    return (masterList, currentHighestIndex, currentHighestHeight)
-}
-
-func unhideChildren(openedParent: SidebarListItemId,
-                    parentIndex: Int,
-                    parentY: CGFloat,
-                    _ masterList: MasterList) -> (MasterList, Int) {
-
-    // this can actually happen
-    guard masterList.excludedGroups[openedParent].isDefined else {
-        #if DEV || DEV_DEBUG
-        log("Attempted to open a parent that did not have excluded children")
-        fatalError()
-        #endif
-        return (masterList, parentIndex) //
+        //    else {
+        //        log("unhideChildrenHelper: had root item \(item.id), so will not add root item again")
+        //    }
+        
+        // does this `item` have children of its own?
+        // if so, recur
+        if let (excludedChildren, updatedGroups) = popExcludedChildren(
+            parentId: item.id, self.items) {
+            
+            // log("unhideChildrenHelper: had children")
+            
+            self.excludedGroups = updatedGroups
+            
+            // excluded children must be handled in IN ORDER
+            for child in excludedChildren {
+                // log("unhideChildrenHelper: on child \(child.id) of item \(item.id)")
+                let (updatedHighestIndex,
+                     updatedHighestHeight) = unhideChildrenHelper(
+                        item: child,
+                        currentHighestIndex: currentHighestIndex,
+                        currentHighestHeight: currentHighestHeight,
+                        isRoot: false)
+                
+                currentHighestIndex = updatedHighestIndex
+                currentHighestHeight = updatedHighestHeight
+            }
+        }
+        //    else {
+        //        log("unhideChildrenHelper: did not have children")
+        //    }
+        
+        return (currentHighestIndex, currentHighestHeight)
+    }
+    
+    func insertUnhiddenItem(item: Self.ItemViewModel, // item that could be a parent or not
+                            currentHighestIndex: Int, // starts: opened parent's index
+                            // starts: opened parent's height
+                            currentHighestHeight: CGFloat) -> (Int, CGFloat) {
+        
+        var item = item
+        var currentHighestIndex = currentHighestIndex
+        var currentHighestHeight = currentHighestHeight
+        
+        // + 1 so inserted AFTER previous currentHighestIndex
+        currentHighestIndex += 1
+        currentHighestHeight += CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
+        
+        item.setOpenedChildHeight(currentHighestHeight)
+        self.items.insert(item, at: currentHighestIndex)
+        
+        return (currentHighestIndex, currentHighestHeight)
     }
 
-    // log("unhideChildren: parentIndex: \(parentIndex)")
-
-    guard let parent = retrieveItem(openedParent, masterList.items) else {
-        fatalErrorIfDebug("Could not retrieve item")
-        return (masterList, parentIndex)
+    func unhideChildren(openedParent: SidebarListItemId,
+                        parentIndex: Int,
+                        parentY: CGFloat) -> Int {
+        
+        // this can actually happen
+        guard self.items.excludedGroups[openedParent].isDefined else {
+            fatalErrorIfDebug("Attempted to open a parent that did not have excluded children")
+            return parentIndex
+        }
+        
+        // log("unhideChildren: parentIndex: \(parentIndex)")
+        
+        guard let parent = retrieveItem(openedParent, self.items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            return parentIndex
+        }
+        
+        // if you start with the parent, you double add it
+        let (updatedMaster, lastIndex) = self.unhideChildrenHelper(
+            item: parent,
+            currentHighestIndex: parent.itemIndex(self.items),
+            currentHighestHeight: parent.location.y,
+            isRoot: true)
+        
+        return lastIndex
     }
-
-    // if you start with the parent, you double add it
-    let (updatedMaster, lastIndex, _) = unhideChildrenHelper(
-        item: parent,
-        currentHighestIndex: parent.itemIndex(masterList.items),
-        currentHighestHeight: parent.location.y,
-        masterList,
-        isRoot: true)
-
-    return (updatedMaster, lastIndex)
 }
 
 // all children, closed or open

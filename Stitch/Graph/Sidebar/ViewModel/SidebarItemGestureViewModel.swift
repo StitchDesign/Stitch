@@ -25,7 +25,7 @@ let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
 protocol SidebarItemData: Identifiable, Equatable {
     var parentId: Self.ID? { get set }
-    var location: CGPoint { get set }
+//    var location: CGPoint { get set }
 }
 
 protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.ItemID {
@@ -44,6 +44,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
 
     var previousSwipeX: CGFloat { get set }
     
+    var location: CGPoint { get set }
+    var previousLocation: CGPoint { get set }
 //    var activeGesture: ActiveGesture { get set }
     //    var activeSwipeId: Item.ID? { get set }
     
@@ -120,14 +122,18 @@ extension SidebarItemSwipable {
         }
     }
     
-    var location: CGPoint {
-        get {
-            self.item.location
-        }
-        set(newValue) {
-            self.item.location = newValue
-        }
+    var isBeingEdited: Bool {
+        self.sidebarDelegate.isBeingEdited ?? false
     }
+    
+//    var location: CGPoint {
+//        get {
+//            self.item.location
+//        }
+//        set(newValue) {
+//            self.item.location = newValue
+//        }
+//    }
     
     var isImplicitlyDragged: Bool {
         self.sidebarDelegate?.implicitlyDragged.contains(item.id) ?? false
@@ -208,7 +214,7 @@ extension SidebarItemSwipable {
 
     var onItemSwipeChanged: OnDragChangedHandler {
         let onSwipeChanged: OnDragChangedHandler = { (translationWidth: CGFloat) in
-            if self.editOn {
+            if self.isBeingEdited {
                 //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: currently in edit mode, so cannot swipe")
                 return
             }
@@ -240,7 +246,7 @@ extension SidebarItemSwipable {
         let onSwipeEnded: OnDragEndedHandler = {
             //            print("SidebarItemGestureViewModel: itemSwipeEndedGesture called")
 
-            if self.editOn {
+            if self.isBeingEdited {
                 //                print("SidebarItemGestureViewModel: itemSwipeEndedGesture: currently in edit mode, so cannot swipe")
                 return
             }
@@ -296,6 +302,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     }
     
     var item: SidebarListItem
+    var location: CGPoint
+    var previousLocation: CGPoint
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting = .closed
@@ -318,13 +326,16 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 //    }
 
     // Tracks if the edit menu is open
-    var editOn: Bool = false
+    var isBeingEdited: Bool = false
 //    @Binding var activeSwipeId: SidebarListItemId?
 
     init(item: SidebarListItem,
+         location: CGPoint,
          sidebarViewModel: LayersSidebarViewModel,
          graph: GraphState) {
         self.item = item
+        self.location = location
+        self.previousLocation = location
         self.sidebarDelegate = sidebarViewModel
         self.graphDelegate = graph
     }
@@ -355,18 +366,18 @@ extension SidebarItemGestureViewModel {
         item.id.asLayerNodeId
     }
     
-    var location: CGPoint {
-        self.item.location
-    }
+//    var location: CGPoint {
+//        self.item.location
+//    }
     
     var isNonEditModeFocused: Bool {
-        guard let graph = self.graphDelegate else { return false }
-        return graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+        guard let sidebar = self.sidebarDelegate else { return false }
+        return sidebar.inspectorFocusedLayers.focused.contains(layerNodeId)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        guard let graph = self.graphDelegate else { return false }
-        return graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+        guard let sidebar = self.sidebarDelegate else { return false }
+        return sidebar.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
     }
     
     var isNonEditModeSelected: Bool {

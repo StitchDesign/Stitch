@@ -97,6 +97,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     func makeCoordinator() -> SidebarListGestureRecognizer<GestureViewModel> {
         SidebarListGestureRecognizer<GestureViewModel>(
             gestureViewModel: gestureViewModel,
+            sidebarViewModel: sidebarViewModel,
             keyboardObserver: keyboardObserver,
             instantDrag: instantDrag,
             graph: graph,

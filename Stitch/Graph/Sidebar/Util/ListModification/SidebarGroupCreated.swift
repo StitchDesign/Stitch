@@ -12,6 +12,7 @@ import SwiftUI
 // when a sidebar group is created from a selection of sidebar items,
 // we should insert the group at the location of the
 extension ProjectSidebarObservable {
+    @MainActor
     func sidebarGroupCreated() {
         log("SidebarGroupCreated called")
         
@@ -68,7 +69,7 @@ extension ProjectSidebarObservable {
         graph.updateSidebarListStateAfterStateChange()
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
-        if self.selectionState.isEditMode {
+        if self.isBeingEdited {
             // Reset selections
             self.selectionState.resetEditModeSelections()
         }

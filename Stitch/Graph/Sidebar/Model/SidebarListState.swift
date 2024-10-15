@@ -76,7 +76,7 @@ struct SidebarDraggedItem<ItemID: Hashable> {
 typealias SidebarListItems = [SidebarListItem]
 
 // parentId: [children in order]
-typealias ExcludedGroups<ItemData: SidebarItemData> = [ItemData.ID: [ItemData]]
+typealias ExcludedGroupsData<ItemData: SidebarItemData> = [ItemData.ID: [ItemData]]
 typealias SidebarListItemIdSet = Set<SidebarListItemId>
 typealias CollapsedGroups = SidebarListItemIdSet
 
@@ -101,18 +101,14 @@ typealias CollapsedGroups = SidebarListItemIdSet
 //    }
 //}
 
-extension SidebarListItemsCoordinator {
+extension ProjectSidebarObservable {
     @MainActor
-    func appendToExcludedGroup(for key: SidebarListItemId,
-                               _ newItem: SidebarListItem) -> SidebarListItemsCoordinator {
-        var masterList = self
-
-        masterList.excludedGroups = Stitch.appendToExcludedGroup(
+    func appendToExcludedGroup(for key: Self.ItemID,
+                               _ newItem: Self.ItemData) {
+        self.appendToExcludedGroup(
             for: key,
             [newItem],
-            masterList.excludedGroups)
-
-        return masterList
+            self.excludedGroups)
     }
 }
 
@@ -121,13 +117,13 @@ extension SidebarListItemsCoordinator {
 // We must keep track of the gesture's x-translation
 // without changing the x-position of the being-dragged-item
 // (which is controlled by `snapDescendants`).
-struct SidebarCursorHorizontalDrag: Codable, Equatable, Hashable {
+struct SidebarCursorHorizontalDrag {
     var x: CGFloat
     var previousX: CGFloat
 
     // called at start of a drag gesture
     @MainActor
-    static func fromItem(_ item: SidebarListItem) -> SidebarCursorHorizontalDrag {
+    static func fromItem(_ item: SidebarItemGestureViewModel) -> SidebarCursorHorizontalDrag {
         SidebarCursorHorizontalDrag(x: item.location.x,
                                     previousX: item.previousLocation.x)
     }

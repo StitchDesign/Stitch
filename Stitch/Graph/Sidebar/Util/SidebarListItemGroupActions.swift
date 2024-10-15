@@ -105,102 +105,99 @@ struct SidebarListItemGroupOpened: GraphEventWithResponse {
     }
 }
 
-
-// When group opened:
-// - move parent's children from ExcludedGroups to Items
-// - wipe parent's entry in ExcludedGroups
-// - move down (+y) any items below the now-open parent
-func onSidebarListItemGroupOpened(openedId: SidebarListItemId,
-                                  _ masterList: MasterList) -> MasterList {
-
-    log("onSidebarListItemGroupOpened called")
-
-    var masterList = masterList
-
-    // important: remove this item from collapsedGroups,
-    // so that we can unfurl its own children
-    masterList.collapsedGroups.remove(openedId)
-
-    guard let parentItem = retrieveItem(openedId, masterList.items) else {
-        fatalErrorIfDebug("Could not retrieve item")
+extension ProjectSidebarObservable {
+    // When group opened:
+    // - move parent's children from ExcludedGroups to Items
+    // - wipe parent's entry in ExcludedGroups
+    // - move down (+y) any items below the now-open parent
+    func onSidebarListItemGroupOpened(openedId: Self.ItemID) {
+        
+        log("onSidebarListItemGroupOpened called")
+        
+        // important: remove this item from collapsedGroups,
+        // so that we can unfurl its own children
+        self.collapsedGroups.remove(openedId)
+        
+        guard let parentItem = retrieveItem(openedId, masterList.items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            return masterList
+        }
+        let parentIndex = parentItem.itemIndex(masterList.items)
+        
+        let originalCount = self.items.count
+        
+        let (updatedMaster, lastIndex) = self.unhideChildren(
+            openedParent: openedId,
+            parentIndex: parentIndex,
+            parentY: parentItem.location.y)
+        
+        masterList = updatedMaster
+        
+        // count after adding hidden descendants back to `items`
+        let updatedCount = masterList.items.count
+        
+        // how many items total we added by unhiding the parent's children
+        let addedCount = updatedCount - originalCount
+        
+        let moveDownBy = addedCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+        
+        // and move any items below this parent DOWN
+        // ... but skip any children, since their positions' have already been updated
+        masterList.items = adjustNonDescendantsBelow(
+            lastIndex,
+            adjustment: CGFloat(moveDownBy),
+            masterList.items)
+        
         return masterList
     }
-    let parentIndex = parentItem.itemIndex(masterList.items)
-
-    let originalCount = masterList.items.count
-
-    let (updatedMaster, lastIndex) = unhideChildren(
-        openedParent: openedId,
-        parentIndex: parentIndex,
-        parentY: parentItem.location.y,
-        masterList)
-
-    masterList = updatedMaster
-
-    // count after adding hidden descendants back to `items`
-    let updatedCount = masterList.items.count
-
-    // how many items total we added by unhiding the parent's children
-    let addedCount = updatedCount - originalCount
-
-    let moveDownBy = addedCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-
-    // and move any items below this parent DOWN
-    // ... but skip any children, since their positions' have already been updated
-    masterList.items = adjustNonDescendantsBelow(
-        lastIndex,
-        adjustment: CGFloat(moveDownBy),
-        masterList.items)
-
-    return masterList
-}
-
-// When group closed:
-// - remove parent's children from `items`
-// - add removed children to ExcludedGroups dict
-// - move up the position of items below the now-closed parent
-@MainActor
-func onSidebarListItemGroupClosed(closedId: SidebarListItemId,
-                                  _ masterList: MasterList) -> MasterList {
-
-    print("onSidebarListItemGroupClosed called")
-
-    guard let closedParent = retrieveItem(closedId, masterList.items) else {
-        fatalErrorIfDebug("Could not retrieve item")
-        return masterList
-    }
-
-    var masterList = masterList
-
-    if !hasOpenChildren(closedParent, masterList.items) {
+    
+    // When group closed:
+    // - remove parent's children from `items`
+    // - add removed children to ExcludedGroups dict
+    // - move up the position of items below the now-closed parent
+    @MainActor
+    func onSidebarListItemGroupClosed(closedId: SidebarListItemId,
+                                      _ masterList: MasterList) -> MasterList {
+        
+        print("onSidebarListItemGroupClosed called")
+        
+        guard let closedParent = retrieveItem(closedId, masterList.items) else {
+            fatalErrorIfDebug("Could not retrieve item")
+            return masterList
+        }
+        
+        var masterList = masterList
+        
+        if !hasOpenChildren(closedParent, masterList.items) {
+            masterList.collapsedGroups.insert(closedId)
+            masterList.excludedGroups.updateValue([], forKey: closedId)
+            return masterList
+        }
+        
+        let descendantsCount = getDescendants(
+            closedParent,
+            masterList.items).count
+        
+        let moveUpBy = descendantsCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+        
+        // hide the children:
+        // - populates ExcludedGroups
+        // - removes now-hidden descendants from `items`
+        masterList = hideChildren(closedParentId: closedId,
+                                  masterList)
+        
+        // and move any items below this parent upward
+        masterList.items = adjustItemsBelow(
+            // parent's own index should not have changed if we only
+            // removed or changed items AFTER its index.
+            closedParent.id,
+            closedParent.itemIndex(masterList.items),
+            adjustment: -CGFloat(moveUpBy),
+            masterList.items)
+        
+        // add parent to collapsed group
         masterList.collapsedGroups.insert(closedId)
-        masterList.excludedGroups.updateValue([], forKey: closedId)
+        
         return masterList
     }
-
-    let descendantsCount = getDescendants(
-        closedParent,
-        masterList.items).count
-
-    let moveUpBy = descendantsCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-
-    // hide the children:
-    // - populates ExcludedGroups
-    // - removes now-hidden descendants from `items`
-    masterList = hideChildren(closedParentId: closedId,
-                              masterList)
-
-    // and move any items below this parent upward
-    masterList.items = adjustItemsBelow(
-        // parent's own index should not have changed if we only
-        // removed or changed items AFTER its index.
-        closedParent.id,
-        closedParent.itemIndex(masterList.items),
-        adjustment: -CGFloat(moveUpBy),
-        masterList.items)
-
-    // add parent to collapsed group
-    masterList.collapsedGroups.insert(closedId)
-
-    return masterList
 }

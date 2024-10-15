@@ -238,20 +238,22 @@ func groupFromChildBelow(_ item: SidebarListItem,
                          xIndentation: proposedIndentation)
 }
 
-@MainActor
-func getItemsBelow(_ item: SidebarListItem, _ items: SidebarListItems) -> SidebarListItems {
-    let movedItemIndex = item.itemIndex(items)
-    // eg if movedItem's index is 5,
-    // then items below have indices 6, 7, 8, ...
-    return items.filter { $0.itemIndex(items) > movedItemIndex }
-}
-
-@MainActor
-func getItemsAbove(_ item: SidebarListItem, _ items: SidebarListItems) -> SidebarListItems {
-    let movedItemIndex = item.itemIndex(items)
-    // eg if movedItem's index is 5,
-    // then items above have indices 4, 3, 2, ...
-    return items.filter { $0.itemIndex(items) < movedItemIndex }
+extension ProjectSidebarObservable {
+    @MainActor
+    func getItemsBelow(_ item: Self.ItemViewModel) -> [Self.ItemViewModel] {
+        let movedItemIndex = item.itemIndex(items)
+        // eg if movedItem's index is 5,
+        // then items below have indices 6, 7, 8, ...
+        return items.filter { $0.itemIndex(items) > movedItemIndex }
+    }
+    
+    @MainActor
+    func getItemsAbove(_ item: Self.ItemViewModel) -> [Self.ItemViewModel] {
+        let movedItemIndex = item.itemIndex(items)
+        // eg if movedItem's index is 5,
+        // then items above have indices 4, 3, 2, ...
+        return items.filter { $0.itemIndex(items) < movedItemIndex }
+    }
 }
 
 @MainActor

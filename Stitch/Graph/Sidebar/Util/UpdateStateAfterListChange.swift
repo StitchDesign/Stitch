@@ -149,20 +149,20 @@ import StitchSchemaKit
 //    return sidebar
 //}
 
-func appendToSidebarGroup(for key: LayerNodeId,
-                          _ newChildren: [LayerNodeId],
-                          _ groups: SidebarGroupsDict) -> SidebarGroupsDict {
-
-    var groups = groups
-    var existing: LayerIdList = groups[key] ?? []
-
-    //    for child in newChildren {
-    //        if existing.contains(child) {
-    //            log("appendToSidebarGroup: child \(child) is already in existing: \(existing)")
-    //        }
-    //    }
-
-    existing.append(contentsOf: newChildren)
-    groups.updateValue(existing, forKey: key)
-    return groups
-}
+//func appendToSidebarGroup(for key: LayerNodeId,
+//                          _ newChildren: [LayerNodeId],
+//                          _ groups: SidebarGroupsDict) -> SidebarGroupsDict {
+//
+//    var groups = groups
+//    var existing: LayerIdList = groups[key] ?? []
+//
+//    //    for child in newChildren {
+//    //        if existing.contains(child) {
+//    //            log("appendToSidebarGroup: child \(child) is already in existing: \(existing)")
+//    //        }
+//    //    }
+//
+//    existing.append(contentsOf: newChildren)
+//    groups.updateValue(existing, forKey: key)
+//    return groups
+//}

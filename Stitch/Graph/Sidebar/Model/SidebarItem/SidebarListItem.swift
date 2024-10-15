@@ -11,8 +11,8 @@ import StitchSchemaKit
 struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
     let id: SidebarListItemId
     let layer: LayerNodeTitle
-    var location: CGPoint
-    var previousLocation: CGPoint
+//    var location: CGPoint
+//    var previousLocation: CGPoint
 
     var zIndex: ZIndex = 1
     var parentId: SidebarListItemId? // has a parent?
@@ -21,18 +21,26 @@ struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
 
     init(id: SidebarListItemId,
          layer: LayerNodeTitle,
-         location: CGPoint,
+//         location: CGPoint,
          parentId: SidebarListItemId? = nil,
          isGroup: Bool) {
 
         self.id = id
         self.layer = layer
-        self.location = location
-        self.previousLocation = location
+//        self.location = location
+//        self.previousLocation = location
         self.parentId = parentId
         self.isGroup = isGroup
     }
 
+    // use previousLocation, which is not changed during drag,
+    // to know the item's indentation before being dragged.
+//    var indentationLevel: IndentationLevel {
+//        IndentationLevel.fromXLocation(x: self.previousLocation.x)
+//    }
+}
+
+extension SidebarItemSwipable {
     // use previousLocation, which is not changed during drag,
     // to know the item's indentation before being dragged.
     var indentationLevel: IndentationLevel {

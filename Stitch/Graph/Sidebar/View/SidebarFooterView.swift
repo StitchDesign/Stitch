@@ -100,10 +100,10 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         HStack(spacing: 10) {
             Spacer()
             SidebarFooterButtonsView(sidebarViewModel: sidebarViewModel,
-                                     groups: groups,
-                                     selections: selections,
-                                     isBeingEdited: isBeingEdited,
-                                     layerNodes: layerNodes)
+//                                     groups: groups,
+//                                     selections: selections,
+                                     isBeingEdited: isBeingEdited)
+//                                     layerNodes: layerNodes)
         }
     } // editModeFooter
 }
@@ -124,7 +124,7 @@ struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: 
     let isBeingEdited: Bool
 //    let layerNodes: LayerNodesForSidebarDict
 
-    var selections: SidebarSelectionState {
+    var selections: SidebarViewModel.SidebarSelectionState {
         self.sidebarViewModel.selectionState
     }
     

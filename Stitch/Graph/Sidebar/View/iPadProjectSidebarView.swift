@@ -28,7 +28,6 @@ struct StitchSidebarView: View {
 }
 
 struct ProjectSidebarView: View {
-    @State private var isEditing = false
     @Bindable var graph: GraphState
     let syncStatus: iCloudSyncStatus
 
@@ -67,14 +66,13 @@ struct ProjectSidebarView: View {
 extension LayersSidebarViewModel {
     func editModeToggled(to isEditing: Bool) {
         // Reset selection-state, but preserve inspector's focused layers
-        let inspectorFocusedLayers = self.selectionState.inspectorFocusedLayers
         
         // Don't actually reset these?
 //        state.sidebarSelectionState.resetEditModeSelections()
         
-        self.selectionState.inspectorFocusedLayers = inspectorFocusedLayers
+//        self.inspectorFocusedLayers = inspectorFocusedLayers
         
         // Do not set until the end; otherwise selection-state resets loses the change.
-        self.selectionState.isEditMode = isEditing
+//        self.selectionState.isEditMode = isEditing
     }
 }

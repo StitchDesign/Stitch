@@ -45,7 +45,7 @@ extension ProjectSidebarObservable {
     }
     
     // children to deselect
-    func getDescendantsIds(id: Self.ItemID) -> Set<ItemId> {
+    func getDescendantsIds(id: Self.ItemID) -> Set<ItemID> {
 //                                  groups: SidebarGroupsDict,
 //                                  acc: Set<ItemID>) -> Set<ItemId> {
         guard let children = self.orderedEncodedData.get(id)?.children else { return .init() }

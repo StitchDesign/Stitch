@@ -69,11 +69,10 @@ extension ProjectSidebarTab {
 struct SidebarListView: View {
     static let tabs = ["Layers", "Assets"]
     @State private var currentTab = ProjectSidebarTab.layers.rawValue
-    @Bindable var layersViewModel: LayersSidebarViewModel
+//    @Bindable var layersViewModel: LayersSidebarViewModel
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
-    let isBeingEdited: Bool
     let syncStatus: iCloudSyncStatus
     
 
@@ -118,6 +117,10 @@ struct SidebarListView: View {
 struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: ProjectSidebarObservable {
     @Binding var sidebarViewModel: SidebarObservable
     let tab: ProjectSidebarTab
+    
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isBeingEdited
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -218,7 +221,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 import StitchViewKit
 import OrderedCollections
 
-protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID {
+protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
+                                                               ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
     associatedtype EncodedItemData = StitchNestedListElement
 
@@ -226,11 +230,14 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     typealias ItemID = ItemData.ID
     typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
     typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
+    typealias ExcludedGroups = ExcludedGroupsData<ItemData>
     
     init()
+    var isEditing: Bool { get set }
     var items: [ItemViewModel] { get set }
     // the [parentId: child-ids] that are not currently shown
-    var excludedGroups: ExcludedGroups<ItemData> { get set }
+    var excludedGroups: ExcludedGroups { get set }
+    var expandedSidebarItems: Set<ItemID> { get }
 
     // groups currently opened or closed;
     // an item's id is added when its group closed,
@@ -245,16 +252,17 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
     var orderedEncodedData: [EncodedItemData] { get }
-    var graphDelegate: GraphDelegate? { get }
+    var graphDelegate: GraphState? { get }
     
     func editModeToggled(to isEditing: Bool)
     func canBeGrouped() -> Bool
     func canUngroup() -> Bool
-    func canDuplicate() -> Bool
+//    func canDuplicate() -> Bool
 }
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
+    let isEditing = false
     let items: [SidebarItemGestureViewModel]
     let selectionState = SidebarSelectionState()
     
@@ -262,10 +270,13 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()
     var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
-    weak var graphDelegate: GraphDelegate?
+    
+    var inspectorFocusedLayers = InspectorFocusedLayers()
+    
+    weak var graphDelegate: GraphState?
     
     init(data: [OrderedSidebarLayers],
-         graph: GraphDelegate? = nil) {
+         graph: GraphState? = nil) {
         self.graphDelegate = graph
         fatalError()
     }
@@ -274,6 +285,11 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
 extension LayersSidebarViewModel {
     var orderedEncodedData: [OrderedSidebarLayers] {
         self.graphDelegate?.orderedSidebarLayers ?? []
+    }
+    
+    var expandedSidebarItems: Set<SidebarListItemId> {
+        guard let graph = self.graphDelegate else { return .init() }
+        return graph.getSidebarExpandedItems()
     }
 }
 
