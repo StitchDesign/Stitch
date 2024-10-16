@@ -389,22 +389,20 @@ extension ProjectSidebarObservable {
 
     // used only during on drag;
     @MainActor
-    func updatePositionsHelper(_ item: SidebarListItem,
+    func updatePositionsHelper(_ item: Self.ItemViewModel,
                                _ indicesToMove: [Int],
                                _ translation: CGSize,
                                
                                // doesn't change during drag gesture itself
-                               otherSelections: SidebarListItemIdSet,
-                               alreadyDragged: SidebarListItemIdSet,
+                               otherSelections: Set<Self.ItemID>,
+                               alreadyDragged: Set<Self.ItemID>,
                                // changes during drag gesture?
-                               draggedAlong: SidebarListItemIdSet) -> ([Int],
-                                                                       SidebarListItemIdSet,
-                                                                       SidebarListItemIdSet) {
+                               draggedAlong: Set<Self.ItemID>) -> ([Int],
+                                                                   Set<Self.ItemID>,
+                                                                   Set<Self.ItemID>) {
         
         // log("updatePositionsHelper for item \(item.id)")
         // log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
-        
-        var item = item
         
         // When called from top level, this is the ENTIRE `masterList.items`
         // ... and we never filter it, so we end up always passed
@@ -417,8 +415,6 @@ extension ProjectSidebarObservable {
             translation: translation,
             location: item.previousLocation)
         
-        let index: Int = items.firstIndex { $0.id == item.id }!
-        self.items[index] = item
         indicesToMove.append(index)
         
         

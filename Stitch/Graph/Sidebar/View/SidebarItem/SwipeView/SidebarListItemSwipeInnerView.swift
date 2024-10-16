@@ -46,7 +46,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
             if showMainItem {
                 SidebarListItemView(graph: graph,
                                     sidebarViewModel: sidebarViewModel,
-                                    item: item,
+                                    itemViewModel: itemViewModel,
                                     name: name,
 //                                    layer: layer,
                                     isClosed: isClosed,
@@ -78,7 +78,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
             SidebarListItemSwipeMenu(
                 gestureViewModel: itemViewModel,
                 swipeOffset: swipeX,
-                visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON)
+                visStatusIconName: graph.getLayerNode(id: itemViewModel.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON)
         }
         
         // Animates swipe distance if it gets pinned to its open or closed position.

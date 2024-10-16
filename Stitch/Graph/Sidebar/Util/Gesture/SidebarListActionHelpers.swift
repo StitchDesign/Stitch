@@ -22,8 +22,8 @@ extension ProjectSidebarObservable {
 //    }
     
     @MainActor
-    func updateAllZIndices(itemId: SidebarListItemId,
-                           draggedAlong: SidebarListItemIdSet) {
+    func updateAllZIndices(itemId: Self.ItemID,
+                           draggedAlong: Set<Self.ItemID>) {
         self.items.forEach {
             if ($0.id == itemId) || draggedAlong.contains($0.id) {
                 $0.zIndex = SIDEBAR_LIST_ITEM_MAX_Z_INDEX
@@ -33,8 +33,8 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func setItemsInGroupOrTopLevel(item: Self.ItemViewModel,
-                                   otherSelections: SidebarListItemIdSet,
-                                   draggedAlong: SidebarListItemIdSet,
+                                   otherSelections: Set<Self.ItemID>,
+                                   draggedAlong: Set<Self.ItemID>,
                                    cursorDrag: Self.HorizontalDrag) {
         
         // set all dragged items' z-indices to max

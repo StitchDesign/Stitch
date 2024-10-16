@@ -130,12 +130,12 @@ extension ProjectSidebarObservable {
         let focusedLayers = state.inspectorFocusedLayers.focused
         
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
-        if !focusedLayers.contains(itemId.asLayerNodeId) {
+        if !focusedLayers.contains(itemId) {
             state.selectionState.resetEditModeSelections()
             state.selectionState.inspectorFocusedLayers.focused = .init([itemId])
             state.selectionState.inspectorFocusedLayers.activelySelected = .init([itemId])
-            state.sidebarItemSelectedViaEditMode(itemId,
-                                                 isSidebarItemTapped: true)
+            state..graphDelegate?.sidebarItemSelectedViaEditMode(itemId,
+                                                                 isSidebarItemTapped: true)
             state.selectionState.inspectorFocusedLayers.lastFocusedLayer = itemId
         }
                 
@@ -151,7 +151,7 @@ extension ProjectSidebarObservable {
             // also, it aready updates the selected and focused sidebar layers etc.
             
             // But will the user's cursor still be on / under the original layer ?
-            state.sidebarSelectedItemsDuplicatedViaEditMode()
+            state.graphDelegate?.sidebarSelectedItemsDuplicatedViaEditMode()
 //            state.sidebarListState = state.sidebarListState
             state.selectionState.haveDuplicated = true
             state.selectionState.optionDragInProgress = true
@@ -214,7 +214,7 @@ extension ProjectSidebarObservable {
         let implicitlyDragged = self.getImplicitlyDragged(
             draggedAlong: draggedAlong,
             selections: state.selectionState.inspectorFocusedLayers.focused)
-        state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
+        state.selectionState.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then
 //        _updateStateAfterListChange(
@@ -223,7 +223,7 @@ extension ProjectSidebarObservable {
 //            graphState: state)
         
         // Recalculate the ordered-preview-layers
-        state.updateOrderedPreviewLayers()
+        state.graphDelegate?.updateOrderedPreviewLayers()
     }
     
     @MainActor
@@ -324,7 +324,6 @@ extension ProjectSidebarObservable {
             }
         }
         
-        
         let item = state.items.first { $0.id == itemId }
         guard let item = item else {
             // if we couldn't find the item, it's been deleted
@@ -340,7 +339,7 @@ extension ProjectSidebarObservable {
                 // MUST have a `current`
                 // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
                 draggedAlong: current.draggedAlong,
-                proposed: state.sidebarListState.proposedGroup)
+                proposed: state.proposedGroup)
         } else {
             log("SidebarListItemDragEnded: had no current, so will not do the full onDragEnded call")
         }
@@ -357,22 +356,18 @@ extension ProjectSidebarObservable {
         state.selectionState.optionDragInProgress = false
         state.selectionState.implicitlyDragged = .init()
     
-        state.encodeProjectInBackground()
+        state.graphDelegate?.encodeProjectInBackground()
     }
     
     @MainActor
-    func onSidebarListItemDragEnded(_ item: SidebarListItem,
-                                    otherSelections: SidebarListItemIdSet,
-                                    draggedAlong: SidebarListItemIdSet,
+    func onSidebarListItemDragEnded(_ item: Self.ItemViewModel,
+                                    otherSelections: Set<Self.ItemID>,
+                                    draggedAlong: Set<Self.ItemID>,
                                     proposed: ProposedGroup<Self.ItemID>?) {
         
         log("onSidebarListItemDragEnded called")
         
-        var item = item
-        
         item.zIndex = 0 // is this even used still?
-        let index = item.itemIndex(items)
-        self.items[index] = item
         
         // finalizes items' positions by index;
         // also updates items' previousPositions.
