@@ -28,18 +28,20 @@ protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
 //    var location: CGPoint { get set }
 }
 
-protocol SidebarItemSwipable: AnyObject, Observable {
-    associatedtype SidebarViewModel: ProjectSidebarObservable
-    associatedtype Item: ProjectSidebarObservable.ItemData
-    typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable
+where SidebarViewModel.ItemViewModel == Self,
+      Self.ID: Equatable {
+    associatedtype SidebarViewModel: ProjectSidebarObservable<Self>
+//    associatedtype ItemData: ProjectSidebarObservable.ItemData
+    typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     
-    var item: Item { get set }
+//    var item: ItemData { get set }
     
     var name: String { get set }
     
     var isGroup: Bool { get }
     
-    var parentId: Item.ID { get set }
+    var parentId: Self.ID { get set }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
@@ -63,33 +65,33 @@ protocol SidebarItemSwipable: AnyObject, Observable {
     var backgroundOpacity: CGFloat { get }
     
     @MainActor
-    func sidebarItemTapped(id: Item.ID,
+    func sidebarItemTapped(id: Self.ID,
                            shiftHeld: Bool,
                            commandHeld: Bool)
     
     @MainActor
-    func sidebarListItemDragged(itemId: Item.ID,
+    func sidebarListItemDragged(itemId: Self.ID,
                                 translation: CGSize)
     
     @MainActor
-    func sidebarListItemDragEnded(itemId: Item.ID)
+    func sidebarListItemDragEnded(itemId: Self.ID)
     
 //    @MainActor
 //    func sidebarListItemLongPressed(id: Item.ID)
     
     @MainActor
-    func sidebarItemDeleted(itemId: Item.ID)
+    func sidebarItemDeleted(itemId: Self.ID)
     
     @MainActor
-    func contextMenuInteraction(itemId: Item.ID,
+    func contextMenuInteraction(itemId: Self.ID,
                                 graph: GraphState,
                                 keyboardObserver: KeyboardObserver) -> UIContextMenuConfiguration?
     
     @MainActor
-    func sidebarLayerHovered(itemId: Item.ID)
+    func sidebarLayerHovered(itemId: Self.ID)
     
     @MainActor
-    func sidebarLayerHoverEnded(itemId: Item.ID)
+    func sidebarLayerHoverEnded(itemId: Self.ID)
     
     @MainActor
     func didSelectOnEditMode()
@@ -104,12 +106,8 @@ protocol SidebarItemSwipable: AnyObject, Observable {
     func didToggleVisibility()
 }
 
-extension SidebarItemSwipable {
-    var id: Self.Item.ID {
-        self.item.id
-    }
-    
-    var activeGesture: SidebarListActiveGesture<Self.Item.ID> {
+extension SidebarItemSwipable: Identifiable {
+    var activeGesture: SidebarListActiveGesture<Self.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
         }
@@ -118,7 +116,7 @@ extension SidebarItemSwipable {
         }
     }
     
-    var activeSwipeId: Self.Item.ID? {
+    var activeSwipeId: Self.ID? {
         get {
             self.sidebarDelegate?.activeSwipeId ?? nil
         }
@@ -141,7 +139,7 @@ extension SidebarItemSwipable {
 //    }
     
     var isImplicitlyDragged: Bool {
-        self.sidebarDelegate?.implicitlyDragged.contains(item.id) ?? false
+        self.sidebarDelegate?.implicitlyDragged.contains(id) ?? false
     }
     
     var isBeingDragged: Bool {
@@ -154,9 +152,9 @@ extension SidebarItemSwipable {
     var onItemDragChanged: OnItemDragChangedHandler {
         return { (translation: CGSize) in
             // print("SidebarItemGestureViewModel: itemDragChangedGesture called")
-            self.activeGesture = .dragging(self.item.id)
+            self.activeGesture = .dragging(self.id)
             self.sidebarListItemDragged(
-                itemId: self.item.id,
+                itemId: self.id,
                 translation: translation)
         }
     }
@@ -170,7 +168,7 @@ extension SidebarItemSwipable {
                 self.activeGesture = .none
             } else {
                 self.activeGesture = .none
-                self.sidebarListItemDragEnded(itemId: self.item.id)
+                self.sidebarListItemDragEnded(itemId: self.id)
             }
         }
     }
@@ -199,8 +197,8 @@ extension SidebarItemSwipable {
 
         let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
             print("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
-            self.activeGesture = .dragging(self.item.id)
-            self.sidebarDelegate?.sidebarListItemLongPressed(id: self.item.id)
+            self.activeGesture = .dragging(self.id)
+            self.sidebarDelegate?.sidebarListItemLongPressed(id: self.id)
         }
 
         // TODO: Does `minimumDistance` matter?
@@ -237,7 +235,7 @@ extension SidebarItemSwipable {
                 let newSwipeX = max(self.previousSwipeX - translationWidth, 0)
                 self.swipeSetting = .swiping(newSwipeX)
 
-                self.activeSwipeId = self.item.id
+                self.activeSwipeId = self.id
             }
         }
 
@@ -263,7 +261,7 @@ extension SidebarItemSwipable {
                 if self.atDefaultActionThreshold {
                     // Don't need to change x position here,
                     // since redOption's offset handles that.
-                    self.sidebarItemDeleted(itemId: self.item.id)
+                    self.sidebarItemDeleted(itemId: self.id)
                 } else if self.hasCrossedRestingThreshold {
                     self.swipeSetting = .open
                 }
@@ -272,7 +270,7 @@ extension SidebarItemSwipable {
                     self.swipeSetting = .closed
                 }
                 self.previousSwipeX = self.swipeSetting.distance
-                self.activeSwipeId = self.item.id
+                self.activeSwipeId = self.id
             } // if active...
         }
         return onSwipeEnded
@@ -338,6 +336,10 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    var id: SidebarListItemId {
+        self.item.id
+    }
+    
     @MainActor
     var isGroup: Bool {
         guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {

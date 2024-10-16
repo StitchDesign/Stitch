@@ -9,12 +9,14 @@ import SwiftUI
 import StitchSchemaKit
 
 struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
-
+    @State private var isBeingEditedAnimated = false
+    
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
     let name: String
-    let layer: Layer
+//    let layer: Layer
 //    let nodeId: LayerNodeId // debug
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
@@ -22,11 +24,12 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     
     let selection: SidebarListItemSelectionStatus
 //    let isHidden: Bool
-    let isBeingEdited: Bool
     let isGroup: Bool
     let isClosed: Bool
-   
-    @State private var isBeingEditedAnimated = false
+    
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isBeingEdited
+    }
     
     // TODO: debug names
 //    var _name: String {
@@ -42,45 +45,46 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     var body: some View {
         HStack(spacing: 4) {
             
-//            if isGroup {
-            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
-                                       isClosed: isClosed,
-                                       parentId: nodeId,
-                                       fontColor: fontColor,
-//                                           isHidden: isHidden)
-                .opacity(isGroup ? 1 : 0)
-                // .border(.green)
-//            }
-  
-            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
-                                                        layerId: nodeId.asNodeId,
-                                                        activeIndex: graph.activeIndex))
-                .scaledToFit()
-                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
-                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                .foregroundColor(fontColor)
-                .overlay(alignment: .bottomLeading) {
-                    ZStack {
-                        
-                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-                        
-                        Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
-                            .resizable()
-                            .scaledToFit()
-                            .padding(2)
-                            .offset(x: -0.5)
-                            .foregroundColor(fontColor)
-                    }
-                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2,
-                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2)
-                    .foregroundColor(fontColor)
-                    .opacity(masks ? 1 : 0)
-                    .animation(.linear, value: masks)
-                    .cornerRadius(4)
-                }
-            
-            label
-                .foregroundColor(fontColor)
+            // TODO: left view
+////            if isGroup {
+//            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
+//                                       isClosed: isClosed,
+//                                       parentId: nodeId,
+//                                       fontColor: fontColor,
+////                                           isHidden: isHidden)
+//                .opacity(isGroup ? 1 : 0)
+//                // .border(.green)
+////            }
+//  
+//            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
+//                                                        layerId: nodeId.asNodeId,
+//                                                        activeIndex: graph.activeIndex))
+//                .scaledToFit()
+//                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+//                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+//                .foregroundColor(fontColor)
+//                .overlay(alignment: .bottomLeading) {
+//                    ZStack {
+//                        
+//                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+//                        
+//                        Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
+//                            .resizable()
+//                            .scaledToFit()
+//                            .padding(2)
+//                            .offset(x: -0.5)
+//                            .foregroundColor(fontColor)
+//                    }
+//                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2,
+//                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2)
+//                    .foregroundColor(fontColor)
+//                    .opacity(masks ? 1 : 0)
+//                    .animation(.linear, value: masks)
+//                    .cornerRadius(4)
+//                }
+//            
+//            label
+//                .foregroundColor(fontColor)
         }
         .padding(.leading, 4)
         .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
@@ -89,24 +93,25 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     var label: some View {
         Group {
             if isBeingEdited {
-                SidebarListLabelEditView(id: nodeId,
-                                         name: _name,
-                                         fontColor: fontColor,
-                                         graph: graph)
-                .truncationMode(.tail)
-#if targetEnvironment(macCatalyst)
-                .padding(.trailing, 44)
-#else
-                .padding(.trailing, 60)
-#endif
-            } else {
-                SidebarListLabelEditView(id: nodeId,
-                                         name: _name,
-                                         fontColor: fontColor,
-                                         graph: graph)
+                //                SidebarListLabelEditView(id: nodeId,
+                //                                         name: _name,
+                //                                         fontColor: fontColor,
+                //                                         graph: graph)
+                //                .truncationMode(.tail)
+                //#if targetEnvironment(macCatalyst)
+                //                .padding(.trailing, 44)
+                //#else
+                //                .padding(.trailing, 60)
+                //#endif
+                //            } else {
+                //                SidebarListLabelEditView(id: nodeId,
+                //                                         name: _name,
+                //                                         fontColor: fontColor,
+                //                                         graph: graph)
+                //            }
             }
+                .lineLimit(1)
         }
-        .lineLimit(1)
     }
 }
 
@@ -201,7 +206,7 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 
-                    SidebarListDragIconView(item: item)
+                    SidebarListDragIconView()
                         .padding(.trailing, 4)
                 }
                 .transition(.slideInAndOut)
@@ -221,9 +226,6 @@ let EDIT_MODE_HAMBURGER_DRAG_ICON_COLOR: Color = .gray // Always gray, whether l
 
 // TODO: on iPad, dragging the hamburger icon should immediately drag the sidebar-item without need for long press first
 struct SidebarListDragIconView: View {
-
-    let item: SidebarListItem
-
     var body: some View {
         Image(systemName: EDIT_MODE_HAMBURGER_DRAG_ICON)
         // TODO: Should use white if this sidebar layer is selected?

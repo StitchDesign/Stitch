@@ -37,8 +37,8 @@ enum SidebarListItemSelectionStatus {
 }
 
 // what about when a group is collapsed?
-func getSelectionStatus(_ id: LayerNodeId,
-                        _ selections: SidebarSelectionState) -> SidebarListItemSelectionStatus {
+func getSelectionStatus<ItemID>(_ id: ItemID,
+                                _ selections: SidebarSelectionObserver<ItemID>) -> SidebarListItemSelectionStatus {
 
     if selections.primary.contains(id) {
         return .primary

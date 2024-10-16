@@ -10,33 +10,29 @@ import SwiftUI
 import StitchSchemaKit
 
 struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarItemViewModel: SidebarItemSwipable {
-    
+    // The actual rendered distance for the swipe distance
+    @State private var swipeX: CGFloat = 0
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarItemViewModel.SidebarViewModel
+    @Bindable var itemViewModel: SidebarItemViewModel.ItemViewModel
     
-    var item: SidebarItemViewModel.Item
     let name: String
 //    let layer: Layer
-    var current: SidebarDraggedItem<SidebarItemViewModel.Item.ID>?
-    var proposedGroup: ProposedGroup<SidebarItemViewModel.Item.ID>?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
     let swipeSetting: SidebarSwipeSetting
     let sidebarWidth: CGFloat
-    
-    // The actual rendered distance for the swipe distance
-    @State var swipeX: CGFloat = 0
-    @Bindable var gestureViewModel: SidebarItemViewModel
+
+    var isBeingEdited: Bool { self.sidebarViewModel.isEditing }
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
-    var itemIndent: CGFloat { gestureViewModel.location.x }
+    var itemIndent: CGFloat { itemViewModel.location.x }
     
     var fontColor: Color {
-        self.gestureViewModel.fontColor
+        self.itemViewModel.fontColor
     }
     
 //    var layerNodeId: LayerNodeId {
@@ -53,25 +49,22 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
                                     item: item,
                                     name: name,
 //                                    layer: layer,
-                                    current: current,
-                                    proposedGroup: proposedGroup,
                                     isClosed: isClosed,
                                     fontColor: fontColor,
                                     selection: selection,
-                                    isBeingEdited: isBeingEdited,
 //                                    isHidden: isHidden,
                                     swipeOffset: swipeX)
                 .padding(.leading, itemIndent + 5)
                 .background {
                     theme.fontColor
-                        .opacity(gestureViewModel.backgroundOpacity)
+                        .opacity(itemViewModel.backgroundOpacity)
                 }
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.
                 .overlay(alignment: .trailing) {
                     SidebarListItemRightLabelView(
-                        item: item,
-                        isGroup: item.isGroup,
+                        item: itemViewModel,
+                        isGroup: itemViewModel.isGroup,
                         isClosed: isClosed,
                         fontColor: fontColor,
                         selection: selection,
@@ -83,10 +76,9 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
             }
             
             SidebarListItemSwipeMenu(
-                item: item,
+                gestureViewModel: itemViewModel,
                 swipeOffset: swipeX,
-                visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
-                gestureViewModel: self.gestureViewModel)
+                visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON)
         }
         
         // Animates swipe distance if it gets pinned to its open or closed position.

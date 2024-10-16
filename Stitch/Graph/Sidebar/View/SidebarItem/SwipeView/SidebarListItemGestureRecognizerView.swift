@@ -34,8 +34,11 @@ struct SidebarListItemGestureRecognizerView<T: View,
     
     var instantDrag: Bool = false
     
-    var graph: GraphState
-    var itemId: GestureViewModel.Item.ID
+    let graph: GraphState
+    
+    var itemId: GestureViewModel.Item.ID {
+        gestureViewModel.id
+    }
 
     func makeUIViewController(context: Context) -> GestureHostingController<T> {
         let vc = GestureHostingController(

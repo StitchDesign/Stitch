@@ -43,7 +43,7 @@ extension ProjectSidebarObservable {
     
     // if "parent" does not have an iimte
     // Better?: `!getDescendents.isEmpty`
-    func hasOpenChildren(_ item: SidebarListItem, _ items: SidebarListItems) -> Bool {
+    func hasOpenChildren(_ item: Self.ItemViewModel, _ items: [Self.ItemViewModel]) -> Bool {
         
         let parentIndex = item.itemIndex(items)
         let nextChildIndex = parentIndex + 1

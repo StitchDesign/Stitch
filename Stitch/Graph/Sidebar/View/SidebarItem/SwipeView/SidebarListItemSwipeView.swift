@@ -8,24 +8,17 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
+struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    typealias ItemViewModel = SidebarViewModel.ItemViewModel
+    
     @Bindable var graph: GraphState
-    @Bindable var sidebarViewModel: GestureViewModel.SidebarViewModel
-    @Bindable var gestureViewModel: GestureViewModel
-
-    var item: GestureViewModel.Item
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var gestureViewModel: ItemViewModel
     
     let name: String
 //    let layer: Layer
-    var current: SidebarDraggedItem<GestureViewModel.Item.ID>?
-    var proposedGroup: ProposedGroup<GestureViewModel.Item.ID>?
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
-
-    @Binding var activeGesture: GestureViewModel.ActiveGesture
-
-    @Binding var activeSwipeId: GestureViewModel.Item.ID?
 
 //    init(graph: Bindable<GraphState>,
 //         item: SidebarListItem,
@@ -63,8 +56,7 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
             view: customSwipeItem,
             sidebarViewModel: sidebarViewModel,
             gestureViewModel: gestureViewModel,
-            graph: graph,
-            itemId: item.id)
+            graph: graph)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
         .offset(y: gestureViewModel.location.y)
@@ -79,14 +71,13 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
         .gesture(gestureViewModel.longPressDragGesture)
         #endif
 
-        .onChange(of: activeSwipeId) { _ in
+        .onChange(of: sidebarViewModel.activeSwipeId) { _ in
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: isBeingEdited) { newValue in
-            gestureViewModel.editOn = newValue
+        .onChange(of: sidebarViewModel.isEditing) { newValue in
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: activeGesture) { newValue in
+        .onChange(of: sidebarViewModel.activeGesture) { newValue in
             switch newValue {
                 // scrolling or dragging resets swipe-menu
             case .scrolling, .dragging:
@@ -103,17 +94,13 @@ struct SidebarListItemSwipeView<GestureViewModel: SidebarItemSwipable>: View {
             SidebarListItemSwipeInnerView(
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
-                item: item,
+                itemViewModel: gestureViewModel,
                 name: name,
 //                layer: layer,
-                current: current,
-                proposedGroup: proposedGroup,
                 isClosed: isClosed,
                 selection: selection,
-                isBeingEdited: isBeingEdited,
                 swipeSetting: gestureViewModel.swipeSetting,
-                sidebarWidth: geometry.size.width,
-                gestureViewModel: gestureViewModel)
+                sidebarWidth: geometry.size.width)
             .onHover { hovering in
                 // log("hovering: sidebar item \(item.id.id)")
                 // log("hovering: \(hovering)")

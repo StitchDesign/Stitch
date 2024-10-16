@@ -143,36 +143,28 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     // indentation is handled by calculated indentations.
     @MainActor
     var listView: some View {
-
-        let current: SidebarDraggedItem? = sidebarListState.current
-
-        return ScrollView(.vertical) {
+        ScrollView(.vertical) {
             // use .topLeading ?
             ZStack(alignment: .leading) {
                 
                 // HACK
-                if masterList.items.isEmpty {
+                if sidebarViewModel.items.isEmpty {
                     fakeSidebarListItem
                 }
                 
-                ForEach(masterList.items, id: \.id.value) { (item: SidebarListItem) in
-                    
+                ForEach(sidebarViewModel.items) { item in
                     let selection = getSelectionStatus(
-                        item.id.asLayerNodeId,
-                        selections)
+                        item.id,
+                        sidebarViewModel.selectionState)
                     
                     SidebarListItemSwipeView(
                         graph: graph,
                         item: item,
                         name: graph.getNodeViewModel(item.id.asNodeId)?.getDisplayTitle() ?? item.layer.value,
                         layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
-                        current: current,
-                        proposedGroup: sidebarListState.proposedGroup,
-                        isClosed: masterList.collapsedGroups.contains(item.id),
+                        isClosed: sidebarViewModel.collapsedGroups.contains(item.id),
                         selection: selection,
-                        isBeingEdited: isBeingEditedAnimated,
-                        activeGesture: $activeGesture,
-                        activeSwipeId: $activeSwipeId)
+                        isBeingEdited: isBeingEditedAnimated)
                     .zIndex(item.zIndex) // TODO: replace wi
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
@@ -182,7 +174,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             // Need to specify the amount space (height) the sidebar items all-together need,
             // so that scroll view doesn't interfere with e.g. tap gestures on views deeper inside
             // (e.g. the tap gesture on the circle in edit-mode)
-            .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * masterList.items.count),
+            .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * sidebarViewModel.items.count),
                    alignment: .top)
         
 //            #if DEV_DEBUG
@@ -206,9 +198,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 #endif
         // TODO: remove some of these animations ?
         .animation(.spring(), value: isBeingEdited)
-        .animation(.spring(), value: sidebarListState.proposedGroup)
-        .animation(.spring(), value: sidebarDeps)
-        .animation(.easeIn, value: sidebarListState.masterList.items)
+        .animation(.spring(), value: sidebarViewModel.proposedGroup)
+//        .animation(.spring(), value: sidebarDeps)
+        .animation(.easeIn, value: sidebarViewModel.items)
         
         .onChange(of: isBeingEdited) { newValue in
             // This handler enables all animations
@@ -222,16 +214,18 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 import StitchViewKit
 import OrderedCollections
 
-protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
-                                                               ExcludedGroups: Equatable {
+protocol ProjectSidebarObservable<ItemViewModel>: AnyObject, Observable where ItemViewModel: SidebarItemSwipable,
+                                                                              ItemViewModel.ID == EncodedItemData.ID,
+                                                                              ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
     associatedtype EncodedItemData = StitchNestedListElement
 
-    typealias ItemData = ItemViewModel.Item
-    typealias ItemID = ItemData.ID
+//    typealias ItemData = ItemViewModel.Item
+    typealias ItemID = ItemViewModel.ID
     typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
     typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
-    typealias ExcludedGroups = ExcludedGroupsData<ItemData>
+    typealias ExcludedGroups = ExcludedGroupsData<ItemViewModel>
+    typealias HorizontalDrag = SidebarCursorHorizontalDrag<ItemViewModel>
     
     init()
     var isEditing: Bool { get set }
@@ -241,7 +235,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var expandedSidebarItems: Set<ItemID> { get }
     
     var proposedGroup: ProposedGroup<ItemID>? { get set }
-    var cursorDrag: SidebarCursorHorizontalDrag<ItemViewModel>? { get set }
+    var cursorDrag: HorizontalDrag? { get set }
 
     // groups currently opened or closed;
     // an item's id is added when its group closed,

@@ -18,21 +18,32 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     
-    var item: ItemData
+    var item: SidebarViewModel.ItemViewModel
     let name: String
 //    let layer: Layer
-    var current: SidebarDraggedItem<ItemData.ID>?
-    var proposedGroup: ProposedGroup<ItemData.ID>?
+
     var isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
     
     let selection: SidebarListItemSelectionStatus
-    let isBeingEdited: Bool
+
 //    let isHidden: Bool
 
     let swipeOffset: CGFloat
+
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isEditing
+    }
+    
+    var current: SidebarDraggedItem<ItemID>? {
+        self.sidebarViewModel.currentItemDragged
+    }
+    
+    var proposedGroup: ProposedGroup<SidebarViewModel.ID>? {
+        self.sidebarViewModel.proposedGroup
+    }
 
     // TODO: should be for *all* selected-layers during a drag
     var isBeingDragged: Bool {
@@ -42,17 +53,13 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     var isProposedGroup: Bool {
         proposedGroup?.parentId == item.id
     }
-
-    var layerNodeId: LayerNodeId {
-        item.id.asLayerNodeId
-    }
     
     var isNonEditModeFocused: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.focused.contains(layerNodeId)
+        sidebarViewModel.inspectorFocusedLayers.focused.contains(item.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
-        graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+        sidebarViewModel.inspectorFocusedLayers.activelySelected.contains(item.id)
     }
     
     var isNonEditModeSelected: Bool {
@@ -67,11 +74,9 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
                 sidebarViewModel: sidebarViewModel,
                 name: name,
 //                layer: layer,
-                nodeId: layerNodeId,
                 fontColor: fontColor,
                 selection: selection,
 //                isHidden: isHidden,
-                isBeingEdited: isBeingEdited,
                 isGroup: item.isGroup,
                 isClosed: isClosed)
             
