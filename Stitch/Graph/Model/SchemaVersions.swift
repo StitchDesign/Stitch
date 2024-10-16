@@ -108,6 +108,8 @@ public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
 public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
 public typealias StitchSystem = CurrentStitchSystem.StitchSystem
 public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
+public typealias DeviceAppearance = CurrentDeviceAppearance.DeviceAppearance
+public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument

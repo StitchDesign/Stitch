@@ -818,6 +818,7 @@
 		ECDCE35C2821EAC700D83EC3 /* PortValueEdit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDCE35B2821EAC700D83EC3 /* PortValueEdit.swift */; };
 		ECDCE3602821F13800D83EC3 /* DropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDCE35F2821F13800D83EC3 /* DropDownChoiceView.swift */; };
 		ECDD303B27A882A200E91530 /* GlobalDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDD303A27A882A200E91530 /* GlobalDispatch.swift */; };
+		ECDD4E0E2CC065BE003B4F9A /* MaterialLayerNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDD4E0D2CC065BE003B4F9A /* MaterialLayerNode.swift */; };
 		ECDE943228089DF500005401 /* NodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE943128089DF500005401 /* NodeView.swift */; };
 		ECDE943428089FCE00005401 /* NodesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE943328089FCE00005401 /* NodesView.swift */; };
 		ECDFF6302A0E994700729D2A /* ShapeToCommandsNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDFF62F2A0E994700729D2A /* ShapeToCommandsNode.swift */; };
@@ -1749,6 +1750,7 @@
 		ECDCE35B2821EAC700D83EC3 /* PortValueEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortValueEdit.swift; sourceTree = "<group>"; };
 		ECDCE35F2821F13800D83EC3 /* DropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDownChoiceView.swift; sourceTree = "<group>"; };
 		ECDD303A27A882A200E91530 /* GlobalDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalDispatch.swift; sourceTree = "<group>"; };
+		ECDD4E0D2CC065BE003B4F9A /* MaterialLayerNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialLayerNode.swift; sourceTree = "<group>"; };
 		ECDE943128089DF500005401 /* NodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeView.swift; sourceTree = "<group>"; };
 		ECDE943328089FCE00005401 /* NodesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodesView.swift; sourceTree = "<group>"; };
 		ECDFF62F2A0E994700729D2A /* ShapeToCommandsNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeToCommandsNode.swift; sourceTree = "<group>"; };
@@ -3682,6 +3684,7 @@
 				EC281EFA294901C70094BA5D /* HitAreaLayerNode.swift */,
 				ECA92A41260A6AA200281B52 /* OvalLayerNode.swift */,
 				EC11218E2942846900F0AE19 /* ShapeLayerNode.swift */,
+				ECDD4E0D2CC065BE003B4F9A /* MaterialLayerNode.swift */,
 				ECA92A45260A6AD000281B52 /* RectangleLayerNode.swift */,
 				ECA92A49260A6ADE00281B52 /* TextLayerNode.swift */,
 				E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */,
@@ -4786,6 +4789,7 @@
 				EC6C68D42937D27A0023B700 /* ArrayCountNode.swift in Sources */,
 				ECDBD8AD27A1D2E300F8DC91 /* GraphBaseView.swift in Sources */,
 				B548533929371E7B00C43828 /* ARUtils.swift in Sources */,
+				ECDD4E0E2CC065BE003B4F9A /* MaterialLayerNode.swift in Sources */,
 				ECE35EDC27CEDB3F00CB8F5C /* LayerSizeUtils.swift in Sources */,
 				E457441D2BC0548300B1642E /* QRCodeDetection.swift in Sources */,
 				B55500E22C1BABA50081C3F1 /* PreviewSidebarHighlightModifier.swift in Sources */,
@@ -6309,8 +6313,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				kind = revision;
-				revision = 43ddf22d6002381105f6b15c9d39d13cc436d01c;
+				branch = "introduce-material-layer";
+				kind = branch;
 			};
 		};
 		EC1137362719F9B400ADCA72 /* XCRemoteSwiftPackageReference "swift-collections" */ = {

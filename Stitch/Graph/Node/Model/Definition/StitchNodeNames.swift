@@ -998,6 +998,10 @@ The Video Streaming Layer streams a video from a given URL string.
 • Clipped (Boolean)
 """
 
+let materialDescription = """
+A Material Effect layer.
+"""
+
 // MARK: Loops
 
 let loopBuilderDescription = """
