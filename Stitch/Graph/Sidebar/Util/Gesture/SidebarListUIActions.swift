@@ -132,7 +132,7 @@ func updateYPosition(translation: CGSize,
 extension ProjectSidebarObservable {
     // ie We've just REORDERED `items`,
     // and now want to set their heights according to the REORDERED items.
-    func setYPositionByIndices(originalItemId: SidebarListItemId,
+    func setYPositionByIndices(originalItemId: Self.ItemID,
                                isDragEnded: Bool = false) {
         self.items.enumerated().forEach { (offset, item) in
             var item = item
@@ -151,20 +151,18 @@ extension ProjectSidebarObservable {
     }
 }
 
-func wipeIndentationLevelsOfSelectedItems(items: SidebarListItems,
-                                          selections: SidebarListItemIdSet) -> SidebarListItems {
-    items.map { (item: SidebarListItem) in
-        if item.isSelected(selections) {
-            var item = item
-            item.location.x = 0
-            item.previousLocation.x = 0
-            item.parentId = nil // Also removes parent, if item is now top level
-            return item
-        } else {
-            return item
+extension Array where Element: SidebarItemSwipable {
+    func wipeIndentationLevelsOfSelectedItems(selections: Element.Item.ID) {
+        self.forEach { item in
+            if item.isSelected(selections) {
+                item.location.x = 0
+                item.previousLocation.x = 0
+                item.parentId = nil // Also removes parent, if item is now top level
+            }
         }
     }
 }
+
 
 func removeSelectedItemsFromParents(items: SidebarListItems,
                                     selections: LayerIdSet) -> SidebarListItems {

@@ -83,25 +83,23 @@ struct SidebarListItemGroupClosed: GraphEventWithResponse {
     }
 }
 
-struct SidebarListItemGroupOpened: GraphEventWithResponse {
-
-    let openedParent: LayerNodeId
-    
-    func handle(state: GraphState) -> GraphResponse {
+extension LayersSidebarViewModel {
+    @MainActor
+    func sidebarListItemGroupOpened(openedParent: SidebarListItemId) {
 
 //        state.sidebarListState.masterList = onSidebarListItemGroupOpened(
 //            openedId: openedParent.asItemId,
 //            state.sidebarListState.masterList)
 
 //        state.sidebarExpandedItems.insert(openedParent)
-        state.getNodeViewModel(openedParent.asNodeId)?.layerNode?.isExpandedInSidebar = true
+        self.graphDelegate?.getNodeViewModel(openedParent.asNodeId)?.layerNode?.isExpandedInSidebar = true
         
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
+//        _updateStateAfterListChange(
+//            updatedList: state.sidebarListState,
+//            expanded: state.getSidebarExpandedItems(),
+//            graphState: state)
         
-        return .shouldPersist
+        self.graphDelegate?.encodeProjectInBackground()
     }
 }
 
@@ -118,7 +116,7 @@ extension ProjectSidebarObservable {
         // so that we can unfurl its own children
         self.collapsedGroups.remove(openedId)
         
-        guard let parentItem = retrieveItem(openedId, masterList.items) else {
+        guard let parentItem = retrieveItem(openedId, self.items) else {
             fatalErrorIfDebug("Could not retrieve item")
             return masterList
         }
@@ -126,15 +124,13 @@ extension ProjectSidebarObservable {
         
         let originalCount = self.items.count
         
-        let (updatedMaster, lastIndex) = self.unhideChildren(
+        let lastIndex = self.unhideChildren(
             openedParent: openedId,
             parentIndex: parentIndex,
             parentY: parentItem.location.y)
         
-        masterList = updatedMaster
-        
         // count after adding hidden descendants back to `items`
-        let updatedCount = masterList.items.count
+        let updatedCount = self.items.count
         
         // how many items total we added by unhiding the parent's children
         let addedCount = updatedCount - originalCount

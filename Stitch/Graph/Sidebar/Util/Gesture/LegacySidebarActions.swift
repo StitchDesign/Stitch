@@ -55,15 +55,13 @@ extension ProjectSidebarObservable {
     }
     
     func getDraggedAlongHelper(item: Self.ItemID,
-                               allItems: [Self.ItemViewModel], // for retrieving children
                                acc: Set<Self.ItemID>) -> Set<Self.ItemID> {
         var acc = acc
         acc.insert(item)
         
-        let children = allItems.filter { $0.parentId == item }
+        let children = self.items.filter { $0.parentId == item }
         children.forEach { child in
             let updatedAcc = getDraggedAlongHelper(item: child.id,
-                                                   allItems: allItems,
                                                    acc: acc)
             acc = acc.union(updatedAcc)
         }

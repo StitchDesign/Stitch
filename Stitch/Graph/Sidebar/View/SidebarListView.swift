@@ -240,8 +240,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var excludedGroups: ExcludedGroups { get set }
     var expandedSidebarItems: Set<ItemID> { get }
     
-    var proposedGroup: ProposedGroup<ItemID>?
-    var cursorDrag: SidebarCursorHorizontalDrag<ItemViewModel>?
+    var proposedGroup: ProposedGroup<ItemID>? { get set }
+    var cursorDrag: SidebarCursorHorizontalDrag<ItemViewModel>? { get set }
 
     // groups currently opened or closed;
     // an item's id is added when its group closed,
@@ -264,6 +264,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 //    func canDuplicate() -> Bool
     
     func didGroupExpand(_ id: ItemID)
+    @MainActor func sidebarListItemGroupOpened(openedParent: ItemID)
+
     func sidebarGroupCreated()
     func didItemsDelete(ids: Set<ItemID>)
 }

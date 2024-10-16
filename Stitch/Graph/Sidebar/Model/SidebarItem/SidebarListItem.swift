@@ -14,10 +14,10 @@ struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
 //    var location: CGPoint
 //    var previousLocation: CGPoint
 
-    var zIndex: ZIndex = 1
-    var parentId: SidebarListItemId? // has a parent?
+//    var zIndex: ZIndex = 1
+//    var parentId: SidebarListItemId? // has a parent?
 
-    let isGroup: Bool // is a parent for others?
+//    let isGroup: Bool // is a parent for others?
 
     init(id: SidebarListItemId,
          layer: LayerNodeTitle,

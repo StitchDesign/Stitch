@@ -28,9 +28,9 @@ protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
 //    var location: CGPoint { get set }
 }
 
-protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarViewModel.ItemID {
-    associatedtype Item: SidebarItemData
+protocol SidebarItemSwipable: AnyObject, Observable {
     associatedtype SidebarViewModel: ProjectSidebarObservable
+    associatedtype Item: ProjectSidebarObservable.ItemData
     typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
     
     var item: Item { get set }
@@ -38,6 +38,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     var name: String { get set }
     
     var isGroup: Bool { get }
+    
+    var parentId: Item.ID { get set }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
