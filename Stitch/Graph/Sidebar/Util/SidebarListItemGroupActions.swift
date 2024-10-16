@@ -152,48 +152,40 @@ extension ProjectSidebarObservable {
     // - add removed children to ExcludedGroups dict
     // - move up the position of items below the now-closed parent
     @MainActor
-    func onSidebarListItemGroupClosed(closedId: SidebarListItemId,
-                                      _ masterList: MasterList) -> MasterList {
+    func onSidebarListItemGroupClosed(closedId: Self.ItemID) {
         
         print("onSidebarListItemGroupClosed called")
         
-        guard let closedParent = retrieveItem(closedId, masterList.items) else {
+        guard let closedParent = retrieveItem(closedId, self.items) else {
             fatalErrorIfDebug("Could not retrieve item")
-            return masterList
+            return
         }
         
-        var masterList = masterList
-        
-        if !hasOpenChildren(closedParent, masterList.items) {
-            masterList.collapsedGroups.insert(closedId)
-            masterList.excludedGroups.updateValue([], forKey: closedId)
-            return masterList
+        if !hasOpenChildren(closedParent, self.items) {
+            self.collapsedGroups.insert(closedId)
+            self.excludedGroups.updateValue([], forKey: closedId)
+            return
         }
         
-        let descendantsCount = getDescendants(
-            closedParent,
-            masterList.items).count
+        let descendantsCount = self.getDescendants(
+            closedParent).count
         
         let moveUpBy = descendantsCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
         
         // hide the children:
         // - populates ExcludedGroups
         // - removes now-hidden descendants from `items`
-        masterList = hideChildren(closedParentId: closedId,
-                                  masterList)
+        let _ = self.hideChildren(closedParentId: closedId)
         
         // and move any items below this parent upward
-        masterList.items = adjustItemsBelow(
+        self.adjustItemsBelow(
             // parent's own index should not have changed if we only
             // removed or changed items AFTER its index.
             closedParent.id,
             closedParent.itemIndex(masterList.items),
-            adjustment: -CGFloat(moveUpBy),
-            masterList.items)
+            adjustment: -CGFloat(moveUpBy))
         
         // add parent to collapsed group
-        masterList.collapsedGroups.insert(closedId)
-        
-        return masterList
+        self.collapsedGroups.insert(closedId)
     }
 }

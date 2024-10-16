@@ -68,10 +68,10 @@ extension ProjectSidebarObservable {
         // if there are no descendants, then we're basically done
         
         // all the items below this parent, with indentation > parent's
-        let descendants = getDescendants(closedParent, masterList.items)
+        let descendants = getDescendants(closedParent, self.items)
         
         // starting: immediate parent will have closed parent's id
-        var currentParent: SidebarListItemId = closedParentId
+        var currentParent = closedParentId
         
         // starting: immediate child of parent will have parent's indentation level + 1
         var currentDeepestIndentation = closedParent.indentationLevel.inc()
@@ -82,11 +82,11 @@ extension ProjectSidebarObservable {
             // if we ever have a descendant at, or west of, the closedParent,
             // then we made a mistake!
             if descendant.indentationLevel.value <= closedParent.indentationLevel.value {
-                fatalError()
+                fatalErrorIfDebug()
             }
             
             if descendant.indentationLevel == currentDeepestIndentation {
-                masterList = masterList.appendToExcludedGroup(
+                self.appendToExcludedGroup(
                     for: currentParent,
                     descendant)
             }
@@ -109,7 +109,7 @@ extension ProjectSidebarObservable {
                 }
                 
                 // set the descendant AFTER we've updated the parent
-                masterList = masterList.appendToExcludedGroup(
+                self.appendToExcludedGroup(
                     for: currentParent,
                     descendant)
             }
@@ -121,11 +121,11 @@ extension ProjectSidebarObservable {
     }
     
     func appendToExcludedGroup(for key: Self.ItemID,
-                               _ newItems: [Self.ItemData],
+                               _ newItems: [Self.ItemViewModel],
                                _ excludedGroups: Self.ExcludedGroups) {
         //    log("appendToExcludedGroup called")
         
-        var existing: SidebarListItems = excludedGroups[key] ?? []
+        var existing = excludedGroups[key] ?? []
         existing.append(contentsOf: newItems)
         
         var excludedGroups = excludedGroups
@@ -133,28 +133,26 @@ extension ProjectSidebarObservable {
         
         self.excludedGroups = excludedGroups
     }
-}
-
-
-// retrieve children
-// nil = parentId had no
-// non-nil = returning children, plus removing the parentId entry from ExcludedGroups
-func popExcludedChildren(parentId: SidebarListItemId,
-                         _ masterList: MasterList) -> (SidebarListItems, ExcludedGroups)? {
-
-    if let excludedChildren = masterList.excludedGroups[parentId] {
-
-        // prevents us from opening any subgroups that weren't already opend
-        if masterList.collapsedGroups.contains(parentId) {
-            log("this subgroup was closed when it was put away, so will skip it")
-            return nil
+    
+    // retrieve children
+    // nil = parentId had no
+    // non-nil = returning children, plus removing the parentId entry from ExcludedGroups
+    func self.popExcludedChildren(parentId: Self.ItemID) -> ([Self.ItemViewModel], ExcludedGroups)? {
+        
+        if let excludedChildren = self.excludedGroups[parentId] {
+            
+            // prevents us from opening any subgroups that weren't already opend
+            if self.collapsedGroups.contains(parentId) {
+                log("this subgroup was closed when it was put away, so will skip it")
+                return nil
+            }
+            
+            var groups = self.excludedGroups
+            groups.removeValue(forKey: parentId)
+            return (excludedChildren, groups)
         }
-
-        var groups = masterList.excludedGroups
-        groups.removeValue(forKey: parentId)
-        return (excludedChildren, groups)
+        return nil
     }
-    return nil
 }
 
 extension SidebarItemSwipable {
@@ -190,8 +188,8 @@ extension ProjectSidebarObservable {
         
         // does this `item` have children of its own?
         // if so, recur
-        if let (excludedChildren, updatedGroups) = popExcludedChildren(
-            parentId: item.id, self.items) {
+        if let (excludedChildren, updatedGroups) = self.popExcludedChildren(
+            parentId: item.id) {
             
             // log("unhideChildrenHelper: had children")
             
@@ -237,12 +235,12 @@ extension ProjectSidebarObservable {
         return (currentHighestIndex, currentHighestHeight)
     }
 
-    func unhideChildren(openedParent: SidebarListItemId,
+    func unhideChildren(openedParent: Self.ItemID,
                         parentIndex: Int,
                         parentY: CGFloat) -> Int {
         
         // this can actually happen
-        guard self.items.excludedGroups[openedParent].isDefined else {
+        guard self.excludedGroups[openedParent].isDefined else {
             fatalErrorIfDebug("Attempted to open a parent that did not have excluded children")
             return parentIndex
         }
@@ -263,44 +261,35 @@ extension ProjectSidebarObservable {
         
         return lastIndex
     }
-}
+    
+    // all children, closed or open
+    func self.childrenForParent(parentId: Self [Self.ItemViewModel] {
+        self.items.filter { $0.parentId == parentId }
+    }
 
-// all children, closed or open
-func childrenForParent(parentId: SidebarListItemId,
-                       _ items: SidebarListItems) -> SidebarListItems {
-    items.filter { $0.parentId == parentId }
-}
+    func adjustItemsBelow(_ parentId: Self.ItemID,
+                          _ parentIndex: Int, // parent that was opened or closed
+                          adjustment: CGFloat) { // down = +y; up = -y
+        self.items.forEach { item in
+            // only adjust items below the parent
+            if item.itemIndex(items) > parentIndex,
+               // ... but don't adjust children of the parent,
+               // since their position was already set in `unhideGroups`;
+                // and when hiding a group, there are no children to adjust.
+                item.parentId != parentId {
 
-func adjustItemsBelow(_ parentId: SidebarListItemId,
-                      _ parentIndex: Int, // parent that was opened or closed
-                      adjustment: CGFloat, // down = +y; up = -y
-                      _ items: SidebarListItems) -> SidebarListItems {
-
-    return items.map { item in
-        // only adjust items below the parent
-        if item.itemIndex(items) > parentIndex,
-           // ... but don't adjust children of the parent,
-           // since their position was already set in `unhideGroups`;
-           // and when hiding a group, there are no children to adjust.
-           item.parentId != parentId {
-            var item = item
-            // adjust both location and previousLocation
-            item.location = CGPoint(x: item.location.x,
-                                    y: item.location.y + adjustment)
-            item.previousLocation = item.location
-            return item
-        } else {
-            //            print("Will not adjust item \(item.id)")
-            return item
+                // adjust both location and previousLocation
+                item.location = CGPoint(x: item.location.x,
+                                        y: item.location.y + adjustment)
+                item.previousLocation = item.location
+            }
         }
     }
-}
-
-extension ProjectSidebarObservable {
+    
     func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
-                                   adjustment: CGFloat) -> [ItemViewModel] { // down = +y; up = -y
+                                   adjustment: CGFloat) -> [Self.ItemViewModel] { // down = +y; up = -y
         self.items.map { item in
-            if item.itemIndex(items) > lastIndex {
+            if item.itemIndex(self.items) > lastIndex {
                 var item = item
                 item.location = CGPoint(x: item.location.x,
                                         y: item.location.y + adjustment)
@@ -311,14 +300,7 @@ extension ProjectSidebarObservable {
             }
         }
     }
-}
 
-func retrieveItem<Element>(_ id: Element.ID,
-                           _ items: [Element]) -> Element? where Element: Identifiable {
-    items.first { $0.id == id }
-}
-
-extension ProjectSidebarObservable {
     func hasChildren(_ parentId: Self.ItemID) -> Bool {
         
         if let x = self.items.first(where: { $0.id == parentId }),
@@ -328,7 +310,7 @@ extension ProjectSidebarObservable {
         } else if self.excludedGroups[parentId].isDefined {
             //        log("hasChildren: true because has entry in excludedGroups")
             return true
-        } else if !childrenForParent(parentId: parentId, self.items).isEmpty {
+        } else if !self.childrenForParent(parentId: parentId).isEmpty {
             //        log("hasChildren: true because has non-empty children in on-screen items")
             return true
         } else {
@@ -336,4 +318,9 @@ extension ProjectSidebarObservable {
             return false
         }
     }
+}
+
+func retrieveItem<Element>(_ id: Element.ID,
+                           _ items: [Element]) -> Element? where Element: Identifiable {
+    items.first { $0.id == id }
 }
