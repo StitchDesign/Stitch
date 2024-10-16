@@ -48,16 +48,16 @@ struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
     }
 }
 
-// TODO: how to handle 'toggling' hidden status when multiple layers are selected and each layer may already have its own hidden status? ... Should user explicitly pick "Hide Layer" vs "Unhide Layer"?
-struct SelectedLayersHiddenStatusToggled: GraphEventWithResponse {
+struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
 
     let selectedLayers: LayerIdSet
+    let newVisibilityStatus: Bool
     
     @MainActor
     func handle(state: GraphState) -> GraphResponse {
-        // Careful -- some of these layers may be descendants of each other, and we currently toggle the descendants' status as well
         for selectedLayer in selectedLayers {
-            state.layerHiddenStatusToggled(selectedLayer)
+            state.layerHiddenStatusToggled(selectedLayer,
+                                           newVisibilityStatus: newVisibilityStatus)
         }
         return .persistenceResponse
     }
@@ -65,7 +65,9 @@ struct SelectedLayersHiddenStatusToggled: GraphEventWithResponse {
 
 extension GraphState {
     @MainActor
-    func layerHiddenStatusToggled(_ clickedId: LayerNodeId) {
+    func layerHiddenStatusToggled(_ clickedId: LayerNodeId,
+                                  // If provided, then we are explicitly setting true/false (for multiple layers) as opposed to just toggling an individual layer
+                                  newVisibilityStatus: Bool? = nil) {
         
         guard let layerNode = self.getLayerNode(id: clickedId.id)?.layerNode else {
             log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
@@ -80,7 +82,11 @@ extension GraphState {
             groups: sidebarGroups,
             acc: LayerIdSet())
 
-        layerNode.hasSidebarVisibility.toggle()
+        if let newVisibilityStatus = newVisibilityStatus {
+            layerNode.hasSidebarVisibility = newVisibilityStatus
+        } else {
+            layerNode.hasSidebarVisibility.toggle()
+        }
         
         let isShown = layerNode.hasSidebarVisibility
         
