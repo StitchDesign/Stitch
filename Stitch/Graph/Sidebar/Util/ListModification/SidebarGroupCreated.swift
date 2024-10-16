@@ -11,7 +11,7 @@ import SwiftUI
 
 // when a sidebar group is created from a selection of sidebar items,
 // we should insert the group at the location of the
-extension ProjectSidebarObservable {
+extension LayersSidebarViewModel {
     @MainActor
     func sidebarGroupCreated() {
         log("SidebarGroupCreated called")

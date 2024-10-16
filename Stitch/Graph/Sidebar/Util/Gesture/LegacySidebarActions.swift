@@ -9,14 +9,14 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension GraphState {
+extension ProjectSidebarObservable {
     @MainActor
-    func sidebarListItemLongPressed(id: SidebarListItemId) {
-        self.sidebarListState.current = SidebarDraggedItem(
+    func sidebarListItemLongPressed(id: Self.ItemID) {
+        self.currentItemDragged = SidebarDraggedItem(
             current: id,
             // can be empty just because
             // we're first starting the drag
-            draggedAlong: SidebarListItemIdSet())
+            draggedAlong: .init())
     }
 }
 
@@ -56,40 +56,41 @@ extension GraphState {
     }
 }
 
-func getDraggedAlongHelper(item: SidebarListItemId,
-                           allItems: SidebarListItems, // for retrieving children
-                           acc: SidebarListItemIdSet) -> SidebarListItemIdSet {
-    var acc = acc
-    acc.insert(item)
-    
-    let children = allItems.filter { $0.parentId == item }
-    children.forEach { child in
-        let updatedAcc = getDraggedAlongHelper(item: child.id,
-                                               allItems: allItems,
-                                               acc: acc)
-        acc = acc.union(updatedAcc)
+extension ProjectSidebarObservable {
+    func getDraggedAlongHelper(item: Self.ItemID,
+                               allItems: [Self.ItemViewModel], // for retrieving children
+                               acc: Set<Self.ItemID>) -> Set<Self.ItemID> {
+        var acc = acc
+        acc.insert(item)
+        
+        let children = allItems.filter { $0.parentId == item }
+        children.forEach { child in
+            let updatedAcc = getDraggedAlongHelper(item: child.id,
+                                                   allItems: allItems,
+                                                   acc: acc)
+            acc = acc.union(updatedAcc)
+        }
+        
+        return acc
     }
     
-    return acc
-}
-
-func getDraggedAlong(_ draggedItem: SidebarListItem,
-                     allItems: SidebarListItems,
-                     acc: SidebarListItemIdSet,
-                     selections: SidebarListItemIdSet) -> SidebarListItemIdSet {
-    
-    log("getDraggedAlong: draggedItem: \(draggedItem.layer) \(draggedItem.id)")
-    
-    var acc = acc
-    
-    let explicitlyDraggedItems: SidebarListItemIdSet = selections.union([draggedItem.id])
-    
-    explicitlyDraggedItems.forEach { explicitlyDraggedItem in
-        let updatedAcc = getDraggedAlongHelper(item: explicitlyDraggedItem, allItems: allItems, acc: acc)
-        acc = acc.union(updatedAcc)
+    func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
+                         acc: Set<Self.ItemID>,
+                         selections: Set<Self.ItemID) -> Set<Self.ItemID> {
+        
+        log("getDraggedAlong: draggedItem: \(draggedItem.layer) \(draggedItem.id)")
+        
+        var acc = acc
+        
+        let explicitlyDraggedItems: SidebarListItemIdSet = selections.union([draggedItem.id])
+        
+        explicitlyDraggedItems.forEach { explicitlyDraggedItem in
+            let updatedAcc = getDraggedAlongHelper(item: explicitlyDraggedItem, allItems: allItems, acc: acc)
+            acc = acc.union(updatedAcc)
+        }
+        
+        return acc
     }
-
-    return acc
 }
 
 

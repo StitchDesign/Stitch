@@ -33,7 +33,7 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     associatedtype SidebarViewModel: ProjectSidebarObservable
     typealias ActiveGesture = SidebarListActiveGesture<Item.ID>
     
-    var item: Item { get }
+    var item: Item { get set }
     
     var name: String { get set }
     
@@ -70,8 +70,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     @MainActor
     func sidebarListItemDragEnded(itemId: Item.ID)
     
-    @MainActor
-    func sidebarListItemLongPressed(id: Item.ID)
+//    @MainActor
+//    func sidebarListItemLongPressed(id: Item.ID)
     
     @MainActor
     func sidebarItemDeleted(itemId: Item.ID)
@@ -196,7 +196,7 @@ extension SidebarItemSwipable {
         let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
             print("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
             self.activeGesture = .dragging(self.item.id)
-            self.sidebarListItemLongPressed(id: self.item.id)
+            self.sidebarDelegate?.sidebarListItemLongPressed(id: self.item.id)
         }
 
         // TODO: Does `minimumDistance` matter?
@@ -472,7 +472,7 @@ extension SidebarItemGestureViewModel {
 //        }
 //
         let atleastOneIndexMasks = graph
-            .getLayerNode(id: self.item.id.asNodeId.id)?
+            .getLayerNode(id: self.item.id.asNodeId)?
             .layerNode?.masksPort.allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false
@@ -494,10 +494,10 @@ extension SidebarItemGestureViewModel {
         self.graphDelegate?.sidebarListItemDragEnded(itemId: itemId)
     }
     
-    @MainActor
-    func sidebarListItemLongPressed(id: SidebarListItemId) {
-        self.graphDelegate?.sidebarListItemLongPressed(id: id)
-    }
+//    @MainActor
+//    func sidebarListItemLongPressed(id: SidebarListItemId) {
+//        self.graphDelegate?.sidebarListItemLongPressed(id: id)
+//    }
     
     @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {

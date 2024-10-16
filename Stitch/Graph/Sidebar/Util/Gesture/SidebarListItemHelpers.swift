@@ -27,14 +27,12 @@ extension SidebarItemSwipable {
         item.previousLocation.x = .zero
         item.location.x = .zero
         item.item.parentId = nil
-        return item
     }
     
     func setIndentToOneLevel() {
         var item = self
         item.previousLocation.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
         item.location.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
-        return item
     }
 }
 
@@ -49,10 +47,9 @@ extension ProjectSidebarObservable {
         }
         
         // All items that were dragged along, whether explicitly or implicitly selected
-        let draggedAlong = getDraggedAlong(draggedItem,
-                                           allItems: items,
-                                           acc: .init(),
-                                           selections: selections)
+        let draggedAlong = self.getDraggedAlong(draggedItem,
+                                                acc: .init(),
+                                                selections: selections)
         
         // Items that were dragged along but not explicitly selected
         let implicitlyDraggedItems: SidebarListItemIdSet = getImplicitlyDragged(

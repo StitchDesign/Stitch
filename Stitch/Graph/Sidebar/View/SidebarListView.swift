@@ -261,6 +261,8 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 //    func canDuplicate() -> Bool
     
     func didGroupExpand(_ id: ItemID)
+    func sidebarGroupCreated()
+    func didItemsDelete(ids: Set<ItemID>)
 }
 
 extension ProjectSidebarObservable {
