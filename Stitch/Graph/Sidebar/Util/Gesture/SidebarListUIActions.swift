@@ -34,7 +34,7 @@ extension ProjectSidebarObservable {
             self.items = updateSidebarListItem(otherItem, items)
         }
         
-        guard let updatedItem = retrieveItem(item.id, items) else {
+        guard let updatedItem = self.retrieveItem(item.id) else {
             fatalErrorIfDebug("Could not retrieve item")
             return items
         }
@@ -43,38 +43,32 @@ extension ProjectSidebarObservable {
                                   draggedAlong: draggedAlong,
                                   startingIndentationLevel: proposedGroup.indentationLevel)
     }
-}
-
-@MainActor
-func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
-                                   _ items: SidebarListItems,
-                                   otherSelections: SidebarListItemIdSet,
-                                   draggedAlong: SidebarListItemIdSet) -> SidebarListItems {
-
-    var items = items
-
-    // Every explicitly dragged item gets its parent and indentation-level wiped
-    for otherSelection in ([item.id] + otherSelections) {
-        guard var otherItem = retrieveItem(otherSelection, items) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            continue
-        }
-        otherItem.parentId = nil
-        otherItem.location.x = 0
-        items = updateSidebarListItem(otherItem, items)
-    }
     
-    guard let updatedItem = retrieveItem(item.id, items) else {
-        fatalErrorIfDebug("Could not retrieve item")
-        return items
+    @MainActor
+    func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
+                                       otherSelections: Set<ItemID>,
+                                       draggedAlong: Set<ItemID>) {
+        
+        // Every explicitly dragged item gets its parent and indentation-level wiped
+        for otherSelection in ([item.id] + otherSelections) {
+            guard let otherItem = self.retrieveItem(otherSelection) else {
+                fatalErrorIfDebug("Could not retrieve item")
+                continue
+            }
+            otherItem.parentId = nil
+            otherItem.location.x = 0
+        }
+        
+        guard let updatedItem = self.retrieveItem(item.id) else {
+            fatalErrorIfDebug("Could not retrieve item")
+        }
+        
+        self.maybeSnapDescendants(updatedItem,
+                                  draggedAlong: draggedAlong,
+                                  startingIndentationLevel: IndentationLevel(0))
     }
-
-    return maybeSnapDescendants(updatedItem,
-                                items,
-                                draggedAlong: draggedAlong,
-                                startingIndentationLevel: IndentationLevel(0))
-
 }
+
 
 extension ProjectSidebarObservable {
     @MainActor
@@ -176,7 +170,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func groupFromChildBelow(_ item: Self.ItemID,
                              movedItemChildrenCount: Int,
-                             excludedGroups: ExcludedGroups) -> ProposedGroup? {
+                             excludedGroups: ExcludedGroups) -> ProposedGroup<Self.ItemID>? {
         
         log("groupFromChildBelow: item: \(item)")
         // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
@@ -241,9 +235,9 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func findDeepestParent(_ item: Self.ItemViewModel, // the moved-item
-                           cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
+                           cursorDrag: Self.HorizontalDrag) -> ProposedGroup<Self.ItemID>? {
         
-        var proposed: ProposedGroup?
+        var proposed: ProposedGroup<Self.ItemID>?
         
         log("findDeepestParent: item.id: \(item.id)")
         log("findDeepestParent: item.location.x: \(item.location.x)")
@@ -308,39 +302,35 @@ extension ProjectSidebarObservable {
         log("findDeepestParent: final proposed: \(String(describing: proposed))")
         return proposed
     }
-}
-
-
-// if we're blocked by a top level item,
-// then we ourselves must become a top level item
-@MainActor
-func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
-                                           _ items: SidebarListItems) -> Bool {
-
-    let index = item.itemIndex(items)
-    if let immediatelyAbove = items[safeIndex: index - 1],
-       // `parentId: nil` = item is top level
-       //       !immediatelyAbove.parentId.isDefined {
-
-       // ie the item above us is not part of a group
-       !immediatelyAbove.parentId.isDefined,
-
-       // ... and not itself a group.
-       // (if the item immediately above is a group,
-       // then we should allow it to be proposed)
-       !immediatelyAbove.isGroup {
-
-        //        log("blocked by child-less top-level item immediately above")
-        return true
+    
+    // if we're blocked by a top level item,
+    // then we ourselves must become a top level item
+    @MainActor
+    func blockedByTopLevelItemImmediatelyAbove(_ item: Self.ItemViewModel) -> Bool {
+        
+        let index = item.itemIndex(items)
+        if let immediatelyAbove = items[safeIndex: index - 1],
+           // `parentId: nil` = item is top level
+           //       !immediatelyAbove.parentId.isDefined {
+            
+            // ie the item above us is not part of a group
+            !immediatelyAbove.parentId.isDefined,
+           
+            // ... and not itself a group.
+           // (if the item immediately above is a group,
+            // then we should allow it to be proposed)
+            !immediatelyAbove.isGroup {
+            
+            //        log("blocked by child-less top-level item immediately above")
+            return true
+        }
+        return false
     }
-    return false
-}
 
-extension ProjectSidebarObservable {
     @MainActor
     func proposeGroup(_ item: Self.ItemViewModel, // the moved-item
                       _ draggedAlongCount: Int, // all dragged items, whether implicitly or explicitly selelected
-                      cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
+                      cursorDrag: Self.HorizontalDrag) -> ProposedGroup<Self.ItemID>? {
         
         // Note: we do not need to filter out otherSelectons etc., which are inc
         
@@ -354,7 +344,7 @@ extension ProjectSidebarObservable {
         
         // Does the item have a non-parent top-level it immediately above it?
         // if so, that blocks group proposal
-        if blockedByTopLevelItemImmediatelyAbove(item, items) {
+        if self.blockedByTopLevelItemImmediatelyAbove(item) {
             log("proposeGroup: blocked by non-parent top-level item above")
             proposed = nil
         }
@@ -380,7 +370,7 @@ extension ProjectSidebarObservable {
         log("proposeGroup: returning: \(String(describing: proposed))")
         
         if let proposedParentId = proposed?.parentId,
-           let proposedParentItem = retrieveItem(proposedParentId, self.items),
+           let proposedParentItem = self.retrieveItem(proposedParentId),
            !proposedParentItem.isGroup {
             fatalErrorIfDebug() // Can never propose a parent that is not actually a group
             return nil

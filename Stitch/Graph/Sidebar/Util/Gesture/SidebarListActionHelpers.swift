@@ -8,51 +8,39 @@
 import Foundation
 import SwiftUI
 
-extension ProjectSidebarObservable {
-    // When dragging: set actively-dragged and dragged-along items' z-indices to be high
-    // When drag ended: set all items z-indices = 0
-    @MainActor
-    func updateZIndices(zIndex: ZIndex) {
-        self.items.forEach {
-            item.zIndex = zIndex
-        }
-    }
-}
-
 let SIDEBAR_LIST_ITEM_MAX_Z_INDEX: ZIndex = 9999
 let SIDEBAR_LIST_ITEM_MIN_Z_INDEX: ZIndex = 0
 
-@MainActor
-func updateAllZIndices(items: SidebarListItems,
-                       itemId: SidebarListItemId,
-                       draggedAlong: SidebarListItemIdSet) -> SidebarListItems {
-
-    var items = items
-
-    let updatedItems = updateZIndices(
-        items.filter {
-            ($0.id == itemId) || draggedAlong.contains($0.id)
-        },
-        zIndex: SIDEBAR_LIST_ITEM_MAX_Z_INDEX)
-
-    for updatedItem in updatedItems {
-        items = updateSidebarListItem(updatedItem, items)
-    }
-
-    return items
-}
-
 extension ProjectSidebarObservable {
+    // When dragging: set actively-dragged and dragged-along items' z-indices to be high
+    // When drag ended: set all items z-indices = 0
+//    @MainActor
+//    func updateZIndices(zIndex: ZIndex) {
+//        self.items.forEach {
+//            item.zIndex = zIndex
+//        }
+//    }
+    
     @MainActor
-    func setItemsInGroupOrTopLevel(item: SidebarListItem,
+    func updateAllZIndices(itemId: SidebarListItemId,
+                           draggedAlong: SidebarListItemIdSet) {
+        self.items.forEach {
+            if ($0.id == itemId) || draggedAlong.contains($0.id) {
+                $0.zIndex = SIDEBAR_LIST_ITEM_MAX_Z_INDEX
+            }
+        }
+    }
+    
+    @MainActor
+    func setItemsInGroupOrTopLevel(item: Self.ItemViewModel,
                                    otherSelections: SidebarListItemIdSet,
                                    draggedAlong: SidebarListItemIdSet,
-                                   cursorDrag: SidebarCursorHorizontalDrag) {
+                                   cursorDrag: Self.HorizontalDrag) {
         
         // set all dragged items' z-indices to max
-        self.items = updateAllZIndices(
-            items: self.items, itemId:
-                item.id, draggedAlong:
+        self.updateAllZIndices(
+            itemId: item.id,
+            draggedAlong:
                 draggedAlong)
         
         // Propose a group based on the dragged item (in Stack case, will be Stack's top item)

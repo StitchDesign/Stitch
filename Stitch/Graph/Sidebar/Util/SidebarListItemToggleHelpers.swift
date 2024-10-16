@@ -60,7 +60,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func hideChildren(closedParentId: Self.ItemID) {
         
-        guard let closedParent = retrieveItem(closedParentId, self.items) else {
+        guard let closedParent = self.retrieveItem(closedParentId) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
@@ -247,7 +247,7 @@ extension ProjectSidebarObservable {
         
         // log("unhideChildren: parentIndex: \(parentIndex)")
         
-        guard let parent = retrieveItem(openedParent, self.items) else {
+        guard let parent = self.retrieveItem(openedParent) else {
             fatalErrorIfDebug("Could not retrieve item")
             return parentIndex
         }
@@ -318,9 +318,9 @@ extension ProjectSidebarObservable {
             return false
         }
     }
+    
+    func retrieveItem(_ id: Self.ItemID) -> Self.ItemViewModel? {
+        self.items.first { $0.id == id }
+    }
 }
 
-func retrieveItem<Element>(_ id: Element.ID,
-                           _ items: [Element]) -> Element? where Element: Identifiable {
-    items.first { $0.id == id }
-}

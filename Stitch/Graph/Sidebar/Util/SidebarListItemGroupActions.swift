@@ -32,8 +32,7 @@ extension ProjectSidebarObservable {
     func deselectDescendantsOfClosedGroup(_ closedParentId: Self.ItemID) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        guard let closedParent = retrieveItem(closedParentId,
-                                              self.orderedEncodedData.getFlattenedList()) else {
+        guard let closedParent = self.retrieveItem(closedParentId) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
@@ -90,7 +89,7 @@ extension ProjectSidebarObservable {
         // so that we can unfurl its own children
         self.collapsedGroups.remove(openedId)
         
-        guard let parentItem = retrieveItem(openedId, self.items) else {
+        guard let parentItem = self.retrieveItem(openedId) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
@@ -132,7 +131,7 @@ extension ProjectSidebarObservable {
         
         print("onSidebarListItemGroupClosed called")
         
-        guard let closedParent = retrieveItem(closedId, self.items) else {
+        guard let closedParent = self.retrieveItem(closedId) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }

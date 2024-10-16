@@ -234,7 +234,7 @@ extension ProjectSidebarObservable {
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
         
         var item = item
-        var cursorDrag = SidebarCursorHorizontalDrag<ItemViewModel>.fromItem(item)
+        var cursorDrag = Self.HorizontalDrag.fromItem(item)
         let originalItemIndex = self.items.firstIndex { $0.id == item.id }!
         
         var alreadyDragged = Set<ItemID>()
@@ -364,7 +364,7 @@ extension ProjectSidebarObservable {
     func onSidebarListItemDragEnded(_ item: SidebarListItem,
                                     otherSelections: SidebarListItemIdSet,
                                     draggedAlong: SidebarListItemIdSet,
-                                    proposed: ProposedGroup?) {
+                                    proposed: ProposedGroup<Self.ItemID>?) {
         
         log("onSidebarListItemDragEnded called")
         
@@ -385,7 +385,7 @@ extension ProjectSidebarObservable {
         // update both the X and Y in the previousLocation of the items that were moved;
         // ie `item` AND every id in `draggedAlong`
         for draggedId in allDragged {
-            guard var draggedItem = retrieveItem(draggedId, items) else {
+            guard var draggedItem = self.retrieveItem(draggedId) else {
                 fatalErrorIfDebug("Could not retrieve item")
                 continue
             }
@@ -394,6 +394,8 @@ extension ProjectSidebarObservable {
         }
         
         // reset the z-indices
-        self.updateZIndices(items, zIndex: 0)
+        self.items.forEach {
+            $0.zIndex = 0
+        }
     }
 }
