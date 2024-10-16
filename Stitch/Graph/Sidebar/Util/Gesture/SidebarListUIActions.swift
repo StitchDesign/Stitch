@@ -114,7 +114,7 @@ extension ProjectSidebarObservable {
 }
 
 func setXLocationByIndentation<Element>(_ item: Element,
-                                        _ indentationLevel: IndentationLevel) -> Element where Element: SidebarItemData {
+                                        _ indentationLevel: IndentationLevel) -> Element where Element: SidebarItemSwipable {
     var item = item
     item.location.x = indentationLevel.toXLocation
     return item

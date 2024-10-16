@@ -254,7 +254,11 @@ extension GraphState: GraphDelegate {
 }
 
 extension GraphState {
-    @MainActor func createSchema() -> GraphEntity {        
+    var sidebarSelectionState: LayersSidebarViewModel.SidebarSelectionState {
+        self.layersSidebarViewModel.selectionState
+    }
+    
+    @MainActor func createSchema() -> GraphEntity {
         let nodes = self.visibleNodesViewModel.nodes.values
             .map { $0.createSchema() }
         let commentBoxes = self.commentBoxesDict.values.map { $0.createSchema() }

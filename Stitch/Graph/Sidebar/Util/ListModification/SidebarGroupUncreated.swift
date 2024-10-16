@@ -25,7 +25,7 @@ extension GraphState {
     func sidebarGroupUncreatedViaEditMode() {
         log("_SidebarGroupUncreated called")
 
-        let primarilySelectedGroups = self.layersSidebarViewModel.sidebarSelectionState.primary
+        let primarilySelectedGroups = self.layersSidebarViewModel.selectionState.primary
         
         guard let group = primarilySelectedGroups.first else {
             // Expected group here

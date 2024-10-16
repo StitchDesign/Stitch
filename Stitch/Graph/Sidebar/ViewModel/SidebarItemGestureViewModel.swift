@@ -23,10 +23,10 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
-    var parentId: Self.ID? { get set }
-//    var location: CGPoint { get set }
-}
+//protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
+////    var parentId: Self.ID? { get set }
+////    var location: CGPoint { get set }
+//}
 
 protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable {
     associatedtype SidebarViewModel: ProjectSidebarObservable<Self>

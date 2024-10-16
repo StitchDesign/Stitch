@@ -8,7 +8,7 @@
 import Foundation
 import StitchSchemaKit
 
-struct SidebarListItem: SidebarItemData, Equatable, Hashable, Identifiable {
+struct SidebarListItem: Equatable, Hashable, Identifiable {
     let id: SidebarListItemId
     let layer: LayerNodeTitle
 //    var location: CGPoint

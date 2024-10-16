@@ -213,7 +213,7 @@ extension ProjectSidebarObservable {
         // JUST USED FOR UI PURPOSES, color changes etc.
         let implicitlyDragged = self.getImplicitlyDragged(
             draggedAlong: draggedAlong,
-            selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet)
+            selections: state.selectionState.inspectorFocusedLayers.focused)
         state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then

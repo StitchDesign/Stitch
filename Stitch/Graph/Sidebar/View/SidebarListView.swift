@@ -214,9 +214,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 import StitchViewKit
 import OrderedCollections
 
-protocol ProjectSidebarObservable<ItemViewModel>: AnyObject, Observable where ItemViewModel: SidebarItemSwipable,
-                                                                              ItemViewModel.ID == EncodedItemData.ID,
-                                                                              ExcludedGroups: Equatable {
+protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
+                                                               ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
     associatedtype EncodedItemData = StitchNestedListElement
 
@@ -283,7 +282,7 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     
     weak var graphDelegate: GraphState?
     
-    init(data: [OrderedSidebarLayers],
+    init(data: OrderedSidebarLayers,
          graph: GraphState? = nil) {
         self.graphDelegate = graph
         fatalError()
