@@ -117,13 +117,13 @@ extension ProjectSidebarObservable {
 // We must keep track of the gesture's x-translation
 // without changing the x-position of the being-dragged-item
 // (which is controlled by `snapDescendants`).
-struct SidebarCursorHorizontalDrag {
+struct SidebarCursorHorizontalDrag<ItemViewModel> where ItemViewModel: SidebarItemSwipable {
     var x: CGFloat
     var previousX: CGFloat
 
     // called at start of a drag gesture
     @MainActor
-    static func fromItem(_ item: SidebarItemGestureViewModel) -> SidebarCursorHorizontalDrag {
+    static func fromItem(_ item: ItemViewModel) -> Self {
         SidebarCursorHorizontalDrag(x: item.location.x,
                                     previousX: item.previousLocation.x)
     }

@@ -212,29 +212,23 @@ extension ProjectSidebarObservable {
         let otherSelections = state.getOtherSelections(draggedItem: itemId)
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
-        let (result, draggedAlong) = self.onSidebarListItemDragged(
+        let draggedAlong = self.onSidebarListItemDragged(
             item, // this dragged item
             translation, // drag data
             // ALL items
             otherSelections: otherSelections)
-
-        state..current = result.beingDragged
-        state..proposedGroup = result.proposed
-        state..cursorDrag = result.cursorDrag
-        
         
         // JUST USED FOR UI PURPOSES, color changes etc.
-        let implicitlyDragged = getImplicitlyDragged(
-            items: state.sidebarListState.masterList.items,
+        let implicitlyDragged = self.getImplicitlyDragged(
             draggedAlong: draggedAlong,
             selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet)
         state.sidebarSelectionState.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
+//        _updateStateAfterListChange(
+//            updatedList: state.sidebarListState,
+//            expanded: state.getSidebarExpandedItems(),
+//            graphState: state)
         
         // Recalculate the ordered-preview-layers
         state.updateOrderedPreviewLayers()
@@ -243,12 +237,12 @@ extension ProjectSidebarObservable {
     @MainActor
     func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
                                   _ translation: CGSize,
-                                  otherSelections: Set<ItemID>) -> (SidebarListItemDraggedResult, Set<ItemID>) {
+                                  otherSelections: Set<ItemID>) -> Set<ItemID> {
         
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
         
         var item = item
-        var cursorDrag = SidebarCursorHorizontalDrag.fromItem(item)
+        var cursorDrag = SidebarCursorHorizontalDrag<ItemViewModel>.fromItem(item)
         let originalItemIndex = self.items.firstIndex { $0.id == item.id }!
         
         var alreadyDragged = Set<ItemID>()
@@ -274,22 +268,20 @@ extension ProjectSidebarObservable {
         // limit this from going negative?
         cursorDrag.x = cursorDrag.previousX + translation.width
         
-        item = masterList.items[originalItemIndex] // update the `item` too!
+        item = self.items[originalItemIndex] // update the `item` too!
         alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
         draggedAlong = draggedAlong.union(updatedDraggedAlong)
         
-        let calculatedIndex = calculateNewIndexOnDrag(
+        let calculatedIndex = self.calculateNewIndexOnDrag(
             item: item,
-            items: masterList.items,
             otherSelections: otherSelections,
             draggedAlong: draggedAlong,
             movingDown: translation.height > 0,
             originalItemIndex: originalItemIndex,
             movedIndices: newIndices)
         
-        masterList.items = maybeMoveIndices(
+        self.maybeMoveIndices(
             originalItemId: item.id,
-            masterList.items,
             indicesMoved: newIndices,
             to: calculatedIndex,
             originalIndex: originalItemIndex)
@@ -301,26 +293,26 @@ extension ProjectSidebarObservable {
         item = masterList.items[updatedOriginalIndex]
         
         // should skip this for now?
-        let result = self.setItemsInGroupOrTopLevel(
+        self.setItemsInGroupOrTopLevel(
             item: item,
             otherSelections: otherSelections,
             draggedAlong: draggedAlong,
             cursorDrag: cursorDrag)
         
-        return (result, draggedAlong)
+        return draggedAlong
     }
 }
 
 
-struct SidebarListItemDraggedResult {
-    let proposed: ProposedGroup?
-    let beingDragged: SidebarDraggedItem
-    let cursorDrag: SidebarCursorHorizontalDrag
-}
+//struct SidebarListItemDraggedResult {
+//    let proposed: ProposedGroup?
+//    let beingDragged: SidebarDraggedItem
+//    let cursorDrag: SidebarCursorHorizontalDrag
+//}
 
-extension GraphState {
+extension ProjectSidebarObservable {
     @MainActor
-    func sidebarListItemDragEnded(itemId: SidebarListItemId) {
+    func sidebarListItemDragEnded(itemId: Self.ItemID) {
     
         log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
@@ -328,20 +320,20 @@ extension GraphState {
         var itemId = itemId
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
-        if state.sidebarSelectionState.optionDragInProgress {
+        if state.selectionState.optionDragInProgress {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
-            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
-             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
-             in: state.orderedSidebarLayers.getFlattenedList()) {
+            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
+                from: state.selectionState.inspectorFocusedLayers.focused,
+                in: state.orderedSidebarLayers.getFlattenedList()) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex.asItemId
             }
         }
         
         
-        let item = state.sidebarListState.masterList.items.first { $0.id == itemId }
+        let item = state.items.first { $0.id == itemId }
         guard let item = item else {
             // if we couldn't find the item, it's been deleted
              log("SidebarListItemDragEnded: item \(itemId) was already deleted")
@@ -349,10 +341,9 @@ extension GraphState {
         }
 
         // if no `current`, then we were just swiping?
-        if let current = state.sidebarListState.current {
-            state.sidebarListState.masterList.items = onSidebarListItemDragEnded(
+        if let current = state.currentItemDragged {
+            self.onSidebarListItemDragEnded(
                 item,
-                state.sidebarListState.masterList.items,
                 otherSelections: state.getOtherSelections(draggedItem: itemId),
                 // MUST have a `current`
                 // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
@@ -363,60 +354,56 @@ extension GraphState {
         }
 
         // also reset: the potentially highlighted group,
-        state.sidebarListState.proposedGroup = nil
+        state.proposedGroup = nil
         // the current dragging item,
-        state.sidebarListState.current = nil
+        state.currentItemDragged = nil
         // and the current x-drag tracking
-        state.sidebarListState.cursorDrag = nil
+        state.cursorDrag = nil
                 
-        state.sidebarSelectionState.madeStack = false
-        state.sidebarSelectionState.haveDuplicated = false
-        state.sidebarSelectionState.optionDragInProgress = false
-        state.sidebarSelectionState.implicitlyDragged = .init()
+        state.selectionState.madeStack = false
+        state.selectionState.haveDuplicated = false
+        state.selectionState.optionDragInProgress = false
+        state.selectionState.implicitlyDragged = .init()
     
         state.encodeProjectInBackground()
     }
-}
-
-
-@MainActor
-func onSidebarListItemDragEnded(_ item: SidebarListItem,
-                                _ items: SidebarListItems,
-                                otherSelections: SidebarListItemIdSet,
-                                draggedAlong: SidebarListItemIdSet,
-                                proposed: ProposedGroup?) -> SidebarListItems {
-
-    log("onSidebarListItemDragEnded called")
-
-    var items = items
-    var item = item
-
-    item.zIndex = 0 // is this even used still?
-    let index = item.itemIndex(items)
-    items[index] = item
-
-    // finalizes items' positions by index;
-    // also updates items' previousPositions.
-    items = setYPositionByIndices(
-        originalItemId: item.id,
-        items,
-        isDragEnded: true)
-
-    let allDragged: SidebarListItemIds = [item.id] + Array(draggedAlong) + otherSelections
-
-    // update both the X and Y in the previousLocation of the items that were moved;
-    // ie `item` AND every id in `draggedAlong`
-    for draggedId in allDragged {
-        guard var draggedItem = retrieveItem(draggedId, items) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            continue
+    
+    @MainActor
+    func onSidebarListItemDragEnded(_ item: SidebarListItem,
+                                    otherSelections: SidebarListItemIdSet,
+                                    draggedAlong: SidebarListItemIdSet,
+                                    proposed: ProposedGroup?) {
+        
+        log("onSidebarListItemDragEnded called")
+        
+        var item = item
+        
+        item.zIndex = 0 // is this even used still?
+        let index = item.itemIndex(items)
+        self.items[index] = item
+        
+        // finalizes items' positions by index;
+        // also updates items' previousPositions.
+        self.setYPositionByIndices(
+            originalItemId: item.id,
+            isDragEnded: true)
+        
+        let allDragged: SidebarListItemIds = [item.id] + Array(draggedAlong) + otherSelections
+        
+        // update both the X and Y in the previousLocation of the items that were moved;
+        // ie `item` AND every id in `draggedAlong`
+        for draggedId in allDragged {
+            guard var draggedItem = retrieveItem(draggedId, items) else {
+                fatalErrorIfDebug("Could not retrieve item")
+                continue
+            }
+            draggedItem.previousLocation = draggedItem.location
+//            items = updateSidebarListItem(draggedItem, items)
         }
-        draggedItem.previousLocation = draggedItem.location
-        items = updateSidebarListItem(draggedItem, items)
+        
+        // reset the z-indices
+        self.updateZIndices(items, zIndex: 0)
+        
+        return items
     }
-
-    // reset the z-indices
-    items = updateZIndices(items, zIndex: 0)
-
-    return items
 }

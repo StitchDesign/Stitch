@@ -129,26 +129,24 @@ func updateYPosition(translation: CGSize,
             y: translation.height + location.y)
 }
 
-// ie We've just REORDERED `items`,
-// and now want to set their heights according to the REORDERED items.
-func setYPositionByIndices(originalItemId: SidebarListItemId,
-                           _ items: SidebarListItems,
-                           isDragEnded: Bool = false) -> SidebarListItems {
-
-    items.enumerated().map { (offset, item) in
-        var item = item
-        let newY = CGFloat(offset * CUSTOM_LIST_ITEM_VIEW_HEIGHT)
-
-        if !isDragEnded && item.id == originalItemId {
-            print("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
-            return item
-        } else {
-            item.location.y = newY
-            if isDragEnded {
-                print("setYPositionByIndices: drag ended, so resetting previous position")
-                item.previousLocation.y = newY
+extension ProjectSidebarObservable {
+    // ie We've just REORDERED `items`,
+    // and now want to set their heights according to the REORDERED items.
+    func setYPositionByIndices(originalItemId: SidebarListItemId,
+                               isDragEnded: Bool = false) {
+        self.items.enumerated().forEach { (offset, item) in
+            var item = item
+            let newY = CGFloat(offset * CUSTOM_LIST_ITEM_VIEW_HEIGHT)
+            
+            if !isDragEnded && item.id == originalItemId {
+                log("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
+            } else {
+                item.location.y = newY
+                if isDragEnded {
+                    print("setYPositionByIndices: drag ended, so resetting previous position")
+                    item.previousLocation.y = newY
+                }
             }
-            return item
         }
     }
 }
@@ -404,18 +402,15 @@ extension ProjectSidebarObservable {
         
         return proposed
     }
-}
+    
+//    @MainActor
+//    func updateSidebarListItem(_ item: Self.ItemViewModel) -> [Element] {
+//        let index = item.itemIndex(items)
+//        var items = items
+//        self.items[index] = item
+//        return items
+//    }
 
-@MainActor
-func updateSidebarListItem<Element>(_ item: Element,
-                                    _ items: [Element]) -> [Element] where Element: Identifiable {
-    let index = item.itemIndex(items)
-    var items = items
-    items[index] = item
-    return items
-}
-
-extension ProjectSidebarObservable {
     // used only during on drag;
     @MainActor
     func updatePositionsHelper(_ item: SidebarListItem,
@@ -538,28 +533,22 @@ func adjustMoveToIndex(calculatedIndex: Int,
     }
 }
 
-func maybeMoveIndices(originalItemId: SidebarListItemId,
-                      _ items: SidebarListItems,
-                      indicesMoved: [Int],
-                      to: Int,
-                      originalIndex: Int) -> SidebarListItems {
-
-    var items = items
-
-    if to != originalIndex {
-
-        let finalOffset = to > originalIndex ? to + 1 : to
-
-        items.move(fromOffsets: IndexSet(indicesMoved),
-                   toOffset: finalOffset)
-
-        items = setYPositionByIndices(
-            originalItemId: originalItemId,
-            items,
-            isDragEnded: false)
-        
-        return items
-    } else {
-        return items
+extension ProjectSidebarObservable {
+    func maybeMoveIndices(originalItemId: Self.ItemID,
+                          indicesMoved: [Int],
+                          to: Int,
+                          originalIndex: Int) {
+        if to != originalIndex {
+            
+            let finalOffset = to > originalIndex ? to + 1 : to
+            
+            items.move(fromOffsets: IndexSet(indicesMoved),
+                       toOffset: finalOffset)
+            
+            self.setYPositionByIndices(
+                originalItemId: originalItemId,
+                isDragEnded: false)
+            
+        }
     }
 }

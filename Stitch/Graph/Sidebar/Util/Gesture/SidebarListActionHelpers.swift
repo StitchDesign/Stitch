@@ -8,16 +8,14 @@
 import Foundation
 import SwiftUI
 
-
-// When dragging: set actively-dragged and dragged-along items' z-indices to be high
-// When drag ended: set all items z-indices = 0
-@MainActor
-func updateZIndices(_ items: SidebarListItems,
-                    zIndex: ZIndex) -> SidebarListItems {
-    items.map {
-        var item = $0
-        item.zIndex = zIndex
-        return item
+extension ProjectSidebarObservable {
+    // When dragging: set actively-dragged and dragged-along items' z-indices to be high
+    // When drag ended: set all items z-indices = 0
+    @MainActor
+    func updateZIndices(zIndex: ZIndex) {
+        self.items.forEach {
+            item.zIndex = zIndex
+        }
     }
 }
 
@@ -49,7 +47,7 @@ extension ProjectSidebarObservable {
     func setItemsInGroupOrTopLevel(item: SidebarListItem,
                                    otherSelections: SidebarListItemIdSet,
                                    draggedAlong: SidebarListItemIdSet,
-                                   cursorDrag: SidebarCursorHorizontalDrag) -> SidebarListItemDraggedResult {
+                                   cursorDrag: SidebarCursorHorizontalDrag) {
         
         // set all dragged items' z-indices to max
         self.items = updateAllZIndices(
@@ -58,9 +56,8 @@ extension ProjectSidebarObservable {
                 draggedAlong)
         
         // Propose a group based on the dragged item (in Stack case, will be Stack's top item)
-        let proposed = proposeGroup(
+        let proposed = self.proposeGroup(
             item,
-            masterList,
             draggedAlong.count,
             cursorDrag: cursorDrag)
         
@@ -89,10 +86,9 @@ extension ProjectSidebarObservable {
                                                              draggedAlong: draggedAlong)
         }
         
-        return SidebarListItemDraggedResult(masterList: masterList,
-                                            proposed: proposed,
-                                            beingDragged: beingDragged,
-                                            cursorDrag: cursorDrag)
+        self.currentItemDragged = result.beingDragged
+        self.proposedGroup = result.proposed
+        self.cursorDrag = result.cursorDrag
     }
     
     // We've moved the item up or down (along with its children);

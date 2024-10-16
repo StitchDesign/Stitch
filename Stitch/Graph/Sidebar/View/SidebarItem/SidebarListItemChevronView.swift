@@ -15,7 +15,7 @@ let CHEVRON_GROUP_TOGGLE_ICON =  "chevron.right"
 struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     let sidebarViewModel: SidebarViewModel
     let isClosed: Bool
-    let parentId: LayerNodeId
+    let parentId: SidebarViewModel.ItemID
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color

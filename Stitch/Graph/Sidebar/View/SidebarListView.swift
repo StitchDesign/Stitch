@@ -239,6 +239,9 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     // the [parentId: child-ids] that are not currently shown
     var excludedGroups: ExcludedGroups { get set }
     var expandedSidebarItems: Set<ItemID> { get }
+    
+    var proposedGroup: ProposedGroup<ItemID>?
+    var cursorDrag: SidebarCursorHorizontalDrag<ItemViewModel>?
 
     // groups currently opened or closed;
     // an item's id is added when its group closed,
