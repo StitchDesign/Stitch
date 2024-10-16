@@ -29,7 +29,7 @@ extension ProjectSidebarObservable {
         
         // Iterate through each item in the set
         for item in set {
-            if let index = list.firstIndex(where: { $0.id == item.id }) {
+            if let index = list.firstIndex(where: { $0.id == item }) {
                 // If it's the first item or if its index is smaller than the current smallest, update it
                 if smallestIndex == nil || index < smallestIndex! {
                     smallestIndex = index
@@ -72,9 +72,6 @@ extension ProjectSidebarObservable {
     func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
                          acc: Set<Self.ItemID>,
                          selections: Set<Self.ItemID>) -> Set<Self.ItemID> {
-        
-        log("getDraggedAlong: draggedItem: \(draggedItem.layer) \(draggedItem.id)")
-        
         var acc = acc
         
         let explicitlyDraggedItems = selections.union([draggedItem.id])
@@ -108,13 +105,13 @@ extension ProjectSidebarObservable {
                                 translation: CGSize) {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
         
         let state = self
-        
-        log("SidebarListItemDragged: state.keypressState.isOptionPressed: \(state.keypressState.isOptionPressed)")
-        
         var itemId = itemId
-        
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
@@ -144,7 +141,7 @@ extension ProjectSidebarObservable {
                 
         
 //        if state.keypressState.isOptionPressed && !state.sidebarSelectionState.haveDuplicated {
-        if state.keypressState.isOptionPressed 
+        if graph.keypressState.isOptionPressed
             && !state.selectionState.haveDuplicated
             && !state.selectionState.optionDragInProgress {
             log("SidebarListItemDragged: option held during drag; will duplicate layers")
@@ -179,13 +176,10 @@ extension ProjectSidebarObservable {
             if !state.selectionState.madeStack,
                 let item = state.sidebarListState.masterList.items.first(where: { $0.id == itemId }),
             
-                self.getStack(
-                item,
-                selections: state.selectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
+                self.updateStackOnDrag(
+                    item,
+                    selections: state.selectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
-                // log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")
-                
-                state.sidebarListState.masterList.items = masterListWithStack
                 state.selectionState.madeStack = true
             }
             
@@ -288,7 +282,7 @@ extension ProjectSidebarObservable {
         // i.e. get the index of this dragged-item, given the updated masterList's items
         let updatedOriginalIndex = item.itemIndex(masterList.items)
         // update `item` again!
-        item = masterList.items[updatedOriginalIndex]
+        item = self.items[updatedOriginalIndex]
         
         // should skip this for now?
         self.setItemsInGroupOrTopLevel(
@@ -401,7 +395,5 @@ extension ProjectSidebarObservable {
         
         // reset the z-indices
         self.updateZIndices(items, zIndex: 0)
-        
-        return items
     }
 }

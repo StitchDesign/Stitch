@@ -35,7 +35,7 @@ extension SidebarItemSwipable {
 }
 
 extension ProjectSidebarObservable {
-    func getStack(_ draggedItem: Self.ItemViewModel,
+    func updateStackOnDrag(_ draggedItem: Self.ItemViewModel,
                   // all selections
                   selections: Set<Self.ItemID>) -> Bool {
         
