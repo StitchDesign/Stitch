@@ -134,7 +134,7 @@ struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: 
         let ungroupButtonEnabled = sidebarViewModel.canUngroup()
 
         let groupButtonEnabled = selections
-            .nonEmptyPrimary
+            .primary
             .map { sidebarViewModel.canBeGrouped() } ?? false
 
         let duplicateButtonEnabled = sidebarViewModel.canDuplicate()
@@ -150,7 +150,7 @@ struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: 
             }.disabled(!ungroupButtonEnabled)
             
             StitchButton {
-                dispatch(SidebarGroupCreated())
+                sidebarViewModel.sidebarGroupCreated()
             } label: {
                 Text("Group")
                     .modifier(DisabledButtonModifier(buttonEnabled: groupButtonEnabled))

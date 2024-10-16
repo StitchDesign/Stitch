@@ -19,23 +19,25 @@ extension LayerIdSet {
     }
 }
 
-struct InspectorFocusedLayers: Codable, Equatable, Hashable {
+struct InspectorFocusedData<ItemID: Hashable> {
     
     // Focused = what we see focused in the inspector
-    var focused = LayerIdSet()
+    var focused = Set<ItemID>()
     
     // Actively Selected = what we see focused in inspector + what user has recently tapped on
-    var activelySelected = LayerIdSet()
+    var activelySelected = Set<ItemID>()
 
     // Updated by regular or command click, but not shick click (with some exceptions)
-    var lastFocusedLayer: LayerNodeId? = nil
+    var lastFocusedLayer: ItemID? = nil
+    
+    var inspectorFocusedLayers: InspectorFocusedData<ItemID>
     
     // Inserts into both focused and activelySelected layer id sets
-    func insert(_ layer: LayerNodeId) -> Self {
+    func insert(_ layer: ItemID) -> Self {
         self.insert(.init([layer]))
     }
     
-    func insert(_ layers: LayerIdSet) -> Self {
+    func insert(_ layers: Set<ItemID>) -> Self {
         var data = self
         data.focused = data.focused.union(layers)
         data.activelySelected = data.activelySelected.union(layers)
@@ -43,15 +45,15 @@ struct InspectorFocusedLayers: Codable, Equatable, Hashable {
     }
 }
 
-extension SidebarSelections {
-    var nonEmptyPrimary: NonEmptySidebarSelections? {
-        if self.isEmpty {
-            return nil
-        } else {
-            return NES(self)!
-        }
-    }
-}
+//extension SidebarSelections {
+//    var nonEmptyPrimary: NonEmptySidebarSelections? {
+//        if self.isEmpty {
+//            return nil
+//        } else {
+//            return NES(self)!
+//        }
+//    }
+//}
 
 // if a group is selected,
 final class SidebarSelectionObserver<ItemID: Hashable> {

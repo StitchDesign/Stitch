@@ -89,9 +89,9 @@ struct SidebarListItemGroupOpened: GraphEventWithResponse {
     
     func handle(state: GraphState) -> GraphResponse {
 
-        state.sidebarListState.masterList = onSidebarListItemGroupOpened(
-            openedId: openedParent.asItemId,
-            state.sidebarListState.masterList)
+//        state.sidebarListState.masterList = onSidebarListItemGroupOpened(
+//            openedId: openedParent.asItemId,
+//            state.sidebarListState.masterList)
 
 //        state.sidebarExpandedItems.insert(openedParent)
         state.getNodeViewModel(openedParent.asNodeId)?.layerNode?.isExpandedInSidebar = true
@@ -143,12 +143,12 @@ extension ProjectSidebarObservable {
         
         // and move any items below this parent DOWN
         // ... but skip any children, since their positions' have already been updated
-        masterList.items = adjustNonDescendantsBelow(
+        self.adjustNonDescendantsBelow(
             lastIndex,
-            adjustment: CGFloat(moveDownBy),
-            masterList.items)
+            adjustment: CGFloat(moveDownBy))
         
-        return masterList
+        // Trigger inherited class
+        self.didGroupExpand(openedId)
     }
     
     // When group closed:

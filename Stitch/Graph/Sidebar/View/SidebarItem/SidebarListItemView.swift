@@ -9,13 +9,14 @@ import SwiftUI
 import StitchSchemaKit
 import GameController
 
-struct SidebarListItemView<ItemData>: View where ItemData: SidebarItemData {
+struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    typealias ItemID = SidebarViewModel.ItemID
 
     @Environment(\.appTheme) private var theme
+    @EnvironmentObject private var keyboardObserver: KeyboardObserver
     
     @Bindable var graph: GraphState
-    
-    @EnvironmentObject var keyboardObserver: KeyboardObserver
+    @Bindable var sidebarViewModel: SidebarViewModel
     
     var item: ItemData
     let name: String
@@ -63,6 +64,7 @@ struct SidebarListItemView<ItemData>: View where ItemData: SidebarItemData {
         HStack(spacing: 0) {
             SidebarListItemLeftLabelView(
                 graph: graph,
+                sidebarViewModel: sidebarViewModel,
                 name: name,
 //                layer: layer,
                 nodeId: layerNodeId,

@@ -23,7 +23,7 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
-protocol SidebarItemData: Identifiable, Equatable {
+protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
     var parentId: Self.ID? { get set }
 //    var location: CGPoint { get set }
 }
@@ -37,7 +37,7 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     
     var name: String { get set }
     
-    var isGroup: Bool { get set }
+    var isGroup: Bool { get }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
@@ -45,11 +45,12 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     var previousSwipeX: CGFloat { get set }
     
     var location: CGPoint { get set }
+    
     var previousLocation: CGPoint { get set }
 //    var activeGesture: ActiveGesture { get set }
     //    var activeSwipeId: Item.ID? { get set }
     
-    var editOn: Bool { get set }
+//    var editOn: Bool { get set }
     
     var sidebarDelegate: SidebarViewModel? { get }
     
@@ -123,7 +124,7 @@ extension SidebarItemSwipable {
     }
     
     var isBeingEdited: Bool {
-        self.sidebarDelegate.isBeingEdited ?? false
+        self.sidebarDelegate?.isEditing ?? false
     }
     
 //    var location: CGPoint {
@@ -292,15 +293,6 @@ extension SidebarItemSwipable {
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
     var name: String
-    
-    func sidebarLayerHovered(itemId: SidebarListItemId) {
-        self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
-    }
-    
-    func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
-        self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
-    }
-    
     var item: SidebarListItem
     var location: CGPoint
     var previousLocation: CGPoint
@@ -342,6 +334,23 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    @MainActor
+    var isGroup: Bool {
+        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {
+            return false
+        }
+        
+        return layerNode.layer == .group
+    }
+    
+    func sidebarLayerHovered(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
+    }
+    
+    func sidebarLayerHoverEnded(itemId: SidebarListItemId) {
+        self.graphDelegate?.graphUI.sidebarLayerHoverEnded(layerId: itemId.asLayerNodeId)
+    }
+    
     @MainActor
     func didDeleteItem() {
         self.graphDelegate?.sidebarItemDeleted(itemId: self.item.id)
@@ -403,6 +412,7 @@ extension SidebarItemGestureViewModel {
         self.graphDelegate?.getVisibilityStatus(for: item.id.asNodeId) != .visible
     }
     
+    @MainActor
     var fontColor: Color {
         guard let graph = self.graphDelegate else { return .white }
         

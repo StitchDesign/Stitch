@@ -12,8 +12,8 @@ import StitchSchemaKit
 // group closed; rotated 90 degrees to be 'group open'
 let CHEVRON_GROUP_TOGGLE_ICON =  "chevron.right"
 
-struct SidebarListItemChevronView: View {
-
+struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    let sidebarViewModel: SidebarViewModel
     let isClosed: Bool
     let parentId: LayerNodeId
     
@@ -52,7 +52,7 @@ struct SidebarListItemChevronView: View {
                 if isClosed {
                     dispatch(SidebarListItemGroupOpened(openedParent: parentId))
                 } else {
-                    dispatch(SidebarListItemGroupClosed(closedParentId: parentId))
+                    sidebarViewModel.onSidebarListItemGroupOpened(openedId: parentId)
                 }
             }
             .animation(.linear, value: rotationZ)

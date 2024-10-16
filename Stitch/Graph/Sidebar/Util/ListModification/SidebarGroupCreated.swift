@@ -69,7 +69,7 @@ extension ProjectSidebarObservable {
         graph.updateSidebarListStateAfterStateChange()
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
-        if self.isBeingEdited {
+        if self.isEditing {
             // Reset selections
             self.selectionState.resetEditModeSelections()
         }

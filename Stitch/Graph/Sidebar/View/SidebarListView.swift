@@ -70,7 +70,6 @@ struct SidebarListView: View {
     static let tabs = ["Layers", "Assets"]
     @State private var currentTab = ProjectSidebarTab.layers.rawValue
 //    @Bindable var layersViewModel: LayersSidebarViewModel
-    @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
     let syncStatus: iCloudSyncStatus
@@ -115,6 +114,8 @@ struct SidebarListView: View {
 }
 
 struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: ProjectSidebarObservable {
+    @State private var isBeingEditedAnimated = false
+    
     @Binding var sidebarViewModel: SidebarObservable
     let tab: ProjectSidebarTab
     
@@ -212,7 +213,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         .onChange(of: isBeingEdited) { newValue in
             // This handler enables all animations
             isBeingEditedAnimated = newValue
-            self.sidebarViewModel.editModeToggled(to: isBeingEdited)
+//            self.sidebarViewModel.editModeToggled(to: isBeingEdited)
         }
     }
 }
@@ -254,10 +255,18 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var orderedEncodedData: [EncodedItemData] { get }
     var graphDelegate: GraphState? { get }
     
-    func editModeToggled(to isEditing: Bool)
+//    func editModeToggled(to isEditing: Bool)
     func canBeGrouped() -> Bool
     func canUngroup() -> Bool
 //    func canDuplicate() -> Bool
+    
+    func didGroupExpand(_ id: ItemID)
+}
+
+extension ProjectSidebarObservable {
+    var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
+        self.selectionState.inspectorFocusedLayers
+    }
 }
 
 @Observable
@@ -270,8 +279,6 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()
     var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
-    
-    var inspectorFocusedLayers = InspectorFocusedLayers()
     
     weak var graphDelegate: GraphState?
     
@@ -290,6 +297,10 @@ extension LayersSidebarViewModel {
     var expandedSidebarItems: Set<SidebarListItemId> {
         guard let graph = self.graphDelegate else { return .init() }
         return graph.getSidebarExpandedItems()
+    }
+    
+    func didGroupExpand(_ id: ItemID) {
+        dispatch(SidebarListItemGroupOpened(openedParent: id))
     }
 }
 

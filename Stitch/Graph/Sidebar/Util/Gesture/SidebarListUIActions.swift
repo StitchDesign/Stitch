@@ -16,15 +16,13 @@ extension ProjectSidebarObservable {
     // you're just updating a single item
     // but need to update all the descendants as well?
     @MainActor
-    static func moveSidebarListItemIntoGroup(_ item: [ItemData],
-                                             _ items: [ItemData],
-                                             otherSelections: Set<ItemData.ID>,
-                                             draggedAlong: Set<ItemData.ID>,
-                                             _ proposedGroup: ProposedGroup<ItemData.ID>) -> [ItemData] {
+    static func moveSidebarListItemIntoGroup(_ item: [ItemViewModel],
+                                             _ items: [ItemViewModel],
+                                             otherSelections: Set<ItemViewModel.ID>,
+                                             draggedAlong: Set<ItemViewModel.ID>,
+                                             _ proposedGroup: ProposedGroup<ItemViewModel.ID>) -> [ItemViewModel] {
         
         let newParent = proposedGroup.parentId
-        
-        var items = items
         
         // Every explicitly dragged item gets the new parent
         for otherSelection in ([item.id] + otherSelections) {
@@ -34,7 +32,7 @@ extension ProjectSidebarObservable {
             }
             otherItem.parentId = proposedGroup.parentId
             otherItem.location.x = proposedGroup.indentationLevel.toXLocation
-            items = updateSidebarListItem(otherItem, items)
+            self.items = updateSidebarListItem(otherItem, items)
         }
         
         guard let updatedItem = retrieveItem(item.id, items) else {
@@ -254,79 +252,78 @@ extension ProjectSidebarObservable {
         // then items above have indices 4, 3, 2, ...
         return items.filter { $0.itemIndex(items) < movedItemIndex }
     }
-}
-
-@MainActor
-func findDeepestParent(_ item: SidebarListItem, // the moved-item
-                       _ masterList: SidebarListItemsCoordinator,
-                       cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
-
-    var proposed: ProposedGroup?
-
-    log("findDeepestParent: item.id: \(item.id)")
-    log("findDeepestParent: item.location.x: \(item.location.x)")
-    log("findDeepestParent: cursorDrag: \(cursorDrag)")
-
-    let items = masterList.items
-    let excludedGroups = masterList.excludedGroups
-
-    let itemLocationX = cursorDrag.x
-
-    for itemAbove in getItemsAbove(item, items) {
-        log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
-        log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
-
-        // Is this dragged item east of the above item?
-        // Must be >, not >=, since = is for certain top level cases.
-        if itemLocationX > itemAbove.location.x {
-            let itemAboveHasChildren = hasChildren(itemAbove.id, masterList)
-
-            // if the itemAbove us itself a parent,
-            // then we want to put our being-dragged-item into that itemAbove's child list;
-            // and NOT use that itemAbove's own parent as our group
-            if itemAboveHasChildren,
-               !excludedGroups[itemAbove.id].isDefined,
-               itemAbove.isGroup {
-                log("found itemAbove that has children; will make being-dragged-item")
-
-                // make sure it's not a closed group that we're proposing!
-
-                proposed = ProposedGroup(parentId: itemAbove.id,
-                                         xIndentation: itemAbove.indentationLevel.inc().toXLocation)
+    
+    @MainActor
+    func findDeepestParent(_ item: Self.ItemViewModel, // the moved-item
+                           cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
+        
+        var proposed: ProposedGroup?
+        
+        log("findDeepestParent: item.id: \(item.id)")
+        log("findDeepestParent: item.location.x: \(item.location.x)")
+        log("findDeepestParent: cursorDrag: \(cursorDrag)")
+        
+        let excludedGroups = masterList.excludedGroups
+        
+        let itemLocationX = cursorDrag.x
+        
+        for itemAbove in getItemsAbove(item, items) {
+            log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
+            log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
+            
+            // Is this dragged item east of the above item?
+            // Must be >, not >=, since = is for certain top level cases.
+            if itemLocationX > itemAbove.location.x {
+                let itemAboveHasChildren = self.hasChildren(itemAbove.id)
+                
+                // if the itemAbove us itself a parent,
+                // then we want to put our being-dragged-item into that itemAbove's child list;
+                // and NOT use that itemAbove's own parent as our group
+                if itemAboveHasChildren,
+                   !excludedGroups[itemAbove.id].isDefined,
+                   itemAbove.isGroup {
+                    log("found itemAbove that has children; will make being-dragged-item")
+                    
+                    // make sure it's not a closed group that we're proposing!
+                    
+                    proposed = ProposedGroup(parentId: itemAbove.id,
+                                             xIndentation: itemAbove.indentationLevel.inc().toXLocation)
+                }
+                
+                // this can't quite be right --
+                // eg we can find an item above us that has its own parent,
+                // we'd wrongly put the being-dragged-item into
+                
+                else if let itemAboveParentId = itemAbove.parentId,
+                        !excludedGroups[itemAboveParentId].isDefined {
+                    log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
+                    proposed = ProposedGroup(
+                        parentId: itemAboveParentId,
+                        xIndentation: itemAbove.location.x)
+                }
+                
+                // if the item above is NOT itself part of a group,
+                // we'll just use the item above now as its parent
+                else if !excludedGroups[itemAbove.id].isDefined,
+                        item.isGroup {
+                    log("found itemAbove without parent")
+                    proposed = ProposedGroup(
+                        parentId: itemAbove.id,
+                        xIndentation: IndentationLevel(1).toXLocation)
+                    // ^^^ if item has no parent ie is top level,
+                    // then need this indentation to be at least one level
+                }
+                log("findDeepestParent: found proposed: \(proposed)")
+                log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
+            } else {
+                log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
             }
-
-            // this can't quite be right --
-            // eg we can find an item above us that has its own parent,
-            // we'd wrongly put the being-dragged-item into
-
-            else if let itemAboveParentId = itemAbove.parentId,
-                    !excludedGroups[itemAboveParentId].isDefined {
-                log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
-                proposed = ProposedGroup(
-                    parentId: itemAboveParentId,
-                    xIndentation: itemAbove.location.x)
-            }
-
-            // if the item above is NOT itself part of a group,
-            // we'll just use the item above now as its parent
-            else if !excludedGroups[itemAbove.id].isDefined,
-                    item.isGroup {
-                log("found itemAbove without parent")
-                proposed = ProposedGroup(
-                    parentId: itemAbove.id,
-                    xIndentation: IndentationLevel(1).toXLocation)
-                // ^^^ if item has no parent ie is top level,
-                // then need this indentation to be at least one level
-            }
-            log("findDeepestParent: found proposed: \(proposed)")
-            log("findDeepestParent: ... for itemAbove: \(itemAbove.id)")
-        } else {
-            log("\(item.id) was not at/east of itemAbove \(itemAbove.id)")
         }
+        log("findDeepestParent: final proposed: \(String(describing: proposed))")
+        return proposed
     }
-    log("findDeepestParent: final proposed: \(String(describing: proposed))")
-    return proposed
 }
+
 
 // if we're blocked by a top level item,
 // then we ourselves must become a top level item
@@ -353,60 +350,60 @@ func blockedByTopLevelItemImmediatelyAbove(_ item: SidebarListItem,
     return false
 }
 
-@MainActor
-func proposeGroup(_ item: SidebarListItem, // the moved-item
-                  _ masterList: SidebarListItemsCoordinator,
-                  _ draggedAlongCount: Int, // all dragged items, whether implicitly or explicitly selelected
-                  cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
-
-    // Note: we do not need to filter out otherSelectons etc., which are inc
-    let items = masterList.items
-    
-    // log("proposeGroup: will try to propose group for item: \(item.id)")
-
-    // GENERAL RULE:
-    var proposed = findDeepestParent(item,
-                                     masterList,
-                                     cursorDrag: cursorDrag)
-
-    // Exceptions:
-
-    // Does the item have a non-parent top-level it immediately above it?
-    // if so, that blocks group proposal
-    if blockedByTopLevelItemImmediatelyAbove(item, items) {
-        log("proposeGroup: blocked by non-parent top-level item above")
-        proposed = nil
-    }
-
-    if let groupDueToChildBelow = groupFromChildBelow(
-        item,
-        items,
-        movedItemChildrenCount: draggedAlongCount,
-        excludedGroups: masterList.excludedGroups) {
-
-        log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
+extension ProjectSidebarObservable {
+    @MainActor
+    func proposeGroup(_ item: Self.ItemViewModel, // the moved-item
+                      _ draggedAlongCount: Int, // all dragged items, whether implicitly or explicitly selelected
+                      cursorDrag: SidebarCursorHorizontalDrag) -> ProposedGroup? {
         
-        // if our drag is east of the proposed-from-below's indentation level,
-        // and we already found a proposed group from 'deepest parent',
-        // then don't use proposed-from-below.
-        let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
-
-        if !keepProposed {
-            log("proposeGroup: will use group from child below")
-            proposed = groupDueToChildBelow
+        // Note: we do not need to filter out otherSelectons etc., which are inc
+        
+        // log("proposeGroup: will try to propose group for item: \(item.id)")
+        
+        // GENERAL RULE:
+        var proposed = findDeepestParent(item,
+                                         masterList,
+                                         cursorDrag: cursorDrag)
+        
+        // Exceptions:
+        
+        // Does the item have a non-parent top-level it immediately above it?
+        // if so, that blocks group proposal
+        if blockedByTopLevelItemImmediatelyAbove(item, items) {
+            log("proposeGroup: blocked by non-parent top-level item above")
+            proposed = nil
         }
+        
+        if let groupDueToChildBelow = groupFromChildBelow(
+            item,
+            items,
+            movedItemChildrenCount: draggedAlongCount,
+            excludedGroups: masterList.excludedGroups) {
+            
+            log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
+            
+            // if our drag is east of the proposed-from-below's indentation level,
+            // and we already found a proposed group from 'deepest parent',
+            // then don't use proposed-from-below.
+            let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
+            
+            if !keepProposed {
+                log("proposeGroup: will use group from child below")
+                proposed = groupDueToChildBelow
+            }
+        }
+        
+        log("proposeGroup: returning: \(String(describing: proposed))")
+        
+        if let proposedParentId = proposed?.parentId,
+           let proposedParentItem = retrieveItem(proposedParentId, items),
+           !proposedParentItem.isGroup {
+            fatalErrorIfDebug() // Can never propose a parent that is not actually a group
+            return nil
+        }
+        
+        return proposed
     }
-
-    log("proposeGroup: returning: \(String(describing: proposed))")
-    
-    if let proposedParentId = proposed?.parentId,
-       let proposedParentItem = retrieveItem(proposedParentId, items),
-       !proposedParentItem.isGroup {
-        fatalErrorIfDebug() // Can never propose a parent that is not actually a group
-        return nil
-    }
-    
-    return proposed
 }
 
 @MainActor

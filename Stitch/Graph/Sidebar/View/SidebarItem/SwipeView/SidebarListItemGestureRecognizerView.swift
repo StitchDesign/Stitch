@@ -170,7 +170,7 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
         guard let sidebarViewModel = self.sidebarViewModel,
               let gestureViewModel = self.gestureViewModel else { return }
         
-        if sidebarViewModel.selectionState.isEditMode || gestureViewModel.swipeSetting == .open {
+        if sidebarViewModel.isEditing || gestureViewModel.swipeSetting == .open {
             return
         }
         
@@ -325,7 +325,7 @@ extension SidebarItemGestureViewModel {
                 })
             }
             
-            if canDuplicate() {
+            if sidebarViewModel.canDuplicate() {
                 let groupButton = UIAction(title: "Duplicate", image: nil) { action in
                     dispatch(SidebarSelectedItemsDuplicated())
                 }

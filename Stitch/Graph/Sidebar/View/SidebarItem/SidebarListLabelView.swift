@@ -8,9 +8,10 @@
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemLeftLabelView: View {
+struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
 
     @Bindable var graph: GraphState
+    @Bindable var sidebarViewModel: SidebarViewModel
     
     let name: String
     let layer: Layer
@@ -42,9 +43,10 @@ struct SidebarListItemLeftLabelView: View {
         HStack(spacing: 4) {
             
 //            if isGroup {
-                SidebarListItemChevronView(isClosed: isClosed,
-                                           parentId: nodeId,
-                                           fontColor: fontColor,
+            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
+                                       isClosed: isClosed,
+                                       parentId: nodeId,
+                                       fontColor: fontColor,
 //                                           isHidden: isHidden)
                 .opacity(isGroup ? 1 : 0)
                 // .border(.green)

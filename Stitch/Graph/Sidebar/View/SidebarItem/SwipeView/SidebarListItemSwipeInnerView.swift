@@ -49,6 +49,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
             // Main row hides if swipe menu exceeds threshold
             if showMainItem {
                 SidebarListItemView(graph: graph,
+                                    sidebarViewModel: sidebarViewModel,
                                     item: item,
                                     name: name,
 //                                    layer: layer,

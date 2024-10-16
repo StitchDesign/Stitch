@@ -125,23 +125,23 @@ extension ProjectSidebarObservable {
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
-        if state.optionDragInProgress {
+        if state.selectionState.optionDragInProgress {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
             if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
-             from: state.sidebarSelectionState.inspectorFocusedLayers.focused,
-             in: state.orderedSidebarLayers.getFlattenedList()) {
+                from: state.inspectorFocusedLayers.focused,
+                in: state.orderedEncodedData.getFlattenedList()) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-                itemId = selectedItemWithSmallestIndex.asItemId
+                itemId = selectedItemWithSmallestIndex
             }
         }
         
-        let focusedLayers = state.sidebarSelectionState.inspectorFocusedLayers.focused
+        let focusedLayers = state.inspectorFocusedLayers.focused
         
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
         if !focusedLayers.contains(itemId.asLayerNodeId) {
-            state.sidebarSelectionState.resetEditModeSelections()
+            state.selectionState.resetEditModeSelections()
             let layerNodeId = itemId.asLayerNodeId
             state.sidebarSelectionState.inspectorFocusedLayers.focused = .init([layerNodeId])
             state.sidebarSelectionState.inspectorFocusedLayers.activelySelected = .init([layerNodeId])
@@ -187,9 +187,8 @@ extension ProjectSidebarObservable {
             if !state.sidebarSelectionState.madeStack,
                 let item = state.sidebarListState.masterList.items.first(where: { $0.id == itemId }),
             
-            let masterListWithStack = getStack(
+                self.getStack(
                 item,
-                items: state.sidebarListState.masterList.items,
                 selections: state.sidebarSelectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
                 
                 // log("SidebarListItemDragged: masterListWithStack \(masterListWithStack.map(\.layer))")

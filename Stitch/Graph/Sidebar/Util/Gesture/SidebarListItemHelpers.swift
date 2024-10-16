@@ -10,27 +10,27 @@ import SwiftUI
 
 
 
-extension SidebarListItem {
+extension SidebarItemSwipable {
 
     //extension SidebarLayerData {
     
-    func isSelected(_ selections: SidebarListItemIdSet) -> Bool {
+    func isSelected(_ selections: Set<Item.ID>) -> Bool {
         selections.contains(self.id)
     }
     
-    func implicitlyDragged(_ implicitlyDraggedItems: SidebarListItemIdSet) -> Bool {
+    func implicitlyDragged(_ implicitlyDraggedItems: Set<Item.ID>) -> Bool {
         implicitlyDraggedItems.contains(self.id)
     }
     
-    func wipeIndentationLevel() -> Self {
+    func wipeIndentationLevel() {
         var item = self
         item.previousLocation.x = .zero
         item.location.x = .zero
-        item.parentId = nil
+        item.item.parentId = nil
         return item
     }
     
-    func setIndentToOneLevel() -> Self {
+    func setIndentToOneLevel() {
         var item = self
         item.previousLocation.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
         item.location.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
@@ -38,93 +38,97 @@ extension SidebarListItem {
     }
 }
 
-func getStack(_ draggedItem: SidebarListItem,
-              items: [SidebarListItem],
-              // all selections
-              selections: SidebarListItemIdSet) -> [SidebarListItem]? {
+extension ProjectSidebarObservable {
+    func getStack(_ draggedItem: Self.ItemViewModel,
+                  // all selections
+                  selections: Set<Self.ItemID>) -> Bool {
         
-    guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
-        print("getStack: no dragged item index")
-        return nil
-    }
-    
-    // All items that were dragged along, whether explicitly or implicitly selected
-    let draggedAlong = getDraggedAlong(draggedItem,
-                                       allItems: items,
-                                       acc: .init(),
-                                       selections: selections)
-    
-    // Items that were dragged along but not explicitly selected
-    let implicitlyDraggedItems: SidebarListItemIdSet = getImplicitlyDragged(
-        items: items,
-        draggedAlong: draggedAlong, 
-        selections: selections)
-
-    let nonDraggedItemsAbove = items.enumerated().compactMap { itemAndIndex in
-        itemAndIndex.offset < draggedItemIndex ? itemAndIndex.element : nil
-    }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
-    
-    let nonDraggedItemsBelow = items.enumerated().compactMap { itemAndIndex in
-        itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
-    }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
-        
-    print("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
-    print("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
-    
-    // All items either explicitly-dragged (because selected) or implicitly-dragged (because a child of a selected parent)
-    let allDraggedItems = items.filter { $0.isSelected(selections) || $0.implicitlyDragged(implicitlyDraggedItems) }
-    
-    var draggedResult = [SidebarListItem]()
-    var itemsHandledBySomeChunk = SidebarListItemIdSet()
-    for draggedItem in allDraggedItems {
-        print("getStack: on draggedItem \(draggedItem.id)")
-
-        if itemsHandledBySomeChunk.contains(draggedItem.id) {
-            print("getStack: draggedItem \(draggedItem.id) was already handled by some chunk")
-            continue
+        guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
+            print("getStack: no dragged item index")
+            return false
         }
-                
-        let draggedItemIsSelected = draggedItem.isSelected(selections)
         
-        // An explicitly-dragged parent kicks off a "chunk"
-        if draggedItem.isGroup,
-           draggedItemIsSelected {
-            print("getStack: draggedItem \(draggedItem.id) starts a chunk")
-            // wipe the draggedItem's
-            let chunk = rearrangeChunk(
-                selectedParentItem: draggedItem,
-                selections: selections,
-                implicitlyDragged: implicitlyDraggedItems,
-                flatMasterList: items)
+        // All items that were dragged along, whether explicitly or implicitly selected
+        let draggedAlong = getDraggedAlong(draggedItem,
+                                           allItems: items,
+                                           acc: .init(),
+                                           selections: selections)
+        
+        // Items that were dragged along but not explicitly selected
+        let implicitlyDraggedItems: SidebarListItemIdSet = getImplicitlyDragged(
+            items: items,
+            draggedAlong: draggedAlong, 
+            selections: selections)
+        
+        let nonDraggedItemsAbove = items.enumerated().compactMap { itemAndIndex in
+            itemAndIndex.offset < draggedItemIndex ? itemAndIndex.element : nil
+        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
+        
+        let nonDraggedItemsBelow = items.enumerated().compactMap { itemAndIndex in
+            itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
+        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
+        
+        print("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
+        print("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
+        
+        // All items either explicitly-dragged (because selected) or implicitly-dragged (because a child of a selected parent)
+        let allDraggedItems = items.filter { $0.isSelected(selections) || $0.implicitlyDragged(implicitlyDraggedItems) }
+        
+        var draggedResult = [SidebarListItem]()
+        var itemsHandledBySomeChunk = SidebarListItemIdSet()
+        for draggedItem in allDraggedItems {
+            print("getStack: on draggedItem \(draggedItem.id)")
             
-            itemsHandledBySomeChunk = itemsHandledBySomeChunk.union(SidebarListItemIdSet.init(chunk.map(\.id)))
-            draggedResult += chunk
+            if itemsHandledBySomeChunk.contains(draggedItem.id) {
+                print("getStack: draggedItem \(draggedItem.id) was already handled by some chunk")
+                continue
+            }
+            
+            let draggedItemIsSelected = draggedItem.isSelected(selections)
+            
+            // An explicitly-dragged parent kicks off a "chunk"
+            if draggedItem.isGroup,
+               draggedItemIsSelected {
+                print("getStack: draggedItem \(draggedItem.id) starts a chunk")
+                // wipe the draggedItem's
+                let chunk = rearrangeChunk(
+                    selectedParentItem: draggedItem,
+                    selections: selections,
+                    implicitlyDragged: implicitlyDraggedItems,
+                    flatMasterList: items)
+                
+                itemsHandledBySomeChunk = itemsHandledBySomeChunk.union(SidebarListItemIdSet.init(chunk.map(\.id)))
+                draggedResult += chunk
+            }
+            
+            // Explicitly selected items get their indents wiped
+            else if draggedItemIsSelected {
+                print("getStack: draggedItem \(draggedItem.id) is explicitly selected")
+                var draggedItem = draggedItem
+                draggedItem.wipeIndentationLevel()
+                draggedResult.append(draggedItem)
+            }
+            
+            else {
+                print("getStack: draggedItem \(draggedItem.id) is only implicitly-selected")
+                draggedResult.append(draggedItem)
+            }
         }
-
-        // Explicitly selected items get their indents wiped
-        else if draggedItemIsSelected {
-            print("getStack: draggedItem \(draggedItem.id) is explicitly selected")
-            var draggedItem = draggedItem
-            draggedItem = draggedItem.wipeIndentationLevel()
-            draggedResult.append(draggedItem)
-        }
- 
-        else {
-            print("getStack: draggedItem \(draggedItem.id) is only implicitly-selected")
-            draggedResult.append(draggedItem)
-        }
+        
+        let rearrangedMasterList = nonDraggedItemsAbove + draggedResult + nonDraggedItemsBelow
+        
+        // Use the newly-reordered masterList's indices to update each master list item's y position
+        let _rearrangedMasterList = setYPositionByIndices(
+            originalItemId: draggedItem.id,
+            rearrangedMasterList,
+            // treat as drag ended so that we update previousLocation etc.
+            isDragEnded: true)
+        
+        self.items = _rearrangedMasterList
+        
+        return true
     }
     
-    let rearrangedMasterList = nonDraggedItemsAbove + draggedResult + nonDraggedItemsBelow
-    
-    // Use the newly-reordered masterList's indices to update each master list item's y position
-    let _rearrangedMasterList = setYPositionByIndices(
-        originalItemId: draggedItem.id,
-        rearrangedMasterList,
-        // treat as drag ended so that we update previousLocation etc.
-        isDragEnded: true)
-    
-    return _rearrangedMasterList
 }
 
 func rearrangeChunk(selectedParentItem: SidebarListItem,

@@ -296,19 +296,19 @@ func adjustItemsBelow(_ parentId: SidebarListItemId,
     }
 }
 
-func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
-                               adjustment: CGFloat, // down = +y; up = -y
-                               _ items: SidebarListItems) -> SidebarListItems {
-
-    return items.map { item in
-        if item.itemIndex(items) > lastIndex {
-            var item = item
-            item.location = CGPoint(x: item.location.x,
-                                    y: item.location.y + adjustment)
-            item.previousLocation = item.location
-            return item
-        } else {
-            return item
+extension ProjectSidebarObservable {
+    func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
+                                   adjustment: CGFloat) -> [ItemViewModel] { // down = +y; up = -y
+        self.items.map { item in
+            if item.itemIndex(items) > lastIndex {
+                var item = item
+                item.location = CGPoint(x: item.location.x,
+                                        y: item.location.y + adjustment)
+                item.previousLocation = item.location
+                return item
+            } else {
+                return item
+            }
         }
     }
 }
@@ -318,20 +318,22 @@ func retrieveItem<Element>(_ id: Element.ID,
     items.first { $0.id == id }
 }
 
-func hasChildren(_ parentId: SidebarListItemId, _ masterList: MasterList) -> Bool {
-
-    if let x = masterList.items.first(where: { $0.id == parentId }),
-       x.isGroup {
-        //        log("hasChildren: true because isGroup")
-        return true
-    } else if masterList.excludedGroups[parentId].isDefined {
-        //        log("hasChildren: true because has entry in excludedGroups")
-        return true
-    } else if !childrenForParent(parentId: parentId, masterList.items).isEmpty {
-        //        log("hasChildren: true because has non-empty children in on-screen items")
-        return true
-    } else {
-        //        log("hasChildren: false....")
-        return false
+extension ProjectSidebarObservable {
+    func hasChildren(_ parentId: Self.ItemID) -> Bool {
+        
+        if let x = self.items.first(where: { $0.id == parentId }),
+           x.isGroup {
+            //        log("hasChildren: true because isGroup")
+            return true
+        } else if self.excludedGroups[parentId].isDefined {
+            //        log("hasChildren: true because has entry in excludedGroups")
+            return true
+        } else if !childrenForParent(parentId: parentId, self.items).isEmpty {
+            //        log("hasChildren: true because has non-empty children in on-screen items")
+            return true
+        } else {
+            //        log("hasChildren: false....")
+            return false
+        }
     }
 }

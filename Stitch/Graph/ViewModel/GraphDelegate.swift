@@ -69,6 +69,7 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
+    var layersSidebarViewModel: LayersSidebarViewModel { get }
 //    var sidebarSelectionState: SidebarSelectionState { get set }
 //    var inspectorFocusedLayers: InspectorFocusedLayers { get set }
     

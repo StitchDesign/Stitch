@@ -21,7 +21,7 @@ struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
 
 extension GraphState {
     func sidebarSelectedItemsDeletingViaEditMode() {
-        let deletedIds = self.sidebarSelectionState.all.map(\.id)
+        let deletedIds = self.selectionState.all.map(\.id)
         
         deletedIds.forEach {
             self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
