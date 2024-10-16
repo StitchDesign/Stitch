@@ -312,7 +312,9 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 buttons.append(groupButton)
             }
             
-            let atLeastOneSelected = !selections.all.isEmpty
+            let activeSelections = self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
+            
+            let atLeastOneSelected = !activeSelections.isEmpty
             
             if atLeastOneSelected {
                 buttons.append(UIAction(title: "Delete", image: nil) { action in
@@ -320,8 +322,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 })
             }
                       
-            // TODO: see `SelectedLayersHiddenStatusToggled`
-            let onlyOneSelected = selections.primary.count == 1
+            let onlyOneSelected = activeSelections.count == 1
             
             if onlyOneSelected,
                let layerNodeId = selections.primary.first,
@@ -331,6 +332,19 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                     dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
                 })
             }
+            
+            if activeSelections.count > 1 {
+                buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
+                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                           newVisibilityStatus: false))
+                })
+                
+                buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in
+                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                            newVisibilityStatus: true))
+                })
+            }
+            
             
             return UIMenu(title: "", children: buttons)
         }
