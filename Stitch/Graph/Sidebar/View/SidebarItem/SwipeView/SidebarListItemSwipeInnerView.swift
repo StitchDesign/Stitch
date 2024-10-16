@@ -25,6 +25,7 @@ struct SidebarListItemSwipeInnerView: View {
     let isBeingEdited: Bool
     let swipeSetting: SidebarSwipeSetting
     let sidebarWidth: CGFloat
+    let isHovered: Bool
     
     // The actual rendered distance for the swipe distance
     @State var swipeX: CGFloat = 0
@@ -33,7 +34,7 @@ struct SidebarListItemSwipeInnerView: View {
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
     var itemIndent: CGFloat { item.location.x }
-    
+        
     @MainActor
     var isHidden: Bool {
         graph.getVisibilityStatus(for: item.id.asNodeId) != .visible
@@ -143,6 +144,8 @@ struct SidebarListItemSwipeInnerView: View {
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.
                 .overlay(alignment: .trailing) {
+                    
+#if !targetEnvironment(macCatalyst)
                     SidebarListItemRightLabelView(
                         item: item,
                         isGroup: item.isGroup,
@@ -152,20 +155,42 @@ struct SidebarListItemSwipeInnerView: View {
                         isBeingEdited: isBeingEdited,
                         isHidden: isHidden)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+                    
+#endif
+                    
+//                    // TODO: revisit this; currently still broken on Catalyst and the UIKitTappableWrapper becomes unresponsive as soon as we apply a SwiftUI .frame or .offset; `Spacer()`s also do not seem to work
+//                    // Hovering can happen on either Catalyst or iPad
+//                    if isHovered {
+//                        HStack {
+//                            Spacer()
+//                            UIKitTappableWrapper {
+//                                log("clicked hover icon for \(layerNodeId)")
+//                                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
+//                            } view: {
+//                                Spacer()
+//                                Image(systemName: isHidden ? SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON : SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON)
+//                                    .foregroundColor(fontColor)
+//                            }
+//                        } // HStack
+//                    } // if isHovered
+                    
                 }
                 .padding(.trailing, 2)
                 
             }
             
+#if !targetEnvironment(macCatalyst)
             SidebarListItemSwipeMenu(
                 item: item,
                 swipeOffset: swipeX,
                 visStatusIconName: graph.getLayerNode(id: item.id.id)?.layerNode?.visibilityStatusIcon ?? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON,
                 gestureViewModel: self.gestureViewModel)
+#endif
         }
         
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
+#if !targetEnvironment(macCatalyst)
         .onChange(of: swipeSetting) { newSwipeSetting in
             switch newSwipeSetting {
             case .closed, .open:
@@ -184,6 +209,7 @@ struct SidebarListItemSwipeInnerView: View {
                 swipeX = min(distance, sidebarWidth)
             }
         }
+#endif
         .animation(.stitchAnimation(duration: 0.25), value: showMainItem)
         .animation(.stitchAnimation(duration: 0.25), value: itemIndent)
     }
