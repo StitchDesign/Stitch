@@ -140,10 +140,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
                            shouldReceive event: UIEvent) -> Bool {
         if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.alphaShift) {
-            log("SHIFT DOWN")
             self.shiftHeldDown = true
         } else {
-            log("SHIFT NOT DOWN")
             self.shiftHeldDown = false
         }
         
@@ -314,12 +312,26 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 buttons.append(groupButton)
             }
             
-            if !selections.all.isEmpty {
+            let atLeastOneSelected = !selections.all.isEmpty
+            
+            if atLeastOneSelected {
                 buttons.append(UIAction(title: "Delete", image: nil) { action in
                     dispatch(SidebarSelectedItemsDeleted())
                 })
             }
-                        
+                      
+            // TODO: see `SelectedLayersHiddenStatusToggled`
+            let onlyOneSelected = selections.primary.count == 1
+            
+            if onlyOneSelected,
+               let layerNodeId = selections.primary.first,
+               let isVisible = self.graph.getLayerNode(id: layerNodeId.asNodeId)?.layerNode?.hasSidebarVisibility {
+                
+                buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
+                    dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
+                })
+            }
+            
             return UIMenu(title: "", children: buttons)
         }
     }
