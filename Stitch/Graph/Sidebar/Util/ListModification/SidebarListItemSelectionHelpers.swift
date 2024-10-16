@@ -9,75 +9,75 @@ import StitchSchemaKit
 import Foundation
 import SwiftUI
 
-typealias ListItem = SidebarLayerData
-
-// Function to find the closest selected item (start point) relative to an end item, excluding the end itself
-func findClosestSelectedStart(in flatList: [ListItem],
-                              to clickedItem: ListItem,
-                              selections: LayerIdSet) -> ListItem? {
-    
-    // Find the index of the end item
-    guard let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
-        log("findClosestSelectedStart: could not find clickedItemIndex")
-        return nil // Return nil if the end item is not found
-    }
-    
-    // Initialize a variable to store the closest selected item
-    var closestSelected: ListItem? = nil
-    var closestDistance = Int.max
+extension ProjectSidebarObservable {
+    // Function to find the closest selected item (start point) relative to an end item, excluding the end itself
+    func findClosestSelectedStart(in flatList: [Self.EncodedItemData],
+                                  to clickedItem: Self.EncodedItemData,
+                                  selections: LayerIdSet) -> ListItem? {
         
-    // Search for the closest selected item (before and after the end index)
-    for i in 0..<flatList.count {
-        let item = flatList[i]
+        // Find the index of the end item
+        guard let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
+            log("findClosestSelectedStart: could not find clickedItemIndex")
+            return nil // Return nil if the end item is not found
+        }
         
-        let isSelected = selections.contains(item.id.asLayerNodeId)
+        // Initialize a variable to store the closest selected item
+        var closestSelected: ListItem? = nil
+        var closestDistance = Int.max
         
-        if isSelected && item != clickedItem {  // Ensure the selected item is not the same as the end
+        // Search for the closest selected item (before and after the end index)
+        for i in 0..<flatList.count {
+            let item = flatList[i]
             
-            let distance = abs(i - clickedItemIndex)
-            if distance < closestDistance {
-                log("findClosestSelectedStart: found closest \(item)")
-                closestSelected = item
-                closestDistance = distance
+            let isSelected = selections.contains(item.id.asLayerNodeId)
+            
+            if isSelected && item != clickedItem {  // Ensure the selected item is not the same as the end
+                
+                let distance = abs(i - clickedItemIndex)
+                if distance < closestDistance {
+                    log("findClosestSelectedStart: found closest \(item)")
+                    closestSelected = item
+                    closestDistance = distance
+                }
             }
         }
+        
+        log("findClosestSelectedStart: returning closestSelected \(closestSelected)")
+        return closestSelected
     }
     
-    log("findClosestSelectedStart: returning closestSelected \(closestSelected)")
-    return closestSelected
-}
-
-// TODO: finalize this logic; it's not as simple as "the range between last-clicked and just-clicked" nor is it "the range between just-clicked and least-distant-currently-selected"
-//func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
-func itemsBetweenClosestSelectedStart(in flatList: [ListItem],
-                                      clickedItem: ListItem,
-                                      lastClickedItem: ListItem,
-                                      selections: LayerIdSet) -> [ListItem]? {
-    
-    // log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
-  
-    let start = lastClickedItem
-    
-    guard let startIndex = flatList.firstIndex(of: start),
-          let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
-        // log("itemsBetweenClosestSelectedStart: could not get index of start item and/or clicked item")
-        return nil
+    // TODO: finalize this logic; it's not as simple as "the range between last-clicked and just-clicked" nor is it "the range between just-clicked and least-distant-currently-selected"
+    //func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
+    func itemsBetweenClosestSelectedStart(in flatList: [Self.EncodedItemData],
+                                          clickedItem: Self.EncodedItemData,
+                                          lastClickedItem: Self.EncodedItemData,
+                                          selections: LayerIdSet) -> [Self.EncodedItemData]? {
+        
+        // log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
+        
+        let start = lastClickedItem
+        
+        guard let startIndex = flatList.firstIndex(of: start),
+              let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
+            // log("itemsBetweenClosestSelectedStart: could not get index of start item and/or clicked item")
+            return nil
+        }
+        
+        // Ensure that start and end are not the same
+        guard start != clickedItem else {
+            // log("itemsBetweenClosestSelectedStart: start same as clicked item")
+            return nil // If start and end are the same, return nil or handle as needed
+        }
+        
+        let startEarlierThanClickedItem = startIndex < clickedItemIndex
+        
+        // Determine the range and ensure it includes items regardless of their order
+        let range = startEarlierThanClickedItem ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
+        //    let range = startIndex < clickedItemIndex ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
+        
+        // Return the items between start and end (inclusive)
+        return Array(flatList[range])
     }
-    
-    // Ensure that start and end are not the same
-    guard start != clickedItem else {
-        // log("itemsBetweenClosestSelectedStart: start same as clicked item")
-        return nil // If start and end are the same, return nil or handle as needed
-    }
-    
-    let startEarlierThanClickedItem = startIndex < clickedItemIndex
-    
-    // Determine the range and ensure it includes items regardless of their order
-    let range = startEarlierThanClickedItem ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
-//    let range = startIndex < clickedItemIndex ? startIndex...clickedItemIndex : clickedItemIndex...startIndex
-    
-    // Return the items between start and end (inclusive)
-    return Array(flatList[range])
 }
 
 enum SidebarSelectionExpansionDirection: Equatable {

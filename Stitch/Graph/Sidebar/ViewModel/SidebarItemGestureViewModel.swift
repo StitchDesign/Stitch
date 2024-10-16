@@ -52,6 +52,8 @@ protocol SidebarItemSwipable: AnyObject, Observable where Item.ID == SidebarView
     
 //    var editOn: Bool { get set }
     
+    var zIndex: Double { get set }
+    
     var sidebarDelegate: SidebarViewModel? { get }
     
     var fontColor: Color { get }

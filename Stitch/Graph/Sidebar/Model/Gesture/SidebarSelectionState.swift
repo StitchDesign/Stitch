@@ -30,8 +30,6 @@ struct InspectorFocusedData<ItemID: Hashable> {
     // Updated by regular or command click, but not shick click (with some exceptions)
     var lastFocusedLayer: ItemID? = nil
     
-    var inspectorFocusedLayers: InspectorFocusedData<ItemID>
-    
     // Inserts into both focused and activelySelected layer id sets
     func insert(_ layer: ItemID) -> Self {
         self.insert(.init([layer]))
@@ -71,7 +69,7 @@ final class SidebarSelectionObserver<ItemID: Hashable> {
 //    var implicitlyDragged = SidebarListItemIdSet()
     
     // Layers focused in the inspector
-//    var inspectorFocusedLayers = InspectorFocusedLayers() //LayerIdSet()
+    var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()

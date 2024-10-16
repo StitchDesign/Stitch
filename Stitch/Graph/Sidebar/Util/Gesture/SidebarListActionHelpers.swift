@@ -94,130 +94,125 @@ extension ProjectSidebarObservable {
                                             beingDragged: beingDragged,
                                             cursorDrag: cursorDrag)
     }
-}
-
-// We've moved the item up or down (along with its children);
-// did we move it enough to have a new index placement for it?
-@MainActor
-func calculateNewIndexOnDrag(item: SidebarListItem,
-                             items: SidebarListItems,
-                             otherSelections: SidebarListItemIdSet,
-                             draggedAlong: SidebarListItemIdSet,
-                             movingDown: Bool,
-                             originalItemIndex: Int,
-                             movedIndices: [Int]) -> Int {
-
-    let maxMovedToIndex = getMaxMovedToIndex(
-        item: item,
-        items: items,
-        otherSelections: otherSelections,
-        draggedAlong: draggedAlong)
-
-    var calculatedIndex = getMovedtoIndex(
-        item: item,
-        items: items,
-        otherSelections: otherSelections,
-        draggedAlong: draggedAlong,
-        maxIndex: maxMovedToIndex,
-        movingDown: movingDown)
-
-    // log("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
-    // log("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
-
-    // Is this really correct?
-    // i.e. shouldn't this be the `maxMovedToIndex` ?
-    // er, this is like "absolute max index", looking at ALL items in the list
-    let maxIndex = items.count - 1
-
-    // Can't this be combined with something else?
-    calculatedIndex = adjustMoveToIndex(
-        calculatedIndex: calculatedIndex,
-        originalItemIndex: originalItemIndex,
-        movedIndices: movedIndices,
-        maxIndex: maxIndex)
-
-    // log("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
-
-    return calculatedIndex
-}
-
-// the highest index we can have moved an item to;
-// based on item count but with special considerations
-// for whether we're dragging a group.
-func getMaxMovedToIndex(item: SidebarListItem,
-                        items: SidebarListItems,
-                        otherSelections: SidebarListItemIdSet,
-                        draggedAlong: SidebarListItemIdSet) -> Int {
-
-    var maxIndex = items.count - 1
-
-    // log("getMaxMovedToIndex: maxIndex was \(maxIndex)")
     
-    // Presumably we don't actually need to trck whether the `dragged item` is a group or not; `draggedAlong` already represents the children that will be dragged along
-    let itemsWithoutDraggedAlongOrOtherSelections = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
-    
-    // log("getMaxMovedToIndex: itemsWithoutDraggedAlongOrOtherSelections \(itemsWithoutDraggedAlongOrOtherSelections.map(\.id))")
-    
-    maxIndex = itemsWithoutDraggedAlongOrOtherSelections.count - 1
-    // log("getMaxMovedToIndex: maxIndex is now \(maxIndex)")
-    
-    return maxIndex
-}
-
-func getMovedtoIndex(item: SidebarListItem,
-                     items: SidebarListItems,
-                     otherSelections: SidebarListItemIdSet,
-                     draggedAlong: SidebarListItemIdSet,
-                     maxIndex: Int,
-                     movingDown: Bool) -> Int {
-
-    let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-
-    var range = (0...maxY)
-        .filter { $0.isMultiple(of: CUSTOM_LIST_ITEM_VIEW_HEIGHT / 2) }
-
-    range.append(range.last! + CUSTOM_LIST_ITEM_VIEW_HEIGHT/2 )
-
-    if movingDown {
-        range = range.reversed()
+    // We've moved the item up or down (along with its children);
+    // did we move it enough to have a new index placement for it?
+    @MainActor
+    func calculateNewIndexOnDrag(item: Self.ItemViewModel,
+                                 otherSelections: Set<ItemID>,
+                                 draggedAlong: Set<ItemID>,
+                                 movingDown: Bool,
+                                 originalItemIndex: Int,
+                                 movedIndices: [Int]) -> Int {
+        
+        let maxMovedToIndex = self.getMaxMovedToIndex(
+            item: item,
+            otherSelections: otherSelections,
+            draggedAlong: draggedAlong)
+        
+        var calculatedIndex = self.getMovedtoIndex(
+            item: item,
+            otherSelections: otherSelections,
+            draggedAlong: draggedAlong,
+            maxIndex: maxMovedToIndex,
+            movingDown: movingDown)
+        
+        // log("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
+        // log("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
+        
+        // Is this really correct?
+        // i.e. shouldn't this be the `maxMovedToIndex` ?
+        // er, this is like "absolute max index", looking at ALL items in the list
+        let maxIndex = items.count - 1
+        
+        // Can't this be combined with something else?
+        calculatedIndex = adjustMoveToIndex(
+            calculatedIndex: calculatedIndex,
+            originalItemIndex: originalItemIndex,
+            movedIndices: movedIndices,
+            maxIndex: maxIndex)
+        
+        // log("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
+        
+        return calculatedIndex
     }
-
-    // try to find the highest threshold we (our item's location.y) satisfy
-    for threshold in range {
-
-        // for moving up, want to find the first threshold we UNDERSHOOT
-        // where range is (0, 50, 150, ..., 250)
-
-        // for moving down, want to find the first treshold we OVERSHOOT
-        // where range is (250, ..., 150, 50, 0)
-
-        let foundThreshold = movingDown
+    
+    // the highest index we can have moved an item to;
+    // based on item count but with special considerations
+    // for whether we're dragging a group.
+    func getMaxMovedToIndex(item: Self.ItemViewModel,
+                            otherSelections: Set<ItemID>,
+                            draggedAlong: Set<ItemID>) -> Int {
+        
+        var maxIndex = self.items.count - 1
+        
+        // log("getMaxMovedToIndex: maxIndex was \(maxIndex)")
+        
+        // Presumably we don't actually need to trck whether the `dragged item` is a group or not; `draggedAlong` already represents the children that will be dragged along
+        let itemsWithoutDraggedAlongOrOtherSelections = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
+        
+        // log("getMaxMovedToIndex: itemsWithoutDraggedAlongOrOtherSelections \(itemsWithoutDraggedAlongOrOtherSelections.map(\.id))")
+        
+        maxIndex = itemsWithoutDraggedAlongOrOtherSelections.count - 1
+        // log("getMaxMovedToIndex: maxIndex is now \(maxIndex)")
+        
+        return maxIndex
+    }
+    
+    func getMovedtoIndex(item: Self.ItemViewModel,
+                         otherSelections: Set<ItemID>,
+                         draggedAlong: Set<ItemID>,
+                         maxIndex: Int,
+                         movingDown: Bool) -> Int {
+        
+        let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+        
+        var range = (0...maxY)
+            .filter { $0.isMultiple(of: CUSTOM_LIST_ITEM_VIEW_HEIGHT / 2) }
+        
+        range.append(range.last! + CUSTOM_LIST_ITEM_VIEW_HEIGHT/2 )
+        
+        if movingDown {
+            range = range.reversed()
+        }
+        
+        // try to find the highest threshold we (our item's location.y) satisfy
+        for threshold in range {
+            
+            // for moving up, want to find the first threshold we UNDERSHOOT
+            // where range is (0, 50, 150, ..., 250)
+            
+            // for moving down, want to find the first treshold we OVERSHOOT
+            // where range is (250, ..., 150, 50, 0)
+            
+            let foundThreshold = movingDown
             ? item.location.y > CGFloat(threshold)
             : item.location.y < CGFloat(threshold)
-
-        if foundThreshold {
-            var k = (CGFloat(threshold)/CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
-            // if we're moving the item down,
-            // then we'll want to round up the threshold
-            if movingDown {
-                k.round(.up)
-            } else {
-                k.round(.down)
-            }
-            // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
-            let ki = Int(k)
-            if ki > maxIndex {
-                print("getMovedtoIndex: maxIndex: \(maxIndex)")
-                return maxIndex
-            } else {
-                print("getMovedtoIndex: ki: \(ki)")
-                return ki
+            
+            if foundThreshold {
+                var k = (CGFloat(threshold)/CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
+                // if we're moving the item down,
+                // then we'll want to round up the threshold
+                if movingDown {
+                    k.round(.up)
+                } else {
+                    k.round(.down)
+                }
+                // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
+                let ki = Int(k)
+                if ki > maxIndex {
+                    print("getMovedtoIndex: maxIndex: \(maxIndex)")
+                    return maxIndex
+                } else {
+                    print("getMovedtoIndex: ki: \(ki)")
+                    return ki
+                }
             }
         }
+        
+        // if didn't find anything, return the original index?
+        let k = self.items.firstIndex { $0.id == item.id }!
+        // log("getMovedtoIndex: k: \(k)")
+        return k
     }
-
-    // if didn't find anything, return the original index?
-    let k = items.firstIndex { $0.id == item.id }!
-    // log("getMovedtoIndex: k: \(k)")
-    return k
 }

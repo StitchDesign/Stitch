@@ -415,95 +415,85 @@ func updateSidebarListItem<Element>(_ item: Element,
     return items
 }
 
-// used only during on drag;
-@MainActor
-func updatePositionsHelper(_ item: SidebarListItem,
-                           _ items: SidebarListItems,
-                           _ indicesToMove: [Int],
-                           _ translation: CGSize,
-                           
-                           // doesn't change during drag gesture itself
-                           otherSelections: SidebarListItemIdSet,
-                           alreadyDragged: SidebarListItemIdSet,
-                           // changes during drag gesture?
-                           draggedAlong: SidebarListItemIdSet) -> (SidebarListItems,
-                                                                   [Int],
-                                                                   SidebarListItemIdSet,
-                                                                   SidebarListItemIdSet) {
-
-    // log("updatePositionsHelper for item \(item.id)")
-    // log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
-    
-    var item = item
-    
-    // When called from top level, this is the ENTIRE `masterList.items`
-    // ... and we never filter it, so we end up always passed
-    var items = items // When
-    
-    var indicesToMove = indicesToMove
-    var draggedAlong = draggedAlong
-
-    // always update the item's position first:
-    item.location = updateYPosition(
-        translation: translation,
-        location: item.previousLocation)
-
-    let index: Int = items.firstIndex { $0.id == item.id }!
-    items[index] = item
-    indicesToMove.append(index)
-
-    
-    // Tricky: this recursively looks at every item in the last and checks whether we dragged its parent; if so, we adjust it
-    
-    var alreadyDragged = alreadyDragged // SidebarListItemIdSet()
-    
-    items.forEach { childItem in
+extension ProjectSidebarObservable {
+    // used only during on drag;
+    @MainActor
+    func updatePositionsHelper(_ item: SidebarListItem,
+                               _ indicesToMove: [Int],
+                               _ translation: CGSize,
+                               
+                               // doesn't change during drag gesture itself
+                               otherSelections: SidebarListItemIdSet,
+                               alreadyDragged: SidebarListItemIdSet,
+                               // changes during drag gesture?
+                               draggedAlong: SidebarListItemIdSet) -> ([Int],
+                                                                       SidebarListItemIdSet,
+                                                                       SidebarListItemIdSet) {
         
-        let isNotDraggedItem = childItem.id != item.id
-        // This is the meat of this function -- is this child item the child of the parent we're dragging ?
-        let isChildOfDraggedParent = childItem.parentId.map { $0 == item.id } ?? false
+        // log("updatePositionsHelper for item \(item.id)")
+        // log("updatePositionsHelper: alreadyDragged at start of helper: \(alreadyDragged)")
         
-        let isOtherDragged = otherSelections.contains(childItem.id)
+        var item = item
         
-        let isNotAlreadyDragged = !alreadyDragged.contains(childItem.id)
-        // log("updatePositionsHelper: childItem: \(childItem.id)")
-        // log("updatePositionsHelper: isNotAlreadyDragged: \(isNotAlreadyDragged)")
-  
-    
-        if isNotDraggedItem && isNotAlreadyDragged &&
-           (isChildOfDraggedParent || isOtherDragged) {
+        // When called from top level, this is the ENTIRE `masterList.items`
+        // ... and we never filter it, so we end up always passed
         
-            draggedAlong.insert(childItem.id)
-            // log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
-            alreadyDragged.insert(childItem.id)
-
-            let (newItems, 
-                 newIndices,
-                 updatedAlreadyDragged,
-                 updatedDraggedAlong) = updatePositionsHelper(
+        var indicesToMove = indicesToMove
+        var draggedAlong = draggedAlong
+        
+        // always update the item's position first:
+        item.location = updateYPosition(
+            translation: translation,
+            location: item.previousLocation)
+        
+        let index: Int = items.firstIndex { $0.id == item.id }!
+        self.items[index] = item
+        indicesToMove.append(index)
+        
+        
+        // Tricky: this recursively looks at every item in the last and checks whether we dragged its parent; if so, we adjust it
+        
+        var alreadyDragged = alreadyDragged // SidebarListItemIdSet()
+        
+        self.items.forEach { childItem in
+            
+            let isNotDraggedItem = childItem.id != item.id
+            // This is the meat of this function -- is this child item the child of the parent we're dragging ?
+            let isChildOfDraggedParent = childItem.parentId.map { $0 == item.id } ?? false
+            
+            let isOtherDragged = otherSelections.contains(childItem.id)
+            
+            let isNotAlreadyDragged = !alreadyDragged.contains(childItem.id)
+            // log("updatePositionsHelper: childItem: \(childItem.id)")
+            // log("updatePositionsHelper: isNotAlreadyDragged: \(isNotAlreadyDragged)")
+            
+            
+            if isNotDraggedItem && isNotAlreadyDragged &&
+                (isChildOfDraggedParent || isOtherDragged) {
                 
-                    childItem,
-                items,
-                indicesToMove,
-                translation,
-                otherSelections: otherSelections,
-                alreadyDragged: alreadyDragged,
-                draggedAlong: draggedAlong)
+                draggedAlong.insert(childItem.id)
+                // log("updatePositionsHelper: alreadyDragged was: \(alreadyDragged)")
+                alreadyDragged.insert(childItem.id)
+                
+                let (newIndices,
+                     updatedAlreadyDragged,
+                     updatedDraggedAlong) = self.updatePositionsHelper(
+                        childItem,
+                        indicesToMove,
+                        translation,
+                        otherSelections: otherSelections,
+                        alreadyDragged: alreadyDragged,
+                        draggedAlong: draggedAlong)
+                
+                indicesToMove = newIndices
+                alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
+                draggedAlong = draggedAlong.union(updatedDraggedAlong)
+            } // if ...
             
-            // And we update the items
-            for newItem in newItems {
-                let i = items.firstIndex { $0.id == newItem.id }!
-                items[i] = newItem
-            }
-            
-            indicesToMove = newIndices
-            alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
-            draggedAlong = draggedAlong.union(updatedDraggedAlong)
-        } // if ...
+        } // items.forEach
         
-    } // items.forEach
-
-    return (items, indicesToMove, alreadyDragged, draggedAlong)
+        return (indicesToMove, alreadyDragged, draggedAlong)
+    }
 }
 
 func adjustMoveToIndex(calculatedIndex: Int,
