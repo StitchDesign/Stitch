@@ -116,7 +116,7 @@ extension ProjectSidebarObservable {
         }
         
         // finally, remove descendants from items list
-        let descendentsIdSet: Set<SidebarListItemId> = Set(descendants.map(\.id))
+        let descendentsIdSet: Set<Self.ItemID> = Set(descendants.map(\.id))
         self.items.removeAll { descendentsIdSet.contains($0.id) }
     }
     
@@ -137,7 +137,7 @@ extension ProjectSidebarObservable {
     // retrieve children
     // nil = parentId had no
     // non-nil = returning children, plus removing the parentId entry from ExcludedGroups
-    func self.popExcludedChildren(parentId: Self.ItemID) -> ([Self.ItemViewModel], ExcludedGroups)? {
+    func popExcludedChildren(parentId: Self.ItemID) -> ([Self.ItemViewModel], ExcludedGroups)? {
         
         if let excludedChildren = self.excludedGroups[parentId] {
             
@@ -263,7 +263,7 @@ extension ProjectSidebarObservable {
     }
     
     // all children, closed or open
-    func self.childrenForParent(parentId: Self [Self.ItemViewModel] {
+    func childrenForParent(parentId: [Self.ItemViewModel]) -> [Self.ItemViewModel] {
         self.items.filter { $0.parentId == parentId }
     }
 

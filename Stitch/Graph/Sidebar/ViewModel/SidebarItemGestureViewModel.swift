@@ -28,9 +28,7 @@ protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
 //    var location: CGPoint { get set }
 }
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable
-where SidebarViewModel.ItemViewModel == Self,
-      Self.ID: Equatable {
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable {
     associatedtype SidebarViewModel: ProjectSidebarObservable<Self>
 //    associatedtype ItemData: ProjectSidebarObservable.ItemData
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
