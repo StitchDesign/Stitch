@@ -88,10 +88,10 @@ extension StitchDocumentViewModel {
             // Note: do not update sidebar-list-state until after the layer node has actually been added to GraphState
             
             // If we created a layer group, it will start out expanded
-            if case .layer(.group) = choice {
-                log("had layer group, will add to expanded")
-                node.layerNode?.isExpandedInSidebar = true
-            }
+//            if case .layer(.group) = choice {
+//                log("had layer group, will add to expanded")
+//                node.layerNode?.isExpandedInSidebar = true
+//            }
             
             // TODO: revisit node created
 //            self.visibleGraph.sidebarListState = getMasterListFrom(

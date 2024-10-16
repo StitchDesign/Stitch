@@ -8,89 +8,64 @@
 import Foundation
 import StitchSchemaKit
 
-extension GraphState {
-    
-    func getSidebarExpandedItems() -> LayerIdSet {
-        self.layerNodes.values.filter {
-            $0.layerNode?.isExpandedInSidebar ?? false
+extension ProjectSidebarObservable {
+    func getSidebarExpandedItems() -> Set<ItemID> {
+        self.items.filter {
+            $0.isExpandedInSidebar ?? false
         }
-        .map(\.id.asLayerNodeId)
+        .map(\.id)
         .toSet
     }
     
-    func applySidebarExpandedItems(_ expanded: LayerIdSet) {
-        self.layerNodes.values.forEach {
-            if $0.isGroupLayer {
-                $0.layerNode?.isExpandedInSidebar = expanded.contains($0.layerNodeId)
+    func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
+        self.items.forEach {
+            if $0.isGroup {
+                $0.isExpandedInSidebar = expanded.contains($0)
             } else {
-                $0.layerNode?.isExpandedInSidebar = nil
+                $0.isExpandedInSidebar = nil
             }
         }
     }
     
     // for non-edit-mode selections
     @MainActor
-    func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
+    func deselectDescendantsOfClosedGroup(_ closedParentId: Self.ItemID) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        guard let closedParent = retrieveItem(closedParentId.asNodeId,
-                                              self.orderedSidebarLayers.getFlattenedList()) else {
+        guard let closedParent = retrieveItem(closedParentId,
+                                              self.orderedEncodedData.getFlattenedList()) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
         
-        let descendants = self.getDescendants(for: closedParentId)
+        let descendants = self.getDescendants(closedParent)
         
         for childen in descendants {
-            self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(childen.id.asLayerNodeId)
-            self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(childen.id.asLayerNodeId)
+            self.selectionState.inspectorFocusedLayers.focused.remove(childen.id)
+            self.selectionState.inspectorFocusedLayers.activelySelected.remove(childen.id)
         }
     }
-}
-
-struct SidebarListItemGroupClosed: GraphEventWithResponse {
-
-    let closedParentId: LayerNodeId
     
-    func handle(state: GraphState) -> GraphResponse {
+    @MainActor
+    func sidebarListItemGroupClosed(closedParentId: Self.ItemID) {
 
-        var expanded = state.getSidebarExpandedItems()
+        var expanded = self.getSidebarExpandedItems()
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        state.deselectDescendantsOfClosedGroup(closedParentId)
+        self.deselectDescendantsOfClosedGroup(closedParentId)
                         
-        state.layersSidebarViewModel.onSidebarListItemGroupClosed(
+        self.onSidebarListItemGroupClosed(
             closedId: closedParentId.asItemId)
         
         //        // also need to remove id from sidebar's expandedSet
         //        expanded.remove(closedParent)
         
         // NOTEL Excluded-groups contains ALL collapsed groups; `masterList.collapsedGroups` only contains top-level collapsed groups?
-        state.layersSidebarViewModel.excludedGroups.keys.forEach {
+        self.excludedGroups.keys.forEach {
             expanded.remove($0)
         }
                 
-        state.applySidebarExpandedItems(expanded)
-        
-//        _updateStateAfterListChange(
-//            updatedList: state.sidebarListState,
-//            expanded: state.getSidebarExpandedItems(),
-//            graphState: state)
-        
-        return .shouldPersist
-    }
-}
-
-extension LayersSidebarViewModel {
-    @MainActor
-    func sidebarListItemGroupOpened(openedParent: SidebarListItemId) {
-
-//        state.sidebarListState.masterList = onSidebarListItemGroupOpened(
-//            openedId: openedParent.asItemId,
-//            state.sidebarListState.masterList)
-
-//        state.sidebarExpandedItems.insert(openedParent)
-        self.graphDelegate?.getNodeViewModel(openedParent.asNodeId)?.layerNode?.isExpandedInSidebar = true
+        self.applySidebarExpandedItems(expanded)
         
 //        _updateStateAfterListChange(
 //            updatedList: state.sidebarListState,
@@ -106,7 +81,8 @@ extension ProjectSidebarObservable {
     // - move parent's children from ExcludedGroups to Items
     // - wipe parent's entry in ExcludedGroups
     // - move down (+y) any items below the now-open parent
-    func onSidebarListItemGroupOpened(openedId: Self.ItemID) {
+    @MainActor
+    func sidebarListItemGroupOpened(openedId: Self.ItemID) {
         
         log("onSidebarListItemGroupOpened called")
         
@@ -143,6 +119,8 @@ extension ProjectSidebarObservable {
         
         // Trigger inherited class
         self.didGroupExpand(openedId)
+        
+        self.graphDelegate?.encodeProjectInBackground()
     }
     
     // When group closed:

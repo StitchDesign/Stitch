@@ -52,7 +52,7 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
                 if isClosed {
                     sidebarViewModel.sidebarListItemGroupOpened(openedParent: parentId)
                 } else {
-                    sidebarViewModel.onSidebarListItemGroupOpened(openedId: parentId)
+                    sidebarViewModel.sidebarListItemGroupClosed(closedParentId: parentId)
                 }
             }
             .animation(.linear, value: rotationZ)

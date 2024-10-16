@@ -54,9 +54,6 @@ extension LayersSidebarViewModel {
         
         newNode.layerNode?.layerGroupId = existingParentForSelections
         
-        // Newly created groups start out expanded:
-        newNode.layerNode?.isExpandedInSidebar = true
-        
         // Iterate through primarly selected layers,
         // assigning new LG as their layerGoupId.
         primarilySelectedLayers.forEach { layerId in

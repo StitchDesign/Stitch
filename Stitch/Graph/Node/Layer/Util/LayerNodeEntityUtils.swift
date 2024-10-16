@@ -115,8 +115,7 @@ extension LayerNodeEntity {
          layerPaddingPort: LayerInputEntity = .empty,
          offsetInGroupPort: LayerInputEntity = .empty,
          hasSidebarVisibility: Bool,
-         layerGroupId: NodeId?,
-         isExpandedInSidebar: Bool?) {
+         layerGroupId: NodeId?) {
         
         let outputsCount = layer.layerGraphNode.rowDefinitions(for: nil).outputs.count
         
@@ -235,7 +234,6 @@ extension LayerNodeEntity {
             offsetInGroupPort: offsetInGroupPort,
             
             hasSidebarVisibility: hasSidebarVisibility,
-            layerGroupId: layerGroupId,
-            isExpandedInSidebar: isExpandedInSidebar)
+            layerGroupId: layerGroupId)
     }
 }
