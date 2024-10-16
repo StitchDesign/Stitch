@@ -87,7 +87,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                     node.isTapped(document: document)
                 }))
         } // ZStack
-        
+                
         /*
          Note: every touch on a part of a node is an interaction (e.g. the title, an input field etc.) with a single node --- except for touching the node tag menu.
          
@@ -115,6 +115,14 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
             
             nodeBodyKind
                 .modifier(CanvasItemBodyPadding())
+        }
+        .overlay {
+            if let layerNode = stitch.layerNode,
+               !layerNode.hasSidebarVisibility {
+                Color.black.opacity(0.3)
+                    .cornerRadius(CANVAS_ITEM_CORNER_RADIUS)
+                    .allowsHitTesting(false)
+            }
         }
         .fixedSize()
         .modifier(CanvasItemBackground(color: nodeUIColor.body))
@@ -157,9 +165,7 @@ struct NodeView<InputsViews: View, OutputsViews: View>: View {
                                nodeTypeChoices: sortedUserTypeChoices,
                                canAddInput: canAddInput,
                                canRemoveInput: canRemoveInput,
-                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected,
-                               // Always false for PatchNodeView
-                               isHiddenLayer: false)
+                               atleastOneCommentBoxSelected: atleastOneCommentBoxSelected)
     }
 }
 

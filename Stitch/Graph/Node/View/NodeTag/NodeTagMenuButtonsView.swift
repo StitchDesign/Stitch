@@ -10,6 +10,7 @@ import StitchSchemaKit
 
 // The buttons for a node tag menu;
 // what we provide to SwifUI Menu or SwiftUI .contextMenu
+
 struct NodeTagMenuButtonsView: View {
 
     @Environment(StitchStore.self) private var store
@@ -30,8 +31,6 @@ struct NodeTagMenuButtonsView: View {
     
     var atleastOneCommentBoxSelected: Bool
 
-    var isHiddenLayer: Bool
-    
     @MainActor
     var graphUI: GraphUIState {
         self.graph.graphUI
@@ -91,6 +90,11 @@ struct NodeTagMenuButtonsView: View {
         splitterType.isDefined
             && activeGroupId.isDefined
     }
+    
+    var isWirelessReceiver: Bool {
+        node.kind == .patch(.wirelessReceiver)
+    }
+    
 
     var body: some View {
         if singleGroupNodeSelected {
@@ -140,14 +144,8 @@ struct NodeTagMenuButtonsView: View {
             // Always shown
             deleteButton
             duplicateButton
-
-            if canAddInput {
-                addInputButton
-            }
             
-            if canRemoveInput {
-                removeInputButton
-            }
+            addOrRemoveInputButons
 
             if let splitterType = splitterType,
                let nodeId = canvasItemId.nodeCase,
@@ -174,31 +172,65 @@ struct NodeTagMenuButtonsView: View {
                                                  nodeId: node.id)
             }
             
-            if isWirelessReceiver,
-               let assignedBroadcaster = node.currentBroadcastChoiceId {
-                nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
-                    dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
-                }
-            }
+            jumpToAssignedBroadcasterButton
             
             if node.kind == .patch(.mathExpression) {
                 MathExpressionSubmenuButtonView(id: node.id)
             }
             
-            if let layerNode = node.layerNode {
-                Button {
-                    dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id.asLayerNodeId))
-                } label: {
-                    Text(isHiddenLayer ? "Unhide Layer" : "Hide Layer")
-                }
+            hideLayerButton
+            
+        }
+    }
+    
+    @ViewBuilder
+    var addOrRemoveInputButons: some View {
+        if canAddInput {
+            addInputButton
+        }
+        
+        if canRemoveInput {
+            removeInputButton
+        }
+    }
+    
+    @ViewBuilder
+    var jumpToAssignedBroadcasterButton: some View {
+        if isWirelessReceiver,
+           let assignedBroadcaster = node.currentBroadcastChoiceId {
+            nodeTagMenuButton(label: "Jump to Assigned Broadcaster") {
+                dispatch(JumpToCanvasItem(id: .node(assignedBroadcaster)))
             }
         }
     }
-
-    var isWirelessReceiver: Bool {
-        node.kind == .patch(.wirelessReceiver)
+    
+    @ViewBuilder
+    var hideLayerButton: some View {
+        if let layerNode = node.layerNode {
+            Button {
+                dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNode.id.asLayerNodeId))
+            } label: {
+                Text(layerNode.hasSidebarVisibility ? "Hide Layer" : "Unhide Layer")
+            }
+        }
     }
     
+//    var onlyLayerCanvasItemsSelected: Bool {
+//        graph.selectedCanvasItems.allSatisfy(\.id.isForLayer)
+//    }
+//    
+//    @ViewBuilder
+//    var hideLayersButton: some View {
+//        // TODO: see `SelectedLayersHiddenStatusToggled`
+//        if onlyLayerCanvasItemsSelected {
+//            Button {
+//                dispatch(SelectedLayersHiddenStatusToggled(selectedLayers: graph.selectedCanvasLayerItemIds.toSet))
+//            } label: {
+//                Text(isHiddenLayer ? "Unhide Layers" : "Hide Layers")
+//            }
+//        }
+//    }
+
     @MainActor
     func splitterTypeSubmenu(nodeId: NodeId,
                              _ currentSplitterType: SplitterType) -> some View {
