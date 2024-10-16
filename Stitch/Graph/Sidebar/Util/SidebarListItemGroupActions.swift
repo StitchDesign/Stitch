@@ -33,14 +33,13 @@ extension GraphState {
     func deselectDescendantsOfClosedGroup(_ closedParentId: LayerNodeId) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        guard let closedParent = retrieveItem(closedParentId.asItemId.id,
+        guard let closedParent = retrieveItem(closedParentId.asNodeId,
                                               self.orderedSidebarLayers.getFlattenedList()) else {
             fatalErrorIfDebug("Could not retrieve item")
             return
         }
         
-        let descendants = Stitch.getDescendants(closedParent,
-                                                self.orderedSidebarLayers.getFlattenedList())
+        let descendants = self.getDescendants(closedParentId)
         
         for childen in descendants {
             self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(childen.id.asLayerNodeId)
@@ -60,24 +59,23 @@ struct SidebarListItemGroupClosed: GraphEventWithResponse {
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
         state.deselectDescendantsOfClosedGroup(closedParentId)
                         
-        state.sidebarListState.masterList = onSidebarListItemGroupClosed(
-            closedId: closedParentId.asItemId,
-            state.sidebarListState.masterList)
+        state.layersSidebarViewModel.onSidebarListItemGroupClosed(
+            closedId: closedParentId.asItemId)
         
         //        // also need to remove id from sidebar's expandedSet
         //        expanded.remove(closedParent)
         
         // NOTEL Excluded-groups contains ALL collapsed groups; `masterList.collapsedGroups` only contains top-level collapsed groups?
-        state.sidebarListState.masterList.excludedGroups.keys.forEach {
-            expanded.remove($0.asLayerNodeId)
+        state.layersSidebarViewModel.excludedGroups.keys.forEach {
+            expanded.remove($0)
         }
                 
         state.applySidebarExpandedItems(expanded)
         
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
+//        _updateStateAfterListChange(
+//            updatedList: state.sidebarListState,
+//            expanded: state.getSidebarExpandedItems(),
+//            graphState: state)
         
         return .shouldPersist
     }
@@ -118,10 +116,10 @@ extension ProjectSidebarObservable {
         
         guard let parentItem = retrieveItem(openedId, self.items) else {
             fatalErrorIfDebug("Could not retrieve item")
-            return masterList
+            return
         }
-        let parentIndex = parentItem.itemIndex(masterList.items)
         
+        let parentIndex = parentItem.itemIndex(self.items)
         let originalCount = self.items.count
         
         let lastIndex = self.unhideChildren(
@@ -161,7 +159,7 @@ extension ProjectSidebarObservable {
             return
         }
         
-        if !hasOpenChildren(closedParent, self.items) {
+        if !hasOpenChildren(closedParent) {
             self.collapsedGroups.insert(closedId)
             self.excludedGroups.updateValue([], forKey: closedId)
             return
@@ -182,7 +180,7 @@ extension ProjectSidebarObservable {
             // parent's own index should not have changed if we only
             // removed or changed items AFTER its index.
             closedParent.id,
-            closedParent.itemIndex(masterList.items),
+            closedParent.itemIndex(self.items),
             adjustment: -CGFloat(moveUpBy))
         
         // add parent to collapsed group

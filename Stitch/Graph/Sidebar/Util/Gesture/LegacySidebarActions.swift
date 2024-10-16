@@ -174,7 +174,7 @@ extension ProjectSidebarObservable {
             // log("SidebarListItemDragged: multiple selections; dragging an existing one")
             // Turn the master list into a "master list with a stack" first,
             if !state.selectionState.madeStack,
-                let item = state.sidebarListState.masterList.items.first(where: { $0.id == itemId }),
+                let item = self.items.first(where: { $0.id == itemId }),
             
                 self.updateStackOnDrag(
                     item,
@@ -280,7 +280,7 @@ extension ProjectSidebarObservable {
         
         
         // i.e. get the index of this dragged-item, given the updated masterList's items
-        let updatedOriginalIndex = item.itemIndex(masterList.items)
+        let updatedOriginalIndex = item.itemIndex(self.items)
         // update `item` again!
         item = self.items[updatedOriginalIndex]
         

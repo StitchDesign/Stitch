@@ -28,8 +28,9 @@ let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 ////    var location: CGPoint { get set }
 //}
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable {
-    associatedtype SidebarViewModel: ProjectSidebarObservable<Self>
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable,
+                                                                        SidebarViewModel.ItemViewModel == Self {
+    associatedtype SidebarViewModel: ProjectSidebarObservable
 //    associatedtype ItemData: ProjectSidebarObservable.ItemData
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
     

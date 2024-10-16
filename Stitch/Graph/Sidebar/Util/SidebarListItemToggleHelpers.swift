@@ -23,7 +23,7 @@ extension ProjectSidebarObservable {
     @MainActor
     func getDescendants(_ parentItem: Self.ItemViewModel) -> [Self.ItemViewModel] {
         
-        var descendants = SidebarListItems()
+        var descendants = [Self.ItemViewModel]()
         
         for item in self.getItemsBelow(parentItem) {
             //        log("itemBelow: \(item.id), \(item.location.x)")
@@ -43,12 +43,12 @@ extension ProjectSidebarObservable {
     
     // if "parent" does not have an iimte
     // Better?: `!getDescendents.isEmpty`
-    func hasOpenChildren(_ item: Self.ItemViewModel, _ items: [Self.ItemViewModel]) -> Bool {
+    func hasOpenChildren(_ item: Self.ItemViewModel) -> Bool {
         
-        let parentIndex = item.itemIndex(items)
+        let parentIndex = item.itemIndex(self.items)
         let nextChildIndex = parentIndex + 1
         
-        if let child = items[safeIndex: nextChildIndex],
+        if let child = self.items[safeIndex: nextChildIndex],
            let childParent = child.parentId,
            childParent == item.id {
             return true
@@ -68,7 +68,7 @@ extension ProjectSidebarObservable {
         // if there are no descendants, then we're basically done
         
         // all the items below this parent, with indentation > parent's
-        let descendants = getDescendants(closedParent, self.items)
+        let descendants = self.getDescendants(closedParent)
         
         // starting: immediate parent will have closed parent's id
         var currentParent = closedParentId

@@ -16,11 +16,10 @@ extension ProjectSidebarObservable {
     // you're just updating a single item
     // but need to update all the descendants as well?
     @MainActor
-    static func moveSidebarListItemIntoGroup(_ item: [ItemViewModel],
-                                             _ items: [ItemViewModel],
-                                             otherSelections: Set<ItemViewModel.ID>,
-                                             draggedAlong: Set<ItemViewModel.ID>,
-                                             _ proposedGroup: ProposedGroup<ItemViewModel.ID>) -> [ItemViewModel] {
+    func moveSidebarListItemIntoGroup(_ item: [ItemViewModel],
+                                      otherSelections: Set<ItemViewModel.ID>,
+                                      draggedAlong: Set<ItemViewModel.ID>,
+                                      _ proposedGroup: ProposedGroup<ItemViewModel.ID>) {
         
         let newParent = proposedGroup.parentId
         
@@ -40,10 +39,10 @@ extension ProjectSidebarObservable {
             return items
         }
         
-        return maybeSnapDescendants(updatedItem,
-                                    items,
-                                    draggedAlong: draggedAlong,
-                                    startingIndentationLevel: proposedGroup.indentationLevel)
+        self. items = maybeSnapDescendants(updatedItem,
+                                           items,
+                                           draggedAlong: draggedAlong,
+                                           startingIndentationLevel: proposedGroup.indentationLevel)
     }
 }
 
@@ -178,61 +177,61 @@ func removeSelectedItemsFromParents(items: SidebarListItems,
     }
 }
 
-// Grab the item immediately below;
-// if it has a parent (which should be above us),
-// use that parent as the proposed group.
-@MainActor
-func groupFromChildBelow(_ item: SidebarListItem,
-                         _ items: SidebarListItems,
-                         movedItemChildrenCount: Int,
-                         excludedGroups: ExcludedGroups) -> ProposedGroup? {
-
-     log("groupFromChildBelow: item: \(item)")
-    // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
-    // log("groupFromChildBelow: items: \(debugItems)")
-
-    let movedItemIndex = item.itemIndex(items)
-    
-    let entireIndex = movedItemIndex + movedItemChildrenCount
-    // log("groupFromChildBelow: entireIndex: \(entireIndex)")
-    
-    // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
-    let indexBelow: Int = entireIndex + 1
-    
-    // log("groupFromChildBelow: indexBelow: \(indexBelow)")
-
-    guard let itemBelow = items[safeIndex: indexBelow] else {
-        log("groupFromChildBelow: no itemBelow")
-        return nil
-    }
-    
-    log("groupFromChildBelow: itemBelow: \(itemBelow)")
-
-    guard let parentOfItemBelow = itemBelow.parentId else {
-        log("groupFromChildBelow: no parent on itemBelow")
-        return nil
-    }
-
-    let itemsAbove = getItemsAbove(item, items)
-
-    guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }),
-          // added:
-          parentItemAbove.isGroup else {
-        log("groupFromChildBelow: could not find parent above")
-        return nil
-    }
-
-    log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
-    
-    let proposedParent = parentItemAbove.id
-    let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
-
-    // we'll use the indentation level of the parent + 1
-    return ProposedGroup(parentId: proposedParent,
-                         xIndentation: proposedIndentation)
-}
 
 extension ProjectSidebarObservable {
+    // Grab the item immediately below;
+    // if it has a parent (which should be above us),
+    // use that parent as the proposed group.
+    @MainActor
+    func groupFromChildBelow(_ item: Self.ItemID,
+                             movedItemChildrenCount: Int,
+                             excludedGroups: ExcludedGroups) -> ProposedGroup? {
+        
+        log("groupFromChildBelow: item: \(item)")
+        // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
+        // log("groupFromChildBelow: items: \(debugItems)")
+        
+        let movedItemIndex = item.itemIndex(items)
+        
+        let entireIndex = movedItemIndex + movedItemChildrenCount
+        // log("groupFromChildBelow: entireIndex: \(entireIndex)")
+        
+        // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
+        let indexBelow: Int = entireIndex + 1
+        
+        // log("groupFromChildBelow: indexBelow: \(indexBelow)")
+        
+        guard let itemBelow = self.items[safeIndex: indexBelow] else {
+            log("groupFromChildBelow: no itemBelow")
+            return nil
+        }
+        
+        log("groupFromChildBelow: itemBelow: \(itemBelow)")
+        
+        guard let parentOfItemBelow = itemBelow.parentId else {
+            log("groupFromChildBelow: no parent on itemBelow")
+            return nil
+        }
+        
+        let itemsAbove = self.getItemsAbove(item)
+        
+        guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }),
+              // added:
+              parentItemAbove.isGroup else {
+            log("groupFromChildBelow: could not find parent above")
+            return nil
+        }
+        
+        log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
+        
+        let proposedParent = parentItemAbove.id
+        let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
+        
+        // we'll use the indentation level of the parent + 1
+        return ProposedGroup(parentId: proposedParent,
+                             xIndentation: proposedIndentation)
+    }
+    
     @MainActor
     func getItemsBelow(_ item: Self.ItemViewModel) -> [Self.ItemViewModel] {
         let movedItemIndex = item.itemIndex(items)
@@ -259,7 +258,7 @@ extension ProjectSidebarObservable {
         log("findDeepestParent: item.location.x: \(item.location.x)")
         log("findDeepestParent: cursorDrag: \(cursorDrag)")
         
-        let excludedGroups = masterList.excludedGroups
+        let excludedGroups = self.excludedGroups
         
         let itemLocationX = cursorDrag.x
         
@@ -357,9 +356,8 @@ extension ProjectSidebarObservable {
         // log("proposeGroup: will try to propose group for item: \(item.id)")
         
         // GENERAL RULE:
-        var proposed = findDeepestParent(item,
-                                         masterList,
-                                         cursorDrag: cursorDrag)
+        var proposed = self.findDeepestParent(item,
+                                              cursorDrag: cursorDrag)
         
         // Exceptions:
         
@@ -370,11 +368,10 @@ extension ProjectSidebarObservable {
             proposed = nil
         }
         
-        if let groupDueToChildBelow = groupFromChildBelow(
+        if let groupDueToChildBelow = self.groupFromChildBelow(
             item,
-            items,
             movedItemChildrenCount: draggedAlongCount,
-            excludedGroups: masterList.excludedGroups) {
+            excludedGroups: self.excludedGroups) {
             
             log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
             
@@ -392,7 +389,7 @@ extension ProjectSidebarObservable {
         log("proposeGroup: returning: \(String(describing: proposed))")
         
         if let proposedParentId = proposed?.parentId,
-           let proposedParentItem = retrieveItem(proposedParentId, items),
+           let proposedParentItem = retrieveItem(proposedParentId, self.items),
            !proposedParentItem.isGroup {
             fatalErrorIfDebug() // Can never propose a parent that is not actually a group
             return nil

@@ -68,11 +68,10 @@ extension ProjectSidebarObservable {
         
         if let proposed = proposed {
             log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
-            masterList.items = moveSidebarListItemIntoGroup(item,
-                                                            masterList.items,
-                                                            otherSelections: otherSelections,
-                                                            draggedAlong: draggedAlong,
-                                                            proposed)
+            self.moveSidebarListItemIntoGroup(item,
+                                              otherSelections: otherSelections,
+                                              draggedAlong: draggedAlong,
+                                              proposed)
         }
         
         // if no proposed group, then we moved item to top level:
@@ -80,10 +79,9 @@ extension ProjectSidebarObservable {
         // 2. set item's parent to nil
         else {
             log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
-            masterList.items = moveSidebarListItemToTopLevel(item,
-                                                             masterList.items,
-                                                             otherSelections: otherSelections,
-                                                             draggedAlong: draggedAlong)
+            self.moveSidebarListItemToTopLevel(item,
+                                               otherSelections: otherSelections,
+                                               draggedAlong: draggedAlong)
         }
         
         self.currentItemDragged = result.beingDragged
