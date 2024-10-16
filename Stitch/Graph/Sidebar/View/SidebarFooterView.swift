@@ -15,10 +15,13 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     private let SIDEBAR_FOOTER_COLOR: Color = Color(.sideBarFooter)
     
     @Bindable var sidebarViewModel: SidebarViewModel
-    let isBeingEdited: Bool
     let syncStatus: iCloudSyncStatus
 //    let layerNodes: LayerNodesForSidebarDict
 
+    var isBeingEdited: Bool {
+        self.sidebarViewModel.isBeingEdited
+    }
+    
     var selections: SidebarViewModel.SidebarSelectionState {
         self.sidebarViewModel.selectionState
     }

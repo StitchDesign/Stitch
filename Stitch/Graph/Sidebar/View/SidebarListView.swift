@@ -42,20 +42,18 @@ extension ProjectSidebarTab {
         }
     }
     
-    @ViewBuilder @MainActor
-    func content(graph: GraphState,
-                 isBeingEdited: Bool,
-                 syncStatus: iCloudSyncStatus) -> some View {
-        switch self {
-        case .layers:
-            LayersSidebarView(graph: graph,
-                              isBeingEdited: isBeingEdited,
-                              syncStatus: syncStatus)
-        case .assets:
-            Text("Assets")
-        }
-    }
-    
+//    @ViewBuilder @MainActor
+//    func content(graph: GraphState,
+//                 syncStatus: iCloudSyncStatus) -> some View {
+//        switch self {
+//        case .layers:
+//            LayersSidebarView(graph: graph,
+//                              syncStatus: syncStatus)
+//        case .assets:
+//            Text("Assets")
+//        }
+//    }
+//    
     var viewModelType: any ProjectSidebarObservable.Type {
         switch self {
         case .layers:
@@ -101,9 +99,14 @@ struct SidebarListView: View {
             case .none:
                 FatalErrorIfDebugView()
             case .some(let tab):
-                @Bindable var viewModel = tab.viewModelType.init()
-                SidebarListScrollView(sidebarViewModel: viewModel,
-                                      tab: tab)
+                switch tab {
+                case .layers:
+//                    @Bindable var viewModel = tab.viewModelType.init()
+                    SidebarListScrollView(sidebarViewModel: graph.layersSidebarViewModel,
+                                          tab: tab)
+                case .assets:
+                    FatalErrorIfDebugView()
+                }
             }
         }
         // TODO: see note in `DeriveSidebarList`
@@ -127,6 +130,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         VStack(spacing: 0) {
             listView
             Spacer()
+            SidebarFooterView(sidebarViewModel: sidebarViewModel,
+                              syncStatus: syncStatus)
         }
         .onChange(of: sidebarViewModel.activeGesture) {
             switch sidebarViewModel.activeGesture {
@@ -149,7 +154,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                 
                 // HACK
                 if sidebarViewModel.items.isEmpty {
-                    fakeSidebarListItem
+//                    fakeSidebarListItem
+                    Color.clear
                 }
                 
                 ForEach(sidebarViewModel.items) { item in
@@ -161,10 +167,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                         graph: graph,
                         item: item,
                         name: graph.getNodeViewModel(item.id.asNodeId)?.getDisplayTitle() ?? item.layer.value,
-                        layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
+//                        layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
                         isClosed: sidebarViewModel.collapsedGroups.contains(item.id),
-                        selection: selection,
-                        isBeingEdited: isBeingEditedAnimated)
+                        selection: selection)
                     .zIndex(item.zIndex) // TODO: replace wi
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach
@@ -208,6 +213,28 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 //            self.sidebarViewModel.editModeToggled(to: isBeingEdited)
         }
     }
+
+    // HACK for proper width even when sidebar is empty
+    // TODO: revisit and re-organize UI to avoid this hack
+//    @ViewBuilder @MainActor
+//    var fakeSidebarListItem: some View {
+//        
+//        let item = SidebarListItem.fakeSidebarListItem
+//        
+//        SidebarListItemSwipeView(
+//            graph: $graph,
+//            item: item,
+//            name: item.layer.value,
+//            layer: .rectangle,
+//            current: .none,
+//            proposedGroup: .none,
+//            isClosed: true,
+//            selection: .none,
+//            isBeingEdited: false,
+//            activeGesture: $activeGesture,
+//            activeSwipeId: $activeSwipeId)
+//        .opacity(0)
+//    }
 }
 
 // TODO: move
@@ -304,48 +331,42 @@ extension LayersSidebarViewModel {
     }
 }
 
-struct LayersSidebarView: View {
-    @State private var sidebarViewModel = LayersSidebarViewModel()
-    
-    @Bindable var graph: GraphState
-
-    let isBeingEdited: Bool
-    let syncStatus: iCloudSyncStatus
-    
-    var body: some View {
-        VStack {
-            listView
-            Spacer()
-            // Note: previously was in an `.overlay(footer, alignment: .bottom)` which now seems unnecessary
-            SidebarFooterView(groups: sidebarDeps.groups,
-                               selections: selections,
-                               isBeingEdited: isBeingEditedAnimated,
-                               syncStatus: syncStatus,
-                               layerNodes: layerNodesForSidebarDict)
-        }
-    }
-
-    
-    
-    // HACK for proper width even when sidebar is empty
-    // TODO: revisit and re-organize UI to avoid this hack
-    @ViewBuilder @MainActor
-    var fakeSidebarListItem: some View {
-
-        let item = SidebarListItem.fakeSidebarListItem
-
-        SidebarListItemSwipeView(
-            graph: $graph,
-            item: item,
-            name: item.layer.value,
-            layer: .rectangle,
-            current: .none,
-            proposedGroup: .none,
-            isClosed: true,
-            selection: .none,
-            isBeingEdited: false,
-            activeGesture: $activeGesture,
-            activeSwipeId: $activeSwipeId)
-            .opacity(0)
-    }
-}
+//struct LayersSidebarView: View {
+//    @Bindable var graph: GraphState
+//
+//    let syncStatus: iCloudSyncStatus
+//    
+//    var body: some View {
+//        VStack {
+//            listView
+//            Spacer()
+//            // Note: previously was in an `.overlay(footer, alignment: .bottom)` which now seems unnecessary
+//            SidebarFooterView(sidebarViewModel: graph.layersSidebarViewModel,
+//                              syncStatus: syncStatus)
+//        }
+//    }
+//
+//    
+//    
+//    // HACK for proper width even when sidebar is empty
+//    // TODO: revisit and re-organize UI to avoid this hack
+//    @ViewBuilder @MainActor
+//    var fakeSidebarListItem: some View {
+//
+//        let item = SidebarListItem.fakeSidebarListItem
+//
+//        SidebarListItemSwipeView(
+//            graph: $graph,
+//            item: item,
+//            name: item.layer.value,
+//            layer: .rectangle,
+//            current: .none,
+//            proposedGroup: .none,
+//            isClosed: true,
+//            selection: .none,
+//            isBeingEdited: false,
+//            activeGesture: $activeGesture,
+//            activeSwipeId: $activeSwipeId)
+//            .opacity(0)
+//    }
+//}

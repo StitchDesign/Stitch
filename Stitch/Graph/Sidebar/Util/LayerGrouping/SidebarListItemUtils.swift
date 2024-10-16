@@ -24,15 +24,15 @@ let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = Int(SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_H
 //let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 20
 let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 
-extension SidebarListItem {
-    static var fakeSidebarListItem: Self {
-        SidebarListItem.init(
-            id: .init(NodeId.fakeNodeId),
-            layer: .init("Fake title"),
-            location: .zero,
-            isGroup: false)
-    }
-}
+//extension SidebarListItem {
+//    static var fakeSidebarListItem: Self {
+//        SidebarListItem.init(
+//            id: .init(NodeId.fakeNodeId),
+//            layer: .init("Fake title"),
+//            location: .zero,
+//            isGroup: false)
+//    }
+//}
 
 //func asGroupIdSet(groups: SidebarGroupsDict) -> LayerIdSet {
 //    groups.reduce(LayerIdSet()) { (acc: LayerIdSet, kv: (key: LayerNodeId, value: LayerIdList)) in
