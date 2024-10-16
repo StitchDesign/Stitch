@@ -57,25 +57,39 @@ struct InspectorFocusedData<ItemID: Hashable> {
 final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
     
-//    var isEditMode: Bool = false
+    //    var isEditMode: Bool = false
     
     // avoid this?
     var madeStack: Bool = false
     
     var haveDuplicated: Bool = false
-    var optionDragInProgress: Bool = false 
+    var optionDragInProgress: Bool = false
     
     // non-empty only during active layer drag (multi-drag only?)
-//    var implicitlyDragged = SidebarListItemIdSet()
+    //    var implicitlyDragged = SidebarListItemIdSet()
     
     // Layers focused in the inspector
     var inspectorFocusedLayers = InspectorFocusedData<ItemID>() //LayerIdSet()
     
     // items selected because directly clicked
     var primary = SidebarSelections()
-
+    
     // items selected because eg their parent was selected
     var secondary = SidebarSelections()
+}
+
+extension SidebarSelectionObserver {
+    func getSelectionStatus(_ id: ItemID) -> SidebarListItemSelectionStatus {
+
+        if self.primary.contains(id) {
+            return .primary
+        } else if self.secondary.contains(id) {
+            return .secondary
+        } else {
+            return .none
+        }
+
+    }
     
     var all: SidebarSelections {
         primary.union(secondary)

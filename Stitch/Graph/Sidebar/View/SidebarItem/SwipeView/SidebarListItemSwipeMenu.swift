@@ -10,13 +10,15 @@ import SwiftUI
 import StitchSchemaKit
 
 struct SidebarListItemSwipeMenu<Item>: View where Item: SidebarItemSwipable {
-//    let item: SidebarListItem
     @Bindable var gestureViewModel: Item
     let swipeOffset: CGFloat
-    let visStatusIconName: String
     
     var showNonDefaultOptions: Bool { swipeOffset < DEFAULT_ACTION_THRESHOLD }
 
+    var visStatusIconName: String {
+        gestureViewModel.isVisible ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
+    }
+    
     var body: some View {
         HStack(spacing: 2) {
             // Hide other options after sufficient swipe

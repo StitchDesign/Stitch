@@ -15,7 +15,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
-    let name: String
 //    let layer: Layer
     var isClosed: Bool
     let selection: SidebarListItemSelectionStatus
@@ -95,7 +94,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
                 itemViewModel: gestureViewModel,
-                name: name,
+                name: gestureViewModel.name,
 //                layer: layer,
                 isClosed: isClosed,
                 selection: selection,

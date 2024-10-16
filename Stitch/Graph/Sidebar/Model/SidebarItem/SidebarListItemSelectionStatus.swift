@@ -35,17 +35,3 @@ enum SidebarListItemSelectionStatus {
         }
     }
 }
-
-// what about when a group is collapsed?
-func getSelectionStatus<ItemID>(_ id: ItemID,
-                                _ selections: SidebarSelectionObserver<ItemID>) -> SidebarListItemSelectionStatus {
-
-    if selections.primary.contains(id) {
-        return .primary
-    } else if selections.secondary.contains(id) {
-        return .secondary
-    } else {
-        return .none
-    }
-
-}

@@ -159,14 +159,12 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                 }
                 
                 ForEach(sidebarViewModel.items) { item in
-                    let selection = getSelectionStatus(
-                        item.id,
-                        sidebarViewModel.selectionState)
+                    let selection = sidebarViewModel.selectionState
+                        .getSelectionStatus(item.id)
                     
                     SidebarListItemSwipeView(
                         graph: graph,
                         item: item,
-                        name: graph.getNodeViewModel(item.id.asNodeId)?.getDisplayTitle() ?? item.layer.value,
 //                        layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
                         isClosed: sidebarViewModel.collapsedGroups.contains(item.id),
                         selection: selection)

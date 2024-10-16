@@ -295,7 +295,6 @@ extension SidebarItemSwipable: Identifiable {
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
-    var name: String
     var item: SidebarListItem
     var location: CGPoint
     var previousLocation: CGPoint
@@ -337,6 +336,24 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
+    var name: String {
+        guard let node = self.graphDelegate?.getNodeViewModel(item.id.asNodeId) else {
+            fatalErrorIfDebug()
+            return ""
+        }
+        
+        return node.getDisplayTitle()
+    }
+    
+    var isVisible: Bool {
+        guard let node = graph.getLayerNode(id: itemViewModel.id)?.layerNode else {
+            fatalErrorIfDebug()
+            return true
+        }
+            
+        return node.hasSidebarVisibility
+    }
+    
     var id: SidebarListItemId {
         self.item.id
     }

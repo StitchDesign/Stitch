@@ -553,12 +553,6 @@ extension LayerNodeViewModel {
                                     changedPortId: changedPortId)
         }
     }
-    
-    var visibilityStatusIcon: String {
-        self.hasSidebarVisibility
-        ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON
-        : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
-    }
 }
 
 extension Layer {
