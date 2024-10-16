@@ -253,7 +253,7 @@ extension ProjectSidebarObservable {
         }
         
         // if you start with the parent, you double add it
-        let (updatedMaster, lastIndex) = self.unhideChildrenHelper(
+        let (lastIndex, _) = self.unhideChildrenHelper(
             item: parent,
             currentHighestIndex: parent.itemIndex(self.items),
             currentHighestHeight: parent.location.y,

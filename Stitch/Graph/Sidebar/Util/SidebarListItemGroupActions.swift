@@ -39,7 +39,7 @@ extension GraphState {
             return
         }
         
-        let descendants = self.getDescendants(closedParentId)
+        let descendants = self.getDescendants(for: closedParentId)
         
         for childen in descendants {
             self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(childen.id.asLayerNodeId)

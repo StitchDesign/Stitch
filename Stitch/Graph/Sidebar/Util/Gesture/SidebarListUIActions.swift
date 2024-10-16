@@ -39,10 +39,9 @@ extension ProjectSidebarObservable {
             return items
         }
         
-        self. items = maybeSnapDescendants(updatedItem,
-                                           items,
-                                           draggedAlong: draggedAlong,
-                                           startingIndentationLevel: proposedGroup.indentationLevel)
+        self.maybeSnapDescendants(updatedItem,
+                                  draggedAlong: draggedAlong,
+                                  startingIndentationLevel: proposedGroup.indentationLevel)
     }
 }
 
@@ -79,12 +78,11 @@ func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
 
 extension ProjectSidebarObservable {
     @MainActor
-    static func maybeSnapDescendants(_ item: ItemData,
-                                     _ items: [ItemData],
-                                     draggedAlong: Set<ItemID>,
-                                     // the indentation level from the proposed group
-                                     // (if top level then = 0)
-                                     startingIndentationLevel: IndentationLevel) -> [ItemData] {
+    func maybeSnapDescendants(_ item: Self.ItemViewModel,
+                              draggedAlong: Set<ItemID>,
+                              // the indentation level from the proposed group
+                              // (if top level then = 0)
+                              startingIndentationLevel: IndentationLevel) {
         
         log("maybeSnapDescendants: item at start: \(item)")
         
@@ -97,26 +95,19 @@ extension ProjectSidebarObservable {
         
         let indentDiff: Int = startingIndentationLevel.value - item.indentationLevel.value
         
-        var items = items
-        
         for child in descendants {
-            var child = child
             let childExistingIndent = child.indentationLevel.value
             let newIndent = childExistingIndent + indentDiff
             let finalChildIndent = IndentationLevel(newIndent)
-            child = setXLocationByIndentation(child, finalChildIndent)
-            items = updateSidebarListItem(child, items)
+            child.setXLocationByIndentation(finalChildIndent)
         }
-        
-        return items
     }
 }
 
-func setXLocationByIndentation<Element>(_ item: Element,
-                                        _ indentationLevel: IndentationLevel) -> Element where Element: SidebarItemSwipable {
-    var item = item
-    item.location.x = indentationLevel.toXLocation
-    return item
+extension SidebarItemSwipable {
+    func setXLocationByIndentation(_ indentationLevel: IndentationLevel) {
+        self.location.x = indentationLevel.toXLocation
+    }
 }
 
 // accepts `parentIndentation`
@@ -151,7 +142,7 @@ extension ProjectSidebarObservable {
 }
 
 extension Array where Element: SidebarItemSwipable {
-    func wipeIndentationLevelsOfSelectedItems(selections: Element.Item.ID) {
+    func wipeIndentationLevelsOfSelectedItems(selections: Element.ID) {
         self.forEach { item in
             if item.isSelected(selections) {
                 item.location.x = 0
@@ -163,19 +154,19 @@ extension Array where Element: SidebarItemSwipable {
 }
 
 
-func removeSelectedItemsFromParents(items: SidebarListItems,
-                                    selections: LayerIdSet) -> SidebarListItems {
-    // Must also iterate through selected items and set their parentId = nil
-    items.map { (item: SidebarListItem) in
-        if selections.contains(item.id.asLayerNodeId) {
-            var item = item
-            item.parentId = nil
-            return item
-        } else {
-            return item
-        }
-    }
-}
+//func removeSelectedItemsFromParents(items: SidebarListItems,
+//                                    selections: LayerIdSet) -> SidebarListItems {
+//    // Must also iterate through selected items and set their parentId = nil
+//    items.map { (item: SidebarListItem) in
+//        if selections.contains(item.id.asLayerNodeId) {
+//            var item = item
+//            item.parentId = nil
+//            return item
+//        } else {
+//            return item
+//        }
+//    }
+//}
 
 
 extension ProjectSidebarObservable {
