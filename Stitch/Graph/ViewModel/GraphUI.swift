@@ -458,4 +458,11 @@ extension GraphState {
     var selectedCanvasItems: CanvasItemViewModels {
         self.getVisibleCanvasItems().filter(\.isSelected)
     }
+    
+    @MainActor
+    var selectedCanvasLayerItemIds: [LayerNodeId] {
+        self.selectedCanvasItems
+            .filter(\.id.isForLayer)
+            .map(\.id.associatedNodeId.asLayerNodeId)
+    }
 }
