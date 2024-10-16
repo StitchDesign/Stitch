@@ -26,6 +26,8 @@ struct SidebarListItemSwipeView: View {
 
     @Binding var activeSwipeId: SidebarListItemId?
 
+    @State var isHovered = false
+    
     init(graph: Bindable<GraphState>,
          item: SidebarListItem,
          name: String,
@@ -65,6 +67,18 @@ struct SidebarListItemSwipeView: View {
             layerNodeId: item.id.asLayerNodeId)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
+        
+        // More accurate: needs to come before the `.offset(y:)` modifier
+        .onHover { hovering in
+            // log("hovering: sidebar item \(item.id.id)")
+            // log("hovering: \(hovering)")
+            self.isHovered = hovering
+            if hovering {
+                dispatch(SidebarLayerHovered(layer: item.id.asLayerNodeId))
+            } else {
+                dispatch(SidebarLayerHoverEnded(layer: item.id.asLayerNodeId))
+            }
+        }
         .offset(y: item.location.y)
         
         #if targetEnvironment(macCatalyst)
@@ -76,7 +90,6 @@ struct SidebarListItemSwipeView: View {
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
         #endif
-
         .onChange(of: activeSwipeId) { _ in
             gestureViewModel.resetSwipePosition()
         }
@@ -110,16 +123,8 @@ struct SidebarListItemSwipeView: View {
                 isBeingEdited: isBeingEdited,
                 swipeSetting: gestureViewModel.swipeSetting,
                 sidebarWidth: geometry.size.width,
+                isHovered: isHovered,
                 gestureViewModel: gestureViewModel)
-            .onHover { hovering in
-                // log("hovering: sidebar item \(item.id.id)")
-                // log("hovering: \(hovering)")
-                if hovering {
-                    dispatch(SidebarLayerHovered(layer: item.id.asLayerNodeId))
-                } else {
-                    dispatch(SidebarLayerHoverEnded(layer: item.id.asLayerNodeId))
-                }
-            }
             .padding(1) // ensures .clipped doesn't cut off proposed-group border
             .clipped() // ensures edit buttons don't animate outside sidebar
         }
