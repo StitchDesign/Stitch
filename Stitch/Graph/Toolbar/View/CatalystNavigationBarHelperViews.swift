@@ -102,6 +102,12 @@ extension String {
     // Show = arrow to the left
     // Hide vs Show use same SFSymbol but just rotated
     static let TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait.and.arrow.right"
+    
+    // Note: `iphone` is gray and "Can Only Refer to iPhone" per SFSymbol docs?
+//    static let SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME = "iphone"
+//    static let HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "iphone.slash"
+    static let SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait"
+    static let HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME = "rectangle.portrait.slash"
 
     static let RESTART_PROTOTYPE_SF_SYMBOL_NAME = "arrow.clockwise"
     static let EXPAND_TO_FULL_SCREEN_PREVIEW_WINDOW_SF_SYMBOL_NAME = "arrow.up.left.and.arrow.down.right"
@@ -175,8 +181,9 @@ struct CatalystTopBarGraphButtons: View {
             //                log("CatalystTopBarGraphButtons: to be implemented")
             //            }
 
-            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
-                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
+//            CatalystNavBarButton(.TOGGLE_PREVIEW_WINDOW_SF_SYMBOL_NAME,
+//                                 rotationZ: isPreviewWindowShown ? 0 : 180) {
+            CatalystNavBarButton(isPreviewWindowShown ? .HIDE_PREVIEW_WINDOW_SF_SYMBOL_NAME : .SHOW_PREVIEW_WINDOW_SF_SYMBOL_NAME) {
                 dispatch(TogglePreviewWindow())
             }
 
