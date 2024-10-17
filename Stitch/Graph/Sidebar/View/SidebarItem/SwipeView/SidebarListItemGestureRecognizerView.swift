@@ -36,7 +36,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     
     let graph: GraphState
     
-    var itemId: GestureViewModel.ItemID {
+    var itemId: GestureViewModel.ID {
         gestureViewModel.id
     }
 
@@ -121,7 +121,7 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     var instantDrag: Bool
     
     var graph: GraphState
-    var itemId: GestureViewModel.ItemID
+    var itemId: GestureViewModel.ID
     
     var shiftHeldDown = false
     var commandHeldDown = false
@@ -135,7 +135,7 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
          keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          graph: GraphState,
-         itemId: GestureViewModel.ItemID) {
+         itemId: GestureViewModel.ID) {
         
         self.gestureViewModel = gestureViewModel
         self.keyboardObserver = keyboardObserver

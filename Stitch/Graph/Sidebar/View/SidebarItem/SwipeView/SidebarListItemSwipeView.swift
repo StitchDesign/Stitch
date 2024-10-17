@@ -16,7 +16,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var gestureViewModel: ItemViewModel
     
 //    let layer: Layer
-    var isClosed: Bool
+    let isClosed: Bool
     let selection: SidebarListItemSelectionStatus
 
 //    init(graph: Bindable<GraphState>,

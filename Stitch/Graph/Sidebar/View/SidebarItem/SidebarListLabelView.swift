@@ -28,7 +28,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     let isClosed: Bool
     
     var isBeingEdited: Bool {
-        self.sidebarViewModel.isBeingEdited
+        self.sidebarViewModel.isEditing
     }
     
     // TODO: debug names
@@ -44,7 +44,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     
     var body: some View {
         HStack(spacing: 4) {
-            
+            EmptyView()
             // TODO: left view
 ////            if isGroup {
 //            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
@@ -93,6 +93,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     var label: some View {
         Group {
             if isBeingEdited {
+                EmptyView()
                 //                SidebarListLabelEditView(id: nodeId,
                 //                                         name: _name,
                 //                                         fontColor: fontColor,

@@ -10,7 +10,7 @@ import StitchSchemaKit
 import GameController
 
 struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
-    typealias ItemID = SidebarViewModel.ItemID
+    typealias ItemID = SidebarViewModel.ID
 
     @Environment(\.appTheme) private var theme
     @EnvironmentObject private var keyboardObserver: KeyboardObserver
@@ -41,7 +41,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
         self.sidebarViewModel.currentItemDragged
     }
     
-    var proposedGroup: ProposedGroup<SidebarViewModel.ID>? {
+    var proposedGroup: ProposedGroup<ItemID>? {
         self.sidebarViewModel.proposedGroup
     }
 
@@ -72,6 +72,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
             SidebarListItemLeftLabelView(
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
+                itemViewModel: item,
                 name: name,
 //                layer: layer,
                 fontColor: fontColor,

@@ -19,7 +19,7 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
 //    let layerNodes: LayerNodesForSidebarDict
 
     var isBeingEdited: Bool {
-        self.sidebarViewModel.isBeingEdited
+        self.sidebarViewModel.isEditing
     }
     
     var selections: SidebarViewModel.SidebarSelectionState {

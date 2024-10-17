@@ -164,7 +164,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                     
                     SidebarListItemSwipeView(
                         graph: graph,
-                        item: item,
+                        sidebarViewModel: sidebarViewModel,
+                        gestureViewModel: item,
 //                        layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
                         isClosed: sidebarViewModel.collapsedGroups.contains(item.id),
                         selection: selection)

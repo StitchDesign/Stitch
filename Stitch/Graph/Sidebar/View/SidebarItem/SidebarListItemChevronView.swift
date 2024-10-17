@@ -50,7 +50,7 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {
-                    sidebarViewModel.sidebarListItemGroupOpened(openedParent: parentId)
+                    sidebarViewModel.sidebarListItemGroupOpened(openedId: parentId)
                 } else {
                     sidebarViewModel.sidebarListItemGroupClosed(closedParentId: parentId)
                 }
