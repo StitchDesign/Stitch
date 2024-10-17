@@ -148,6 +148,10 @@ extension PortValue {
             return .singleDropdown(.sizingScenario)
         case .pinTo:
             return .pinTo
+        case .materialThickness:
+            return .singleDropdown(.materialThickness)
+        case .deviceAppearance:
+            return .singleDropdown(.deviceAppearance)
         }
     }
 

@@ -28,6 +28,22 @@ extension ColorScheme {
     }
 }
 
+extension DeviceAppearance: PortValueEnum {
+    static var portValueTypeGetter: PortValueTypeGetter<Self> {
+        PortValue.deviceAppearance
+    }
+
+    static let defaultDeviceAppearance: Self = .system
+}
+
+extension MaterialThickness: PortValueEnum {
+    static var portValueTypeGetter: PortValueTypeGetter<Self> {
+        PortValue.materialThickness
+    }
+
+    static let defaultMaterialThickness: Self = .regular
+}
+
 extension StitchDeviceOrientation: PortValueEnum {
     static var portValueTypeGetter: PortValueTypeGetter<Self> {
         PortValue.deviceOrientation

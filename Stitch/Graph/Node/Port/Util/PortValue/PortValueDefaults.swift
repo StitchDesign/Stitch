@@ -199,6 +199,10 @@ extension PortValue {
             return .sizingScenario(.defaultSizingScenario)
         case .pinTo:
             return .pinTo(.defaultPinToId)
+        case .materialThickness:
+            return .materialThickness(.defaultMaterialThickness)
+        case .deviceAppearance:
+            return .deviceAppearance(.defaultDeviceAppearance)
         }
     }
 }
