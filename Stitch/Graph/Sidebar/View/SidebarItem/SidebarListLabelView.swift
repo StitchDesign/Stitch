@@ -93,7 +93,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     var label: some View {
         Group {
             if isBeingEdited {
-                EmptyView()
+                Color.clear
                 //                SidebarListLabelEditView(id: nodeId,
                 //                                         name: _name,
                 //                                         fontColor: fontColor,
@@ -154,7 +154,7 @@ struct SidebarListLabelEditView: View {
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
                     // Treat this is as a "layer inspector edit" ?
-                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id),
+                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id.asNodeId),
                                              edit: newEdit,
                                              isCommitting: isCommitting))
                 })
@@ -201,7 +201,7 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
             
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
-                    SidebarListItemSelectionCircleView(id: id,
+                    SidebarListItemSelectionCircleView(item: item,
                                                        fontColor: fontColor,
                                                        selection: selection,
                                                        isBeingEdited: isBeingEdited)

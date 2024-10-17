@@ -17,7 +17,7 @@ extension ProjectSidebarObservable {
         .toSet
     }
     
-    func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
+    @MainActor func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
         self.items.forEach {
             if $0.isGroup {
                 $0.isExpandedInSidebar = expanded.contains($0.id)
