@@ -45,6 +45,8 @@ protocol GraphDelegate: AnyObject, Sendable {
     
     var enabledCameraNodeIds: NodeIdSet { get set }
     
+    var sidebarSelectionState: LayersSidebarViewModel.SidebarSelectionState { get }
+    
     @MainActor var connections: GraphState.TopologicalData.Connections { get }
     
     @MainActor func getInputObserver(coordinate: NodeIOCoordinate) -> InputNodeRowObserver?

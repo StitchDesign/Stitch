@@ -221,7 +221,6 @@ extension ProjectSidebarObservable {
                             // starts: opened parent's height
                             currentHighestHeight: CGFloat) -> (Int, CGFloat) {
         
-        var item = item
         var currentHighestIndex = currentHighestIndex
         var currentHighestHeight = currentHighestHeight
         
@@ -229,7 +228,7 @@ extension ProjectSidebarObservable {
         currentHighestIndex += 1
         currentHighestHeight += CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
         
-        item.setOpenedChildHeight(currentHighestHeight)
+        item.setOpenedChildHeight(height: currentHighestHeight)
         self.items.insert(item, at: currentHighestIndex)
         
         return (currentHighestIndex, currentHighestHeight)
@@ -263,7 +262,7 @@ extension ProjectSidebarObservable {
     }
     
     // all children, closed or open
-    func childrenForParent(parentId: [Self.ItemViewModel]) -> [Self.ItemViewModel] {
+    func childrenForParent(parentId: Self.ItemID) -> [Self.ItemViewModel] {
         self.items.filter { $0.parentId == parentId }
     }
 

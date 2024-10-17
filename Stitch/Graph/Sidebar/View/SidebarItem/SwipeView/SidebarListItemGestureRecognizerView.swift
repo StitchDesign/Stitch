@@ -177,6 +177,8 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
             return
         }
         
+        
+        
         gestureViewModel.sidebarItemTapped(id: self.itemId,
                                            shiftHeld: self.shiftHeldDown,
                                            commandHeld: self.commandHeldDown)

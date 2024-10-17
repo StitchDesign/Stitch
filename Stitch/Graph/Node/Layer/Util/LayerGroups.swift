@@ -9,13 +9,14 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-// Find the parent, if any, for this layer node.
-func findGroupLayerParentForLayerNode(_ nodeId: LayerNodeId,
-                                      _ groups: SidebarGroupsDict) -> LayerNodeId? {
-
-    groups.first { (_: LayerNodeId, value: LayerIdList) in
-        value.contains(nodeId)
-    }?.key
+extension ProjectSidebarObservable {
+    // Find the parent, if any, for this layer node.
+    static func findGroupLayerParentForLayerNode(_ itemId: Self.ItemID,
+                                                 _ groups: Self.SidebarGroupsDict) -> Self.ItemID? {
+        groups.first { (_, value) in
+            value.contains(itemId)
+        }?.key
+    }
 }
 
 extension GraphState {

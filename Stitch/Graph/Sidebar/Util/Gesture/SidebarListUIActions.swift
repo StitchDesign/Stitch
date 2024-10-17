@@ -29,7 +29,12 @@ extension ProjectSidebarObservable {
                 fatalErrorIfDebug("Could not retrieve item")
                 continue
             }
-            otherItem.parentId = proposedGroup.parentId
+            
+            
+            // TODO: update parent logic
+//            otherItem.parentId = proposedGroup.parentId
+            
+            
             otherItem.location.x = proposedGroup.indentationLevel.toXLocation
             self.items = updateSidebarListItem(otherItem, items)
         }
@@ -55,7 +60,11 @@ extension ProjectSidebarObservable {
                 fatalErrorIfDebug("Could not retrieve item")
                 continue
             }
-            otherItem.parentId = nil
+            
+            // TODO: update parent logic
+//            otherItem.parentId = nil
+            
+            
             otherItem.location.x = 0
         }
         
@@ -136,7 +145,7 @@ extension ProjectSidebarObservable {
 }
 
 extension Array where Element: SidebarItemSwipable {
-    func wipeIndentationLevelsOfSelectedItems(selections: Element.ID) {
+    func wipeIndentationLevelsOfSelectedItems(selections: Set<Element.ID>) {
         self.forEach { item in
             if item.isSelected(selections) {
                 item.location.x = 0

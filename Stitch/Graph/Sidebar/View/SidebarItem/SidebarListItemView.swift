@@ -22,7 +22,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     let name: String
 //    let layer: Layer
 
-    var isClosed: Bool
+    let isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color

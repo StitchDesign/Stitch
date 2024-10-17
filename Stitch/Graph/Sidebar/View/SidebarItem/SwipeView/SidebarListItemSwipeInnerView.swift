@@ -16,7 +16,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarItemViewModel.SidebarViewModel
-    @Bindable var itemViewModel: SidebarItemViewModel.ItemViewModel
+    @Bindable var itemViewModel: SidebarItemViewModel
     
     let name: String
 //    let layer: Layer
@@ -46,7 +46,7 @@ struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarIt
             if showMainItem {
                 SidebarListItemView(graph: graph,
                                     sidebarViewModel: sidebarViewModel,
-                                    itemViewModel: itemViewModel,
+                                    item: itemViewModel,
                                     name: name,
 //                                    layer: layer,
                                     isClosed: isClosed,

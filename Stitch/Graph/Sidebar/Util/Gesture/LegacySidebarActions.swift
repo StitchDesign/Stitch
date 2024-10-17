@@ -134,8 +134,8 @@ extension ProjectSidebarObservable {
             state.selectionState.resetEditModeSelections()
             state.selectionState.inspectorFocusedLayers.focused = .init([itemId])
             state.selectionState.inspectorFocusedLayers.activelySelected = .init([itemId])
-            state..graphDelegate?.sidebarItemSelectedViaEditMode(itemId,
-                                                                 isSidebarItemTapped: true)
+            state.sidebarItemSelectedViaEditMode(itemId,
+                                                 isSidebarItemTapped: true)
             state.selectionState.inspectorFocusedLayers.lastFocusedLayer = itemId
         }
                 
@@ -178,19 +178,19 @@ extension ProjectSidebarObservable {
             
                 self.updateStackOnDrag(
                     item,
-                    selections: state.selectionState.inspectorFocusedLayers.focused.asSidebarListItemIdSet) {
+                    selections: state.selectionState.inspectorFocusedLayers.focused) {
                 
                 state.selectionState.madeStack = true
             }
             
-           if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
-            from: state.selectionState.inspectorFocusedLayers.focused,
-            in: state.orderedSidebarLayers.getFlattenedList()),
-            itemId != selectedItemWithSmallestIndex.asItemId {
+            if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
+                from: state.selectionState.inspectorFocusedLayers.focused,
+                in: state.orderedSidebarLayers.getFlattenedList()),
+               itemId != selectedItemWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
-               itemId = selectedItemWithSmallestIndex.asItemId
+               itemId = selectedItemWithSmallestIndex
                // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
@@ -214,7 +214,7 @@ extension ProjectSidebarObservable {
         let implicitlyDragged = self.getImplicitlyDragged(
             draggedAlong: draggedAlong,
             selections: state.selectionState.inspectorFocusedLayers.focused)
-        state.selectionState.implicitlyDragged = implicitlyDragged
+        state.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then
 //        _updateStateAfterListChange(
@@ -316,11 +316,11 @@ extension ProjectSidebarObservable {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
-            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
+            if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedSidebarLayers.getFlattenedList()) {
+                in: state.orderedEncodedData.getFlattenedList()) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-                itemId = selectedItemWithSmallestIndex.asItemId
+                itemId = selectedItemWithSmallestIndex
             }
         }
         
@@ -354,7 +354,7 @@ extension ProjectSidebarObservable {
         state.selectionState.madeStack = false
         state.selectionState.haveDuplicated = false
         state.selectionState.optionDragInProgress = false
-        state.selectionState.implicitlyDragged = .init()
+        state.implicitlyDragged = .init()
     
         state.graphDelegate?.encodeProjectInBackground()
     }
@@ -375,12 +375,12 @@ extension ProjectSidebarObservable {
             originalItemId: item.id,
             isDragEnded: true)
         
-        let allDragged: SidebarListItemIds = [item.id] + Array(draggedAlong) + otherSelections
+        let allDragged: [Self.ItemID] = [item.id] + Array(draggedAlong) + otherSelections
         
         // update both the X and Y in the previousLocation of the items that were moved;
         // ie `item` AND every id in `draggedAlong`
         for draggedId in allDragged {
-            guard var draggedItem = self.retrieveItem(draggedId) else {
+            guard let draggedItem = self.retrieveItem(draggedId) else {
                 fatalErrorIfDebug("Could not retrieve item")
                 continue
             }

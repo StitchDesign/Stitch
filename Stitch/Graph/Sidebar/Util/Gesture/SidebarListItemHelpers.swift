@@ -14,18 +14,20 @@ extension SidebarItemSwipable {
 
     //extension SidebarLayerData {
     
-    func isSelected(_ selections: Set<Item.ID>) -> Bool {
+    func isSelected(_ selections: Set<Self.ID>) -> Bool {
         selections.contains(self.id)
     }
     
-    func implicitlyDragged(_ implicitlyDraggedItems: Set<Item.ID>) -> Bool {
+    func implicitlyDragged(_ implicitlyDraggedItems: Set<Self.ID>) -> Bool {
         implicitlyDraggedItems.contains(self.id)
     }
     
     func wipeIndentationLevel() {
         self.previousLocation.x = .zero
         self.location.x = .zero
-        self.item.parentId = nil
+        
+        // TODO: update parent logic
+//        self.parentId = nil
     }
     
     func setIndentToOneLevel() {
@@ -149,7 +151,7 @@ extension ProjectSidebarObservable {
         let explicitlyDragged = chunk.filter { $0.isSelected(selections) }
         let implicitlyDragged = chunk.filter { $0.implicitlyDragged(implicitlyDragged) }
         
-        let wipedExplicitlyDragged = explicitlyDragged.wipeIndentationLevelsOfSelectedItems(selections: selections)
+        explicitlyDragged.wipeIndentationLevelsOfSelectedItems(selections: selections)
         
         // Must also wipe the indentation level of the selectedParentItem
         selectedParentItem.wipeIndentationLevel()
@@ -161,7 +163,7 @@ extension ProjectSidebarObservable {
             item.setIndentToOneLevel()
         }
         
-        return [selectedParentItem] + oneIndentLevelImplicitlyDragged + wipedExplicitlyDragged
+        return [selectedParentItem] + implicitlyDragged + explicitlyDragged
     }
     
     

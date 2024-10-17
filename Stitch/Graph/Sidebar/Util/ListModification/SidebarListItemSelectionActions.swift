@@ -50,6 +50,7 @@ extension ProjectSidebarObservable {
 //                                  acc: Set<ItemID>) -> Set<ItemId> {
         guard let children = self.orderedEncodedData.get(id)?.children else { return .init() }
         return children.flatMap { $0.allElementIds }
+            .toSet
         
         //
 //        var acc = acc
@@ -67,29 +68,17 @@ extension ProjectSidebarObservable {
 //        return acc
     }
     
-    static func removeFromSelections(_ id: Self.ItemID,
-                              _ selection: SidebarSelectionState) -> SidebarSelectionState {
-        
-        var selection = selection
-        
-        selection.primary.remove(id)
-        selection.secondary.remove(id)
-        
-        return selection
+    func removeFromSelections(_ id: Self.ItemID) {
+        self.selectionState.primary.remove(id)
+        self.selectionState.secondary.remove(id)
     }
     
-    static func addExclusivelyToPrimary(_ id: Self.ItemID,
-                                 _ selection: SidebarSelectionState) -> SidebarSelectionState {
-        
-        var selection = selection
-        
+    func addExclusivelyToPrimary(_ id: Self.ItemID) {
         // add to primary
-        selection.primary.insert(id)
+        self.selectionState.primary.insert(id)
         
         // ... and remove from secondary (migt not be present?):
-        selection.secondary.remove(id)
-        
-        return selection
+        self.selectionState.secondary.remove(id)
     }
     
     func addExclusivelyToSecondary(_ id: Self.ItemID) {
@@ -99,11 +88,11 @@ extension ProjectSidebarObservable {
     }
     
     
-    static func allShareSameParent(_ selections: NonEmptySidebarSelections,
-                            groups: SidebarGroupsDict) -> Bool {
+    static func allShareSameParent(_ selections: Self.SelectionState.SidebarSelections,
+                                   groups: Self.SidebarGroupsDict) -> Bool {
         
         if let parent = findGroupLayerParentForLayerNode(selections.first, groups) {
-            return selections.allSatisfy { (id: LayerNodeId) in
+            return selections.allSatisfy { id in
                 // does `id` have a parent, and is that parent the same as the random parent?
                 findGroupLayerParentForLayerNode(id, groups).map { $0 == parent } ?? false
             }
@@ -148,7 +137,7 @@ extension ProjectSidebarObservable {
     }
     
     // 100% selected items that are NOT groups
-    func nonGroupPrimarySelections() -> LayerIdList {
+    func nonGroupPrimarySelections() -> Set<Self.ItemID> {
         self.selectionState.primary.filter { selected in
             if let item = self.items.first(where: { $0.id == selected }) {
                 return !item.isGroup

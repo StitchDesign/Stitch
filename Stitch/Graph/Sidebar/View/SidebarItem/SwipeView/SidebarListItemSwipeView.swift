@@ -104,9 +104,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                 // log("hovering: sidebar item \(item.id.id)")
                 // log("hovering: \(hovering)")
                 if hovering {
-                    self.gestureViewModel.sidebarLayerHovered(itemId: item.id)
+                    self.gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id)
                 } else {
-                    self.gestureViewModel.sidebarLayerHoverEnded(itemId: item.id)
+                    self.gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
                 }
             }
             .padding(1) // ensures .clipped doesn't cut off proposed-group border

@@ -133,13 +133,8 @@ struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: 
     
     var body: some View {
         let allButtonsDisabled = selections.all.isEmpty
-        
         let ungroupButtonEnabled = sidebarViewModel.canUngroup()
-
-        let groupButtonEnabled = selections
-            .primary
-            .map { sidebarViewModel.canBeGrouped() } ?? false
-
+        let groupButtonEnabled = sidebarViewModel.canBeGrouped()
         let duplicateButtonEnabled = sidebarViewModel.canDuplicate()
 
 //        return HStack(spacing: 10) {

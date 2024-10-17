@@ -73,12 +73,12 @@ struct SidebarDraggedItem<ItemID: Hashable> {
     var draggedAlong: Set<ItemID>
 }
 
-typealias SidebarListItems = [SidebarListItem]
+//typealias SidebarListItems = [SidebarListItem]
 
 // parentId: [children in order]
-typealias ExcludedGroupsData<ItemViewModel: SidebarItemSwipable> = [ItemViewModel.ID: [ItemViewModel]]
+//typealias ExcludedGroupsData<ItemViewModel: SidebarItemSwipable> = [ItemViewModel.ID: [ItemViewModel]]
 typealias SidebarListItemIdSet = Set<SidebarListItemId>
-typealias CollapsedGroups = SidebarListItemIdSet
+//typealias CollapsedGroups = SidebarListItemIdSet
 
 // TODO: better name or abstraction here?
 //struct SidebarListItemsCoordinator: Codable, Equatable, Hashable {
@@ -104,7 +104,7 @@ typealias CollapsedGroups = SidebarListItemIdSet
 extension ProjectSidebarObservable {
     @MainActor
     func appendToExcludedGroup(for key: Self.ItemID,
-                               _ newItem: Self.ItemData) {
+                               _ newItem: Self.ItemViewModel) {
         self.appendToExcludedGroup(
             for: key,
             [newItem],

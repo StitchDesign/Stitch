@@ -102,8 +102,10 @@ struct SidebarListView: View {
                 switch tab {
                 case .layers:
 //                    @Bindable var viewModel = tab.viewModelType.init()
-                    SidebarListScrollView(sidebarViewModel: graph.layersSidebarViewModel,
-                                          tab: tab)
+                    SidebarListScrollView(graph: graph,
+                                          sidebarViewModel: graph.layersSidebarViewModel,
+                                          tab: tab,
+                                          syncStatus: syncStatus)
                 case .assets:
                     FatalErrorIfDebugView()
                 }
@@ -119,11 +121,13 @@ struct SidebarListView: View {
 struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: ProjectSidebarObservable {
     @State private var isBeingEditedAnimated = false
     
+    @Bindable var graph: GraphState
     @Binding var sidebarViewModel: SidebarObservable
     let tab: ProjectSidebarTab
+    let syncStatus: iCloudSyncStatus
     
     var isBeingEdited: Bool {
-        self.sidebarViewModel.isBeingEdited
+        self.sidebarViewModel.isEditing
     }
     
     var body: some View {
@@ -132,15 +136,6 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             Spacer()
             SidebarFooterView(sidebarViewModel: sidebarViewModel,
                               syncStatus: syncStatus)
-        }
-        .onChange(of: sidebarViewModel.activeGesture) {
-            switch sidebarViewModel.activeGesture {
-            // scrolling or dragging resets swipe-menu
-            case .scrolling, .dragging:
-                resetSwipePosition()
-            default:
-                return
-            }
         }
     }
     
@@ -243,13 +238,13 @@ import OrderedCollections
 protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
                                                                ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
-    associatedtype EncodedItemData = StitchNestedListElement
+    associatedtype EncodedItemData: StitchNestedListElement
 
 //    typealias ItemData = ItemViewModel.Item
     typealias ItemID = ItemViewModel.ID
     typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
     typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
-    typealias ExcludedGroups = ExcludedGroupsData<ItemViewModel>
+    typealias ExcludedGroups = [ItemID: [ItemViewModel]]
     typealias HorizontalDrag = SidebarCursorHorizontalDrag<ItemViewModel>
     
     init()
@@ -297,9 +292,9 @@ extension ProjectSidebarObservable {
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
-    let isEditing = false
-    let items: [SidebarItemGestureViewModel]
-    let selectionState = SidebarSelectionState()
+    var isEditing = false
+    var items: [SidebarItemGestureViewModel]
+    var selectionState = SidebarSelectionState()
     
     var activeSwipeId: SidebarListItemId?
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none

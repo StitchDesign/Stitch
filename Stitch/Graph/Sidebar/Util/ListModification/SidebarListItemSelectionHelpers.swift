@@ -13,23 +13,23 @@ extension ProjectSidebarObservable {
     // Function to find the closest selected item (start point) relative to an end item, excluding the end itself
     func findClosestSelectedStart(in flatList: [Self.EncodedItemData],
                                   to clickedItem: Self.EncodedItemData,
-                                  selections: LayerIdSet) -> ListItem? {
+                                  selections: Set<Self.ItemID>) -> Self.EncodedItemData? {
         
         // Find the index of the end item
-        guard let clickedItemIndex = flatList.firstIndex(of: clickedItem) else {
+        guard let clickedItemIndex = flatList.firstIndex(where: { $0.id == clickedItem.id }) else {
             log("findClosestSelectedStart: could not find clickedItemIndex")
             return nil // Return nil if the end item is not found
         }
         
         // Initialize a variable to store the closest selected item
-        var closestSelected: ListItem? = nil
+        var closestSelected: Self.EncodedItemData? = nil
         var closestDistance = Int.max
         
         // Search for the closest selected item (before and after the end index)
         for i in 0..<flatList.count {
             let item = flatList[i]
             
-            let isSelected = selections.contains(item.id.asLayerNodeId)
+            let isSelected = selections.contains(item.id)
             
             if isSelected && item != clickedItem {  // Ensure the selected item is not the same as the end
                 
@@ -110,14 +110,14 @@ extension SidebarSelectionExpansionDirection {
 extension GraphState {
     
     // TODO: combine this with our logic for adding to the current selections
-    func shrinkExpansions(flatList: [ListItem], // ALL items with nesting flattened; used for finding indices
-                          itemsBetween: [ListItem], // the 'range' we clicked; items between last-clicked and just-clicked
-                          originalIsland: [ListItem], // the original contiguous selection range
-                          lastClickedItem: ListItem, // the last-non-shift-clicked item
+    func shrinkExpansions(flatList: [SidebarLayerData], // ALL items with nesting flattened; used for finding indices
+                          itemsBetween: [SidebarLayerData], // the 'range' we clicked; items between last-clicked and just-clicked
+                          originalIsland: [SidebarLayerData], // the original contiguous selection range
+                          lastClickedItem: SidebarLayerData, // the last-non-shift-clicked item
                           // the just shift-clicked item
-                          justClickedItem: ListItem) {
+                          justClickedItem: SidebarLayerData) {
         
-        let newIsland: [ListItem] = itemsBetween
+        let newIsland: [SidebarLayerData] = itemsBetween
         
         guard
             let lastClickedIndex = flatList.firstIndex(of: lastClickedItem),
@@ -180,8 +180,8 @@ extension GraphState {
                     && item != lastClickedItem {
                     
                     log("expandOrShrinkExpansions: will remove item \(item)")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id.asLayerNodeId)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id.asLayerNodeId)
+                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id)
+                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id)
                 }
             }
         }
@@ -222,13 +222,13 @@ extension GraphState {
 
 
 extension SidebarLayerList {
-    func getFlattenedList() -> [ListItem] {
+    func getFlattenedList() -> Self {
         flattenListItems(self, acc: .init())
     }
 }
 
-func flattenListItems(_ items: [ListItem],
-                      acc: [ListItem]) -> [ListItem] {
+func flattenListItems(_ items: [SidebarLayerData],
+                      acc: [SidebarLayerData]) -> [SidebarLayerData] {
     var acc = acc
     items.forEach { item in
         acc.append(item)
@@ -241,9 +241,9 @@ func flattenListItems(_ items: [ListItem],
 
 // Function to find all items between the smallest and largest consecutive selected items (inclusive)
 // `findItemsBetweenSmallestAndLargestSelected`
-func getIsland(in list: [ListItem],
-               startItem: ListItem,
-               selections: LayerIdSet) -> [ListItem] {
+func getIsland(in list: [SidebarLayerData],
+               startItem: SidebarLayerData,
+               selections: SidebarListItemIdSet) -> [SidebarLayerData] {
     
     // Ensure the starting index is within bounds
     guard let startIndex = list.firstIndex(where: { $0.id == startItem.id }),
@@ -254,7 +254,7 @@ func getIsland(in list: [ListItem],
     // Check if the starting item is selected
     
     guard let startItem = list[safe: startIndex],
-          selections.contains(startItem.id.asLayerNodeId) else {
+          selections.contains(.init(startItem.id)) else {
         log("findItemsBetweenSmallestAndLargestSelected: starting index's item was not atually selected")
         return []
     }
@@ -267,7 +267,7 @@ func getIsland(in list: [ListItem],
     for i in stride(from: startIndex - 1, through: 0, by: -1) {
         
         if let _i = list[safe: i],
-           selections.contains(_i.id.asLayerNodeId) {
+           selections.contains(.init(_i.id)) {
             smallestIndex = i
         } else {
             break
@@ -277,7 +277,7 @@ func getIsland(in list: [ListItem],
     // Move forward to find the largest consecutive selected item
     for i in (startIndex + 1)..<list.count {
         if let _i = list[safe: i],
-           selections.contains(_i.id.asLayerNodeId) {
+           selections.contains(.init(_i.id)) {
             largestIndex = i
         } else {
             break

@@ -40,7 +40,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     var isGroup: Bool { get }
     
-    var parentId: Self.ID { get set }
+    var parentId: Self.ID? { get }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
@@ -295,7 +295,7 @@ extension SidebarItemSwipable: Identifiable {
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
-    var item: SidebarListItem
+    var id: SidebarListItemId
     var location: CGPoint
     var previousLocation: CGPoint
     
@@ -323,10 +323,11 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     var isBeingEdited: Bool = false
 //    @Binding var activeSwipeId: SidebarListItemId?
 
-    init(item: SidebarListItem,
+    init(id: SidebarListItemId,
          location: CGPoint,
          sidebarViewModel: LayersSidebarViewModel,
          graph: GraphState) {
+        self.id = id
         self.item = item
         self.location = location
         self.previousLocation = location
@@ -353,11 +354,7 @@ extension SidebarItemGestureViewModel {
             
         return node.hasSidebarVisibility
     }
-    
-    var id: SidebarListItemId {
-        self.item.id
-    }
-    
+
     @MainActor
     var isGroup: Bool {
         guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {
@@ -365,6 +362,15 @@ extension SidebarItemGestureViewModel {
         }
         
         return layerNode.layer == .group
+    }
+    
+    @MainActor
+    var parentId: SidebarListItemId? {
+        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {
+            return nil
+        }
+        
+        return .init(layerNode.layerGroupId)
     }
     
     func sidebarLayerHovered(itemId: SidebarListItemId) {
@@ -392,7 +398,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didUnselectOnEditMode() {
-        dispatch(SidebarItemDeselected(id: self.item.id.asLayerNodeId))
+        dispatch(SidebarItemDeselected(id: self.item.id))
     }
     
     var layerNodeId: LayerNodeId {
@@ -528,13 +534,12 @@ extension SidebarItemGestureViewModel {
         self.graphDelegate?.sidebarItemDeleted(itemId: itemId)
     }
     
-    
-    @MainActor
-    func sidebarItemTapped(id: SidebarItemGestureViewModel.Item.ID,
-                           shiftHeld: Bool,
-                           commandHeld: Bool) {
-        dispatch(SidebarItemTapped(id: id.asLayerNodeId,
-                                   shiftHeld: shiftHeld,
-                                   commandHeld: commandHeld))
-    }
+//    @MainActor
+//    func sidebarItemTapped(id: SidebarItemGestureViewModel.ID,
+//                           shiftHeld: Bool,
+//                           commandHeld: Bool) {
+//        dispatch(SidebarItemTapped(id: id.asLayerNodeId,
+//                                   shiftHeld: shiftHeld,
+//                                   commandHeld: commandHeld))
+//    }
 }
