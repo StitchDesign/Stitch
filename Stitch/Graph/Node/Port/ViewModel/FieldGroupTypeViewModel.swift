@@ -118,7 +118,7 @@ extension NodeRowType {
             return [.anchoring]
         case .spacing:
             return [.spacing]
-        case .singleDropdown, .textFontDropdown:
+        case .singleDropdown, .textFontDropdown, .layerGroupOrientationDropdown:
             return [.dropdown]
         case .readOnly:
             return [.readOnly]
@@ -268,6 +268,13 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
         // TODO: Can keep using .dropdown ?
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
                       type: .dropdown,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
+    case .layerGroupOrientationDropdown:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .layerGroupOrientation,
                       unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]

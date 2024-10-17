@@ -79,8 +79,6 @@ extension PortValue {
             return .singleDropdown(.shapeCoordinates)
         case .shapeCommandType:
             return .singleDropdown(.shapeCommandType)
-        case .orientation:
-            return .singleDropdown(.orientation)
         case .cameraOrientation:
             return .singleDropdown(.cameraOrientation)
         case .deviceOrientation:
@@ -141,7 +139,7 @@ extension PortValue {
         case .contentMode(_):
             return .singleDropdown(.contentMode)
             
-            // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
+        // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
         case .spacing:
             return .spacing
         case .sizingScenario:
@@ -152,6 +150,8 @@ extension PortValue {
             return .singleDropdown(.materialThickness)
         case .deviceAppearance:
             return .singleDropdown(.deviceAppearance)
+        case .orientation:
+            return .layerGroupOrientationDropdown
         }
     }
 
