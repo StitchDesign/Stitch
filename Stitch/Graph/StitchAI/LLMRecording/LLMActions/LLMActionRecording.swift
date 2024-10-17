@@ -86,7 +86,10 @@ extension StitchDocumentViewModel {
                     // need to create a directory
                     let docsURL = StitchFileManager.documentsURL
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
-                    let filename = "\(self.graph.name)_\(self.graph.id)_\(Date().description).json"
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                    let formattedDate = dateFormatter.string(from: Date())
+                    let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
                     let url = dataCollectionURL.appending(path: filename)
                     
                     // log("LLMRecordingPromptClosed: docsURL: \(docsURL)")
