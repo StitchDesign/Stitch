@@ -78,11 +78,12 @@ struct FloatingWindowView: View {
             // TODO: debug why "show" animation is so much slower than "hide" animation when both use same duration
 //            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
 //            withAnimation(.linear(duration: _showPreviewWindow ? 0.3 : 0.8)) {
-//            withAnimation(.linear(duration: 0.1)) {
+//            withAnimation(.linear(duration: 0.3)) {
             
             // Note: shorter animation times avoids appearance of some preview window elements disappearing before others (e.g. material layer)
             withAnimation(.linear(duration: 0.05)) {
                 shouldRenderPreview = _showPreviewWindow
+//            }
             }
         }
     }
@@ -109,7 +110,7 @@ struct FloatingWindowView: View {
 //            .animation(.easeOut, value: self.finalXOffset)
 //            .animation(.easeInout, value: self.finalXOffset)
 //            .animation(.spring, value: self.finalXOffset)
-//            .animation(.default, value: self.finalXOffset)
+            .animation(.default, value: self.finalXOffset)
     }
 
     @State var isDragging: Bool = false
@@ -183,7 +184,6 @@ struct FloatingWindowView: View {
                     self.setNormalCursor()
                 }
             }
-        
 #else
         // TODO: on iPad, use UIKit to distinguish between a finger-on-screen touch (which needs extended hitbox) and a cursor touch (which doesn't)
             .frame(.FLOATING_WINDOW_HANDLE_HITBOX_SIZE_IPAD)
@@ -211,11 +211,8 @@ struct FloatingWindowView: View {
             }
             .onEnded({ _ in
                 self.isDragging = false
-                
                 self.previewWindowSizing.accumulatedAdjustedTranslation.width += self.previewWindowSizing.activeAdjustedTranslation.width
-                
                 self.previewWindowSizing.accumulatedAdjustedTranslation.height += self.previewWindowSizing.activeAdjustedTranslation.height
-                
                 self.previewWindowSizing.activeAdjustedTranslation = .zero
             })
     }
@@ -224,12 +221,15 @@ struct FloatingWindowView: View {
         
         return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
         
-//        // If we still want the preview window to roll over the open inspector:
-//        if showPreviewWindow {
-//            return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
-//        } else {
-//            return 200 // example
-//        }
+        //        if showPreviewWindow {
+        //            // Original
+        //            return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        //        } else {
+        //            log("self.previewWindowSizing.dimensions.width.magnitude: \(self.previewWindowSizing.dimensions.width.magnitude)")
+        //            // TODO: Why divide by 2?
+        ////            return self.previewWindowSizing.dimensions.width.magnitude / 2
+        //            return self.previewWindowSizing.dimensions.width.magnitude / 4
+        //        }
         
     }
     
