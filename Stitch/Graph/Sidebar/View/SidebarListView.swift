@@ -122,7 +122,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     @State private var isBeingEditedAnimated = false
     
     @Bindable var graph: GraphState
-    @Binding var sidebarViewModel: SidebarObservable
+    @Bindable var sidebarViewModel: SidebarObservable
     let tab: ProjectSidebarTab
     let syncStatus: iCloudSyncStatus
     

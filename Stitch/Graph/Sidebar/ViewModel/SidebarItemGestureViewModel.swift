@@ -36,7 +36,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
 //    var item: ItemData { get set }
     
-    var name: String { get set }
+    var name: String { get }
     
     var isGroup: Bool { get }
     

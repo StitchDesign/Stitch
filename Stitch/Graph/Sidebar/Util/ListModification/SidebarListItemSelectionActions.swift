@@ -88,10 +88,11 @@ extension ProjectSidebarObservable {
     }
     
     
-    static func allShareSameParent(_ selections: Self.SelectionState.SidebarSelections,
+    static func allShareSameParent(_ selections: Self.SidebarSelectionState.SidebarSelections,
                                    groups: Self.SidebarGroupsDict) -> Bool {
         
-        if let parent = findGroupLayerParentForLayerNode(selections.first, groups) {
+        if let firstSelection = selections.first,
+           let parent = findGroupLayerParentForLayerNode(firstSelection, groups) {
             return selections.allSatisfy { id in
                 // does `id` have a parent, and is that parent the same as the random parent?
                 findGroupLayerParentForLayerNode(id, groups).map { $0 == parent } ?? false
@@ -109,11 +110,11 @@ extension ProjectSidebarObservable {
         
         // items are on same level if they are all top level
         let allTopLevel = selections.allSatisfy {
-            !findGroupLayerParentForLayerNode($0, groups).isDefined
+            !Self.findGroupLayerParentForLayerNode($0, groups).isDefined
         }
         
         // ... or if they all have same parent
-        let allSameParent = allShareSameParent(selections, groups: groups)
+        let allSameParent = Self.allShareSameParent(selections, groups: groups)
         
         return allTopLevel || allSameParent
     }

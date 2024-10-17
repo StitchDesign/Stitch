@@ -121,7 +121,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.inspectorFocusedLayers.focused,
-                in: state.orderedEncodedData.getFlattenedList()) {
+                in: state.orderedEncodedData.flattenedItems) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex
             }
@@ -185,7 +185,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedSidebarLayers.getFlattenedList()),
+                in: state.orderedSidebarLayers.flattenedItems),
                itemId != selectedItemWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
@@ -318,7 +318,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedEncodedData.getFlattenedList()) {
+                in: state.orderedEncodedData.flattenedItems) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex
             }

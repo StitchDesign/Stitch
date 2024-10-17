@@ -31,7 +31,7 @@ import StitchSchemaKit
 
 // if nil, then the 'proposed group' is top level
 // and xIdentation = 0
-struct ProposedGroup<ItemId> {
+struct ProposedGroup<ItemId: Equatable>: Equatable {
 
     let parentId: ItemId
     let xIndentation: CGFloat
