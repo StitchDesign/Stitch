@@ -6317,7 +6317,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/StitchDesign/StitchSchemaKit";
 			requirement = {
-				branch = "introduce-material-layer";
+				branch = "introduce-V26";
 				kind = branch;
 			};
 		};

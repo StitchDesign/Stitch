@@ -108,27 +108,36 @@ struct PreviewMaterialLayer: View {
     }
     
     var uiBlurStyle: UIBlurEffect.Style {
-        let materialThickness = viewModel.materialThickness.getMaterialThickness ?? .defaultMaterialThickness
-        let deviceAppearance = viewModel.deviceAppearance.getDeviceAppearance ?? .defaultDeviceAppearance
-        
-        return .init(materialThickness, deviceAppearance)
+        .init(materialThickness, deviceAppearance)
     }
     
     var body: some View {
-        return VisualEffectView(effect: UIBlurEffect(style: uiBlurStyle))
         
-        // Force whole-view re-render when `UIBlurEffect.Style` changes;
-        // avoids issue where `VisualEffectView`'s `UIVisualEffectView` updates inconsistently.
-        // Perf-wise, this should be okay since material thickness and device appearance are values unlikely to rapidly change in a prototype?
-            .id(uiBlurStyle)
-
-        //        // Alternative: native SwiftUI.Material effect:
-        //        return ZStack {
-        //            Color.clear
-        //        }
-        //        .background(Material(materialThickness))
-        //        // Restricts the colorScheme change to just this material view
-        //        .environment(\.colorScheme, ColorScheme(deviceAppearance))
+        Group {
+            // UIKit material view does not play well with project thumbnail creation
+            if document.isGeneratingProjectThumbnail {
+                //                Color.clear
+                Color.black.opacity(0.5) // pseudo-effect, just for project thumbnail
+            } else {
+                VisualEffectView(effect: UIBlurEffect(style: uiBlurStyle))
+                
+                // Force whole-view re-render when `UIBlurEffect.Style` changes;
+                // avoids issue where `VisualEffectView`'s `UIVisualEffectView` updates inconsistently.
+                // Perf-wise, this should be okay since material thickness and device appearance are values unlikely to rapidly change in a prototype?
+                    .id(uiBlurStyle)
+                
+                //                // Alternative: native SwiftUI.Material effect, but not as transparent? Seems the same?:
+                //                ZStack {
+                //                    Color.clear
+                //                }
+                //                .background(Material(materialThickness))
+                //                // Restricts the colorScheme change to just this material view
+                //                .environment(\.colorScheme, ColorScheme(deviceAppearance))
+                
+            }
+        }
+        
+        
         
             .opacity(viewModel.opacity.getNumber ?? defaultOpacityNumber)
             .modifier(PreviewCommonModifier(

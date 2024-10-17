@@ -67,8 +67,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/StitchDesign/StitchSchemaKit",
       "state" : {
-        "branch" : "introduce-material-layer",
-        "revision" : "3de6bf118b778f1edda2299b476964caa5644ff3"
+        "branch" : "introduce-V26",
+        "revision" : "c1d53cf27e59da43a6ed195f9385d76ec0c8276d"
       }
     },
     {
