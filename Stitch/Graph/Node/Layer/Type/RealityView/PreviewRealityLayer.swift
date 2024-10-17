@@ -32,7 +32,7 @@ struct PreviewRealityLayer: View {
         switch document.cameraFeedManager {
         case .loaded(let cameraFeedManager):
             if let cameraFeedManager = cameraFeedManager.cameraFeedManager,
-               let node = document.visibleGraph.getNodeViewModel(viewModel.id) {
+               let node = document.visibleGraph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId) {
                 @Bindable var node = node
                 
                 RealityLayerView(document: document,

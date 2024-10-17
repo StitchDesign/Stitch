@@ -10,7 +10,7 @@ import StitchSchemaKit
 import GameController
 
 struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
-    typealias ItemID = SidebarViewModel.ID
+    typealias ItemID = SidebarViewModel.ItemID
 
     @Environment(\.appTheme) private var theme
     @EnvironmentObject private var keyboardObserver: KeyboardObserver

@@ -72,9 +72,9 @@ extension ProjectSidebarObservable {
                                                draggedAlong: draggedAlong)
         }
         
-        self.currentItemDragged = result.beingDragged
-        self.proposedGroup = result.proposed
-        self.cursorDrag = result.cursorDrag
+//        self.currentItemDragged = result.beingDragged
+//        self.proposedGroup = result.proposed
+//        self.cursorDrag = result.cursorDrag
     }
     
     // We've moved the item up or down (along with its children);

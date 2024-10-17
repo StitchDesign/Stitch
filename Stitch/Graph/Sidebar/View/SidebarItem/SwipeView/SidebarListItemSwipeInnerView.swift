@@ -9,14 +9,14 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-struct SidebarListItemSwipeInnerView<SidebarItemViewModel>: View where SidebarItemViewModel: SidebarItemSwipable {
+struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     // The actual rendered distance for the swipe distance
     @State private var swipeX: CGFloat = 0
     @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
-    @Bindable var sidebarViewModel: SidebarItemViewModel.SidebarViewModel
-    @Bindable var itemViewModel: SidebarItemViewModel
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
     let name: String
 //    let layer: Layer

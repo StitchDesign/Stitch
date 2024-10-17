@@ -36,11 +36,11 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
 //    var item: ItemData { get set }
     
-    var name: String { get }
+    @MainActor var name: String { get }
     
-    var isGroup: Bool { get }
+    @MainActor var isGroup: Bool { get }
     
-    var parentId: Self.ID? { get }
+    var parentId: Self.ID? { get set }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
@@ -61,21 +61,21 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     var sidebarDelegate: SidebarViewModel? { get }
     
-    var fontColor: Color { get }
+    @MainActor var fontColor: Color { get }
     
     var backgroundOpacity: CGFloat { get }
     
-    @MainActor
-    func sidebarItemTapped(id: Self.ID,
-                           shiftHeld: Bool,
-                           commandHeld: Bool)
-    
-    @MainActor
-    func sidebarListItemDragged(itemId: Self.ID,
-                                translation: CGSize)
-    
-    @MainActor
-    func sidebarListItemDragEnded(itemId: Self.ID)
+//    @MainActor
+//    func sidebarItemTapped(id: Self.ID,
+//                           shiftHeld: Bool,
+//                           commandHeld: Bool)
+//    
+//    @MainActor
+//    func sidebarListItemDragged(itemId: Self.ID,
+//                                translation: CGSize)
+//    
+//    @MainActor
+//    func sidebarListItemDragEnded(itemId: Self.ID)
     
 //    @MainActor
 //    func sidebarListItemLongPressed(id: Item.ID)
@@ -107,7 +107,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     func didToggleVisibility()
 }
 
-extension SidebarItemSwipable: Identifiable {
+extension SidebarItemSwipable {
     var activeGesture: SidebarListActiveGesture<Self.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
@@ -154,7 +154,7 @@ extension SidebarItemSwipable: Identifiable {
         return { (translation: CGSize) in
             // print("SidebarItemGestureViewModel: itemDragChangedGesture called")
             self.activeGesture = .dragging(self.id)
-            self.sidebarListItemDragged(
+            self.sidebarDelegate?.sidebarListItemDragged(
                 itemId: self.id,
                 translation: translation)
         }
@@ -169,7 +169,7 @@ extension SidebarItemSwipable: Identifiable {
                 self.activeGesture = .none
             } else {
                 self.activeGesture = .none
-                self.sidebarListItemDragEnded(itemId: self.id)
+                self.sidebarDelegate?.sidebarListItemDragEnded(itemId: self.id)
             }
         }
     }
@@ -298,6 +298,9 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     var id: NodeId
     var location: CGPoint
     var previousLocation: CGPoint
+    var parentId: NodeId?
+    var zIndex: Double = .zero
+    var isExpandedInSidebar: Bool?
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting = .closed
@@ -323,12 +326,14 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     var isBeingEdited: Bool = false
 //    @Binding var activeSwipeId: SidebarListItemId?
 
-    init(id: NodeID,
+    init(id: NodeId,
          location: CGPoint,
+         parentId: NodeId?,
          sidebarViewModel: LayersSidebarViewModel,
          graph: GraphState) {
         self.id = id
         self.location = location
+        self.parentId = parentId
         self.previousLocation = location
         self.sidebarDelegate = sidebarViewModel
         self.graphDelegate = graph
@@ -336,8 +341,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 }
 
 extension SidebarItemGestureViewModel {
-    var name: String {
-        guard let node = self.graphDelegate?.getNodeViewModel(item.id) else {
+    @MainActor var name: String {
+        guard let node = self.graphDelegate?.getNodeViewModel(self.id) else {
             fatalErrorIfDebug()
             return ""
         }
@@ -345,8 +350,8 @@ extension SidebarItemGestureViewModel {
         return node.getDisplayTitle()
     }
     
-    var isVisible: Bool {
-        guard let node = graph.getLayerNode(id: itemViewModel.id)?.layerNode else {
+    @MainActor var isVisible: Bool {
+        guard let node = self.graphDelegate?.getLayerNode(id: self.id)?.layerNode else {
             fatalErrorIfDebug()
             return true
         }
@@ -363,14 +368,14 @@ extension SidebarItemGestureViewModel {
         return layerNode.layer == .group
     }
     
-    @MainActor
-    var parentId: SidebarListItemId? {
-        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id)?.layerNode else {
-            return nil
-        }
-        
-        return .init(layerNode.layerGroupId)
-    }
+//    @MainActor
+//    var parentId: SidebarListItemId? {
+//        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id)?.layerNode else {
+//            return nil
+//        }
+//        
+//        return .init(layerNode.layerGroupId)
+//    }
     
     func sidebarLayerHovered(itemId: SidebarListItemId) {
         self.graphDelegate?.graphUI.sidebarLayerHovered(layerId: itemId.asLayerNodeId)
@@ -382,27 +387,27 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     func didDeleteItem() {
-        self.graphDelegate?.sidebarItemDeleted(itemId: self.item.id)
+        self.graphDelegate?.sidebarItemDeleted(itemId: self.id)
     }
     
     @MainActor
     func didToggleVisibility() {
-        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.item.id.asLayerNodeId))
+        dispatch(SidebarItemHiddenStatusToggled(clickedId: self.id.asLayerNodeId))
     }
     
     @MainActor
     func didSelectOnEditMode() {
-        dispatch(SidebarItemSelected(id: self.item.id.asLayerNodeId))
+        dispatch(SidebarItemSelected(id: self.id.asLayerNodeId))
     }
     
     @MainActor
     func didUnselectOnEditMode() {
-        dispatch(SidebarItemDeselected(id: self.item.id))
+        dispatch(SidebarItemDeselected(id: self.id))
     }
     
-    var layerNodeId: LayerNodeId {
-        item.id.asLayerNodeId
-    }
+//    var layerNodeId: LayerNodeId {
+//        self.id.asLayerNodeId
+//    }
     
 //    var location: CGPoint {
 //        self.item.location
@@ -410,12 +415,12 @@ extension SidebarItemGestureViewModel {
     
     var isNonEditModeFocused: Bool {
         guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.inspectorFocusedLayers.focused.contains(layerNodeId)
+        return sidebar.inspectorFocusedLayers.focused.contains(self.id)
     }
     
     var isNonEditModeActivelySelected: Bool {
         guard let sidebar = self.sidebarDelegate else { return false }
-        return sidebar.inspectorFocusedLayers.activelySelected.contains(layerNodeId)
+        return sidebar.inspectorFocusedLayers.activelySelected.contains(self.id)
     }
     
     var isNonEditModeSelected: Bool {
@@ -438,12 +443,13 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     var isHidden: Bool {
-        self.graphDelegate?.getVisibilityStatus(for: item.id) != .visible
+        self.graphDelegate?.getVisibilityStatus(for: self.id) != .visible
     }
     
     @MainActor
     var fontColor: Color {
         guard let graph = self.graphDelegate else { return .white }
+        guard let selection = self.sidebarDelegate?.selectionState.getSelectionStatus(self.id) else { return .white }
         
 #if DEV_DEBUG
         if isHidden {
@@ -501,7 +507,7 @@ extension SidebarItemGestureViewModel {
 //        }
 //
         let atleastOneIndexMasks = graph
-            .getLayerNode(id: self.item.id)?
+            .getLayerNode(id: self.id)?
             .layerNode?.masksPort.allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false
@@ -511,17 +517,17 @@ extension SidebarItemGestureViewModel {
         }
     }
     
-    @MainActor
-    func sidebarListItemDragged(itemId: SidebarListItemId,
-                                translation: CGSize) {
-        self.graphDelegate?.sidebarListItemDragged(itemId: itemId,
-                                                   translation: translation)
-    }
-    
-    @MainActor
-    func sidebarListItemDragEnded(itemId: SidebarListItemId) {
-        self.graphDelegate?.sidebarListItemDragEnded(itemId: itemId)
-    }
+//    @MainActor
+//    func sidebarListItemDragged(itemId: SidebarListItemId,
+//                                translation: CGSize) {
+//        self.graphDelegate?.sidebarListItemDragged(itemId: itemId,
+//                                                   translation: translation)
+//    }
+//    
+//    @MainActor
+//    func sidebarListItemDragEnded(itemId: SidebarListItemId) {
+//        self.graphDelegate?.sidebarListItemDragEnded(itemId: itemId)
+//    }
     
 //    @MainActor
 //    func sidebarListItemLongPressed(id: SidebarListItemId) {

@@ -179,9 +179,9 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
         
         
         
-        gestureViewModel.sidebarItemTapped(id: self.itemId,
-                                           shiftHeld: self.shiftHeldDown,
-                                           commandHeld: self.commandHeldDown)
+        self.sidebarViewModel?.sidebarItemTapped(id: self.itemId,
+                                                 shiftHeld: self.shiftHeldDown,
+                                                 commandHeld: self.commandHeldDown)
     }
     
     // finger on screen
@@ -275,10 +275,11 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     func contextMenuInteraction(_ interaction: UIContextMenuInteraction,
                                 configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
         if let keyboardObserver = self.keyboardObserver {
-            self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
-                                                          graph: self.graph,
-                                                          keyboardObserver: keyboardObserver)
+            return self.gestureViewModel?.contextMenuInteraction(itemId: self.itemId,
+                                                                 graph: self.graph,
+                                                                 keyboardObserver: keyboardObserver)
         }
+        return nil
     }
 }
 
@@ -323,8 +324,7 @@ extension SidebarItemGestureViewModel {
                 })
             }
             
-            let canGroup = primary.map { sidebarViewModel.canBeGrouped() } ?? false
-            if canGroup {
+            if sidebarViewModel.canBeGrouped() {
                 buttons.append(UIAction(title: "Group", image: nil) { action in
                     sidebarViewModel.sidebarGroupCreated()
                 })

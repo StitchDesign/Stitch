@@ -89,12 +89,11 @@ final class GraphState: Sendable {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
+        self.layersSidebarViewModel = .init(data: schema.orderedSidebarLayers)
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
         self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.visibleNodesViewModel.nodes = nodes
-        self.layersSidebarViewModel = .init(data: schema.orderedSidebarLayers,
-                                            graph: self)
         
         self.syncMediaFiles(mediaFiles)
     }
@@ -130,6 +129,8 @@ final class GraphState: Sendable {
                             documentEncoderDelegate: any DocumentEncodable) {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
+        
+        self.layersSidebarViewModel.graphDelegate = self
         
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }

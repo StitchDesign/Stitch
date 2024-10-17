@@ -34,7 +34,7 @@ extension GraphState {
         }
         
         // let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
-        let children = self.orderedSidebarLayers.getSidebarLayerData(group.id)?.children ?? []
+        let children = self.orderedSidebarLayers.getSidebarLayerData(group)?.children ?? []
         
         let newParentId = self.getNodeViewModel(group)?.layerNode?.layerGroupId
 
@@ -49,7 +49,7 @@ extension GraphState {
         }
 
         // finally, delete layer group node itself (but not its children)
-        self.deleteNode(id: group.id, willDeleteLayerGroupChildren: false)
+        self.deleteNode(id: group, willDeleteLayerGroupChildren: false)
 
         // update legacy sidebar data
         self.updateGraphData()

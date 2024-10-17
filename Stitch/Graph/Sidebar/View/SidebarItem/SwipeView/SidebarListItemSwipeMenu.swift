@@ -15,6 +15,7 @@ struct SidebarListItemSwipeMenu<Item>: View where Item: SidebarItemSwipable {
     
     var showNonDefaultOptions: Bool { swipeOffset < DEFAULT_ACTION_THRESHOLD }
 
+    @MainActor
     var visStatusIconName: String {
         gestureViewModel.isVisible ? SIDEBAR_VISIBILITY_STATUS_VISIBLE_ICON : SIDEBAR_VISIBILITY_STATUS_HIDDEN_ICON
     }

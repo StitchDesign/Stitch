@@ -297,6 +297,7 @@ extension ProjectSidebarObservable {
         }
     }
 
+    @MainActor
     func hasChildren(_ parentId: Self.ItemID) -> Bool {
         
         if let x = self.items.first(where: { $0.id == parentId }),

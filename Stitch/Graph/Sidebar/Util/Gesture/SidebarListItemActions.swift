@@ -36,12 +36,9 @@ struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
 
-        let sidebarGroups = state.getSidebarGroupsDict()
+        let sidebarGroups = state.layersSidebarViewModel.getSidebarGroupsDict()
         
-        let descendants: LayerIdSet = getDescendantsIds(
-            id: clickedId,
-            groups: sidebarGroups,
-            acc: LayerIdSet())
+        let descendants = state.getDescendants(for: clickedId)
 
         guard let layerNode = state.getLayerNode(id: clickedId.id)?.layerNode else {
             log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")

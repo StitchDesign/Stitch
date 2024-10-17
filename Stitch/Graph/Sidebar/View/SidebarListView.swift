@@ -199,9 +199,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         .animation(.spring(), value: isBeingEdited)
         .animation(.spring(), value: sidebarViewModel.proposedGroup)
 //        .animation(.spring(), value: sidebarDeps)
-        .animation(.easeIn, value: sidebarViewModel.items)
+//        .animation(.easeIn, value: sidebarViewModel.items)
         
-        .onChange(of: isBeingEdited) { newValue in
+        .onChange(of: isBeingEdited) { _, newValue in
             // This handler enables all animations
             isBeingEditedAnimated = newValue
 //            self.sidebarViewModel.editModeToggled(to: isBeingEdited)
@@ -235,8 +235,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 import StitchViewKit
 import OrderedCollections
 
-protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
-                                                               ExcludedGroups: Equatable {
+protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID {
+//                                                               ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
     associatedtype EncodedItemData: StitchNestedListElement
 
@@ -276,6 +276,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     func canUngroup() -> Bool
 //    func canDuplicate() -> Bool
     
+    @MainActor
     func didGroupExpand(_ id: ItemID)
 //    @MainActor func sidebarListItemGroupOpened(openedParent: ItemID)
 
@@ -323,7 +324,8 @@ extension LayersSidebarViewModel {
         self.getSidebarExpandedItems()
     }
     
-    func didGroupExpand(_ id: NodeID) {
+    @MainActor
+    func didGroupExpand(_ id: NodeId) {
         self.sidebarListItemGroupOpened(openedId: id)
     }
 }

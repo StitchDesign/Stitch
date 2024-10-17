@@ -16,7 +16,7 @@ extension ProjectSidebarObservable {
     // you're just updating a single item
     // but need to update all the descendants as well?
     @MainActor
-    func moveSidebarListItemIntoGroup(_ item: [ItemViewModel],
+    func moveSidebarListItemIntoGroup(_ item: ItemViewModel,
                                       otherSelections: Set<ItemViewModel.ID>,
                                       draggedAlong: Set<ItemViewModel.ID>,
                                       _ proposedGroup: ProposedGroup<ItemViewModel.ID>) {
@@ -36,12 +36,11 @@ extension ProjectSidebarObservable {
             
             
             otherItem.location.x = proposedGroup.indentationLevel.toXLocation
-            self.items = updateSidebarListItem(otherItem, items)
         }
         
         guard let updatedItem = self.retrieveItem(item.id) else {
             fatalErrorIfDebug("Could not retrieve item")
-            return items
+            return
         }
         
         self.maybeSnapDescendants(updatedItem,
@@ -50,7 +49,7 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor
-    func moveSidebarListItemToTopLevel(_ item: SidebarListItem,
+    func moveSidebarListItemToTopLevel(_ item: Self.ItemViewModel,
                                        otherSelections: Set<ItemID>,
                                        draggedAlong: Set<ItemID>) {
         
@@ -70,6 +69,7 @@ extension ProjectSidebarObservable {
         
         guard let updatedItem = self.retrieveItem(item.id) else {
             fatalErrorIfDebug("Could not retrieve item")
+            return
         }
         
         self.maybeSnapDescendants(updatedItem,
@@ -93,7 +93,7 @@ extension ProjectSidebarObservable {
         
         if descendants.isEmpty {
             log("maybeSnapDescendants: no children for this now-top-level item \(item.id); exiting early")
-            return items
+            return
         }
         
         let indentDiff: Int = startingIndentationLevel.value - item.indentationLevel.value
@@ -177,7 +177,7 @@ extension ProjectSidebarObservable {
     // if it has a parent (which should be above us),
     // use that parent as the proposed group.
     @MainActor
-    func groupFromChildBelow(_ item: Self.ItemID,
+    func groupFromChildBelow(_ item: Self.ItemViewModel,
                              movedItemChildrenCount: Int,
                              excludedGroups: ExcludedGroups) -> ProposedGroup<Self.ItemID>? {
         
@@ -185,7 +185,7 @@ extension ProjectSidebarObservable {
         // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
         // log("groupFromChildBelow: items: \(debugItems)")
         
-        let movedItemIndex = item.itemIndex(items)
+        let movedItemIndex = item.itemIndex(self.items)
         
         let entireIndex = movedItemIndex + movedItemChildrenCount
         // log("groupFromChildBelow: entireIndex: \(entireIndex)")
@@ -256,7 +256,7 @@ extension ProjectSidebarObservable {
         
         let itemLocationX = cursorDrag.x
         
-        for itemAbove in getItemsAbove(item, items) {
+        for itemAbove in self.getItemsAbove(item) {
             log("findDeepestParent: itemAbove.id: \(itemAbove.id)")
             log("findDeepestParent: itemAbove.location.x: \(itemAbove.location.x)")
             
@@ -424,6 +424,7 @@ extension ProjectSidebarObservable {
             translation: translation,
             location: item.previousLocation)
         
+        let index: Int = self.items.firstIndex { $0.id == item.id }!
         indicesToMove.append(index)
         
         
