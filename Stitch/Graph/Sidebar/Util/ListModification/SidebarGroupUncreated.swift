@@ -55,6 +55,6 @@ extension GraphState {
         self.updateGraphData()
         
         // reset selection-state
-        self.layersSidebarViewModel.selectionState.reset()
+        self.layersSidebarViewModel.selectionState.resetEditModeSelections()
     }
 }

@@ -247,7 +247,6 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     typealias ExcludedGroups = [ItemID: [ItemViewModel]]
     typealias HorizontalDrag = SidebarCursorHorizontalDrag<ItemViewModel>
     
-    init()
     var isEditing: Bool { get set }
     var items: [ItemViewModel] { get set }
     // the [parentId: child-ids] that are not currently shown
@@ -294,12 +293,17 @@ extension ProjectSidebarObservable {
 final class LayersSidebarViewModel: ProjectSidebarObservable {
     var isEditing = false
     var items: [SidebarItemGestureViewModel]
-    var selectionState = SidebarSelectionState()
+    var selectionState = SidebarSelectionObserver<SidebarListItemId>()
     
     var activeSwipeId: SidebarListItemId?
     var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
     var implicitlyDragged = SidebarListItemIdSet()
     var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
+    var excludedGroups: [SidebarListItemId : [SidebarItemGestureViewModel]] = .init()
+//    var expandedSidebarItems: Set<SidebarListItemId> = .init()
+    var proposedGroup: ProposedGroup<SidebarListItemId>?
+    var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
+    var collapsedGroups: Set<SidebarListItemId> = .init()
     
     weak var graphDelegate: GraphState?
     
@@ -311,17 +315,16 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
 }
 
 extension LayersSidebarViewModel {
-    var orderedEncodedData: [OrderedSidebarLayers] {
+    var orderedEncodedData: OrderedSidebarLayers {
         self.graphDelegate?.orderedSidebarLayers ?? []
     }
     
     var expandedSidebarItems: Set<SidebarListItemId> {
-        guard let graph = self.graphDelegate else { return .init() }
-        return graph.getSidebarExpandedItems()
+        self.getSidebarExpandedItems()
     }
     
     func didGroupExpand(_ id: ItemID) {
-        dispatch(SidebarListItemGroupOpened(openedParent: id))
+        self.sidebarListItemGroupOpened(openedId: id)
     }
 }
 

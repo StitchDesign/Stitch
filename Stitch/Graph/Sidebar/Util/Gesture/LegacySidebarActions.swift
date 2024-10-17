@@ -185,7 +185,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedSidebarLayers.flattenedItems),
+                in: state.orderedEncodedData.flattenedItems),
                itemId != selectedItemWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item

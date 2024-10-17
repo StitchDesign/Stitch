@@ -20,7 +20,7 @@ extension ProjectSidebarObservable {
     func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
         self.items.forEach {
             if $0.isGroup {
-                $0.isExpandedInSidebar = expanded.contains($0)
+                $0.isExpandedInSidebar = expanded.contains($0.id)
             } else {
                 $0.isExpandedInSidebar = nil
             }
@@ -54,7 +54,7 @@ extension ProjectSidebarObservable {
         self.deselectDescendantsOfClosedGroup(closedParentId)
                         
         self.onSidebarListItemGroupClosed(
-            closedId: closedParentId.asItemId)
+            closedId: closedParentId)
         
         //        // also need to remove id from sidebar's expandedSet
         //        expanded.remove(closedParent)

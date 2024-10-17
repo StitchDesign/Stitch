@@ -298,7 +298,7 @@ extension SidebarItemGestureViewModel {
             let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
             
             // Note: we do the selection logic in here so that
-            self.sidebarItemTapped(
+            self.sidebarDelegate?.sidebarItemTapped(
                 id: itemId,
                 shiftHeld: isShiftDown,
                 commandHeld: graph.keypressState.isCommandPressed)
@@ -323,7 +323,7 @@ extension SidebarItemGestureViewModel {
                 })
             }
             
-            let canGroup = primary.nonEmptyPrimary.map { sidebarViewModel.canBeGrouped() } ?? false
+            let canGroup = primary.map { sidebarViewModel.canBeGrouped() } ?? false
             if canGroup {
                 buttons.append(UIAction(title: "Group", image: nil) { action in
                     sidebarViewModel.sidebarGroupCreated()
