@@ -160,6 +160,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             self.isHovered = isHovering
         })
         .contentShape(Rectangle())
+#if !targetEnvironment(macCatalyst)
         .gesture(
             TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
@@ -168,6 +169,7 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
                     canvasItemId: canvasItemId)
             })
         ) // .gesture
+#endif
     }
 }
 

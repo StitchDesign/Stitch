@@ -268,6 +268,13 @@ struct InputValueView: View {
                                           isFieldInsideLayerInspector: isFieldInsideLayerInspector,
                                           isForPinTo: false))
             
+        case .layerGroupOrientationDropdown(let x):
+            LayerGroupOrientationDropDownChoiceView(
+                id: rowObserverId,
+                value: x,
+                layerInputObserver: layerInputObserver,
+                isFieldInsideLayerInspector: isFieldInsideLayerInspector)
+            
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
                            graph: graph,

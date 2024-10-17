@@ -168,11 +168,6 @@ extension PortValue {
                 let choices = ShapeCommandType.choices
                 return [[.dropdown(shapeCommandType, choices)]]
                 
-            case .orientation:
-                let orientation = self.getOrientation?.display ?? .empty
-                let choices = StitchOrientation.choices
-                return [[.dropdown(orientation, choices)]]
-                
             case .vnImageCropAndScale:
                 let vnImageCropOption = self.vnImageCropOption?.label ?? .empty
                 let choices = VNImageCropAndScaleOption.choices
@@ -294,6 +289,12 @@ extension PortValue {
             return [[.readOnly(display)]]
         case .spacing:
             return [[FieldValue.spacing(self.getStitchSpacing ?? .defaultStitchSpacing)]]
+        
+        case .layerGroupOrientationDropdown:
+            let orientation = self.getOrientation ?? .defaultOrientation
+            let choices = StitchOrientation.choices
+            return [[.layerGroupOrientationDropdown(orientation)]]
+            
         }
     }
 }

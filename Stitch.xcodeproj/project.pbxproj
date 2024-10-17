@@ -872,6 +872,7 @@
 		ECF0B0F72877E5CF001D7CFC /* PulseValueButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF0B0F62877E5CF001D7CFC /* PulseValueButtonView.swift */; };
 		ECF109192889C4C6002B039B /* SplitterTypeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF109182889C4C6002B039B /* SplitterTypeUtils.swift */; };
 		ECF11F8B2A3A9A61009ACC78 /* ValueJSONView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */; };
+		ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */; };
 		ECF2ED112A732B09003EB106 /* GraphMultigesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2ED102A732B09003EB106 /* GraphMultigesture.swift */; };
 		ECF2ED132A732B5A003EB106 /* MomentumAnimationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */; };
 		ECF387C9280B5C4C0075F0E5 /* NodeInputOutputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */; };
@@ -1805,6 +1806,7 @@
 		ECF0B0F62877E5CF001D7CFC /* PulseValueButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseValueButtonView.swift; sourceTree = "<group>"; };
 		ECF109182889C4C6002B039B /* SplitterTypeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitterTypeUtils.swift; sourceTree = "<group>"; };
 		ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueJSONView.swift; sourceTree = "<group>"; };
+		ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupOrientationDropDownChoiceView.swift; sourceTree = "<group>"; };
 		ECF2ED102A732B09003EB106 /* GraphMultigesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphMultigesture.swift; sourceTree = "<group>"; };
 		ECF2ED122A732B5A003EB106 /* MomentumAnimationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentumAnimationState.swift; sourceTree = "<group>"; };
 		ECF387C8280B5C4C0075F0E5 /* NodeInputOutputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeInputOutputView.swift; sourceTree = "<group>"; };
@@ -3884,6 +3886,7 @@
 				ECDCE35F2821F13800D83EC3 /* DropDownChoiceView.swift */,
 				EC844A6B2B5F259C00C79B0B /* StitchFontDropdown.swift */,
 				ECC6F00828BFBBC600535493 /* LayerNamesDropDownChoiceView.swift */,
+				ECF2367F2CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift */,
 				EC252402269F5C71003ABF8F /* EditJSONEntry.swift */,
 				ECF11F8A2A3A9A61009ACC78 /* ValueJSONView.swift */,
 				EC252404269F5CB7003ABF8F /* PickerValueEntry.swift */,
@@ -4857,6 +4860,7 @@
 				EC4BD8942BA1343400B8F38A /* SidebarGroupsDict.swift in Sources */,
 				B530D5072C18ABEB0005C6A9 /* DirectoryObserverActions.swift in Sources */,
 				EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */,
+				ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */,
 				ECE708662B8D49D5009F4525 /* ClosePathNode.swift in Sources */,
 				EC4081252C0114060047989F /* StitchCustomURL.swift in Sources */,
 				205BB3B125BA203D00F144A7 /* PortView.swift in Sources */,
