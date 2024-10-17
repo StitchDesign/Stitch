@@ -268,7 +268,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
-    var orderedEncodedData: [EncodedItemData] { get }
+    var orderedEncodedData: [EncodedItemData] { get set }
     var graphDelegate: GraphState? { get }
     
 //    func editModeToggled(to isEditing: Bool)
@@ -300,6 +300,7 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var isEditing = false
     var items: [SidebarItemGestureViewModel]
     var selectionState = SidebarSelectionObserver<NodeId>()
+    var orderedEncodedData: OrderedSidebarLayers
     
     var activeSwipeId: NodeId?
     var activeGesture: SidebarListActiveGesture<NodeId> = .none
@@ -315,16 +316,14 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     
     init(data: OrderedSidebarLayers,
          graph: GraphState? = nil) {
+        self.orderedEncodedData = data
+
         self.graphDelegate = graph
         fatalError()
     }
 }
 
 extension LayersSidebarViewModel {
-    var orderedEncodedData: OrderedSidebarLayers {
-        self.graphDelegate?.orderedSidebarLayers ?? []
-    }
-    
     var expandedSidebarItems: Set<SidebarListItemId> {
         self.getSidebarExpandedItems()
     }

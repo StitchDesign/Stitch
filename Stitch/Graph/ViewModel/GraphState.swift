@@ -22,20 +22,20 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-
-//    var sidebarListState: SidebarListState = .init()
-//    var sidebarSelectionState = SidebarSelectionState()
-
+    
+    //    var sidebarListState: SidebarListState = .init()
+    //    var sidebarSelectionState = SidebarSelectionState()
+    
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME
     
     var commentBoxesDict = CommentBoxesDict()
-
+    
     let visibleNodesViewModel = VisibleNodesViewModel()
     let edgeDrawingObserver = EdgeDrawingObserver()
-
+    
     var selectedEdges = Set<PortEdgeUI>()
-
+    
     // Hackiness for handling edge case in our UI where somehow
     // UIKit node drag and SwiftUI port drag can happen at sometime.
     var nodeIsMoving = false
@@ -45,9 +45,8 @@ final class GraphState: Sendable {
     var dragInteractionNodes = [LayerNodeId: NodeIdSet]()
     var pressInteractionNodes = [LayerNodeId: NodeIdSet]()
     var scrollInteractionNodes = [LayerNodeId: NodeIdSet]()
-
+    
     // Ordered list of layers in sidebar
-    var orderedSidebarLayers: SidebarLayerList = []
     let layersSidebarViewModel: LayersSidebarViewModel
     
     // Cache of ordered list of preview layer view models;
@@ -65,10 +64,10 @@ final class GraphState: Sendable {
     
     // Tracks all created and imported components
     var components: [UUID: StitchMasterComponent] = [:]
-
+    
     // Maps a MediaKey to some URL
     var mediaLibrary: MediaLibrary = [:]
-
+    
     // Tracks nodes with camera enabled
     var enabledCameraNodeIds = NodeIdSet()
     
@@ -79,7 +78,7 @@ final class GraphState: Sendable {
     var lastEncodedDocument: GraphEntity
     weak var documentDelegate: StitchDocumentViewModel?
     weak var documentEncoderDelegate: (any DocumentEncodable)?
-
+    
     init(from schema: GraphEntity,
          nodes: NodesViewModelDict,
          components: MasterComponentsDict,
@@ -96,6 +95,17 @@ final class GraphState: Sendable {
         self.visibleNodesViewModel.nodes = nodes
         
         self.syncMediaFiles(mediaFiles)
+    }
+}
+
+extension GraphState {
+    var orderedSidebarLayers: SidebarLayerList {
+        get {
+            self.layersSidebarViewModel.orderedEncodedData
+        }
+        set(newValue) {
+            self.layersSidebarViewModel.orderedEncodedData = newValue
+        }
     }
     
     convenience init(from schema: GraphEntity,
