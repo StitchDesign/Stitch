@@ -8,6 +8,7 @@
 import StitchSchemaKit
 import Foundation
 import SwiftUI
+import StitchViewKit
 
 extension ProjectSidebarObservable {
     // Function to find the closest selected item (start point) relative to an end item, excluding the end itself
@@ -51,7 +52,7 @@ extension ProjectSidebarObservable {
     func itemsBetweenClosestSelectedStart(in flatList: [Self.EncodedItemData],
                                           clickedItem: Self.EncodedItemData,
                                           lastClickedItem: Self.EncodedItemData,
-                                          selections: LayerIdSet) -> [Self.EncodedItemData]? {
+                                          selections: Set<Self.ItemID>) -> [Self.EncodedItemData]? {
         
         // log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
         
@@ -107,17 +108,16 @@ extension SidebarSelectionExpansionDirection {
     }
 }
 
-extension GraphState {
-    
+extension ProjectSidebarObservable {
     // TODO: combine this with our logic for adding to the current selections
-    func shrinkExpansions(flatList: [SidebarLayerData], // ALL items with nesting flattened; used for finding indices
-                          itemsBetween: [SidebarLayerData], // the 'range' we clicked; items between last-clicked and just-clicked
-                          originalIsland: [SidebarLayerData], // the original contiguous selection range
-                          lastClickedItem: SidebarLayerData, // the last-non-shift-clicked item
+    func shrinkExpansions(flatList: [Self.EncodedItemData], // ALL items with nesting flattened; used for finding indices
+                          itemsBetween: [Self.EncodedItemData], // the 'range' we clicked; items between last-clicked and just-clicked
+                          originalIsland: [Self.EncodedItemData], // the original contiguous selection range
+                          lastClickedItem: Self.EncodedItemData, // the last-non-shift-clicked item
                           // the just shift-clicked item
-                          justClickedItem: SidebarLayerData) {
+                          justClickedItem: Self.EncodedItemData) {
         
-        let newIsland: [SidebarLayerData] = itemsBetween
+        let newIsland: [EncodedItemData] = itemsBetween
         
         guard
             let lastClickedIndex = flatList.firstIndex(of: lastClickedItem),
@@ -126,15 +126,15 @@ extension GraphState {
             let originalIslandBottom = originalIsland.last,
             let originalIslandTopIndex = flatList.firstIndex(of: originalIslandTop),
             let originalIslandBottomIndex = flatList.firstIndex(of: originalIslandBottom) else  {
-                log("Could not retrieve requires indices")
-                return
+            log("Could not retrieve requires indices")
+            return
         }
         
         let originalExpansionDirection = SidebarSelectionExpansionDirection.getExpansionDirection(
             islandTopIndex: originalIslandTopIndex,
             islandBottomIndex: originalIslandBottomIndex,
             lastClickedIndex: lastClickedIndex)
- 
+        
         var shrunk = false
         
         // it's not even as simple as 'expansion directions'
@@ -180,13 +180,13 @@ extension GraphState {
                     && item != lastClickedItem {
                     
                     log("expandOrShrinkExpansions: will remove item \(item)")
-                    self.sidebarSelectionState.inspectorFocusedLayers.focused.remove(item.id)
-                    self.sidebarSelectionState.inspectorFocusedLayers.activelySelected.remove(item.id)
+                    self.selectionState.inspectorFocusedLayers.focused.remove(item.id)
+                    self.selectionState.inspectorFocusedLayers.activelySelected.remove(item.id)
                 }
             }
         }
     }
-        
+    
     /*
      Given an unordered set of tapped items,
      Start at top level of the ordered sidebar layers.
@@ -196,21 +196,20 @@ extension GraphState {
      Iterating through the ordered sidebar layers provides the order and guarantees you don’t hit a child before its parent.
      */
     @MainActor
-    func editModeSelectTappedItems(tappedItems: LayerIdSet) {
+    func editModeSelectTappedItems(tappedItems: Set<ItemID>) {
         
         // Wipe existing edit mode selections
-        self.sidebarSelectionState.resetEditModeSelections()
+        self.selectionState.resetEditModeSelections()
         
-        self.orderedSidebarLayers.getFlattenedList().forEach { (sidebarLayer: SidebarLayerData) in
-            
-            let layerId = sidebarLayer.id.asLayerNodeId
-            let wasTapped = tappedItems.contains(layerId)
+        self.orderedEncodedData.flattenedItems.forEach { sidebarLayer in
+            let itemId = sidebarLayer.id
+            let wasTapped = tappedItems.contains(itemId)
             
             // Only interested in items that were tapped
             if wasTapped {
                 log("editModeSelectTappedItems: sidebarLayer.id \(sidebarLayer.id) was tapped")
                 
-                self.sidebarItemSelectedViaEditMode(layerId,
+                self.sidebarItemSelectedViaEditMode(itemId,
                                                     isSidebarItemTapped: true)
             } // if wasTapped
             else {
@@ -219,75 +218,81 @@ extension GraphState {
         } // forEach
     }
 }
+//
+//extension Array where Element: StitchNestedListElement {
+//    func getFlattenedList() -> Self {
+//        var acc = [Element]()
+//        self.forEach { item in
+//            acc.append(item)
+//            let accFromChildren = item.children.flattenListItems(item.children ?? [], acc: [Element]())
+//            acc += accFromChildren
+//        }
+//        return acc
+//    }
+//}
 
+//func flattenListItems(_ items: StitchNestedList,
+//                      acc: StitchNestedList) -> StitchNestedList {
+//    var acc = acc
+//    items.forEach { item in
+//        acc.append(item)
+//        let accFromChildren = flattenListItems(item.children ?? [], acc: .init())
+//        acc += accFromChildren
+//    }
+//    return acc
+//}
 
-extension SidebarLayerList {
-    func getFlattenedList() -> Self {
-        flattenListItems(self, acc: .init())
-    }
-}
-
-func flattenListItems(_ items: [SidebarLayerData],
-                      acc: [SidebarLayerData]) -> [SidebarLayerData] {
-    var acc = acc
-    items.forEach { item in
-        acc.append(item)
-        let accFromChildren = flattenListItems(item.children ?? [], acc: .init())
-        acc += accFromChildren
-    }
-    return acc
-}
-
-
-// Function to find all items between the smallest and largest consecutive selected items (inclusive)
-// `findItemsBetweenSmallestAndLargestSelected`
-func getIsland(in list: [SidebarLayerData],
-               startItem: SidebarLayerData,
-               selections: SidebarListItemIdSet) -> [SidebarLayerData] {
-    
-    // Ensure the starting index is within bounds
-    guard let startIndex = list.firstIndex(where: { $0.id == startItem.id }),
-            startIndex >= 0 && startIndex < list.count else {
-        return []
-    }
-    
-    // Check if the starting item is selected
-    
-    guard let startItem = list[safe: startIndex],
-          selections.contains(.init(startItem.id)) else {
-        log("findItemsBetweenSmallestAndLargestSelected: starting index's item was not atually selected")
-        return []
-    }
-    
-    // Initialize variables to store the smallest and largest selected items
-    var smallestIndex = startIndex
-    var largestIndex = startIndex
-    
-    // Move backward to find the smallest consecutive selected item
-    for i in stride(from: startIndex - 1, through: 0, by: -1) {
+extension Array where Element: Identifiable {
+    // Function to find all items between the smallest and largest consecutive selected items (inclusive)
+    // `findItemsBetweenSmallestAndLargestSelected`
+    func getIsland(startItem: Element,
+                   selections: Set<Element.ID>) -> [Element] {
+        let list = self
         
-        if let _i = list[safe: i],
-           selections.contains(.init(_i.id)) {
-            smallestIndex = i
-        } else {
-            break
+        // Ensure the starting index is within bounds
+        guard let startIndex = list.firstIndex(where: { $0.id == startItem.id }),
+              startIndex >= 0 && startIndex < list.count else {
+            return []
         }
-    }
-    
-    // Move forward to find the largest consecutive selected item
-    for i in (startIndex + 1)..<list.count {
-        if let _i = list[safe: i],
-           selections.contains(.init(_i.id)) {
-            largestIndex = i
-        } else {
-            break
+        
+        // Check if the starting item is selected
+        
+        guard let startItem = list[safe: startIndex],
+              selections.contains(startItem.id) else {
+            log("findItemsBetweenSmallestAndLargestSelected: starting index's item was not atually selected")
+            return []
         }
+        
+        // Initialize variables to store the smallest and largest selected items
+        var smallestIndex = startIndex
+        var largestIndex = startIndex
+        
+        // Move backward to find the smallest consecutive selected item
+        for i in stride(from: startIndex - 1, through: 0, by: -1) {
+            
+            if let _i = list[safe: i],
+               selections.contains(_i.id) {
+                smallestIndex = i
+            } else {
+                break
+            }
+        }
+        
+        // Move forward to find the largest consecutive selected item
+        for i in (startIndex + 1)..<list.count {
+            if let _i = list[safe: i],
+               selections.contains(_i.id) {
+                largestIndex = i
+            } else {
+                break
+            }
+        }
+        
+        // Return all items between the smallest and largest indices, inclusive
+        let island = Array(list[smallestIndex...largestIndex])
+        
+        // log("for startItem \(startItem.id), had island \(island.map(\.id))")
+        
+        return island
     }
-    
-    // Return all items between the smallest and largest indices, inclusive
-    let island = Array(list[smallestIndex...largestIndex])
-    
-    // log("for startItem \(startItem.id), had island \(island.map(\.id))")
-    
-    return island
 }

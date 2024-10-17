@@ -28,13 +28,13 @@ extension LayersSidebarViewModel {
             zIndex: graph.highestZIndex + 1,
             graphDelegate: graph)
         
-        let primarilySelectedLayers = self.selectionState.primary.map { $0.asNodeId }.toSet
+        let primarilySelectedLayers = self.selectionState.primary
         
         // Are any of these selections already part of a group?
         // If so, the newly created LayerGroup will have that group as its own parent (layerGroupId).
         let existingParentForSelections = graph.layerGroupForSelections(primarilySelectedLayers)
         
-        guard let newGroupData = graph.orderedSidebarLayers
+        guard let newGroupData = self.orderedEncodedData
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {

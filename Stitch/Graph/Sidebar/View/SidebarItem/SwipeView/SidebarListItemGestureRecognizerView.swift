@@ -293,7 +293,7 @@ extension SidebarItemGestureViewModel {
         let selections = sidebarViewModel.selectionState
                 
         // Only select the layer if not already actively-selected; otherwise just open the menu
-        if !selections.inspectorFocusedLayers.activelySelected.contains(itemId.asLayerNodeId) {
+        if !selections.inspectorFocusedLayers.activelySelected.contains(itemId) {
             
             let isShiftDown = keyboardObserver.keyboard?.keyboardInput?.isShiftPressed ?? false
             
