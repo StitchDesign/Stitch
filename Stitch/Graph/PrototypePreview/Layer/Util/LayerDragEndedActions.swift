@@ -53,7 +53,7 @@ extension GraphState {
         nodesToRecalculate = nodesToRecalculate.union(dragInteractionIdSet)
         nodesToRecalculate = nodesToRecalculate.union(scrollInteractionIdSet)
         
-        if dragInteractionIdSet.contains(interactiveLayer.id.layerNodeId.asNodeId) {
+        if dragInteractionIdSet.contains(interactiveLayer.id) {
             
             self.graphUI.activeDragInteraction.activeDragInteractionNodes = self.graphUI.activeDragInteraction.activeDragInteractionNodes
                 .subtracting(dragInteractionIdSet)

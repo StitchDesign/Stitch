@@ -36,10 +36,10 @@ extension GraphState {
         // let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
         let children = self.orderedSidebarLayers.getSidebarLayerData(group.id)?.children ?? []
         
-        let newParentId = self.getNodeViewModel(group.asNodeId)?.layerNode?.layerGroupId
+        let newParentId = self.getNodeViewModel(group)?.layerNode?.layerGroupId
 
         // Update sidebar self
-        self.orderedSidebarLayers = self.orderedSidebarLayers.ungroup(selectedGroupId: group.asNodeId)
+        self.orderedSidebarLayers = self.orderedSidebarLayers.ungroup(selectedGroupId: group)
 
         // find each child of the group, set its layer group id to the parent of the selected group
         children.forEach { child in

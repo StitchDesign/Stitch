@@ -293,17 +293,17 @@ extension ProjectSidebarObservable {
 final class LayersSidebarViewModel: ProjectSidebarObservable {
     var isEditing = false
     var items: [SidebarItemGestureViewModel]
-    var selectionState = SidebarSelectionObserver<SidebarListItemId>()
+    var selectionState = SidebarSelectionObserver<NodeId>()
     
-    var activeSwipeId: SidebarListItemId?
-    var activeGesture: SidebarListActiveGesture<SidebarListItemId> = .none
-    var implicitlyDragged = SidebarListItemIdSet()
-    var currentItemDragged: SidebarDraggedItem<SidebarListItemId>? = nil
-    var excludedGroups: [SidebarListItemId : [SidebarItemGestureViewModel]] = .init()
-//    var expandedSidebarItems: Set<SidebarListItemId> = .init()
-    var proposedGroup: ProposedGroup<SidebarListItemId>?
+    var activeSwipeId: NodeId?
+    var activeGesture: SidebarListActiveGesture<NodeId> = .none
+    var implicitlyDragged = NodeIdSet()
+    var currentItemDragged: SidebarDraggedItem<NodeId>? = nil
+    var excludedGroups: [NodeId : [SidebarItemGestureViewModel]] = .init()
+//    var expandedSidebarItems: Set<NodeId> = .init()
+    var proposedGroup: ProposedGroup<NodeId>?
     var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
-    var collapsedGroups: Set<SidebarListItemId> = .init()
+    var collapsedGroups: Set<NodeId> = .init()
     
     weak var graphDelegate: GraphState?
     
@@ -323,7 +323,7 @@ extension LayersSidebarViewModel {
         self.getSidebarExpandedItems()
     }
     
-    func didGroupExpand(_ id: ItemID) {
+    func didGroupExpand(_ id: NodeID) {
         self.sidebarListItemGroupOpened(openedId: id)
     }
 }

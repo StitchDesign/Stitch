@@ -371,18 +371,18 @@ let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
 //    }
 //}
 
-extension SidebarItem {
-    func toSidebarLayerData() -> SidebarLayerData {
-        let item = self
-        
-//        SidebarLayerData(id: item.id.asNodeId,
-//                         children: item.groupInfo?.elements?.map({ $0.toSidebarLayerData() }))
-        
-        if let children = item.groupInfo?.elements {
-            return SidebarLayerData(id: item.id.asNodeId,
-                                    children: children.map { $0.toSidebarLayerData() })
-        } else {
-            return SidebarLayerData(id: item.id.asNodeId)
-        }
-    }
-}
+//extension SidebarItem {
+//    func toSidebarLayerData() -> SidebarLayerData {
+//        let item = self
+//        
+////        SidebarLayerData(id: item.id,
+////                         children: item.groupInfo?.elements?.map({ $0.toSidebarLayerData() }))
+//        
+//        if let children = item.groupInfo?.elements {
+//            return SidebarLayerData(id: item.id,
+//                                    children: children.map { $0.toSidebarLayerData() })
+//        } else {
+//            return SidebarLayerData(id: item.id)
+//        }
+//    }
+//}

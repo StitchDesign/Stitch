@@ -35,9 +35,7 @@ extension LayersSidebarViewModel {
 
 extension GraphState {
     func didItemsDelete(ids: Set<SidebarListItemId>) {
-        let deletedIds = ids.map { $0.asNodeId }
-        
-        deletedIds.forEach {
+        ids.forEach {
             self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
         }
 

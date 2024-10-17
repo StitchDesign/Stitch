@@ -154,7 +154,7 @@ struct SidebarListLabelEditView: View {
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
                     // Treat this is as a "layer inspector edit" ?
-                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id.asNodeId),
+                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id),
                                              edit: newEdit,
                                              isCommitting: isCommitting))
                 })

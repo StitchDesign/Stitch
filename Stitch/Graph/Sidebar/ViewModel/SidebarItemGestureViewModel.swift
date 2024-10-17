@@ -295,7 +295,7 @@ extension SidebarItemSwipable: Identifiable {
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
-    var id: SidebarListItemId
+    var id: NodeId
     var location: CGPoint
     var previousLocation: CGPoint
     
@@ -323,12 +323,11 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     var isBeingEdited: Bool = false
 //    @Binding var activeSwipeId: SidebarListItemId?
 
-    init(id: SidebarListItemId,
+    init(id: NodeID,
          location: CGPoint,
          sidebarViewModel: LayersSidebarViewModel,
          graph: GraphState) {
         self.id = id
-        self.item = item
         self.location = location
         self.previousLocation = location
         self.sidebarDelegate = sidebarViewModel
@@ -338,7 +337,7 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
 
 extension SidebarItemGestureViewModel {
     var name: String {
-        guard let node = self.graphDelegate?.getNodeViewModel(item.id.asNodeId) else {
+        guard let node = self.graphDelegate?.getNodeViewModel(item.id) else {
             fatalErrorIfDebug()
             return ""
         }
@@ -357,7 +356,7 @@ extension SidebarItemGestureViewModel {
 
     @MainActor
     var isGroup: Bool {
-        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {
+        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id)?.layerNode else {
             return false
         }
         
@@ -366,7 +365,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     var parentId: SidebarListItemId? {
-        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id.asNodeId)?.layerNode else {
+        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id)?.layerNode else {
             return nil
         }
         
@@ -439,7 +438,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     var isHidden: Bool {
-        self.graphDelegate?.getVisibilityStatus(for: item.id.asNodeId) != .visible
+        self.graphDelegate?.getVisibilityStatus(for: item.id) != .visible
     }
     
     @MainActor
@@ -502,7 +501,7 @@ extension SidebarItemGestureViewModel {
 //        }
 //
         let atleastOneIndexMasks = graph
-            .getLayerNode(id: self.item.id.asNodeId)?
+            .getLayerNode(id: self.item.id)?
             .layerNode?.masksPort.allLoopedValues
             .contains(where: { $0.getBool ?? false })
         ?? false

@@ -62,22 +62,23 @@ extension Identifiable {
 
 typealias SidebarListItemIds = [SidebarListItemId]
 
-struct SidebarListItemId: Identifiable, Equatable, Hashable, Codable {
-    let value: UUID
-
-    init(_ value: UUID) {
-        self.value = value
-    }
-
-    var id: UUID {
-        value
-    }
-
-    var asNodeId: NodeId {
-        value
-    }
-
-    var asLayerNodeId: LayerNodeId {
-        LayerNodeId(value)
-    }
-}
+typealias SidebarListItemId = NodeId
+//struct SidebarListItemId: Identifiable, Equatable, Hashable, Codable {
+//    let value: UUID
+//
+//    init(_ value: UUID) {
+//        self.value = value
+//    }
+//
+//    var id: UUID {
+//        value
+//    }
+//
+//    var asNodeId: NodeId {
+//        value
+//    }
+//
+//    var asLayerNodeId: LayerNodeId {
+//        LayerNodeId(value)
+//    }
+//}

@@ -156,7 +156,7 @@ extension GraphState {
     // When an individual sidebar item is deleted via the swipe menu
     @MainActor
     func sidebarItemDeleted(itemId: SidebarListItemId) {
-        self.deleteNode(id: itemId.asNodeId)
+        self.deleteNode(id: itemId)
                 
         self.updateGraphData()
         self.encodeProjectInBackground()

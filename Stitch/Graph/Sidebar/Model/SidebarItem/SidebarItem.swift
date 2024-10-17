@@ -9,26 +9,26 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-typealias SidebarItems = [SidebarItem]
+//typealias SidebarItems = [SidebarItem]
 
-struct SidebarItem: Equatable, Identifiable, Hashable, Codable {
-
-    let layerName: LayerNodeTitle
-    let layerNodeId: LayerNodeId
-
-    var id: LayerNodeId {
-        layerNodeId
-    }
-    var groupInfo: GroupInfo?
-
-    var childItems: [SidebarItem] {
-        groupInfo?.elements ?? []
-    }
-
-    var children: SidebarItems {
-        childItems
-    }
-}
+//struct SidebarItem: Equatable, Identifiable, Hashable, Codable {
+//
+//    let layerName: LayerNodeTitle
+//    let layerNodeId: LayerNodeId
+//
+//    var id: LayerNodeId {
+//        layerNodeId
+//    }
+//    var groupInfo: GroupInfo?
+//
+//    var childItems: [SidebarItem] {
+//        groupInfo?.elements ?? []
+//    }
+//
+//    var children: SidebarItems {
+//        childItems
+//    }
+//}
 
 struct LayerNodeTitle: Equatable, Hashable, Codable {
     let value: String
@@ -38,7 +38,7 @@ struct LayerNodeTitle: Equatable, Hashable, Codable {
     }
 }
 
-struct GroupInfo: Equatable, Hashable, Codable {
-    let groupdId: LayerNodeId
-    var elements: [SidebarItem]
-}
+//struct GroupInfo: Equatable, Hashable, Codable {
+//    let groupdId: LayerNodeId
+//    var elements: [SidebarItem]
+//}

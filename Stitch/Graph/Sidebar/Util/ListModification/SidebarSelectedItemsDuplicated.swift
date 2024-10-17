@@ -20,8 +20,6 @@ extension GraphState {
     @MainActor
     func sidebarSelectedItemsDuplicatedViaEditMode() {
         let nodeIds = self.layersSidebarViewModel.selectionState.all
-            .map { $0.asNodeId }
-            .toSet
         self.copyAndPasteSelectedNodes(selectedNodeIds: nodeIds)
     }
 }

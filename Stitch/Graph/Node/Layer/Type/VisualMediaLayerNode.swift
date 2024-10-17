@@ -38,7 +38,7 @@ struct VisualMediaLayerView: View {
     }
     
     @MainActor var mediaRowObserver: InputNodeRowObserver? {
-        guard let layerNode = graph.getNodeViewModel(viewModel.id.layerNodeId.asNodeId)?.layerNode else {
+        guard let layerNode = graph.getNodeViewModel(viewModel.id)?.layerNode else {
             return nil
         }
         

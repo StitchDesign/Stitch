@@ -39,7 +39,7 @@ extension LayersSidebarViewModel {
         }
         
         guard let newGroupData = self.orderedEncodedData
-            .createGroup(newGroupId: .init(newNode.id),
+            .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {
             fatalErrorIfDebug()

@@ -216,7 +216,7 @@ extension GraphState {
         let selectedSidebarLayers = self.sidebarSelectionState.inspectorFocusedLayers
                 
         let selectedNodes: [NodeViewModel] = selectedSidebarLayers.focused.compactMap {
-            self.getNode($0.asNodeId)
+            self.getNode($0)
         }
         
         guard selectedNodes.count == selectedSidebarLayers.focused.count else {
@@ -226,7 +226,7 @@ extension GraphState {
         }
         
         guard let firstSelectedLayer = selectedSidebarLayers.focused.first,
-              let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer.asNodeId),
+              let firstSelectedNode: NodeViewModel = self.getNode(firstSelectedLayer),
               let firstSelectedLayerNode: LayerNodeViewModel = firstSelectedNode.layerNode else {
             log("multipleSidebarLayersSelected: did not have any selected sidebar layers?")
             return nil

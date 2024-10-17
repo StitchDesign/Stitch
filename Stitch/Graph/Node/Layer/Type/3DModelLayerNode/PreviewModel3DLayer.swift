@@ -67,7 +67,7 @@ struct Preview3DModelLayer: View {
     
     @MainActor
     var layerNode: LayerNodeViewModel? {
-        self.graph.getNodeViewModel(layerViewModel.id.layerNodeId.asNodeId)?
+        self.graph.getNodeViewModel(layerViewModel.id)?
             .layerNode
     }
 
