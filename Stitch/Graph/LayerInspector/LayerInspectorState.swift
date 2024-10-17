@@ -239,14 +239,10 @@ extension LayerInspectorView {
     
     @MainActor
     static let groupLayer: LayerInputTypeSet = [
+        .orientation,
         .backgroundColor, // actually for many layers?
         .isClipped,
-        
-        .orientation,
-        
-//        .padding,
-        .spacing, // added
-        
+        .spacing,
         // Grid
         .spacingBetweenGridColumns,
         .spacingBetweenGridRows,

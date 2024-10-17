@@ -20,6 +20,7 @@ enum NodeRowType: Equatable {
          shapeCommand(ShapeCommandFieldType),
          singleDropdown(SingleDropdownKind),
          textFontDropdown, // TODO: special case because nested?
+         layerGroupOrientationDropdown,
          spacing, // uses TextField + Dropdown
          bool,
          asyncMedia,
@@ -42,7 +43,7 @@ extension NodeRowType {
         switch self {
         case .size, .position, .point3D, .point4D, .padding, .layerDimension, .number, .string, .spacing:
             return true
-        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo:
+        case .readOnly, .shapeCommand, .singleDropdown, .textFontDropdown, .bool, .asyncMedia, .pulse, .color, .json, .assignedLayer, .anchoring, .pinTo, .layerGroupOrientationDropdown:
             return false
         }
     }
@@ -91,6 +92,8 @@ extension NodeRowType {
             return .spacing(.defaultStitchSpacing)
         case .pinTo:
             return .pinTo(.defaultPinToId)
+        case .layerGroupOrientationDropdown:
+            return .orientation(.defaultOrientation)
         }
     }
 }
