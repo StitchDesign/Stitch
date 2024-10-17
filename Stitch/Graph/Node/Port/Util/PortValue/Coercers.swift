@@ -521,6 +521,32 @@ func pinToCoercer(_ values: PortValues) -> PortValues {
     }
 }
 
+func deviceAppearanceCoercer(_ values: PortValues) -> PortValues {
+    return values.map {
+        switch $0 {
+        case .deviceAppearance:
+            return $0
+        case .number(let x):
+            return DeviceAppearance.fromNumber(x)
+        default:
+            return .deviceAppearance(DeviceAppearance.defaultDeviceAppearance)
+        }
+    }
+}
+
+func materialThicknessCoercer(_ values: PortValues) -> PortValues {
+    return values.map {
+        switch $0 {
+        case .materialThickness:
+            return $0
+        case .number(let x):
+            return MaterialThickness.fromNumber(x)
+        default:
+            return .materialThickness(MaterialThickness.defaultMaterialThickness)
+        }
+    }
+}
+
 func scrollModeCoercer(_ values: PortValues) -> PortValues {
     return values.map {
         switch $0 {

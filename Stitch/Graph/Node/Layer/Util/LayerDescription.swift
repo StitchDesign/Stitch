@@ -58,6 +58,8 @@ extension Layer {
             return sfSymbolDescription
         case .videoStreaming:
             return videoStreamingDescription
+        case .material:
+            return materialDescription
         }
     }
 }

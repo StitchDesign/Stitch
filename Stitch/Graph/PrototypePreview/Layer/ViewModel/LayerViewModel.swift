@@ -189,10 +189,10 @@ final class LayerViewModel {
     var layerPadding: PortValue
     var layerMargin: PortValue
     var offsetInGroup: PortValue
-    
-//    var layerPadding: PortValue
-//    var layerMargin: PortValue
-//    var offsetInGroup: PortValue
+
+    // Material Layer
+    var materialThickness: PortValue
+    var deviceAppearance: PortValue
     
     // Ephemeral state on the layer view model
     
@@ -322,6 +322,9 @@ final class LayerViewModel {
         self.layerPadding = LayerInputPort.layerPadding.getDefaultValue(for: layer)
         self.layerMargin = LayerInputPort.layerMargin.getDefaultValue(for: layer)
         self.offsetInGroup = LayerInputPort.offsetInGroup.getDefaultValue(for: layer)
+        
+        self.materialThickness = LayerInputPort.materialThickness.getDefaultValue(for: layer)
+        self.deviceAppearance = LayerInputPort.deviceAppearance.getDefaultValue(for: layer)
         
         self.nodeDelegate = nodeDelegate
         self.interactiveLayer.delegate = self

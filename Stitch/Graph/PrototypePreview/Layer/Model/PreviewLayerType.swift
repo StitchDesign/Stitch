@@ -25,5 +25,6 @@ enum PreviewLayerType {
          radialGradient,
          angularGradient,
          sfSymbol,
-         videoStreaming
+         videoStreaming,
+         material
 }

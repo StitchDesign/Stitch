@@ -252,6 +252,10 @@ extension LayerInputPort {
             return .padding(.zero)
         case .offsetInGroup:
             return .size(.zero)
+        case .materialThickness:
+            return .materialThickness(.defaultMaterialThickness)
+        case .deviceAppearance:
+            return .deviceAppearance(.defaultDeviceAppearance)
         }
     }
     
@@ -464,6 +468,10 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .materialThickness:
+            return \.materialThicknessPort
+        case .deviceAppearance:
+            return \.deviceAppearancePort
         }
     }
     
@@ -709,6 +717,11 @@ extension LayerViewModel {
             return self.layerMargin
         case .offsetInGroup:
             return self.offsetInGroup
+        case .deviceAppearance:
+            return self.deviceAppearance
+        case .materialThickness:
+            return self.materialThickness
+            
         }
     }
     
@@ -917,6 +930,10 @@ extension LayerViewModel {
             self.layerMargin = value
         case .offsetInGroup:
             self.offsetInGroup = value
+        case .deviceAppearance:
+            self.deviceAppearance = value
+        case .materialThickness:
+            self.materialThickness = value
         }
     }
 }
@@ -1118,6 +1135,10 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .materialThickness:
+            return \.materialThicknessPort
+        case .deviceAppearance:
+            return \.deviceAppearancePort
         }
     }
     
@@ -1449,6 +1470,10 @@ extension LayerInputPort {
             return useShortLabel ? "Margin" : "Layer Margin"
         case .offsetInGroup:
             return useShortLabel ? "Offset" : "Offset in Group"
+        case .materialThickness:
+            return "Material"
+        case .deviceAppearance:
+            return useShortLabel ? "Appearance" : "Device Appearance"
         }
     }
 
