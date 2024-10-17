@@ -213,6 +213,16 @@ extension PortValue {
                 return [[.dropdown(value.rawValue,
                                    SizingScenario.choices)]]
                 
+            case .materialThickness:
+                let value = self.getMaterialThickness ?? .defaultMaterialThickness
+                return [[.dropdown(value.rawValue,
+                                   MaterialThickness.choices)]]
+                
+            case .deviceAppearance:
+                let value = self.getDeviceAppearance ?? .defaultDeviceAppearance
+                return [[.dropdown(value.rawValue,
+                                   DeviceAppearance.choices)]]
+                
             } // case .singleDropdown
             
         case .textFontDropdown:

@@ -65,6 +65,8 @@ extension GraphState {
             }
         case .videoStreaming:
             return "video.bubble.left"
+        case .material:
+            return "circle.filled.pattern.diagonalline.rectangle"
         }
     }
 }

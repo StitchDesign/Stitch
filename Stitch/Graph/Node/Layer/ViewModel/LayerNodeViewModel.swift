@@ -137,6 +137,9 @@ final class LayerNodeViewModel {
     var layerPaddingPort: LayerInputObserver
     var offsetInGroupPort: LayerInputObserver
     
+    var materialThicknessPort: LayerInputObserver
+    var deviceAppearancePort: LayerInputObserver
+    
     weak var nodeDelegate: NodeDelegate?
 
     // Sidebar visibility setting
@@ -289,6 +292,9 @@ final class LayerNodeViewModel {
         self.layerPaddingPort = .init(from: schema, port: .layerPadding)
         self.layerMarginPort = .init(from: schema, port: .layerMargin)
         self.offsetInGroupPort = .init(from: schema, port: .offsetInGroup)
+        
+        self.deviceAppearancePort = .init(from: schema, port: .deviceAppearance)
+        self.materialThicknessPort = .init(from: schema, port: .materialThickness)
         
         // Initialize each NodeRowObserver for each expected layer input
         for layerInputPort in graphNode.inputDefinitions {

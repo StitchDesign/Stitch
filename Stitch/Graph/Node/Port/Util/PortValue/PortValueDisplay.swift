@@ -205,7 +205,11 @@ extension PortValue {
             return x.asDictionary.description
         case .sizingScenario(let x):
             return x.rawValue
-
+        case .deviceAppearance(let x):
+            return x.rawValue
+        case .materialThickness(let x):
+            return x.rawValue
+        }
         /*
          See https://github.com/vpl-codesign/stitch/issues/3022
 
@@ -222,6 +226,5 @@ extension PortValue {
          */
 
         // return x.display
-        }
     }
 }
