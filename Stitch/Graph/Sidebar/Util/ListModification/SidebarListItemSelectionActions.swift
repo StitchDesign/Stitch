@@ -122,13 +122,13 @@ extension ProjectSidebarObservable {
     // Can ungroup selections just if:
     // 1. at least one group is 100% selected, and
     // 2. no non-group items are 100% selected
-    func canUngroup() -> Bool {
+    @MainActor func canUngroup() -> Bool {
         !groupPrimarySelections().isEmpty &&
         nonGroupPrimarySelections().isEmpty
     }
     
     // 100% selected items that ARE groups
-    func groupPrimarySelections() -> [Self.ItemID] {
+    @MainActor func groupPrimarySelections() -> [Self.ItemID] {
         self.selectionState.primary.filter { selected in
             if let item = self.items.first(where: { $0.id == selected }) {
                 return item.isGroup
@@ -138,7 +138,7 @@ extension ProjectSidebarObservable {
     }
     
     // 100% selected items that are NOT groups
-    func nonGroupPrimarySelections() -> Set<Self.ItemID> {
+    @MainActor func nonGroupPrimarySelections() -> Set<Self.ItemID> {
         self.selectionState.primary.filter { selected in
             if let item = self.items.first(where: { $0.id == selected }) {
                 return !item.isGroup

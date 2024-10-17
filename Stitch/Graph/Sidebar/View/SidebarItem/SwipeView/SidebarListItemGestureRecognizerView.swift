@@ -25,18 +25,18 @@ typealias OnItemDragChangedHandler = (CGSize) -> Void
 
 // a gesture recognizer for the item in the custom list itself
 struct SidebarListItemGestureRecognizerView<T: View,
-                                            GestureViewModel: SidebarItemSwipable>: UIViewControllerRepresentable {
+                                            SidebarViewModel: ProjectSidebarObservable>: UIViewControllerRepresentable {
     @EnvironmentObject private var keyboardObserver: KeyboardObserver
 
     let view: T
-    @Bindable var sidebarViewModel: GestureViewModel.SidebarViewModel
-    @Bindable var gestureViewModel: GestureViewModel
+    @Bindable var sidebarViewModel: SidebarViewModel
+    @Bindable var gestureViewModel: SidebarViewModel.ItemViewModel
     
     var instantDrag: Bool = false
     
     let graph: GraphState
     
-    var itemId: GestureViewModel.ID {
+    var itemId: SidebarViewModel.ItemID {
         gestureViewModel.id
     }
 
@@ -97,8 +97,8 @@ struct SidebarListItemGestureRecognizerView<T: View,
         delegate.itemId = itemId
     }
 
-    func makeCoordinator() -> SidebarListGestureRecognizer<GestureViewModel> {
-        SidebarListGestureRecognizer<GestureViewModel>(
+    func makeCoordinator() -> SidebarListGestureRecognizer<SidebarViewModel> {
+        SidebarListGestureRecognizer<SidebarViewModel>(
             gestureViewModel: gestureViewModel,
             sidebarViewModel: sidebarViewModel,
             keyboardObserver: keyboardObserver,
@@ -108,7 +108,7 @@ struct SidebarListItemGestureRecognizerView<T: View,
     }
 }
 
-final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>: NSObject, UIGestureRecognizerDelegate, UIContextMenuInteractionDelegate {
+final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObservable>: NSObject, UIGestureRecognizerDelegate, UIContextMenuInteractionDelegate {
     // Handles:
     // - one finger on screen item-swiping
     // - two fingers on trackpad item-swiping
@@ -121,21 +121,21 @@ final class SidebarListGestureRecognizer<GestureViewModel: SidebarItemSwipable>:
     var instantDrag: Bool
     
     var graph: GraphState
-    var itemId: GestureViewModel.ID
+    var itemId: SidebarViewModel.ItemID
     
     var shiftHeldDown = false
     var commandHeldDown = false
 
-    weak var sidebarViewModel: GestureViewModel.SidebarViewModel?
-    weak var gestureViewModel: GestureViewModel?
+    weak var sidebarViewModel: SidebarViewModel?
+    weak var gestureViewModel: SidebarViewModel.ItemViewModel?
     weak var keyboardObserver: KeyboardObserver?
 
-    init(gestureViewModel: GestureViewModel,
-         sidebarViewModel: GestureViewModel.SidebarViewModel,
+    init(gestureViewModel: SidebarViewModel.ItemViewModel,
+         sidebarViewModel: SidebarViewModel,
          keyboardObserver: KeyboardObserver,
          instantDrag: Bool,
          graph: GraphState,
-         itemId: GestureViewModel.ID) {
+         itemId: SidebarViewModel.ItemID) {
         
         self.gestureViewModel = gestureViewModel
         self.keyboardObserver = keyboardObserver

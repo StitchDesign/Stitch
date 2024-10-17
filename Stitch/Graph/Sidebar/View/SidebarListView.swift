@@ -286,7 +286,12 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 
 extension ProjectSidebarObservable {
     var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
-        self.selectionState.inspectorFocusedLayers
+        get {
+            self.selectionState.inspectorFocusedLayers
+        }
+        set(newValue) {
+            self.selectionState.inspectorFocusedLayers = newValue
+        }
     }
 }
 

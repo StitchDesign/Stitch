@@ -275,7 +275,7 @@ extension GraphState {
             // Note: PinTo = Parent is perhaps redundant vs layer's Anchoring, which is always relative to parent
             // Worst case we can just remove this enum case in the next migration; Root still represents a genuinely new scenario
         case .parent:
-            if let layerNode = self.getNode(pinnedLayerViewModel.id)?.layerNode,
+            if let layerNode = self.getNode(pinnedLayerViewModel.id.layerNodeId.asNodeId)?.layerNode,
                let parent = layerNode.layerGroupId {
                 return self.getPinReceiverData(pinReceiverId: parent.asLayerNodeId,
                                                for: pinnedLayerViewModel)

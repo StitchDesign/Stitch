@@ -10,12 +10,12 @@ import StitchSchemaKit
 import OrderedCollections
 
 extension ProjectSidebarObservable {    
-    static func fromOrderedSidebarItems(_ orderedSidebarItems: OrderedSidebarLayers) -> SidebarGroupsDict {
+    static func fromOrderedSidebarItems(_ orderedSidebarItems: [Self.EncodedItemData]) -> Self.SidebarGroupsDict {
         
-        var partialResult = SidebarGroupsDict()
+        var partialResult = Self.SidebarGroupsDict()
         
         // just assume top level for now; non-nested etc.
-        orderedSidebarItems.forEach { (orderedSidebarItem : SidebarLayerData) in
+        orderedSidebarItems.forEach { (orderedSidebarItem : Self.EncodedItemData) in
             
             partialResult = addToSidebarGroupsDict(
                 orderedSidebarItem: orderedSidebarItem,
@@ -25,8 +25,8 @@ extension ProjectSidebarObservable {
         return partialResult
     }
     
-    func addToSidebarGroupsDict(orderedSidebarItem: SidebarLayerData,
-                                partialResult: SidebarGroupsDict) -> SidebarGroupsDict {
+    static func addToSidebarGroupsDict(orderedSidebarItem: Self.EncodedItemData,
+                                       partialResult: Self.SidebarGroupsDict) -> Self.SidebarGroupsDict {
         
         var partialResult = partialResult
         
@@ -37,7 +37,7 @@ extension ProjectSidebarObservable {
            let children = orderedSidebarItem.children {
             
             // Add a result for this OSI itself
-            partialResult[orderedSidebarItem.id.asLayerNodeId] = children.map(\.id.asLayerNodeId)
+            partialResult[orderedSidebarItem.id] = children.map(\.id)
             
             // Then handle its children
             children.forEach { childOSI in
@@ -50,8 +50,8 @@ extension ProjectSidebarObservable {
         return partialResult
     }
     
-    func getSidebarGroupsDict() -> SidebarGroupsDict {
-        .fromOrderedSidebarItems(self.orderedSidebarLayers)
+    func getSidebarGroupsDict() -> Self.SidebarGroupsDict {
+        Self.fromOrderedSidebarItems(self.orderedEncodedData)
     }
 }
 
