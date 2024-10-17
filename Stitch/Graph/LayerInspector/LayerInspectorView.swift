@@ -125,12 +125,19 @@ struct LayerInspectorView: View {
                     }
                 } // ForEach
                 .padding(.horizontal)
+                .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
                     graph: graph)
                 .padding(.horizontal)
+                .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
             } // List
+            
+            // Create equal spacing on all sides;
+            // we'll see how this feels and can possibly remove later
+//            .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
+            
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
             
