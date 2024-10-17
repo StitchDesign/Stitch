@@ -32,7 +32,7 @@ extension Layer {
         switch self {
         case .canvasSketch, .textField, .switchLayer:
             return true
-        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming:
+        case .text, .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .map, .progressIndicator, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
             return false
         }
     }
@@ -71,7 +71,7 @@ extension Layer {
             return "Color Fill"
         case .hitArea:
             return "Hit Area"
-        case .canvasSketch, .textField, .map, .progressIndicator, .sfSymbol:
+        case .canvasSketch, .textField, .map, .progressIndicator, .sfSymbol, .material:
             return self.rawValue
         case .switchLayer:
             return "Toggle Switch"
@@ -153,6 +153,8 @@ extension Layer {
             return .sfSymbol
         case .videoStreaming:
             return .videoStreaming
+        case .material:
+            return .material
         }
     }
 

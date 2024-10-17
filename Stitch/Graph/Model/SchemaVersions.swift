@@ -108,6 +108,8 @@ public typealias GraphSaveLocation = CurrentGraphSaveLocation.GraphSaveLocation
 public typealias GraphDocumentPath = CurrentGraphDocumentPath.GraphDocumentPath
 public typealias StitchSystem = CurrentStitchSystem.StitchSystem
 public typealias StitchSystemType = CurrentStitchSystemType.StitchSystemType
+public typealias DeviceAppearance = CurrentDeviceAppearance.DeviceAppearance
+public typealias MaterialThickness = CurrentMaterialThickness.MaterialThickness
 
 public struct StitchDocumentVersion: StitchSchemaVersionType {
     public typealias NewestVersionType = StitchDocument
@@ -192,6 +194,8 @@ extension StitchDocumentVersion {
             return StitchDocument_V24.StitchDocument.self
         case ._V25:
             return StitchDocument_V25.StitchDocument.self
+        case ._V26:
+            return StitchDocument_V26.StitchDocument.self
         }
     }
 }
@@ -204,6 +208,8 @@ extension StitchSystemVersion {
             
         case ._V25:
             return StitchSystem_V25.StitchSystem.self
+        case ._V26:
+            return StitchSystem_V26.StitchSystem.self
         }
     }
 }
@@ -216,6 +222,8 @@ extension StitchComonentVersion {
             
         case ._V25:
             return StitchComponent_V25.StitchComponent.self
+        case ._V26:
+            return StitchComponent_V26.StitchComponent.self
         }
     }
 }

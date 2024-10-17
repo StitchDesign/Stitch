@@ -172,6 +172,10 @@ extension PortValues {
             return sizingScenarioCoercer(values)
         case .pinTo:
             return pinToCoercer(values)
+        case .deviceAppearance:
+            return deviceAppearanceCoercer(values)
+        case .materialThickness:
+            return materialThicknessCoercer(values)
         }
     }
 }

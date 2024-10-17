@@ -91,15 +91,11 @@ struct TextLayerNode: LayerNodeDefinition {
             opacity: viewModel.opacity.getNumber ?? .zero,
             scale: viewModel.scale.getNumber ?? .zero,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
-            
             fontSize: viewModel.fontSize.getLayerDimension ?? .DEFAULT_FONT_SIZE,
             textAlignment: viewModel.textAlignment.getLayerTextAlignment ?? DEFAULT_TEXT_ALIGNMENT,
             verticalAlignment: viewModel.verticalAlignment.getLayerTextVerticalAlignment ?? DEFAULT_TEXT_VERTICAL_ALIGNMENT,
             textDecoration: viewModel.textDecoration.getTextDecoration ?? .defaultLayerTextDecoration,
             textFont: viewModel.textFont.getTextFont ?? .defaultStitchFont,
-            
-//            stroke: viewModel.getLayerStrokeData(),
-            
             blurRadius: viewModel.blurRadius.getNumber ?? .zero,
             blendMode: viewModel.blendMode.getBlendMode ?? .defaultBlendMode,
             brightness: viewModel.brightness.getNumber ?? .defaultBrightnessForLayerEffect,
