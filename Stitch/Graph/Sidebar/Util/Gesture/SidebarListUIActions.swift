@@ -128,7 +128,6 @@ extension ProjectSidebarObservable {
     func setYPositionByIndices(originalItemId: Self.ItemID,
                                isDragEnded: Bool = false) {
         self.items.enumerated().forEach { (offset, item) in
-            var item = item
             let newY = CGFloat(offset * CUSTOM_LIST_ITEM_VIEW_HEIGHT)
             
             if !isDragEnded && item.id == originalItemId {

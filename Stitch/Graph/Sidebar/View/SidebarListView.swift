@@ -235,7 +235,8 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 import StitchViewKit
 import OrderedCollections
 
-protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID {
+protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
+                                                               Self.ItemViewModel.SidebarViewModel == Self {
 //                                                               ExcludedGroups: Equatable {
     associatedtype ItemViewModel: SidebarItemSwipable
     associatedtype EncodedItemData: StitchNestedListElement
@@ -269,7 +270,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
     var orderedEncodedData: [EncodedItemData] { get set }
-    var graphDelegate: GraphState? { get }
+    var graphDelegate: GraphState? { get set }
     
 //    func editModeToggled(to isEditing: Bool)
     func canBeGrouped() -> Bool
@@ -293,12 +294,93 @@ extension ProjectSidebarObservable {
             self.selectionState.inspectorFocusedLayers = newValue
         }
     }
+    
+    func initializeDelegate(graph: GraphState) {
+        self.graphDelegate = graph
+        self.update(from: self.orderedEncodedData)
+    }
+    
+    func update(from encodedData: [Self.EncodedItemData]) {
+        self.sync(from: encodedData)
+    }
+    
+    func sync(from encodedData: [Self.EncodedItemData]) {
+        self.orderedEncodedData = encodedData
+        
+        guard let graph = self.graphDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
+            result.updateValue(viewModel, forKey: viewModel.id)
+        }
+        
+        self.items = self.recursiveSync(elements: encodedData,
+                                        existingViewModels: existingViewModels,
+                                        graph: graph)
+    }
+    
+    func recursiveSync(elements: [Self.EncodedItemData],
+                       existingViewModels: [Self.ItemID : Self.ItemViewModel],
+                       graph: GraphState,
+                       currentNestingLevel: Int = 0,
+                       parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
+        // Tracks row counter
+        var currentRowIndex = 0
+        return self.recursiveSync(elements: elements,
+                                  existingViewModels: existingViewModels,
+                                  graph: graph,
+                                  currentRowIndex: &currentRowIndex)
+    }
+    
+    private func recursiveSync(elements: [Self.EncodedItemData],
+                               existingViewModels: [Self.ItemID : Self.ItemViewModel],
+                               graph: GraphState,
+                               currentRowIndex: inout Int,
+                               currentNestingLevel: Int = 0,
+                               parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
+        elements.flatMap { element in
+            let newLocation = Self.setLocation(rowIndex: currentRowIndex,
+                                               nestingLevel: currentNestingLevel)
+            // Increment row index for future elements
+            currentRowIndex += 1
+
+            let viewModel = existingViewModels[element.id] ?? .init(id: element.id,
+                                                                    location: newLocation,
+                                                                    parentId: parentId,
+                                                                    sidebarViewModel: self,
+                                                                    graph: graph)
+            
+            viewModel.location = newLocation
+            viewModel.parentId = parentId
+            
+            if element.isExpandedInSidebar ?? false,
+               let children = element.children {
+                let childrenViewModels = self.recursiveSync(elements: children,
+                                                            existingViewModels: existingViewModels,
+                                                            graph: graph,
+                                                            currentRowIndex: &currentRowIndex,
+                                                            currentNestingLevel: currentNestingLevel + 1,
+                                                            parentId: element.id)
+                return [viewModel] + childrenViewModels
+            }
+            
+            return [viewModel]
+        }
+    }
+    
+    static func setLocation(rowIndex: Int,
+                            nestingLevel: Int) -> CGPoint {
+        .init(x: CUSTOM_LIST_ITEM_INDENTATION_LEVEL * nestingLevel,
+              y: CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex)
+    }
 }
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
     var isEditing = false
-    var items: [SidebarItemGestureViewModel]
+    var items: [SidebarItemGestureViewModel] = []
     var selectionState = SidebarSelectionObserver<NodeId>()
     var orderedEncodedData: OrderedSidebarLayers
     
@@ -314,12 +396,8 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     
     weak var graphDelegate: GraphState?
     
-    init(data: OrderedSidebarLayers,
-         graph: GraphState? = nil) {
+    init(data: OrderedSidebarLayers) {
         self.orderedEncodedData = data
-
-        self.graphDelegate = graph
-        fatalError()
     }
 }
 

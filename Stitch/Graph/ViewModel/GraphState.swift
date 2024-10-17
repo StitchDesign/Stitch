@@ -140,7 +140,7 @@ extension GraphState {
         self.documentDelegate = document
         self.documentEncoderDelegate = documentEncoderDelegate
         
-        self.layersSidebarViewModel.graphDelegate = self
+        self.layersSidebarViewModel.initializeDelegate(graph: self)
         
         self.nodes.values.forEach { $0.initializeDelegate(graph: self,
                                                           document: document) }
@@ -317,7 +317,7 @@ extension GraphState {
     private func updateSynchronousProperties(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
+        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
     @MainActor func update(from schema: GraphEntity) async {

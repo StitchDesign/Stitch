@@ -70,13 +70,13 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .gesture(gestureViewModel.longPressDragGesture)
         #endif
 
-        .onChange(of: sidebarViewModel.activeSwipeId) { _ in
+        .onChange(of: sidebarViewModel.activeSwipeId) {
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: sidebarViewModel.isEditing) { newValue in
+        .onChange(of: sidebarViewModel.isEditing) {
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: sidebarViewModel.activeGesture) { newValue in
+        .onChange(of: sidebarViewModel.activeGesture) {
             switch newValue {
                 // scrolling or dragging resets swipe-menu
             case .scrolling, .dragging:

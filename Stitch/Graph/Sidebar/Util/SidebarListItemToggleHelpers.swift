@@ -289,7 +289,6 @@ extension ProjectSidebarObservable {
                                    adjustment: CGFloat) { // down = +y; up = -y
         self.items.forEach { item in
             if item.itemIndex(self.items) > lastIndex {
-                var item = item
                 item.location = CGPoint(x: item.location.x,
                                         y: item.location.y + adjustment)
                 item.previousLocation = item.location

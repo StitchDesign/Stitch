@@ -117,7 +117,7 @@ extension ProjectSidebarObservable {
             adjustment: CGFloat(moveDownBy))
         
         // Trigger inherited class
-        self.didGroupExpand(openedId)
+//        self.didGroupExpand(openedId)
         
         self.graphDelegate?.encodeProjectInBackground()
     }

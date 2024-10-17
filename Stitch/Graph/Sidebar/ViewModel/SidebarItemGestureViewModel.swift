@@ -67,6 +67,12 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     var backgroundOpacity: CGFloat { get }
     
+    init(id: Self.ID,
+         location: CGPoint,
+         parentId: Self.ID?,
+         sidebarViewModel: Self.SidebarViewModel,
+         graph: GraphState)
+    
 //    @MainActor
 //    func sidebarItemTapped(id: Self.ID,
 //                           shiftHeld: Bool,
