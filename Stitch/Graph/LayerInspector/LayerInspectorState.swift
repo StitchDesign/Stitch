@@ -152,12 +152,22 @@ extension LayerInspectorView {
         
         .opacity,
         
+        // Material
+        .materialThickness,
+        .deviceAppearance,
+        
+        // Canvas
+        .canvasLineColor,
+        .canvasLineWidth,
         
         // SFSymbol
         .sfSymbol,
         
         .color, // Text color vs Rectangle color
         
+        // Shape layer node
+        .shape,
+        .coordinateSystem,
         
         // Media
         .image,
@@ -179,18 +189,11 @@ extension LayerInspectorView {
         
         // Model3D
         .isAnimating,
-        
-        // Shape layer node
-        .shape,
-        .coordinateSystem,
-        
+                
         // rectangle (and group?)
         .cornerRadius,
         
-        // Canvas
-        .canvasLineColor,
-        .canvasLineWidth,
-                
+     
     
         // Progress Indicator
         .progressIndicatorStyle,
@@ -218,8 +221,6 @@ extension LayerInspectorView {
         .endAngle,
         .startRadius,
         .endRadius,
-        
-
         
         // Video
         .videoURL,

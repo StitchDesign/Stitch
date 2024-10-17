@@ -31,7 +31,9 @@ struct MaterialLayerNode: LayerNodeDefinition {
         .shadowColor,
         .shadowOpacity,
         .shadowRadius,
-        .shadowOffset
+        .shadowOffset,
+        .materialThickness,
+        .deviceAppearance
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
@@ -45,6 +47,13 @@ struct MaterialLayerNode: LayerNodeDefinition {
                         layersInGroup: LayerDataList,
                         isPinnedViewRendering: Bool,
                         parentDisablesPosition: Bool) -> some View {
-        Text("love")
+        
+        //
+        PreviewMaterialLayer(document: document,
+                             graph: graph,
+                             viewModel: viewModel,
+                             parentSize: parentSize,
+                             isPinnedViewRendering: isPinnedViewRendering,
+                             parentDisablesPosition: parentDisablesPosition)
     }
 }

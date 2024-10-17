@@ -59,6 +59,7 @@ struct LinearGradientLayerNode: LayerNodeDefinition {
             firstColor: viewModel.startColor.getColor ?? .yellow,
             secondColor: viewModel.endColor.getColor ?? .blue,
             parentSize: parentSize,
+            // Must this always be true?
             parentDisablesPosition: true)
     }
 }
