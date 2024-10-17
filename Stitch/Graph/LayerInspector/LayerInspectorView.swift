@@ -44,9 +44,8 @@ struct LayerInspectorView: View {
     // Figma design is actually ~277
 //    static let LAYER_INSPECTOR_WIDTH = 360.0
 //    static let LAYER_INSPECTOR_WIDTH = 277.0 // Figma
-    
-    // A little wider
-    static let LAYER_INSPECTOR_WIDTH = 300.0
+//    static let LAYER_INSPECTOR_WIDTH = 300.0
+    static let LAYER_INSPECTOR_WIDTH = 324.0
     
     @Bindable var graph: GraphState
 
@@ -60,7 +59,6 @@ struct LayerInspectorView: View {
                 node: layerInspectorData.node,
                 layerInputObserverDict: layerInspectorData.inputs,
                 layerOutputs: layerInspectorData.outputs)
-            .padding(.bottom)
         } else {
             // Empty List, so have same background
             List { }
@@ -79,20 +77,7 @@ struct LayerInspectorView: View {
                            layerOutputs: [OutputLayerNodeRowData]) -> some View {
 
         VStack(alignment: .leading, spacing: 0) {
-            
-#if DEBUG
-            HStack {
-                // Only show editable layer node title if this isn't a multiselect case
-                StitchTitleTextField(graph: graph,
-                                     titleEditType: .layerInspector(node),
-                                     label: layerInspectorHeader,
-                                     font: .title2)
-                Spacer()
-            }
-            .padding()
-            .background(WHITE_IN_LIGHT_MODE_GRAY_IN_DARK_MODE)
-#endif
-            
+                        
             List {
                 ForEach(Self.unfilteredLayerInspectorRowsInOrder, id: \.name) { sectionNameAndInputs in
                     
@@ -125,11 +110,16 @@ struct LayerInspectorView: View {
                     }
                 } // ForEach
                 .padding(.horizontal)
+                .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
                 
                 LayerInspectorOutputsSectionView(
                     outputs: layerOutputs,
                     graph: graph)
                 .padding(.horizontal)
+                .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
+                
+                // Best option for bottom padding; prevents cut-off etc.
+                Rectangle().fill(.clear).frame(height: 1)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
