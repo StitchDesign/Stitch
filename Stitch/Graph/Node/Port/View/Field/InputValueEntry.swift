@@ -274,7 +274,6 @@ struct InputValueView: View {
                 value: x,
                 layerInputObserver: layerInputObserver,
                 isFieldInsideLayerInspector: isFieldInsideLayerInspector)
-            .border(.green)
             
         case .pinTo(let pinToId):
             LayerNamesDropDownChoiceView(
