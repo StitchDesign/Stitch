@@ -57,6 +57,8 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     var zIndex: Double { get set }
     
+    @MainActor var isVisible: Bool { get }
+    
     var isExpandedInSidebar: Bool? { get set }
     
     var sidebarDelegate: SidebarViewModel? { get }

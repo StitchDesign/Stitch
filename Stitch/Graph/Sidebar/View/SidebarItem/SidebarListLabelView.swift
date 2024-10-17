@@ -111,7 +111,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
                 //                                         graph: graph)
                 //            }
             }
-                .lineLimit(1)
+//                .lineLimit(1)
         }
     }
 }
