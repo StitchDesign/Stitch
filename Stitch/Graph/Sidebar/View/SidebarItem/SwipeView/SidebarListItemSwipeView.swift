@@ -11,8 +11,6 @@ import StitchSchemaKit
 struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     typealias ItemViewModel = SidebarViewModel.ItemViewModel
     
-    @State private var sidebarWidth: Double = .zero
-    
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
@@ -60,22 +58,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         SidebarListItemSwipeInnerView(
             graph: graph,
             sidebarViewModel: sidebarViewModel,
-            itemViewModel: gestureViewModel,
-            sidebarWidth: self.sidebarWidth)
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .onAppear {
-                        self.sidebarWidth = geometry.size.width
-                    }
-                    .onChange(of: geometry.size.width) { _, newWidth in
-                        if newWidth != self.sidebarWidth {
-                            log("sidebar width: \(newWidth)")
-                            self.sidebarWidth = newWidth
-                        }
-                    }
-            }
-        }
+            itemViewModel: gestureViewModel)
         .onHover { hovering in
             // log("hovering: sidebar item \(item.id.id)")
             // log("hovering: \(hovering)")
