@@ -42,8 +42,10 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
 //#endif
 //    }
     
-    // TODO: fix masks
-    let masks = false
+    @MainActor
+    var masks: Bool {
+        self.itemViewModel.isMasking
+    }
     
     var body: some View {
         HStack(spacing: 4) {

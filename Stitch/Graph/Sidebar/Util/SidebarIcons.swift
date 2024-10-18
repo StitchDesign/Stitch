@@ -12,6 +12,31 @@ let MASKS_LAYER_ABOVE_ICON_NAME = "arrow.turn.left.up"
 
 //extension Layer {
 extension SidebarItemGestureViewModel {
+    @MainActor var isMasking: Bool {
+        
+        // TODO: why is this not animated? and why does it jitter?
+//        // index of this layer
+//        guard let index = graph.sidebarListState.masterList.items
+//            .firstIndex(where: { $0.id.asLayerNodeId == nodeId }) else {
+//            return withAnimation { false }
+//        }
+//
+//        // hasSidebarLayerImmediatelyAbove
+//        guard graph.sidebarListState.masterList.items[safe: index - 1].isDefined else {
+//            return withAnimation { false }
+//        }
+//
+        let atleastOneIndexMasks = self.graphDelegate?
+            .getLayerNode(id: self.id)?
+            .layerNode?.masksPort.allLoopedValues
+            .contains(where: { $0.getBool ?? false })
+        ?? false
+        
+//        return withAnimation {
+          return atleastOneIndexMasks
+//        }
+    }
+    
     @MainActor var sidebarLeftSideIcon: String {
         guard let layerNode = self.graphDelegate?.getNodeViewModel(id)?.layerNode,
               let activeIndex = self.graphDelegate?.activeIndex else {

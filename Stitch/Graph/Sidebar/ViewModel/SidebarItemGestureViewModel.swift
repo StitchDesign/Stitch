@@ -69,6 +69,8 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     @MainActor var sidebarLeftSideIcon: String { get }
     
+    @MainActor var isMasking: Bool { get }
+    
     init(id: Self.ID,
          location: CGPoint,
          parentId: Self.ID?,
