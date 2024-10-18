@@ -19,8 +19,6 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
-
-    let isHidden: Bool
     
     var rotationZ: CGFloat {
         isClosed ? 0 : 90

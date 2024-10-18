@@ -82,7 +82,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
-        .onChange(of: swipeSetting) { newSwipeSetting in
+        .onChange(of: swipeSetting) { _, newSwipeSetting in
             switch newSwipeSetting {
             case .closed, .open:
                                 

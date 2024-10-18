@@ -11,12 +11,15 @@ import StitchSchemaKit
 let MASKS_LAYER_ABOVE_ICON_NAME = "arrow.turn.left.up"
 
 //extension Layer {
-extension GraphState {
-    @MainActor
-    func sidebarLeftSideIcon(layer: Layer,
-                             layerId: NodeId,
-                             activeIndex: ActiveIndex) -> String {
-        switch layer {
+extension SidebarItemGestureViewModel {
+    @MainActor var sidebarLeftSideIcon: String {
+        guard let layerNode = self.graphDelegate?.getNodeViewModel(id)?.layerNode,
+              let activeIndex = self.graphDelegate?.activeIndex else {
+            fatalErrorIfDebug()
+            return "oval"
+        }
+        
+        switch layerNode.layer {
         case .group:
             return "folder"
         case .image:
@@ -57,12 +60,9 @@ extension GraphState {
             return "line.3.crossed.swirl.circle.fill"
         case .sfSymbol:
             let defaultSymbol = "star"
-            if let sfSymbolInputValues = self.getNode(layerId)?.layerNode?.sfSymbolPort.allLoopedValues {
-                let adjustedActiveIndex = activeIndex.adjustedIndex(sfSymbolInputValues.count)
-                return sfSymbolInputValues[safe: adjustedActiveIndex]?.getString?.string ?? defaultSymbol
-            } else {
-                return defaultSymbol
-            }
+            let sfSymbolInputValues = layerNode.sfSymbolPort.allLoopedValues
+            let adjustedActiveIndex = activeIndex.adjustedIndex(sfSymbolInputValues.count)
+            return sfSymbolInputValues[safe: adjustedActiveIndex]?.getString?.string ?? defaultSymbol
         case .videoStreaming:
             return "video.bubble.left"
         }

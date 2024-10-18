@@ -282,6 +282,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 //    @MainActor func sidebarListItemGroupOpened(openedParent: ItemID)
 
     func sidebarGroupCreated()
+    
     func didItemsDelete(ids: Set<ItemID>)
 }
 

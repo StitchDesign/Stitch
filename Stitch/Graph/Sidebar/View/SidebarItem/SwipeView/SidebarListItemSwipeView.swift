@@ -76,7 +76,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .onChange(of: sidebarViewModel.isEditing) {
             gestureViewModel.resetSwipePosition()
         }
-        .onChange(of: sidebarViewModel.activeGesture) {
+        .onChange(of: sidebarViewModel.activeGesture) { _, newValue in
             switch newValue {
                 // scrolling or dragging resets swipe-menu
             case .scrolling, .dragging:

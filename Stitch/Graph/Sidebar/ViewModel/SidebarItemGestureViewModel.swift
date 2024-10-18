@@ -67,6 +67,8 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     var backgroundOpacity: CGFloat { get }
     
+    @MainActor var sidebarLeftSideIcon: String { get }
+    
     init(id: Self.ID,
          location: CGPoint,
          parentId: Self.ID?,
@@ -456,7 +458,6 @@ extension SidebarItemGestureViewModel {
     
     @MainActor
     var fontColor: Color {
-        guard let graph = self.graphDelegate else { return .white }
         guard let selection = self.sidebarDelegate?.selectionState.getSelectionStatus(self.id) else { return .white }
         
 #if DEV_DEBUG

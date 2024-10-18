@@ -42,49 +42,48 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
 //#endif
 //    }
     
+    // TODO: fix masks
+    let masks = false
+    
     var body: some View {
         HStack(spacing: 4) {
-            EmptyView()
-            // TODO: left view
-////            if isGroup {
-//            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
-//                                       isClosed: isClosed,
-//                                       parentId: nodeId,
-//                                       fontColor: fontColor,
-////                                           isHidden: isHidden)
-//                .opacity(isGroup ? 1 : 0)
-//                // .border(.green)
-////            }
-//  
-//            Image(systemName: graph.sidebarLeftSideIcon(layer: layer,
-//                                                        layerId: nodeId.asNodeId,
-//                                                        activeIndex: graph.activeIndex))
-//                .scaledToFit()
-//                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
-//                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-//                .foregroundColor(fontColor)
-//                .overlay(alignment: .bottomLeading) {
-//                    ZStack {
-//                        
-//                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
-//                        
-//                        Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
-//                            .resizable()
-//                            .scaledToFit()
-//                            .padding(2)
-//                            .offset(x: -0.5)
-//                            .foregroundColor(fontColor)
-//                    }
-//                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2,
-//                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2)
-//                    .foregroundColor(fontColor)
-//                    .opacity(masks ? 1 : 0)
-//                    .animation(.linear, value: masks)
-//                    .cornerRadius(4)
-//                }
-//            
-//            label
-//                .foregroundColor(fontColor)
+            
+            SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
+                                       isClosed: isClosed,
+                                       parentId: itemViewModel.id,
+                                       fontColor: fontColor)
+//                                           isHidden: isHidden)
+                .opacity(isGroup ? 1 : 0)
+                // .border(.green)
+//            }
+  
+            Image(systemName: itemViewModel.sidebarLeftSideIcon)
+                .scaledToFit()
+                .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT,
+                       height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
+                .foregroundColor(fontColor)
+                .overlay(alignment: .bottomLeading) {
+                    ZStack {
+                        
+                        VisualEffectView(effect: UIBlurEffect(style: .systemUltraThinMaterial))
+                        
+                        Image(systemName: MASKS_LAYER_ABOVE_ICON_NAME)
+                            .resizable()
+                            .scaledToFit()
+                            .padding(2)
+                            .offset(x: -0.5)
+                            .foregroundColor(fontColor)
+                    }
+                    .frame(width: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2,
+                           height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT/2)
+                    .foregroundColor(fontColor)
+                    .opacity(masks ? 1 : 0)
+                    .animation(.linear, value: masks)
+                    .cornerRadius(4)
+                }
+            
+            label
+                .foregroundColor(fontColor)
         }
         .padding(.leading, 4)
         .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
