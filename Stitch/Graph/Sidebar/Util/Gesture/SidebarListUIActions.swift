@@ -184,8 +184,7 @@ extension ProjectSidebarObservable {
     // use that parent as the proposed group.
     @MainActor
     func groupFromChildBelow(_ item: Self.ItemViewModel,
-                             movedItemChildrenCount: Int,
-                             excludedGroups: ExcludedGroups) -> ProposedGroup<Self.ItemID>? {
+                             movedItemChildrenCount: Int) -> ProposedGroup<Self.ItemID>? {
         
         log("groupFromChildBelow: item: \(item)")
         // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
@@ -258,7 +257,7 @@ extension ProjectSidebarObservable {
         log("findDeepestParent: item.location.x: \(item.location.x)")
         log("findDeepestParent: cursorDrag: \(cursorDrag)")
         
-        let excludedGroups = self.excludedGroups
+//        let excludedGroups = self.excludedGroups
         
         let itemLocationX = cursorDrag.x
         
@@ -269,13 +268,13 @@ extension ProjectSidebarObservable {
             // Is this dragged item east of the above item?
             // Must be >, not >=, since = is for certain top level cases.
             if itemLocationX > itemAbove.location.x {
-                let itemAboveHasChildren = self.hasChildren(itemAbove.id)
+                let itemAboveHasChildren = itemAbove.isGroup
                 
                 // if the itemAbove us itself a parent,
                 // then we want to put our being-dragged-item into that itemAbove's child list;
                 // and NOT use that itemAbove's own parent as our group
                 if itemAboveHasChildren,
-                   !excludedGroups[itemAbove.id].isDefined,
+                   itemAbove.isCollapsedGroup,
                    itemAbove.isGroup {
                     log("found itemAbove that has children; will make being-dragged-item")
                     
@@ -290,7 +289,7 @@ extension ProjectSidebarObservable {
                 // we'd wrongly put the being-dragged-item into
                 
                 else if let itemAboveParentId = itemAbove.parentId,
-                        !excludedGroups[itemAboveParentId].isDefined {
+                        !itemAbove.isCollapsedGroup {
                     log("found itemAbove that is part of a group whose parent id is: \(itemAbove.parentId)")
                     proposed = ProposedGroup(
                         parentId: itemAboveParentId,
@@ -299,7 +298,7 @@ extension ProjectSidebarObservable {
                 
                 // if the item above is NOT itself part of a group,
                 // we'll just use the item above now as its parent
-                else if !excludedGroups[itemAbove.id].isDefined,
+                else if !itemAbove.isCollapsedGroup,
                         item.isGroup {
                     log("found itemAbove without parent")
                     proposed = ProposedGroup(
@@ -366,8 +365,7 @@ extension ProjectSidebarObservable {
         
         if let groupDueToChildBelow = self.groupFromChildBelow(
             item,
-            movedItemChildrenCount: draggedAlongCount,
-            excludedGroups: self.excludedGroups) {
+            movedItemChildrenCount: draggedAlongCount) {
             
             log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
             

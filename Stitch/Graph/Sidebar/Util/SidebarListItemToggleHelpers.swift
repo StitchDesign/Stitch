@@ -142,19 +142,25 @@ extension ProjectSidebarObservable {
     // retrieve children
     // nil = parentId had no
     // non-nil = returning children, plus removing the parentId entry from ExcludedGroups
-    @MainActor
-    func popExcludedChildren(parentId: Self.ItemID) -> [Self.ItemViewModel]? {
-        
-        if let excludedChildren = self.excludedGroups[parentId] {
-            // prevents us from opening any subgroups that weren't already opend
-            if self.collapsedGroups.contains(parentId) {
-                log("this subgroup was closed when it was put away, so will skip it")
-                return nil
-            }
-            
-            return excludedChildren
+//    @MainActor
+//    func popExcludedChildren(parentId: Self.ItemID) -> [Self.ItemViewModel]? {
+//        
+//        if let excludedChildren = self.excludedGroups[parentId] {
+//            // prevents us from opening any subgroups that weren't already opend
+//            if self.collapsedGroups.contains(parentId) {
+//                log("this subgroup was closed when it was put away, so will skip it")
+//                return nil
+//            }
+//            
+//            return excludedChildren
+//        }
+//        return nil
+//    }
+    
+    func getChildren(for parentId: Self.ItemID) -> [Self.ItemViewModel] {
+        self.items.filter {
+            $0.parentId == parentId
         }
-        return nil
     }
 }
 
@@ -167,56 +173,55 @@ extension SidebarItemSwipable {
 }
 
 extension ProjectSidebarObservable {
-    @MainActor
-    func unhideChildrenHelper(item: Self.ItemViewModel, // item that could be a parent or not
-                              currentHighestIndex: Int, // starts: opened parent's index
-                              currentHighestHeight: CGFloat, // starts: opened parent's height
-                              isRoot: Bool) -> (Int, CGFloat) {
-        
-        var currentHighestIndex = currentHighestIndex
-        var currentHighestHeight = currentHighestHeight
-        
-        // insert item
-        if !isRoot {
-            let (updatedHighestIndex,
-                 updatedHighestHeight) = self.insertUnhiddenItem(item: item,
-                                                                 currentHighestIndex: currentHighestIndex,
-                                                                 currentHighestHeight: currentHighestHeight)
-            
-            currentHighestIndex = updatedHighestIndex
-            currentHighestHeight = updatedHighestHeight
-        }
-        //    else {
-        //        log("unhideChildrenHelper: had root item \(item.id), so will not add root item again")
-        //    }
-        
-        // does this `item` have children of its own?
-        // if so, recur
-        if let excludedChildren = self.popExcludedChildren(
-            parentId: item.id) {
-            
-            // log("unhideChildrenHelper: had children")
-            
-            // excluded children must be handled in IN ORDER
-            for child in excludedChildren {
-                // log("unhideChildrenHelper: on child \(child.id) of item \(item.id)")
-                let (updatedHighestIndex,
-                     updatedHighestHeight) = unhideChildrenHelper(
-                        item: child,
-                        currentHighestIndex: currentHighestIndex,
-                        currentHighestHeight: currentHighestHeight,
-                        isRoot: false)
-                
-                currentHighestIndex = updatedHighestIndex
-                currentHighestHeight = updatedHighestHeight
-            }
-        }
-        //    else {
-        //        log("unhideChildrenHelper: did not have children")
-        //    }
-        
-        return (currentHighestIndex, currentHighestHeight)
-    }
+//    @MainActor
+//    func unhideChildrenHelper(item: Self.ItemViewModel, // item that could be a parent or not
+//                              currentHighestIndex: Int, // starts: opened parent's index
+//                              currentHighestHeight: CGFloat, // starts: opened parent's height
+//                              isRoot: Bool) -> (Int, CGFloat) {
+//        
+//        var currentHighestIndex = currentHighestIndex
+//        var currentHighestHeight = currentHighestHeight
+//        
+//        // insert item
+//        if !isRoot {
+//            let (updatedHighestIndex,
+//                 updatedHighestHeight) = self.insertUnhiddenItem(item: item,
+//                                                                 currentHighestIndex: currentHighestIndex,
+//                                                                 currentHighestHeight: currentHighestHeight)
+//            
+//            currentHighestIndex = updatedHighestIndex
+//            currentHighestHeight = updatedHighestHeight
+//        }
+//        //    else {
+//        //        log("unhideChildrenHelper: had root item \(item.id), so will not add root item again")
+//        //    }
+//        
+//        // does this `item` have children of its own?
+//        // if so, recur
+//        if item.isCollapsedGroup {
+//            // log("unhideChildrenHelper: had children")
+//            let excludedChildren = self.getChildren(for: item.id)
+//            
+//            // excluded children must be handled in IN ORDER
+//            for child in excludedChildren {
+//                // log("unhideChildrenHelper: on child \(child.id) of item \(item.id)")
+//                let (updatedHighestIndex,
+//                     updatedHighestHeight) = unhideChildrenHelper(
+//                        item: child,
+//                        currentHighestIndex: currentHighestIndex,
+//                        currentHighestHeight: currentHighestHeight,
+//                        isRoot: false)
+//                
+//                currentHighestIndex = updatedHighestIndex
+//                currentHighestHeight = updatedHighestHeight
+//            }
+//        }
+//        //    else {
+//        //        log("unhideChildrenHelper: did not have children")
+//        //    }
+//        
+//        return (currentHighestIndex, currentHighestHeight)
+//    }
     
     func insertUnhiddenItem(item: Self.ItemViewModel, // item that could be a parent or not
                             currentHighestIndex: Int, // starts: opened parent's index
@@ -236,38 +241,38 @@ extension ProjectSidebarObservable {
         return (currentHighestIndex, currentHighestHeight)
     }
 
-    @MainActor
-    func unhideChildren(openedParent: Self.ItemID,
-                        parentIndex: Int,
-                        parentY: CGFloat) -> Int {
-        
-        // this can actually happen
-        guard self.excludedGroups[openedParent].isDefined else {
-            fatalErrorIfDebug("Attempted to open a parent that did not have excluded children")
-            return parentIndex
-        }
-        
-        // log("unhideChildren: parentIndex: \(parentIndex)")
-        
-        guard let parent = self.retrieveItem(openedParent) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            return parentIndex
-        }
-        
-        // if you start with the parent, you double add it
-        let (lastIndex, _) = self.unhideChildrenHelper(
-            item: parent,
-            currentHighestIndex: parent.itemIndex(self.items),
-            currentHighestHeight: parent.location.y,
-            isRoot: true)
-        
-        return lastIndex
-    }
+//    @MainActor
+//    func unhideChildren(openedParent: Self.ItemID,
+//                        parentIndex: Int,
+//                        parentY: CGFloat) -> Int {
+//        
+//        // this can actually happen
+//        guard self.excludedGroups[openedParent].isDefined else {
+//            fatalErrorIfDebug("Attempted to open a parent that did not have excluded children")
+//            return parentIndex
+//        }
+//        
+//        // log("unhideChildren: parentIndex: \(parentIndex)")
+//        
+//        guard let parent = self.retrieveItem(openedParent) else {
+//            fatalErrorIfDebug("Could not retrieve item")
+//            return parentIndex
+//        }
+//        
+//        // if you start with the parent, you double add it
+//        let (lastIndex, _) = self.unhideChildrenHelper(
+//            item: parent,
+//            currentHighestIndex: parent.itemIndex(self.items),
+//            currentHighestHeight: parent.location.y,
+//            isRoot: true)
+//        
+//        return lastIndex
+//    }
     
     // all children, closed or open
-    func childrenForParent(parentId: Self.ItemID) -> [Self.ItemViewModel] {
-        self.items.filter { $0.parentId == parentId }
-    }
+//    func childrenForParent(parentId: Self.ItemID) -> [Self.ItemViewModel] {
+//        self.items.filter { $0.parentId == parentId }
+//    }
 
     func adjustItemsBelow(_ parentId: Self.ItemID,
                           _ parentIndex: Int, // parent that was opened or closed
@@ -288,35 +293,35 @@ extension ProjectSidebarObservable {
         }
     }
     
-    func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
-                                   adjustment: CGFloat) { // down = +y; up = -y
-        self.items.forEach { item in
-            if item.itemIndex(self.items) > lastIndex {
-                item.location = CGPoint(x: item.location.x,
-                                        y: item.location.y + adjustment)
-                item.previousLocation = item.location
-            }
-        }
-    }
+//    func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
+//                                   adjustment: CGFloat) { // down = +y; up = -y
+//        self.items.forEach { item in
+//            if item.itemIndex(self.items) > lastIndex {
+//                item.location = CGPoint(x: item.location.x,
+//                                        y: item.location.y + adjustment)
+//                item.previousLocation = item.location
+//            }
+//        }
+//    }
 
     @MainActor
-    func hasChildren(_ parentId: Self.ItemID) -> Bool {
-        
-        if let x = self.items.first(where: { $0.id == parentId }),
-           x.isGroup {
-            //        log("hasChildren: true because isGroup")
-            return true
-        } else if self.excludedGroups[parentId].isDefined {
-            //        log("hasChildren: true because has entry in excludedGroups")
-            return true
-        } else if !self.childrenForParent(parentId: parentId).isEmpty {
-            //        log("hasChildren: true because has non-empty children in on-screen items")
-            return true
-        } else {
-            //        log("hasChildren: false....")
-            return false
-        }
-    }
+//    func hasChildren(_ parentId: Self.ItemID) -> Bool {
+//        
+//        if let x = self.items.first(where: { $0.id == parentId }),
+//           x.isGroup {
+//            //        log("hasChildren: true because isGroup")
+//            return true
+//        } else if self.excludedGroups[parentId].isDefined {
+//            //        log("hasChildren: true because has entry in excludedGroups")
+//            return true
+//        } else if !self.childrenForParent(parentId: parentId).isEmpty {
+//            //        log("hasChildren: true because has non-empty children in on-screen items")
+//            return true
+//        } else {
+//            //        log("hasChildren: false....")
+//            return false
+//        }
+//    }
     
     func retrieveItem(_ id: Self.ItemID) -> Self.ItemViewModel? {
         self.items.first { $0.id == id }

@@ -112,9 +112,9 @@ struct SidebarListView: View {
             }
         }
         // TODO: see note in `DeriveSidebarList`
-        .onChange(of: graph.nodes.keys.count) {
-            dispatch(DeriveSidebarList())
-        }
+//        .onChange(of: graph.nodes.keys.count) {
+//            self.graph.layersSidebarViewModel.
+//        }
     }
 }
 
@@ -253,52 +253,61 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
     var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
-    var orderedEncodedData: [EncodedItemData] { get set }
     var graphDelegate: GraphState? { get set }
     
+//    init(from encodedData: [Self.EncodedItemData])
 //    func editModeToggled(to isEditing: Bool)
     func canBeGrouped() -> Bool
     func canUngroup() -> Bool
 //    func canDuplicate() -> Bool
     
-    @MainActor
-    func didGroupExpand(_ id: ItemID)
+//    @MainActor
+//    func didGroupExpand(_ id: ItemID)
 //    @MainActor func sidebarListItemGroupOpened(openedParent: ItemID)
 
     func sidebarGroupCreated()
+    
+    @MainActor
+    func sidebarGroupUncreatedViaEditMode(groupId: Self.ItemID, children: [Self.ItemID])
     
     func didItemsDelete(ids: Set<ItemID>)
 }
 
 extension ProjectSidebarObservable {
+//    init(from encodedData: [Self.EncodedItemData]) {
+//        self.sync(from: encodedData)
+//    }
+    
     // the [parentId: child-ids] that are not currently shown
-    @MainActor var excludedGroups: ExcludedGroups {
-        let itemsDict = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, item in
-            result.updateValue(item, forKey: item.id)
-        }
-        
-        return self.items.reduce(into: ExcludedGroups()) { result, item in
-            let isExpandedInSidebar = item.isExpandedInSidebar ?? true
-            
-            if item.isGroup && isExpandedInSidebar {
-                guard let encodedData = self.orderedEncodedData.get(item.id),
-                      let children = encodedData.children else {
-                    fatalErrorIfDebug()
-                    return
-                }
-                
-                let childrenViewModels: [Self.ItemViewModel] = children.compactMap { child in
-                    guard let viewModel = itemsDict.get(child.id) else {
-                        fatalErrorIfDebug()
-                        return nil
-                    }
-                    return viewModel
-                }
-                
-                result.updateValue(childrenViewModels, forKey: item.id)
-            }
-        }
-    }
+//    @MainActor var excludedGroups: ExcludedGroups {
+//        let itemsDict = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, item in
+//            result.updateValue(item, forKey: item.id)
+//        }
+//        
+//        let orderedEncodedData = self.createdOrderedEncodedData()
+//        
+//        return self.items.reduce(into: ExcludedGroups()) { result, item in
+//            let isExpandedInSidebar = item.isExpandedInSidebar ?? true
+//            
+//            if item.isGroup && isExpandedInSidebar {
+//                guard let encodedData = orderedEncodedData.getSidebarLayerData(item.id),
+//                      let children = encodedData.children else {
+//                    fatalErrorIfDebug()
+//                    return
+//                }
+//                
+//                let childrenViewModels: [Self.ItemViewModel] = children.compactMap { child in
+//                    guard let viewModel = itemsDict.get(child.id) else {
+//                        fatalErrorIfDebug()
+//                        return nil
+//                    }
+//                    return viewModel
+//                }
+//                
+//                result.updateValue(childrenViewModels, forKey: item.id)
+//            }
+//        }
+//    }
     
 //    var expandedSidebarItems: Set<ItemID> {
 //        
@@ -308,15 +317,15 @@ extension ProjectSidebarObservable {
     // an item's id is added when its group closed,
     // removed when its group opened;
     // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
-    var collapsedGroups: Set<ItemID> {
-        self.items.compactMap {
-            if $0.isExpandedInSidebar ?? false {
-                return $0.id
-            }
-            return nil
-        }
-        .toSet
-    }
+//    var collapsedGroups: Set<ItemID> {
+//        self.items.compactMap {
+//            if $0.isExpandedInSidebar ?? false {
+//                return $0.id
+//            }
+//            return nil
+//        }
+//        .toSet
+//    }
     
     var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
         get {
@@ -329,16 +338,16 @@ extension ProjectSidebarObservable {
     
     func initializeDelegate(graph: GraphState) {
         self.graphDelegate = graph
-        self.update(from: self.orderedEncodedData)
+        
+        self.items.forEach {
+            $0.sidebarDelegate = self
+        }
+//        self.update(from: orderedEncodedData)
     }
     
-    @MainActor func persistSidebarChanges() {
+    @MainActor func persistSidebarChanges(encodedData: [Self.EncodedItemData]? = nil) {
         // Create new encodable data
-        let encodedData: [Self.EncodedItemData] = self.items.map { item in
-            self.createEncodableItem(for: item)
-        }
-        
-        self.orderedEncodedData = encodedData
+        let encodedData: [Self.EncodedItemData] = encodedData ?? self.createdOrderedEncodedData()
         
         // Refreshes view
         self.update(from: encodedData)
@@ -346,17 +355,35 @@ extension ProjectSidebarObservable {
         self.graphDelegate?.encodeProjectInBackground()
     }
     
-    @MainActor func createEncodableItem(for item: Self.ItemViewModel) -> Self.EncodedItemData {
+    @MainActor func createdOrderedEncodedData() -> [Self.EncodedItemData] {
+        var items = self.items[...] // enables popFirst
+        var encodableData = [Self.EncodedItemData]()
+        
+        while let item = items.popFirst() {
+            let newEncodableItem = Self.createEncodableItem(for: item,
+                                                            itemsQueue: &items)
+            encodableData.append(newEncodableItem)
+        }
+        
+        return encodableData
+    }
+    
+    @MainActor private static func createEncodableItem(for item: Self.ItemViewModel,
+                                                       itemsQueue: inout ArraySlice<Self.ItemViewModel>) -> Self.EncodedItemData {
         // Child case
         guard item.isGroup else {
             return .init(id: item.id,
-                         children: [],
+                         children: nil,
                          isExpandedInSidebar: nil)
         }
     
-        // Find children view models
-        let childrenViewModels = self.items.filter { $0.parentId == item.id }
-        let encodableChildren = childrenViewModels.map { self.createEncodableItem(for: $0) }
+        // Find children view models and remove from list as to not duplicate
+        let childrenViewModels = itemsQueue.filter { $0.parentId == item.id }
+        let childrenIds = childrenViewModels.map(\.id)
+        itemsQueue.removeAll(where: { childrenIds.contains($0.id) })
+        
+        let encodableChildren = childrenViewModels.map { Self.createEncodableItem(for: $0,
+                                                                                  itemsQueue: &itemsQueue) }
         return .init(id: item.id,
                      children: encodableChildren,
                      isExpandedInSidebar: item.isExpandedInSidebar)
@@ -367,38 +394,27 @@ extension ProjectSidebarObservable {
     }
     
     func sync(from encodedData: [Self.EncodedItemData]) {
-        self.orderedEncodedData = encodedData
-        
-        guard let graph = self.graphDelegate else {
-            fatalErrorIfDebug()
-            return
-        }
-        
         let existingViewModels = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, viewModel in
             result.updateValue(viewModel, forKey: viewModel.id)
         }
         
         self.items = self.recursiveSync(elements: encodedData,
-                                        existingViewModels: existingViewModels,
-                                        graph: graph)
+                                        existingViewModels: existingViewModels)
     }
     
     func recursiveSync(elements: [Self.EncodedItemData],
                        existingViewModels: [Self.ItemID : Self.ItemViewModel],
-                       graph: GraphState,
                        currentNestingLevel: Int = 0,
                        parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
         // Tracks row counter
         var currentRowIndex = 0
         return self.recursiveSync(elements: elements,
                                   existingViewModels: existingViewModels,
-                                  graph: graph,
                                   currentRowIndex: &currentRowIndex)
     }
     
     private func recursiveSync(elements: [Self.EncodedItemData],
                                existingViewModels: [Self.ItemID : Self.ItemViewModel],
-                               graph: GraphState,
                                currentRowIndex: inout Int,
                                currentNestingLevel: Int = 0,
                                parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
@@ -411,17 +427,14 @@ extension ProjectSidebarObservable {
             let viewModel = existingViewModels[element.id] ?? .init(id: element.id,
                                                                     location: newLocation,
                                                                     parentId: parentId,
-                                                                    sidebarViewModel: self,
-                                                                    graph: graph)
+                                                                    sidebarViewModel: self)
             
             viewModel.location = newLocation
             viewModel.parentId = parentId
             
-            if element.isExpandedInSidebar ?? false,
-               let children = element.children {
+            if let children = element.children {
                 let childrenViewModels = self.recursiveSync(elements: children,
                                                             existingViewModels: existingViewModels,
-                                                            graph: graph,
                                                             currentRowIndex: &currentRowIndex,
                                                             currentNestingLevel: currentNestingLevel + 1,
                                                             parentId: element.id)
@@ -441,38 +454,36 @@ extension ProjectSidebarObservable {
 
 @Observable
 final class LayersSidebarViewModel: ProjectSidebarObservable {
+    typealias EncodedItemData = SidebarLayerData
+    
     var isEditing = false
     var items: [SidebarItemGestureViewModel] = []
     var selectionState = SidebarSelectionObserver<NodeId>()
-    var orderedEncodedData: OrderedSidebarLayers
+//    var orderedEncodedData: OrderedSidebarLayers
     
     var activeSwipeId: NodeId?
     var activeGesture: SidebarListActiveGesture<NodeId> = .none
     var implicitlyDragged = NodeIdSet()
     var currentItemDragged: SidebarDraggedItem<NodeId>? = nil
-    var excludedGroups: [NodeId : [SidebarItemGestureViewModel]] = .init()
+//    var excludedGroups: [NodeId : [SidebarItemGestureViewModel]] = .init()
 //    var expandedSidebarItems: Set<NodeId> = .init()
     var proposedGroup: ProposedGroup<NodeId>?
     var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
-    var collapsedGroups: Set<NodeId> = .init()
+//    var collapsedGroups: Set<NodeId> = .init()
     
     weak var graphDelegate: GraphState?
-    
-    init(data: OrderedSidebarLayers) {
-        self.orderedEncodedData = data
-    }
 }
 
-extension LayersSidebarViewModel {
-//    var expandedSidebarItems: Set<SidebarListItemId> {
-//        self.getSidebarExpandedItems()
+//extension LayersSidebarViewModel {
+////    var expandedSidebarItems: Set<SidebarListItemId> {
+////        self.getSidebarExpandedItems()
+////    }
+//    
+//    @MainActor
+//    func didGroupExpand(_ id: NodeId) {
+//        self.sidebarListItemGroupOpened(parentItem: item)
 //    }
-    
-    @MainActor
-    func didGroupExpand(_ id: NodeId) {
-        self.sidebarListItemGroupOpened(openedId: id)
-    }
-}
+//}
 
 //struct LayersSidebarView: View {
 //    @Bindable var graph: GraphState

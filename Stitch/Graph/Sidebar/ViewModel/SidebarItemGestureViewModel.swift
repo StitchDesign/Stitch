@@ -61,7 +61,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable whe
     
     var isExpandedInSidebar: Bool? { get set }
     
-    var sidebarDelegate: SidebarViewModel? { get }
+    var sidebarDelegate: SidebarViewModel? { get set }
     
     @MainActor var fontColor: Color { get }
     
@@ -74,8 +74,7 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable whe
     init(id: Self.ID,
          location: CGPoint,
          parentId: Self.ID?,
-         sidebarViewModel: Self.SidebarViewModel,
-         graph: GraphState)
+         sidebarViewModel: Self.SidebarViewModel)
     
 //    @MainActor
 //    func sidebarItemTapped(id: Self.ID,
@@ -172,8 +171,8 @@ extension SidebarItemSwipable {
         self.sidebarDelegate?.currentItemDragged != nil
     }
     
-    var isClosed: Bool {
-        self.sidebarDelegate?.collapsedGroups.contains(self.id) ?? false
+    var isCollapsedGroup: Bool {
+        !(self.isExpandedInSidebar ?? true)
     }
     
     // MARK: GESTURE HANDLERS
@@ -335,6 +334,10 @@ extension SidebarItemSwipable {
     var hasCrossedRestingThreshold: Bool {
         swipeSetting.distance >= RESTING_THRESHOLD
     }
+    
+    var graphDelegate: GraphState? {
+        self.sidebarDelegate?.graphDelegate
+    }
 }
 
 @Observable
@@ -352,7 +355,6 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     internal var previousSwipeX: CGFloat = 0
     
     weak var sidebarDelegate: LayersSidebarViewModel?
-    weak var graphDelegate: GraphState?
     
 //    @Binding var activeGesture: SidebarListActiveGesture<SidebarListItem.ID> {
 //        didSet {
@@ -373,14 +375,12 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     init(id: NodeId,
          location: CGPoint,
          parentId: NodeId?,
-         sidebarViewModel: LayersSidebarViewModel,
-         graph: GraphState) {
+         sidebarViewModel: LayersSidebarViewModel) {
         self.id = id
         self.location = location
         self.parentId = parentId
         self.previousLocation = location
         self.sidebarDelegate = sidebarViewModel
-        self.graphDelegate = graph
     }
 }
 

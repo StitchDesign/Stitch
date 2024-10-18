@@ -49,10 +49,10 @@ extension ProjectSidebarObservable {
     
     // TODO: finalize this logic; it's not as simple as "the range between last-clicked and just-clicked" nor is it "the range between just-clicked and least-distant-currently-selected"
     //func itemsBetweenClosestSelectedStart(in nestedList: [ListItem],
-    func itemsBetweenClosestSelectedStart(in flatList: [Self.EncodedItemData],
-                                          clickedItem: Self.EncodedItemData,
-                                          lastClickedItem: Self.EncodedItemData,
-                                          selections: Set<Self.ItemID>) -> [Self.EncodedItemData]? {
+    func itemsBetweenClosestSelectedStart(in flatList: [Self.ItemViewModel],
+                                          clickedItem: Self.ItemViewModel,
+                                          lastClickedItem: Self.ItemViewModel,
+                                          selections: Set<Self.ItemID>) -> [Self.ItemViewModel]? {
         
         // log("itemsBetweenClosestSelectedStart: flatList map ids: \(flatList.map(\.id))")
         
@@ -110,14 +110,14 @@ extension SidebarSelectionExpansionDirection {
 
 extension ProjectSidebarObservable {
     // TODO: combine this with our logic for adding to the current selections
-    func shrinkExpansions(flatList: [Self.EncodedItemData], // ALL items with nesting flattened; used for finding indices
-                          itemsBetween: [Self.EncodedItemData], // the 'range' we clicked; items between last-clicked and just-clicked
-                          originalIsland: [Self.EncodedItemData], // the original contiguous selection range
-                          lastClickedItem: Self.EncodedItemData, // the last-non-shift-clicked item
+    func shrinkExpansions(flatList: [Self.ItemViewModel], // ALL items with nesting flattened; used for finding indices
+                          itemsBetween: [Self.ItemViewModel], // the 'range' we clicked; items between last-clicked and just-clicked
+                          originalIsland: [Self.ItemViewModel], // the original contiguous selection range
+                          lastClickedItem: Self.ItemViewModel, // the last-non-shift-clicked item
                           // the just shift-clicked item
-                          justClickedItem: Self.EncodedItemData) {
+                          justClickedItem: Self.ItemViewModel) {
         
-        let newIsland: [EncodedItemData] = itemsBetween
+        let newIsland = itemsBetween
         
         guard
             let lastClickedIndex = flatList.firstIndex(of: lastClickedItem),
@@ -201,7 +201,7 @@ extension ProjectSidebarObservable {
         // Wipe existing edit mode selections
         self.selectionState.resetEditModeSelections()
         
-        self.orderedEncodedData.flattenedItems.forEach { sidebarLayer in
+        self.items.forEach { sidebarLayer in
             let itemId = sidebarLayer.id
             let wasTapped = tappedItems.contains(itemId)
             

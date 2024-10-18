@@ -154,9 +154,7 @@ extension StitchDocumentViewModel {
 
         case .group:
             log("createNode: unexpectedly had Group node for NodeKind choice; exiting early")
-            #if DEBUG
-            fatalError()
-            #endif
+            fatalErrorIfDebug()
             return nil
 
         // TODO: break this logic up into smaller, separate functions,
@@ -168,14 +166,14 @@ extension StitchDocumentViewModel {
                     position: center.toCGSize,
                     zIndex: highestZIndex + 1,
                     graphDelegate: self.visibleGraph) else {
-                #if DEBUG
-                fatalError()
-                #endif
+                fatalErrorIfDebug()
                 return nil
             }
-
+            
             let sidebarLayerData = SidebarLayerData(id: layerNode.id)
-            self.visibleGraph.orderedSidebarLayers.insert(sidebarLayerData, at: 0)
+            var newSidebarData = self.visibleGraph.layersSidebarViewModel.createdOrderedEncodedData()
+            newSidebarData.insert(sidebarLayerData, at: 0)
+            self.visibleGraph.layersSidebarViewModel.update(from: newSidebarData)
             
             return layerNode
 

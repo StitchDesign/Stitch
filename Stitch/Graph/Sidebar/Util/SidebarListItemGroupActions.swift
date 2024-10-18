@@ -9,23 +9,23 @@ import Foundation
 import StitchSchemaKit
 
 extension ProjectSidebarObservable {
-    func getSidebarExpandedItems() -> Set<ItemID> {
-        self.items.filter {
-            $0.isExpandedInSidebar ?? false
-        }
-        .map(\.id)
-        .toSet
-    }
+//    func getSidebarExpandedItems() -> Set<ItemID> {
+//        self.items.filter {
+//            $0.isExpandedInSidebar ?? false
+//        }
+//        .map(\.id)
+//        .toSet
+//    }
     
-    @MainActor func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
-        self.items.forEach {
-            if $0.isGroup {
-                $0.isExpandedInSidebar = expanded.contains($0.id)
-            } else {
-                $0.isExpandedInSidebar = nil
-            }
-        }
-    }
+//    @MainActor func applySidebarExpandedItems(_ expanded: Set<ItemID>) {
+//        self.items.forEach {
+//            if $0.isGroup {
+//                $0.isExpandedInSidebar = expanded.contains($0.id)
+//            } else {
+//                $0.isExpandedInSidebar = nil
+//            }
+//        }
+//    }
     
     // for non-edit-mode selections
     @MainActor
@@ -46,12 +46,14 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor
-    func sidebarListItemGroupClosed(closedParentId: Self.ItemID) {
+    func sidebarListItemGroupClosed(closedParent: Self.ItemViewModel) {
 
-        var expanded = self.getSidebarExpandedItems()
+        closedParent.isExpandedInSidebar = false
+        
+//        var expanded = self.getSidebarExpandedItems()
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        self.deselectDescendantsOfClosedGroup(closedParentId)
+        self.deselectDescendantsOfClosedGroup(closedParent.id)
                         
 //        self.onSidebarListItemGroupClosed(
 //            closedId: closedParentId)
@@ -60,11 +62,11 @@ extension ProjectSidebarObservable {
         //        expanded.remove(closedParent)
         
         // NOTEL Excluded-groups contains ALL collapsed groups; `masterList.collapsedGroups` only contains top-level collapsed groups?
-        self.excludedGroups.keys.forEach {
-            expanded.remove($0)
-        }
+//        self.excludedGroups.keys.forEach {
+//            expanded.remove($0)
+//        }
                 
-        self.applySidebarExpandedItems(expanded)
+//        self.applySidebarExpandedItems(expanded)
         
 //        _updateStateAfterListChange(
 //            updatedList: state.sidebarListState,
@@ -81,7 +83,7 @@ extension ProjectSidebarObservable {
     // - wipe parent's entry in ExcludedGroups
     // - move down (+y) any items below the now-open parent
     @MainActor
-    func sidebarListItemGroupOpened(openedId: Self.ItemID) {
+    func sidebarListItemGroupOpened(parentItem: Self.ItemViewModel) {
         
         log("onSidebarListItemGroupOpened called")
         
@@ -89,37 +91,33 @@ extension ProjectSidebarObservable {
         // so that we can unfurl its own children
 //        self.collapsedGroups.remove(openedId)
         
-        guard let parentItem = self.retrieveItem(openedId) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            return
-        }
-        
-        let parentIndex = parentItem.itemIndex(self.items)
-        let originalCount = self.items.count
-        
-        let lastIndex = self.unhideChildren(
-            openedParent: openedId,
-            parentIndex: parentIndex,
-            parentY: parentItem.location.y)
-        
-        // count after adding hidden descendants back to `items`
-        let updatedCount = self.items.count
-        
-        // how many items total we added by unhiding the parent's children
-        let addedCount = updatedCount - originalCount
-        
-        let moveDownBy = addedCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-        
-        // and move any items below this parent DOWN
-        // ... but skip any children, since their positions' have already been updated
-        self.adjustNonDescendantsBelow(
-            lastIndex,
-            adjustment: CGFloat(moveDownBy))
+//        let parentIndex = parentItem.itemIndex(self.items)
+//        let originalCount = self.items.count
+//        
+//        let lastIndex = self.unhideChildren(
+//            openedParent: openedId,
+//            parentIndex: parentIndex,
+//            parentY: parentItem.location.y)
+//        
+//        // count after adding hidden descendants back to `items`
+//        let updatedCount = self.items.count
+//        
+//        // how many items total we added by unhiding the parent's children
+//        let addedCount = updatedCount - originalCount
+//        
+//        let moveDownBy = addedCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+//        
+//        // and move any items below this parent DOWN
+//        // ... but skip any children, since their positions' have already been updated
+//        self.adjustNonDescendantsBelow(
+//            lastIndex,
+//            adjustment: CGFloat(moveDownBy))
         
         // Trigger inherited class
 //        self.didGroupExpand(openedId)
+        parentItem.isExpandedInSidebar = true
         
-        self.graphDelegate?.encodeProjectInBackground()
+        self.persistSidebarChanges()
     }
     
     // When group closed:

@@ -14,11 +14,16 @@ let CHEVRON_GROUP_TOGGLE_ICON =  "chevron.right"
 
 struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     let sidebarViewModel: SidebarViewModel
-    let isClosed: Bool
-    let parentId: SidebarViewModel.ItemID
+    let item: SidebarViewModel.ItemViewModel
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
+    var fontColor: Color {
+        item.fontColor
+    }
+
+    var isClosed: Bool {
+        item.isCollapsedGroup
+    }
     
     var rotationZ: CGFloat {
         isClosed ? 0 : 90
@@ -48,9 +53,9 @@ struct SidebarListItemChevronView<SidebarViewModel>: View where SidebarViewModel
             .contentShape(Rectangle())
             .onTapGesture {
                 if isClosed {
-                    sidebarViewModel.sidebarListItemGroupOpened(openedId: parentId)
+                    sidebarViewModel.sidebarListItemGroupOpened(parentItem: item)
                 } else {
-                    sidebarViewModel.sidebarListItemGroupClosed(closedParentId: parentId)
+                    sidebarViewModel.sidebarListItemGroupClosed(closedParent: item)
                 }
             }
             .animation(.linear, value: rotationZ)

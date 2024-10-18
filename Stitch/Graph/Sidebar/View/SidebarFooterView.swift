@@ -141,7 +141,7 @@ struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: 
         return Group {
 //            Spacer()
             StitchButton {
-                dispatch(SidebarGroupUncreated())
+                self.sidebarViewModel.sidebarGroupUncreated()
             } label: {
                 Text("Ungroup")
                     .modifier(DisabledButtonModifier(buttonEnabled: ungroupButtonEnabled))

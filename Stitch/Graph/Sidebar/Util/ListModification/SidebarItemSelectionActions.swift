@@ -39,7 +39,7 @@ extension ProjectSidebarObservable {
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
-            let flatList = self.orderedEncodedData.flattenedItems
+            let flatList = self.items
             if let indexOfTappedItem = flatList.firstIndex(where: { $0.id == id }) {
                 
                 let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
@@ -64,8 +64,8 @@ extension ProjectSidebarObservable {
             
             log("sidebarItemTapped: shift select")
             
-            guard let clickedItem: Self.EncodedItemData = self.orderedEncodedData.getSidebarLayerData(id),
-                  let lastClickedItem = self.orderedEncodedData.getSidebarLayerData(lastClickedItemId) else {
+            guard let clickedItem = self.retrieveItem(id),
+                  let lastClickedItem = self.retrieveItem(lastClickedItemId) else {
                 log("sidebarItemTapped: could not get clicked data")
                 fatalErrorIfDebug()
                 return
@@ -73,7 +73,7 @@ extension ProjectSidebarObservable {
             
             log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
             
-            let flatList = self.orderedEncodedData.flattenedItems
+            let flatList = self.items
             
             let originalIsland = flatList.getIsland(startItem: lastClickedItem,
                                                     selections: originalSelections)

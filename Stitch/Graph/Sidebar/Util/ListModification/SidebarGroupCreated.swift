@@ -38,7 +38,8 @@ extension LayersSidebarViewModel {
             existingParentForSelections = .init(_existingParentForSelections)
         }
         
-        guard let newGroupData = self.orderedEncodedData
+        let encodedData = self.createdOrderedEncodedData()
+        guard let newGroupData = encodedData
             .createGroup(newGroupId: newNode.id,
                          parentLayerGroupId: existingParentForSelections,
                          selections: primarilySelectedLayers) else {
@@ -53,8 +54,9 @@ extension LayersSidebarViewModel {
         state.nodeCreated(node: newNode)
             
         // Update sidebar state
-        graph.orderedSidebarLayers.insertGroup(group: newGroupData,
-                                               selections: primarilySelectedLayers)
+        var newEncodableData = encodedData
+        newEncodableData.insertGroup(group: newGroupData,
+                                     selections: primarilySelectedLayers)
         
         newNode.layerNode?.layerGroupId = existingParentForSelections
         
@@ -66,8 +68,7 @@ extension LayersSidebarViewModel {
             }
         }
         
-        // Update legacy state
-        graph.updateSidebarListStateAfterStateChange()
+        self.update(from: newEncodableData)
         
         // Only reset edit mode selections if we're explicitly in edit mode (i.e. on iPad)
         if self.isEditing {

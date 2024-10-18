@@ -45,10 +45,11 @@ extension ProjectSidebarObservable {
     }
     
     // children to deselect
+    @MainActor
     func getDescendantsIds(id: Self.ItemID) -> Set<ItemID> {
 //                                  groups: SidebarGroupsDict,
 //                                  acc: Set<ItemID>) -> Set<ItemId> {
-        guard let children = self.orderedEncodedData.get(id)?.children else { return .init() }
+        guard let children = self.createdOrderedEncodedData().get(id)?.children else { return .init() }
         return children.flatMap { $0.allElementIds }
             .toSet
         
@@ -104,6 +105,7 @@ extension ProjectSidebarObservable {
     
     // selections can only be grouped if they ALL belong to EXACT SAME PARENT (or top level)
     // ASSUMES NON-EMPTY
+    @MainActor
     func canBeGrouped() -> Bool {
         let selections = self.selectionState.primary
         let groups = self.getSidebarGroupsDict()

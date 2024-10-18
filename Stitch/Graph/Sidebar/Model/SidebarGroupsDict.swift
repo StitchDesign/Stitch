@@ -9,15 +9,16 @@ import Foundation
 import StitchSchemaKit
 import OrderedCollections
 
-extension ProjectSidebarObservable {    
-    static func fromOrderedSidebarItems(_ orderedSidebarItems: [Self.EncodedItemData]) -> Self.SidebarGroupsDict {
-        
+extension ProjectSidebarObservable {
+    @MainActor
+    func getSidebarGroupsDict() -> Self.SidebarGroupsDict {
+        let orderedSidebarItems = self.createdOrderedEncodedData()
         var partialResult = Self.SidebarGroupsDict()
         
         // just assume top level for now; non-nested etc.
         orderedSidebarItems.forEach { (orderedSidebarItem : Self.EncodedItemData) in
             
-            partialResult = addToSidebarGroupsDict(
+            partialResult = Self.addToSidebarGroupsDict(
                 orderedSidebarItem: orderedSidebarItem,
                 partialResult: partialResult)
         }
@@ -48,10 +49,6 @@ extension ProjectSidebarObservable {
         }
         
         return partialResult
-    }
-    
-    func getSidebarGroupsDict() -> Self.SidebarGroupsDict {
-        Self.fromOrderedSidebarItems(self.orderedEncodedData)
     }
 }
 

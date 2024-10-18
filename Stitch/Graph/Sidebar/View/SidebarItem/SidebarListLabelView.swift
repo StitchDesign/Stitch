@@ -32,9 +32,7 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
         HStack(spacing: 4) {
             
             SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
-                                       isClosed: itemViewModel.isClosed,
-                                       parentId: itemViewModel.id,
-                                       fontColor: fontColor)
+                                       item: itemViewModel)
 //                                           isHidden: isHidden)
             .opacity(itemViewModel.isGroup ? 1 : 0)
                 // .border(.green)

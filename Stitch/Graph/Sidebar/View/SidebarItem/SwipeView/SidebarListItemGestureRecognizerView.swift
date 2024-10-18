@@ -320,7 +320,7 @@ extension SidebarItemGestureViewModel {
             if sidebarViewModel.canUngroup() {
                 buttons.append(UIAction(title: "Ungroup", image: nil) { action in
                     // Handle action here
-                    dispatch(SidebarGroupUncreated())
+                    self.sidebarDelegate?.sidebarGroupUncreated()
                 })
             }
             

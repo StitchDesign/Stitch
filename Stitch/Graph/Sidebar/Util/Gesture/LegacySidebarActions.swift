@@ -23,7 +23,7 @@ extension ProjectSidebarObservable {
 
     // Function to find the set item whose index in the list is the smallest
     static func findSetItemWithSmallestIndex(from set: Set<Self.ItemID>,
-                                             in list: [Self.EncodedItemData]) -> Self.ItemID? {
+                                             in list: [Self.ItemViewModel]) -> Self.ItemID? {
         var smallestIndex: Int? = nil
         var smallestItem: Self.ItemID? = nil
         
@@ -121,7 +121,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.inspectorFocusedLayers.focused,
-                in: state.orderedEncodedData.flattenedItems) {
+                in: state.items) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex
             }
@@ -185,7 +185,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedEncodedData.flattenedItems),
+                in: state.items),
                itemId != selectedItemWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
@@ -320,7 +320,7 @@ extension ProjectSidebarObservable {
             
             if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.orderedEncodedData.flattenedItems) {
+                in: state.items) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex
             }

@@ -88,24 +88,25 @@ final class GraphState: Sendable {
         self.saveLocation = saveLocation
         self.id = schema.id
         self.name = schema.name
-        self.layersSidebarViewModel = .init(data: schema.orderedSidebarLayers)
+        self.layersSidebarViewModel = .init()
         self.commentBoxesDict.sync(from: schema.commentBoxes)
         self.components = components
-        self.orderedSidebarLayers = schema.orderedSidebarLayers
         self.visibleNodesViewModel.nodes = nodes
         
+        self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
         self.syncMediaFiles(mediaFiles)
     }
 }
 
 extension GraphState {
+    @MainActor
     var orderedSidebarLayers: SidebarLayerList {
         get {
-            self.layersSidebarViewModel.orderedEncodedData
+            self.layersSidebarViewModel.createdOrderedEncodedData()
         }
-        set(newValue) {
-            self.layersSidebarViewModel.orderedEncodedData = newValue
-        }
+//        set(newValue) {
+//            self.layersSidebarViewModel.orderedEncodedData = newValue
+//        }
     }
     
     convenience init(from schema: GraphEntity,

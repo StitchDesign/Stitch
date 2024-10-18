@@ -291,7 +291,7 @@ struct ProjectsHomeCommands: Commands {
                                     disabled: !layersActivelySelected || !ungroupButtonEnabled) {
 //                                    disabled: !layersActivelySelected) {
                     // deletes both selected nodes and selected comments
-                    dispatch(SidebarGroupUncreated())
+                    self.graph?.layersSidebarViewModel.sidebarGroupUncreated()
                 }
                 
             } // replacing: .pasteboard
