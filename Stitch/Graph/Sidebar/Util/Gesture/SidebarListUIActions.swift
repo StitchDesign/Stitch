@@ -117,9 +117,6 @@ extension SidebarItemSwipable {
     // and so child's x location must always be 50 greater than its parent
     func updateYPosition(translation: CGSize,
                          location: CGPoint) {
-        // Save render cycles if no change
-        guard translation.height > 0 else { return }
-        
         self.location = CGPoint(x: location.x, // NEVER adjust x
                                 y: translation.height + location.y)
     }
