@@ -171,8 +171,12 @@ extension SidebarItemSwipable {
     @MainActor
     var onItemDragChanged: OnItemDragChangedHandler {
         return { (translation: CGSize) in
-            // print("SidebarItemGestureViewModel: itemDragChangedGesture called")
-            self.activeGesture = .dragging(self.id)
+            
+            if self.activeGesture != .dragging(self.id) {
+//                log("SidebarItemGestureViewModel: itemDragChangedGesture called on \(self.id.description)")
+                self.activeGesture = .dragging(self.id)
+            }
+            
             self.sidebarDelegate?.sidebarListItemDragged(
                 itemId: self.id,
                 translation: translation)
@@ -183,13 +187,13 @@ extension SidebarItemSwipable {
     var onItemDragEnded: OnDragEndedHandler {
         return {
             // print("SidebarItemGestureViewModel: itemDragEndedGesture called")
-            if self.activeGesture == .none {
-                // print("SidebarItemGestureViewModel: onItemDragEnded: no active gesture, so will do nothing")
+            guard self.activeGesture != .none else { return }
+                
+            if self.activeGesture != .none {
                 self.activeGesture = .none
-            } else {
-                self.activeGesture = .none
-                self.sidebarDelegate?.sidebarListItemDragEnded(itemId: self.id)
             }
+            
+            self.sidebarDelegate?.sidebarListItemDragEnded(itemId: self.id)
         }
     }
 
@@ -216,8 +220,11 @@ extension SidebarItemSwipable {
     var longPressDragGesture: LongPressAndDragGestureType {
 
         let longPress = LongPressGesture(minimumDuration: 0.5).onEnded { _ in
-            print("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
-            self.activeGesture = .dragging(self.id)
+            if self.activeGesture != .dragging(self.id) {
+                log("SidebarItemGestureViewModel: longPressDragGesture: longPress onChanged")
+                self.activeGesture = .dragging(self.id)
+            }
+    
             self.sidebarDelegate?.sidebarListItemLongPressed(id: self.id)
         }
 
@@ -247,7 +254,9 @@ extension SidebarItemSwipable {
             if self.activeGesture.isNone
                 && translationWidth.magnitude > SIDEBAR_ACTIVE_GESTURE_SWIPE_THRESHOLD {
                 //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: setting us to swipe")
-                self.activeGesture = .swiping
+                if self.activeGesture != .swiping {
+                    self.activeGesture = .swiping
+                }
             }
             if self.activeGesture.isSwipe {
                 //                print("SidebarItemGestureViewModel: itemSwipeChangedGesture: updating per swipe")
@@ -255,7 +264,9 @@ extension SidebarItemSwipable {
                 let newSwipeX = max(self.previousSwipeX - translationWidth, 0)
                 self.swipeSetting = .swiping(newSwipeX)
 
-                self.activeSwipeId = self.id
+                if self.activeSwipeId != self.id {
+                    self.activeSwipeId = self.id
+                }
             }
         }
 
@@ -277,7 +288,11 @@ extension SidebarItemSwipable {
             // if we had been swiping, then we reset activeGesture
             if self.activeGesture.isSwipe {
                 //                print("SidebarItemGestureViewModel: itemSwipeEndedGesture onEnded: resetting swipe")
-                self.activeGesture = .none
+                
+                if self.activeGesture != .none {
+                    self.activeGesture = .none
+                }
+                
                 if self.atDefaultActionThreshold {
                     // Don't need to change x position here,
                     // since redOption's offset handles that.
