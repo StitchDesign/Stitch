@@ -86,32 +86,39 @@ extension StitchDocumentViewModel {
                     // need to create a directory
                     let docsURL = StitchFileManager.documentsURL
                     let dataCollectionURL = docsURL.appendingPathComponent(LLM_COLLECTION_DIRECTORY)
+                    
                     let dateFormatter = DateFormatter()
                     dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                     let formattedDate = dateFormatter.string(from: Date())
                     let filename = "\(self.graph.name)_\(self.graph.id)_\(formattedDate).json"
-                    let url = dataCollectionURL.appending(path: filename)
-                    
                     // log("LLMRecordingPromptClosed: docsURL: \(docsURL)")
                     // log("LLMRecordingPromptClosed: dataCollectionURL: \(dataCollectionURL)")
                     // log("LLMRecordingPromptClosed: url: \(url)")
+                    let url = dataCollectionURL.appendingPathComponent(filename)
                     
-                    // It's okay if this fails because directory already exists
-                    try? FileManager.default.createDirectory(
-                        at: dataCollectionURL,
-                        withIntermediateDirectories: false)
+                    // Ensure the directory exists
+                    if !FileManager.default.fileExists(atPath: dataCollectionURL.path) {
+                        try FileManager.default.createDirectory(
+                            at: dataCollectionURL,
+                            withIntermediateDirectories: true)
+                    }
                     
-                    try data.write(to: url,
-                                   options: [.atomic, .completeFileProtection])
+                    try data.write(to: url, options: [.atomic, .completeFileProtection])
                     
                     // DEBUG
                     // let input = try String(contentsOf: url)
                     // log("LLMRecordingPromptClosed: success: \(input)")
+                    log("LLMRecordingPromptClosed: Data successfully saved to: \(url.path)")
+                } catch let encodingError as EncodingError {
+                    log("LLMRecordingPromptClosed: Encoding error: \(encodingError.localizedDescription)")
+                } catch let fileError as NSError {
+                    log("LLMRecordingPromptClosed: File system error: \(fileError.localizedDescription)")
                 } catch {
                     log("LLMRecordingPromptClosed: error: \(error.localizedDescription)")
                 }
             }
         }
+    
         
         // Reset LLMRecordingState
         self.llmRecording = .init()
