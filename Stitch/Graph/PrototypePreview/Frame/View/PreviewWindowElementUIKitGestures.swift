@@ -51,27 +51,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     func getPressInteractionIds() -> NodeIdSet? {
         graph.getPressInteractionIds(for: interactiveLayer.id.layerNodeId)
     }
-    
-    @MainActor
-    var tapGesture: some Gesture {
-        TapGesture(count: 2)
-            .onEnded {
-                if let pressIds = self.getPressInteractionIds() {
-                    self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
-                    graph.calculate(pressIds)
-                }
-            }
-            .exclusively(before:
-                            TapGesture()
-                .onEnded {
-                    if let pressIds = self.getPressInteractionIds() {
-                        self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
-                        graph.calculate(pressIds)
-                    }
-                }
-            )
-    }
-    
+  
     @MainActor
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: minimumDragDistance)
@@ -110,6 +90,19 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             .simultaneousGesture(self.dragGesture)
         
         // `TapGesture`s need to come AFTER `DragGesture`
-            .simultaneousGesture(self.tapGesture)
-    } 
+            .simultaneousGesture(TapGesture(count: 2).onEnded({
+                if let pressIds = self.getPressInteractionIds() {
+                    // Set true here, then set false in press node eval
+                    self.interactiveLayer.doubleTapped = true
+                    graph.calculate(pressIds)
+                }
+            }))
+            .simultaneousGesture(TapGesture(count: 1).onEnded {
+                if let pressIds = self.getPressInteractionIds() {
+                    // Set true here, then set false in press node eval
+                    self.interactiveLayer.singleTapped = true
+                    graph.calculate(pressIds)
+                }
+            })
+    }
 }
