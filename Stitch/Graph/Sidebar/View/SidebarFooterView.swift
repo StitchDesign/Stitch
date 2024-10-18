@@ -74,9 +74,9 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         // NOTE: only listen for changes to expandedItems or sidebar-groups,
         // not the layerNodes, since layerNodes change constantly
         // when eg a Time Node is attached to a Text Layer.
-        .onChange(of: sidebarViewModel.expandedSidebarItems) {
-            sidebarViewModel.activeSwipeId = nil
-        }
+//        .onChange(of: sidebarViewModel.expandedSidebarItems) {
+//            sidebarViewModel.activeSwipeId = nil
+//        }
         .onChange(of: groups) {
             sidebarViewModel.activeSwipeId = nil
         }

@@ -57,99 +57,102 @@ extension ProjectSidebarObservable {
     }
     
     // only called if parent has children
-    @MainActor
-    func hideChildren(closedParentId: Self.ItemID) {
-        
-        guard let closedParent = self.retrieveItem(closedParentId) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            return
-        }
-        
-        // if there are no descendants, then we're basically done
-        
-        // all the items below this parent, with indentation > parent's
-        let descendants = self.getDescendants(closedParent)
-        
-        // starting: immediate parent will have closed parent's id
-        var currentParent = closedParentId
-        
-        // starting: immediate child of parent will have parent's indentation level + 1
-        var currentDeepestIndentation = closedParent.indentationLevel.inc()
-        
-        for descendant in descendants {
-            //        log("on descendant: \(descendant)")
-            
-            // if we ever have a descendant at, or west of, the closedParent,
-            // then we made a mistake!
-            if descendant.indentationLevel.value <= closedParent.indentationLevel.value {
-                fatalErrorIfDebug()
-            }
-            
-            if descendant.indentationLevel == currentDeepestIndentation {
-                self.appendToExcludedGroup(
-                    for: currentParent,
-                    descendant)
-            }
-            // we either increased or decreased in indentation
-            else {
-                // if we changed indentation levels (whether east or west),
-                // we should have a new parent
-                currentParent = descendant.parentId!
-                
-                // ie we went deeper (farther east)
-                if descendant.indentationLevel.value > currentDeepestIndentation.value {
-                    // log("went east")
-                    currentDeepestIndentation = currentDeepestIndentation.inc()
-                }
-                // ie. we backed up (went one level west)
-                // ie. descendant.indentationLevel.value < currentDeepestIndentation.value
-                else {
-                    // log("went west")
-                    currentDeepestIndentation = currentDeepestIndentation.dec()
-                }
-                
-                // set the descendant AFTER we've updated the parent
-                self.appendToExcludedGroup(
-                    for: currentParent,
-                    descendant)
-            }
-        }
-        
-        // finally, remove descendants from items list
-        let descendentsIdSet: Set<Self.ItemID> = Set(descendants.map(\.id))
-        self.items.removeAll { descendentsIdSet.contains($0.id) }
-    }
+//    @MainActor
+//    func hideChildren(closedParentId: Self.ItemID) {
+//        
+//        // TODO: just mark a single property and update views
+//        
+//        
+//        
+//        guard let closedParent = self.retrieveItem(closedParentId) else {
+//            fatalErrorIfDebug("Could not retrieve item")
+//            return
+//        }
+//        
+//        // if there are no descendants, then we're basically done
+//        
+//        // all the items below this parent, with indentation > parent's
+//        let descendants = self.getDescendants(closedParent)
+//        
+//        // starting: immediate parent will have closed parent's id
+//        var currentParent = closedParentId
+//        
+//        // starting: immediate child of parent will have parent's indentation level + 1
+//        var currentDeepestIndentation = closedParent.indentationLevel.inc()
+//        
+//        for descendant in descendants {
+//            //        log("on descendant: \(descendant)")
+//            
+//            // if we ever have a descendant at, or west of, the closedParent,
+//            // then we made a mistake!
+//            // MARK: this doesn't seem to matter
+////            if descendant.indentationLevel.value <= closedParent.indentationLevel.value {
+////                fatalErrorIfDebug()
+////            }
+//            
+//            if descendant.indentationLevel == currentDeepestIndentation {
+//                self.appendToExcludedGroup(
+//                    for: currentParent,
+//                    descendant)
+//            }
+//            // we either increased or decreased in indentation
+//            else {
+//                // if we changed indentation levels (whether east or west),
+//                // we should have a new parent
+//                currentParent = descendant.parentId!
+//                
+//                // ie we went deeper (farther east)
+//                if descendant.indentationLevel.value > currentDeepestIndentation.value {
+//                    // log("went east")
+//                    currentDeepestIndentation = currentDeepestIndentation.inc()
+//                }
+//                // ie. we backed up (went one level west)
+//                // ie. descendant.indentationLevel.value < currentDeepestIndentation.value
+//                else {
+//                    // log("went west")
+//                    currentDeepestIndentation = currentDeepestIndentation.dec()
+//                }
+//                
+//                // set the descendant AFTER we've updated the parent
+//                self.appendToExcludedGroup(
+//                    for: currentParent,
+//                    descendant)
+//            }
+//        }
+//        
+//        // finally, remove descendants from items list
+//        let descendentsIdSet: Set<Self.ItemID> = Set(descendants.map(\.id))
+//        self.items.removeAll { descendentsIdSet.contains($0.id) }
+//    }
     
-    func appendToExcludedGroup(for key: Self.ItemID,
-                               _ newItems: [Self.ItemViewModel],
-                               _ excludedGroups: Self.ExcludedGroups) {
-        //    log("appendToExcludedGroup called")
-        
-        var existing = excludedGroups[key] ?? []
-        existing.append(contentsOf: newItems)
-        
-        var excludedGroups = excludedGroups
-        excludedGroups.updateValue(existing, forKey: key)
-        
-        self.excludedGroups = excludedGroups
-    }
-    
+//    func appendToExcludedGroup(for key: Self.ItemID,
+//                               _ newItems: [Self.ItemViewModel],
+//                               _ excludedGroups: Self.ExcludedGroups) {
+//        //    log("appendToExcludedGroup called")
+//        
+//        var existing = excludedGroups[key] ?? []
+//        existing.append(contentsOf: newItems)
+//        
+//        var excludedGroups = excludedGroups
+//        excludedGroups.updateValue(existing, forKey: key)
+//        
+//        self.excludedGroups = excludedGroups
+//    }
+//    
     // retrieve children
     // nil = parentId had no
     // non-nil = returning children, plus removing the parentId entry from ExcludedGroups
-    func popExcludedChildren(parentId: Self.ItemID) -> ([Self.ItemViewModel], ExcludedGroups)? {
+    @MainActor
+    func popExcludedChildren(parentId: Self.ItemID) -> [Self.ItemViewModel]? {
         
         if let excludedChildren = self.excludedGroups[parentId] {
-            
             // prevents us from opening any subgroups that weren't already opend
             if self.collapsedGroups.contains(parentId) {
                 log("this subgroup was closed when it was put away, so will skip it")
                 return nil
             }
             
-            var groups = self.excludedGroups
-            groups.removeValue(forKey: parentId)
-            return (excludedChildren, groups)
+            return excludedChildren
         }
         return nil
     }
@@ -164,6 +167,7 @@ extension SidebarItemSwipable {
 }
 
 extension ProjectSidebarObservable {
+    @MainActor
     func unhideChildrenHelper(item: Self.ItemViewModel, // item that could be a parent or not
                               currentHighestIndex: Int, // starts: opened parent's index
                               currentHighestHeight: CGFloat, // starts: opened parent's height
@@ -188,12 +192,10 @@ extension ProjectSidebarObservable {
         
         // does this `item` have children of its own?
         // if so, recur
-        if let (excludedChildren, updatedGroups) = self.popExcludedChildren(
+        if let excludedChildren = self.popExcludedChildren(
             parentId: item.id) {
             
             // log("unhideChildrenHelper: had children")
-            
-            self.excludedGroups = updatedGroups
             
             // excluded children must be handled in IN ORDER
             for child in excludedChildren {
@@ -234,6 +236,7 @@ extension ProjectSidebarObservable {
         return (currentHighestIndex, currentHighestHeight)
     }
 
+    @MainActor
     func unhideChildren(openedParent: Self.ItemID,
                         parentIndex: Int,
                         parentY: CGFloat) -> Int {

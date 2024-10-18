@@ -243,18 +243,9 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     
     var isEditing: Bool { get set }
     var items: [ItemViewModel] { get set }
-    // the [parentId: child-ids] that are not currently shown
-    var excludedGroups: ExcludedGroups { get set }
-    var expandedSidebarItems: Set<ItemID> { get }
     
     var proposedGroup: ProposedGroup<ItemID>? { get set }
     var cursorDrag: HorizontalDrag? { get set }
-
-    // groups currently opened or closed;
-    // an item's id is added when its group closed,
-    // removed when its group opened;
-    // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
-    var collapsedGroups: Set<ItemID> { get set }
     
     var selectionState: SidebarSelectionState { get set }
 
@@ -280,6 +271,53 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 }
 
 extension ProjectSidebarObservable {
+    // the [parentId: child-ids] that are not currently shown
+    @MainActor var excludedGroups: ExcludedGroups {
+        let itemsDict = self.items.reduce(into: [Self.ItemID : Self.ItemViewModel]()) { result, item in
+            result.updateValue(item, forKey: item.id)
+        }
+        
+        return self.items.reduce(into: ExcludedGroups()) { result, item in
+            let isExpandedInSidebar = item.isExpandedInSidebar ?? true
+            
+            if item.isGroup && isExpandedInSidebar {
+                guard let encodedData = self.orderedEncodedData.get(item.id),
+                      let children = encodedData.children else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                let childrenViewModels: [Self.ItemViewModel] = children.compactMap { child in
+                    guard let viewModel = itemsDict.get(child.id) else {
+                        fatalErrorIfDebug()
+                        return nil
+                    }
+                    return viewModel
+                }
+                
+                result.updateValue(childrenViewModels, forKey: item.id)
+            }
+        }
+    }
+    
+//    var expandedSidebarItems: Set<ItemID> {
+//        
+//    }
+    
+    // groups currently opened or closed;
+    // an item's id is added when its group closed,
+    // removed when its group opened;
+    // NOTE: a supergroup parent closing/opening does NOT affect a subgroup's closed/open status
+    var collapsedGroups: Set<ItemID> {
+        self.items.compactMap {
+            if $0.isExpandedInSidebar ?? false {
+                return $0.id
+            }
+            return nil
+        }
+        .toSet
+    }
+    
     var inspectorFocusedLayers: InspectorFocusedData<ItemID> {
         get {
             self.selectionState.inspectorFocusedLayers
@@ -292,6 +330,36 @@ extension ProjectSidebarObservable {
     func initializeDelegate(graph: GraphState) {
         self.graphDelegate = graph
         self.update(from: self.orderedEncodedData)
+    }
+    
+    @MainActor func persistSidebarChanges() {
+        // Create new encodable data
+        let encodedData: [Self.EncodedItemData] = self.items.map { item in
+            self.createEncodableItem(for: item)
+        }
+        
+        self.orderedEncodedData = encodedData
+        
+        // Refreshes view
+        self.update(from: encodedData)
+        
+        self.graphDelegate?.encodeProjectInBackground()
+    }
+    
+    @MainActor func createEncodableItem(for item: Self.ItemViewModel) -> Self.EncodedItemData {
+        // Child case
+        guard item.isGroup else {
+            return .init(id: item.id,
+                         children: [],
+                         isExpandedInSidebar: nil)
+        }
+    
+        // Find children view models
+        let childrenViewModels = self.items.filter { $0.parentId == item.id }
+        let encodableChildren = childrenViewModels.map { self.createEncodableItem(for: $0) }
+        return .init(id: item.id,
+                     children: encodableChildren,
+                     isExpandedInSidebar: item.isExpandedInSidebar)
     }
     
     func update(from encodedData: [Self.EncodedItemData]) {
@@ -396,9 +464,9 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
 }
 
 extension LayersSidebarViewModel {
-    var expandedSidebarItems: Set<SidebarListItemId> {
-        self.getSidebarExpandedItems()
-    }
+//    var expandedSidebarItems: Set<SidebarListItemId> {
+//        self.getSidebarExpandedItems()
+//    }
     
     @MainActor
     func didGroupExpand(_ id: NodeId) {

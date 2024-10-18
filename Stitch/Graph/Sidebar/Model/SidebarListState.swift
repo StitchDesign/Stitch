@@ -101,16 +101,16 @@ typealias SidebarListItemIdSet = Set<SidebarListItemId>
 //    }
 //}
 
-extension ProjectSidebarObservable {
-    @MainActor
-    func appendToExcludedGroup(for key: Self.ItemID,
-                               _ newItem: Self.ItemViewModel) {
-        self.appendToExcludedGroup(
-            for: key,
-            [newItem],
-            self.excludedGroups)
-    }
-}
+//extension ProjectSidebarObservable {
+//    @MainActor
+//    func appendToExcludedGroup(for key: Self.ItemID,
+//                               _ newItem: Self.ItemViewModel) {
+//        self.appendToExcludedGroup(
+//            for: key,
+//            [newItem],
+//            self.excludedGroups)
+//    }
+//}
 
 // `SidebarCursorDrag` represents the current position
 // of user's cursor during a sidebar-list-item drag operation.

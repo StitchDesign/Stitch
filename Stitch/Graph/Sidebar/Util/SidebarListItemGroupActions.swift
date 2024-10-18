@@ -53,8 +53,8 @@ extension ProjectSidebarObservable {
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
         self.deselectDescendantsOfClosedGroup(closedParentId)
                         
-        self.onSidebarListItemGroupClosed(
-            closedId: closedParentId)
+//        self.onSidebarListItemGroupClosed(
+//            closedId: closedParentId)
         
         //        // also need to remove id from sidebar's expandedSet
         //        expanded.remove(closedParent)
@@ -71,7 +71,7 @@ extension ProjectSidebarObservable {
 //            expanded: state.getSidebarExpandedItems(),
 //            graphState: state)
         
-        self.graphDelegate?.encodeProjectInBackground()
+        self.persistSidebarChanges()
     }
 }
 
@@ -87,7 +87,7 @@ extension ProjectSidebarObservable {
         
         // important: remove this item from collapsedGroups,
         // so that we can unfurl its own children
-        self.collapsedGroups.remove(openedId)
+//        self.collapsedGroups.remove(openedId)
         
         guard let parentItem = self.retrieveItem(openedId) else {
             fatalErrorIfDebug("Could not retrieve item")
@@ -136,11 +136,11 @@ extension ProjectSidebarObservable {
             return
         }
         
-        if !hasOpenChildren(closedParent) {
-            self.collapsedGroups.insert(closedId)
-            self.excludedGroups.updateValue([], forKey: closedId)
-            return
-        }
+//        if !hasOpenChildren(closedParent) {
+//            self.collapsedGroups.insert(closedId)
+//            self.excludedGroups.updateValue([], forKey: closedId)
+//            return
+//        }
         
         let descendantsCount = self.getDescendants(
             closedParent).count
@@ -150,7 +150,7 @@ extension ProjectSidebarObservable {
         // hide the children:
         // - populates ExcludedGroups
         // - removes now-hidden descendants from `items`
-        let _ = self.hideChildren(closedParentId: closedId)
+//        let _ = self.hideChildren(closedParentId: closedId)
         
         // and move any items below this parent upward
         self.adjustItemsBelow(
@@ -161,6 +161,6 @@ extension ProjectSidebarObservable {
             adjustment: -CGFloat(moveUpBy))
         
         // add parent to collapsed group
-        self.collapsedGroups.insert(closedId)
+//        self.collapsedGroups.insert(closedId)
     }
 }
