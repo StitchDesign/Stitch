@@ -111,16 +111,20 @@ extension SidebarItemSwipable {
     func setXLocationByIndentation(_ indentationLevel: IndentationLevel) {
         self.location.x = indentationLevel.toXLocation
     }
+    
+    // accepts `parentIndentation`
+    // eg a child of a top level item will receive `parentIndentation = 50`
+    // and so child's x location must always be 50 greater than its parent
+    func updateYPosition(translation: CGSize,
+                         location: CGPoint) {
+        // Save render cycles if no change
+        guard translation.height > 0 else { return }
+        
+        self.location = CGPoint(x: location.x, // NEVER adjust x
+                                y: translation.height + location.y)
+    }
 }
 
-// accepts `parentIndentation`
-// eg a child of a top level item will receive `parentIndentation = 50`
-// and so child's x location must always be 50 greater than its parent
-func updateYPosition(translation: CGSize,
-                     location: CGPoint) -> CGPoint {
-    CGPoint(x: location.x, // NEVER adjust x
-            y: translation.height + location.y)
-}
 
 extension ProjectSidebarObservable {
     // ie We've just REORDERED `items`,
@@ -419,7 +423,7 @@ extension ProjectSidebarObservable {
         var draggedAlong = draggedAlong
         
         // always update the item's position first:
-        item.location = updateYPosition(
+        item.updateYPosition(
             translation: translation,
             location: item.previousLocation)
         
