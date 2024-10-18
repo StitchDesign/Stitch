@@ -28,7 +28,7 @@ let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 ////    var location: CGPoint { get set }
 //}
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable,
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable & CustomStringConvertible,
                                                                         SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
 //    associatedtype ItemData: ProjectSidebarObservable.ItemData
@@ -117,6 +117,9 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     @MainActor
     func didToggleVisibility()
+    
+    @MainActor
+    func didLabelEdit(to newString: String, isCommitting: Bool)
 }
 
 extension SidebarItemSwipable {
@@ -378,6 +381,15 @@ extension SidebarItemGestureViewModel {
         }
         
         return layerNode.layer == .group
+    }
+    
+    @MainActor
+    func didLabelEdit(to newString: String,
+                      isCommitting: Bool) {
+        // Treat this is as a "layer inspector edit" ?
+        dispatch(NodeTitleEdited(titleEditType: .layerInspector(self.id),
+                                 edit: newString,
+                                 isCommitting: isCommitting))
     }
     
 //    @MainActor

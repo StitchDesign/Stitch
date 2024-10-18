@@ -357,7 +357,7 @@ extension GraphState {
         // For debug
         if selectedLayers.isEmpty,
            let layer = self.layerNodes.keys.first {
-            selectedLayers = .init([.init(layer)])
+            selectedLayers = .init([layer])
         }
         #endif
         

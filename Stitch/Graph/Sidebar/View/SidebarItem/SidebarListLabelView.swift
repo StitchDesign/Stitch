@@ -31,17 +31,6 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
         self.sidebarViewModel.isEditing
     }
     
-    // TODO: debug names
-//    var _name: String {
-////        return name
-//        
-//#if DEV_DEBUG
-//        name + " \(nodeId.id.debugFriendlyId)"
-//#else
-//        name
-//#endif
-//    }
-    
     @MainActor
     var masks: Bool {
         self.itemViewModel.isMasking
@@ -94,47 +83,51 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     var label: some View {
         Group {
             if isBeingEdited {
-                Color.clear
-                //                SidebarListLabelEditView(id: nodeId,
-                //                                         name: _name,
-                //                                         fontColor: fontColor,
-                //                                         graph: graph)
-                //                .truncationMode(.tail)
-                //#if targetEnvironment(macCatalyst)
-                //                .padding(.trailing, 44)
-                //#else
-                //                .padding(.trailing, 60)
-                //#endif
-                //            } else {
-                //                SidebarListLabelEditView(id: nodeId,
-                //                                         name: _name,
-                //                                         fontColor: fontColor,
-                //                                         graph: graph)
-                //            }
+                SidebarListLabelEditView(item: self.itemViewModel,
+                                         fontColor: fontColor,
+                                         graph: graph)
+                .truncationMode(.tail)
+#if targetEnvironment(macCatalyst)
+                .padding(.trailing, 44)
+#else
+                .padding(.trailing, 60)
+#endif
+            } else {
+                SidebarListLabelEditView(item: self.itemViewModel,
+                                         fontColor: fontColor,
+                                         graph: graph)
             }
-//                .lineLimit(1)
         }
+        .lineLimit(1)
     }
 }
 
-struct SidebarListLabelEditView: View {
+struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
     
     // Do we need to add another focused field type here?
     // If this is focused, you don't want
     
-    let id: LayerNodeId
-    let name: String
+    @Bindable var item: ItemViewModel
     let fontColor: Color
     
     @Bindable var graph: GraphState
         
     @State var edit: String = ""
     
+    var name: String {
+        let name = self.item.name
+#if DEV_DEBUG
+        return name + " \(self.item.id.debugFriendlyId)"
+#else
+        return name
+#endif
+    }
+    
     @MainActor
     var isFocused: Bool {
         switch graph.graphUI.reduxFocusedField {
-        case .sidebarLayerTitle(let layerNodeId):
-            let k = layerNodeId == id
+        case .sidebarLayerTitle(let idString):
+            let k = item.id.description == idString
             // log("SidebarListLabelEditView: isFocused: \(k) for \(id)")
             return k
         default:
@@ -150,14 +143,12 @@ struct SidebarListLabelEditView: View {
             if isFocused {
                 // logInView("SidebarListLabelEditView: editable field")
                 StitchTextEditingBindingField(currentEdit: self.$edit,
-                                              fieldType: .sidebarLayerTitle(id),
+                                              fieldType: .sidebarLayerTitle(self.item.id.description),
                                               font: SIDEBAR_LIST_ITEM_FONT,
                                               fontColor: fontColor,
                                               fieldEditCallback: { (newEdit: String, isCommitting: Bool) in
-                    // Treat this is as a "layer inspector edit" ?
-                    dispatch(NodeTitleEdited(titleEditType: .layerInspector(id.asNodeId),
-                                             edit: newEdit,
-                                             isCommitting: isCommitting))
+                    self.item.didLabelEdit(to: newEdit,
+                                           isCommitting: isCommitting)
                 })
             } else {
                 // logInView("SidebarListLabelEditView: read only")
@@ -171,8 +162,7 @@ struct SidebarListLabelEditView: View {
             self.edit = name
         }
         .onTapGesture(count: 2) {
-            log("SidebarListLabelEditView: double tap \(id)")
-            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(id)))
+            dispatch(ReduxFieldFocused(focusedField: .sidebarLayerTitle(self.item.id.description)))
         }
     }
     
