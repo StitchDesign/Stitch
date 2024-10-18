@@ -164,8 +164,8 @@ struct AppSettingsView: View {
             themePicker
             edgeStylePicker
             defaultPreviewWindowDevicePicker
+#if STITCH_AI
             openAIAPIKeyField
-#if DEV_DEBUG || DEBUG
             llmRecordingModePicker
 #endif
         }
