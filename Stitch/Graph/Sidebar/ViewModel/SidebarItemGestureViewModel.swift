@@ -28,7 +28,7 @@ let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 ////    var location: CGPoint { get set }
 //}
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID: Equatable & CustomStringConvertible,
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable where Self.ID: Equatable & CustomStringConvertible,
                                                                         SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
 //    associatedtype ItemData: ProjectSidebarObservable.ItemData
@@ -120,6 +120,16 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable where Self.ID:
     
     @MainActor
     func didLabelEdit(to newString: String, isCommitting: Bool)
+}
+
+extension SidebarItemSwipable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.id == rhs.id &&
+        lhs.zIndex == rhs.zIndex &&
+        lhs.location == rhs.location &&
+        lhs.isExpandedInSidebar == rhs.isExpandedInSidebar &&
+        lhs.parentId == rhs.parentId
+    }
 }
 
 extension SidebarItemSwipable {

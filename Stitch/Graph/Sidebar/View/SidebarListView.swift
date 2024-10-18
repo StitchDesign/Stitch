@@ -192,7 +192,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         .animation(.spring(), value: isBeingEdited)
         .animation(.spring(), value: sidebarViewModel.proposedGroup)
 //        .animation(.spring(), value: sidebarDeps)
-//        .animation(.easeIn, value: sidebarViewModel.items)
+        .animation(.easeIn, value: sidebarViewModel.items)
         
         .onChange(of: isBeingEdited) { _, newValue in
             // This handler enables all animations
