@@ -18,25 +18,11 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
-    let name: String
-//    let layer: Layer
-    var isClosed: Bool
-    let swipeSetting: SidebarSwipeSetting
     let sidebarWidth: CGFloat
-
-    var isBeingEdited: Bool { self.sidebarViewModel.isEditing }
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
     var itemIndent: CGFloat { itemViewModel.location.x }
-    
-    var fontColor: Color {
-        self.itemViewModel.fontColor
-    }
-    
-//    var layerNodeId: LayerNodeId {
-//        item.id.asLayerNodeId
-//    }
     
     var body: some View {
         HStack(spacing: .zero) {
@@ -45,10 +31,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                 SidebarListItemView(graph: graph,
                                     sidebarViewModel: sidebarViewModel,
                                     item: itemViewModel,
-                                    name: name,
 //                                    layer: layer,
-                                    isClosed: isClosed,
-                                    fontColor: fontColor,
 //                                    isHidden: isHidden,
                                     swipeOffset: swipeX)
                 .padding(.leading, itemIndent + 5)
@@ -62,10 +45,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                     SidebarListItemRightLabelView(
                         item: itemViewModel,
                         selectionState: sidebarViewModel.selectionState,
-                        isGroup: itemViewModel.isGroup,
-                        isClosed: isClosed,
-                        fontColor: fontColor,
-                        isBeingEdited: isBeingEdited)
+                        isBeingEdited: sidebarViewModel.isEditing)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 }
                 .padding(.trailing, 2)
@@ -79,7 +59,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
         
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
-        .onChange(of: swipeSetting) { _, newSwipeSetting in
+        .onChange(of: self.itemViewModel.swipeSetting) { _, newSwipeSetting in
             switch newSwipeSetting {
             case .closed, .open:
                                 

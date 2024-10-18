@@ -162,6 +162,10 @@ extension SidebarItemSwipable {
         self.sidebarDelegate?.currentItemDragged != nil
     }
     
+    var isClosed: Bool {
+        self.sidebarDelegate?.collapsedGroups.contains(self.id) ?? false
+    }
+    
     // MARK: GESTURE HANDLERS
 
     @MainActor

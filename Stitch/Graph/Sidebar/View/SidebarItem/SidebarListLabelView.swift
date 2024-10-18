@@ -15,17 +15,6 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
-    let name: String
-//    let layer: Layer
-//    let nodeId: LayerNodeId // debug
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
-    
-//    let isHidden: Bool
-    let isGroup: Bool
-    let isClosed: Bool
-    
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
     }
@@ -35,15 +24,19 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
         self.itemViewModel.isMasking
     }
     
+    var fontColor: Color {
+        self.itemViewModel.fontColor
+    }
+    
     var body: some View {
         HStack(spacing: 4) {
             
             SidebarListItemChevronView(sidebarViewModel: sidebarViewModel,
-                                       isClosed: isClosed,
+                                       isClosed: itemViewModel.isClosed,
                                        parentId: itemViewModel.id,
                                        fontColor: fontColor)
 //                                           isHidden: isHidden)
-                .opacity(isGroup ? 1 : 0)
+            .opacity(itemViewModel.isGroup ? 1 : 0)
                 // .border(.green)
 //            }
   
@@ -169,19 +162,12 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
 
 
 struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
+    @State private var isBeingEditedAnimated = false
 
     let item: ItemViewModel
     let selectionState: SidebarSelectionObserver<ItemViewModel.ID>
-    let isGroup: Bool
-    let isClosed: Bool
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
     let isBeingEdited: Bool // is sidebar being edited?
-//    let isHidden: Bool
 
-    @State private var isBeingEditedAnimated = false
-    
     var body: some View {
 
 //        let id = item.id.asLayerNodeId
@@ -192,7 +178,7 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(item: item,
                                                        selectionState: selectionState,
-                                                       fontColor: fontColor,
+                                                       fontColor: item.fontColor,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 

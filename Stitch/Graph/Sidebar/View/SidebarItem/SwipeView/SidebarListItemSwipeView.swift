@@ -15,39 +15,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
-//    let layer: Layer
-    let isClosed: Bool
-
-//    init(graph: Bindable<GraphState>,
-//         item: SidebarListItem,
-//         name: String,
-//         layer: Layer,
-//         current: SidebarDraggedItem? = nil,
-//         proposedGroup: ProposedGroup? = nil,
-//         isClosed: Bool,
-//         selection: SidebarListItemSelectionStatus,
-//         isBeingEdited: Bool,
-//         activeGesture: Binding<SidebarListActiveGesture>,
-//         activeSwipeId: Binding<SidebarListItemId?> = .constant(nil)) {
-//        
-//        self._graph = graph
-//
-//        self.item = item
-//        self.name = name
-//        self.layer = layer
-//        self.current = current
-//        self.proposedGroup = proposedGroup
-//        self.isClosed = isClosed
-//        self.selection = selection
-//        self.isBeingEdited = isBeingEdited
-//        self._activeGesture = activeGesture
-//        self._activeSwipeId = activeSwipeId
-//
-//        self._gestureViewModel = StateObject(wrappedValue: SidebarItemGestureViewModel(item: item,
-//                                                                                       activeGesture: activeGesture,
-//                                                                                       activeSwipeId: activeSwipeId))
-//    }
-    
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
@@ -93,10 +60,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
                 itemViewModel: gestureViewModel,
-                name: gestureViewModel.name,
-//                layer: layer,
-                isClosed: isClosed,
-                swipeSetting: gestureViewModel.swipeSetting,
                 sidebarWidth: geometry.size.width)
             .onHover { hovering in
                 // log("hovering: sidebar item \(item.id.id)")

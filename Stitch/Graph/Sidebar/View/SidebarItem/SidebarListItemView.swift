@@ -17,20 +17,9 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
-    
-    var item: SidebarViewModel.ItemViewModel
-    let name: String
-//    let layer: Layer
-
-    let isClosed: Bool
-    
-    // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
-    let fontColor: Color
-
-//    let isHidden: Bool
-
+    @Bindable var item: SidebarViewModel.ItemViewModel
     let swipeOffset: CGFloat
-
+    
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
     }
@@ -44,9 +33,9 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     }
 
     // TODO: should be for *all* selected-layers during a drag
-    var isBeingDragged: Bool {
-        current.map { $0.current == item.id } ?? false
-    }
+//    var isBeingDragged: Bool {
+//        current.map { $0.current == item.id } ?? false
+//    }
 
     var isProposedGroup: Bool {
         proposedGroup?.parentId == item.id
@@ -70,13 +59,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
             SidebarListItemLeftLabelView(
                 graph: graph,
                 sidebarViewModel: sidebarViewModel,
-                itemViewModel: item,
-                name: name,
-//                layer: layer,
-                fontColor: fontColor,
-//                isHidden: isHidden,
-                isGroup: item.isGroup,
-                isClosed: isClosed)
+                itemViewModel: item)
             
 //            .padding(.leading)
                 .offset(x: -swipeOffset)
