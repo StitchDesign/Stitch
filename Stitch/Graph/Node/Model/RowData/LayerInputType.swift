@@ -1329,7 +1329,7 @@ extension LayerInputPort {
         case .isClipped:
             return "Clipped"
         case .orientation: // LayerGroup orientation
-            return "Autolayout"
+            return "Layout"
         case .padding:
             return "Padding"
         case .setupMode:
