@@ -136,7 +136,7 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
          instantDrag: Bool,
          graph: GraphState,
          itemId: SidebarViewModel.ItemID) {
-        
+        self.sidebarViewModel = sidebarViewModel
         self.gestureViewModel = gestureViewModel
         self.keyboardObserver = keyboardObserver
         self.instantDrag = instantDrag

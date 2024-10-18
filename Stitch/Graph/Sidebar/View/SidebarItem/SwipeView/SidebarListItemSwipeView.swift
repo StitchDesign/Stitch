@@ -17,7 +17,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     
 //    let layer: Layer
     let isClosed: Bool
-    let selection: SidebarListItemSelectionStatus
 
 //    init(graph: Bindable<GraphState>,
 //         item: SidebarListItem,
@@ -97,7 +96,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                 name: gestureViewModel.name,
 //                layer: layer,
                 isClosed: isClosed,
-                selection: selection,
                 swipeSetting: gestureViewModel.swipeSetting,
                 sidebarWidth: geometry.size.width)
             .onHover { hovering in

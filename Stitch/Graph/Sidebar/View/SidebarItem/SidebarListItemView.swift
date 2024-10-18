@@ -26,8 +26,6 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
 
 //    let isHidden: Bool
 
@@ -76,7 +74,6 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
                 name: name,
 //                layer: layer,
                 fontColor: fontColor,
-                selection: selection,
 //                isHidden: isHidden,
                 isGroup: item.isGroup,
                 isClosed: isClosed)

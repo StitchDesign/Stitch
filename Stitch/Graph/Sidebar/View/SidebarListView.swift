@@ -145,8 +145,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     var listView: some View {
         ScrollView(.vertical) {
             // use .topLeading ?
-            ZStack(alignment: .leading) {
-                
+            ZStack(alignment: .leading) {   
                 // HACK
                 if sidebarViewModel.items.isEmpty {
 //                    fakeSidebarListItem
@@ -154,16 +153,12 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                 }
                 
                 ForEach(sidebarViewModel.items) { item in
-                    let selection = sidebarViewModel.selectionState
-                        .getSelectionStatus(item.id)
-                    
                     SidebarListItemSwipeView(
                         graph: graph,
                         sidebarViewModel: sidebarViewModel,
                         gestureViewModel: item,
 //                        layer: layerNodesForSidebarDict[item.id.asLayerNodeId]?.layer ?? .rectangle,
-                        isClosed: sidebarViewModel.collapsedGroups.contains(item.id),
-                        selection: selection)
+                        isClosed: sidebarViewModel.collapsedGroups.contains(item.id))
                     .zIndex(item.zIndex) // TODO: replace wi
                     .transition(.move(edge: .top).combined(with: .opacity))
                 } // ForEach

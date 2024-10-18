@@ -53,7 +53,7 @@ struct InspectorFocusedData<ItemID: Hashable> {
 //    }
 //}
 
-// if a group is selected,
+@Observable
 final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
     

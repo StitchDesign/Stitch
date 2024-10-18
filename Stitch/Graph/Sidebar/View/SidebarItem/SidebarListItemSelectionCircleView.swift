@@ -14,17 +14,20 @@ struct SidebarListItemSelectionCircleView<Item>: View where Item: SidebarItemSwi
     private let SELECTION_CIRCLE = "circle"
 
     @Bindable var item: Item
+    @Bindable var selectionState: SidebarSelectionObserver<Item.ID>
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool
         
     var iconName: String {
         selection.isSelected
               ? self.SELECTION_CIRCLE_SELECTED
               : self.SELECTION_CIRCLE
+    }
+    
+    var selection: SidebarListItemSelectionStatus {
+        selectionState.getSelectionStatus(item.id)
     }
     
     var body: some View {

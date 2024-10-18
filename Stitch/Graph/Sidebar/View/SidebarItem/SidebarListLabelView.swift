@@ -22,7 +22,6 @@ struct SidebarListItemLeftLabelView<SidebarViewModel>: View where SidebarViewMod
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
     
-    let selection: SidebarListItemSelectionStatus
 //    let isHidden: Bool
     let isGroup: Bool
     let isClosed: Bool
@@ -172,13 +171,12 @@ struct SidebarListLabelEditView<ItemViewModel>: View where ItemViewModel: Sideba
 struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: SidebarItemSwipable {
 
     let item: ItemViewModel
+    let selectionState: SidebarSelectionObserver<ItemViewModel.ID>
     let isGroup: Bool
     let isClosed: Bool
     
     // white when layer is non-edit-mode selected; else determined by primary vs secondary selection status
     let fontColor: Color
-    
-    let selection: SidebarListItemSelectionStatus
     let isBeingEdited: Bool // is sidebar being edited?
 //    let isHidden: Bool
 
@@ -193,8 +191,8 @@ struct SidebarListItemRightLabelView<ItemViewModel>: View where ItemViewModel: S
             if isBeingEditedAnimated {
                 HStack(spacing: .zero) {
                     SidebarListItemSelectionCircleView(item: item,
+                                                       selectionState: selectionState,
                                                        fontColor: fontColor,
-                                                       selection: selection,
                                                        isBeingEdited: isBeingEdited)
                         .padding(.trailing, 4)
 

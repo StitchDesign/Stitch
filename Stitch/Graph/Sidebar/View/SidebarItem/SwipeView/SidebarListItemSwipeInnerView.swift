@@ -21,7 +21,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     let name: String
 //    let layer: Layer
     var isClosed: Bool
-    let selection: SidebarListItemSelectionStatus
     let swipeSetting: SidebarSwipeSetting
     let sidebarWidth: CGFloat
 
@@ -41,7 +40,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     
     var body: some View {
         HStack(spacing: .zero) {
-            
             // Main row hides if swipe menu exceeds threshold
             if showMainItem {
                 SidebarListItemView(graph: graph,
@@ -51,7 +49,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 //                                    layer: layer,
                                     isClosed: isClosed,
                                     fontColor: fontColor,
-                                    selection: selection,
 //                                    isHidden: isHidden,
                                     swipeOffset: swipeX)
                 .padding(.leading, itemIndent + 5)
@@ -64,10 +61,10 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                 .overlay(alignment: .trailing) {
                     SidebarListItemRightLabelView(
                         item: itemViewModel,
+                        selectionState: sidebarViewModel.selectionState,
                         isGroup: itemViewModel.isGroup,
                         isClosed: isClosed,
                         fontColor: fontColor,
-                        selection: selection,
                         isBeingEdited: isBeingEdited)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
                 }
