@@ -199,7 +199,10 @@ struct InputValueView: View {
                                  rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
                                  // TODO: perf implications? split into separate view?
-                                 choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId, nodeKind: nodeKind).map(\.rawValue),
+                                 choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId,
+                                                                                 nodeKind: nodeKind,
+                                                                                 layerInputObserver: layerInputObserver)
+                                    .map(\.rawValue),
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
