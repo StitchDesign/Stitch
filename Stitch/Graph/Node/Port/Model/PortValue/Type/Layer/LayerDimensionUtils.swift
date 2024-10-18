@@ -80,25 +80,37 @@ enum NonNumberLayerDimension: String, Equatable, Codable, CaseIterable {
 extension GraphState {
     @MainActor
     func getFilteredLayerDimensionChoices(nodeId: NodeId,
-                                          nodeKind: NodeKind) -> [NonNumberLayerDimension] {
+                                          nodeKind: NodeKind,
+                                          layerInputObserver: LayerInputObserver?) -> [NonNumberLayerDimension] {
         
-        LayerDimension.choicesAsNonNumberLayerDimension.filter { dimension in
-            
-            guard let layer = nodeKind.getLayer else {
-                // TODO: how to handle patch and group nodes' layer-dimension fields?
-                return true
-            }
-            
+        let allChoices = LayerDimension.choicesAsNonNumberLayerDimension
+        
+        // If we have a patch or group node input, show all layer-dimension choices
+        guard let layer = nodeKind.getLayer else {
+            // TODO: how to handle patch and group nodes' layer-dimension fields?
+            return allChoices
+        }
+        
+        // TODO: `layerInputObserver` is not passed down to layer inputs on the canvas?
+        if let layerInputObserver = layerInputObserver,
+            layerInputObserver.port == .minSize || layerInputObserver.port == .maxSize {
+            // Min and max size can only use `auto` (i.e. none), `static number` or `parent percentage`
+            return [.auto]
+        }
+                
+        // Note: `filter` so that choice order stays the same
+        return allChoices.filter { dimension in
             switch dimension {
             case  .fill:
+                // All layers support `fill`
                 return true
             case .auto:
                 return layer.canUseAutoLayerDimension
             case .hug:
-                // Show just if this is a layer group AND the layer group has orientation != ZStack
+                // Show `hug` just if this is a layer group AND the layer group has orientation != ZStack
                 let isLayerGroup = layer == .group
-                let usesHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort.activeValue.getOrientation?.canUseHug ?? false
-                return isLayerGroup && usesHug
+                let canUseHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort.activeValue.getOrientation?.canUseHug ?? false
+                return isLayerGroup && canUseHug
             }
         }
     }
