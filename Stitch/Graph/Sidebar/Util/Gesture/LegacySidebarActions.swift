@@ -244,7 +244,9 @@ extension ProjectSidebarObservable {
         // log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
         
         // TODO: remove this property, and use an `isBeingDragged` check in the UI instead?
-        item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
+        if item.zIndex != SIDEBAR_ITEM_MAX_Z_INDEX {
+            item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
+        }
         
         // First time this is called, we pass in ALL items
         let (newIndices,

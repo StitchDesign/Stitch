@@ -135,6 +135,11 @@ extension ProjectSidebarObservable {
             if !isDragEnded && item.id == originalItemId {
                 log("setYPositionByIndices: will not change originalItemId \(originalItemId)'s y-position until drag-is-ended")
             } else {
+                guard newY != item.location.y else {
+                    log("yo testing here")
+                    return
+                }
+                
                 item.location.y = newY
                 if isDragEnded {
                     print("setYPositionByIndices: drag ended, so resetting previous position")
