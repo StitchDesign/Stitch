@@ -162,6 +162,11 @@ func delayEval(node: PatchNode) -> EvalResult {
             // Condition passes if no previous value set
             if inputValue > (prevDelayInputValue ?? PortValue.number(-1 * .infinity)) {
                 createTimer()
+            } else {
+                // Otherwise, update the output right away
+                // Update prev value
+                timerObserver.prevDelayInputValue = inputValue
+                return [inputValue]
             }
 
         case .decreasing:
@@ -174,6 +179,11 @@ func delayEval(node: PatchNode) -> EvalResult {
                 createTimer()
                 // We create the timer, BUT ALSO IMMEDIATELY SEND
 
+            } else {
+                // Otherwise, update the output right away
+                // Update prev value
+                timerObserver.prevDelayInputValue = inputValue
+                return [inputValue]
             }
         }
 
