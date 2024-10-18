@@ -73,19 +73,49 @@ extension String {
     }
 }
 
+enum NonNumberLayerDimension: String, Equatable, Codable, CaseIterable {
+    case auto, fill, hug
+}
+
+extension GraphState {
+    @MainActor
+    func getFilteredLayerDimensionChoices(nodeId: NodeId,
+                                          nodeKind: NodeKind) -> [NonNumberLayerDimension] {
+        
+        LayerDimension.choicesAsNonNumberLayerDimension.filter { dimension in
+            
+            guard let layer = nodeKind.getLayer else {
+                // TODO: how to handle patch and group nodes' layer-dimension fields?
+                return true
+            }
+            
+            switch dimension {
+            case  .fill:
+                return true
+            case .auto:
+                return layer.canUseAutoLayerDimension
+            case .hug:
+                // Show just if this is a layer group AND the layer group has orientation != ZStack
+                let isLayerGroup = layer == .group
+                let usesHug = self.getLayerNode(id: nodeId)?.layerNode?.orientationPort.activeValue.getOrientation?.canUseHug ?? false
+                return isLayerGroup && usesHug
+            }
+        }
+    }
+}
+
 extension LayerDimension {
     
     // LayerDimension's dropdown choices excludes the numerical case
-    static let choices: [String] = [
-        LayerDimension.auto.description,
-        LayerDimension.fill.description,
-        LayerDimension.hug.description
-    ].map(\.description)
+    static let choicesAsNonNumberLayerDimension: [NonNumberLayerDimension] = NonNumberLayerDimension.allCases
+    
+    static let choices: [String] = Self.choicesAsNonNumberLayerDimension.map(\.rawValue)
     
     init(_ num: CGFloat) {
         self = .number(num)
     }
 
+    // TODO: restrict edits to the logic described in `getFilteredChoices` in `InputValueView`
     static func fromUserEdit(edit: String) -> LayerDimension? {
         if edit == .AUTO_SIZE_STRING {
             return .auto

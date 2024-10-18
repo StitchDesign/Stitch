@@ -81,7 +81,9 @@ struct SidebarGroupCreated: StitchDocumentEvent {
         // TODO: any reason to not use .auto x .auto for a nearly created group? ... perhaps for .background, which can become too big in a group whose children use .position modifiers?
         // TODO: how important is the LayerGroupFit.adjustment/offset etc. ?
 //        let assumedLayerGroupSize: LayerSize = groupFit.size
-        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
+//        let assumedLayerGroupSize: LayerSize = .init(width: .auto, height: .auto)
+        // Note: layer groups start out with `size = fill` rather than `size = hug` because orientation
+        let assumedLayerGroupSize: LayerSize = .init(width: .fill, height: .fill)
         
         // Update layer group's size input
         newNode.layerNode?.sizePort.updatePortValues([.size(assumedLayerGroupSize)])
