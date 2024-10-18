@@ -69,7 +69,10 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                         self.sidebarWidth = geometry.size.width
                     }
                     .onChange(of: geometry.size.width) { _, newWidth in
-                        self.sidebarWidth = newWidth
+                        if newWidth != self.sidebarWidth {
+                            log("sidebar width: \(newWidth)")
+                            self.sidebarWidth = newWidth
+                        }
                     }
             }
         }

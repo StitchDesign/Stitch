@@ -63,8 +63,9 @@ extension ProjectSidebarObservable {
             // TODO: update parent logic
 //            otherItem.parentId = nil
             
-            
-            otherItem.location.x = 0
+            if otherItem.location.x != 0 {
+                otherItem.location.x = 0
+            }
         }
         
         guard let updatedItem = self.retrieveItem(item.id) else {
