@@ -9,6 +9,15 @@ import SwiftUI
 import StitchSchemaKit
 
 extension StitchOrientation {
+    var canUseHug: Bool {
+        switch self {
+        case .horizontal, .vertical, .grid:
+            return true
+        case .none:
+            return false
+        }
+    }
+    
     var sfSymbol: String {
         switch self {
         case .none:
@@ -62,10 +71,9 @@ struct LayerGroupOrientationDropDownChoiceView: View {
         }
         .pickerStyle(.segmented)
         .scaledToFit()
-        .frame(width: 148, height: NODE_ROW_HEIGHT * 2)
+        .frame(width: 148, height: NODE_ROW_HEIGHT * 2, alignment: .trailing)
+        // .frame(width: 148, height: NODE_ROW_HEIGHT * 1.5, alignment: .trailing)
         .onChange(of: self.currentChoice) { oldValue, newValue in
-            log("onChange of self.currentChoice: oldValue: \(oldValue)")
-            log("onChange of self.currentChoice: newValue: \(newValue)")
 //            if let newChoice = StitchOrientation(rawValue: newValue) {
                 dispatch(PickerOptionSelected(input: self.id,
 //                                              choice: .orientation(newChoice),
