@@ -61,8 +61,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                     graph.calculate(pressIds)
                 }
             }
-            .exclusively(before:
-                            TapGesture()
+            .exclusively(before: TapGesture()
                 .onEnded {
                     if let pressIds = self.getPressInteractionIds() {
                         self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
@@ -110,6 +109,20 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
             .simultaneousGesture(self.dragGesture)
         
         // `TapGesture`s need to come AFTER `DragGesture`
-            .simultaneousGesture(self.tapGesture)
-    } 
+//            .simultaneousGesture(self.tapGesture)
+            .simultaneousGesture(TapGesture(count: 2).onEnded({
+                log("double tap")
+                if let pressIds = self.getPressInteractionIds() {
+                    self.interactiveLayer.secondPressEnded = document.graphStepState.graphTime
+                    graph.calculate(pressIds)
+                }
+            }))
+            .simultaneousGesture(TapGesture(count: 1).onEnded({
+                log("single tap")
+                if let pressIds = self.getPressInteractionIds() {
+                    self.interactiveLayer.firstPressEnded = document.graphStepState.graphTime
+                    graph.calculate(pressIds)
+                }
+            }))
+    }
 }

@@ -81,9 +81,14 @@ actor PressInteractionActor {
                   graph: GraphDelegate,
                   loopIndex: Int,
                   createNewValues: @escaping (TimeInterval) -> PortValues) async throws {
+        log("PressInteractionActor: delayTap: newTapTime: \(newTapTime)")
         let delayInNanoseconds = delayValue * Double(nanoSecondsInSecond)
-        try await Task.sleep(nanoseconds: UInt64(delayInNanoseconds))
-        DispatchQueue.main.async { [weak graph, weak pressNode] in
+        log("PressInteractionActor: delayTap: delayValue: \(delayValue)")
+        log("PressInteractionActor: delayTap: delayInNanoseconds: \(delayInNanoseconds)")
+        
+//        try await Task.sleep(nanoseconds: UInt64(delayInNanoseconds))
+//        DispatchQueue.main.async { [weak graph, weak pressNode] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + delayValue) { [weak graph, weak pressNode] in
             guard let graph = graph,
                   let pressNode = pressNode else {
                       return
