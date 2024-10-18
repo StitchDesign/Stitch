@@ -27,12 +27,26 @@ extension Layer {
      
      Note: for now, we consider media layers to NOT have an inherent SwiftUI size, although the resource has an inherent size.
      */
+    // TODO: treat media as having inherent-size?
     var hasInherentSwiftUISize: Bool {
         switch self {
         case .text, .textField, .progressIndicator, .switchLayer:
             return true
         case .oval, .rectangle, .image, .group, .video, .model3D, .realityView, .shape, .colorFill, .hitArea, .canvasSketch, .map, .linearGradient, .radialGradient, .angularGradient, .sfSymbol, .videoStreaming, .material:
             return false
+        }
+    }
+    
+    var canUseAutoLayerDimension: Bool {
+        if self.hasInherentSwiftUISize {
+            return true
+        } else {
+            switch self {
+            case .image, .video, .videoStreaming:
+                return true
+            default:
+                return false
+            }
         }
     }
 }
