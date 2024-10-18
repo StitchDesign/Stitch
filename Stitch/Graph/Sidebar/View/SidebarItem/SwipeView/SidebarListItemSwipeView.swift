@@ -11,6 +11,8 @@ import StitchSchemaKit
 struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     typealias ItemViewModel = SidebarViewModel.ItemViewModel
     
+    @State private var sidebarWidth: Double = .zero
+    
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
@@ -52,27 +54,36 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             }
         }
     }
-
+    
     // TODO: retrieve sidebar-width via a GeometryReader on whole sidebar rather than each individual item
     var customSwipeItem: some View {
-        GeometryReader { geometry in
-            SidebarListItemSwipeInnerView(
-                graph: graph,
-                sidebarViewModel: sidebarViewModel,
-                itemViewModel: gestureViewModel,
-                sidebarWidth: geometry.size.width)
-            .onHover { hovering in
-                // log("hovering: sidebar item \(item.id.id)")
-                // log("hovering: \(hovering)")
-                if hovering {
-                    self.gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id)
-                } else {
-                    self.gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
-                }
+        SidebarListItemSwipeInnerView(
+            graph: graph,
+            sidebarViewModel: sidebarViewModel,
+            itemViewModel: gestureViewModel,
+            sidebarWidth: self.sidebarWidth)
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        self.sidebarWidth = geometry.size.width
+                    }
+                    .onChange(of: geometry.size.width) { _, newWidth in
+                        self.sidebarWidth = newWidth
+                    }
             }
-            .padding(1) // ensures .clipped doesn't cut off proposed-group border
-            .clipped() // ensures edit buttons don't animate outside sidebar
         }
+        .onHover { hovering in
+            // log("hovering: sidebar item \(item.id.id)")
+            // log("hovering: \(hovering)")
+            if hovering {
+                self.gestureViewModel.sidebarLayerHovered(itemId: gestureViewModel.id)
+            } else {
+                self.gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
+            }
+        }
+        .padding(1) // ensures .clipped doesn't cut off proposed-group border
+        .clipped() // ensures edit buttons don't animate outside sidebar
     }
 }
 
