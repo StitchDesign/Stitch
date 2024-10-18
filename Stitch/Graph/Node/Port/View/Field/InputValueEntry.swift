@@ -198,7 +198,8 @@ struct InputValueView: View {
                                  fieldCoordinate: fieldCoordinate,
                                  rowObserverCoordinate: rowObserverId,
                                  isCanvasItemSelected: isCanvasItemSelected,
-                                 choices: LayerDimension.choices,
+                                 // TODO: perf implications? split into separate view?
+                                 choices: graph.getFilteredLayerDimensionChoices(nodeId: fieldCoordinate.rowId.nodeId, nodeKind: nodeKind).map(\.rawValue),
                                  adjustmentBarSessionId: adjustmentBarSessionId,
                                  forPropertySidebar: forPropertySidebar,
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
