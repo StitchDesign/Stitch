@@ -14,12 +14,15 @@ struct CatalystNavBarTitleEditField: View {
 
     @FocusState var focus: Bool
     
+    @State var edit = ""
+    
     var body: some View {
-        TextField("", text: $graph.name)
+//        TextField("", text: $graph.name)
+        TextField("", text: self.$edit)
             .focused(self.$focus)
-            .autocorrectionDisabled()
-            .modifier(SelectAllTextViewModifier())
-            .modifier(NavigationTitleFontViewModifier())
+//            .autocorrectionDisabled()
+//            .modifier(SelectAllTextViewModifier())
+//            .modifier(NavigationTitleFontViewModifier())
             .padding(6)
         
             // worked well with Sonoma 14.3 and earlier
@@ -34,7 +37,14 @@ struct CatalystNavBarTitleEditField: View {
             // ... setting an explicit width seems necessary to prevent the text field from covering the back-button during a long title edit
             .width(260)
         
-            .overlay { fieldHighlight }
+//            .overlay { fieldHighlight }
+            .onAppear {
+                self.edit = self.graph.name
+            }
+            .onChange(of: self.edit) { oldValue, newValue in
+                log("CatalystNavBarTitleEditField: .onChange(of: self.edit): oldValue: \(oldValue)")
+                log("CatalystNavBarTitleEditField: .onChange(of: self.edit): newValue: \(newValue)")
+            }
             .onChange(of: self.focus) { oldValue, newValue in
                 log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
                 log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
@@ -46,8 +56,10 @@ struct CatalystNavBarTitleEditField: View {
                     dispatch(ReduxFieldFocused(focusedField: .projectTitle))
                 } else {
                     // log("CatalystNavBarTitleEditField: defocused, so will commit")
+                    self.graph.name = self.edit
                     graph.name = graph.name.validateProjectTitle()
                     dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
+                    
                     // Commit project name to disk
                     graph.encodeProjectInBackground()
                     
