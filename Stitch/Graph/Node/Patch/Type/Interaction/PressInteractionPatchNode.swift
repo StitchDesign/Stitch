@@ -23,6 +23,7 @@ struct PressInteractionNode: PatchNodeDefinition {
                     defaultValues: [.bool(true)],
                     label: "Enabled"
                 ),
+                // TODO: remove this input? (We rely on SwiftUI's double-tap timing). Requires a migration
                 .init(
                     defaultValues: [.number(0.3)],
                     label: "Delay"
@@ -122,63 +123,45 @@ func pressInteractionOp(pressNode: NodeViewModel,
                         loopIndex: Int,
                         interactiveLayer: InteractiveLayer,
                         graph: GraphDelegate) -> ImpureEvalOpResult {
+        
     let isEnabled = values[safe: 1]?.getBool ?? false
-    let delayValue = values[safe: 2]?.getNumber ?? .zero
-    let prevTapTime = evalObserver.prevTapTime ?? .zero
-    let prevValueTapTime = values[safe: 4]?.getPulse ?? .zero
-    
-    let newTapTime: TimeInterval = interactiveLayer.firstPressEnded ?? .zero
-    let newDoubleTapTime: TimeInterval = interactiveLayer.secondPressEnded ?? .zero
-    
-    let registeredNewTap = prevTapTime != newTapTime
-    let hasDelay = delayValue != .zero
-    // Create delay task if nonzero delay, not loading already, and new tap
-    let willDelayTap = hasDelay && registeredNewTap // && !evalObserver.isLoading
-    let tapPosition = interactiveLayer.lastTappedLocation ?? .zero
-    let dragVelocity = interactiveLayer.dragVelocity.toLayerSize
-    let dragTranslation = interactiveLayer.dragTranslation.toLayerSize
     
     guard isEnabled else {
         return .init(outputs: pressNode.defaultOutputs)
     }
     
-    // state.isDown:
-    // set true anytime we've received a LayerDragged event,
-    // set false anytime we receive a LayerDragEnded event
+    let tapPosition = interactiveLayer.lastTappedLocation ?? .zero
+    let dragVelocity = interactiveLayer.dragVelocity.toLayerSize
+    let dragTranslation = interactiveLayer.dragTranslation.toLayerSize
+    
+    let wasSingleTapped = interactiveLayer.singleTapped
+    let wasDoubleTapped = interactiveLayer.doubleTapped
+    
+    let currentGraphTime = graph.graphStepState.graphTime
+    
+    // Set true anytime we've received a LayerDragged event,
+    // Set false anytime we receive a LayerDragEnded event
     let isDown = interactiveLayer.isDown
+  
+    let newValues: PortValues = [
+        .bool(isDown), // Down
+        // TODO: use previous single/double-tap time, instead of .zero, if there was no pulse?
+        .pulse(wasSingleTapped ? currentGraphTime : .zero), // Tapped
+        .pulse(wasDoubleTapped ? currentGraphTime : .zero), // Doubled Tapped
+        .position(tapPosition), // Position
+        .size(dragVelocity), // Velocity
+        .size(dragTranslation) // Translation
+    ]
     
-    let createNewValues = { @Sendable (_tapTimeToDisplay: TimeInterval) -> PortValues in
-        [
-            .bool(isDown), // Down
-            .pulse(_tapTimeToDisplay), // Tapped
-            .pulse(newDoubleTapTime), // Doubled Tapped
-            .position(tapPosition), // Position
-            .size(dragVelocity), // Velocity
-            .size(dragTranslation) // Translation
-        ]
+    // Can we change the values on the interactive layer from inside this eval? or do we need to return an updated ephemeral state ?
+    // TODO: are we guaranteed to run this press node's eval immediately after updating its singleTapped/doubleTapped value is updated? e.g. can we encounter a scenario where this press node's eval runs for a single-tap, but we've also scheduled an eval after a double-tap, and the single-tap eval run sets the double-tap false?
+    if wasSingleTapped {
+        interactiveLayer.singleTapped = false
     }
     
-    if willDelayTap {
-        evalObserver.prevTapTime = newTapTime
-        
-        Task(priority: .high) { [weak evalObserver, weak graph] in
-            guard let evalObserver = evalObserver,
-                  let graph = graph else {
-                return
-            }
-            
-            try? await evalObserver.actor.delayTap(delayValue: delayValue,
-                                                   newTapTime: newTapTime,
-                                                   pressNode: pressNode,
-                                                   evalObserver: evalObserver,
-                                                   graph: graph,
-                                                   loopIndex: loopIndex,
-                                                   createNewValues: createNewValues)
-        }
+    if wasDoubleTapped {
+        interactiveLayer.doubleTapped = false
     }
     
-    // Use last known press immediately if no delay, else use previous output value
-    // letting the timer set the output
-    let tapTimeToDisplay = hasDelay ? prevValueTapTime : newTapTime
-    return ImpureEvalOpResult(outputs: createNewValues(tapTimeToDisplay))
+    return ImpureEvalOpResult(outputs: newValues)
 }
