@@ -289,14 +289,24 @@ extension ProjectSidebarObservable {
 //
         
         
-        if isNewDrag {
+        guard !isNewDrag else {
             // TODO: If new drag, re-arrange groups and delete
             
             self.currentItemDragged = item.id
             
+            // TODO: filter selected items given groups
+            
+            // Move items to dragged item
+            self.movedDraggedItems(allDraggedItems,
+                                   to: originalItemIndex)
+
+            // Set up previous drag position, which we'll increment off of
             allDraggedItems.forEach { item in
                 item.prevYDrag = CGFloat(SidebarItemGestureViewModel.inferLocationY(from: item.sidebarIndex.rowIndex))
+                item.yDrag = item.prevYDrag
             }
+            
+            return
         }
         
         allDraggedItems.forEach { draggedItem in
@@ -321,16 +331,10 @@ extension ProjectSidebarObservable {
             return
         }
         
+        log("new index: \(calculatedIndex)")
         if originalItemIndex != calculatedIndex {
-            log("calculatedIndex: \(calculatedIndex)\toriginalItemIndex: \(originalItemIndex)")
-            let indexOffsets = IndexSet([originalItemIndex])
-            self.items.move(fromOffsets: indexOffsets,
-                            toOffset: calculatedIndex)
-            
-            self.items.updateSidebarIndices()
-            
-            // TODO: should only be for layers sidebar
-            self.graphDelegate?.updateOrderedPreviewLayers()
+            self.movedDraggedItems(allDraggedItems,
+                                   to: calculatedIndex)
         }
         
 ////        self.maybeMoveIndices(
@@ -352,6 +356,18 @@ extension ProjectSidebarObservable {
 //            draggedAlong: draggedAlong)
 //        
 //        return draggedAlong
+    }
+    
+    @MainActor
+    func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
+                           to index: Int) {
+        let indexOffsets = IndexSet(draggedItems.map { $0.sidebarIndex.rowIndex })
+        self.items.move(fromOffsets: indexOffsets,
+                        toOffset: index)
+        self.items.updateSidebarIndices()
+        
+        // TODO: should only be for layers sidebar
+        self.graphDelegate?.updateOrderedPreviewLayers()
     }
 }
 
@@ -385,11 +401,11 @@ extension ProjectSidebarObservable {
         }
         
         let item = state.items.first { $0.id == itemId }
-        guard let item = item else {
-            // if we couldn't find the item, it's been deleted
-             log("SidebarListItemDragEnded: item \(itemId) was already deleted")
-            return
-        }
+//        guard let item = item else {
+//            // if we couldn't find the item, it's been deleted
+//             log("SidebarListItemDragEnded: item \(itemId) was already deleted")
+//            return
+//        }
         
         self.items.forEach {
             $0.yDrag = nil

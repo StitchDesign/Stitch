@@ -199,7 +199,7 @@ extension SidebarItemSwipable {
     }
     
     var isBeingDragged: Bool {
-        self.sidebarDelegate?.currentItemDragged != nil
+        self.sidebarDelegate?.currentItemDragged == self.id
     }
     
     var isCollapsedGroup: Bool {
