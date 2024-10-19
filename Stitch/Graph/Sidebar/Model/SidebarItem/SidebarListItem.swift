@@ -40,13 +40,13 @@ import StitchSchemaKit
 ////    }
 //}
 
-extension SidebarItemSwipable {
-    // use previousLocation, which is not changed during drag,
-    // to know the item's indentation before being dragged.
-    var indentationLevel: IndentationLevel {
-        IndentationLevel.fromXLocation(x: self.previousLocation.x)
-    }
-}
+//extension SidebarItemSwipable {
+//    // use previousLocation, which is not changed during drag,
+//    // to know the item's indentation before being dragged.
+//    var indentationLevel: IndentationLevel {
+//        IndentationLevel.fromXLocation(x: self.previousLocation.x)
+//    }
+//}
 
 extension Identifiable {
     // this item's index

@@ -31,53 +31,53 @@ import StitchSchemaKit
 
 // if nil, then the 'proposed group' is top level
 // and xIdentation = 0
-struct ProposedGroup<ItemId: Equatable>: Equatable {
+//struct ProposedGroup<ItemId: Equatable>: Equatable {
+//
+//    let parentId: ItemId
+//    let xIndentation: CGFloat
+//
+//    var indentationLevel: IndentationLevel {
+//        IndentationLevel.fromXLocation(x: xIndentation)
+//    }
+//}
+//
+//struct IndentationLevel: Equatable {
+//    let value: Int
+//
+//    init(_ value: Int) {
+//        self.value = value
+//    }
+//
+//    func inc() -> IndentationLevel {
+//        IndentationLevel(self.value + 1)
+//    }
+//
+//    func dec() -> IndentationLevel {
+//        IndentationLevel(self.value - 1)
+//    }
+//
+//    static func fromXLocation(x: CGFloat) -> IndentationLevel {
+//        IndentationLevel(Int(x / CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
+//    }
+//
+//    var toXLocation: CGFloat {
+//        CGFloat(self.value * CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
+//    }
+//}
 
-    let parentId: ItemId
-    let xIndentation: CGFloat
-
-    var indentationLevel: IndentationLevel {
-        IndentationLevel.fromXLocation(x: xIndentation)
-    }
-}
-
-struct IndentationLevel: Equatable {
-    let value: Int
-
-    init(_ value: Int) {
-        self.value = value
-    }
-
-    func inc() -> IndentationLevel {
-        IndentationLevel(self.value + 1)
-    }
-
-    func dec() -> IndentationLevel {
-        IndentationLevel(self.value - 1)
-    }
-
-    static func fromXLocation(x: CGFloat) -> IndentationLevel {
-        IndentationLevel(Int(x / CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
-    }
-
-    var toXLocation: CGFloat {
-        CGFloat(self.value * CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
-    }
-}
-
-struct SidebarDraggedItem<ItemID: Hashable> {
-    // directly dragged
-    var current: ItemID
-
-    // layers dragged along as part of children or which were otherwise explcitly-selected etc.
-    var draggedAlong: Set<ItemID>
-}
+//struct SidebarDraggedItem<ItemID: Hashable> {
+//    // directly dragged
+//    var current: ItemID
+//
+//    // layers dragged along as part of children or which were otherwise explcitly-selected etc.
+//    var draggedAlong: Set<ItemID>
+//}
 
 //typealias SidebarListItems = [SidebarListItem]
 
 // parentId: [children in order]
 //typealias ExcludedGroupsData<ItemViewModel: SidebarItemSwipable> = [ItemViewModel.ID: [ItemViewModel]]
-typealias SidebarListItemIdSet = Set<SidebarListItemId>
+//typealias SidebarListItemIdSet = Set<SidebarListItemId>
 //typealias CollapsedGroups = SidebarListItemIdSet
 
 // TODO: better name or abstraction here?
@@ -117,14 +117,15 @@ typealias SidebarListItemIdSet = Set<SidebarListItemId>
 // We must keep track of the gesture's x-translation
 // without changing the x-position of the being-dragged-item
 // (which is controlled by `snapDescendants`).
-struct SidebarCursorHorizontalDrag<ItemViewModel> where ItemViewModel: SidebarItemSwipable {
-    var x: CGFloat
-    var previousX: CGFloat
-
-    // called at start of a drag gesture
-    @MainActor
-    static func fromItem(_ item: ItemViewModel) -> Self {
-        SidebarCursorHorizontalDrag(x: item.location.x,
-                                    previousX: item.previousLocation.x)
-    }
-}
+//struct SidebarCursorHorizontalDrag<ItemViewModel> where ItemViewModel: SidebarItemSwipable {
+//    var x: CGFloat
+//    var previousX: CGFloat
+//
+//    // called at start of a drag gesture
+//    @MainActor
+//    static func fromItem(_ item: ItemViewModel,
+//                         previousXLocation: Double) -> Self {
+//        SidebarCursorHorizontalDrag(x: item.location.x,
+//                                    previousX: previousXLocation)
+//    }
+//}

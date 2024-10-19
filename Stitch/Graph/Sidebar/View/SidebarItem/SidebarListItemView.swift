@@ -23,12 +23,12 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
     }
+//    
+//    var current: SidebarViewModel.ItemViewModel? {
+//        self.sidebarViewModel.currentItemDragged
+//    }
     
-    var current: SidebarDraggedItem<ItemID>? {
-        self.sidebarViewModel.currentItemDragged
-    }
-    
-    var proposedGroup: ProposedGroup<ItemID>? {
+    var proposedGroup: ItemID? {
         self.sidebarViewModel.proposedGroup
     }
 
@@ -38,7 +38,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
 //    }
 
     var isProposedGroup: Bool {
-        proposedGroup?.parentId == item.id
+        proposedGroup == item.id
     }
     
     var isNonEditModeFocused: Bool {

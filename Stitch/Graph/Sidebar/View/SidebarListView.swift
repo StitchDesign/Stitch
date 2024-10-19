@@ -139,6 +139,14 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         }
     }
     
+//    var allItems: [SidebarObservable.ItemViewModel] {
+//        if let draggedItem = sidebarViewModel.currentItemDragged {
+//            return [draggedItem] + sidebarViewModel.items
+//        }
+//        
+//        return sidebarViewModel.items
+//    }
+    
     // Note: sidebar-list-items is a flat list;
     // indentation is handled by calculated indentations.
     @MainActor
@@ -152,13 +160,21 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
                     Color.clear
                 }
                 
-                ForEach(sidebarViewModel.items) { item in
+                ForEach(self.sidebarViewModel.items) { item in
                     SidebarListItemSwipeView(
                         graph: graph,
                         sidebarViewModel: sidebarViewModel,
                         gestureViewModel: item)
-                    .zIndex(item.zIndex) // TODO: replace wi
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                    
+                    if let children = item.children,
+                       item.isExpandedInSidebar ?? false {
+                        ForEach(children) { child in
+                            SidebarListItemSwipeView(
+                                graph: graph,
+                                sidebarViewModel: sidebarViewModel,
+                                gestureViewModel: child)
+                        }
+                    }
                 } // ForEach
                 
             } // ZStack
@@ -190,9 +206,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 #endif
         // TODO: remove some of these animations ?
         .animation(.spring(), value: isBeingEdited)
-        .animation(.spring(), value: sidebarViewModel.proposedGroup)
+//        .animation(.spring(), value: sidebarViewModel.proposedGroup)
 //        .animation(.spring(), value: sidebarDeps)
-        .animation(.easeIn, value: sidebarViewModel.items)
+//        .animation(.easeIn, value: sidebarViewModel.items)
         
         .onChange(of: isBeingEdited) { _, newValue in
             // This handler enables all animations
@@ -239,20 +255,21 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
     typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
     typealias ExcludedGroups = [ItemID: [ItemViewModel]]
-    typealias HorizontalDrag = SidebarCursorHorizontalDrag<ItemViewModel>
+//    typealias HorizontalDrag = SidebarCursorHorizontalDrag<ItemViewModel>
     
     var isEditing: Bool { get set }
     var items: [ItemViewModel] { get set }
     
-    var proposedGroup: ProposedGroup<ItemID>? { get set }
-    var cursorDrag: HorizontalDrag? { get set }
+    var proposedGroup: ItemID? { get set }
+//    var cursorDrag: Double? { get set }
     
     var selectionState: SidebarSelectionState { get set }
 
     var activeSwipeId: ItemID? { get set }
     var activeGesture: SidebarListActiveGesture<ItemID> { get set }
     var implicitlyDragged: Set<ItemID> { get set }
-    var currentItemDragged: SidebarDraggedItem<ItemID>? { get set }
+    var currentItemDragged: Self.ItemID? { get set }
+    
     var graphDelegate: GraphState? { get set }
     
 //    init(from encodedData: [Self.EncodedItemData])
@@ -356,39 +373,32 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor func createdOrderedEncodedData() -> [Self.EncodedItemData] {
-        var items = self.items[...] // enables popFirst
-        var encodableData = [Self.EncodedItemData]()
-        
-        while let item = items.popFirst() {
-            let newEncodableItem = Self.createEncodableItem(for: item,
-                                                            itemsQueue: &items)
-            encodableData.append(newEncodableItem)
+        self.items.map { item in
+            item.createSchema()
         }
-        
-        return encodableData
     }
     
-    @MainActor private static func createEncodableItem(for item: Self.ItemViewModel,
-                                                       itemsQueue: inout ArraySlice<Self.ItemViewModel>) -> Self.EncodedItemData {
-        // Child case
-        guard item.isGroup else {
-            return .init(id: item.id,
-                         children: nil,
-                         isExpandedInSidebar: nil)
-        }
-    
-        // Find children view models and remove from list as to not duplicate
-        let childrenViewModels = itemsQueue.filter { $0.parentId == item.id }
-        let childrenIds = childrenViewModels.map(\.id)
-        itemsQueue.removeAll(where: { childrenIds.contains($0.id) })
-        
-        let encodableChildren = childrenViewModels.map { Self.createEncodableItem(for: $0,
-                                                                                  itemsQueue: &itemsQueue) }
-        return .init(id: item.id,
-                     children: encodableChildren,
-                     isExpandedInSidebar: item.isExpandedInSidebar)
-    }
-    
+//    @MainActor private func createEncodableItem(for item: Self.ItemViewModel,
+//                                                itemsAtHierarchy: [Self.ItemViewModel]) -> Self.EncodedItemData {
+//        // Child case
+//        guard item.isGroup else {
+//            return .init(id: item.id,
+//                         children: nil,
+//                         isExpandedInSidebar: nil)
+//        }
+//    
+//        // Find children view models and remove from list as to not duplicate
+//        let childrenViewModels = itemsQueue.filter { $0.parentId == item.id }
+//        let childrenIds = childrenViewModels.map(\.id)
+//        itemsQueue.removeAll(where: { childrenIds.contains($0.id) })
+//        
+//        let encodableChildren = childrenViewModels.map { Self.createEncodableItem(for: $0,
+//                                                                                  itemsQueue: &itemsQueue) }
+//        return .init(id: item.id,
+//                     children: encodableChildren,
+//                     isExpandedInSidebar: item.isExpandedInSidebar)
+//    }
+//
     func update(from encodedData: [Self.EncodedItemData]) {
         self.sync(from: encodedData)
     }
@@ -400,56 +410,38 @@ extension ProjectSidebarObservable {
         
         self.items = self.recursiveSync(elements: encodedData,
                                         existingViewModels: existingViewModels)
+        self.items.updateSidebarIndices()
     }
     
     func recursiveSync(elements: [Self.EncodedItemData],
                        existingViewModels: [Self.ItemID : Self.ItemViewModel],
-                       currentNestingLevel: Int = 0,
-                       parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
-        // Tracks row counter
-        var currentRowIndex = 0
-        return self.recursiveSync(elements: elements,
-                                  existingViewModels: existingViewModels,
-                                  currentRowIndex: &currentRowIndex)
-    }
-    
-    private func recursiveSync(elements: [Self.EncodedItemData],
-                               existingViewModels: [Self.ItemID : Self.ItemViewModel],
-                               currentRowIndex: inout Int,
-                               currentNestingLevel: Int = 0,
-                               parentId: Self.ItemID? = nil) -> [Self.ItemViewModel] {
-        elements.flatMap { element in
-            let newLocation = Self.setLocation(rowIndex: currentRowIndex,
-                                               nestingLevel: currentNestingLevel)
-            // Increment row index for future elements
-            currentRowIndex += 1
-
-            let viewModel = existingViewModels[element.id] ?? .init(id: element.id,
-                                                                    location: newLocation,
-                                                                    parentId: parentId,
+                       parent: Self.ItemViewModel? = nil) -> [Self.ItemViewModel] {
+        elements.map { element in
+            let viewModel = existingViewModels[element.id] ?? .init(data: element,
+                                                                    parentDelegate: parent,
                                                                     sidebarViewModel: self)
             
-            viewModel.location = newLocation
-            viewModel.parentId = parentId
+            viewModel.update(from: element)
             
-            if let children = element.children {
-                let childrenViewModels = self.recursiveSync(elements: children,
-                                                            existingViewModels: existingViewModels,
-                                                            currentRowIndex: &currentRowIndex,
-                                                            currentNestingLevel: currentNestingLevel + 1,
-                                                            parentId: element.id)
-                return [viewModel] + childrenViewModels
+            guard let children = element.children else {
+                viewModel.children = nil
+                viewModel.isExpandedInSidebar = nil
+                return viewModel
             }
             
-            return [viewModel]
+            let childrenViewModels = self.recursiveSync(elements: children,
+                                                        existingViewModels: existingViewModels,
+                                                        parent: viewModel)
+            viewModel.children = childrenViewModels
+            return viewModel
         }
     }
     
-    static func setLocation(rowIndex: Int,
-                            nestingLevel: Int) -> CGPoint {
-        .init(x: CUSTOM_LIST_ITEM_INDENTATION_LEVEL * nestingLevel,
-              y: CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex)
-    }
+//    static func setLocation(rowIndex: Int,
+//                            nestingLevel: Int) -> CGPoint {
+//        .init(x: CUSTOM_LIST_ITEM_INDENTATION_LEVEL * nestingLevel,
+//              y: CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex)
+//    }
 }
 
 @Observable
@@ -464,11 +456,11 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var activeSwipeId: NodeId?
     var activeGesture: SidebarListActiveGesture<NodeId> = .none
     var implicitlyDragged = NodeIdSet()
-    var currentItemDragged: SidebarDraggedItem<NodeId>? = nil
+    var currentItemDragged: NodeId?
 //    var excludedGroups: [NodeId : [SidebarItemGestureViewModel]] = .init()
 //    var expandedSidebarItems: Set<NodeId> = .init()
-    var proposedGroup: ProposedGroup<NodeId>?
-    var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
+    var proposedGroup: NodeId?
+//    var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
 //    var collapsedGroups: Set<NodeId> = .init()
     
     weak var graphDelegate: GraphState?

@@ -23,7 +23,9 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
-    var itemIndent: CGFloat { itemViewModel.location.x }
+    var itemIndent: CGFloat {
+        CGFloat(itemViewModel.sidebarIndex.groupIndex * CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
+    }
     
     var body: some View {
         HStack(spacing: .zero) {

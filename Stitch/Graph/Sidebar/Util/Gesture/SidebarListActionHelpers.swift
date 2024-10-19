@@ -21,41 +21,34 @@ extension ProjectSidebarObservable {
 //        }
 //    }
     
-    @MainActor
-    func updateAllZIndices(itemId: Self.ItemID,
-                           draggedAlong: Set<Self.ItemID>) {
-        self.items.forEach {
-            if ($0.id == itemId) || draggedAlong.contains($0.id) {
-                $0.zIndex = SIDEBAR_LIST_ITEM_MAX_Z_INDEX
-            }
-        }
-    }
-    
+//    @MainActor
+//    func updateAllZIndices(itemId: Self.ItemID,
+//                           draggedAlong: Set<Self.ItemID>) {
+//        self.items.forEach {
+//            if ($0.id == itemId) || draggedAlong.contains($0.id) {
+//                $0.zIndex = SIDEBAR_LIST_ITEM_MAX_Z_INDEX
+//            }
+//        }
+//    }
+//    
     @MainActor
     func setItemsInGroupOrTopLevel(item: Self.ItemViewModel,
                                    otherSelections: Set<Self.ItemID>,
-                                   draggedAlong: Set<Self.ItemID>,
-                                   cursorDrag: Self.HorizontalDrag) {
+                                   draggedAlong: Set<Self.ItemID>) {
         
         // set all dragged items' z-indices to max
-        self.updateAllZIndices(
-            itemId: item.id,
-            draggedAlong:
-                draggedAlong)
+//        self.updateAllZIndices(
+//            itemId: item.id,
+//            draggedAlong:
+//                draggedAlong)
         
         // Propose a group based on the dragged item (in Stack case, will be Stack's top item)
-        let proposed = self.proposeGroup(
-            item,
-            draggedAlong.count,
-            cursorDrag: cursorDrag)
+        let proposed = self.proposeGroup(item)
         
-        let beingDragged = SidebarDraggedItem(current: item.id,
-                                              draggedAlong: draggedAlong)
-        
-        log("setItemsInGroupOrTopLevel: beingDragged: \(beingDragged)")
+//        let beingDragged = SidebarDraggedItem(current: item.id,
+//                                              draggedAlong: draggedAlong)
         
         if let proposed = proposed {
-            log("setItemsInGroupOrTopLevel: had proposed: \(proposed)")
             self.moveSidebarListItemIntoGroup(item,
                                               otherSelections: otherSelections,
                                               draggedAlong: draggedAlong,
@@ -67,9 +60,12 @@ extension ProjectSidebarObservable {
         // 2. set item's parent to nil
         else {
             log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
-            self.moveSidebarListItemToTopLevel(item,
-                                               otherSelections: otherSelections,
-                                               draggedAlong: draggedAlong)
+//            self.items.remove(item.id)
+            self.items.append(item)
+
+//            self.moveSidebarListItemToTopLevel(item,
+//                                               otherSelections: otherSelections,
+//                                               draggedAlong: draggedAlong)
         }
         
 //        self.currentItemDragged = result.beingDragged
@@ -79,74 +75,74 @@ extension ProjectSidebarObservable {
     
     // We've moved the item up or down (along with its children);
     // did we move it enough to have a new index placement for it?
+//    @MainActor
+//    func calculateNewIndexOnDrag(item: Self.ItemViewModel,
+//                                 otherSelections: Set<ItemID>,
+////                                 draggedAlong: Set<ItemID>,
+//                                 movingDown: Bool) -> Int {
+////                                 originalItemIndex: Int,
+////                                 movedIndices: [Int]) -> Int {
+//        
+////        let maxMovedToIndex = self.items.count - 1
+//        
+////        self.getMaxMovedToIndex(
+////            item: item,
+////            otherSelections: otherSelections,
+////            draggedAlong: draggedAlong)
+//        
+//        let calculatedIndex = self.getMovedtoIndex(
+//            item: item,
+////            maxIndex: maxMovedToIndex,
+//            movingDown: movingDown)
+//        
+//        // log("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
+//        // log("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
+//        
+//        // Is this really correct?
+//        // i.e. shouldn't this be the `maxMovedToIndex` ?
+//        // er, this is like "absolute max index", looking at ALL items in the list
+////        let maxIndex = items.count - 1
+//        
+//        // Can't this be combined with something else?
+////        calculatedIndex = adjustMoveToIndex(
+////            calculatedIndex: calculatedIndex,
+////            originalItemIndex: originalItemIndex,
+////            movedIndices: movedIndices,
+////            maxIndex: maxIndex)
+//        
+//        // log("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
+//        
+//        return calculatedIndex
+//    }
+    
+//    // the highest index we can have moved an item to;
+//    // based on item count but with special considerations
+//    // for whether we're dragging a group.
+//    func getMaxMovedToIndex(item: Self.ItemViewModel,
+//                            otherSelections: Set<ItemID>,
+//                            draggedAlong: Set<ItemID>) -> Int {
+//        
+//        var maxIndex = self.items.count - 1
+//        
+//        // log("getMaxMovedToIndex: maxIndex was \(maxIndex)")
+//        
+//        // Presumably we don't actually need to trck whether the `dragged item` is a group or not; `draggedAlong` already represents the children that will be dragged along
+//        let itemsWithoutDraggedAlongOrOtherSelections = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
+//        
+//        // log("getMaxMovedToIndex: itemsWithoutDraggedAlongOrOtherSelections \(itemsWithoutDraggedAlongOrOtherSelections.map(\.id))")
+//        
+//        maxIndex = itemsWithoutDraggedAlongOrOtherSelections.count - 1
+//        // log("getMaxMovedToIndex: maxIndex is now \(maxIndex)")
+//        
+//        return maxIndex
+//    }
+    
     @MainActor
-    func calculateNewIndexOnDrag(item: Self.ItemViewModel,
-                                 otherSelections: Set<ItemID>,
-                                 draggedAlong: Set<ItemID>,
-                                 movingDown: Bool,
-                                 originalItemIndex: Int,
-                                 movedIndices: [Int]) -> Int {
+    func getMovedtoIndex(dragY: CGFloat,
+                         movingDown: Bool) -> Int? {
         
-        let maxMovedToIndex = self.getMaxMovedToIndex(
-            item: item,
-            otherSelections: otherSelections,
-            draggedAlong: draggedAlong)
-        
-        var calculatedIndex = self.getMovedtoIndex(
-            item: item,
-            otherSelections: otherSelections,
-            draggedAlong: draggedAlong,
-            maxIndex: maxMovedToIndex,
-            movingDown: movingDown)
-        
-        // log("calculateNewIndexOnDrag: originalItemIndex: \(originalItemIndex)")
-        // log("calculateNewIndexOnDrag: calculatedIndex was: \(calculatedIndex)")
-        
-        // Is this really correct?
-        // i.e. shouldn't this be the `maxMovedToIndex` ?
-        // er, this is like "absolute max index", looking at ALL items in the list
-        let maxIndex = items.count - 1
-        
-        // Can't this be combined with something else?
-        calculatedIndex = adjustMoveToIndex(
-            calculatedIndex: calculatedIndex,
-            originalItemIndex: originalItemIndex,
-            movedIndices: movedIndices,
-            maxIndex: maxIndex)
-        
-        // log("calculateNewIndexOnDrag: calculatedIndex is now: \(calculatedIndex)")
-        
-        return calculatedIndex
-    }
-    
-    // the highest index we can have moved an item to;
-    // based on item count but with special considerations
-    // for whether we're dragging a group.
-    func getMaxMovedToIndex(item: Self.ItemViewModel,
-                            otherSelections: Set<ItemID>,
-                            draggedAlong: Set<ItemID>) -> Int {
-        
-        var maxIndex = self.items.count - 1
-        
-        // log("getMaxMovedToIndex: maxIndex was \(maxIndex)")
-        
-        // Presumably we don't actually need to trck whether the `dragged item` is a group or not; `draggedAlong` already represents the children that will be dragged along
-        let itemsWithoutDraggedAlongOrOtherSelections = items.filter { x in !draggedAlong.contains(x.id) && !otherSelections.contains(x.id) }
-        
-        // log("getMaxMovedToIndex: itemsWithoutDraggedAlongOrOtherSelections \(itemsWithoutDraggedAlongOrOtherSelections.map(\.id))")
-        
-        maxIndex = itemsWithoutDraggedAlongOrOtherSelections.count - 1
-        // log("getMaxMovedToIndex: maxIndex is now \(maxIndex)")
-        
-        return maxIndex
-    }
-    
-    func getMovedtoIndex(item: Self.ItemViewModel,
-                         otherSelections: Set<ItemID>,
-                         draggedAlong: Set<ItemID>,
-                         maxIndex: Int,
-                         movingDown: Bool) -> Int {
-        
+        let flattenedItems = self.items.flattenedItems
+        let maxIndex = flattenedItems.count - 1
         let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
         
         var range = (0...maxY)
@@ -168,8 +164,8 @@ extension ProjectSidebarObservable {
             // where range is (250, ..., 150, 50, 0)
             
             let foundThreshold = movingDown
-            ? item.location.y > CGFloat(threshold)
-            : item.location.y < CGFloat(threshold)
+            ? dragY > CGFloat(threshold)
+            : dragY < CGFloat(threshold)
             
             if foundThreshold {
                 var k = (CGFloat(threshold)/CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
@@ -192,9 +188,10 @@ extension ProjectSidebarObservable {
             }
         }
         
-        // if didn't find anything, return the original index?
-        let k = self.items.firstIndex { $0.id == item.id }!
-        // log("getMovedtoIndex: k: \(k)")
-        return k
+        return nil
+//        // if didn't find anything, return the original index?
+//        let k = flattenedItems.firstIndex { $0.id == item.id }!
+//        // log("getMovedtoIndex: k: \(k)")
+//        return k
     }
 }

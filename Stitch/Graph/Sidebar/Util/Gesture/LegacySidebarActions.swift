@@ -13,12 +13,13 @@ let SIDEBAR_ITEM_MAX_Z_INDEX: ZIndex = 999
 
 extension ProjectSidebarObservable {
     @MainActor
-    func sidebarListItemLongPressed(id: Self.ItemID) {
-        self.currentItemDragged = SidebarDraggedItem(
-            current: id,
-            // can be empty just because
-            // we're first starting the drag
-            draggedAlong: .init())
+    func sidebarListItemLongPressed(itemId: Self.ItemID) {
+        self.currentItemDragged = itemId
+//        SidebarDraggedItem(
+//            current: id,
+//            // can be empty just because
+//            // we're first starting the drag
+//            draggedAlong: .init())
     }
 
     // Function to find the set item whose index in the list is the smallest
@@ -54,36 +55,41 @@ extension ProjectSidebarObservable {
         return otherDragged
     }
     
-    func getDraggedAlongHelper(item: Self.ItemID,
-                               acc: Set<Self.ItemID>) -> Set<Self.ItemID> {
-        var acc = acc
-        acc.insert(item)
-        
-        let children = self.items.filter { $0.parentId == item }
-        children.forEach { child in
-            let updatedAcc = getDraggedAlongHelper(item: child.id,
-                                                   acc: acc)
-            acc = acc.union(updatedAcc)
-        }
-        
-        return acc
-    }
+//    func getDraggedAlongHelper(item: Self.ItemID,
+//                               acc: Set<Self.ItemID>) -> Set<Self.ItemID> {
+//        var acc = acc
+//        acc.insert(item)
+//        
+//        let children = self.items.filter { $0.parentId == item }
+//        children.forEach { child in
+//            let updatedAcc = getDraggedAlongHelper(item: child.id,
+//                                                   acc: acc)
+//            acc = acc.union(updatedAcc)
+//        }
+//        
+//        return acc
+//    }
     
     func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
-                         acc: Set<Self.ItemID>,
                          selections: Set<Self.ItemID>) -> Set<Self.ItemID> {
-        var acc = acc
+        let children = draggedItem.children?.map { $0.id } ?? []
         
-        let explicitlyDraggedItems = selections.union([draggedItem.id])
+        return ([draggedItem.id] + children)
+            .toSet
+            .union(selections)
         
-        explicitlyDraggedItems.forEach { explicitlyDraggedItem in
-            let updatedAcc = self
-                .getDraggedAlongHelper(item: explicitlyDraggedItem,
-                                       acc: acc)
-            acc = acc.union(updatedAcc)
-        }
-        
-        return acc
+//        var acc = acc
+//        
+//        let explicitlyDraggedItems = selections.union([draggedItem.id])
+//        
+//        explicitlyDraggedItems.forEach { explicitlyDraggedItem in
+//            let updatedAcc = self
+//                .getDraggedAlongHelper(item: explicitlyDraggedItem,
+//                                       acc: acc)
+//            acc = acc.union(updatedAcc)
+//        }
+//        
+//        return acc
     }
 
     // Note: call this AFTER we've dragged and have a big list of all the 'dragged along' items
@@ -204,17 +210,17 @@ extension ProjectSidebarObservable {
         let otherSelections = state.getOtherSelections(draggedItem: itemId)
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
-        let draggedAlong = self.onSidebarListItemDragged(
+        self.onSidebarListItemDragged(
             item, // this dragged item
             translation, // drag data
             // ALL items
             otherSelections: otherSelections)
         
         // JUST USED FOR UI PURPOSES, color changes etc.
-        let implicitlyDragged = self.getImplicitlyDragged(
-            draggedAlong: draggedAlong,
-            selections: state.selectionState.inspectorFocusedLayers.focused)
-        state.implicitlyDragged = implicitlyDragged
+//        let implicitlyDragged = self.getImplicitlyDragged(
+//            draggedAlong: draggedAlong,
+//            selections: state.selectionState.inspectorFocusedLayers.focused)
+//        state.implicitlyDragged = implicitlyDragged
                         
         // Need to update the preview window then
 //        _updateStateAfterListChange(
@@ -223,77 +229,129 @@ extension ProjectSidebarObservable {
 //            graphState: state)
         
         // Recalculate the ordered-preview-layers
-        state.graphDelegate?.updateOrderedPreviewLayers()
+//        state.graphDelegate?.updateOrderedPreviewLayers()
     }
     
     @MainActor
     func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
                                   _ translation: CGSize,
-                                  otherSelections: Set<ItemID>) -> Set<ItemID> {
+                                  otherSelections: Set<ItemID>) {
         
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
+        let isNewDrag = item.yDrag == nil
+        let isDraggingDown = translation.height > 0
         
-        var item = item
-        var cursorDrag = Self.HorizontalDrag.fromItem(item)
-        let originalItemIndex = self.items.firstIndex { $0.id == item.id }!
-        
-        var alreadyDragged = Set<ItemID>()
-        var draggedAlong = Set<ItemID>()
+//        var alreadyDragged = Set<ItemID>()
+//        var draggedAlong = Set<ItemID>()
         
         // log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
         // log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
         
         // TODO: remove this property, and use an `isBeingDragged` check in the UI instead?
-        if item.zIndex != SIDEBAR_ITEM_MAX_Z_INDEX {
-            item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
+//        if item.zIndex != SIDEBAR_ITEM_MAX_Z_INDEX {
+//            item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
+//        }
+        
+        let allDraggedItems = [item] + self.items.filter { item in
+            otherSelections.contains(item.id)
         }
+
         
         // First time this is called, we pass in ALL items
-        let (newIndices,
-             updatedAlreadyDragged,
-             updatedDraggedAlong) = self.updatePositionsHelper(
-                item,
-                [],
-                translation,
-                otherSelections: otherSelections,
-                alreadyDragged: alreadyDragged,
-                draggedAlong: draggedAlong)
+//        let (newIndices,
+//             updatedAlreadyDragged,
+//             updatedDraggedAlong) = self.updatePositionsHelper(
+//                item,
+//                [],
+//                translation,
+//                otherSelections: otherSelections,
+//                alreadyDragged: alreadyDragged,
+//                draggedAlong: draggedAlong)
+//        
+//        // limit this from going negative?
+////        cursorDrag.x = cursorDrag.previousX + translation.width
+//        
+////        item = self.items[originalItemIndex] // update the `item` too!
+//        alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
+//        draggedAlong = draggedAlong.union(updatedDraggedAlong)
         
-        // limit this from going negative?
-        cursorDrag.x = cursorDrag.previousX + translation.width
+        let originalItemIndex = item.sidebarIndex.rowIndex
         
-        item = self.items[originalItemIndex] // update the `item` too!
-        alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
-        draggedAlong = draggedAlong.union(updatedDraggedAlong)
-        
-        let calculatedIndex = self.calculateNewIndexOnDrag(
-            item: item,
-            otherSelections: otherSelections,
-            draggedAlong: draggedAlong,
-            movingDown: translation.height > 0,
-            originalItemIndex: originalItemIndex,
-            movedIndices: newIndices)
-        
-        self.maybeMoveIndices(
-            originalItemId: item.id,
-            indicesMoved: newIndices,
-            to: calculatedIndex,
-            originalIndex: originalItemIndex)
+//        let calculatedIndex = self.calculateNewIndexOnDrag(
+//            item: item,
+//            otherSelections: otherSelections,
+////            draggedAlong: draggedAlong,
+//            movingDown: translation.height > 0)
+//            originalItemIndex: originalItemIndex,
+//            movedIndices: newIndices)
+//        
+//        print("index: \(calculatedIndex)")
+//
         
         
-        // i.e. get the index of this dragged-item, given the updated masterList's items
-        let updatedOriginalIndex = item.itemIndex(self.items)
-        // update `item` again!
-        item = self.items[updatedOriginalIndex]
+        if isNewDrag {
+            // TODO: If new drag, re-arrange groups and delete
+            
+            self.currentItemDragged = item.id
+            
+            allDraggedItems.forEach { item in
+                item.prevYDrag = CGFloat(SidebarItemGestureViewModel.inferLocationY(from: item.sidebarIndex.rowIndex))
+            }
+        }
         
-        // should skip this for now?
-        self.setItemsInGroupOrTopLevel(
-            item: item,
-            otherSelections: otherSelections,
-            draggedAlong: draggedAlong,
-            cursorDrag: cursorDrag)
+        allDraggedItems.forEach { draggedItem in
+            draggedItem.yDrag = (draggedItem.prevYDrag ?? .zero) + translation.height
+            
+//            if originalItemIndex != calculatedIndex {
+//                log("calculatedIndex: \(calculatedIndex)")
+                // TODO: find element at new index
+                // if child of dragged item, do nothing
+                // else use helper to find array. decrement counter. when 0, place item there after removing old one
+                
+//                self.items.move(fromOffsets: <#T##IndexSet#>, toOffset: <#T##Int#>)
+//                self.items.remove(item.id)
+//            }
+        }
         
-        return draggedAlong
+        guard let calculatedIndex = self.getMovedtoIndex(
+            dragY: item.yDrag ?? .zero,
+//            maxIndex: maxMovedToIndex,
+            movingDown: isDraggingDown) else {
+            log("No index found")
+            return
+        }
+        
+        if originalItemIndex != calculatedIndex {
+            log("calculatedIndex: \(calculatedIndex)\toriginalItemIndex: \(originalItemIndex)")
+            let indexOffsets = IndexSet([originalItemIndex])
+            self.items.move(fromOffsets: indexOffsets,
+                            toOffset: calculatedIndex)
+            
+            self.items.updateSidebarIndices()
+            
+            // TODO: should only be for layers sidebar
+            self.graphDelegate?.updateOrderedPreviewLayers()
+        }
+        
+////        self.maybeMoveIndices(
+////            originalItemId: item.id,
+////            indicesMoved: newIndices,
+////            to: calculatedIndex,
+////            originalIndex: originalItemIndex)
+//        
+//        
+//        // i.e. get the index of this dragged-item, given the updated masterList's items
+//        let updatedOriginalIndex = item.itemIndex(self.items)
+//        // update `item` again!
+//        item = self.items[updatedOriginalIndex]
+//        
+//        // should skip this for now?
+//        self.setItemsInGroupOrTopLevel(
+//            item: item,
+//            otherSelections: otherSelections,
+//            draggedAlong: draggedAlong)
+//        
+//        return draggedAlong
     }
 }
 
@@ -332,26 +390,32 @@ extension ProjectSidebarObservable {
              log("SidebarListItemDragEnded: item \(itemId) was already deleted")
             return
         }
+        
+        self.items.forEach {
+            $0.yDrag = nil
+            $0.prevYDrag = nil
+            self.currentItemDragged = nil
+        }
 
         // if no `current`, then we were just swiping?
-        if let current = state.currentItemDragged {
-            self.onSidebarListItemDragEnded(
-                item,
-                otherSelections: state.getOtherSelections(draggedItem: itemId),
-                // MUST have a `current`
-                // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
-                draggedAlong: current.draggedAlong,
-                proposed: state.proposedGroup)
-        } else {
-            log("SidebarListItemDragEnded: had no current, so will not do the full onDragEnded call")
-        }
+//        if let current = state.currentItemDragged {
+//            self.onSidebarListItemDragEnded(
+//                item,
+//                otherSelections: state.getOtherSelections(draggedItem: itemId),
+//                // MUST have a `current`
+//                // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
+//                draggedAlong: current.draggedAlong,
+//                proposed: state.proposedGroup)
+//        } else {
+//            log("SidebarListItemDragEnded: had no current, so will not do the full onDragEnded call")
+//        }
 
         // also reset: the potentially highlighted group,
         state.proposedGroup = nil
         // the current dragging item,
         state.currentItemDragged = nil
         // and the current x-drag tracking
-        state.cursorDrag = nil
+//        state.cursorDrag = nil
                 
         state.selectionState.madeStack = false
         state.selectionState.haveDuplicated = false
@@ -361,38 +425,38 @@ extension ProjectSidebarObservable {
         state.graphDelegate?.encodeProjectInBackground()
     }
     
-    @MainActor
-    func onSidebarListItemDragEnded(_ item: Self.ItemViewModel,
-                                    otherSelections: Set<Self.ItemID>,
-                                    draggedAlong: Set<Self.ItemID>,
-                                    proposed: ProposedGroup<Self.ItemID>?) {
-        
-        log("onSidebarListItemDragEnded called")
-        
-        item.zIndex = 0 // is this even used still?
-        
-        // finalizes items' positions by index;
-        // also updates items' previousPositions.
-        self.setYPositionByIndices(
-            originalItemId: item.id,
-            isDragEnded: true)
-        
-        let allDragged: [Self.ItemID] = [item.id] + Array(draggedAlong) + otherSelections
-        
-        // update both the X and Y in the previousLocation of the items that were moved;
-        // ie `item` AND every id in `draggedAlong`
-        for draggedId in allDragged {
-            guard let draggedItem = self.retrieveItem(draggedId) else {
-                fatalErrorIfDebug("Could not retrieve item")
-                continue
-            }
-            draggedItem.previousLocation = draggedItem.location
-//            items = updateSidebarListItem(draggedItem, items)
-        }
-        
-        // reset the z-indices
-        self.items.forEach {
-            $0.zIndex = 0
-        }
-    }
+//    @MainActor
+//    func onSidebarListItemDragEnded(_ item: Self.ItemViewModel,
+//                                    otherSelections: Set<Self.ItemID>,
+//                                    draggedAlong: Set<Self.ItemID>,
+//                                    proposed: ProposedGroup<Self.ItemID>?) {
+//        
+//        log("onSidebarListItemDragEnded called")
+//        
+////        item.zIndex = 0 // is this even used still?
+//        
+//        // finalizes items' positions by index;
+//        // also updates items' previousPositions.
+//        self.setYPositionByIndices(
+//            originalItemId: item.id,
+//            isDragEnded: true)
+//        
+//        let allDragged: [Self.ItemID] = [item.id] + Array(draggedAlong) + otherSelections
+//        
+//        // update both the X and Y in the previousLocation of the items that were moved;
+//        // ie `item` AND every id in `draggedAlong`
+//        for draggedId in allDragged {
+//            guard let draggedItem = self.retrieveItem(draggedId) else {
+//                fatalErrorIfDebug("Could not retrieve item")
+//                continue
+//            }
+//            draggedItem.previousLocation = draggedItem.location
+////            items = updateSidebarListItem(draggedItem, items)
+//        }
+//        
+//        // reset the z-indices
+////        self.items.forEach {
+////            $0.zIndex = 0
+////        }
+//    }
 }

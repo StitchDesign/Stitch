@@ -13,11 +13,11 @@ typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
 //typealias SidebarSelections = LayerIdSet
 //typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
 
-extension LayerIdSet {
-    var asSidebarListItemIdSet: SidebarListItemIdSet {
-        self.map(\.asItemId).toSet
-    }
-}
+//extension LayerIdSet {
+//    var asSidebarListItemIdSet: SidebarListItemIdSet {
+//        self.map(\.asItemId).toSet
+//    }
+//}
 
 struct InspectorFocusedData<ItemID: Hashable> {
     

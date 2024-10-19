@@ -28,36 +28,48 @@ let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 ////    var location: CGPoint { get set }
 //}
 
-protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable where Self.ID: Equatable & CustomStringConvertible,
+import StitchViewKit
+protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedListElement where Self.ID: Equatable & CustomStringConvertible,
                                                                         SidebarViewModel.ItemViewModel == Self {
     associatedtype SidebarViewModel: ProjectSidebarObservable
 //    associatedtype ItemData: ProjectSidebarObservable.ItemData
     typealias ActiveGesture = SidebarListActiveGesture<Self.ID>
+    typealias EncodedItemData = SidebarViewModel.EncodedItemData
     
 //    var item: ItemData { get set }
     
+    var children: [Self]? { get set }
+    
+    var parentDelegate: Self? { get set }
+    
     @MainActor var name: String { get }
     
-    @MainActor var isGroup: Bool { get }
+//    @MainActor var isGroup: Bool { get }
     
-    var parentId: Self.ID? { get set }
+//    var parentId: Self.ID? { get set }
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting { get set }
 
     var previousSwipeX: CGFloat { get set }
     
-    var location: CGPoint { get set }
+//    var location: CGPoint { get }
     
-    var previousLocation: CGPoint { get set }
+//    var previousLocation: CGPoint { get set }
 //    var activeGesture: ActiveGesture { get set }
     //    var activeSwipeId: Item.ID? { get set }
     
 //    var editOn: Bool { get set }
     
-    var zIndex: Double { get set }
+//    var zIndex: Double { get set }
     
     @MainActor var isVisible: Bool { get }
+        
+    var sidebarIndex: SidebarIndex { get set }
+    
+    var yDrag: CGFloat? { get set }
+
+    var prevYDrag: CGFloat? { get set }
     
     var isExpandedInSidebar: Bool? { get set }
     
@@ -71,9 +83,8 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable whe
     
     @MainActor var isMasking: Bool { get }
     
-    init(id: Self.ID,
-         location: CGPoint,
-         parentId: Self.ID?,
+    init(data: Self.EncodedItemData,
+         parentDelegate: Self?,
          sidebarViewModel: Self.SidebarViewModel)
     
 //    @MainActor
@@ -119,19 +130,37 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, Equatable whe
     
     @MainActor
     func didLabelEdit(to newString: String, isCommitting: Bool)
+    
+    @MainActor
+    func createSchema() -> SidebarViewModel.EncodedItemData
+    
+    func update(from schema: Self.EncodedItemData)
 }
 
+//extension SidebarItemSwipable {
+//    static func == (lhs: Self, rhs: Self) -> Bool {
+//        lhs.id == rhs.id &&
+//        lhs.zIndex == rhs.zIndex &&
+//        lhs.location == rhs.location &&
+//        lhs.isExpandedInSidebar == rhs.isExpandedInSidebar &&
+//        lhs.parentId == rhs.parentId
+//    }
+//}
+
 extension SidebarItemSwipable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.id == rhs.id &&
-        lhs.zIndex == rhs.zIndex &&
-        lhs.location == rhs.location &&
-        lhs.isExpandedInSidebar == rhs.isExpandedInSidebar &&
-        lhs.parentId == rhs.parentId
+    var zIndex: Double {
+        if self.activeGesture.isDrag {
+            return SIDEBAR_ITEM_MAX_Z_INDEX
+        }
+        
+        return 0
     }
-}
-
-extension SidebarItemSwipable {
+    
+    @MainActor
+    var isGroup: Bool {
+        self.children.isDefined
+    }
+    
     var activeGesture: SidebarListActiveGesture<Self.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
@@ -154,14 +183,16 @@ extension SidebarItemSwipable {
         self.sidebarDelegate?.isEditing ?? false
     }
     
-//    var location: CGPoint {
-//        get {
-//            self.item.location
-//        }
-//        set(newValue) {
-//            self.item.location = newValue
-//        }
-//    }
+    @MainActor
+    var location: CGPoint {
+        let index = self.sidebarIndex
+        return .init(x: CUSTOM_LIST_ITEM_INDENTATION_LEVEL * index.groupIndex,
+                     y: Self.inferLocationY(from: index.rowIndex))
+    }
+    
+    static func inferLocationY(from rowIndex: Int) -> Int {
+        CUSTOM_LIST_ITEM_VIEW_HEIGHT * rowIndex
+    }
     
     var isImplicitlyDragged: Bool {
         self.sidebarDelegate?.implicitlyDragged.contains(id) ?? false
@@ -234,7 +265,7 @@ extension SidebarItemSwipable {
                 self.activeGesture = .dragging(self.id)
             }
     
-            self.sidebarDelegate?.sidebarListItemLongPressed(id: self.id)
+            self.sidebarDelegate?.sidebarListItemLongPressed(itemId: self.id)
         }
 
         // TODO: Does `minimumDistance` matter?
@@ -342,12 +373,18 @@ extension SidebarItemSwipable {
 
 @Observable
 final class SidebarItemGestureViewModel: SidebarItemSwipable {
+    var sidebarIndex: SidebarIndex = .init(groupIndex: .zero, rowIndex: .zero)
     var id: NodeId
-    var location: CGPoint
-    var previousLocation: CGPoint
-    var parentId: NodeId?
-    var zIndex: Double = .zero
+    var children: [SidebarItemGestureViewModel]?
+//    var location: CGPoint
+//    var previousLocation: CGPoint
+//    var parentId: NodeId?
+//    var zIndex: Double = .zero
+    
     var isExpandedInSidebar: Bool?
+    
+    var yDrag: CGFloat?
+    var prevYDrag: CGFloat?
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting = .closed
@@ -371,20 +408,123 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     // Tracks if the edit menu is open
     var isBeingEdited: Bool = false
 //    @Binding var activeSwipeId: SidebarListItemId?
+    
+    weak var parentDelegate: SidebarItemGestureViewModel?
 
-    init(id: NodeId,
-         location: CGPoint,
-         parentId: NodeId?,
+    init(data: SidebarLayerData,
+         parentDelegate: SidebarItemGestureViewModel?,
          sidebarViewModel: LayersSidebarViewModel) {
-        self.id = id
-        self.location = location
-        self.parentId = parentId
-        self.previousLocation = location
+        self.id = data.id
+        self.isExpandedInSidebar = data.isExpandedInSidebar
+//        self.location = location
+        self.parentDelegate = parentDelegate
+//        self.previousLocation = location
         self.sidebarDelegate = sidebarViewModel
+        
+        self.children = data.children?.map {
+            SidebarItemGestureViewModel(data: $0,
+                                        parentDelegate: self,
+                                        sidebarViewModel: sidebarViewModel)
+        }
+    }
+    
+    init(id: NodeViewModel.ID,
+         children: [SidebarItemGestureViewModel]?,
+         isExpandedInSidebar: Bool?) {
+        self.id = id
+        self.children = children
+        self.isExpandedInSidebar = isExpandedInSidebar
+    }
+    
+    static func createId() -> NodeViewModel.ID {
+        .init()
     }
 }
 
+extension Array where Element: SidebarItemSwipable {
+    var flattenedItems: [Element] {
+        self.flatMap { item in
+            var items = [item]
+            items += item.children?.flattenedItems ?? []
+            return items
+        }
+    }
+    
+    func updateSidebarIndices() {
+        var currentRowIndex = 0
+        return self.updateSidebarIndices(currentGroupIndex: 0,
+                                         currentRowIndex: &currentRowIndex)
+    }
+    
+    private func updateSidebarIndices(currentGroupIndex: Int,
+                                      currentRowIndex: inout Int) {
+        for item in self {
+            let newIndex = SidebarIndex(groupIndex: currentGroupIndex,
+                                        rowIndex: currentRowIndex)
+            
+            // Saves render cycles
+            if newIndex != item.sidebarIndex {
+                item.sidebarIndex = newIndex
+            }
+            
+            currentRowIndex += 1
+            
+            item.children?
+                .updateSidebarIndices(currentGroupIndex: currentGroupIndex + 1,
+                                      currentRowIndex: &currentRowIndex)
+        }
+    }
+}
+
+struct SidebarIndex: Equatable {
+    let groupIndex: Int // horizontal
+    let rowIndex: Int   // vertical
+}
+
+extension SidebarItemSwipable {
+    var parentId: Self.ID? {
+        self.parentDelegate?.id
+    }
+    
+    var rowIndex: Int {
+        guard let sidebar = self.sidebarDelegate else {
+            fatalErrorIfDebug()
+            return -1
+        }
+        
+        let flattenedItems = sidebar.items.flattenedItems
+        guard let index = flattenedItems.enumerated().first(where: { $0.1.id == self.id })?.0 else {
+            fatalErrorIfDebug()
+            return -1
+        }
+        
+        return index
+    }
+    
+//    @MainActor
+//    func getSidebarIndex() -> SidebarIndex {
+//        guard let index = self.sidebarDelegate?.items.getSidebarIndex(for: self.id) else {
+//            fatalErrorIfDebug()
+//            return .init(groupIndex: -1,
+//                         rowIndex: -1)
+//        }
+//        
+//        return index
+//    }
+}
+
 extension SidebarItemGestureViewModel {
+    func createSchema() -> SidebarLayerData {
+        .init(id: self.id,
+              children: self.children?.map { $0.createSchema() },
+              isExpandedInSidebar: self.isExpandedInSidebar)
+    }
+    
+    func update(from schema: EncodedItemData) {
+        self.id = schema.id
+        self.isExpandedInSidebar = isExpandedInSidebar
+    }
+    
     @MainActor var name: String {
         guard let node = self.graphDelegate?.getNodeViewModel(self.id) else {
             fatalErrorIfDebug()
@@ -401,15 +541,6 @@ extension SidebarItemGestureViewModel {
         }
             
         return node.hasSidebarVisibility
-    }
-
-    @MainActor
-    var isGroup: Bool {
-        guard let layerNode = self.graphDelegate?.getNodeViewModel(self.id)?.layerNode else {
-            return false
-        }
-        
-        return layerNode.layer == .group
     }
     
     @MainActor

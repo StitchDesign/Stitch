@@ -124,41 +124,41 @@ extension ProjectSidebarObservable {
     // - remove parent's children from `items`
     // - add removed children to ExcludedGroups dict
     // - move up the position of items below the now-closed parent
-    @MainActor
-    func onSidebarListItemGroupClosed(closedId: Self.ItemID) {
-        
-        print("onSidebarListItemGroupClosed called")
-        
-        guard let closedParent = self.retrieveItem(closedId) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            return
-        }
-        
-//        if !hasOpenChildren(closedParent) {
-//            self.collapsedGroups.insert(closedId)
-//            self.excludedGroups.updateValue([], forKey: closedId)
+//    @MainActor
+//    func onSidebarListItemGroupClosed(closedId: Self.ItemID) {
+//        
+//        print("onSidebarListItemGroupClosed called")
+//        
+//        guard let closedParent = self.retrieveItem(closedId) else {
+//            fatalErrorIfDebug("Could not retrieve item")
 //            return
 //        }
-        
-        let descendantsCount = self.getDescendants(
-            closedParent).count
-        
-        let moveUpBy = descendantsCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-        
-        // hide the children:
-        // - populates ExcludedGroups
-        // - removes now-hidden descendants from `items`
-//        let _ = self.hideChildren(closedParentId: closedId)
-        
-        // and move any items below this parent upward
-        self.adjustItemsBelow(
-            // parent's own index should not have changed if we only
-            // removed or changed items AFTER its index.
-            closedParent.id,
-            closedParent.itemIndex(self.items),
-            adjustment: -CGFloat(moveUpBy))
-        
-        // add parent to collapsed group
-//        self.collapsedGroups.insert(closedId)
-    }
+//        
+////        if !hasOpenChildren(closedParent) {
+////            self.collapsedGroups.insert(closedId)
+////            self.excludedGroups.updateValue([], forKey: closedId)
+////            return
+////        }
+//        
+//        let descendantsCount = self.getDescendants(
+//            closedParent).count
+//        
+//        let moveUpBy = descendantsCount * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+//        
+//        // hide the children:
+//        // - populates ExcludedGroups
+//        // - removes now-hidden descendants from `items`
+////        let _ = self.hideChildren(closedParentId: closedId)
+//        
+//        // and move any items below this parent upward
+//        self.adjustItemsBelow(
+//            // parent's own index should not have changed if we only
+//            // removed or changed items AFTER its index.
+//            closedParent.id,
+//            closedParent.itemIndex(self.items),
+//            adjustment: -CGFloat(moveUpBy))
+//        
+//        // add parent to collapsed group
+////        self.collapsedGroups.insert(closedId)
+//    }
 }

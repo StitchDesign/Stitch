@@ -18,14 +18,14 @@ extension ProjectSidebarObservable {
         let primarilySelectedGroups = self.selectionState.primary
         let encodedData = self.createdOrderedEncodedData()
         
-        guard let group = primarilySelectedGroups.first else {
+        guard let group = primarilySelectedGroups.first,
+              let item = self.items.get(group) else {
             // Expected group here
             fatalErrorIfDebug()
             return
         }
         
-        // let children = self.orderedSidebarLayers.get(group.id)?.children ?? []
-        let children = encodedData.getSidebarLayerData(group)?.children ?? []
+        let children = item.children ?? []
         
         // Update sidebar self
         let newEncodedData = encodedData.ungroup(selectedGroupId: group)

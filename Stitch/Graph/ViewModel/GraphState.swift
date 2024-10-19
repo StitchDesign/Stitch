@@ -93,8 +93,8 @@ final class GraphState: Sendable {
         self.components = components
         self.visibleNodesViewModel.nodes = nodes
         
-        self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
         self.syncMediaFiles(mediaFiles)
+        self.layersSidebarViewModel.sync(from: schema.orderedSidebarLayers)
     }
 }
 
@@ -318,7 +318,10 @@ extension GraphState {
     private func updateSynchronousProperties(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
-        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
+        
+        Task { @MainActor [weak self] in
+            self?.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
+        }
     }
     
     @MainActor func update(from schema: GraphEntity) async {

@@ -94,11 +94,11 @@ extension ProjectSidebarObservable {
                 
                 self.selectionState.inspectorFocusedLayers.activelySelected = self.selectionState.inspectorFocusedLayers.focused.union(idItemsBetween)
                 
-                self.shrinkExpansions(flatList: flatList,
-                                      itemsBetween: itemsBetween,
-                                      originalIsland: originalIsland,
-                                      lastClickedItem: lastClickedItem,
-                                      justClickedItem: clickedItem)
+//                self.shrinkExpansions(flatList: flatList,
+//                                      itemsBetween: itemsBetween,
+//                                      originalIsland: originalIsland,
+//                                      lastClickedItem: lastClickedItem,
+//                                      justClickedItem: clickedItem)
                 
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
@@ -125,7 +125,7 @@ extension ProjectSidebarObservable {
                 log("sidebarItemTapped: did not have itemsBetween")
                 // TODO: this can happen when just-clicked == last-clicked, but some apps do not any deselection etc.
                 // If we shift click the last-clicked item, then remove everything in the island?
-                if clickedItem == lastClickedItem {
+                if clickedItem.id == lastClickedItem.id {
                     log("clicked the same item as the last clicked; will deselect original island and select only last selected")
                     originalIsland.forEach {
                         self.selectionState.inspectorFocusedLayers.focused.remove($0.id)

@@ -164,13 +164,13 @@ extension ProjectSidebarObservable {
     }
 }
 
-extension SidebarItemSwipable {
-    func setOpenedChildHeight(height: CGFloat) {
-        // set height only; preserve indentation
-        self.location = CGPoint(x: self.location.x, y: height)
-        self.previousLocation = self.location
-    }
-}
+//extension SidebarItemSwipable {
+//    func setOpenedChildHeight(height: CGFloat) {
+//        // set height only; preserve indentation
+//        self.location = CGPoint(x: self.location.x, y: height)
+//        self.previousLocation = self.location
+//    }
+//}
 
 extension ProjectSidebarObservable {
 //    @MainActor
@@ -223,23 +223,23 @@ extension ProjectSidebarObservable {
 //        return (currentHighestIndex, currentHighestHeight)
 //    }
     
-    func insertUnhiddenItem(item: Self.ItemViewModel, // item that could be a parent or not
-                            currentHighestIndex: Int, // starts: opened parent's index
-                            // starts: opened parent's height
-                            currentHighestHeight: CGFloat) -> (Int, CGFloat) {
-        
-        var currentHighestIndex = currentHighestIndex
-        var currentHighestHeight = currentHighestHeight
-        
-        // + 1 so inserted AFTER previous currentHighestIndex
-        currentHighestIndex += 1
-        currentHighestHeight += CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
-        
-        item.setOpenedChildHeight(height: currentHighestHeight)
-        self.items.insert(item, at: currentHighestIndex)
-        
-        return (currentHighestIndex, currentHighestHeight)
-    }
+//    func insertUnhiddenItem(item: Self.ItemViewModel, // item that could be a parent or not
+//                            currentHighestIndex: Int, // starts: opened parent's index
+//                            // starts: opened parent's height
+//                            currentHighestHeight: CGFloat) -> (Int, CGFloat) {
+//        
+//        var currentHighestIndex = currentHighestIndex
+//        var currentHighestHeight = currentHighestHeight
+//        
+//        // + 1 so inserted AFTER previous currentHighestIndex
+//        currentHighestIndex += 1
+//        currentHighestHeight += CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
+//        
+//        item.setOpenedChildHeight(height: currentHighestHeight)
+//        self.items.insert(item, at: currentHighestIndex)
+//        
+//        return (currentHighestIndex, currentHighestHeight)
+//    }
 
 //    @MainActor
 //    func unhideChildren(openedParent: Self.ItemID,
@@ -274,24 +274,24 @@ extension ProjectSidebarObservable {
 //        self.items.filter { $0.parentId == parentId }
 //    }
 
-    func adjustItemsBelow(_ parentId: Self.ItemID,
-                          _ parentIndex: Int, // parent that was opened or closed
-                          adjustment: CGFloat) { // down = +y; up = -y
-        self.items.forEach { item in
-            // only adjust items below the parent
-            if item.itemIndex(items) > parentIndex,
-               // ... but don't adjust children of the parent,
-               // since their position was already set in `unhideGroups`;
-                // and when hiding a group, there are no children to adjust.
-                item.parentId != parentId {
-
-                // adjust both location and previousLocation
-                item.location = CGPoint(x: item.location.x,
-                                        y: item.location.y + adjustment)
-                item.previousLocation = item.location
-            }
-        }
-    }
+//    func adjustItemsBelow(_ parentId: Self.ItemID,
+//                          _ parentIndex: Int, // parent that was opened or closed
+//                          adjustment: CGFloat) { // down = +y; up = -y
+//        self.items.forEach { item in
+//            // only adjust items below the parent
+//            if item.itemIndex(items) > parentIndex,
+//               // ... but don't adjust children of the parent,
+//               // since their position was already set in `unhideGroups`;
+//                // and when hiding a group, there are no children to adjust.
+//                item.parentId != parentId {
+//
+//                // adjust both location and previousLocation
+//                item.location = CGPoint(x: item.location.x,
+//                                        y: item.location.y + adjustment)
+//                item.previousLocation = item.location
+//            }
+//        }
+//    }
     
 //    func adjustNonDescendantsBelow(_ lastIndex: Int, // the last item
 //                                   adjustment: CGFloat) { // down = +y; up = -y

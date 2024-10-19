@@ -429,7 +429,7 @@ func getLayerTypesForPinnedViews(pinnedData: LayerPinData, // views pinned to th
 }
 
 import StitchViewKit
-extension Array where Element: StitchNestedListElement {
+extension Array where Element: StitchNestedListElement & Equatable {
     
     // TODO: remove after StitchViewModelKit's `StitchNestedList.get` method is fixed
     func getSidebarLayerData(_ itemId: Element.ID) -> Element? {
