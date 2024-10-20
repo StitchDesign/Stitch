@@ -151,7 +151,9 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
     // indentation is handled by calculated indentations.
     @MainActor
     var listView: some View {
-        ScrollView(.vertical) {
+        let allFlattenedItems = self.sidebarViewModel.items.flattenedItems
+        
+        return ScrollView(.vertical) {
             // use .topLeading ?
             ZStack(alignment: .leading) {
                 // HACK
@@ -182,7 +184,7 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             // Need to specify the amount space (height) the sidebar items all-together need,
             // so that scroll view doesn't interfere with e.g. tap gestures on views deeper inside
             // (e.g. the tap gesture on the circle in edit-mode)
-            .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * sidebarViewModel.items.count),
+            .frame(height: Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT * allFlattenedItems.count),
                    alignment: .top)
         
 //            #if DEV_DEBUG
