@@ -107,7 +107,7 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor
-    func sidebarListItemDragged(itemId: Self.ItemID,
+    func sidebarListItemDragged(item: Self.ItemViewModel,
                                 translation: CGSize) {
         
         // log("SidebarListItemDragged called: item \(itemId) ")
@@ -117,7 +117,7 @@ extension ProjectSidebarObservable {
         }
         
         let state = self
-        var itemId = itemId
+        var itemId = item.id
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
@@ -201,11 +201,11 @@ extension ProjectSidebarObservable {
            }
         }
 
-        guard let item = state.items.first(where: { $0.id == itemId }) else {
-            // if we couldn't find the item, it's been deleted
-            log("SidebarListItemDragged: item \(itemId) was already deleted")
-            return
-        }
+//        guard let item = state.items.get(where: { $0.id == itemId }) else {
+//            // if we couldn't find the item, it's been deleted
+//            fatalErrorIfDebug("SidebarListItemDragged: item \(itemId) was already deleted")
+//            return
+//        }
         
         let otherSelections = state.getOtherSelections(draggedItem: itemId)
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
@@ -429,8 +429,6 @@ extension Array where Element: SidebarItemSwipable {
                                                                       currentParent: child.id) {
                     return result
                 }
-                
-                return nil
             }
             
             fatalErrorIfDebug("No match found.")

@@ -222,7 +222,7 @@ extension SidebarItemSwipable {
                 guard let item = self else { return }
                 
                 item.sidebarDelegate?.sidebarListItemDragged(
-                    itemId: item.id,
+                    item: item,
                     translation: translation)
             }
         }
