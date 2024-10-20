@@ -527,7 +527,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor var name: String {
         guard let node = self.graphDelegate?.getNodeViewModel(self.id) else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
             return ""
         }
         
@@ -536,7 +536,7 @@ extension SidebarItemGestureViewModel {
     
     @MainActor var isVisible: Bool {
         guard let node = self.graphDelegate?.getLayerNode(id: self.id)?.layerNode else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
             return true
         }
             

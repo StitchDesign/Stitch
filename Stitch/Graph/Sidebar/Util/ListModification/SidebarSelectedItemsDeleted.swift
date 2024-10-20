@@ -23,20 +23,29 @@ extension ProjectSidebarObservable {
     func sidebarSelectedItemsDeletingViaEditMode() {
         let deletedIds = self.selectionState.all//.map(\.id)
         
+        deletedIds.forEach {
+            self.items.remove($0)
+        }
+        
+        self.items.updateSidebarIndices()
+        
         self.didItemsDelete(ids: deletedIds)
     }
 }
 
 extension LayersSidebarViewModel {
+    @MainActor
     func didItemsDelete(ids: Set<SidebarListItemId>) {
         self.graphDelegate?.didItemsDelete(ids: ids)
     }
 }
 
 extension GraphState {
+    @MainActor
     func didItemsDelete(ids: Set<SidebarListItemId>) {
         ids.forEach {
-            self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
+            self.deleteNode(id: $0)
+//            self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
         }
 
         // TODO: de-selection on edit mode
