@@ -217,9 +217,14 @@ extension SidebarItemSwipable {
                 self.activeGesture = .dragging(self.id)
             }
             
-            self.sidebarDelegate?.sidebarListItemDragged(
-                itemId: self.id,
-                translation: translation)
+            // Needs to be dispatched due to simultaneous access errors with view
+            Task { @MainActor [weak self] in
+                guard let item = self else { return }
+                
+                item.sidebarDelegate?.sidebarListItemDragged(
+                    itemId: item.id,
+                    translation: translation)
+            }
         }
     }
 
