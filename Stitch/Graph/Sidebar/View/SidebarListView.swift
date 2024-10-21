@@ -147,36 +147,39 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 //        return sidebarViewModel.items
 //    }
     
+    /// Filters out collapsed groups.
+    /// List mut be flattened for drag gestures.
+    static func getVisualList(from items: [SidebarObservable.ItemViewModel]) -> [SidebarObservable.ItemViewModel] {
+        items.flatMap { item in
+            if let children = item.children,
+               item.isExpandedInSidebar ?? false {
+                return [item] + children
+            }
+            
+            return [item]
+        }
+    }
+    
     // Note: sidebar-list-items is a flat list;
     // indentation is handled by calculated indentations.
     @MainActor
     var listView: some View {
-        let allFlattenedItems = self.sidebarViewModel.items.flattenedItems
+        let allFlattenedItems = Self.getVisualList(from: self.sidebarViewModel.items)
         
         return ScrollView(.vertical) {
             // use .topLeading ?
             ZStack(alignment: .leading) {
                 // HACK
-                if sidebarViewModel.items.isEmpty {
+                if allFlattenedItems.isEmpty {
 //                    fakeSidebarListItem
                     Color.clear
                 }
                 
-                ForEach(self.sidebarViewModel.items) { item in
+                ForEach(allFlattenedItems) { item in
                     SidebarListItemSwipeView(
                         graph: graph,
                         sidebarViewModel: sidebarViewModel,
                         gestureViewModel: item)
-                    
-                    if let children = item.children,
-                       item.isExpandedInSidebar ?? false {
-                        ForEach(children) { child in
-                            SidebarListItemSwipeView(
-                                graph: graph,
-                                sidebarViewModel: sidebarViewModel,
-                                gestureViewModel: child)
-                        }
-                    }
                 } // ForEach
                 
             } // ZStack
