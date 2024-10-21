@@ -318,8 +318,6 @@ extension ProjectSidebarObservable {
             return
         }
         
-        let horizontalDragOffset = dragPosition.x - prevDragPosition.x
-        
         (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
             draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
             
@@ -343,7 +341,6 @@ extension ProjectSidebarObservable {
             return
         }
         
-        log("new index: \(calculatedIndex)")
         if originalItemIndex != calculatedIndex {
             self.movedDraggedItems(allDraggedItems,
                                    visualList: visualList,
@@ -382,14 +379,20 @@ extension ProjectSidebarObservable {
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex) {
         var newItemsList = self.items
+        var visualList = visualList
         let draggedItems = draggedItems
+        
+        draggedItems.forEach { draggedItem in
+            // Don't use helper since visual list is already flattened
+            visualList.removeAll(where: {draggedItem.id == $0.id })
+        }
+        
+        let _ = visualList.findClosestElement(to: index)
         
         guard let draggedToElement = visualList[safe: index.rowIndex] ?? visualList.last else {
             self.items = draggedItems
             return
         }
-        
-        log("draggedTo: \(draggedToElement.id)\tindex: \(index)")
         
         // Skip if we dragged to item that's a member of the dragged set--this is incompatible
         let allDraggedItems = draggedItems.flatMap { $0.allElementIds }
@@ -545,6 +548,43 @@ extension Array where Element: SidebarItemSwipable {
             newList.insertDraggedElements(draggedItems, at: indexOfElement)
             return newList
         }
+    }
+    
+    /// Given some made-up location, finds the closest element in a nested sidebar list. Used for item dragging.
+    /// Rules:
+    ///     * Must match the group index
+    ///     * Must ponit to group layer if otherwise top of list
+    ///     * Recommended element cannot reside "below" the requested row index.
+    func findClosestElement(to index: SidebarIndex) -> Element? {
+        // Filter out items after row index
+        let flattenedItems = self[0..<index.rowIndex]
+        
+        // Prioritize correct group hierarchy--if equal use closest row index
+        let rankedItems = flattenedItems.sorted { lhs, rhs in
+            let lhsGroupIndexDiff = abs(index.groupIndex - lhs.sidebarIndex.groupIndex)
+            let lhsRowIndexDiff = index.rowIndex - lhs.sidebarIndex.rowIndex
+            
+            let rhsGroupIndexDiff = abs(index.groupIndex - rhs.sidebarIndex.groupIndex)
+            let rhsRowIndexDiff = index.rowIndex - rhs.sidebarIndex.rowIndex
+            
+            assertInDebug(lhsRowIndexDiff >= 0 && rhsRowIndexDiff >= 0)
+            
+            // 1. equal groups
+            if lhsGroupIndexDiff == rhsGroupIndexDiff {
+                return lhsRowIndexDiff < rhsRowIndexDiff
+            }
+
+            return lhsGroupIndexDiff < rhsGroupIndexDiff
+        }
+        
+        let recommendedItem = rankedItems.first
+        
+#if DEV_DEBUG
+        log("recommendation test for \(index):")
+        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(index.groupIndex - $0.sidebarIndex.groupIndex))") }
+#endif
+        
+        return recommendedItem
     }
 }
 
