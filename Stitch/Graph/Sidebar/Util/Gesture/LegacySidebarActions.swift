@@ -489,19 +489,21 @@ extension Array where Element: SidebarItemSwipable {
             guard let parentId = location.associatedItemId else {
                 // Nil case means root list
                 newList.insertDraggedElements(draggedItems, at: 0)
-                return self
+                return newList
             }
             
-            guard let element = newList.get(parentId) else {
-                return movedDraggedItemsToChildren(draggedItems, at: location)
+            newList = newList.map { element in
+                guard element.id == parentId else {
+                    return element
+                }
+                
+                if var children = element.children {
+                    children.insertDraggedElements(draggedItems, at: 0)
+                    element.children = children
+                }
+                
+                return element
             }
-            
-            guard var children = element.children else {
-                fatalErrorIfDebug()
-                return self
-            }
-            children.insertDraggedElements(draggedItems, at: 0)
-            element.children = children
             return newList
             
         case .afterItem:
