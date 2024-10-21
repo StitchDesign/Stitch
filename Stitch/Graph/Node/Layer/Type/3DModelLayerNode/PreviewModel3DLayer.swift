@@ -72,7 +72,7 @@ struct Preview3DModelLayer: View {
     }
 
     var sceneSize: CGSize {
-        let _sceneSize = size.asSceneSize
+        let _sceneSize = size.asSceneSize(parentSize: parentSize)
         // log("sceneSize: \(_sceneSize)")
         return _sceneSize
     }

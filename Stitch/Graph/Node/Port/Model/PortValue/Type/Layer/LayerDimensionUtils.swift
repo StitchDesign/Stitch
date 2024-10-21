@@ -176,17 +176,20 @@ extension LayerDimension {
 
     // Useful eg when converting from .size -> .position,
     // or .layerDimension -> .number
+    // TODO: in which contexts is this used? ... we don't always know the parent's size, or the parent's size may not apply (e.g. turning a LayerDimension into a Point3D)
     var asNumber: Double {
         switch self {
         case .number(let cGFloat):
             return cGFloat
-        case .auto:
-            return 0
+        
+        // TODO: need actual parent size?
         case .parentPercent(let x):
             return zeroCompatibleDivision(numerator: x,
                                           denominator: 100)
-        case .fill, .hug:
-            // TODO: LayerDimension.fill
+        
+        // TODO: .fill should actually be "100% of parent"
+        case .auto, .fill, .hug:
+            // TODO: LayerDimension.fill should be 100% of parent
             return 0
         }
     }
