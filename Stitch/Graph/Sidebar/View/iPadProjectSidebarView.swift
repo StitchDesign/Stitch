@@ -49,8 +49,8 @@ struct ProjectSidebarView: View {
         .edgesIgnoringSafeArea(.bottom)
         
         // iPad only
-#if !targetEnvironment(macCatalyst)
-        .navigationTitle("Stitch")
+//#if !targetEnvironment(macCatalyst)
+//        .navigationTitle("Stitch")
         .toolbar {
             SidebarEditButtonView(isEditing: $isEditing)
         }
@@ -61,7 +61,7 @@ struct ProjectSidebarView: View {
         // We can change the color of the sidebar's top-most section
         .toolbarBackground(.visible, for: .automatic)
         .toolbarBackground(Color.WHITE_IN_LIGHT_MODE_BLACK_IN_DARK_MODE, for: .automatic)
-#endif
+//#endif
         
         .onChange(of: self.isEditing, initial: true) { _, newValue in
             dispatch(SidebarEditModeToggled(isEditing: newValue))

@@ -37,11 +37,11 @@ struct ProjectToolbarViewModifier: ViewModifier {
             .onChange(of: graphUI.isFullScreenMode) { _, newValue in
                 isFullScreen = newValue
             }
-            .toolbarRole(.editor) // no "Back" text on back button
+//            .toolbarRole(.editor) // no "Back" text on back button
 
-            #if !targetEnvironment(macCatalyst)
-            .navigationTitle(self.$graph.name)
-            .navigationBarTitleDisplayMode(.inline)
+//            #if !targetEnvironment(macCatalyst)
+//            .navigationTitle(self.$graph.name)
+//            .navigationBarTitleDisplayMode(.inline)
 
             // Note: an empty string hides .navigationTitle
             //                        .navigationTitle(focusMode ? .constant("") : self.$projectTitleString)
@@ -72,67 +72,67 @@ struct ProjectToolbarViewModifier: ViewModifier {
             //            //                    Label("Share", systemImage: "square.and.arrow.up")
             //            //                })
             //            } // .toolbarTitleMenu
-            #endif
+//            #endif
 
             .toolbar {
 
-                #if !targetEnvironment(macCatalyst)
+//                #if !targetEnvironment(macCatalyst)
 
                 // Catalyst and iPad have same button layout,
                 // but use slightly different buttons:
 
                 // .primaryAction = right side
                 // .secondaryAction = center
-                ToolbarItemGroup(placement: .primaryAction) {
-                    iPadGraphTopBarButtons(
-                        document: document,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
-                        isFullscreen: graphUI.isFullScreenMode,
-                        isPreviewWindowShown: graphUI.showPreviewWindow,
-                        restartPrototypeWindowIconRotationZ: graphUI.restartPrototypeWindowIconRotationZ,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording)
-                }
+//                ToolbarItemGroup(placement: .primaryAction) {
+//                    iPadGraphTopBarButtons(
+//                        document: document,
+//                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
+//                        isFullscreen: graphUI.isFullScreenMode,
+//                        isPreviewWindowShown: graphUI.showPreviewWindow,
+//                        restartPrototypeWindowIconRotationZ: graphUI.restartPrototypeWindowIconRotationZ,
+//                        llmRecordingModeEnabled: self.llmRecordingMode,
+//                        llmRecordingModeActive: document.llmRecording.isRecording)
+//                }
 
-                #else
-                // on Mac, show project title name
-                ToolbarItem(placement: .navigationBarLeading) {
-                    CatalystNavBarTitleEditField(graph: graph)
-                }
-
-                // Catalyst and iPad have same button layout,
-                // but use slightly different buttons:
-                // .primaryAction = right side
-                // .secondaryAction = center
-
-                /*
-                 On Catalyst:
-                 - only .primaryAction = buttons on left
-                 - only .secondaryAction = buttons in center
-                 - both = .primaryAction buttons on the right, .secondaryAction buttons in center
-
-                 Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
-                 */
-
-                // Hack view to get proper placement
-                ToolbarItem(placement: .secondaryAction) {
-                    Text("")
-                }
-
-                ToolbarItemGroup(placement: .primaryAction) {
-                    CatalystTopBarGraphButtons(
-                        document: document,
-                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
-                        isFullscreen: graphUI.isFullScreenMode,
-                        isPreviewWindowShown: graphUI.showPreviewWindow,
-                        llmRecordingModeEnabled: self.llmRecordingMode,
-                        llmRecordingModeActive: document.llmRecording.isRecording)
-                }
-                #endif
+//                #else
+//                // on Mac, show project title name
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    CatalystNavBarTitleEditField(graph: graph)
+//                }
+//
+//                // Catalyst and iPad have same button layout,
+//                // but use slightly different buttons:
+//                // .primaryAction = right side
+//                // .secondaryAction = center
+//
+//                /*
+//                 On Catalyst:
+//                 - only .primaryAction = buttons on left
+//                 - only .secondaryAction = buttons in center
+//                 - both = .primaryAction buttons on the right, .secondaryAction buttons in center
+//
+//                 Note: .navigationBarTrailing on Catalyst is apparently broken, always placed items on left-side ?
+//                 */
+//
+////                // Hack view to get proper placement
+////                ToolbarItem(placement: .secondaryAction) {
+////                    Text("")
+////                }
+//
+//                ToolbarItemGroup(placement: .primaryAction) {
+//                    CatalystTopBarGraphButtons(
+//                        document: document,
+//                        hasActiveGroupFocused: graphUI.groupNodeFocused.isDefined,
+//                        isFullscreen: graphUI.isFullScreenMode,
+//                        isPreviewWindowShown: graphUI.showPreviewWindow,
+//                        llmRecordingModeEnabled: self.llmRecordingMode,
+//                        llmRecordingModeActive: document.llmRecording.isRecording)
+//                }
+//                #endif
 
             }
-            .animation(.spring, value: graphUI.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
-            .toolbarBackground(.visible, for: .automatic)
-            .toolbar(hideToolbar ? .hidden : .automatic)
+//            .animation(.spring, value: graphUI.restartPrototypeWindowIconRotationZ) // .animation modifier must be placed here
+//            .toolbarBackground(.visible, for: .automatic)
+//            .toolbar(hideToolbar ? .hidden : .automatic)
     }
 }

@@ -14,13 +14,16 @@ struct CatalystNavBarTitleEditField: View {
 
     @FocusState var focus: Bool
     
+    @State var edit = "My Project is Great"
+    
     var body: some View {
-        TextField("", text: $graph.name)
-            .focused(self.$focus)
-            .autocorrectionDisabled()
-            .modifier(SelectAllTextViewModifier())
-            .modifier(NavigationTitleFontViewModifier())
-            .padding(6)
+//        TextField("", text: $graph.name)
+        TextField("", text: self.$edit)
+//            .focused(self.$focus)
+//            .autocorrectionDisabled()
+//            .modifier(SelectAllTextViewModifier())
+//            .modifier(NavigationTitleFontViewModifier())
+//            .padding(6)
         
             // worked well with Sonoma 14.3 and earlier
             // .frame(minWidth: self.focus ? 260 : 30, maxWidth: 400)
@@ -32,34 +35,39 @@ struct CatalystNavBarTitleEditField: View {
             // .padding(.trailing, 64)
         
             // ... setting an explicit width seems necessary to prevent the text field from covering the back-button during a long title edit
-            .width(260)
         
-            .overlay { fieldHighlight }
-            .onChange(of: self.focus) { oldValue, newValue in
-                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
-                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
-                withAnimation(.easeOut(duration: 0.2)) {
-                    self.focus = newValue
-                }
-
-                if newValue {
-                    dispatch(ReduxFieldFocused(focusedField: .projectTitle))
-                } else {
-                    // log("CatalystNavBarTitleEditField: defocused, so will commit")
-                    graph.name = graph.name.validateProjectTitle()
-                    dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
-                    // Commit project name to disk
-                    graph.encodeProjectInBackground()
-                    
-                }
-            }
+//            .width(260)
+//            .onChange(of: self.edit) { oldValue, newValue in
+//                log("CatalystNavBarTitleEditField: oldValue: \(oldValue)")
+//                log("CatalystNavBarTitleEditField: newValue: \(newValue)")
+//            }
+        
+//            .overlay { fieldHighlight }
+//            .onChange(of: self.focus) { oldValue, newValue in
+//                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): oldValue: \(oldValue)")
+//                log("CatalystNavBarTitleEditField: .onChange(of: self.focus): newValue: \(newValue)")
+//                withAnimation(.easeOut(duration: 0.2)) {
+//                    self.focus = newValue
+//                }
+//
+//                if newValue {
+//                    dispatch(ReduxFieldFocused(focusedField: .projectTitle))
+//                } else {
+//                    // log("CatalystNavBarTitleEditField: defocused, so will commit")
+//                    graph.name = graph.name.validateProjectTitle()
+//                    dispatch(ReduxFieldDefocused(focusedField: .projectTitle))
+//                    // Commit project name to disk
+//                    graph.encodeProjectInBackground()
+//                    
+//                }
+//            }
     }
     
-    var fieldHighlight: some View {
-        RoundedRectangle(cornerRadius: 8)
-            .stroke(Color.accentColor,
-                    lineWidth: self.focus ? 2 : 0)
-    }
+//    var fieldHighlight: some View {
+//        RoundedRectangle(cornerRadius: 8)
+//            .stroke(Color.accentColor,
+//                    lineWidth: self.focus ? 2 : 0)
+//    }
 }
 
 struct NavigationTitleFontViewModifier: ViewModifier {

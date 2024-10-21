@@ -11,6 +11,9 @@ import StitchSchemaKit
 struct StitchNavStack: View {
     @Bindable var store: StitchStore
 
+    
+    @State var edit = "Love is my project"
+    
     var body: some View {
         NavigationStack(path: $store.navPath) {
             ProjectsHomeViewWrapper()
@@ -33,6 +36,8 @@ struct StitchNavStack: View {
 //                                   for: .navigationBar, .bottomBar, .tabBar)
 //                .toolbarBackground(.visible, for: .navigationBar, .bottomBar, .tabBar)
         }
+        .navigationTitle(self.$edit)
+//        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
