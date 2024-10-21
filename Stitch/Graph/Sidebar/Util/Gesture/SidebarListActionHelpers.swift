@@ -31,48 +31,48 @@ extension ProjectSidebarObservable {
 //        }
 //    }
 //    
-    @MainActor
-    func setItemsInGroupOrTopLevel(item: Self.ItemViewModel,
-                                   otherSelections: Set<Self.ItemID>,
-                                   draggedAlong: Set<Self.ItemID>) {
-        
-        // set all dragged items' z-indices to max
-//        self.updateAllZIndices(
-//            itemId: item.id,
-//            draggedAlong:
-//                draggedAlong)
-        
-        // Propose a group based on the dragged item (in Stack case, will be Stack's top item)
-        let proposed = self.proposeGroup(item)
-        
-//        let beingDragged = SidebarDraggedItem(current: item.id,
-//                                              draggedAlong: draggedAlong)
-        
-        if let proposed = proposed {
-            self.moveSidebarListItemIntoGroup(item,
-                                              otherSelections: otherSelections,
-                                              draggedAlong: draggedAlong,
-                                              proposed)
-        }
-        
-        // if no proposed group, then we moved item to top level:
-        // 1. reset done-dragging item's x to `0`
-        // 2. set item's parent to nil
-        else {
-            log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
-//            self.items.remove(item.id)
-            fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
-            self.items.append(item)
-
-//            self.moveSidebarListItemToTopLevel(item,
-//                                               otherSelections: otherSelections,
-//                                               draggedAlong: draggedAlong)
-        }
-        
-//        self.currentItemDragged = result.beingDragged
-//        self.proposedGroup = result.proposed
-//        self.cursorDrag = result.cursorDrag
-    }
+//    @MainActor
+//    func setItemsInGroupOrTopLevel(item: Self.ItemViewModel,
+//                                   otherSelections: Set<Self.ItemID>,
+//                                   draggedAlong: Set<Self.ItemID>) {
+//        
+//        // set all dragged items' z-indices to max
+////        self.updateAllZIndices(
+////            itemId: item.id,
+////            draggedAlong:
+////                draggedAlong)
+//        
+//        // Propose a group based on the dragged item (in Stack case, will be Stack's top item)
+//        let proposed = self.proposeGroup(item)
+//        
+////        let beingDragged = SidebarDraggedItem(current: item.id,
+////                                              draggedAlong: draggedAlong)
+//        
+//        if let proposed = proposed {
+//            self.moveSidebarListItemIntoGroup(item,
+//                                              otherSelections: otherSelections,
+//                                              draggedAlong: draggedAlong,
+//                                              proposed)
+//        }
+//        
+//        // if no proposed group, then we moved item to top level:
+//        // 1. reset done-dragging item's x to `0`
+//        // 2. set item's parent to nil
+//        else {
+//            log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
+////            self.items.remove(item.id)
+//            fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
+//            self.items.append(item)
+//
+////            self.moveSidebarListItemToTopLevel(item,
+////                                               otherSelections: otherSelections,
+////                                               draggedAlong: draggedAlong)
+//        }
+//        
+////        self.currentItemDragged = result.beingDragged
+////        self.proposedGroup = result.proposed
+////        self.cursorDrag = result.cursorDrag
+//    }
     
     // We've moved the item up or down (along with its children);
     // did we move it enough to have a new index placement for it?

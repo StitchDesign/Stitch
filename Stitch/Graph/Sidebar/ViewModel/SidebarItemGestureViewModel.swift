@@ -462,7 +462,8 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     private func updateSidebarIndices(currentGroupIndex: Int,
-                                      currentRowIndex: inout Int) {
+                                      currentRowIndex: inout Int,
+                                      parent: Element? = nil) {
         for item in self {
             let newIndex = SidebarIndex(groupIndex: currentGroupIndex,
                                         rowIndex: currentRowIndex)
@@ -472,13 +473,18 @@ extension Array where Element: SidebarItemSwipable {
                 item.sidebarIndex = newIndex
             }
             
+            if item.parentDelegate?.id != parent?.id {
+                item.parentDelegate = parent
+            }
+            
             currentRowIndex += 1
             
             if let children = item.children,
                item.isExpandedInSidebar ?? false {
                 children
                     .updateSidebarIndices(currentGroupIndex: currentGroupIndex + 1,
-                                          currentRowIndex: &currentRowIndex)
+                                          currentRowIndex: &currentRowIndex,
+                                          parent: item)
             }
         }
     }

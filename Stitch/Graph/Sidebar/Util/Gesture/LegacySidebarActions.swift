@@ -592,7 +592,7 @@ extension ProjectSidebarObservable {
 //        }
 
         // also reset: the potentially highlighted group,
-        state.proposedGroup = nil
+//        state.proposedGroup = nil
         // the current dragging item,
         state.currentItemDragged = nil
         // and the current x-drag tracking

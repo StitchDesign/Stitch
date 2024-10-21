@@ -344,56 +344,56 @@ extension ProjectSidebarObservable {
 //        return false
 //    }
 
-    @MainActor
-    func proposeGroup(_ item: Self.ItemViewModel) -> Self.ItemViewModel? { // the moved-item
-//                      _ draggedAlongCount: Int) -> Self.ItemViewModel? {  all dragged items, whether implicitly or explicitly selelected
-        
-        // Note: we do not need to filter out otherSelectons etc., which are inc
-        
-        // log("proposeGroup: will try to propose group for item: \(item.id)")
-        
-        // GENERAL RULE:
-//        var proposed = self.findDeepestParent(item,
-//                                              cursorDrag: cursorDrag)
-        var proposed = item.parentDelegate
-        
-        // Exceptions:
-        
-        // Does the item have a non-parent top-level it immediately above it?
-        // if so, that blocks group proposal
-//        if self.blockedByTopLevelItemImmediatelyAbove(item) {
-//            log("proposeGroup: blocked by non-parent top-level item above")
-//            proposed = nil
-//        }
-        
-        if let groupDueToChildBelow = self.groupFromChildBelow(
-            item) {
-            
-            log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
-            
-            proposed = groupDueToChildBelow
-            // if our drag is east of the proposed-from-below's indentation level,
-            // and we already found a proposed group from 'deepest parent',
-            // then don't use proposed-from-below.
-//            let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
+//    @MainActor
+//    func proposeGroup(_ item: Self.ItemViewModel) -> Self.ItemViewModel? { // the moved-item
+////                      _ draggedAlongCount: Int) -> Self.ItemViewModel? {  all dragged items, whether implicitly or explicitly selelected
+//        
+//        // Note: we do not need to filter out otherSelectons etc., which are inc
+//        
+//        // log("proposeGroup: will try to propose group for item: \(item.id)")
+//        
+//        // GENERAL RULE:
+////        var proposed = self.findDeepestParent(item,
+////                                              cursorDrag: cursorDrag)
+//        var proposed = item.parentDelegate
+//        
+//        // Exceptions:
+//        
+//        // Does the item have a non-parent top-level it immediately above it?
+//        // if so, that blocks group proposal
+////        if self.blockedByTopLevelItemImmediatelyAbove(item) {
+////            log("proposeGroup: blocked by non-parent top-level item above")
+////            proposed = nil
+////        }
+//        
+//        if let groupDueToChildBelow = self.groupFromChildBelow(
+//            item) {
 //            
-//            if !keepProposed {
-//                log("proposeGroup: will use group from child below")
-//                proposed = groupDueToChildBelow
-//            }
-        }
-        
-//        log("proposeGroup: returning: \(String(describing: proposed))")
-        
-//        if let proposedParentId = proposed?.parentId,
-//           let proposedParentItem = self.retrieveItem(proposedParentId),
-//           !proposedParentItem.isGroup {
-//            fatalErrorIfDebug() // Can never propose a parent that is not actually a group
-//            return nil
+//            log("proposeGroup: found group \(groupDueToChildBelow.parentId) from child below")
+//            
+//            proposed = groupDueToChildBelow
+//            // if our drag is east of the proposed-from-below's indentation level,
+//            // and we already found a proposed group from 'deepest parent',
+//            // then don't use proposed-from-below.
+////            let keepProposed = (groupDueToChildBelow.indentationLevel.toXLocation < cursorDrag.x) && proposed.isDefined
+////            
+////            if !keepProposed {
+////                log("proposeGroup: will use group from child below")
+////                proposed = groupDueToChildBelow
+////            }
 //        }
-        
-        return proposed
-    }
+//        
+////        log("proposeGroup: returning: \(String(describing: proposed))")
+//        
+////        if let proposedParentId = proposed?.parentId,
+////           let proposedParentItem = self.retrieveItem(proposedParentId),
+////           !proposedParentItem.isGroup {
+////            fatalErrorIfDebug() // Can never propose a parent that is not actually a group
+////            return nil
+////        }
+//        
+//        return proposed
+//    }
     
 //    @MainActor
 //    func updateSidebarListItem(_ item: Self.ItemViewModel) -> [Element] {

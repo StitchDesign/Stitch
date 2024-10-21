@@ -252,7 +252,7 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
     var isEditing: Bool { get set }
     var items: [ItemViewModel] { get set }
     
-    var proposedGroup: ItemID? { get set }
+//    var proposedGroup: ItemID? { get set }
 //    var cursorDrag: Double? { get set }
     
     var selectionState: SidebarSelectionState { get set }
@@ -283,6 +283,11 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 }
 
 extension ProjectSidebarObservable {
+    var proposedGroup: Self.ItemViewModel? {
+        guard let currentItemDragged = self.currentItemDragged else { return nil }
+        return self.items.get(currentItemDragged)?.parentDelegate
+    }
+    
 //    init(from encodedData: [Self.EncodedItemData]) {
 //        self.sync(from: encodedData)
 //    }
@@ -451,7 +456,7 @@ final class LayersSidebarViewModel: ProjectSidebarObservable {
     var currentItemDragged: NodeId?
 //    var excludedGroups: [NodeId : [SidebarItemGestureViewModel]] = .init()
 //    var expandedSidebarItems: Set<NodeId> = .init()
-    var proposedGroup: NodeId?
+//    var proposedGroup: NodeId?
 //    var cursorDrag: SidebarCursorHorizontalDrag<SidebarItemGestureViewModel>?
 //    var collapsedGroups: Set<NodeId> = .init()
     

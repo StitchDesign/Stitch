@@ -28,7 +28,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
 //        self.sidebarViewModel.currentItemDragged
 //    }
     
-    var proposedGroup: ItemID? {
+    var proposedGroup: SidebarViewModel.ItemViewModel? {
         self.sidebarViewModel.proposedGroup
     }
 
@@ -38,7 +38,7 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
 //    }
 
     var isProposedGroup: Bool {
-        proposedGroup == item.id
+        proposedGroup?.id == item.id
     }
     
     var isNonEditModeFocused: Bool {
