@@ -18,6 +18,7 @@ struct PreviewHitAreaLayer: View {
     let interactiveLayer: InteractiveLayer
     let position: StitchPosition
     let size: LayerSize
+    let scale: CGFloat
     let enabled: Bool
     let anchoring: Anchoring
     let setupMode: Bool
@@ -46,7 +47,7 @@ struct PreviewHitAreaLayer: View {
                 rotationZ: .zero,
 //                size: size.asCGSize(parentSize),
                 size: size,
-                scale: 1,
+                scale: scale,
                 anchoring: anchoring,
                 
                 // blur, blend, etc.: Not applicable
