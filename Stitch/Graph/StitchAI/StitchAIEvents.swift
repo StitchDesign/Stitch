@@ -108,9 +108,12 @@ extension StitchDocumentViewModel {
                             
                             let json = JSON(parseJSON: transformedResponse)
                             let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
+                            var nodesAdded = 0
                             
                             // Process actions
-                            actions.forEach { self?.handleLLMAction($0) }
+                            actions.forEach {
+                                nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
+                            }
                             
                             // Trigger additional functionality
                             self?.visibleGraph.encodeProjectInBackground()
