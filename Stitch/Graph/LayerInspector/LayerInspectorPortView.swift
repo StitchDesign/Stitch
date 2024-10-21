@@ -111,6 +111,7 @@ let LAYER_INSPECTOR_ROW_ICON_LENGTH = 16.0
 //struct LayerInspectorPortView<RowObserver, RowView>: View where RowObserver: NodeRowObserver, RowView: View {
 struct LayerInspectorPortView<RowView>: View where RowView: View {
     
+    // This ought to be non-optional?
     let layerInputObserver: LayerInputObserver?
     
     // input or output
@@ -160,16 +161,42 @@ struct LayerInspectorPortView<RowView>: View where RowView: View {
             self.isHovered = isHovering
         })
         .contentShape(Rectangle())
-#if !targetEnvironment(macCatalyst)
-        .gesture(
-            TapGesture().onEnded({ _ in
+        .modifier(LayerInspectorPortViewTapModifier(graph: graph,
+                                                    isAutoLayoutRow: layerInputObserver?.port == .orientation,
+                                                    layerInspectorRowId: layerInspectorRowId,
+                                                    canvasItemId: canvasItemId))
+    }
+}
+
+// HACK: Catalyst's Segmented Picker is unresponsive when we attach a tap gesture, even a `.simultaneousGesture(TapGesture)`
+struct LayerInspectorPortViewTapModifier: ViewModifier {
+    
+    @Bindable var graph: GraphState
+    let isAutoLayoutRow: Bool
+    let layerInspectorRowId: LayerInspectorRowId
+    let canvasItemId: CanvasItemId?
+        
+    var isCatalyst: Bool {
+#if targetEnvironment(macCatalyst)
+        return true
+#else
+        return false
+#endif
+    }
+    
+    func body(content: Content) -> some View {
+        // HACK: If this is the LayerGroup's autolayout row (on Catalyst) and the row is not already on the canvas,
+        // then do not add a 'jump to canvas item' handler that interferes with Segmented Picker.
+        if isAutoLayoutRow, isCatalyst, canvasItemId == nil {
+            content
+        } else {
+            content.gesture(TapGesture().onEnded({ _ in
                 log("LayerInspectorPortView tapped")
                 graph.graphUI.onLayerPortRowTapped(
                     layerInspectorRowId: layerInspectorRowId,
                     canvasItemId: canvasItemId)
-            })
-        ) // .gesture
-#endif
+            }))
+        }
     }
 }
 
