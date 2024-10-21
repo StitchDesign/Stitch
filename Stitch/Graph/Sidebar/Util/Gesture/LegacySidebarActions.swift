@@ -396,11 +396,7 @@ extension ProjectSidebarObservable {
 
         guard !draggedItems.isEmpty else { return }
         
-        if !newItemsList.movedDraggedItems(draggedItems,
-                                           at: location) {
-            fatalErrorIfDebug()
-            return
-        }
+        newItemsList = newItemsList.movedDraggedItems(draggedItems, at: location)
         
         self.items = newItemsList
         
@@ -445,18 +441,16 @@ extension Array where Element: SidebarItemSwipable {
     }
     
     @MainActor
-    mutating private func movedDraggedItemsToChildren(_ draggedItems: [Element],
-                                                      at location: NestedListLocation<Element>) -> Bool {
+    private func movedDraggedItemsToChildren(_ draggedItems: [Element],
+                                             at location: NestedListLocation<Element>) -> [Element] {
         // Recursively check other children
-        for child in self {
-            if var children = child.children,
-                children.movedDraggedItems(draggedItems, at: location) {
-                child.children = children
-                return true
+        self.map { child in
+            if let children = child.children {
+                child.children = children.movedDraggedItems(draggedItems, at: location)
             }
+            
+            return child
         }
-        
-        return false
     }
     
     @MainActor
@@ -468,39 +462,41 @@ extension Array where Element: SidebarItemSwipable {
     
     /// Recursive function that traverses nested array until index == 0.
     @MainActor
-    mutating func movedDraggedItems(_ draggedItems: [Element],
-                                    at location: NestedListLocation<Element>) -> Bool {
+    func movedDraggedItems(_ draggedItems: [Element],
+                           at location: NestedListLocation<Element>) -> [Element] {
+        
+        var newList = self
         
         switch location.type {
         case .topOfHierarchy:
             guard let parentId = location.associatedItemId else {
                 // Nil case means root list
-                self.insertDraggedElements(draggedItems, at: 0)
-                return true
+                newList.insertDraggedElements(draggedItems, at: 0)
+                return self
             }
             
-            guard let element = self.get(parentId) else {
+            guard let element = newList.get(parentId) else {
                 return movedDraggedItemsToChildren(draggedItems, at: location)
             }
             
             guard var children = element.children else {
                 fatalErrorIfDebug()
-                return false
+                return self
             }
             children.insertDraggedElements(draggedItems, at: 0)
             element.children = children
-            
-            return true
+            return newList
             
         case .afterItem:
             guard let itemId = location.associatedItemId,
                   let element = self.get(itemId),
                   let indexOfElement = self.firstIndex(where: { element.id == $0.id }) else {
-                return movedDraggedItemsToChildren(draggedItems, at: location)
+                newList = newList.movedDraggedItemsToChildren(draggedItems, at: location)
+                return newList
             }
             
-            self.insertDraggedElements(draggedItems, at: indexOfElement)
-            return true
+            newList.insertDraggedElements(draggedItems, at: indexOfElement)
+            return newList
         }
     }
 }
