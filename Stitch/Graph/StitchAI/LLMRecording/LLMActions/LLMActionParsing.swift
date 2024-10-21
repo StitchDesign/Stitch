@@ -72,8 +72,8 @@ extension StitchDocumentViewModel {
             // ... suppose we create a node, then move it;
             // the LLM-move-action will expect the specific "LLM action
 
-            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 500)
-            let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 300)
+            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 400)
+            let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 100)
             
             let newCenter = CGPoint(x: centerX, y: centerY)
             print("CENTER")
