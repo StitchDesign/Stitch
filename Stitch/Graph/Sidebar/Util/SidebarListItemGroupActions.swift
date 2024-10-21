@@ -29,15 +29,10 @@ extension ProjectSidebarObservable {
     
     // for non-edit-mode selections
     @MainActor
-    func deselectDescendantsOfClosedGroup(_ closedParentId: Self.ItemID) {
+    func deselectDescendantsOfClosedGroup(_ closedParent: Self.ItemViewModel) {
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        guard let closedParent = self.retrieveItem(closedParentId) else {
-            fatalErrorIfDebug("Could not retrieve item")
-            return
-        }
-        
-        let descendants = self.getDescendants(closedParent)
+        let descendants = closedParent.children?.flattenedItems ?? []
         
         for childen in descendants {
             self.selectionState.inspectorFocusedLayers.focused.remove(childen.id)
@@ -53,7 +48,7 @@ extension ProjectSidebarObservable {
 //        var expanded = self.getSidebarExpandedItems()
         
         // Remove any non-edit-mode selected children; we don't want the 'selected sidebar layer' to be hidden
-        self.deselectDescendantsOfClosedGroup(closedParent.id)
+        self.deselectDescendantsOfClosedGroup(closedParent)
                         
 //        self.onSidebarListItemGroupClosed(
 //            closedId: closedParentId)

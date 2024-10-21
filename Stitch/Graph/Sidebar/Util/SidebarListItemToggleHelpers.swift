@@ -20,26 +20,26 @@ import SwiftUI
 extension ProjectSidebarObservable {
     // ONLY USEFUL FOR NON-DRAGGING CASES
     // ie when closing or opening a group
-    @MainActor
-    func getDescendants(_ parentItem: Self.ItemViewModel) -> [Self.ItemViewModel] {
-        
-        var descendants = [Self.ItemViewModel]()
-        
-        for item in self.getItemsBelow(parentItem) {
-            //        log("itemBelow: \(item.id), \(item.location.x)")
-            // if you encounter an item at or west of the parentXLocation,
-            // then you've finished the parent's nested groups
-            if item.location.x <= parentItem.location.x {
-                //            log("getDescendants: exiting early")
-                //            log("getDescendants: early exit: descendants: \(descendants)")
-                return descendants
-            } else {
-                descendants.append(item)
-            }
-        }
-        //    log("getDescendants: returning: descendants: \(descendants)")
-        return descendants
-    }
+//    @MainActor
+//    func getDescendants(_ parentItem: Self.ItemViewModel) -> [Self.ItemViewModel] {
+//        
+//        var descendants = [Self.ItemViewModel]()
+//        
+//        for item in self.getItemsBelow(parentItem) {
+//            //        log("itemBelow: \(item.id), \(item.location.x)")
+//            // if you encounter an item at or west of the parentXLocation,
+//            // then you've finished the parent's nested groups
+//            if item.location.x <= parentItem.location.x {
+//                //            log("getDescendants: exiting early")
+//                //            log("getDescendants: early exit: descendants: \(descendants)")
+//                return descendants
+//            } else {
+//                descendants.append(item)
+//            }
+//        }
+//        //    log("getDescendants: returning: descendants: \(descendants)")
+//        return descendants
+//    }
     
 //    // if "parent" does not have an iimte
 //    // Better?: `!getDescendents.isEmpty`

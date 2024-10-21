@@ -369,14 +369,7 @@ extension ProjectSidebarObservable {
     /// Filters out collapsed groups.
     /// List mut be flattened for drag gestures.
     func getVisualFlattenedList() -> [Self.ItemViewModel] {
-        self.items.flatMap { item in
-            if let children = item.children,
-               item.isExpandedInSidebar ?? false {
-                return [item] + children
-            }
-            
-            return [item]
-        }
+        self.items.getVisualFlattenedList()
     }
     
     @MainActor
@@ -461,6 +454,19 @@ extension Array where Element: SidebarItemSwipable {
             callback(item)
             
             item.children?.recursiveForEach(callback)
+        }
+    }
+    
+    /// Filters out collapsed groups.
+    /// List mut be flattened for drag gestures.
+    func getVisualFlattenedList() -> [Element] {
+        self.flatMap { item in
+            if let children = item.children,
+               item.isExpandedInSidebar ?? false {
+                return [item] + children.getVisualFlattenedList()
+            }
+            
+            return [item]
         }
     }
     
