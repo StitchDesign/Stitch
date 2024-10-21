@@ -23,14 +23,13 @@ extension ProjectSidebarObservable {
     }
 
     // Function to find the set item whose index in the list is the smallest
-    static func findSetItemWithSmallestIndex(from set: Set<Self.ItemID>,
-                                             in list: [Self.ItemViewModel]) -> Self.ItemID? {
+    func findSetItemWithSmallestIndex(from set: Set<Self.ItemID>) -> Self.ItemID? {
         var smallestIndex: Int? = nil
         var smallestItem: Self.ItemID? = nil
         
         // Iterate through each item in the set
         for item in set {
-            if let index = list.firstIndex(where: { $0.id == item }) {
+            if let index = self.items.flattenedItems.firstIndex(where: { $0.id == item }) {
                 // If it's the first item or if its index is smaller than the current smallest, update it
                 if smallestIndex == nil || index < smallestIndex! {
                     smallestIndex = index
@@ -96,7 +95,7 @@ extension ProjectSidebarObservable {
     func getImplicitlyDragged(draggedAlong: Set<ItemID>,
                               selections: Set<ItemID>) -> Set<ItemID> {
         
-        self.items.reduce(into: Set<ItemID>()) { partialResult, item in
+        self.items.flattenedItems.reduce(into: Set<ItemID>()) { partialResult, item in
             // if the item was NOT selected, yet was dragged along,
             // then it is "implicitly" selected
             if !selections.contains(item.id),
@@ -125,9 +124,8 @@ extension ProjectSidebarObservable {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
-            if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
-                from: state.inspectorFocusedLayers.focused,
-                in: state.items) {
+            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
+                from: state.inspectorFocusedLayers.focused) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
                 itemId = selectedItemWithSmallestIndex
             }
@@ -180,7 +178,7 @@ extension ProjectSidebarObservable {
             // log("SidebarListItemDragged: multiple selections; dragging an existing one")
             // Turn the master list into a "master list with a stack" first,
             if !state.selectionState.madeStack,
-                let item = self.items.first(where: { $0.id == itemId }),
+                let item = self.items.get(itemId),
             
                 self.updateStackOnDrag(
                     item,
@@ -189,9 +187,8 @@ extension ProjectSidebarObservable {
                 state.selectionState.madeStack = true
             }
             
-            if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
-                from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.items),
+            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
+                from: state.selectionState.inspectorFocusedLayers.focused),
                itemId != selectedItemWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
@@ -398,7 +395,10 @@ extension ProjectSidebarObservable {
         
         newItemsList = newItemsList.movedDraggedItems(draggedItems, at: location)
         
+//        assertInDebug(newItemsList.flattenedItems.count == oldCount)
+        
         self.items = newItemsList
+        self.items.updateSidebarIndices()
         
         // TODO: should only be for layers sidebar
         self.graphDelegate?.updateOrderedPreviewLayers()
@@ -440,6 +440,24 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
+    /// Helper that recursively travels nested data structure.
+    func recursiveForEach(_ callback: @escaping (Element) -> ()) {
+        self.forEach { item in
+            callback(item)
+            
+            item.children?.recursiveForEach(callback)
+        }
+    }
+    
+//    /// Helper that recursively travels nested data structure.
+//    func recursiveMap<T>(_ callback: @escaping (Element) -> T) -> [T] {
+//        self.map { item in
+//            let newItem = callback(item)
+//            item.children = item.children?.map(callback)
+//            return newItem
+//        }
+//    }
+    
     @MainActor
     private func movedDraggedItemsToChildren(_ draggedItems: [Element],
                                              at location: NestedListLocation<Element>) -> [Element] {
@@ -457,7 +475,6 @@ extension Array where Element: SidebarItemSwipable {
     mutating private func insertDraggedElements(_ elements: [Element],
                                                 at index: Int) {
         self.insert(contentsOf: elements, at: index)
-        self.updateSidebarIndices()
     }
     
     /// Recursive function that traverses nested array until index == 0.
@@ -509,38 +526,31 @@ extension Array where Element: SidebarItemSwipable {
 
 extension ProjectSidebarObservable {
     @MainActor
-    func sidebarListItemDragEnded(itemId: Self.ItemID) {
+    func sidebarListItemDragEnded() {
     
-        log("SidebarListItemDragEnded called: itemId: \(itemId)")
+//        log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
         let state = self
-        var itemId = itemId
+//        var itemId = itemId
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
-        if state.selectionState.optionDragInProgress {
-            // If we're currently doing an option+drag, then item needs to just be the top
-            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
-            
-            if let selectedItemWithSmallestIndex = Self.findSetItemWithSmallestIndex(
-                from: state.selectionState.inspectorFocusedLayers.focused,
-                in: state.items) {
-                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-                itemId = selectedItemWithSmallestIndex
-            }
-        }
-        
-        let item = state.items.first { $0.id == itemId }
-//        guard let item = item else {
-//            // if we couldn't find the item, it's been deleted
-//             log("SidebarListItemDragEnded: item \(itemId) was already deleted")
-//            return
+//        if state.selectionState.optionDragInProgress {
+//            // If we're currently doing an option+drag, then item needs to just be the top
+//            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
+//            
+//            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
+//                from: state.selectionState.inspectorFocusedLayers.focused) {
+//                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
+//                itemId = selectedItemWithSmallestIndex
+//            }
 //        }
         
-        self.items.forEach {
+        self.items.flattenedItems.forEach {
             $0.yDrag = nil
             $0.prevYDrag = nil
-            self.currentItemDragged = nil
         }
+
+        self.currentItemDragged = nil
 
         // if no `current`, then we were just swiping?
 //        if let current = state.currentItemDragged {

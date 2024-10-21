@@ -238,7 +238,7 @@ extension SidebarItemSwipable {
                 self.activeGesture = .none
             }
             
-            self.sidebarDelegate?.sidebarListItemDragEnded(itemId: self.id)
+            self.sidebarDelegate?.sidebarListItemDragEnded()
         }
     }
 

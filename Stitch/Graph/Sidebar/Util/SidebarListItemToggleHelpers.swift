@@ -41,21 +41,21 @@ extension ProjectSidebarObservable {
         return descendants
     }
     
-    // if "parent" does not have an iimte
-    // Better?: `!getDescendents.isEmpty`
-    func hasOpenChildren(_ item: Self.ItemViewModel) -> Bool {
-        
-        let parentIndex = item.itemIndex(self.items)
-        let nextChildIndex = parentIndex + 1
-        
-        if let child = self.items[safeIndex: nextChildIndex],
-           let childParent = child.parentId,
-           childParent == item.id {
-            return true
-        }
-        return false
-    }
-    
+//    // if "parent" does not have an iimte
+//    // Better?: `!getDescendents.isEmpty`
+//    func hasOpenChildren(_ item: Self.ItemViewModel) -> Bool {
+//        
+//        let parentIndex = item.itemIndex(self.items)
+//        let nextChildIndex = parentIndex + 1
+//        
+//        if let child = self.items[safeIndex: nextChildIndex],
+//           let childParent = child.parentId,
+//           childParent == item.id {
+//            return true
+//        }
+//        return false
+//    }
+//    
     // only called if parent has children
 //    @MainActor
 //    func hideChildren(closedParentId: Self.ItemID) {
@@ -324,7 +324,6 @@ extension ProjectSidebarObservable {
 //    }
     
     func retrieveItem(_ id: Self.ItemID) -> Self.ItemViewModel? {
-        self.items.first { $0.id == id }
+        self.items.get(id)
     }
 }
-

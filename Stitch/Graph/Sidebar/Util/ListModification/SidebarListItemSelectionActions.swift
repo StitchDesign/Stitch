@@ -132,7 +132,7 @@ extension ProjectSidebarObservable {
     // 100% selected items that ARE groups
     @MainActor func groupPrimarySelections() -> [Self.ItemID] {
         self.selectionState.primary.filter { selected in
-            if let item = self.items.first(where: { $0.id == selected }) {
+            if let item = self.items.get(selected) {
                 return item.isGroup
             }
             return false
@@ -142,7 +142,7 @@ extension ProjectSidebarObservable {
     // 100% selected items that are NOT groups
     @MainActor func nonGroupPrimarySelections() -> Set<Self.ItemID> {
         self.selectionState.primary.filter { selected in
-            if let item = self.items.first(where: { $0.id == selected }) {
+            if let item = self.items.get(selected) {
                 return !item.isGroup
             }
             return false

@@ -191,6 +191,8 @@ extension ProjectSidebarObservable {
         // log("groupFromChildBelow: items: \(debugItems)")
         
         let movedItemIndex = item.itemIndex(self.items)
+        fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
+        
         let movedItemChildrenCount = item.children?.count ?? 0
         
         let entireIndex = movedItemIndex + movedItemChildrenCount

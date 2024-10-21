@@ -358,7 +358,7 @@ extension ProjectSidebarObservable {
     func initializeDelegate(graph: GraphState) {
         self.graphDelegate = graph
         
-        self.items.forEach {
+        self.items.recursiveForEach {
             $0.sidebarDelegate = self
         }
 //        self.update(from: orderedEncodedData)

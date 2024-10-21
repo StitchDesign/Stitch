@@ -201,7 +201,7 @@ extension ProjectSidebarObservable {
         // Wipe existing edit mode selections
         self.selectionState.resetEditModeSelections()
         
-        self.items.forEach { sidebarLayer in
+        self.items.recursiveForEach { sidebarLayer in
             let itemId = sidebarLayer.id
             let wasTapped = tappedItems.contains(itemId)
             

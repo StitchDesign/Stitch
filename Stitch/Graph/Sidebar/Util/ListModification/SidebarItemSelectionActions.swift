@@ -39,7 +39,7 @@ extension ProjectSidebarObservable {
         
         if shiftHeld, originalSelections.isEmpty {
             // Special case: if no current selections, shift-click just selects from the top to the clicked item; and the shift-clicked item counts as the 'last selected item'
-            let flatList = self.items
+            let flatList = self.items.flattenedItems
             if let indexOfTappedItem = flatList.firstIndex(where: { $0.id == id }) {
                 
                 let selectionsFromTop = flatList[0...indexOfTappedItem].map(\.id)
@@ -73,7 +73,7 @@ extension ProjectSidebarObservable {
             
             log("sidebarItemTapped: lastClickedItemId: \(lastClickedItemId)")
             
-            let flatList = self.items
+            let flatList = self.items.flattenedItems
             
             let originalIsland = flatList.getIsland(startItem: lastClickedItem,
                                                     selections: originalSelections)

@@ -61,6 +61,7 @@ extension ProjectSidebarObservable {
         else {
             log("setItemsInGroupOrTopLevel: no proposed group; will snap to top level")
 //            self.items.remove(item.id)
+            fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
             self.items.append(item)
 
 //            self.moveSidebarListItemToTopLevel(item,
