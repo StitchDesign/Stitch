@@ -28,6 +28,11 @@ let defaultNumber: PortValue = .number(0)
 let numberDefaultTrue: PortValue = .number(1)
 let numberDefaultFalse: PortValue = .number(0)
 
+extension Double {
+    static let numberDefaultTrue = 1.0
+    static let numberDefaultFalse = 0.0
+}
+
 let layerDimensionDefaultTrue: PortValue = .layerDimension(LayerDimension.number(1))
 let layerDimensionDefaultFalse: PortValue = .layerDimension(LayerDimension.number(.zero))
 

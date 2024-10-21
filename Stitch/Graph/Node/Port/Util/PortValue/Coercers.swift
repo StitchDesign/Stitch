@@ -36,6 +36,7 @@ import CoreML
 
 // typealias Coerce = (PortValue) -> PortValue
 
+// TODO: `int` is a legacy PortValue.type to be removed ?
 func intCoercer(_ values: PortValues,
                 graphTime: TimeInterval) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
@@ -49,92 +50,6 @@ func intCoercer(_ values: PortValues,
                 : intDefaultFalse
         }
     }
-}
-
-func numberCoercer(_ values: PortValues,
-                   graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .number:
-            return value
-        case .layerDimension(let x):
-            return .number(x.asNumber)
-        case .size(let x):
-            return .number(x.width.asNumber)
-        case .position(let x):
-            return .number(x.x)
-        case .point3D(let x):
-            return .number(x.x)
-        case .point4D(let x):
-            return .number(x.x)
-        case .bool(let x):
-            return .number(x ? .multiplicationIdentity : .zero)
-        case .comparable(let x):
-            if let x = x {
-                return .number(x.number)
-            }
-            return numberDefaultFalse
-        case .string(let x):
-            if let number = Double(x.string) {
-                return .number(number)
-            } else if x.string.isEmpty {
-                return numberDefaultFalse
-            } else {
-                return numberDefaultTrue
-            }
-        default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? numberDefaultTrue
-                : numberDefaultFalse
-        }
-    }
-}
-
-extension PortValue {
-    var coerceToLayerDimension: LayerDimension {
-        
-        let value = self
-        
-        // port-value to use if we cannot coerce the value
-        // to a meaningful LayerDimension
-        let defaultValue: LayerDimension = .number(
-            coerceToTruthyOrFalsey(value,
-                                   // graphTime irrelevant for non-pulse PortValues
-                                   graphTime: .zero)
-            ? 1.0
-            : .zero)
-
-        switch value {
-
-        // If value is already a layer dimension,
-        // then just return it.
-        case .layerDimension(let x):
-            return x
-
-        case .int(let x):
-            return LayerDimension.number(CGFloat(x))
-            
-        // If value is a number,
-        // wrap it in a regular number.
-        case .number(let x):
-            return LayerDimension.number(x)
-
-        // If a string, try to parse to a layer-dimension.
-        case .string(let x):
-            return LayerDimension.fromUserEdit(edit: x.string) ?? defaultValue
-
-        default:
-            return defaultValue
-        }
-    }
-}
-
-func layerDimensionCoercer(_ values: PortValues,
-                           graphTime: TimeInterval) -> PortValues {
-    values
-        .map(\.coerceToLayerDimension)
-        .map(PortValue.layerDimension)
 }
 
 // this is not quite correct?
@@ -242,53 +157,53 @@ func colorCoercer(_ values: PortValues) -> PortValues {
     }
 }
 
-// Takes a PortValue; returns a .size PortValue
-func sizeCoercer(_ values: PortValues,
-                 graphTime: TimeInterval) -> PortValues {
-    
-    return values.map { (value: PortValue) -> PortValue in
-        
-        let defaultValue = coerceToTruthyOrFalsey(value,
-                                                  graphTime: graphTime)
-        ? defaultPositionTrue
-        : defaultPositionFalse
-        
-        switch value {
-        case .size:
-            return value
-        case .number(let x):
-            return .size(LayerSize(width: x,
-                                   height: x))
-        case .int(let x):
-            return .size(CGSize(width: x,
-                                height: x).toLayerSize)
-        case .position(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .layerDimension(let x):
-            return .size(LayerSize(width: x.asNumber,
-                                   height: x.asNumber))
-        case .point3D(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .point4D(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .bool(let x):
-            return .size(x ? .multiplicationIdentity : .zero)
-        case .json(let x):
-            return .size(x.value.toSize ?? .zero)
-        case .string(let x):
-            if let dimension = LayerDimension.fromUserEdit(edit: x.string) {
-                return .size(LayerSize(width: dimension,
-                                       height: dimension))
-            }
-            return defaultValue
-        default:
-            return defaultValue
-        }
-    }
-}
+//// Takes a PortValue; returns a .size PortValue
+//func sizeCoercer(_ values: PortValues,
+//                 graphTime: TimeInterval) -> PortValues {
+//    
+//    return values.map { (value: PortValue) -> PortValue in
+//        
+//        let defaultValue = coerceToTruthyOrFalsey(value,
+//                                                  graphTime: graphTime)
+//        ? defaultPositionTrue
+//        : defaultPositionFalse
+//        
+//        switch value {
+//        case .size:
+//            return value
+//        case .number(let x):
+//            return .size(LayerSize(width: x,
+//                                   height: x))
+//        case .int(let x):
+//            return .size(CGSize(width: x,
+//                                height: x).toLayerSize)
+//        case .position(let x):
+//            return .size(LayerSize(width: x.x,
+//                                   height: x.y))
+//        case .layerDimension(let x):
+//            return .size(LayerSize(width: x.asNumber,
+//                                   height: x.asNumber))
+//        case .point3D(let x):
+//            return .size(LayerSize(width: x.x,
+//                                   height: x.y))
+//        case .point4D(let x):
+//            return .size(LayerSize(width: x.x,
+//                                   height: x.y))
+//        case .bool(let x):
+//            return .size(x ? .multiplicationIdentity : .zero)
+//        case .json(let x):
+//            return .size(x.value.toSize ?? .zero)
+//        case .string(let x):
+//            if let dimension = LayerDimension.fromUserEdit(edit: x.string) {
+//                return .size(LayerSize(width: dimension,
+//                                       height: dimension))
+//            }
+//            return defaultValue
+//        default:
+//            return defaultValue
+//        }
+//    }
+//}
 
 func positionCoercer(_ values: PortValues,
                      graphTime: TimeInterval) -> PortValues {
@@ -1047,3 +962,28 @@ func paddingCoercer(_ values: PortValues) -> PortValues {
         .map { $0.coerceToStitchPadding() }
         .map(PortValue.padding)
 }
+
+extension StitchSpacing {
+    var asNumber: CGFloat {
+        switch self {
+        case .number(let x):
+            return x
+        case .between, .evenly:
+            return 1
+        }
+    }
+}
+
+extension StitchPadding {
+    var asNumber: CGFloat {
+        self.top
+    }
+}
+
+protocol NumberFromPortValue {
+    var asNumber: CGFloat { get }
+}
+
+extension StitchSpacing: NumberFromPortValue { }
+extension StitchPadding: NumberFromPortValue { }
+
