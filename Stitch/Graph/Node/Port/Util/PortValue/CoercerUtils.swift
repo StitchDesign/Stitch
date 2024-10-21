@@ -10,8 +10,15 @@ import StitchSchemaKit
 import SwiftUI
 import CoreML
 
+extension PortValue {
+    func coerceToTruthyOrFalsey(graphTime: TimeInterval = 0.0) -> Bool {
+        Stitch.coerceToTruthyOrFalsey(self, graphTime: graphTime)
+    }
+}
+
 func coerceToTruthyOrFalsey(_ value: PortValue,
-                            graphTime: TimeInterval) -> Bool {
+                            // Only for .pulse coercion cases
+                            graphTime: TimeInterval = 0.0) -> Bool {
 
     //    log("coerceToTruthyOrFalsey: value: \(value)")
     //    log("coerceToTruthyOrFalsey: graphTime: \(graphTime)")

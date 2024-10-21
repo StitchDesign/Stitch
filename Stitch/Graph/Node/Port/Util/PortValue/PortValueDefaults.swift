@@ -46,8 +46,19 @@ let pulseDefaultFalse = PortValue.pulse(.zero)
 
 let defaultSizeFalse: PortValue = .size(CGSize(width: 0, height: 0).toLayerSize)
 
+extension LayerSize {
+    static let defaultTrue: Self = .init(width: 1, height: 1)
+    static let defaultFalse: Self = .init(.zero)
+}
+
+extension StitchPosition {
+    static let defaultTrue: Self = .init(x: 1, y: 1)
+    static let defaultFalse: Self = .zero
+}
+
 let defaultPositionTrue: PortValue = .position(.init(x: 1, y: 1))
 let defaultPositionFalse: PortValue = .position(.zero)
+
 
 let point3DDefaultTrue: PortValue = .point3D(Point3D.nonZero)
 let point3DDefaultFalse: PortValue = .point3D(Point3D.zero)
