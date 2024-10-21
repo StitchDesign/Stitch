@@ -117,12 +117,12 @@ struct LayerInspectorView: View {
                     graph: graph)
                 .padding(.horizontal)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                
-                // Best option for bottom padding; prevents cut-off etc.
-                Rectangle().fill(.clear).frame(height: 1)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
+            
+            // TODO: better padding that doesn't cut off bottom input/output row and doesn't create a black band in Dark Mode
+            .padding(.bottom)
             
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
