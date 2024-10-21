@@ -208,7 +208,8 @@ struct InputValueView: View {
                                  propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
-                                 isSelectedInspectorRow: isSelectedInspectorRow, 
+                                 isSelectedInspectorRow: isSelectedInspectorRow,
+                                 isForLayerDimensionField: true,
                                  nodeKind: nodeKind)
             
         case .spacing:
@@ -227,7 +228,7 @@ struct InputValueView: View {
                                  isFieldInMultifieldInput: isFieldInMultifieldInput,
                                  isForFlyout: isForFlyout,
                                  isSelectedInspectorRow: isSelectedInspectorRow,
-                                 isForSpacingField: true, 
+                                 isForSpacingField: true,
                                  nodeKind: nodeKind)
 
         case .bool(let bool):

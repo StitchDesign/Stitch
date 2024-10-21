@@ -24,6 +24,7 @@ struct CommonEditingViewWrapper: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
+    var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
@@ -61,6 +62,9 @@ struct CommonEditingViewWrapper: View {
     var fieldWidth: CGFloat {
         if isPaddingFieldInsideInspector {
             return PADDING_FIELD_WDITH
+        } else if isForLayerDimensionField, !isFieldInMultifieldInspectorInputAndNotFlyout {
+            // Only use longer width when not a multifeld on the inspector row itself
+          return LAYER_DIMENSION_FIELD_WIDTH
         } else if isForSpacingField {
             return SPACING_FIELD_WIDTH
         } else if nodeKind.getPatch == .soulver {
