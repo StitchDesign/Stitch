@@ -67,9 +67,9 @@ protocol SidebarItemSwipable: AnyObject, Observable, Identifiable, StitchNestedL
         
     var sidebarIndex: SidebarIndex { get set }
     
-    var yDrag: CGFloat? { get set }
+    var dragPosition: CGPoint? { get set }
 
-    var prevYDrag: CGFloat? { get set }
+    var prevDragPosition: CGPoint? { get set }
     
     var isExpandedInSidebar: Bool? { get set }
     
@@ -388,8 +388,8 @@ final class SidebarItemGestureViewModel: SidebarItemSwipable {
     
     var isExpandedInSidebar: Bool?
     
-    var yDrag: CGFloat?
-    var prevYDrag: CGFloat?
+    var dragPosition: CGPoint?
+    var prevDragPosition: CGPoint?
     
     // published property to be read in view
     var swipeSetting: SidebarSwipeSetting = .closed

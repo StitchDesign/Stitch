@@ -26,7 +26,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
-        .offset(y: gestureViewModel.yDrag ?? gestureViewModel.location.y)
+        .offset(y: gestureViewModel.dragPosition?.y ?? gestureViewModel.location.y)
         
         #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`

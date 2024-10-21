@@ -236,7 +236,7 @@ extension ProjectSidebarObservable {
         let visualList = self.getVisualFlattenedList()
         
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
-        let isNewDrag = item.yDrag == nil
+        let isNewDrag = item.dragPosition == nil
         let isDraggingDown = translation.height > 0
         
 //        var alreadyDragged = Set<ItemID>()
@@ -269,9 +269,9 @@ extension ProjectSidebarObservable {
 //                alreadyDragged: alreadyDragged,
 //                draggedAlong: draggedAlong)
 //        
-//        // limit this from going negative?
-////        cursorDrag.x = cursorDrag.previousX + translation.width
-//        
+        // limit this from going negative?
+//        cursorDrag.x = cursorDrag.previousX + translation.width
+//
 ////        item = self.items[originalItemIndex] // update the `item` too!
 //        alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
 //        draggedAlong = draggedAlong.union(updatedDraggedAlong)
@@ -311,15 +311,15 @@ extension ProjectSidebarObservable {
 
             // Set up previous drag position, which we'll increment off of
             (allDraggedItems + draggedChildren).forEach { item in
-                item.prevYDrag = CGFloat(SidebarItemGestureViewModel.inferLocationY(from: item.sidebarIndex.rowIndex))
-                item.yDrag = item.prevYDrag
+                item.prevDragPosition = item.location
+                item.dragPosition = item.prevDragPosition
             }
             
             return
         }
         
         (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
-            draggedItem.yDrag = (draggedItem.prevYDrag ?? .zero) + translation.height
+            draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
             
 //            if originalItemIndex != calculatedIndex {
 //                log("calculatedIndex: \(calculatedIndex)")
@@ -332,10 +332,11 @@ extension ProjectSidebarObservable {
 //            }
         }
         
-        guard let calculatedIndex = self.getMovedtoIndex(
-            dragY: item.yDrag ?? .zero,
+        guard let calculatedIndex = Self.getMovedtoIndex(
+            dragY: item.dragPosition?.y ?? .zero,
 //            maxIndex: maxMovedToIndex,
-            movingDown: isDraggingDown) else {
+            movingDown: isDraggingDown,
+            flattenedItems: visualList) else {
             log("No index found")
             return
         }
@@ -571,8 +572,8 @@ extension ProjectSidebarObservable {
 //        }
         
         self.items.flattenedItems.forEach {
-            $0.yDrag = nil
-            $0.prevYDrag = nil
+            $0.dragPosition = nil
+            $0.prevDragPosition = nil
         }
 
         self.currentItemDragged = nil

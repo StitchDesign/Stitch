@@ -139,10 +139,10 @@ extension ProjectSidebarObservable {
 //    }
     
     @MainActor
-    func getMovedtoIndex(dragY: CGFloat,
-                         movingDown: Bool) -> Int? {
+    static func getMovedtoIndex(dragY: CGFloat,
+                                movingDown: Bool,
+                                flattenedItems: [Self.ItemViewModel]) -> Int? {
         
-        let flattenedItems = self.items.flattenedItems
         let maxIndex = flattenedItems.count - 1
         let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
         
