@@ -52,6 +52,7 @@ extension LayerSize {
         }
     }
 
+    // TODO: "Algebraic Size" defaults every non-number case to 0 or some %
     var asAlgebraicCGSize: CGSize {
 
         // `auto` defaults to zero when used in algebraic contexts
@@ -65,8 +66,8 @@ extension LayerSize {
                height: self.height.asNumber)
     }
 
-    var asSceneSize: CGSize {
-        var sceneSize: CGSize = self.asAlgebraicCGSize
+    func asSceneSize(parentSize: CGSize) -> CGSize {
+        var sceneSize: CGSize = self.asCGSize(parentSize)
         
         sceneSize.width =  sceneSize.width >= max1DTextureWidth ? max1DTextureWidth : sceneSize.width
         
