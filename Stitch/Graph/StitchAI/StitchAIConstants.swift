@@ -145,7 +145,9 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "Scale",
                 "Shape",
                 "Image",
-                "Position"
+                "Position",
+                "Color",
+                "Opacity"
             ],
             "title": "LayerPorts",
             "type": "string"
