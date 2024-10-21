@@ -11,6 +11,25 @@ import Foundation
 import StitchSchemaKit
 import SwiftUI
 
+
+// MARK: INT
+
+// TODO: `int` is a legacy PortValue.type to be removed ?
+func intCoercer(_ values: PortValues) -> PortValues {
+    return values.map { (value: PortValue) -> PortValue in
+        switch value {
+        case .int:
+            return value
+        default:
+            return value.coerceToTruthyOrFalsey() ? intDefaultTrue : intDefaultFalse
+        }
+    }
+}
+
+
+
+// MARK: NUMBER
+
 // e.g. a PortValue.number-type input is receiving a new list of values, which may need to be duck-typed to PortValue.number
 func numberCoercer(_ values: PortValues) -> PortValues {
     values.map { .number($0.toNumber) }
@@ -63,6 +82,9 @@ extension PortValue {
         }
     }
 }
+
+
+// MARK: LAYER DIMENSION
 
 func layerDimensionCoercer(_ values: PortValues) -> PortValues {
     values.map { .layerDimension($0.coerceToLayerDimension) }
@@ -127,6 +149,8 @@ extension PortValue {
 }
 
 
+// MARK: SIZE
+
 // Takes a PortValue; returns a .size PortValue
 func sizeCoercer(_ values: PortValues) -> PortValues {
     values.map { .size($0.coerceToSize) }
@@ -190,6 +214,14 @@ extension PortValue {
     }
 }
 
+
+
+// MARK: POSITION
+
+func positionCoercer(_ values: PortValues) -> PortValues {
+    values.map { .position($0.coerceToPosition) }
+}
+
 extension PortValue {
     var coerceToPosition: StitchPosition {
         let value = self
@@ -245,67 +277,301 @@ extension PortValue {
         }
     }
 }
-                
-func positionCoercer(_ values: PortValues) -> PortValues {
-    values.map { .position($0.coerceToPosition) }
-}
+
+
+// MARK: POINT3D
 
 // Better: break down into a function like:
 // `(PortValue) -> Point3D` + `Point3D -> PortValue.point3D`
 // (Note: most useful for an associated data that is unique across port values.)
-func point3DCoercer(_ values: PortValues,
-                    graphTime: TimeInterval) -> PortValues {
+func point3DCoercer(_ values: PortValues) -> PortValues {
+    values.map { .point3D($0.coerceToPoint3D) }
+}
 
-    return values.map { (value: PortValue) -> PortValue in
-        var k: Point3D
-        switch value {
+extension PortValue {
+    var coerceToPoint3D: Point3D {
+        switch self {
         case .point3D(let x):
-            k = x
+            return x
         case .number(let x):
-            k = x.toPoint3D
+            return x.toPoint3D
         case .int(let x):
-            k = x.toPoint3D
+            return x.toPoint3D
         case .size(let x):
-            k = x.asAlgebraicCGSize.toPoint3D
+            return x.asAlgebraicCGSize.toPoint3D
         case .position(let x):
-            k = x.toPoint3D
+            return x.toPoint3D
         case .point4D(let x):
-            k = x.toPoint3D
+            return x.toPoint3D
         case .json(let x):
-            k = x.value.toPoint3D ?? .zero
+            return x.value.toPoint3D ?? .zero
         case .bool(let x):
-            return .point3D(x ? .multiplicationIdentity : .zero)
-        default:
-            k = coerceToTruthyOrFalsey(value, graphTime: graphTime) ? Point3D.multiplicationIdentity : .zero
+            return x ? .multiplicationIdentity : .zero
+        case .layerDimension(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .spacing(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .padding(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .string(let x):
+            if let dimension = Stitch.toNumber(x.string) {
+                return .fromSingleNumber(dimension)
+            }
+            return .defaultTrue
+            
+        // TODO: how to better handle this `PortValue.comparable` type?
+        case .comparable(let x):
+            if let x = x {
+                switch x {
+                case .number(let k):
+                    return .fromSingleNumber(k)
+                case .string(let k):
+                    if let dimension = Stitch.toNumber(x.string) {
+                        return .fromSingleNumber(dimension)
+                    }
+                    return .defaultTrue
+                case .bool(let k):
+                    return k ? .multiplicationIdentity : .zero
+                }
+            }
+            return .defaultFalse
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+            return self.coerceToTruthyOrFalsey() ? Point3D.multiplicationIdentity : .zero
         }
-        return .point3D(k)
     }
 }
 
-func point4DCoercer(_ values: PortValues,
-                    graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
+// MARK: POINT4D
+
+func point4DCoercer(_ values: PortValues) -> PortValues {
+    values.map { .point4D($0.coerceToPoint4D) }
+}
+
+extension PortValue {
+    var coerceToPoint4D: Point4D {
+        switch self {
         case .point4D(let x):
-            return .point4D(x)
+            return x
         case .number(let x):
-            return .point4D(x.toPoint4D)
+            return x.toPoint4D
         case .int(let x):
-            return .point4D(x.toPoint4D)
+            return x.toPoint4D
         case .size(let x):
-            return .point4D(x.asAlgebraicCGSize.toPoint4D)
+            return x.asAlgebraicCGSize.toPoint4D
         case .position(let x):
-            return .point4D(x.toPoint4D)
+            return x.toPoint4D
         case .point3D(let x):
-            return .point4D(x.toPoint4D)
+            return x.toPoint4D
         case .json(let x):
-            return .point4D(x.value.toPoint4D ?? .empty)
+            return x.value.toPoint4D ?? .empty
         case .bool(let x):
-            return .point4D(x ? .multiplicationIdentity : .zero)
-        default:
-            return .point4D(
-                coerceToTruthyOrFalsey(value, graphTime: graphTime) ? .multiplicationIdentity : .empty
-            )
+            return x ? .multiplicationIdentity : .zero
+        case .layerDimension(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .spacing(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .padding(let x):
+            return .fromSingleNumber(x.asNumber)
+        case .string(let x):
+            if let dimension = Stitch.toNumber(x.string) {
+                return .fromSingleNumber(dimension)
+            }
+            return .defaultTrue
+            
+        // TODO: how to better handle this `PortValue.comparable` type?
+        case .comparable(let x):
+            if let x = x {
+                switch x {
+                case .number(let k):
+                    return .fromSingleNumber(k)
+                case .string(let k):
+                    if let dimension = Stitch.toNumber(x.string) {
+                        return .fromSingleNumber(dimension)
+                    }
+                    return .defaultTrue
+                case .bool(let k):
+                    return k ? .multiplicationIdentity : .zero
+                }
+            }
+            return .defaultFalse
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none:
+            return self.coerceToTruthyOrFalsey() ? .multiplicationIdentity : .empty
         }
     }
 }
+
+// MARK: SPACING
+
+func spacingCoercer(_ values: PortValues) -> PortValues {
+    values
+        .map { .spacing($0.coerceToStitchSpacing()) }
+}
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToStitchSpacing() -> StitchSpacing {
+        switch self {
+        case .number(let x):
+            return .fromSingleNumber(x)
+        case .int(let x):
+            return .fromSingleNumber(Double(x))
+        case .size(let x):
+            let x = x.asAlgebraicCGSize
+            return .fromSingleNumber(x.width)
+        case .position(let x):
+            return .fromSingleNumber(x.x)
+        case .point3D(let x):
+            return .fromSingleNumber(x.x)
+        case .point4D(let x):
+            return .fromSingleNumber(x.x)
+            
+            // TODO: get clever here?
+//        case .json(let x):
+//            let x = x.value.toPoint4D
+            
+        case .bool(let x):
+            return x ? .defaultTrue : .defaultFalse
+        
+        case .layerDimension(let x):
+            return .fromSingleNumber(x.asNumber)
+        
+        case .spacing(let x):
+            return x
+        
+        case .padding(let x):
+            return .fromSingleNumber(x.asNumber)
+        
+        case .string(let x):
+            if let dimension = Stitch.toNumber(x.string) {
+                return .fromSingleNumber(dimension)
+            }
+            return .defaultFalse
+            
+            // TODO: how to better handle this `PortValue.comparable` type?
+        case .comparable(let x):
+            if let x = x {
+                switch x {
+                case .number(let k):
+                    return .fromSingleNumber(k)
+                case .string(let k):
+                    if let dimension = Stitch.toNumber(x.string) {
+                        return .fromSingleNumber(dimension)
+                    }
+                    return .defaultTrue
+                case .bool(let k):
+                    return k ? .defaultTrue : .defaultFalse
+                }
+            }
+            return .defaultFalse
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
+            return self.coerceToTruthyOrFalsey() ? .defaultTrue : .defaultFalse
+        }
+        
+    }
+}
+
+
+extension StitchSpacing {
+    var asNumber: CGFloat {
+        switch self {
+        case .number(let x):
+            return x
+        case .between, .evenly:
+            return 1
+        }
+    }
+    
+    static func fromSingleNumber(_ n: Double) -> Self {
+        .number(n)
+    }
+    
+    static let defaultTrue: Self = .evenly
+    static let defaultFalse: Self = .number(0)
+}
+
+
+// MARK: PADDING
+
+func paddingCoercer(_ values: PortValues) -> PortValues {
+    values.map { .padding($0.coerceToStitchPadding()) }
+}
+
+
+extension PortValue {
+    // Takes any PortValue, and returns a MobileHapticStyle
+    func coerceToStitchPadding() -> StitchPadding {
+        switch self {
+        case .number(let x):
+            return .fromSingleNumber(x)
+        case .int(let x):
+            return .fromSingleNumber(Double(x))
+        case .size(let x):
+            let x = x.asAlgebraicCGSize
+            return .init(top: x.height, right: x.width, bottom: x.height, left: x.width)
+        case .position(let x):
+            return .init(top: x.y, right: x.x, bottom: x.y, left: x.x)
+        case .point3D(let x):
+            return .init(top: x.x, right: x.y, bottom: x.z, left: x.x)
+        case .point4D(let x):
+            return .init(top: x.x, right: x.y, bottom: x.z, left: x.w)
+            
+            // TODO: get clever here?
+//        case .json(let x):
+//            let x = x.value.toPoint4D
+            
+        case .bool(let x):
+            return x ? .multiplicationIdentity : .zero
+        
+        case .layerDimension(let x):
+            return .fromSingleNumber(x.asNumber)
+        
+        case .spacing(let x):
+            return .fromSingleNumber(x.asNumber)
+        
+        case .padding(let x):
+            return x
+        
+        case .string(let x):
+            if let dimension = Stitch.toNumber(x.string) {
+                return .fromSingleNumber(dimension)
+            }
+            return .defaultFalse
+            
+            // TODO: how to better handle this `PortValue.comparable` type?
+        case .comparable(let x):
+            if let x = x {
+                switch x {
+                case .number(let k):
+                    return .fromSingleNumber(k)
+                case .string(let k):
+                    if let dimension = Stitch.toNumber(x.string) {
+                        return .fromSingleNumber(dimension)
+                    }
+                    return .defaultTrue
+                case .bool(let k):
+                    return k ? .defaultTrue : .defaultFalse
+                }
+            }
+            return .defaultFalse
+        case .transform, .plane, .networkRequestType, .color, .pulse, .asyncMedia, .anchoring, .cameraDirection, .assignedLayer, .scrollMode, .textAlignment, .textVerticalAlignment, .fitStyle, .animationCurve, .lightType, .layerStroke, .textTransform, .dateAndTimeFormat, .shape, .scrollJumpStyle, .scrollDecelerationRate, .delayStyle, .shapeCoordinates, .shapeCommandType, .shapeCommand, .orientation, .cameraOrientation, .deviceOrientation, .vnImageCropOption, .textDecoration, .textFont, .blendMode, .mapType, .progressIndicatorStyle, .mobileHapticStyle, .strokeLineCap, .strokeLineJoin, .contentMode, .sizingScenario, .pinTo, .deviceAppearance, .materialThickness, .none, .json:
+            return self.coerceToTruthyOrFalsey() ? .multiplicationIdentity : .empty
+        }
+    }
+}
+
+extension StitchPadding {
+    var asNumber: CGFloat {
+        self.top
+    }
+    
+    static func fromSingleNumber(_ n: Double) -> Self {
+        .init(top: n, right: n, bottom: n, left: n)
+    }
+    
+    static let defaultTrue: Self = .init(top: 1, right: 1, bottom: 1, left: 1)
+    static let defaultFalse: Self = .init(top: 0, right: 0, bottom: 0, left: 0)
+    
+    static let multiplicationIdentity: Self = Self.defaultTrue
+    static let empty = Self.defaultFalse
+}
+

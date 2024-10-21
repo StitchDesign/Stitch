@@ -59,9 +59,26 @@ extension StitchPosition {
 let defaultPositionTrue: PortValue = .position(.init(x: 1, y: 1))
 let defaultPositionFalse: PortValue = .position(.zero)
 
+extension Point3D {
+    static let defaultTrue: Self = Point3D.nonZero
+    static let defaultFalse: Self = Point3D.zero
+    
+    static func fromSingleNumber(_ n: Double) -> Self {
+        .init(x: n, y: n, z: n)
+    }
+}
 
 let point3DDefaultTrue: PortValue = .point3D(Point3D.nonZero)
 let point3DDefaultFalse: PortValue = .point3D(Point3D.zero)
+
+extension Point4D {
+    static let defaultTrue: Self = Point4D.nonZero
+    static let defaultFalse: Self = Point4D.zero
+    
+    static func fromSingleNumber(_ n: Double) -> Self {
+        .init(x: n, y: n, z: n, w: n)
+    }
+}
 
 let point4DDefaultTrue: PortValue = .point4D(Point4D.nonZero)
 let point4DDefaultFalse: PortValue = .point4D(Point4D.zero)

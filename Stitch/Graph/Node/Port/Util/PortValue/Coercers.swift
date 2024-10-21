@@ -36,29 +36,12 @@ import CoreML
 
 // typealias Coerce = (PortValue) -> PortValue
 
-// TODO: `int` is a legacy PortValue.type to be removed ?
-func intCoercer(_ values: PortValues,
-                graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .int:
-            return value
-        default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? intDefaultTrue
-                : intDefaultFalse
-        }
-    }
-}
-
 // this is not quite correct?
 // ... since boolParser just says "true" if the display string is non-empty,
 // whereas really, "0" is non-empty but falsey
-func boolCoercer(_ values: PortValues,
-                 graphTime: TimeInterval) -> PortValues {
+func boolCoercer(_ values: PortValues) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
-        return .bool(coerceToTruthyOrFalsey(value, graphTime: graphTime))
+        return .bool(value.coerceToTruthyOrFalsey())
     }
 }
 
@@ -702,7 +685,6 @@ func anchoringCoercer(_ values: PortValues) -> PortValues {
             return value
         case .number(let x):
 //            return Anchoring.fromNumber(x)
-//            return Anchoring.fromNumber(x)
             return portValueEnumCase(from: Int(x),
                                      with: Anchoring.choices)
         default:
@@ -753,9 +735,7 @@ extension PortValue {
 }
 
 func contentModeCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToContentMode() }
-        .map(PortValue.contentMode)
+    values.map { .contentMode($0.coerceToContentMode()) }
 }
 
 extension PortValue {
@@ -774,70 +754,7 @@ extension PortValue {
 }
 
 func sizingScenarioCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToSizingScenario() }
-        .map(PortValue.sizingScenario)
+    values.map { .sizingScenario($0.coerceToSizingScenario()) }
 }
 
-extension PortValue {
-    // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchSpacing() -> StitchSpacing {
-        switch self {
-        case .spacing(let x):
-            return x
-        default:
-            // TODO: smarter coercion of other PortValues
-            return .defaultStitchSpacing
-        }
-    }
-}
-
-func spacingCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToStitchSpacing() }
-        .map(PortValue.spacing)
-}
-
-extension PortValue {
-    // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchPadding() -> StitchPadding {
-        switch self {
-        case .padding(let x):
-            return x
-        default:
-            // TODO: smarter coercion of other PortValues
-            return .defaultPadding
-        }
-    }
-}
-
-func paddingCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToStitchPadding() }
-        .map(PortValue.padding)
-}
-
-extension StitchSpacing {
-    var asNumber: CGFloat {
-        switch self {
-        case .number(let x):
-            return x
-        case .between, .evenly:
-            return 1
-        }
-    }
-}
-
-extension StitchPadding {
-    var asNumber: CGFloat {
-        self.top
-    }
-}
-
-protocol NumberFromPortValue {
-    var asNumber: CGFloat { get }
-}
-
-extension StitchSpacing: NumberFromPortValue { }
-extension StitchPadding: NumberFromPortValue { }
 
