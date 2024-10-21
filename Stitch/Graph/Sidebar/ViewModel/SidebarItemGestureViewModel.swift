@@ -474,9 +474,12 @@ extension Array where Element: SidebarItemSwipable {
             
             currentRowIndex += 1
             
-            item.children?
-                .updateSidebarIndices(currentGroupIndex: currentGroupIndex + 1,
-                                      currentRowIndex: &currentRowIndex)
+            if let children = item.children,
+               item.isExpandedInSidebar ?? false {
+                children
+                    .updateSidebarIndices(currentGroupIndex: currentGroupIndex + 1,
+                                          currentRowIndex: &currentRowIndex)
+            }
         }
     }
 }

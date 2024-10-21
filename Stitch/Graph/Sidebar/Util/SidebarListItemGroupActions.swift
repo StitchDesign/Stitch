@@ -73,6 +73,8 @@ extension ProjectSidebarObservable {
 //            expanded: state.getSidebarExpandedItems(),
 //            graphState: state)
         
+        self.items.updateSidebarIndices()
+        
         self.persistSidebarChanges()
     }
 }
@@ -116,6 +118,7 @@ extension ProjectSidebarObservable {
         // Trigger inherited class
 //        self.didGroupExpand(openedId)
         parentItem.isExpandedInSidebar = true
+        self.items.updateSidebarIndices()
         
         self.persistSidebarChanges()
     }
