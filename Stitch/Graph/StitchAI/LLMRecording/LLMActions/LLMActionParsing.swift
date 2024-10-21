@@ -70,19 +70,17 @@ extension StitchDocumentViewModel {
             // AddNode action has a specific "LLM action node id" i.e. node default title + part of the node id
             // ... suppose we create a node, then move it;
             // the LLM-move-action will expect the specific "LLM action
+            nodesAdded += 1
             
+            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 300)
+            let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 300)
+            
+            let newCenter = CGPoint(x: centerX, y: centerY)
+
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
-               let node = self.nodeCreated(choice: nodeKind) {
+               let node = self.nodeCreated(choice: nodeKind, center: newCenter) {
                     self.llmNodeIdMapping.updateValue(node.id, forKey: llmNodeId)
-                nodesAdded += 1
-                
-                let x = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 300)
-                let y = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 300)
-                
-                let newCenter = CGPoint(x: x, y: y)
-                
-                node.
             }
             
         // A patch node or layer-input-on-graph was moved
