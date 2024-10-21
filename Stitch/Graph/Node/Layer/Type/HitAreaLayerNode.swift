@@ -19,6 +19,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .enabled,
         .position,
         .size,
+        .scale,
         .anchoring,
         .zIndex,
         .setupMode
@@ -41,6 +42,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             size: viewModel.size.getSize ?? defaultHitAreaSize,
+            scale: viewModel.scale.getNumber ?? 1.0,
             enabled: viewModel.enabled.getBool ?? true,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
             setupMode: viewModel.setupMode.getBool ?? false,
