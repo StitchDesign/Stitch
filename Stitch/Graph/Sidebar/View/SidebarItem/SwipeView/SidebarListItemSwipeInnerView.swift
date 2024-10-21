@@ -23,9 +23,9 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
     
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
     
-    var itemIndent: CGFloat {
-        CGFloat(itemViewModel.sidebarIndex.groupIndex * CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
-    }
+//    var itemIndent: CGFloat {
+//        CGFloat(itemViewModel.sidebarIndex.groupIndex * CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
+//    }
     
     var body: some View {
         HStack(spacing: .zero) {
@@ -37,7 +37,7 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
 //                                    layer: layer,
 //                                    isHidden: isHidden,
                                     swipeOffset: swipeX)
-                .padding(.leading, itemIndent + 5)
+//                .padding(.leading, 5)
                 .background {
                     theme.fontColor
                         .opacity(itemViewModel.backgroundOpacity)
@@ -95,6 +95,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
             }
         }
         .animation(.stitchAnimation(duration: 0.25), value: showMainItem)
-        .animation(.stitchAnimation(duration: 0.25), value: itemIndent)
+//        .animation(.stitchAnimation(duration: 0.25), value: itemIndent)
     }
 }

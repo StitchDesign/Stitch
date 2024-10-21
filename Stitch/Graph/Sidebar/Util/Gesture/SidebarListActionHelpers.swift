@@ -139,12 +139,17 @@ extension ProjectSidebarObservable {
 //    }
     
     @MainActor
-    static func getMovedtoIndex(dragY: CGFloat,
+    static func getMovedtoIndex(dragPosition: CGPoint,
                                 movingDown: Bool,
-                                flattenedItems: [Self.ItemViewModel]) -> Int? {
+                                flattenedItems: [Self.ItemViewModel]) -> SidebarIndex? {
         
         let maxIndex = flattenedItems.count - 1
         let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
+        let dragY = dragPosition.y
+        let dragX = max(dragPosition.x, 0)
+        let groupIndex = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
+        
+//        log("divide test: \(dragPosition.x / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL))\tindex: \(groupIndex)")
         
         var range = (0...maxY)
             .filter { $0.isMultiple(of: CUSTOM_LIST_ITEM_VIEW_HEIGHT / 2) }
@@ -180,11 +185,13 @@ extension ProjectSidebarObservable {
                 // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
                 let ki = Int(k)
                 if ki > maxIndex {
-                    print("getMovedtoIndex: maxIndex: \(maxIndex)")
-                    return maxIndex
+//                    print("getMovedtoIndex: maxIndex: \(maxIndex)")
+                    return .init(groupIndex: groupIndex,
+                                 rowIndex: maxIndex)
                 } else {
-                    print("getMovedtoIndex: ki: \(ki)")
-                    return ki
+//                    print("getMovedtoIndex: ki: \(ki)")
+                    return .init(groupIndex: groupIndex,
+                                 rowIndex: ki)
                 }
             }
         }

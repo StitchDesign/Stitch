@@ -23,10 +23,12 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             gestureViewModel: gestureViewModel,
             graph: graph)
         .transition(.move(edge: .top).combined(with: .opacity))
+        .animation(.stitchAnimation(duration: 0.25), value: gestureViewModel.location)
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
-        .offset(y: gestureViewModel.dragPosition?.y ?? gestureViewModel.location.y)
+//        .offset(y: gestureViewModel.dragPosition?.y ?? gestureViewModel.location.y)
+        .offset(gestureViewModel.dragPosition?.toCGSize ?? gestureViewModel.location.toCGSize)
         
         #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
