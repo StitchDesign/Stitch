@@ -113,8 +113,6 @@ extension StitchDocumentViewModel {
                             // Process actions
                             actions.forEach {
                                 nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
-                                //adding this solves a concurrency bug? without it; edges don't render??
-                                print(nodesAdded)
                             }
                             
                             // Trigger additional functionality
