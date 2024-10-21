@@ -163,6 +163,14 @@ struct ProjectsHomeCommands: Commands {
                     dispatch(NodeCreatedEvent(choice: .patch(.sizePack)))
                 }
                 
+                SwiftUIShortcutView(title: "Insert Value Node",
+                                    key: ADD_SPLITTER_NODE_SHORTCUT,
+                                    // empty list = do not require CMD
+                                    eventModifiers: [.option],
+                                    disabled: textFieldFocused) {
+                    dispatch(NodeCreatedEvent(choice: .patch(.splitter)))
+                }
+                
                 // Option + W = add Broadcaster
                 SwiftUIShortcutView(title: "Insert Wireless Broadcaster",
                                     key: ADD_WIRELESS_NODE_SHORTCUT,
