@@ -233,11 +233,11 @@ extension ProjectSidebarObservable {
     func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
                                   _ translation: CGSize,
                                   otherSelections: Set<ItemID>) {
+        let visualList = self.getVisualFlattenedList()
         
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
         let isNewDrag = item.yDrag == nil
         let isDraggingDown = translation.height > 0
-        let allFlattenedItems = self.items.flattenedItems
         
 //        var alreadyDragged = Set<ItemID>()
 //        var draggedAlong = Set<ItemID>()
@@ -250,11 +250,11 @@ extension ProjectSidebarObservable {
 //            item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
 //        }
         
-        let allDraggedItems = [item] + allFlattenedItems.filter { item in
+        let allDraggedItems = [item] + visualList.filter { item in
             otherSelections.contains(item.id)
         }
 
-        let implicitlyDraggedItems = allFlattenedItems.filter { item in
+        let implicitlyDraggedItems = visualList.filter { item in
             self.implicitlyDragged.contains(item.id)
         }
         
@@ -299,6 +299,7 @@ extension ProjectSidebarObservable {
             
             // Move items to dragged item
             self.movedDraggedItems(allDraggedItems,
+                                   visualList: visualList,
                                    to: originalItemIndex)
             
             let draggedChildren = allDraggedItems.flatMap { draggedItem in
@@ -342,6 +343,7 @@ extension ProjectSidebarObservable {
         log("new index: \(calculatedIndex)")
         if originalItemIndex != calculatedIndex {
             self.movedDraggedItems(allDraggedItems,
+                                   visualList: visualList,
                                    to: calculatedIndex)
         }
         
@@ -374,10 +376,10 @@ extension ProjectSidebarObservable {
     
     @MainActor
     func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
+                           visualList: [Self.ItemViewModel],
                            to index: Int) {
         var newItemsList = self.items
         let draggedItems = draggedItems
-        let visualList = self.getVisualFlattenedList()
         
         guard let draggedToElement = visualList[safe: index] ?? visualList.last else {
             self.items = draggedItems
