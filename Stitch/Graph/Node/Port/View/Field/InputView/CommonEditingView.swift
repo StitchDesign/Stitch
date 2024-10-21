@@ -29,6 +29,10 @@ let COMMON_EDITING_DROPDOWN_CHEVRON_HEIGHT = COMMON_EDITING_DROPDOWN_CHEVRON_WID
 
 // node field input/output width, per Figma Spec
 let NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 56
+
+// Need additional space since LayerDimension has the dropdown chevron + can display a percent
+let LAYER_DIMENSION_FIELD_WIDTH: CGFloat = 68
+
 // the soulver node needs more width
 let SOULVER_NODE_INPUT_OR_OUTPUT_WIDTH: CGFloat = 90
 
