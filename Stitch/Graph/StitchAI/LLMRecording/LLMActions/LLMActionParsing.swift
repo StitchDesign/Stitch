@@ -41,7 +41,9 @@ extension StitchDocumentViewModel {
             let data = try json.rawData()
             let actions: LLMActions = try JSONDecoder().decode(LLMActions.self,
                                                                from: data)
-            actions.forEach { self.handleLLMAction($0) }
+            
+            var nodesAdded = 0
+            actions.forEach { self.handleLLMAction($0, nodesAdded: nodesAdded) }
             self.llmRecording.jsonEntryState = .init() // reset
             self.visibleGraph.encodeProjectInBackground()
         } catch {
@@ -54,28 +56,36 @@ extension StitchDocumentViewModel {
 }
 
 extension StitchDocumentViewModel {
+
     @MainActor
-    func handleLLMAction(_ action: LLMAction) {
+    func handleLLMAction(_ action: LLMAction, nodesAdded: Int) -> Int {
+        var nodesAdded = nodesAdded
         
         log("handleLLMAction: action: \(action)")
         
         // Make sure we're not "recording", so that functions do
         self.llmRecording.isRecording = false
-                
+
         switch action {
-            
         case .addNode(let x):
             // AddNode action has a specific "LLM action node id" i.e. node default title + part of the node id
             // ... suppose we create a node, then move it;
             // the LLM-move-action will expect the specific "LLM action
+
+            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 400)
+            let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 100)
             
+            let newCenter = CGPoint(x: centerX, y: centerY)
+            print("CENTER")
+            print(newCenter)
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
-               let node = self.nodeCreated(choice: nodeKind) {
-                self.llmNodeIdMapping.updateValue(node.id,
-                                                          forKey: llmNodeId)
+               let node = self.nodeCreated(choice: nodeKind, center: newCenter) {
+                    self.llmNodeIdMapping.updateValue(node.id, forKey: llmNodeId)
             }
-            
+
+            nodesAdded += 1
+
         // A patch node or layer-input-on-graph was moved
         case .moveNode(let x):
             
@@ -97,26 +107,26 @@ extension StitchDocumentViewModel {
                   self.graph.getNode(fromNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No origin node")
                 fatalErrorIfDebug()
-                return
+                return nodesAdded
             }
             
             guard let (toNodeId, toNodeKind) = x.to.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   self.graph.getNode(toNodeId).isDefined else  {
                 log("handleLLMAction: .addEdge: No destination node")
                 fatalErrorIfDebug()
-                return
+                return nodesAdded
             }
             
             guard let fromPort: NodeIOPortType = x.from.port.parseLLMPortAsPortType(fromNodeKind, .output) else {
                 log("handleLLMAction: .addEdge: No origin port")
                 fatalErrorIfDebug()
-                return
+                return nodesAdded
             }
             
             guard let toPort: NodeIOPortType = x.to.port.parseLLMPortAsPortType(toNodeKind, .input) else {
                 log("handleLLMAction: .addEdge: No destination port")
                 fatalErrorIfDebug()
-                return
+                return nodesAdded
             }
             
             let portEdgeData = PortEdgeData(
@@ -130,24 +140,24 @@ extension StitchDocumentViewModel {
             guard let (nodeId, nodeKind) = x.field.node.getNodeIdAndKindFromLLMNode(from: self.llmNodeIdMapping),
                   let node = self.graph.getNode(nodeId) else {
                 log("handleLLMAction: .setInput: No node id or node")
-                return
+                return nodesAdded
             }
             
             guard let portType = x.field.port.parseLLMPortAsPortType(nodeKind, .input) else {
                 log("handleLLMAction: .setInput: No port")
-                return
+                return nodesAdded
             }
             
             let inputCoordinate = InputCoordinate(portType: portType, nodeId: nodeId)
             
             guard let nodeType = x.nodeType.parseLLMNodeType else {
                 log("handleLLMAction: .setInput: No node type")
-                return
+                return nodesAdded
             }
             
             guard let input = self.graph.getInputObserver(coordinate: inputCoordinate) else {
                 log("handleLLMAction: .setField: No input")
-                return
+                return nodesAdded
             }
                         
             // The new value for that entire input, not just for some field
@@ -156,7 +166,7 @@ extension StitchDocumentViewModel {
                 with: self.llmNodeIdMapping
             ) else {
                 log("handleLLMAction: .setField: No port value")
-                return
+                return nodesAdded
             }
             
             node.removeIncomingEdge(at: inputCoordinate,
@@ -171,12 +181,12 @@ extension StitchDocumentViewModel {
             guard let nodeId = x.node.getNodeIdFromLLMNode(from: self.llmNodeIdMapping),
                   self.graph.getNode(nodeId).isDefined else {
                 log("handleLLMAction: .changeNodeType: No node id or node")
-                return
+                return nodesAdded
             }
             
             guard let nodeType = x.nodeType.parseLLMNodeType else {
                 log("handleLLMAction: .changeNodeType: No node type")
-                return
+                return nodesAdded
             }
             
             let _ = self.graph.nodeTypeChanged(nodeId: nodeId, newNodeType: nodeType)
@@ -192,7 +202,7 @@ extension StitchDocumentViewModel {
                                                   llmPort: x.port,
                                                   isInput: false)
         }
-        
+        return nodesAdded
     }
     
     @MainActor
@@ -526,3 +536,4 @@ extension NodeIOCoordinate {
     }
 }
      
+
