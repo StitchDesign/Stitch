@@ -10,8 +10,16 @@ import StitchSchemaKit
 import SwiftUI
 import CoreML
 
+extension PortValue {
+    func coerceToTruthyOrFalsey(graphTime: TimeInterval = 0.0) -> Bool {
+        Stitch.coerceToTruthyOrFalsey(self, graphTime: graphTime)
+    }
+}
+
+// TODO: update to handle more PortValue cases
 func coerceToTruthyOrFalsey(_ value: PortValue,
-                            graphTime: TimeInterval) -> Bool {
+                            // Only for .pulse coercion cases
+                            graphTime: TimeInterval = 0.0) -> Bool {
 
     //    log("coerceToTruthyOrFalsey: value: \(value)")
     //    log("coerceToTruthyOrFalsey: graphTime: \(graphTime)")
@@ -66,25 +74,25 @@ extension PortValues {
         case .string:
             return stringCoercer(values)
         case .bool:
-            return boolCoercer(values, graphTime: currentGraphTime)
+            return boolCoercer(values)
         case .int:
-            return intCoercer(values, graphTime: currentGraphTime)
+            return intCoercer(values)
         case .number:
-            return numberCoercer(values, graphTime: currentGraphTime)
+            return numberCoercer(values)
         case .layerDimension:
-            return layerDimensionCoercer(values, graphTime: currentGraphTime)
+            return layerDimensionCoercer(values)
         case .pulse:
             return pulseCoercer(values, graphTime: currentGraphTime)
         case .color:
             return colorCoercer(values)
         case .size:
-            return sizeCoercer(values, graphTime: currentGraphTime)
+            return sizeCoercer(values)
         case .position:
-            return positionCoercer(values, graphTime: currentGraphTime)
+            return positionCoercer(values)
         case .point3D:
-            return point3DCoercer(values, graphTime: currentGraphTime)
+            return point3DCoercer(values)
         case .point4D:
-            return point4DCoercer(values, graphTime: currentGraphTime)
+            return point4DCoercer(values)
         case .transform:
             return transformCoercer(values)
         case .asyncMedia:

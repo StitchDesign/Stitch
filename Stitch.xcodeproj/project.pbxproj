@@ -573,6 +573,7 @@
 		EC80448E2944303B00DCFCF4 /* ShapeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */; };
 		EC804494294431C800DCFCF4 /* LayerEvalHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */; };
 		EC8044982944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */; };
+		EC808C022CC6CF4400F30C70 /* NumberCoercers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC808C012CC6CF4400F30C70 /* NumberCoercers.swift */; };
 		EC8114B72680FE4B006AD907 /* SampleRangeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8114B62680FE4B006AD907 /* SampleRangeNode.swift */; };
 		EC81A3C528936BAA00BE53D8 /* WideAdjustmentBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC81A3C428936BAA00BE53D8 /* WideAdjustmentBarView.swift */; };
 		EC82540A287DE2E80020D943 /* LabelDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC825409287DE2E80020D943 /* LabelDisplayView.swift */; };
@@ -1509,6 +1510,7 @@
 		EC80448D2944303A00DCFCF4 /* ShapeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeUtils.swift; sourceTree = "<group>"; };
 		EC804493294431C800DCFCF4 /* LayerEvalHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerEvalHelpers.swift; sourceTree = "<group>"; };
 		EC8044972944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerLoopNodeCoordinate.swift; sourceTree = "<group>"; };
+		EC808C012CC6CF4400F30C70 /* NumberCoercers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberCoercers.swift; sourceTree = "<group>"; };
 		EC8114B62680FE4B006AD907 /* SampleRangeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleRangeNode.swift; sourceTree = "<group>"; };
 		EC81A3C428936BAA00BE53D8 /* WideAdjustmentBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideAdjustmentBarView.swift; sourceTree = "<group>"; };
 		EC825409287DE2E80020D943 /* LabelDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelDisplayView.swift; sourceTree = "<group>"; };
@@ -2608,6 +2610,7 @@
 			children = (
 				20D9D79325D5A78900F5C7A4 /* Parsers.swift */,
 				20B8D4F725D75FAD005D71C5 /* Coercers.swift */,
+				EC808C032CC6D29E00F30C70 /* CoercerUtilHelpers */,
 				EC1318C42B8801CF00F74E93 /* CoercerUtils.swift */,
 				201E5D3B25C86D72008698BF /* PortValueUtils.swift */,
 				EC8DD69B29A594930061FB67 /* PortValuesUtils.swift */,
@@ -4122,6 +4125,14 @@
 			path = NodeTag;
 			sourceTree = "<group>";
 		};
+		EC808C032CC6D29E00F30C70 /* CoercerUtilHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				EC808C012CC6CF4400F30C70 /* NumberCoercers.swift */,
+			);
+			path = CoercerUtilHelpers;
+			sourceTree = "<group>";
+		};
 		EC81043B2B714D5800AF7A20 /* LineShape */ = {
 			isa = PBXGroup;
 			children = (
@@ -4773,6 +4784,7 @@
 				B50AD534292C9E3F003CC61E /* InsertNodeMenuSearchResults.swift in Sources */,
 				ECFAB3DB2BB75F8D007B569A /* SpringAnimationNumberOp.swift in Sources */,
 				B5DDF700293BC69B00D72220 /* NetworkRequestUtils.swift in Sources */,
+				EC808C022CC6CF4400F30C70 /* NumberCoercers.swift in Sources */,
 				B5B20BA9278CE6FE008A2B5A /* ProjectSettingsView.swift in Sources */,
 				B5CA9D2E2A77503B00B4E431 /* NumberFormatterObserver.swift in Sources */,
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,
