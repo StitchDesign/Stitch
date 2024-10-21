@@ -71,9 +71,8 @@ extension StitchDocumentViewModel {
             // AddNode action has a specific "LLM action node id" i.e. node default title + part of the node id
             // ... suppose we create a node, then move it;
             // the LLM-move-action will expect the specific "LLM action
-            nodesAdded += 1
 
-            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 300)
+            let centerX = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 500)
             let centerY = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 300)
             
             let newCenter = CGPoint(x: centerX, y: centerY)
@@ -85,7 +84,8 @@ extension StitchDocumentViewModel {
                     self.llmNodeIdMapping.updateValue(node.id, forKey: llmNodeId)
             }
 
-            
+            nodesAdded += 1
+
         // A patch node or layer-input-on-graph was moved
         case .moveNode(let x):
             
