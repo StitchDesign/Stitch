@@ -57,6 +57,8 @@ extension StitchDocumentViewModel {
     @MainActor
     func handleLLMAction(_ action: LLMAction) {
         
+        var nodesAdded: Int = 0
+        
         log("handleLLMAction: action: \(action)")
         
         // Make sure we're not "recording", so that functions do
@@ -72,8 +74,15 @@ extension StitchDocumentViewModel {
             if let (llmNodeId, nodeKind) = x.node.parseLLMNodeTitle,
                // We created a patch node or layer node; note that patch node is immediately added to the canvas; biut
                let node = self.nodeCreated(choice: nodeKind) {
-                self.llmNodeIdMapping.updateValue(node.id,
-                                                          forKey: llmNodeId)
+                    self.llmNodeIdMapping.updateValue(node.id, forKey: llmNodeId)
+                nodesAdded += 1
+                
+                let x = self.newNodeCenterLocation.x + CGFloat(nodesAdded * 300)
+                let y = self.newNodeCenterLocation.y + CGFloat(nodesAdded * 300)
+                
+                let newCenter = CGPoint(x: x, y: y)
+                
+                node.
             }
             
         // A patch node or layer-input-on-graph was moved
@@ -526,3 +535,4 @@ extension NodeIOCoordinate {
     }
 }
      
+
