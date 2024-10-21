@@ -21,8 +21,9 @@ let DELETE_SELECTED_NODES_SHORTCUT: KeyEquivalent = .delete
 let DELETE_SELECTED_NODES_SHORTCUT_MODIFIERS: EventModifiers = []
 
 let ADD_PACK_NODE_SHORTCUT: KeyEquivalent = "P"
-
 let ADD_UNPACK_NODE_SHORTCUT: KeyEquivalent = "U"
+
+let ADD_SPLITTER_NODE_SHORTCUT: KeyEquivalent = "X"
 
 // Option + W = add Broadcaster
 // Option + Shift + W = add Receiver
