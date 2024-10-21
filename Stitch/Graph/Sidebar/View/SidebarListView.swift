@@ -147,24 +147,11 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
 //        return sidebarViewModel.items
 //    }
     
-    /// Filters out collapsed groups.
-    /// List mut be flattened for drag gestures.
-    static func getVisualList(from items: [SidebarObservable.ItemViewModel]) -> [SidebarObservable.ItemViewModel] {
-        items.flatMap { item in
-            if let children = item.children,
-               item.isExpandedInSidebar ?? false {
-                return [item] + children
-            }
-            
-            return [item]
-        }
-    }
-    
     // Note: sidebar-list-items is a flat list;
     // indentation is handled by calculated indentations.
     @MainActor
     var listView: some View {
-        let allFlattenedItems = Self.getVisualList(from: self.sidebarViewModel.items)
+        let allFlattenedItems = self.sidebarViewModel.getVisualFlattenedList()
         
         return ScrollView(.vertical) {
             // use .topLeading ?

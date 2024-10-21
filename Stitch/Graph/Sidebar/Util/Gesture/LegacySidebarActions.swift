@@ -366,13 +366,27 @@ extension ProjectSidebarObservable {
 //        return draggedAlong
     }
     
+    /// Filters out collapsed groups.
+    /// List mut be flattened for drag gestures.
+    func getVisualFlattenedList() -> [Self.ItemViewModel] {
+        self.items.flatMap { item in
+            if let children = item.children,
+               item.isExpandedInSidebar ?? false {
+                return [item] + children
+            }
+            
+            return [item]
+        }
+    }
+    
     @MainActor
     func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
                            to index: Int) {
         var newItemsList = self.items
         let draggedItems = draggedItems
+        let visualList = self.getVisualFlattenedList()
         
-        guard let draggedToElement = self.items.flattenedItems[safe: index] ?? self.items.last else {
+        guard let draggedToElement = visualList[safe: index] ?? visualList.last else {
             self.items = draggedItems
             return
         }
@@ -382,7 +396,7 @@ extension ProjectSidebarObservable {
         let isDestinationMemberOfDraggedSet = allDraggedItems.contains(draggedToElement.id)
         guard !isDestinationMemberOfDraggedSet else { return }
         
-        guard let location = newItemsList.getNestedListLocation(of: draggedToElement.id) else {
+        guard let location = visualList.getNestedListLocation(of: draggedToElement.id) else {
 //            fatalErrorIfDebug()
             return
         }
@@ -427,6 +441,7 @@ extension Array where Element: SidebarItemSwipable {
                 }
             }
             
+            // TODO: unclear if this is bad
             fatalErrorIfDebug("No match found.")
             return nil
         }
