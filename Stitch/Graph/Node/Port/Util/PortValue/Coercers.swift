@@ -36,114 +36,12 @@ import CoreML
 
 // typealias Coerce = (PortValue) -> PortValue
 
-func intCoercer(_ values: PortValues,
-                graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .int:
-            return value
-        default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? intDefaultTrue
-                : intDefaultFalse
-        }
-    }
-}
-
-func numberCoercer(_ values: PortValues,
-                   graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .number:
-            return value
-        case .layerDimension(let x):
-            return .number(x.asNumber)
-        case .size(let x):
-            return .number(x.width.asNumber)
-        case .position(let x):
-            return .number(x.x)
-        case .point3D(let x):
-            return .number(x.x)
-        case .point4D(let x):
-            return .number(x.x)
-        case .bool(let x):
-            return .number(x ? .multiplicationIdentity : .zero)
-        case .comparable(let x):
-            if let x = x {
-                return .number(x.number)
-            }
-            return numberDefaultFalse
-        case .string(let x):
-            if let number = Double(x.string) {
-                return .number(number)
-            } else if x.string.isEmpty {
-                return numberDefaultFalse
-            } else {
-                return numberDefaultTrue
-            }
-        default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? numberDefaultTrue
-                : numberDefaultFalse
-        }
-    }
-}
-
-extension PortValue {
-    var coerceToLayerDimension: LayerDimension {
-        
-        let value = self
-        
-        // port-value to use if we cannot coerce the value
-        // to a meaningful LayerDimension
-        let defaultValue: LayerDimension = .number(
-            coerceToTruthyOrFalsey(value,
-                                   // graphTime irrelevant for non-pulse PortValues
-                                   graphTime: .zero)
-            ? 1.0
-            : .zero)
-
-        switch value {
-
-        // If value is already a layer dimension,
-        // then just return it.
-        case .layerDimension(let x):
-            return x
-
-        case .int(let x):
-            return LayerDimension.number(CGFloat(x))
-            
-        // If value is a number,
-        // wrap it in a regular number.
-        case .number(let x):
-            return LayerDimension.number(x)
-
-        // If a string, try to parse to a layer-dimension.
-        case .string(let x):
-            return LayerDimension.fromUserEdit(edit: x.string) ?? defaultValue
-
-        default:
-            return defaultValue
-        }
-    }
-}
-
-func layerDimensionCoercer(_ values: PortValues,
-                           graphTime: TimeInterval) -> PortValues {
-    values
-        .map(\.coerceToLayerDimension)
-        .map(PortValue.layerDimension)
-}
-
 // this is not quite correct?
 // ... since boolParser just says "true" if the display string is non-empty,
 // whereas really, "0" is non-empty but falsey
-func boolCoercer(_ values: PortValues,
-                 graphTime: TimeInterval) -> PortValues {
+func boolCoercer(_ values: PortValues) -> PortValues {
     return values.map { (value: PortValue) -> PortValue in
-        return .bool(coerceToTruthyOrFalsey(value, graphTime: graphTime))
+        return .bool(value.coerceToTruthyOrFalsey())
     }
 }
 
@@ -220,12 +118,7 @@ extension PortValue {
         case .string(let n):
             return .fromGrayscaleNumber(Double(n.string.count))
         default:
-            let truthyValue = coerceToTruthyOrFalsey(
-                self,
-                // irrelevant for colorCoercer
-                graphTime: .zero)
-
-            return truthyValue ? Color.trueColor : Color.falseColor
+            return self.coerceToTruthyOrFalsey() ? Color.trueColor : Color.falseColor
         }
     }
 }
@@ -238,147 +131,6 @@ func colorCoercer(_ values: PortValues) -> PortValues {
             return $0 // color stays same
         default:
             return .color($0.asGrayscaleColor) // all others, try to coerce to grayscale color
-        }
-    }
-}
-
-// Takes a PortValue; returns a .size PortValue
-func sizeCoercer(_ values: PortValues,
-                 graphTime: TimeInterval) -> PortValues {
-    
-    return values.map { (value: PortValue) -> PortValue in
-        
-        let defaultValue = coerceToTruthyOrFalsey(value,
-                                                  graphTime: graphTime)
-        ? defaultPositionTrue
-        : defaultPositionFalse
-        
-        switch value {
-        case .size:
-            return value
-        case .number(let x):
-            return .size(LayerSize(width: x,
-                                   height: x))
-        case .int(let x):
-            return .size(CGSize(width: x,
-                                height: x).toLayerSize)
-        case .position(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .layerDimension(let x):
-            return .size(LayerSize(width: x.asNumber,
-                                   height: x.asNumber))
-        case .point3D(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .point4D(let x):
-            return .size(LayerSize(width: x.x,
-                                   height: x.y))
-        case .bool(let x):
-            return .size(x ? .multiplicationIdentity : .zero)
-        case .json(let x):
-            return .size(x.value.toSize ?? .zero)
-        case .string(let x):
-            if let dimension = LayerDimension.fromUserEdit(edit: x.string) {
-                return .size(LayerSize(width: dimension,
-                                       height: dimension))
-            }
-            return defaultValue
-        default:
-            return defaultValue
-        }
-    }
-}
-
-func positionCoercer(_ values: PortValues,
-                     graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .position:
-            return value
-        case .number(let x):
-            return .position(x.toStitchPosition)
-        case .size(let x):
-            return .position(x.asAlgebraicCGSize.toCGPoint)
-        case .layerDimension(let x):
-            return .position(StitchPosition(
-                                x: x.asNumber,
-                                y: x.asNumber))
-        case .int(let x):
-            return .position(x.toStitchPosition)
-        case .point3D(let x):
-            return .position(x.toStitchPosition)
-        case .point4D(let x):
-            return .position(x.toStitchPosition)
-        case .json(let x):
-            return x.value.toStitchPosition.map(PortValue.position) ?? defaultPositionFalse
-        case .bool(let x):
-            return .position(x ? .multiplicationIdentity : .zero)
-        default:
-            return coerceToTruthyOrFalsey(value,
-                                          graphTime: graphTime)
-                ? defaultPositionTrue
-                : defaultPositionFalse
-        }
-    }
-}
-
-// Better: break down into a function like:
-// `(PortValue) -> Point3D` + `Point3D -> PortValue.point3D`
-// (Note: most useful for an associated data that is unique across port values.)
-func point3DCoercer(_ values: PortValues,
-                    graphTime: TimeInterval) -> PortValues {
-
-    return values.map { (value: PortValue) -> PortValue in
-        var k: Point3D
-        switch value {
-        case .point3D(let x):
-            k = x
-        case .number(let x):
-            k = x.toPoint3D
-        case .int(let x):
-            k = x.toPoint3D
-        case .size(let x):
-            k = x.asAlgebraicCGSize.toPoint3D
-        case .position(let x):
-            k = x.toPoint3D
-        case .point4D(let x):
-            k = x.toPoint3D
-        case .json(let x):
-            k = x.value.toPoint3D ?? .zero
-        case .bool(let x):
-            return .point3D(x ? .multiplicationIdentity : .zero)
-        default:
-            k = coerceToTruthyOrFalsey(value, graphTime: graphTime) ? Point3D.multiplicationIdentity : .zero
-        }
-        return .point3D(k)
-    }
-}
-
-func point4DCoercer(_ values: PortValues,
-                    graphTime: TimeInterval) -> PortValues {
-    return values.map { (value: PortValue) -> PortValue in
-        switch value {
-        case .point4D(let x):
-            return .point4D(x)
-        case .number(let x):
-            return .point4D(x.toPoint4D)
-        case .int(let x):
-            return .point4D(x.toPoint4D)
-        case .size(let x):
-            return .point4D(x.asAlgebraicCGSize.toPoint4D)
-        case .position(let x):
-            return .point4D(x.toPoint4D)
-        case .point3D(let x):
-            return .point4D(x.toPoint4D)
-        case .json(let x):
-            return .point4D(x.value.toPoint4D ?? .empty)
-        case .bool(let x):
-            return .point4D(x ? .multiplicationIdentity : .zero)
-        default:
-            return .point4D(
-                coerceToTruthyOrFalsey(value, graphTime: graphTime) ? .multiplicationIdentity : .empty
-            )
         }
     }
 }
@@ -933,7 +685,6 @@ func anchoringCoercer(_ values: PortValues) -> PortValues {
             return value
         case .number(let x):
 //            return Anchoring.fromNumber(x)
-//            return Anchoring.fromNumber(x)
             return portValueEnumCase(from: Int(x),
                                      with: Anchoring.choices)
         default:
@@ -984,9 +735,7 @@ extension PortValue {
 }
 
 func contentModeCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToContentMode() }
-        .map(PortValue.contentMode)
+    values.map { .contentMode($0.coerceToContentMode()) }
 }
 
 extension PortValue {
@@ -1005,45 +754,7 @@ extension PortValue {
 }
 
 func sizingScenarioCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToSizingScenario() }
-        .map(PortValue.sizingScenario)
+    values.map { .sizingScenario($0.coerceToSizingScenario()) }
 }
 
-extension PortValue {
-    // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchSpacing() -> StitchSpacing {
-        switch self {
-        case .spacing(let x):
-            return x
-        default:
-            // TODO: smarter coercion of other PortValues
-            return .defaultStitchSpacing
-        }
-    }
-}
 
-func spacingCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToStitchSpacing() }
-        .map(PortValue.spacing)
-}
-
-extension PortValue {
-    // Takes any PortValue, and returns a MobileHapticStyle
-    func coerceToStitchPadding() -> StitchPadding {
-        switch self {
-        case .padding(let x):
-            return x
-        default:
-            // TODO: smarter coercion of other PortValues
-            return .defaultPadding
-        }
-    }
-}
-
-func paddingCoercer(_ values: PortValues) -> PortValues {
-    values
-        .map { $0.coerceToStitchPadding() }
-        .map(PortValue.padding)
-}
