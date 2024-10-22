@@ -378,10 +378,16 @@ extension ProjectSidebarObservable {
     func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex) {
+        let flattenedList = self.items.flattenedItems
+        
+//        assertInDebug(!flattenedList.contains(where: { item in
+//            flattenedList.count(where: { $0.id == item.id }) != 1
+//        }))
+        
         var newItemsList = self.items
         let visualList = visualList
         let draggedItems = draggedItems
-        let oldCount = self.items.flattenedItems.count
+        let oldCount = flattenedList.count
         
 //        draggedItems.forEach { draggedItem in
 //            // Don't use helper since visual list is already flattened
@@ -428,11 +434,15 @@ extension ProjectSidebarObservable {
 
         guard !draggedItems.isEmpty else { return }
         
+//        assertInDebug(!self.items.flattenedItems.contains(where: { item in
+//            self.items.flattenedItems.count(where: { $0.id == item.id }) != 1
+//        }))
+        
         newItemsList = newItemsList.movedDraggedItems(draggedItems,
                                                       after: draggedToElement,
                                                       dragPositionIndex: index)
         
-        assertInDebug(newItemsList.flattenedItems.count == oldCount)
+        // Don't use assert test after movedDraggedItems because of references to self list
         
         self.items = newItemsList
         self.items.updateSidebarIndices()
@@ -487,14 +497,14 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
-    /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
-    func recursiveMap(_ callback: @escaping (Element) -> Element) -> [Element] {
-        self.map { item in
-            item.children = item.children?.recursiveMap(callback)
-            
-            return callback(item)
-        }
-    }
+//    /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
+//    func recursiveMap(_ callback: @escaping (Element) -> Element) -> [Element] {
+//        self.map { item in
+//            item.children = item.children?.recursiveMap(callback)
+//            
+//            return callback(item)
+//        }
+//    }
     
     /// Filters out collapsed groups.
     /// List mut be flattened for drag gestures.
@@ -546,7 +556,7 @@ extension Array where Element: SidebarItemSwipable {
         
         guard let indexAtHierarchy = self.firstIndex(where: { $0.id == element.id }) else {
             // Recurse children until element found
-            return self.recursiveMap { item in
+            return self.map { item in
                 item.children = item.children?.movedDraggedItems(draggedItems,
                                                                  after: element,
                                                                  dragPositionIndex: dragPositionIndex)
@@ -558,7 +568,6 @@ extension Array where Element: SidebarItemSwipable {
         // at root of group's children
         if element.isGroup && dragPositionIndex.groupIndex < element.sidebarIndex.groupIndex,
            var children = element.children {
-            log("inserting in child")
             children.insertDraggedElements(draggedItems, at: 0)
             element.children = children
             return self

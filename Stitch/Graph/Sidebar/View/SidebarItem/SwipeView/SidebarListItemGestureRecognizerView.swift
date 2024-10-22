@@ -151,7 +151,6 @@ final class SidebarListGestureRecognizer<SidebarViewModel: ProjectSidebarObserva
             log("SHIFT DOWN")
             self.shiftHeldDown = true
         } else {
-            log("SHIFT NOT DOWN")
             self.shiftHeldDown = false
         }
         
