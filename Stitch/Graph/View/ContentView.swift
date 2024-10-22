@@ -111,7 +111,7 @@ struct ContentView: View, KeyboardReadable {
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
-//            if !GraphUIState.isPhoneDevice {
+            if !GraphUIState.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
                 ProjectNavigationView(document: document,
@@ -155,7 +155,7 @@ struct ContentView: View, KeyboardReadable {
 //                                .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
 //                                .ignoresSafeArea([.keyboard])
 //                #endif
-//            } // isPhoneDevice
+            } // isPhoneDevice
         } // ZStack
         
         .stitchSheet(isPresented: alertState.showProjectSettings,
