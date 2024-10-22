@@ -180,11 +180,10 @@ extension SidebarItemSwipable {
         }
         
         let afterGroupIndex = afterElement.sidebarIndex.groupIndex
-        let thisGroupIndex = self.sidebarIndex.groupIndex
         
         // If above element is a parent, we cannot drag left-ward past the after element
         if beforeElement.isGroup {
-            return afterGroupIndex..<beforeGroupIndex + 2
+            let result = afterGroupIndex..<beforeGroupIndex + 2
         }
         
         // If this element is a group, it can drag as left-ward as the root and right-ward as the above element allows
@@ -193,7 +192,10 @@ extension SidebarItemSwipable {
         }
         
         // Default cases must remain in existing group unless last element in group
-        return min(thisGroupIndex, afterGroupIndex)..<thisGroupIndex + 1
+        let min = min(beforeGroupIndex, afterGroupIndex)
+        let max = max(beforeGroupIndex, afterGroupIndex)
+        let result = min..<max + 1
+        return result
     }
     
     var activeGesture: SidebarListActiveGesture<Self.ID> {

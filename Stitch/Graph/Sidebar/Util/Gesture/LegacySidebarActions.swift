@@ -402,7 +402,9 @@ extension ProjectSidebarObservable {
             $0.id == draggedToElementResult.id ||
             $0.sidebarIndex == .init(groupIndex: index.groupIndex,
                                      rowIndex: index.rowIndex + 1)
-        }) else { return }
+        }) else {
+            return
+        }
 
         draggedItems.forEach {
             newItemsList.remove($0.id)
@@ -655,12 +657,14 @@ extension Array where Element: SidebarItemSwipable {
                             to indexOfDraggedLocation: SidebarIndex) -> SidebarDragDestination<Element> {
         let indexOfDraggedElement = draggedElement.sidebarIndex
 //        
-        let beforeElement = self[safe: indexOfDraggedElement.rowIndex - 1]
-        let afterElement = self[safe: indexOfDraggedElement.rowIndex + 1]
+        let beforeElement = self[safe: indexOfDraggedLocation.rowIndex]
+        let afterElement = self[safe: indexOfDraggedLocation.rowIndex + 1]
         
         let supportedGroupRanges = draggedElement
             .supportedGroupRangeOnDrag(beforeElement: beforeElement,
                                        afterElement: afterElement)
+        
+        log(supportedGroupRanges)
         
         // Filters for:
         // 1. Row indices smaller than index
