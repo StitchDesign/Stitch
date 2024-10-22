@@ -94,7 +94,8 @@ struct ContentView: View, KeyboardReadable {
             
             // ALWAYS show full-screen preview on iPhone.
             // Also, if in full-screen preview mode on Catalyst or iPad, place the fullscreen preview on top.
-            if showFullScreen.isTrue || GraphUIState.isPhoneDevice {
+//            if showFullScreen.isTrue || GraphUIState.isPhoneDevice {
+            if showFullScreen.isTrue {
                 fullScreenPreviewView
 #if !targetEnvironment(macCatalyst)
                 // Fullscreen ALWAYS ignores ALL safe areas
@@ -110,7 +111,7 @@ struct ContentView: View, KeyboardReadable {
             } // if showFullScreen.isTrue
             
             // NEVER show graph-view on iPhone
-            if !GraphUIState.isPhoneDevice {
+//            if !GraphUIState.isPhoneDevice {
                 // Check if we're on iPhone, otherwise the project view will start to render on
                 // phone before showFullScreen is set
                 ProjectNavigationView(document: document,
@@ -143,6 +144,9 @@ struct ContentView: View, KeyboardReadable {
                 .overlay {
                     flyout
                 }
+//                .allowsHitTesting(!GraphUIState.isPhoneDevice)
+//                .opacity(GraphUIState.isPhoneDevice ? 0.01 : 1)
+            
                 
                 // NOTE: APPARENTLY NOT NEEDED ANYMORE?
 //                // Note: we want the floating preview window to 'ignore safe areas' (e.g. the keyboard rising up should not affect preview window's size or position):
@@ -151,7 +155,7 @@ struct ContentView: View, KeyboardReadable {
 //                                .ignoresSafeArea(edges: showFullScreen.isTrue ? [.all] : [.bottom])
 //                                .ignoresSafeArea([.keyboard])
 //                #endif
-            }
+//            } // isPhoneDevice
         } // ZStack
         
         .stitchSheet(isPresented: alertState.showProjectSettings,

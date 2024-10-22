@@ -74,7 +74,8 @@ final class StitchDocumentViewModel: Sendable {
         self.previewWindowBackgroundColor = schema.previewWindowBackgroundColor
         self.cameraSettings = schema.cameraSettings
         self.graphMovement.localPosition = schema.localPosition
-        self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
+//        self.graphUI = GraphUIState(isPhoneDevice: isPhoneDevice)
+        self.graphUI = GraphUIState(isPhoneDevice: false)
         self.graph = graph
         self.projectLoader = projectLoader
         self.lastEncodedDocument = schema
@@ -112,7 +113,8 @@ final class StitchDocumentViewModel: Sendable {
         self.init(from: schema,
                   graph: graph,
                   documentEncoder: documentEncoder,
-                  isPhoneDevice: isPhoneDevice,
+//                  isPhoneDevice: isPhoneDevice,
+                  isPhoneDevice: false,
                   projectLoader: projectLoader,
                   store: store)
     }

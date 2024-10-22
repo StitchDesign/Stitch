@@ -12,7 +12,8 @@ import StitchSchemaKit
 extension StitchStore {
     @MainActor
     func createNewProject(from document: StitchDocument = .init()) {
-        let isPhoneDevice = GraphUIState.isPhoneDevice
+//        let isPhoneDevice = GraphUIState.isPhoneDevice
+        let isPhoneDevice = false
         
         Task(priority: .high) { [weak self] in
             guard let store = self else { return }
@@ -25,7 +26,8 @@ extension StitchStore {
                           isPhoneDevice: Bool) async {
         do {
             try await self.documentLoader.createNewProject(from: document,
-                                                           isPhoneDevice: isPhoneDevice,
+//                                                           isPhoneDevice: isPhoneDevice,
+                                                           isPhoneDevice: false,
                                                            store: self)
         } catch {
             log("StitchStore.createNewProject error: \(error.localizedDescription)")

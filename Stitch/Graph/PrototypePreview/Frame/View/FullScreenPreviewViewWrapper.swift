@@ -55,7 +55,8 @@ struct FullScreenPreviewViewWrapper: View {
 
         let closeGraphBtnAction = {
             // Only close graph if user is on iPhone
-            GraphUIState.isPhoneDevice ? dispatch(CloseGraph()) : dispatch(ToggleFullScreenEvent())
+//            GraphUIState.isPhoneDevice ? dispatch(CloseGraph()) : dispatch(ToggleFullScreenEvent())
+             dispatch(ToggleFullScreenEvent())
         }
 
         let appResetAction = { dispatch(PrototypeRestartedAction()) }

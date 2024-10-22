@@ -135,7 +135,8 @@ extension DocumentLoader {
         
         let document = await StitchDocumentViewModel(
             from: document,
-            isPhoneDevice: isPhoneDevice,
+//            isPhoneDevice: isPhoneDevice,
+            isPhoneDevice: false,
             projectLoader: projectLoader,
             store: store
         )

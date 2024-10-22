@@ -61,6 +61,7 @@ final class GraphUIState {
 
     @MainActor
     static let isPhoneDevice = Stitch.isPhoneDevice()
+//    static let isPhoneDevice = false
 
     var edgeAnimationEnabled: Bool = false
 

@@ -114,7 +114,9 @@ struct ProjectsListItemView: View {
                         self.isLoadingForPresentation = true
                         
                         store.handleProjectTapped(projectLoader: self.projectLoader,
-                                                  isPhoneDevice: GraphUIState.isPhoneDevice) {
+//                                                  isPhoneDevice: GraphUIState.isPhoneDevice
+                                                  isPhoneDevice: false
+                        ) {
                             self.isLoadingForPresentation = false
                         }
                     }

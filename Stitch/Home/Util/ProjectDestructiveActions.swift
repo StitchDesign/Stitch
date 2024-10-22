@@ -41,11 +41,11 @@ extension StitchStore {
 
             // Displays toast UI on projects screen
             
-            // TODO: fix 'Undo Delete' on iPhone
-            if !isPhoneDevice() {
-                self.alertState.deletedProjectId = projectId
-            }
-            // self.alertState.deletedProjectId = projectId
+//            // TODO: fix 'Undo Delete' on iPhone
+//            if !isPhoneDevice() {
+//                self.alertState.deletedProjectId = projectId
+//            }
+//            // self.alertState.deletedProjectId = projectId
 
             self.saveProjectDeletionUndoHistory(undoActions: undoEvents,
                                                 redoActions: redoEvents)

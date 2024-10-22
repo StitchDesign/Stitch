@@ -84,7 +84,8 @@ extension StitchStore {
             
             let documentViewModel = await StitchDocumentViewModel(
                 from: document,
-                isPhoneDevice: isPhoneDevice,
+//                isPhoneDevice: isPhoneDevice,
+                isPhoneDevice: false,
                 projectLoader: projectLoader,
                 store: self
             )

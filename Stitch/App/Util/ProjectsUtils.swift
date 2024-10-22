@@ -13,7 +13,9 @@ import UIKit
 
 @MainActor
 func isPhoneDevice() -> Bool {
-    UIDevice.current.userInterfaceIdiom == .phone
+    let k = UIDevice.current.userInterfaceIdiom == .phone
+    log("isPhoneDevice: \(k)")
+    return k
 }
 
 func isMac() -> Bool {

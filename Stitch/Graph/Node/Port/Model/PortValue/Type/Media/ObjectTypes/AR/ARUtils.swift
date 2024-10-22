@@ -92,8 +92,9 @@ extension ARFrame {
             return nil
         }
         // Rotate image on iPhone
-        let uiImage = GraphUIState.isPhoneDevice ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
-            : UIImage(cgImage: cgImage)
+//        let uiImage = GraphUIState.isPhoneDevice ? UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+//            : UIImage(cgImage: cgImage)
+        let uiImage = UIImage(cgImage: cgImage)
 
         return uiImage
     }

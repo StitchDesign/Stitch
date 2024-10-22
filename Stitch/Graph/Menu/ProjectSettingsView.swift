@@ -122,8 +122,9 @@ struct ProjectSettingsView: View {
             fieldCoordinate: .fakeFieldCoordinate,
             isFieldInsideLayerInspector: false,
             isForPreviewWindowBackgroundPicker: true,
-            isForIPhone: isPhoneDevice(),
-            chosenColor: binding, 
+//            isForIPhone: isPhoneDevice(),
+            isForIPhone: false,
+            chosenColor: binding,
             graph: graph)
     }
 }
