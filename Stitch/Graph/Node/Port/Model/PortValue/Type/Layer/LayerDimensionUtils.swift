@@ -158,6 +158,23 @@ extension LayerDimension {
             return parentLength
         }
     }
+    
+    func asCGFloatIfNumber(_ parentLength: CGFloat) -> CGFloat? {
+        switch self {
+        case .number(let cGFloat):
+            return cGFloat
+        case .parentPercent(let double):
+            return parentLength * zeroCompatibleDivision(numerator: double,
+                                                         denominator: 100)
+        case .fill:
+            // Fill is always simply parent's size
+            return parentLength
+            
+        // .auto and .hug mean "Do not apply .frame", and so we must use the layer's .readSize instead
+        case .auto, .hug:
+            return nil
+        }
+    }
 
     func asCGFloat(parentLength: CGFloat,
                    resourceLength: CGFloat) -> CGFloat {
