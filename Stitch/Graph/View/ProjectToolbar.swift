@@ -29,8 +29,8 @@ struct ProjectToolbarViewModifier: ViewModifier {
     // Note: Do NOT hide toolbar in Catalyst full screen mode
     @MainActor
     var hideToolbar: Bool {
-//        GraphUIState.isPhoneDevice || (!isCatalyst && graphUI.isFullScreenMode)
-        (!isCatalyst && graphUI.isFullScreenMode)
+        GraphUIState.isPhoneDevice || (!isCatalyst && graphUI.isFullScreenMode)
+//        (!isCatalyst && graphUI.isFullScreenMode)
     }
 
     func body(content: Content) -> some View {
