@@ -143,16 +143,17 @@ extension ProjectSidebarObservable {
                                 movingDown: Bool,
                                 flattenedItems: [Self.ItemViewModel]) -> SidebarIndex? {
         
-        let maxIndex = flattenedItems.count - 1
+        let maxRowIndex = flattenedItems.count - 1
+        let maxGroupIndex = flattenedItems.max { $0.sidebarIndex.groupIndex < $1.sidebarIndex.groupIndex }?.sidebarIndex.groupIndex ?? 0
         let dragX = max(dragPosition.x, 0)
-        let groupIndex = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
+        let rawFloatX = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
         
         let fnRoundingY = movingDown ? ceil : floor
         let dragY = max(dragPosition.y, 0)
         let rawFloatY = fnRoundingY(dragY / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         
-        // Increment by 1 to place after the discovered element
-        let rowIndex = min(Int(rawFloatY), maxIndex)
+        let groupIndex = min(Int(rawFloatX), maxGroupIndex)
+        let rowIndex = min(Int(rawFloatY), maxRowIndex)
         
         let sidebarIndex = SidebarIndex(groupIndex: groupIndex, rowIndex: rowIndex)
         return sidebarIndex
