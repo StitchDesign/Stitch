@@ -395,7 +395,7 @@ extension ProjectSidebarObservable {
 //            visualList.removeAll(where: {draggedItem.id == $0.id })
 //        }
         
-        let draggedToElementResult = visualList.findClosestElement(from: firstDraggedElement.sidebarIndex,
+        let draggedToElementResult = visualList.findClosestElement(draggedElement: firstDraggedElement,
                                                                    to: index)
         
         guard !draggedItems.contains(where: {
@@ -651,16 +651,16 @@ extension Array where Element: SidebarItemSwipable {
     ///     * Must ponit to group layer if otherwise top of list
     ///     * Recommended element cannot reside "below" the requested row index.
     @MainActor
-    func findClosestElement(from indexOfDraggedElement: SidebarIndex,
+    func findClosestElement(draggedElement: Element,
                             to indexOfDraggedLocation: SidebarIndex) -> SidebarDragDestination<Element> {
+        let indexOfDraggedElement = draggedElement.sidebarIndex
+//        
         let beforeElement = self[safe: indexOfDraggedElement.rowIndex - 1]
         let afterElement = self[safe: indexOfDraggedElement.rowIndex + 1]
-        let isBeforeElementGroup = (beforeElement?.isGroup ?? false) ? 1 : 0
         
-        let beforeElementGroupIndex = beforeElement?.sidebarIndex.groupIndex ?? 0
-        let _afterElementGroupIndex = afterElement?.sidebarIndex.groupIndex ?? 0
-        // if before element is a group, allow one extra layer of nesting
-        let afterElementGroupIndex = Swift.max(_afterElementGroupIndex, beforeElementGroupIndex + isBeforeElementGroup)
+        let supportedGroupRanges = draggedElement
+            .supportedGroupRangeOnDrag(beforeElement: beforeElement,
+                                       afterElement: afterElement)
         
         // Filters for:
         // 1. Row indices smaller than index
@@ -671,8 +671,7 @@ extension Array where Element: SidebarItemSwipable {
 //                guard $0.sidebarIndex != index else { return false }
                 
                 let thisGroupIndex = $0.sidebarIndex.groupIndex
-                return (beforeElementGroupIndex <= thisGroupIndex && thisGroupIndex <= afterElementGroupIndex) ||
-                (afterElementGroupIndex <= thisGroupIndex && thisGroupIndex <= beforeElementGroupIndex)
+                return supportedGroupRanges.contains(thisGroupIndex)
             }
         
         // Prioritize correct group hierarchy--if equal use closest row index

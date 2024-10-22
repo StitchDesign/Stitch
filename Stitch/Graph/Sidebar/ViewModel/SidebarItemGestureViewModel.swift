@@ -161,6 +161,41 @@ extension SidebarItemSwipable {
         self.children.isDefined
     }
     
+//    @MainActor
+//    var isLastChild: Bool {
+//        guard let lastChildIdOfParent = self.parentDelegate?.children?.last?.id else { return false }
+//        return lastChildIdOfParent == self.id
+//    }
+    
+    @MainActor
+    func supportedGroupRangeOnDrag(beforeElement: Self?,
+                                   afterElement: Self?) -> Range<Int> {
+        guard let beforeElement = beforeElement else {
+            return 0..<1
+        }
+        
+        let beforeGroupIndex = beforeElement.sidebarIndex.groupIndex
+        guard let afterElement = afterElement else {
+            return beforeGroupIndex..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
+        }
+        
+        let afterGroupIndex = afterElement.sidebarIndex.groupIndex
+        let thisGroupIndex = self.sidebarIndex.groupIndex
+        
+        // If above element is a parent, we cannot drag left-ward past the after element
+        if beforeElement.isGroup {
+            return afterGroupIndex..<beforeGroupIndex + 2
+        }
+        
+        // If this element is a group, it can drag as left-ward as the root and right-ward as the above element allows
+        if self.isGroup {
+            return 0..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
+        }
+        
+        // Default cases must remain in existing group unless last element in group
+        return min(thisGroupIndex, afterGroupIndex)..<thisGroupIndex + 1
+    }
+    
     var activeGesture: SidebarListActiveGesture<Self.ID> {
         get {
             self.sidebarDelegate?.activeGesture ?? .none
@@ -211,7 +246,7 @@ extension SidebarItemSwipable {
     func isEmptyGroupCandidate(draggedToIndex: SidebarIndex) -> Bool {
         self.isGroup &&
         draggedToIndex.groupIndex > self.sidebarIndex.groupIndex &&
-        draggedToIndex.rowIndex == self.sidebarIndex.rowIndex
+        draggedToIndex.rowIndex >= self.sidebarIndex.rowIndex
     }
     
     // MARK: GESTURE HANDLERS

@@ -148,9 +148,9 @@ extension ProjectSidebarObservable {
         let dragX = max(dragPosition.x, 0)
         let rawFloatX = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
         
-        let fnRoundingY = movingDown ? ceil : floor
+//        let fnRoundingY = movingDown ? ceil : floor
         let dragY = max(dragPosition.y, 0)
-        let rawFloatY = fnRoundingY(dragY / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
+        let rawFloatY = dragY / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT)
         
         let groupIndex = min(Int(rawFloatX), maxGroupIndex)
         let rowIndex = min(Int(rawFloatY), maxRowIndex)
