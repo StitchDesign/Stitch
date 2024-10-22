@@ -96,7 +96,9 @@ struct PreviewGroupLayer: View {
     
     var pos: StitchPosition {
         adjustPosition(
-            size: layerViewModel.readSize, // size.asCGSize(parentSize),
+            //size: layerViewModel.readSize, // size.asCGSize(parentSize),
+            size: size.asCGSizeForLayer(parentSize: parentSize,
+                                        readSize: layerViewModel.readSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
