@@ -206,6 +206,14 @@ extension SidebarItemSwipable {
         !(self.isExpandedInSidebar ?? true)
     }
     
+    /// For dragging scenarios, checks if this element is a candidate empty group.
+    @MainActor
+    func isEmptyGroupCandidate(draggedToIndex: SidebarIndex) -> Bool {
+        self.isGroup &&
+        draggedToIndex.groupIndex > self.sidebarIndex.groupIndex &&
+        draggedToIndex.rowIndex == self.sidebarIndex.rowIndex
+    }
+    
     // MARK: GESTURE HANDLERS
 
     @MainActor
