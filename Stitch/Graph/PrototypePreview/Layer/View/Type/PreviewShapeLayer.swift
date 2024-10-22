@@ -59,7 +59,9 @@ struct PreviewShapeLayer: View {
     var pos: StitchPosition {
         adjustPosition(
             // TODO: use `layerViewModel.readSize` instead?
-            size: layerNodeSize.scaleBy(scale),
+            // size: layerNodeSize.scaleBy(scale),
+            size: size.asCGSizeForLayer(parentSize: parentSize,
+                                        readSize: layerViewModel.readSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
