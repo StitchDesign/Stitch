@@ -556,8 +556,18 @@ extension Array where Element: SidebarItemSwipable {
     ///     * Must ponit to group layer if otherwise top of list
     ///     * Recommended element cannot reside "below" the requested row index.
     func findClosestElement(to index: SidebarIndex) -> Element? {
-        // Filter out items after row index
+        let beforeElementGroupIndex = self[safe: index.rowIndex - 1]?.sidebarIndex.groupIndex ?? 0
+        let afterElementGroupIndex = self[safe: index.rowIndex]?.sidebarIndex.groupIndex ?? 0
+        
+        // Filters for:
+        // 1. Row indices smaller than index
+        // 2. Rows with allowed groups--which are constrained by the index's above and below element
         let flattenedItems = self[0..<index.rowIndex]
+            .filter {
+                let thisGroupIndex = $0.sidebarIndex.groupIndex
+                return (beforeElementGroupIndex <= thisGroupIndex && thisGroupIndex <= afterElementGroupIndex) ||
+                (afterElementGroupIndex <= thisGroupIndex && thisGroupIndex <= beforeElementGroupIndex)
+            }
         
         // Prioritize correct group hierarchy--if equal use closest row index
         let rankedItems = flattenedItems.sorted { lhs, rhs in
