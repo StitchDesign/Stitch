@@ -148,7 +148,7 @@ extension ProjectSidebarObservable {
         let groupIndex = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
         
         let fnRoundingY = movingDown ? ceil : floor
-        let dragY = max(dragPosition.y + (Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 2), 0)
+        let dragY = max(dragPosition.y, 0)
         let rawFloatY = fnRoundingY(dragY / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         
         // Increment by 1 to place after the discovered element
