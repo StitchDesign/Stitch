@@ -249,7 +249,8 @@ extension SidebarItemSwipable {
         
 //        let itemDrag = DragGesture(minimumDistance: 0)
         // Use a tiny min-distance so that we can distinguish between a tap vs a drag
-        let itemDrag = DragGesture(minimumDistance: 5)
+        // 15 pixels is enough to prevent a slight stutter that can exist
+        let itemDrag = DragGesture(minimumDistance: 15)
             .onChanged { value in
                 // print("SidebarItemGestureViewModel: macDragGesture: itemDrag onChanged")
                 self.onItemDragChanged(value.translation)

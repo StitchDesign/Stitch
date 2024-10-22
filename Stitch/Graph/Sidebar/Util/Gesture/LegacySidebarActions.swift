@@ -320,6 +320,7 @@ extension ProjectSidebarObservable {
         (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
             draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
             
+//            log("\(allDraggedItems.first?.dragPosition?.y),\t\(allDraggedItems.first?.prevDragPosition?.y),\t\(translation.height)")
 //            if originalItemIndex != calculatedIndex {
 //                log("calculatedIndex: \(calculatedIndex)")
                 // TODO: find element at new index
@@ -389,7 +390,11 @@ extension ProjectSidebarObservable {
         
         let draggedToElement = visualList.findClosestElement(to: index)
         
-        guard !draggedItems.contains(where: { $0.id == draggedToElement?.id }) else { return }
+        guard !draggedItems.contains(where: {
+            $0.id == draggedToElement?.id ||
+            $0.sidebarIndex == .init(groupIndex: index.groupIndex,
+                                     rowIndex: index.rowIndex + 1)
+        }) else { return }
         
         guard let draggedToElement = draggedToElement else {
             draggedItems.forEach {
@@ -397,7 +402,8 @@ extension ProjectSidebarObservable {
             }
 
             // TODO: come back to top of list
-            fatalError()
+            return
+//            fatalError()
 //            newItemsList = newItemsList.movedDraggedItems(draggedItems, at: )
         }
         
@@ -528,7 +534,8 @@ extension Array where Element: SidebarItemSwipable {
     @MainActor
     mutating private func insertDraggedElements(_ elements: [Element],
                                                 at index: Int) {
-        self.insert(contentsOf: elements, at: index)
+        // Logic we want is to insert after the desired element, hence + 1
+        self.insert(contentsOf: elements, at: index + 1)
     }
     
     /// Recursive function that traverses nested array until index == 0.
@@ -603,13 +610,16 @@ extension Array where Element: SidebarItemSwipable {
     ///     * Recommended element cannot reside "below" the requested row index.
     func findClosestElement(to index: SidebarIndex) -> Element? {
         let beforeElementGroupIndex = self[safe: index.rowIndex - 1]?.sidebarIndex.groupIndex ?? 0
-        let afterElementGroupIndex = self[safe: index.rowIndex]?.sidebarIndex.groupIndex ?? 0
+        let afterElementGroupIndex = self[safe: index.rowIndex + 1]?.sidebarIndex.groupIndex ?? 0
         
         // Filters for:
         // 1. Row indices smaller than index
         // 2. Rows with allowed groups--which are constrained by the index's above and below element
         let flattenedItems = self[0..<index.rowIndex + 1]
             .filter {
+                // Can't be self
+//                guard $0.sidebarIndex != index else { return false }
+                
                 let thisGroupIndex = $0.sidebarIndex.groupIndex
                 return (beforeElementGroupIndex <= thisGroupIndex && thisGroupIndex <= afterElementGroupIndex) ||
                 (afterElementGroupIndex <= thisGroupIndex && thisGroupIndex <= beforeElementGroupIndex)
@@ -635,9 +645,14 @@ extension Array where Element: SidebarItemSwipable {
         
         let recommendedItem = rankedItems.first
         
+//        guard recommendedItem?.sidebarIndex != index else {
+//            log("BOOOOM")
+//            return nil
+//        }
+        
 #if DEV_DEBUG
-        log("recommendation test for \(index):")
-        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(index.groupIndex - $0.sidebarIndex.groupIndex))") }
+//        log("recommendation test for \(index):")
+//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(index.groupIndex - $0.sidebarIndex.groupIndex))") }
 #endif
         
         return recommendedItem

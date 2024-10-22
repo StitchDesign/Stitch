@@ -155,7 +155,6 @@ extension ProjectSidebarObservable {
         let rowIndex = min(Int(rawFloatY), maxIndex)
         
         let sidebarIndex = SidebarIndex(groupIndex: groupIndex, rowIndex: rowIndex)
-        log("getMovedtoIndex: \(rawFloatY)")
         return sidebarIndex
         
 //        log("divide test: \(dragPosition.x / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL))\tindex: \(groupIndex)")
