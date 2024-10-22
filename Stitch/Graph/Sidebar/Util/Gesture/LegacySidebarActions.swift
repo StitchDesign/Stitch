@@ -378,6 +378,11 @@ extension ProjectSidebarObservable {
     func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex) {
+        
+        guard let firstDraggedElement = draggedItems.first else {
+            return
+        }
+        
         let flattenedList = self.items.flattenedItems
         
 //        assertInDebug(!flattenedList.contains(where: { item in
@@ -394,7 +399,8 @@ extension ProjectSidebarObservable {
 //            visualList.removeAll(where: {draggedItem.id == $0.id })
 //        }
         
-        let draggedToElement = visualList.findClosestElement(to: index)
+        let draggedToElement = visualList.findClosestElement(from: firstDraggedElement.sidebarIndex,
+                                                             to: index)
         
         guard !draggedItems.contains(where: {
             $0.id == draggedToElement?.id ||
@@ -617,14 +623,15 @@ extension Array where Element: SidebarItemSwipable {
     ///     * Must match the group index
     ///     * Must ponit to group layer if otherwise top of list
     ///     * Recommended element cannot reside "below" the requested row index.
-    func findClosestElement(to index: SidebarIndex) -> Element? {
-        let beforeElementGroupIndex = self[safe: index.rowIndex - 1]?.sidebarIndex.groupIndex ?? 0
-        let afterElementGroupIndex = self[safe: index.rowIndex + 1]?.sidebarIndex.groupIndex ?? 0
+    func findClosestElement(from indexOfDraggedElement: SidebarIndex,
+                            to indexOfDraggedLocation: SidebarIndex) -> Element? {
+        let beforeElementGroupIndex = self[safe: indexOfDraggedElement.rowIndex - 1]?.sidebarIndex.groupIndex ?? 0
+        let afterElementGroupIndex = self[safe: indexOfDraggedElement.rowIndex + 1]?.sidebarIndex.groupIndex ?? 0
         
         // Filters for:
         // 1. Row indices smaller than index
         // 2. Rows with allowed groups--which are constrained by the index's above and below element
-        let flattenedItems = self[0..<index.rowIndex + 1]
+        let flattenedItems = self[0..<indexOfDraggedLocation.rowIndex + 1]
             .filter {
                 // Can't be self
 //                guard $0.sidebarIndex != index else { return false }
@@ -636,11 +643,11 @@ extension Array where Element: SidebarItemSwipable {
         
         // Prioritize correct group hierarchy--if equal use closest row index
         let rankedItems = flattenedItems.sorted { lhs, rhs in
-            let lhsGroupIndexDiff = abs(index.groupIndex - lhs.sidebarIndex.groupIndex)
-            let lhsRowIndexDiff = index.rowIndex - lhs.sidebarIndex.rowIndex
+            let lhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - lhs.sidebarIndex.groupIndex)
+            let lhsRowIndexDiff = indexOfDraggedLocation.rowIndex - lhs.sidebarIndex.rowIndex
             
-            let rhsGroupIndexDiff = abs(index.groupIndex - rhs.sidebarIndex.groupIndex)
-            let rhsRowIndexDiff = index.rowIndex - rhs.sidebarIndex.rowIndex
+            let rhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - rhs.sidebarIndex.groupIndex)
+            let rhsRowIndexDiff = indexOfDraggedLocation.rowIndex - rhs.sidebarIndex.rowIndex
             
 //            assertInDebug(lhsRowIndexDiff >= 0 && rhsRowIndexDiff >= 0)
             
@@ -655,13 +662,12 @@ extension Array where Element: SidebarItemSwipable {
         let recommendedItem = rankedItems.first
         
 //        guard recommendedItem?.sidebarIndex != index else {
-//            log("BOOOOM")
 //            return nil
 //        }
         
 #if DEV_DEBUG
-//        log("recommendation test for \(index):")
-//        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(index.groupIndex - $0.sidebarIndex.groupIndex))") }
+        log("recommendation test for \(indexOfDraggedLocation):")
+        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.groupIndex - $0.sidebarIndex.groupIndex))") }
 #endif
         
         return recommendedItem
