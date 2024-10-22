@@ -144,59 +144,68 @@ extension ProjectSidebarObservable {
                                 flattenedItems: [Self.ItemViewModel]) -> SidebarIndex? {
         
         let maxIndex = flattenedItems.count - 1
-        let maxY = maxIndex * CUSTOM_LIST_ITEM_VIEW_HEIGHT
-        let dragY = dragPosition.y
         let dragX = max(dragPosition.x, 0)
         let groupIndex = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
         
+        let fnRoundingY = movingDown ? ceil : floor
+        let dragY = max(dragPosition.y + (Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 2), 0)
+        let rawFloatY = fnRoundingY(dragY / Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
+        
+        // Increment by 1 to place after the discovered element
+        let rowIndex = min(Int(rawFloatY), maxIndex)
+        
+        let sidebarIndex = SidebarIndex(groupIndex: groupIndex, rowIndex: rowIndex)
+        log("getMovedtoIndex: \(rawFloatY)")
+        return sidebarIndex
+        
 //        log("divide test: \(dragPosition.x / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL))\tindex: \(groupIndex)")
-        
-        var range = (0...maxY)
-            .filter { $0.isMultiple(of: CUSTOM_LIST_ITEM_VIEW_HEIGHT / 2) }
-        
-        range.append(range.last! + CUSTOM_LIST_ITEM_VIEW_HEIGHT/2 )
-        
-        if movingDown {
-            range = range.reversed()
-        }
-        
-        // try to find the highest threshold we (our item's location.y) satisfy
-        for threshold in range {
-            
-            // for moving up, want to find the first threshold we UNDERSHOOT
-            // where range is (0, 50, 150, ..., 250)
-            
-            // for moving down, want to find the first treshold we OVERSHOOT
-            // where range is (250, ..., 150, 50, 0)
-            
-            let foundThreshold = movingDown
-            ? dragY > CGFloat(threshold)
-            : dragY < CGFloat(threshold)
-            
-            if foundThreshold {
-                var k = (CGFloat(threshold)/CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
-                // if we're moving the item down,
-                // then we'll want to round up the threshold
-                if movingDown {
-                    k.round(.up)
-                } else {
-                    k.round(.down)
-                }
-                // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
-                let ki = Int(k)
-                if ki > maxIndex {
+//        
+//        var range = (0...maxY)
+//            .filter { $0.isMultiple(of: CUSTOM_LIST_ITEM_VIEW_HEIGHT / 2) }
+//        
+//        range.append(range.last! + CUSTOM_LIST_ITEM_VIEW_HEIGHT/2 )
+//        
+//        if movingDown {
+//            range = range.reversed()
+//        }
+//        
+//        // try to find the highest threshold we (our item's location.y) satisfy
+//        for threshold in range {
+//            
+//            // for moving up, want to find the first threshold we UNDERSHOOT
+//            // where range is (0, 50, 150, ..., 250)
+//            
+//            // for moving down, want to find the first treshold we OVERSHOOT
+//            // where range is (250, ..., 150, 50, 0)
+//            
+//            let foundThreshold = movingDown
+//            ? dragY > CGFloat(threshold)
+//            : dragY < CGFloat(threshold)
+//            
+//            if foundThreshold {
+//                var k = (CGFloat(threshold)/CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
+//                // if we're moving the item down,
+//                // then we'll want to round up the threshold
+//                if movingDown {
+//                    k.round(.up)
+//                } else {
+//                    k.round(.down)
+//                }
+//                // NEVER RETURN AN INDEX HIGHER THAN MAX-INDEX
+//                let ki = Int(k)
+//                if ki > maxIndex {
 //                    print("getMovedtoIndex: maxIndex: \(maxIndex)")
-                    return .init(groupIndex: groupIndex,
-                                 rowIndex: maxIndex)
-                } else {
+//                    return .init(groupIndex: groupIndex,
+//                                 rowIndex: maxIndex)
+//                } else {
 //                    print("getMovedtoIndex: ki: \(ki)")
-                    return .init(groupIndex: groupIndex,
-                                 rowIndex: ki)
-                }
-            }
-        }
-        
-        return nil
+//                    return .init(groupIndex: groupIndex,
+//                                 rowIndex: ki)
+//                }
+//            }
+//        }
+//        
+//        return nil
 //        // if didn't find anything, return the original index?
 //        let k = flattenedItems.firstIndex { $0.id == item.id }!
 //        // log("getMovedtoIndex: k: \(k)")

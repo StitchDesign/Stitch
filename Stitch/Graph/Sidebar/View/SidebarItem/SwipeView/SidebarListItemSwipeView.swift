@@ -15,6 +15,15 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
+    var offset: CGSize {
+        guard let dragPosition = gestureViewModel.dragPosition else {
+            return gestureViewModel.location.toCGSize
+        }
+        
+        return .init(width: gestureViewModel.location.x,
+                     height: dragPosition.y)
+    }
+    
     var body: some View {
         // TODO: why does drag gesture on Catalyst break if we remove this?
         SidebarListItemGestureRecognizerView(
@@ -27,8 +36,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
-//        .offset(y: gestureViewModel.dragPosition?.y ?? gestureViewModel.location.y)
-        .offset(gestureViewModel.dragPosition?.toCGSize ?? gestureViewModel.location.toCGSize)
+        .offset(offset)
         
         #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`

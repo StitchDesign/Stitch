@@ -289,8 +289,7 @@ extension ProjectSidebarObservable {
 //
         
         // New drag check
-        guard let dragPosition = item.dragPosition,
-        let prevDragPosition = item.prevDragPosition else {
+        guard let dragPosition = item.dragPosition else {
             // TODO: If new drag, re-arrange groups and delete
             
             self.currentItemDragged = item.id
@@ -379,30 +378,43 @@ extension ProjectSidebarObservable {
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex) {
         var newItemsList = self.items
-        var visualList = visualList
+        let visualList = visualList
         let draggedItems = draggedItems
+        let oldCount = self.items.flattenedItems.count
         
-        draggedItems.forEach { draggedItem in
-            // Don't use helper since visual list is already flattened
-            visualList.removeAll(where: {draggedItem.id == $0.id })
+//        draggedItems.forEach { draggedItem in
+//            // Don't use helper since visual list is already flattened
+//            visualList.removeAll(where: {draggedItem.id == $0.id })
+//        }
+        
+        let draggedToElement = visualList.findClosestElement(to: index)
+        
+        guard !draggedItems.contains(where: { $0.id == draggedToElement?.id }) else { return }
+        
+        guard let draggedToElement = draggedToElement else {
+            draggedItems.forEach {
+                newItemsList.remove($0.id)
+            }
+
+            // TODO: come back to top of list
+            fatalError()
+//            newItemsList = newItemsList.movedDraggedItems(draggedItems, at: )
         }
         
-        let _ = visualList.findClosestElement(to: index)
-        
-        guard let draggedToElement = visualList[safe: index.rowIndex] ?? visualList.last else {
-            self.items = draggedItems
-            return
-        }
+//        guard let draggedToElement = visualList[safe: index.rowIndex] ?? visualList.last else {
+//            self.items = draggedItems
+//            return
+//        }
         
         // Skip if we dragged to item that's a member of the dragged set--this is incompatible
-        let allDraggedItems = draggedItems.flatMap { $0.allElementIds }
-        let isDestinationMemberOfDraggedSet = allDraggedItems.contains(draggedToElement.id)
-        guard !isDestinationMemberOfDraggedSet else { return }
-        
-        guard let location = visualList.getNestedListLocation(of: draggedToElement.id) else {
-//            fatalErrorIfDebug()
-            return
-        }
+//        let allDraggedItems = draggedItems.flatMap { $0.allElementIds }
+//        let isDestinationMemberOfDraggedSet = allDraggedItems.contains(draggedToElement.id)
+//        guard !isDestinationMemberOfDraggedSet else { return }
+//        
+//        guard let location = visualList.getNestedListLocation(of: draggedToElement.id) else {
+////            fatalErrorIfDebug()
+//            return
+//        }
         
         draggedItems.forEach {
             newItemsList.remove($0.id)
@@ -410,9 +422,11 @@ extension ProjectSidebarObservable {
 
         guard !draggedItems.isEmpty else { return }
         
-        newItemsList = newItemsList.movedDraggedItems(draggedItems, at: location)
+        newItemsList = newItemsList.movedDraggedItems(draggedItems,
+                                                      after: draggedToElement,
+                                                      dragPositionIndex: index)
         
-//        assertInDebug(newItemsList.flattenedItems.count == oldCount)
+        assertInDebug(newItemsList.flattenedItems.count == oldCount)
         
         self.items = newItemsList
         self.items.updateSidebarIndices()
@@ -422,48 +436,57 @@ extension ProjectSidebarObservable {
     }
 }
 
-struct NestedListLocation<Element: SidebarItemSwipable> {
-    var associatedItemId: Element.ID?
-    let type: NestedListLocationType
-}
-
-enum NestedListLocationType {
-    case topOfHierarchy
-    case afterItem
-}
+//struct NestedListLocation<Element: SidebarItemSwipable> {
+//    var associatedItemId: Element.ID?
+//    let type: NestedListLocationType
+//}
+//
+//enum NestedListLocationType {
+//    case topOfHierarchy
+//    case afterItem
+//}
 
 extension Array where Element: SidebarItemSwipable {
     /// Returns result which helps us determine location to drop items in a nested list.
-    func getNestedListLocation(of elementId: Element.ID,
-                               currentParent: Element.ID? = nil) -> NestedListLocation<Element>? {
-        guard let foundIndex = self.firstIndex(where: { $0.id == elementId }) else {
-            for child in self {
-                if let result = child.children?.getNestedListLocation(of: elementId,
-                                                                      currentParent: child.id) {
-                    return result
-                }
-            }
-            
-            // TODO: unclear if this is bad
-            fatalErrorIfDebug("No match found.")
-            return nil
-        }
-
-        if foundIndex == 0 {
-            return .init(associatedItemId: currentParent,
-                         type: .topOfHierarchy)
-        } else {
-            return .init(associatedItemId: elementId,
-                         type: .afterItem)
-        }
-    }
-    
+//    func getNestedListLocation(of elementId: Element.ID,
+//                               currentParent: Element.ID? = nil) -> NestedListLocation<Element>? {
+//        guard let foundIndex = self.firstIndex(where: { $0.id == elementId }) else {
+//            for child in self {
+//                if let result = child.children?.getNestedListLocation(of: elementId,
+//                                                                      currentParent: child.id) {
+//                    return result
+//                }
+//            }
+//            
+//            // TODO: unclear if this is bad
+//            fatalErrorIfDebug("No match found.")
+//            return nil
+//        }
+//
+//        if foundIndex == 0 {
+//            return .init(associatedItemId: currentParent,
+//                         type: .topOfHierarchy)
+//        } else {
+//            return .init(associatedItemId: elementId,
+//                         type: .afterItem)
+//        }
+//    }
+//    
     /// Helper that recursively travels nested data structure.
     func recursiveForEach(_ callback: @escaping (Element) -> ()) {
         self.forEach { item in
             callback(item)
             
             item.children?.recursiveForEach(callback)
+        }
+    }
+    
+    /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
+    func recursiveMap(_ callback: @escaping (Element) -> Element) -> [Element] {
+        self.map { item in
+            item.children = item.children?.recursiveMap(callback)
+            
+            return callback(item)
         }
     }
     
@@ -489,18 +512,18 @@ extension Array where Element: SidebarItemSwipable {
 //        }
 //    }
     
-    @MainActor
-    private func movedDraggedItemsToChildren(_ draggedItems: [Element],
-                                             at location: NestedListLocation<Element>) -> [Element] {
-        // Recursively check other children
-        self.map { child in
-            if let children = child.children {
-                child.children = children.movedDraggedItems(draggedItems, at: location)
-            }
-            
-            return child
-        }
-    }
+//    @MainActor
+//    private func movedDraggedItemsToChildren(_ draggedItems: [Element],
+//                                             at location: NestedListLocation<Element>) -> [Element] {
+//        // Recursively check other children
+//        self.map { child in
+//            if let children = child.children {
+//                child.children = children.movedDraggedItems(draggedItems, at: location)
+//            }
+//            
+//            return child
+//        }
+//    }
     
     @MainActor
     mutating private func insertDraggedElements(_ elements: [Element],
@@ -511,43 +534,66 @@ extension Array where Element: SidebarItemSwipable {
     /// Recursive function that traverses nested array until index == 0.
     @MainActor
     func movedDraggedItems(_ draggedItems: [Element],
-                           at location: NestedListLocation<Element>) -> [Element] {
+                           after element: Element,
+                           dragPositionIndex: SidebarIndex) -> [Element] {
+        
+        guard let indexAtHierarchy = self.firstIndex(where: { $0.id == element.id }) else {
+            // Recurse children until element found
+            return self.recursiveMap { item in
+                item.children = item.children?.movedDraggedItems(draggedItems,
+                                                                 after: element,
+                                                                 dragPositionIndex: dragPositionIndex)
+                return item
+            }
+        }
+        
+        // Check for group at this index--if drag position resembles child, insert elements
+        // at root of group's children
+        if element.isGroup && dragPositionIndex.groupIndex < element.sidebarIndex.groupIndex,
+           var children = element.children {
+            log("inserting in child")
+            children.insertDraggedElements(draggedItems, at: 0)
+            element.children = children
+            return self
+        }
         
         var newList = self
-        
-        switch location.type {
-        case .topOfHierarchy:
-            guard let parentId = location.associatedItemId else {
-                // Nil case means root list
-                newList.insertDraggedElements(draggedItems, at: 0)
-                return newList
-            }
-            
-            newList = newList.map { element in
-                guard element.id == parentId else {
-                    return element
-                }
-                
-                if var children = element.children {
-                    children.insertDraggedElements(draggedItems, at: 0)
-                    element.children = children
-                }
-                
-                return element
-            }
-            return newList
-            
-        case .afterItem:
-            guard let itemId = location.associatedItemId,
-                  let element = self.get(itemId),
-                  let indexOfElement = self.firstIndex(where: { element.id == $0.id }) else {
-                newList = newList.movedDraggedItemsToChildren(draggedItems, at: location)
-                return newList
-            }
-            
-            newList.insertDraggedElements(draggedItems, at: indexOfElement)
-            return newList
-        }
+        newList.insertDraggedElements(draggedItems, at: indexAtHierarchy)
+        return newList
+//
+//        switch location.type {
+//        case .topOfHierarchy:
+//            guard let parentId = location.associatedItemId else {
+//                // Nil case means root list
+//                newList.insertDraggedElements(draggedItems, at: 0)
+//                return newList
+//            }
+//            
+//            newList = newList.map { element in
+//                guard element.id == parentId else {
+//                    return element
+//                }
+//                
+//                if var children = element.children {
+//                    children.insertDraggedElements(draggedItems, at: 0)
+//                    element.children = children
+//                }
+//                
+//                return element
+//            }
+//            return newList
+//            
+//        case .afterItem:
+//            guard let itemId = location.associatedItemId,
+//                  let element = self.get(itemId),
+//                  let indexOfElement = self.firstIndex(where: { element.id == $0.id }) else {
+//                newList = newList.movedDraggedItemsToChildren(draggedItems, at: location)
+//                return newList
+//            }
+//            
+//            newList.insertDraggedElements(draggedItems, at: indexOfElement)
+//            return newList
+//        }
     }
     
     /// Given some made-up location, finds the closest element in a nested sidebar list. Used for item dragging.
@@ -562,7 +608,7 @@ extension Array where Element: SidebarItemSwipable {
         // Filters for:
         // 1. Row indices smaller than index
         // 2. Rows with allowed groups--which are constrained by the index's above and below element
-        let flattenedItems = self[0..<index.rowIndex]
+        let flattenedItems = self[0..<index.rowIndex + 1]
             .filter {
                 let thisGroupIndex = $0.sidebarIndex.groupIndex
                 return (beforeElementGroupIndex <= thisGroupIndex && thisGroupIndex <= afterElementGroupIndex) ||
@@ -577,7 +623,7 @@ extension Array where Element: SidebarItemSwipable {
             let rhsGroupIndexDiff = abs(index.groupIndex - rhs.sidebarIndex.groupIndex)
             let rhsRowIndexDiff = index.rowIndex - rhs.sidebarIndex.rowIndex
             
-            assertInDebug(lhsRowIndexDiff >= 0 && rhsRowIndexDiff >= 0)
+//            assertInDebug(lhsRowIndexDiff >= 0 && rhsRowIndexDiff >= 0)
             
             // 1. equal groups
             if lhsGroupIndexDiff == rhsGroupIndexDiff {
