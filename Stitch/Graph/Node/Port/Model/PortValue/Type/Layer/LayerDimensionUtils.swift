@@ -211,6 +211,16 @@ extension LayerDimension {
         }
     }
     
+    // `hug` and `auto` have no fixed size when applied to a LayerGroup i.e. ZStack or HStack
+    var noFixedSizeForLayerGroup: Bool {
+        switch self {
+        case .hug, .auto:
+            return true
+        case .fill, .number, .parentPercent:
+            return false
+        }
+    }
+    
     var isFill: Bool {
         self == .fill
     }
