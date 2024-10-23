@@ -236,18 +236,7 @@ extension ProjectSidebarObservable {
         let visualList = self.getVisualFlattenedList()
         
         // log("onSidebarListItemDragged called: item.id: \(item.id)")
-        let isDraggingDown = translation.height > 0
-        
-//        var alreadyDragged = Set<ItemID>()
-//        var draggedAlong = Set<ItemID>()
-        
-        // log("onSidebarListItemDragged: otherSelections: \(otherSelections)")
-        // log("onSidebarListItemDragged: draggedAlong: \(draggedAlong)")
-        
-        // TODO: remove this property, and use an `isBeingDragged` check in the UI instead?
-//        if item.zIndex != SIDEBAR_ITEM_MAX_Z_INDEX {
-//            item.zIndex = SIDEBAR_ITEM_MAX_Z_INDEX
-//        }
+//        let isDraggingDown = translation.height > 0
         
         let allDraggedItems = [item] + visualList.filter { item in
             otherSelections.contains(item.id)
@@ -257,39 +246,14 @@ extension ProjectSidebarObservable {
             self.implicitlyDragged.contains(item.id)
         }
         
-        // First time this is called, we pass in ALL items
-//        let (newIndices,
-//             updatedAlreadyDragged,
-//             updatedDraggedAlong) = self.updatePositionsHelper(
-//                item,
-//                [],
-//                translation,
-//                otherSelections: otherSelections,
-//                alreadyDragged: alreadyDragged,
-//                draggedAlong: draggedAlong)
-//        
-        // limit this from going negative?
-//        cursorDrag.x = cursorDrag.previousX + translation.width
-//
-////        item = self.items[originalItemIndex] // update the `item` too!
-//        alreadyDragged = alreadyDragged.union(updatedAlreadyDragged)
-//        draggedAlong = draggedAlong.union(updatedDraggedAlong)
+        let filteredVisualList = visualList.filter {
+            $0.id != item.id
+        }
         
         let originalItemIndex = item.sidebarIndex
         
-//        let calculatedIndex = self.calculateNewIndexOnDrag(
-//            item: item,
-//            otherSelections: otherSelections,
-////            draggedAlong: draggedAlong,
-//            movingDown: translation.height > 0)
-//            originalItemIndex: originalItemIndex,
-//            movedIndices: newIndices)
-//        
-//        print("index: \(calculatedIndex)")
-//
-        
         // New drag check
-        guard let dragPosition = item.dragPosition else {
+        guard let oldDragPosition = item.dragPosition else {
             // TODO: If new drag, re-arrange groups and delete
             
             self.currentItemDragged = item.id
@@ -298,7 +262,7 @@ extension ProjectSidebarObservable {
             
             // Move items to dragged item
             self.movedDraggedItems(allDraggedItems,
-                                   visualList: visualList,
+                                   visualList: filteredVisualList,
                                    to: originalItemIndex)
             
             let draggedChildren = allDraggedItems.flatMap { draggedItem in
@@ -319,31 +283,23 @@ extension ProjectSidebarObservable {
         
         (allDraggedItems + implicitlyDraggedItems).forEach { draggedItem in
             draggedItem.dragPosition = (draggedItem.prevDragPosition ?? .zero) + translation.toCGPoint
-            
-//            log("\(allDraggedItems.first?.dragPosition?.y),\t\(allDraggedItems.first?.prevDragPosition?.y),\t\(translation.height)")
-//            if originalItemIndex != calculatedIndex {
-//                log("calculatedIndex: \(calculatedIndex)")
-                // TODO: find element at new index
-                // if child of dragged item, do nothing
-                // else use helper to find array. decrement counter. when 0, place item there after removing old one
-                
-//                self.items.move(fromOffsets: <#T##IndexSet#>, toOffset: <#T##Int#>)
-//                self.items.remove(item.id)
-//            }
         }
         
+        // Dragging down = indices increase
+        let isDraggingDown = (item.dragPosition?.y ?? .zero) > oldDragPosition.y
+        
         guard let calculatedIndex = Self.getMovedtoIndex(
-            dragPosition: dragPosition,
+            dragPosition: item.dragPosition ?? item.location,
 //            maxIndex: maxMovedToIndex,
             movingDown: isDraggingDown,
-            flattenedItems: visualList) else {
+            flattenedItems: filteredVisualList) else {
             log("No index found")
             return
         }
         
         if originalItemIndex != calculatedIndex {
             self.movedDraggedItems(allDraggedItems,
-                                   visualList: visualList,
+                                   visualList: filteredVisualList,
                                    to: calculatedIndex)
         }
         
@@ -395,6 +351,9 @@ extension ProjectSidebarObservable {
 //            visualList.removeAll(where: {draggedItem.id == $0.id })
 //        }
         
+//        let test = visualList.filter { item in
+//            draggedItems.contains(where: {item.id != $0.id} )
+//        }
         let draggedToElementResult = visualList.findClosestElement(draggedElement: firstDraggedElement,
                                                                    to: index)
         
@@ -569,7 +528,7 @@ extension Array where Element: SidebarItemSwipable {
         
         // TODO: get top of root scenario working
         
-        guard var element = dragResult.element else {
+        guard let element = dragResult.element else {
             var newList = self
             newList.insertDraggedElements(draggedItems,
                                           at: 0,
@@ -610,41 +569,6 @@ extension Array where Element: SidebarItemSwipable {
             
             return newList
         }
-        
-//
-//        switch location.type {
-//        case .topOfHierarchy:
-//            guard let parentId = location.associatedItemId else {
-//                // Nil case means root list
-//                newList.insertDraggedElements(draggedItems, at: 0)
-//                return newList
-//            }
-//            
-//            newList = newList.map { element in
-//                guard element.id == parentId else {
-//                    return element
-//                }
-//                
-//                if var children = element.children {
-//                    children.insertDraggedElements(draggedItems, at: 0)
-//                    element.children = children
-//                }
-//                
-//                return element
-//            }
-//            return newList
-//            
-//        case .afterItem:
-//            guard let itemId = location.associatedItemId,
-//                  let element = self.get(itemId),
-//                  let indexOfElement = self.firstIndex(where: { element.id == $0.id }) else {
-//                newList = newList.movedDraggedItemsToChildren(draggedItems, at: location)
-//                return newList
-//            }
-//            
-//            newList.insertDraggedElements(draggedItems, at: indexOfElement)
-//            return newList
-//        }
     }
     
     /// Given some made-up location, finds the closest element in a nested sidebar list. Used for item dragging.
@@ -655,21 +579,19 @@ extension Array where Element: SidebarItemSwipable {
     @MainActor
     func findClosestElement(draggedElement: Element,
                             to indexOfDraggedLocation: SidebarIndex) -> SidebarDragDestination<Element> {
-        let indexOfDraggedElement = draggedElement.sidebarIndex
-//        
-        let beforeElement = self[safe: indexOfDraggedLocation.rowIndex]
-        let afterElement = self[safe: indexOfDraggedLocation.rowIndex + 1]
+        let beforeElement = self[safe: indexOfDraggedLocation.rowIndex - 1]
+        let afterElement = self[safe: indexOfDraggedLocation.rowIndex]
         
         let supportedGroupRanges = draggedElement
             .supportedGroupRangeOnDrag(beforeElement: beforeElement,
                                        afterElement: afterElement)
         
-        log(supportedGroupRanges)
+//        log("group ranges: \(supportedGroupRanges)\tbefore: \(beforeElement?.id.debugFriendlyId)\tafter: \(afterElement?.id.debugFriendlyId)")
         
         // Filters for:
         // 1. Row indices smaller than index
         // 2. Rows with allowed groups--which are constrained by the index's above and below element
-        let flattenedItems = self[0..<indexOfDraggedLocation.rowIndex + 1]
+        let flattenedItems = self[0..<Swift.min(indexOfDraggedLocation.rowIndex, self.count)]
             .filter {
                 // Can't be self
 //                guard $0.sidebarIndex != index else { return false }
@@ -681,17 +603,10 @@ extension Array where Element: SidebarItemSwipable {
         // Prioritize correct group hierarchy--if equal use closest row index
         let rankedItems = flattenedItems.sorted { lhs, rhs in
             let lhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - lhs.sidebarIndex.groupIndex)
-            let lhsRowIndexDiff = indexOfDraggedLocation.rowIndex - lhs.sidebarIndex.rowIndex
+            let lhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - lhs.sidebarIndex.rowIndex)
             
             let rhsGroupIndexDiff = abs(indexOfDraggedLocation.groupIndex - rhs.sidebarIndex.groupIndex)
-            let rhsRowIndexDiff = indexOfDraggedLocation.rowIndex - rhs.sidebarIndex.rowIndex
-            
-//            assertInDebug(lhsRowIndexDiff >= 0 && rhsRowIndexDiff >= 0)
-
-            // Check for condition where we drag into empty group
-//            if lhs.isEmptyGroupCandidate(draggedToIndex: indexOfDraggedLocation) {
-//                return true
-//            }
+            let rhsRowIndexDiff = abs(indexOfDraggedLocation.rowIndex - rhs.sidebarIndex.rowIndex)
             
             // Equal groups
             if lhsGroupIndexDiff == rhsGroupIndexDiff {
@@ -701,21 +616,23 @@ extension Array where Element: SidebarItemSwipable {
             return lhsGroupIndexDiff < rhsGroupIndexDiff
         }
         
-        guard let recommendedItem = rankedItems.first else { return .topOfGroup(nil) }
-        
-        // Check for condition where we drag into empty group
-        if recommendedItem.isEmptyGroupCandidate(draggedToIndex: indexOfDraggedLocation) {
-            return .topOfGroup(recommendedItem)
+        guard let recommendedItem = rankedItems.first else {
+            log("NO ITEM FOUND")
+            return .topOfGroup(nil)
         }
-        
-//        guard recommendedItem?.sidebarIndex != index else {
-//            return nil
-//        }
         
 #if DEV_DEBUG
         log("recommendation test for \(indexOfDraggedLocation):")
         rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.groupIndex - $0.sidebarIndex.groupIndex))") }
 #endif
+        
+        // Check for condition where we want to insert a row to the top of a group's children list
+        if recommendedItem.isGroup && recommendedItem.rowIndex == indexOfDraggedLocation.rowIndex,
+            !(recommendedItem.children?.isEmpty ?? true) ||
+            indexOfDraggedLocation.groupIndex > recommendedItem.sidebarIndex.groupIndex {
+            log("TOP OF GROUP")
+            return .topOfGroup(recommendedItem)
+        }
         
         return .afterElement(recommendedItem)
     }

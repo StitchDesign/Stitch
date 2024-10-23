@@ -181,15 +181,17 @@ extension SidebarItemSwipable {
         
         let afterGroupIndex = afterElement.sidebarIndex.groupIndex
         
-        // If above element is a parent, we cannot drag left-ward past the after element
+        // If before element is a parent, restrict results to that parent
         if beforeElement.isGroup {
-            let result = afterGroupIndex..<beforeGroupIndex + 2
+            log("BEFORE GROUP")
+            let result = beforeGroupIndex..<beforeGroupIndex + 1
+            return result
         }
         
         // If this element is a group, it can drag as left-ward as the root and right-ward as the above element allows
-        if self.isGroup {
-            return 0..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
-        }
+//        if self.isGroup {
+//            return 0..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
+//        }
         
         // Default cases must remain in existing group unless last element in group
         let min = min(beforeGroupIndex, afterGroupIndex)
@@ -243,13 +245,13 @@ extension SidebarItemSwipable {
         !(self.isExpandedInSidebar ?? true)
     }
     
-    /// For dragging scenarios, checks if this element is a candidate empty group.
-    @MainActor
-    func isEmptyGroupCandidate(draggedToIndex: SidebarIndex) -> Bool {
-        self.isGroup &&
-        draggedToIndex.groupIndex > self.sidebarIndex.groupIndex &&
-        draggedToIndex.rowIndex >= self.sidebarIndex.rowIndex
-    }
+//    /// For dragging scenarios, checks if this element is a candidate empty group.
+//    @MainActor
+//    func isEmptyGroupCandidate(draggedToIndex: SidebarIndex) -> Bool {
+//        self.isGroup &&
+//        draggedToIndex.groupIndex > self.sidebarIndex.groupIndex &&
+//        draggedToIndex.rowIndex >= self.sidebarIndex.rowIndex
+//    }
     
     // MARK: GESTURE HANDLERS
 
