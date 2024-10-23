@@ -69,11 +69,6 @@ extension StitchDocumentViewModel {
 
     @MainActor
     func nodeCreated(node: NodeViewModel) {
-
-        let choice = node.kind
-        var undoEvents = Actions()
-        let nodeId = node.id
-
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
         // self.graphUI.insertNodeMenuState.activeSelection = InsertNodeMenuState.allSearchOptions.first
@@ -82,29 +77,6 @@ extension StitchDocumentViewModel {
             $0.parentGroupNodeId = self.graphUI.groupNodeFocused?.groupNodeId
         }
         self.visibleGraph.visibleNodesViewModel.nodes.updateValue(node, forKey: node.id)
-        
-        if node.kind.isLayer {
-            log("had layer")
-            // Note: do not update sidebar-list-state until after the layer node has actually been added to GraphState
-            
-            // If we created a layer group, it will start out expanded
-//            if case .layer(.group) = choice {
-//                log("had layer group, will add to expanded")
-//                node.layerNode?.isExpandedInSidebar = true
-//            }
-            
-            // TODO: revisit node created
-//            self.visibleGraph.sidebarListState = getMasterListFrom(
-//                layerNodes: self.visibleGraph.visibleNodesViewModel.layerNodes,
-//                expanded: self.visibleGraph.getSidebarExpandedItems(),
-//                orderedSidebarItems: self.visibleGraph.orderedSidebarLayers)
-//            
-//            // TODO: why is this necessary?
-//            _updateStateAfterListChange(
-//                updatedList: self.visibleGraph.sidebarListState,
-//                expanded: self.visibleGraph.getSidebarExpandedItems(),
-//                graphState: self.visibleGraph)
-        }
         
         node.initializeDelegate(graph: self.visibleGraph,
                                 document: self)

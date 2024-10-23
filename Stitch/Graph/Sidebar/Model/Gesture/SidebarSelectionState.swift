@@ -7,17 +7,6 @@
 
 import Foundation
 import StitchSchemaKit
-import OrderedCollections
-
-typealias OrderedLayerNodeIdSet = OrderedSet<LayerNodeId>
-//typealias SidebarSelections = LayerIdSet
-//typealias NonEmptySidebarSelections = NonEmptyLayerIdSet
-
-//extension LayerIdSet {
-//    var asSidebarListItemIdSet: SidebarListItemIdSet {
-//        self.map(\.asItemId).toSet
-//    }
-//}
 
 struct InspectorFocusedData<ItemID: Hashable> {
     
@@ -43,21 +32,9 @@ struct InspectorFocusedData<ItemID: Hashable> {
     }
 }
 
-//extension SidebarSelections {
-//    var nonEmptyPrimary: NonEmptySidebarSelections? {
-//        if self.isEmpty {
-//            return nil
-//        } else {
-//            return NES(self)!
-//        }
-//    }
-//}
-
 @Observable
 final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
-    
-    //    var isEditMode: Bool = false
     
     // avoid this?
     var madeStack: Bool = false
@@ -94,10 +71,6 @@ extension SidebarSelectionObserver {
     var all: SidebarSelections {
         primary.union(secondary)
     }
-
-//    var nonEmptyPrimary: SidebarSelections? {
-//        self.primary.nonEmptyPrimary
-//    }
     
     func isSelected(_ id: ItemID) -> Bool {
         all.contains(id)
@@ -107,10 +80,4 @@ extension SidebarSelectionObserver {
         self.primary = SidebarSelections()
         self.secondary = SidebarSelections()
     }
-
-    // better
-//    func combine(other: Self) {
-//        self.primary = self.primary.union(other.primary)
-//        self.secondary = self.secondary.union(other.secondary)
-//    }
 }

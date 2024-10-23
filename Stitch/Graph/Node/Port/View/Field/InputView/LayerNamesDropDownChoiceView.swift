@@ -94,10 +94,6 @@ extension GraphState {
         self.layersSidebarViewModel.getDescendantsIds(id: layer.asItemId)
             .map { $0.asLayerNodeId }
             .toSet
-        
-//        getDescendantsIds(id: layer,
-//                          groups: self.getSidebarGroupsDict(),
-//                          acc: .init())
     }
 }
 

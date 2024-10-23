@@ -162,8 +162,6 @@ final class LayerNodeViewModel {
             }
         }
     }
-    
-//    var isExpandedInSidebar: Bool?
 
     init(from schema: LayerNodeEntity) {
         
