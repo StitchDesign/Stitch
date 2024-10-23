@@ -16,7 +16,6 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     
     @Bindable var sidebarViewModel: SidebarViewModel
     let syncStatus: iCloudSyncStatus
-//    let layerNodes: LayerNodesForSidebarDict
 
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
@@ -29,27 +28,6 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     var groups: SidebarViewModel.SidebarGroupsDict {
         self.sidebarViewModel.getSidebarGroupsDict()
     }
-    
-//    var groups: SidebarGroupsDict {
-//        graph.getSidebarGroupsDict()
-//    }
-    
-//    var sidebarDeps: SidebarDeps {
-//        SidebarDeps(
-////            layerNodes: .fromLayerNodesDict(
-////                nodes: graph.layerNodes,
-////                orderedSidebarItems: graph.orderedSidebarLayers),
-//            groups: groups,
-//            expandedItems: graph.getSidebarExpandedItems())
-//    }
-
-//    var layerNodesForSidebarDict: LayerNodesForSidebarDict {
-//        sidebarDeps.layerNodes
-//    }
-
-//    var masterList: SidebarListItemsCoordinator {
-//        sidebarListState.masterList
-//    }
 
     var showEditModeFooter: Bool {
         #if targetEnvironment(macCatalyst)
@@ -71,12 +49,6 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
                     .animation(.default, value: isBeingEdited)
             }
         }
-        // NOTE: only listen for changes to expandedItems or sidebar-groups,
-        // not the layerNodes, since layerNodes change constantly
-        // when eg a Time Node is attached to a Text Layer.
-//        .onChange(of: sidebarViewModel.expandedSidebarItems) {
-//            sidebarViewModel.activeSwipeId = nil
-//        }
         .onChange(of: groups) {
             sidebarViewModel.activeSwipeId = nil
         }
@@ -85,7 +57,6 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         .animation(.default, value: selections.primary)
         .animation(.default, value: selections.secondary)
         .animation(.default, value: groups)
-//        .animation(.default, value: layerNodes)
         .frame(maxWidth: .infinity)
         .height(self.SIDEBAR_FOOTER_HEIGHT)
         .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
