@@ -301,12 +301,6 @@ extension SidebarItemGestureViewModel {
                 shiftHeld: isShiftDown,
                 commandHeld: graph.keypressState.isCommandPressed)
         }
-                
-//        let groups = sidebarViewModel.getSidebarGroupsDict()
-//        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: graph.layerNodes, orderedSidebarItems: graph.orderedSidebarLayers),
-//        let sidebarDeps = SidebarDeps(groups: groups,
-//                                      expandedItems: graph.getSidebarExpandedItems())
-//        let layerNodes = sidebarDeps.layerNodes
         
         let primary = selections.primary
         

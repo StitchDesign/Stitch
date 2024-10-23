@@ -23,19 +23,10 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
     var isBeingEdited: Bool {
         self.sidebarViewModel.isEditing
     }
-//    
-//    var current: SidebarViewModel.ItemViewModel? {
-//        self.sidebarViewModel.currentItemDragged
-//    }
-    
+
     var proposedGroup: SidebarViewModel.ItemViewModel? {
         self.sidebarViewModel.proposedGroup
     }
-
-    // TODO: should be for *all* selected-layers during a drag
-//    var isBeingDragged: Bool {
-//        current.map { $0.current == item.id } ?? false
-//    }
 
     var isProposedGroup: Bool {
         proposedGroup?.id == item.id
