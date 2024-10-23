@@ -72,28 +72,19 @@ struct SidebarListView: View {
     @Bindable var graph: GraphState
     let syncStatus: iCloudSyncStatus
     
-
-//    var selections: SidebarSelectionState {
-//        graph.sidebarSelectionState
-//    }
-//    
-//    var sidebarListState: SidebarListState {
-//        graph.sidebarListState
-//    }
-    
-    
     var body: some View {
         VStack {
-            Picker("Sidebar Tabs", selection: self.$currentTab) {
-                ForEach(Self.tabs, id: \.self) { tab in
-//                    HStack {
-                        //                        Image(systemName: tab.iconName)
-                        Text(tab)
-                        .width(200)
-//                    }
-                }
-            }
-            .pickerStyle(.segmented)
+            // TODO: re-enable tabs for asset manager
+//            Picker("Sidebar Tabs", selection: self.$currentTab) {
+//                ForEach(Self.tabs, id: \.self) { tab in
+////                    HStack {
+//                        //                        Image(systemName: tab.iconName)
+//                        Text(tab)
+//                        .width(200)
+////                    }
+//                }
+//            }
+//            .pickerStyle(.segmented)
             
             switch ProjectSidebarTab(rawValue: self.currentTab) {
             case .none:
@@ -101,7 +92,6 @@ struct SidebarListView: View {
             case .some(let tab):
                 switch tab {
                 case .layers:
-//                    @Bindable var viewModel = tab.viewModelType.init()
                     SidebarListScrollView(graph: graph,
                                           sidebarViewModel: graph.layersSidebarViewModel,
                                           tab: tab,
