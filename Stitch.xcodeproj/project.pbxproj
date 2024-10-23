@@ -476,7 +476,6 @@
 		EC4A720F274C09A40026B233 /* WirelessReceiverNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4A720E274C09A40026B233 /* WirelessReceiverNode.swift */; };
 		EC4A7211274C260C0026B233 /* WirelessPortView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4A7210274C260C0026B233 /* WirelessPortView.swift */; };
 		EC4A7213274C5A460026B233 /* WirelessReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4A7212274C5A460026B233 /* WirelessReceiver.swift */; };
-		EC4BD8942BA1343400B8F38A /* SidebarGroupsDict.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4BD8932BA1343400B8F38A /* SidebarGroupsDict.swift */; };
 		EC4BD89A2BA1350300B8F38A /* SidebarLayerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4BD8992BA1350300B8F38A /* SidebarLayerData.swift */; };
 		EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4CFB6426FE480700D085F3 /* StitchSoundFile.swift */; };
 		EC4CFB6726FE483300D085F3 /* StitchMicrophone.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4CFB6626FE483300D085F3 /* StitchMicrophone.swift */; };
@@ -1412,7 +1411,6 @@
 		EC4A720E274C09A40026B233 /* WirelessReceiverNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WirelessReceiverNode.swift; sourceTree = "<group>"; };
 		EC4A7210274C260C0026B233 /* WirelessPortView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WirelessPortView.swift; sourceTree = "<group>"; };
 		EC4A7212274C5A460026B233 /* WirelessReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WirelessReceiver.swift; sourceTree = "<group>"; };
-		EC4BD8932BA1343400B8F38A /* SidebarGroupsDict.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupsDict.swift; sourceTree = "<group>"; };
 		EC4BD8992BA1350300B8F38A /* SidebarLayerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarLayerData.swift; sourceTree = "<group>"; };
 		EC4CFB6426FE480700D085F3 /* StitchSoundFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchSoundFile.swift; sourceTree = "<group>"; };
 		EC4CFB6626FE483300D085F3 /* StitchMicrophone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchMicrophone.swift; sourceTree = "<group>"; };
@@ -2390,7 +2388,6 @@
 				B5CB68312CC99FD400DFC660 /* ProjectSidebarTab.swift */,
 				B555010E2C1BD1810081C3F1 /* SidebarItem */,
 				B55501082C1BCBF20081C3F1 /* Gesture */,
-				EC4BD8932BA1343400B8F38A /* SidebarGroupsDict.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4898,7 +4895,6 @@
 				EC28CC9E287E351100987792 /* PatchNodeTypeExtensions.swift in Sources */,
 				B590041A28501E6700EDDDFD /* MediaPickerValueEntry.swift in Sources */,
 				EC609DD229357B8B00BF60A5 /* LessThanNode.swift in Sources */,
-				EC4BD8942BA1343400B8F38A /* SidebarGroupsDict.swift in Sources */,
 				B530D5072C18ABEB0005C6A9 /* DirectoryObserverActions.swift in Sources */,
 				EC8C5C152616415F0099C374 /* SoundKitNode.swift in Sources */,
 				ECF236802CC1B00E002BC84A /* LayerGroupOrientationDropDownChoiceView.swift in Sources */,

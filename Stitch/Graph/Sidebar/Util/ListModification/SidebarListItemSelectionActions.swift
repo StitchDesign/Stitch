@@ -25,24 +25,40 @@ extension GraphState {
     // ASSUMES NON-EMPTY
 }
 
-extension ProjectSidebarObservable {
-    func secondarilySelectAllChildren(id: Self.ItemID,
-                                      groups: SidebarGroupsDict) {
+extension SidebarItemSwipable {
+    /// Recursively "secondarily" selects children.
+    func secondarilySelectAllChildren() {
+        guard let sidebar = self.sidebarDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
         
-        let acc = self.selectionState
-        
-        // add to acc
-        self.addExclusivelyToSecondary(id)
+        // add to selection state
+        sidebar.addExclusivelyToSecondary(self.id)
         
         // recur on children
-        if let children = groups[id] {
-            children.forEach { (child: Self.ItemID) in
-                self.secondarilySelectAllChildren(
-                    id: child,
-                    groups: groups)
-            }
+        self.children?.forEach { child in
+            child.secondarilySelectAllChildren()
         }
     }
+    
+    /// Recursively removes self + children from selection state.
+    func removeFromSelections() {
+        guard let sidebar = self.sidebarDelegate else {
+            fatalErrorIfDebug()
+            return
+        }
+        
+        sidebar.selectionState.primary.remove(self.id)
+        sidebar.selectionState.secondary.remove(self.id)
+        
+        self.children?.forEach { child in
+            child.removeFromSelections()
+        }
+    }
+}
+
+extension ProjectSidebarObservable {
     
     // children to deselect
     @MainActor
@@ -50,11 +66,6 @@ extension ProjectSidebarObservable {
         guard let children = self.createdOrderedEncodedData().get(id)?.children else { return .init() }
         return children.flatMap { $0.allElementIds }
             .toSet
-    }
-    
-    func removeFromSelections(_ id: Self.ItemID) {
-        self.selectionState.primary.remove(id)
-        self.selectionState.secondary.remove(id)
     }
     
     func addExclusivelyToPrimary(_ id: Self.ItemID) {
@@ -72,14 +83,15 @@ extension ProjectSidebarObservable {
     }
     
     
-    static func allShareSameParent(_ selections: Self.SidebarSelectionState.SidebarSelections,
-                                   groups: Self.SidebarGroupsDict) -> Bool {
+    func allShareSameParent(_ selections: Self.SidebarSelectionState.SidebarSelections) -> Bool {
         
         if let firstSelection = selections.first,
-           let parent = findGroupLayerParentForLayerNode(firstSelection, groups) {
+           let firstSelectionItem = self.items.get(firstSelection),
+           let parent = firstSelectionItem.parentDelegate?.id {
             return selections.allSatisfy { id in
                 // does `id` have a parent, and is that parent the same as the random parent?
-                findGroupLayerParentForLayerNode(id, groups).map { $0 == parent } ?? false
+                let item = self.items.get(id)
+                return item?.parentDelegate?.id == parent
             }
         } else {
             return false // ie no parent
@@ -91,15 +103,14 @@ extension ProjectSidebarObservable {
     @MainActor
     func canBeGrouped() -> Bool {
         let selections = self.selectionState.primary
-        let groups = self.getSidebarGroupsDict()
         
         // items are on same level if they are all top level
-        let allTopLevel = selections.allSatisfy {
-            !Self.findGroupLayerParentForLayerNode($0, groups).isDefined
+        let allTopLevel = selections.allSatisfy { selectionId in
+            self.items.get(selectionId)?.parentDelegate != nil
         }
         
         // ... or if they all have same parent
-        let allSameParent = Self.allShareSameParent(selections, groups: groups)
+        let allSameParent = self.allShareSameParent(selections)
         
         return allTopLevel || allSameParent
     }

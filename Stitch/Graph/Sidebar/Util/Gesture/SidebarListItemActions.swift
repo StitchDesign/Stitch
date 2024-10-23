@@ -67,7 +67,6 @@ extension GraphState {
             fatalErrorIfDebug() // Is this bad?
             return
         }
-        let sidebarGroups = self.layersSidebarViewModel.getSidebarGroupsDict()
         
         let descendants = self.getDescendants(for: clickedId.asLayerNodeId)
 
