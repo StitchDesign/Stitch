@@ -22,12 +22,12 @@ When generating the solution, follow these steps:
 
 1. **Add Nodes:**
    - Use the `ADD_NODE` action to add a node.
-   - Immediately after adding a node, if needed, set its `ValueType` using the `CHANGE_NODE_TYPE` action. The available `ValueTypes` are:
+
+2. **Set Input Values:**
+   - Before setting the value of the node, set its `ValueType` using the `CHANGE_NODE_TYPE` action. The available `ValueTypes` are:
      - `NUMBER`: for numeric values (integers or floats)
      - `STRING`: for text values
      - `BOOLEAN`: for true/false values
-
-2. **Set Input Values:**
    - Use the `SET_INPUT` action to set the value of a node's input port as needed.
    - For patch nodes, directly use `SET_INPUT` to set input values.
    - For layer nodes, you must call the `ADD_LAYER_INPUT` action **before** setting the input value or connecting nodes.
