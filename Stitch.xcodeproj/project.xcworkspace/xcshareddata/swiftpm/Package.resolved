@@ -1,5 +1,4 @@
 {
-  "originHash" : "87be221b3fbded1c8027b1ce26671216264e4726379ed9409d52282eb1aab675",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -71,14 +70,6 @@
       }
     },
     {
-      "identity" : "stitchviewkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/StitchDesign/StitchViewKit.git",
-      "state" : {
-        "revision" : "bb61a9353e9e83838da1e48d93d4d2ea2a6187a4"
-      }
-    },
-    {
       "identity" : "swift-collections",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-collections.git",
@@ -142,5 +133,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
