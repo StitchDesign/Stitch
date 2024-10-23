@@ -61,16 +61,14 @@ struct PreviewTextLayer: View {
 
         let alignment: Alignment? = getSwiftUIAlignment(textAlignment, verticalAlignment)
         
-        let view = LayerTextView(value: text,
-                                 color: color,
-                                 alignment: alignment,
-                                 fontSize: fontSize,
-                                 textDecoration: textDecoration,
-                                 textFont: textFont)
-            .opacity(opacity)
-//            .padding()
-
-        return view.modifier(PreviewCommonModifier(
+        LayerTextView(value: text,
+                      color: color,
+                      alignment: alignment,
+                      fontSize: fontSize,
+                      textDecoration: textDecoration,
+                      textFont: textFont)
+        .opacity(opacity)
+        .modifier(PreviewCommonModifier(
             document: document,
             graph: graph,
             layerViewModel: layerViewModel,
