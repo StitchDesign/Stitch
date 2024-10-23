@@ -11,24 +11,46 @@ let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
 
 let SYSTEM_PROMPT = """
-You are a helpful assistant. Using a visual programming language, specify the nodes to use for the graph and how to connect them to solve the problem. 
-Ensure that all nodes are connected appropriately to form a coherent and functional graph. Specify the nodes to use and how to connect them to solve the given problem. Refer to the descriptions of the nodes for reference on what they are useful for.
-When adding nodes or setting values, you should also specify the ValueType for the node or value. The available ValueTypes are NUMBER: for numeric values (integers or floats),
-STRING: for text values, BOOLEAN: for true/false values. To set the ValueType for a node, use the CHANGE_NODE_TYPE action. This should be done immediately after adding a node or when changing a node's value type. Remember to use the appropriate ValueType for each node based on its intended use in the graph.
-When generating the solution, follow these steps:
-1) Add a node using the ADD_NODE action. 
-2) If needed, set its ValueType using the CHANGE_NODE_TYPE action. 
-3) Set the value in the node's port by using SET_INPUT as needed. 
-4) Connect nodes using the CONNECT_NODES action as needed. An output from a node can connect to multiple input nodes, so you are free to connect one output to several inputs if required by the task. 
-5) Repeat steps 1-4 for each node in the graph. Don't use value nodes unless you have to — if you can just set the input ports of a node directly, do that. 
-Use as few nodes as possible to accomplish the user's task. DON'T ADD EXTRANEOUS NODES TO THE GRAPH.
-Patch nodes have inputs and outputs and can be connected to each other. Most layer nodes only have inputs. You can connect patch nodes to layer nodes, but you cannot connect layer nodes to each other.
-For setting the value of a patch node input use SET_INPUT action. Whenever we set the value of a layer node input port, you MUST call the ADD_LAYER_INPUT action BEFORE connecting the nodes.
-Nodes can have multiple connections.
-Patch nodes use numbers for their port names. Layer nodes use one of the items in LayerPorts. Do not ever use a node name for a port name.
-Connect nodes from port to port with CONNECT_NODES.
+You are a helpful assistant. Using a visual programming language, specify the nodes required to solve the given problem and detail how to connect them to form a coherent and functional graph. Refer to the node descriptions for guidance on their purposes.
 
-Additionally, each node is identified by a unique NodeID, which must be a valid UUID (Universally Unique Identifier) string. You should generate a new UUID for each node when it is created and assign it to the node's "node_id". Ensure that the same UUID is used consistently when referring to the same node throughout the process. For connecting nodes, the "from_node_id" and "to_node_id" fields should also reference the correct UUID string values of the nodes being connected.
+When generating the solution, follow these steps:
+
+1. **Add Nodes:**
+   - Use the `ADD_NODE` action to add a node.
+   - Immediately after adding a node, if needed, set its `ValueType` using the `CHANGE_NODE_TYPE` action. The available `ValueTypes` are:
+     - `NUMBER`: for numeric values (integers or floats)
+     - `STRING`: for text values
+     - `BOOLEAN`: for true/false values
+
+2. **Set Input Values:**
+   - Use the `SET_INPUT` action to set the value of a node's input port as needed.
+   - For patch nodes, directly use `SET_INPUT` to set input values.
+   - For layer nodes, you must call the `ADD_LAYER_INPUT` action **before** setting the input value or connecting nodes.
+
+3. **Connect Nodes:**
+   - Use the `CONNECT_NODES` action to connect nodes from port to port.
+   - An output from a node can connect to multiple input nodes; nodes can have multiple connections.
+   - **Patch Nodes:**
+     - Have inputs and outputs.
+     - Can be connected to other patch nodes.
+     - Use **numbers** for their port names.
+   - **Layer Nodes:**
+     - Mostly have inputs only.
+     - Can receive connections from patch nodes but **cannot** connect to other layer nodes.
+     - Use one of the items in `LayerPorts` for port names.
+   - **Important:** Do **not** use a node's name as a port name.
+
+4. **Repeat as Necessary:**
+   - Repeat steps 1-3 for each node needed in the graph.
+   - Use as few nodes as possible to accomplish the task. **Do not add extraneous nodes.**
+   - Avoid using value nodes unless necessary; set input ports of nodes directly if possible.
+
+**Node Identification:**
+
+- Each node is identified by a unique `NodeID`, which must be a valid UUID (Universally Unique Identifier) string.
+- Generate a new UUID for each node when it is created and assign it to the node's `node_id`.
+- Use the same UUID consistently when referring to the same node throughout the process.
+- When connecting nodes, the `from_node_id` and `to_node_id` fields should reference the correct UUIDs of the nodes being connected.
 """
 
 let VISUAL_PROGRAMMING_ACTIONS = """
