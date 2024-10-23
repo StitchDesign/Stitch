@@ -45,16 +45,6 @@ extension GraphState {
     func didItemsDelete(ids: Set<SidebarListItemId>) {
         ids.forEach {
             self.deleteNode(id: $0)
-//            self.visibleNodesViewModel.nodes.removeValue(forKey: $0)
         }
-
-        // TODO: de-selection on edit mode
-//        self.updateSidebarListStateAfterStateChange()
-//        
-//        // TODO: why is this necessary?
-//        _updateStateAfterListChange(
-//            updatedList: self.sidebarListState,
-//            expanded: self.getSidebarExpandedItems(),
-//            graphState: self)
     }
 }

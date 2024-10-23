@@ -403,7 +403,6 @@
 		EC28D55B26B2142D00E1118E /* LayerGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC28D55A26B2142D00E1118E /* LayerGroups.swift */; };
 		EC28E4B526F92AA0006D20CB /* ProjectsHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC28E4B426F92AA0006D20CB /* ProjectsHomeView.swift */; };
 		EC28E4B726F92B36006D20CB /* ProjectsListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC28E4B626F92B36006D20CB /* ProjectsListItemView.swift */; };
-		EC2942312BA1364600D14CD1 /* UpdateStateAfterListChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942302BA1364600D14CD1 /* UpdateStateAfterListChange.swift */; };
 		EC2942372BA1377B00D14CD1 /* SidebarListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */; };
 		EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */; };
 		EC29423F2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */; };
@@ -423,7 +422,6 @@
 		EC2F62972A0D718600D86A50 /* ShapeCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62962A0D718600D86A50 /* ShapeCommand.swift */; };
 		EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */; };
 		EC3127F62BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */; };
-		EC3127F82BA3DE120087049A /* DeriveSidebarList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3127F72BA3DE120087049A /* DeriveSidebarList.swift */; };
 		EC31438728189FDF0023DB26 /* ProjectCreatedActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */; };
 		EC3420D82AF9BA1200EBD896 /* CommentBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */; };
 		EC3420DE2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3420DD2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift */; };
@@ -726,7 +724,6 @@
 		ECBEE1662CA705F800A10B37 /* SidebarListItemHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBEE1652CA705F800A10B37 /* SidebarListItemHelpers.swift */; };
 		ECC175872A43D6A30017815D /* StitchNodeNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175862A43D6A30017815D /* StitchNodeNames.swift */; };
 		ECC1758A2A43D9440017815D /* LayerDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC175892A43D9440017815D /* LayerDescription.swift */; };
-		ECC2BCC62B9AD1E900D5F942 /* LegacySidebarData.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCC52B9AD1E900D5F942 /* LegacySidebarData.swift */; };
 		ECC2BCCB2B9B72A700D5F942 /* SidebarListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */; };
 		ECC2BCCD2B9B72B700D5F942 /* SidebarFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */; };
 		ECC2BCCF2B9B72E900D5F942 /* SidebarListItemSwipeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCCE2B9B72E900D5F942 /* SidebarListItemSwipeView.swift */; };
@@ -738,7 +735,6 @@
 		ECC2BCDD2B9B74D200D5F942 /* SidebarListItemChevronView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCDC2B9B74D200D5F942 /* SidebarListItemChevronView.swift */; };
 		ECC2BCDF2B9B751500D5F942 /* SidebarListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCDE2B9B751500D5F942 /* SidebarListItemView.swift */; };
 		ECC2BCE52B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */; };
-		ECC2BCE92B9B865300D5F942 /* SidebarListItemToggleHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */; };
 		ECC2BCEB2B9B867E00D5F942 /* SidebarListActionHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */; };
 		ECC2BCED2B9CD43100D5F942 /* SidebarListItemGroupActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */; };
 		ECC2BCEF2B9E3B9200D5F942 /* LayerGroupFit.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */; };
@@ -1335,7 +1331,6 @@
 		EC28D55A26B2142D00E1118E /* LayerGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroups.swift; sourceTree = "<group>"; };
 		EC28E4B426F92AA0006D20CB /* ProjectsHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsHomeView.swift; sourceTree = "<group>"; };
 		EC28E4B626F92B36006D20CB /* ProjectsListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListItemView.swift; sourceTree = "<group>"; };
-		EC2942302BA1364600D14CD1 /* UpdateStateAfterListChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStateAfterListChange.swift; sourceTree = "<group>"; };
 		EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItem.swift; sourceTree = "<group>"; };
 		EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToCanvasItem.swift; sourceTree = "<group>"; };
 		EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupUncreated.swift; sourceTree = "<group>"; };
@@ -1355,7 +1350,6 @@
 		EC2F62962A0D718600D86A50 /* ShapeCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapeCommand.swift; sourceTree = "<group>"; };
 		EC2F62982A0DAB2600D86A50 /* PackNodeHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PackNodeHelpers.swift; sourceTree = "<group>"; };
 		EC3127F52BA3B6470087049A /* NodeWirelessBroadcastSubmenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeWirelessBroadcastSubmenuView.swift; sourceTree = "<group>"; };
-		EC3127F72BA3DE120087049A /* DeriveSidebarList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeriveSidebarList.swift; sourceTree = "<group>"; };
 		EC31438628189FDF0023DB26 /* ProjectCreatedActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCreatedActions.swift; sourceTree = "<group>"; };
 		EC3420D72AF9BA1200EBD896 /* CommentBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxView.swift; sourceTree = "<group>"; };
 		EC3420DD2AF9C2BE00EBD896 /* CommentBoxDataUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxDataUtils.swift; sourceTree = "<group>"; };
@@ -1654,7 +1648,6 @@
 		ECBEE1652CA705F800A10B37 /* SidebarListItemHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemHelpers.swift; sourceTree = "<group>"; };
 		ECC175862A43D6A30017815D /* StitchNodeNames.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StitchNodeNames.swift; sourceTree = "<group>"; };
 		ECC175892A43D9440017815D /* LayerDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerDescription.swift; sourceTree = "<group>"; };
-		ECC2BCC52B9AD1E900D5F942 /* LegacySidebarData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacySidebarData.swift; sourceTree = "<group>"; };
 		ECC2BCCA2B9B72A700D5F942 /* SidebarListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListView.swift; sourceTree = "<group>"; };
 		ECC2BCCC2B9B72B700D5F942 /* SidebarFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarFooterView.swift; sourceTree = "<group>"; };
 		ECC2BCCE2B9B72E900D5F942 /* SidebarListItemSwipeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSwipeView.swift; sourceTree = "<group>"; };
@@ -1666,7 +1659,6 @@
 		ECC2BCDC2B9B74D200D5F942 /* SidebarListItemChevronView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemChevronView.swift; sourceTree = "<group>"; };
 		ECC2BCDE2B9B751500D5F942 /* SidebarListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemView.swift; sourceTree = "<group>"; };
 		ECC2BCE42B9B7E8000D5F942 /* SidebarListItemSelectionCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSelectionCircleView.swift; sourceTree = "<group>"; };
-		ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemToggleHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListActionHelpers.swift; sourceTree = "<group>"; };
 		ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemGroupActions.swift; sourceTree = "<group>"; };
 		ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerGroupFit.swift; sourceTree = "<group>"; };
@@ -2389,11 +2381,7 @@
 				B55501092C1BCEDD0081C3F1 /* LayerGrouping */,
 				B555010A2C1BCEE70081C3F1 /* Gesture */,
 				B55501012C1BC48C0081C3F1 /* SidebarIcons.swift */,
-				ECC2BCC52B9AD1E900D5F942 /* LegacySidebarData.swift */,
-				EC2942302BA1364600D14CD1 /* UpdateStateAfterListChange.swift */,
-				ECC2BCE82B9B865300D5F942 /* SidebarListItemToggleHelpers.swift */,
 				ECC2BCEC2B9CD43100D5F942 /* SidebarListItemGroupActions.swift */,
-				EC3127F72BA3DE120087049A /* DeriveSidebarList.swift */,
 				EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */,
 				B555010C2C1BD0E10081C3F1 /* SidebarVisibilityUtils.swift */,
 			);
@@ -4567,7 +4555,6 @@
 				B5EC874F28256DD0004C2AB3 /* AlertsViewModifier.swift in Sources */,
 				E41A66B32BD2BB8E00385C9F /* LinearGradientNode.swift in Sources */,
 				EC17ECB229970C300097870C /* ExtendedAttributesUtils.swift in Sources */,
-				EC3127F82BA3DE120087049A /* DeriveSidebarList.swift in Sources */,
 				EC2F62992A0DAB2600D86A50 /* PackNodeHelpers.swift in Sources */,
 				ECB9A8692AEB4922006E65EE /* HueSliderView.swift in Sources */,
 				EC8044982944321A00DCFCF4 /* LayerLoopNodeCoordinate.swift in Sources */,
@@ -4669,7 +4656,6 @@
 				ECEA12FC2C45B67D0058CD6A /* GenericFlyoutView.swift in Sources */,
 				EC0B8A812953C5FE00AA01B6 /* OvalPatchNode.swift in Sources */,
 				ECE7443F2AB4E924006B3EF4 /* BackwardEdgeHelpers.swift in Sources */,
-				EC2942312BA1364600D14CD1 /* UpdateStateAfterListChange.swift in Sources */,
 				EC6EDC3427FF943700843E62 /* SidebarVisibilityState.swift in Sources */,
 				B55500BB2C1B99810081C3F1 /* FieldViewModelType.swift in Sources */,
 				205E6DDA25AFCB16001C5C27 /* NodeTesting.swift in Sources */,
@@ -4754,7 +4740,6 @@
 				EC82939426F96C0700307D91 /* MediaConstants.swift in Sources */,
 				EC35A511297622030014D14A /* JSONShapeCommand.swift in Sources */,
 				E4F7AC262974B6E700B7F55A /* PreviewRealityLayer.swift in Sources */,
-				ECC2BCE92B9B865300D5F942 /* SidebarListItemToggleHelpers.swift in Sources */,
 				EC5E6C892B71839600B4CACC /* AnimatableForwardCircuitLine.swift in Sources */,
 				EC28CC9C287E348A00987792 /* PatchDefaultNodeExtensions.swift in Sources */,
 				ECB1B7B226FB9D7A006D9C95 /* FileUtils.swift in Sources */,
@@ -5133,7 +5118,6 @@
 				20308FA425AD1721008CE3BE /* GraphEvaluationUtil.swift in Sources */,
 				EC519E372BACC0ED005C6131 /* MathExpressionSubmenuButtonView.swift in Sources */,
 				B5EC48BC2A0ECC0000C6AE72 /* LayerNodesSorting.swift in Sources */,
-				ECC2BCC62B9AD1E900D5F942 /* LegacySidebarData.swift in Sources */,
 				B525BB482C18AFC300A98EB4 /* FileDropHandling.swift in Sources */,
 				B5D689BB2758203B0086C297 /* PreviewWindowElementUIKitGestures.swift in Sources */,
 				B55500D32C1BA6810081C3F1 /* PreviewWindowSizing.swift in Sources */,

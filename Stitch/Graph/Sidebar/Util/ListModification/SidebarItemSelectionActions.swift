@@ -94,12 +94,6 @@ extension ProjectSidebarObservable {
                 
                 self.selectionState.inspectorFocusedLayers.activelySelected = self.selectionState.inspectorFocusedLayers.focused.union(idItemsBetween)
                 
-//                self.shrinkExpansions(flatList: flatList,
-//                                      itemsBetween: itemsBetween,
-//                                      originalIsland: originalIsland,
-//                                      lastClickedItem: lastClickedItem,
-//                                      justClickedItem: clickedItem)
-                
                 // Shift click does NOT change the `lastFocusedLayer`
                 // self.sidebarSelectionState.inspectorFocusedLayers.lastFocusedLayer = id
                 
