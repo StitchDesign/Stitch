@@ -38,20 +38,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                         selectionState: sidebarViewModel.selectionState,
                         isBeingEdited: sidebarViewModel.isEditing)
                     .frame(height: SIDEBAR_LIST_ITEM_ICON_AND_TEXT_AREA_HEIGHT)
-                    .background {
-                        GeometryReader { geometry in
-                            Color.clear
-                                .onAppear {
-                                    self.sidebarWidth = geometry.size.width
-                                }
-                                .onChange(of: geometry.size.width) { _, newWidth in
-                                    if newWidth != self.sidebarWidth {
-                                        log("sidebar width: \(newWidth)")
-                                        self.sidebarWidth = newWidth
-                                    }
-                                }
-                        }
-                    }
 #endif
                     
 //                    // TODO: revisit this; currently still broken on Catalyst and the UIKitTappableWrapper becomes unresponsive as soon as we apply a SwiftUI .frame or .offset; `Spacer()`s also do not seem to work
@@ -72,7 +58,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                     
                 }
                 .padding(.trailing, 2)
-                
             }
             
 #if !targetEnvironment(macCatalyst)
@@ -81,6 +66,21 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                 swipeOffset: swipeX)
 #endif
         }
+#if !targetEnvironment(macCatalyst)
+        .background {
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        self.sidebarWidth = geometry.size.width
+                    }
+                    .onChange(of: geometry.size.width) { _, newWidth in
+                        if newWidth != self.sidebarWidth {
+                            self.sidebarWidth = newWidth
+                        }
+                    }
+            }
+        }
+#endif
         
         // Animates swipe distance if it gets pinned to its open or closed position.
         // Does NOT animate for normal swiping.
