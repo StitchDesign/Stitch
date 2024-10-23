@@ -90,7 +90,7 @@ struct EdgePoint: Codable {
     let port: String
 }
 
-struct NodeInfoTest {
+struct NodeInfoData {
     var type: String
     var inputPortCount: Int = 0
     var valueType: String?
