@@ -253,7 +253,6 @@ extension ProjectSidebarObservable {
         
         let flattenedList = self.items.flattenedItems
         
-        var newItemsList = self.items
         let visualList = visualList
         let draggedItems = draggedItems
         let oldCount = flattenedList.count
@@ -266,15 +265,17 @@ extension ProjectSidebarObservable {
         assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))
 
         // Remove items from dragged set--these will be added later
-        newItemsList.remove(draggedItemIdSet)
+        var reducedItemsList = self.items
+        reducedItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
         
-        newItemsList = newItemsList.movedDraggedItems(draggedItems,
-                                                      at: draggedToElementResult,
-                                                      dragPositionIndex: index)
+        let newItemsList = reducedItemsList.movedDraggedItems(draggedItems,
+                                                              at: draggedToElementResult,
+                                                              dragPositionIndex: index)
         
         // Don't use assert test after movedDraggedItems because of references to self list
+        assertInDebug(newItemsList.flattenedItems.count == oldCount)
         
         self.items = newItemsList
         self.items.updateSidebarIndices()
