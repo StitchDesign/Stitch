@@ -32,6 +32,7 @@ When generating the solution, follow these steps:
    - Use the `SET_INPUT` action to set the value of a node's input port as needed.
    - For patch nodes, directly use `SET_INPUT` to set input values.
    - For layer nodes, you must call the `ADD_LAYER_INPUT` action **before** setting the input value or connecting nodes.
+   - Only call ADD_LAYER_INPUT if we are adding a connection from a patch node to a layer node; not a patch node to a patch node
 
 3. **Connect Nodes:**
    - Use the `CONNECT_NODES` action to connect nodes from port to port.
@@ -44,7 +45,9 @@ When generating the solution, follow these steps:
      - Mostly have inputs only.
      - Can receive connections from patch nodes but **cannot** connect to other layer nodes.
      - Use one of the items in `LayerPorts` for port names.
+
    - **Important:** Do **not** use a node's name as a port name.
+   - When connecting patch nodes to each other, default to connecting to the 0th port 
 
 4. **Repeat as Necessary:**
    - Repeat steps 1-3 for each node needed in the graph.
