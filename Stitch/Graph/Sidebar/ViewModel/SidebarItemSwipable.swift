@@ -106,7 +106,8 @@ extension SidebarItemSwipable {
         
         let beforeGroupIndex = beforeElement.sidebarIndex.groupIndex
         guard let afterElement = afterElement else {
-            return beforeGroupIndex..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
+            // Allow any nesting at end of list
+            return 0..<beforeGroupIndex + (beforeElement.isGroup ? 2 : 1)
         }
         
         let afterGroupIndex = afterElement.sidebarIndex.groupIndex
@@ -554,6 +555,7 @@ extension Array where Element: SidebarItemSwipable {
         }
         
 #if DEV_DEBUG
+//        log("before: \(beforeElement?.id.debugFriendlyId ?? "none")\tafter: \(afterElement?.id.debugFriendlyId ?? "none")")
 //        log("recommendation test for \(indexOfDraggedLocation):")
 //        rankedItems.forEach { print("\($0.id.debugFriendlyId), \($0.sidebarIndex), diff: \(abs(indexOfDraggedLocation.groupIndex - $0.sidebarIndex.groupIndex))") }
 #endif
