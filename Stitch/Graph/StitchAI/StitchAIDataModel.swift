@@ -272,5 +272,5 @@ enum ValueType: String, CaseIterable {
 struct VisualProgrammingTypes {
     static let validNodeTypes: [String: NodeTypeTest] = Dictionary(uniqueKeysWithValues: NodeTypeTest.allCases.map { ($0.stringValue, $0) })
     static let validLayerPorts: [String: LayerPort] = Dictionary(uniqueKeysWithValues: LayerPort.allCases.map { ($0.rawValue.lowercased(), $0) })
-    static let validValueTypes: [String: ValueType] = Dictionary(uniqueKeysWithValues: ValueType.allCases.map { ($0.rawValue.lowercased(), $0) })
+    static let validValueTypes: [String: ValueType] = Dictionary(uniqueKeysWithValues: ValueType.allCases.map { ($0.rawValue, $0) })
 }
