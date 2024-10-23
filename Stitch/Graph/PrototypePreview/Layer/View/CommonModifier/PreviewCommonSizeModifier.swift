@@ -93,10 +93,19 @@ struct PreviewCommonSizeModifier: ViewModifier {
         viewModel.layer.hasInherentSwiftUISize
     }
     
+    // Force a minimum
     var finalMinWidth: CGFloat? {
-        minWidth?.asFrameDimension(parentSize.width, 
+        var k = minWidth?.asFrameDimension(parentSize.width,
                                    isStack: isStack,
                                    hasInherentSwiftUISize: hasInherentSwiftUISize)
+        // HACK:
+        if viewModel.layer == .group,
+           size.width == .hug,
+           !k.isDefined {
+            return 1
+        }
+        
+        return k
     }
     
     var finalMaxWidth: CGFloat? {
@@ -106,9 +115,18 @@ struct PreviewCommonSizeModifier: ViewModifier {
     }
     
     var finalMinHeight: CGFloat? {
-        minHeight?.asFrameDimension(parentSize.height, 
+        var k = minHeight?.asFrameDimension(parentSize.height,
                                     isStack: isStack,
                                     hasInherentSwiftUISize: hasInherentSwiftUISize)
+        
+        // HACK:
+        if viewModel.layer == .group,
+           size.height == .hug,
+           !k.isDefined {
+            return 1
+        }
+        
+        return k
     }
     
     var finalMaxHeight: CGFloat? {
