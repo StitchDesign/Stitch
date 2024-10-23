@@ -22,10 +22,6 @@ final class GraphState: Sendable {
     
     let saveLocation: [UUID]
     
-    
-    //    var sidebarListState: SidebarListState = .init()
-    //    var sidebarSelectionState = SidebarSelectionState()
-    
     var id = UUID()
     var name: String = STITCH_PROJECT_DEFAULT_NAME
     
@@ -101,12 +97,7 @@ final class GraphState: Sendable {
 extension GraphState {
     @MainActor
     var orderedSidebarLayers: SidebarLayerList {
-        get {
-            self.layersSidebarViewModel.createdOrderedEncodedData()
-        }
-//        set(newValue) {
-//            self.layersSidebarViewModel.orderedEncodedData = newValue
-//        }
+        self.layersSidebarViewModel.createdOrderedEncodedData()
     }
     
     convenience init(from schema: GraphEntity,
@@ -150,14 +141,6 @@ extension GraphState {
         self.components.values.forEach {
             $0.initializeDelegate(parentGraph: self)
         }
-        
-//        self.updateSidebarListStateAfterStateChange()
-//        
-//        // TODO: why is this necessary?
-//        _updateStateAfterListChange(
-//            updatedList: self.sidebarListState,
-//            expanded: self.getSidebarExpandedItems(),
-//            graphState: self)
         
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,

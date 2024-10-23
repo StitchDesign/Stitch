@@ -23,3 +23,8 @@ extension Identifiable {
 typealias SidebarListItemId = NodeId
 
 typealias SidebarListItemIds = [SidebarListItemId]
+
+struct SidebarIndex: Equatable {
+    let groupIndex: Int // horizontal
+    let rowIndex: Int   // vertical
+}

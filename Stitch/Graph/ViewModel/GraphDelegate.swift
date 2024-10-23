@@ -44,7 +44,7 @@ protocol GraphDelegate: AnyObject, Sendable {
     var scrollInteractionNodes: [LayerNodeId: NodeIdSet] { get set }
     
     var enabledCameraNodeIds: NodeIdSet { get set }
-    
+
     var sidebarSelectionState: LayersSidebarViewModel.SidebarSelectionState { get }
     
     @MainActor var connections: GraphState.TopologicalData.Connections { get }
@@ -72,8 +72,6 @@ protocol GraphDelegate: AnyObject, Sendable {
     @MainActor var multiselectInputs: LayerInputTypeSet? { get }
     
     var layersSidebarViewModel: LayersSidebarViewModel { get }
-//    var sidebarSelectionState: SidebarSelectionState { get set }
-//    var inspectorFocusedLayers: InspectorFocusedLayers { get set }
     
     var orderedSidebarLayers: OrderedSidebarLayers { get }
 
