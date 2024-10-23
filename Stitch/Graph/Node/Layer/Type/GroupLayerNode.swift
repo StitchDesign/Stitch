@@ -105,7 +105,7 @@ struct GroupLayerNode: LayerNodeDefinition {
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
-            size: viewModel.size.getSize ?? defaultTextSize, // CGSize.zero,
+            size: viewModel.size.getSize ?? .defaultLayerGroupSize,
             parentSize: parentSize,
             parentDisablesPosition: parentDisablesPosition,
             isClipped: viewModel.isClipped.getBool ?? DEFAULT_GROUP_CLIP_SETTING,
@@ -130,6 +130,10 @@ struct GroupLayerNode: LayerNodeDefinition {
             gridData: viewModel.getGridData,
             stroke: viewModel.getLayerStrokeData())
     }
+}
+
+extension LayerSize {
+    static let defaultLayerGroupSize = LayerSize(width: .fill, height: .fill)
 }
 
 extension GraphState {

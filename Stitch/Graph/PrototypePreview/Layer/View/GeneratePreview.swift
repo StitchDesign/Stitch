@@ -135,6 +135,8 @@ struct PreviewLayersView: View {
             LayerDataView(document: document,
                           layerData: layerData,
                           parentSize: parentSize,
+                          parentId: parentId,
+                          parentCornerRadius: parentCornerRadius,
                           parentDisablesPosition: parentDisablesPosition,
                           isGhostView: isGhostView)
             
@@ -149,30 +151,20 @@ struct PreviewLayersView: View {
     }
     
     var body: some View {
-        Group {
+        ZStack {
+            // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
+            orientationFromParent
             
-            // If no layers, provide a fake SwiftUI view to allow .onContinuousHover for mouse patch nodes
-            if layers.isEmpty {
-                Rectangle().fill(.clear)
+            ForEach(pinsInOrientationView) { layerData in
+                LayerDataView(document: document,
+                              layerData: layerData,
+                              parentSize: parentSize,
+                              parentId: parentId,
+                              parentCornerRadius: parentCornerRadius,
+                              parentDisablesPosition: parentDisablesPosition,
+                              isGhostView: isGhostView)
             }
-            
-            ZStack {
-                // Note: we previously wrapped the HStack / VStack layer group orientations in a scroll-disabled ScrollView so that the children would touch,
-                orientationFromParent
-
-                ForEach(pinsInOrientationView) { layerData in
-                    LayerDataView(document: document,
-                                  layerData: layerData,
-                                  parentSize: parentSize,
-                                  parentDisablesPosition: parentDisablesPosition,
-                                  isGhostView: isGhostView)
-                }
-            }
-            
-        } // Group
-        .modifier(LayerGroupInteractableViewModifier(
-            hasLayerInteraction: graph.hasInteraction(parentId),
-            cornerRadius: parentCornerRadius))
+        }
     }
     
     @MainActor @ViewBuilder
@@ -252,6 +244,8 @@ struct LayerDataView: View {
     @Bindable var document: StitchDocumentViewModel
     let layerData: LayerData
     let parentSize: CGSize
+    let parentId: LayerNodeId?
+    let parentCornerRadius: CGFloat
     let parentDisablesPosition: Bool
     let isGhostView: Bool
     
@@ -276,6 +270,8 @@ struct LayerDataView: View {
                         document: document,
                         layerData: maskedLayerData,
                         parentSize: parentSize,
+                        parentId: parentId,
+                        parentCornerRadius: parentCornerRadius,
                         parentDisablesPosition: parentDisablesPosition,
                         isGhostView: isGhostView)
                     
@@ -284,6 +280,8 @@ struct LayerDataView: View {
                         document: document,
                         layerData: maskerLayerData,
                         parentSize: parentSize,
+                        parentId: parentId,
+                        parentCornerRadius: parentCornerRadius,
                         parentDisablesPosition: parentDisablesPosition,
                         isGhostView: isGhostView)
                     
@@ -316,6 +314,8 @@ struct LayerDataView: View {
                                        childrenData: childrenData,
                                        isPinnedViewRendering: !isGhostView,
                                        parentSize: parentSize,
+                                       parentId: parentId,
+                                       parentCornerRadius: parentCornerRadius,
                                        parentDisablesPosition: parentDisablesPosition)
             } else {
                 EmptyView()
@@ -356,18 +356,40 @@ struct GroupPreviewLayersView: View {
     let childrenData: LayerDataList
     let isPinnedViewRendering: Bool
     let parentSize: CGSize
+    let parentId: LayerNodeId?
+    let parentCornerRadius: CGFloat
     let parentDisablesPosition: Bool
     
     var body: some View {
         if layerNode.hasSidebarVisibility,
            let graph = layerNode.nodeDelegate?.graphDelegate as? GraphState {
-            GroupLayerNode.content(document: document,
-                                   graph: graph,
-                                   viewModel: layerViewModel,
-                                   parentSize: parentSize,
-                                   layersInGroup: childrenData,
-                                   isPinnedViewRendering: isPinnedViewRendering,
-                                   parentDisablesPosition: parentDisablesPosition)
+            
+            let size = layerViewModel.size.getSize ?? .defaultLayerGroupSize
+            
+            // If no layers, provide a fake SwiftUI view to allow .onContinuousHover for mouse patch nodes
+            if childrenData.isEmpty,
+               // Note: if the group has no children but also has no fixed size,
+               // do not use the clear-rectangle (otherwise the rect expands to fill available space)
+                // TODO: a better way to handle this hit area for LayerGroup's interactions?
+               !size.width.noFixedSizeForLayerGroup,
+               !size.height.noFixedSizeForLayerGroup {
+                Rectangle().fill(.clear)
+            }
+            
+            Group {
+                GroupLayerNode.content(document: document,
+                                       graph: graph,
+                                       viewModel: layerViewModel,
+                                       parentSize: parentSize,
+                                       layersInGroup: childrenData,
+                                       isPinnedViewRendering: isPinnedViewRendering,
+                                       parentDisablesPosition: parentDisablesPosition)
+            }
+            .modifier(LayerGroupInteractableViewModifier(
+                hasLayerInteraction: graph.hasInteraction(parentId),
+                cornerRadius: parentCornerRadius))
+            
+            
         } else {
             EmptyView()
         }
