@@ -217,7 +217,7 @@ extension StitchDocumentViewModel {
                 case .changeNodeType:
                     if let nodeId = step.nodeId, let nodeTypeRaw = step.valueType {
                         let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let valueType = VisualProgrammingTypes.validValueTypes[parsedNodeType.lowercased()], var nodeInfo = nodeInfoMap[nodeId] {
+                        if let valueType = VisualProgrammingTypes.validValueTypes[parsedNodeType.capitalized], var nodeInfo = nodeInfoMap[nodeId] {
                             let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
                             llmActions.append(LLMActionData(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: valueType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
                             nodeInfo.valueType = valueType.rawValue
