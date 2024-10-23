@@ -70,7 +70,7 @@ struct StringOrNumber: Codable {
 }
 
 
-struct LLMActionTest: Codable {
+struct LLMActionData: Codable {
     let action: String
     let node: String?
     let nodeType: String?
