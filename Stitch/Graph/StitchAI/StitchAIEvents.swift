@@ -107,6 +107,11 @@ extension StitchDocumentViewModel {
                             }
                             
                             let json = JSON(parseJSON: transformedResponse)
+                            if let jsonString = json.rawString() {
+                                print(jsonString)
+                            } else {
+                                print("Failed to convert JSON to String")
+                            }
                             let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
                             var nodesAdded = 0
                             
@@ -188,6 +193,8 @@ extension StitchDocumentViewModel {
                         let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
                         llmActions.append(LLMActionTest(action: ActionType.addLayerInput.rawValue, node: nodeTitle, nodeType: nil, port: port.capitalized, from: nil, to: nil, field: nil, value: nil))
                         layerInputsAdded.insert("\(nodeId):\(port)")
+                    } else {
+                        print("failed to add layer input)")
                     }
                 case .connectNodes:
                     if let fromNodeId = step.fromNodeId, let toNodeId = step.toNodeId,
@@ -204,6 +211,8 @@ extension StitchDocumentViewModel {
                         let fromEdge = EdgePoint(node: fromNodeTitle, port: "0")
                         let toEdge = EdgePoint(node: toNodeTitle, port: portType.capitalized)
                         llmActions.append(LLMActionTest(action: ActionType.addEdge.rawValue, node: nil, nodeType: nil, port: nil, from: fromEdge, to: toEdge, field: nil, value: nil))
+                    } else {
+                        print("failed to connect nodes")
                     }
                 case .changeNodeType:
                     if let nodeId = step.nodeId, let nodeTypeRaw = step.valueType {
@@ -216,6 +225,8 @@ extension StitchDocumentViewModel {
                         } else {
                             print("Unrecognized value type: '\(parsedNodeType)' does not match any validValueTypes.")
                         }
+                    } else {
+                        print("failed to change nodes")
                     }
                     
                 case .setInput:
@@ -226,6 +237,8 @@ extension StitchDocumentViewModel {
                         llmActions.append(LLMActionTest(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.valueType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
                         nodeInfo.inputPortCount += 1
                         nodeInfoMap[nodeId] = nodeInfo
+                    } else {
+                        print("failed to set input)")
                     }
                 }
             }
