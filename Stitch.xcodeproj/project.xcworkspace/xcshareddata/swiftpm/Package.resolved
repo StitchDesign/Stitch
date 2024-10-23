@@ -1,4 +1,5 @@
 {
+  "originHash" : "87be221b3fbded1c8027b1ce26671216264e4726379ed9409d52282eb1aab675",
   "pins" : [
     {
       "identity" : "audiokit",
@@ -59,6 +60,22 @@
       "location" : "https://github.com/StitchDesign/StitchEngine",
       "state" : {
         "revision" : "7b68361244834a2b4df9ad44ae267b41b15b1de6"
+      }
+    },
+    {
+      "identity" : "stitchschemakit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/StitchDesign/StitchSchemaKit",
+      "state" : {
+        "revision" : "c90f84d419489cafa119a9c7c255b72335d5ddee"
+      }
+    },
+    {
+      "identity" : "stitchviewkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/StitchDesign/StitchViewKit.git",
+      "state" : {
+        "revision" : "bb61a9353e9e83838da1e48d93d4d2ea2a6187a4"
       }
     },
     {
@@ -125,5 +142,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
