@@ -319,6 +319,8 @@ extension ProjectSidebarObservable {
 //        log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
         let state = self
+        
+        // TODO: option click on end
 //        var itemId = itemId
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
@@ -340,25 +342,8 @@ extension ProjectSidebarObservable {
 
         self.currentItemDragged = nil
 
-        // if no `current`, then we were just swiping?
-//        if let current = state.currentItemDragged {
-//            self.onSidebarListItemDragEnded(
-//                item,
-//                otherSelections: state.getOtherSelections(draggedItem: itemId),
-//                // MUST have a `current`
-//                // NO! ... this can be nil now eg when we call our onDragEnded logic via swipe
-//                draggedAlong: current.draggedAlong,
-//                proposed: state.proposedGroup)
-//        } else {
-//            log("SidebarListItemDragEnded: had no current, so will not do the full onDragEnded call")
-//        }
-
-        // also reset: the potentially highlighted group,
-//        state.proposedGroup = nil
-        // the current dragging item,
+        // reset the current dragging item
         state.currentItemDragged = nil
-        // and the current x-drag tracking
-//        state.cursorDrag = nil
                 
         state.selectionState.madeStack = false
         state.selectionState.haveDuplicated = false
@@ -367,39 +352,4 @@ extension ProjectSidebarObservable {
     
         state.graphDelegate?.encodeProjectInBackground()
     }
-    
-//    @MainActor
-//    func onSidebarListItemDragEnded(_ item: Self.ItemViewModel,
-//                                    otherSelections: Set<Self.ItemID>,
-//                                    draggedAlong: Set<Self.ItemID>,
-//                                    proposed: ProposedGroup<Self.ItemID>?) {
-//        
-//        log("onSidebarListItemDragEnded called")
-//        
-////        item.zIndex = 0 // is this even used still?
-//        
-//        // finalizes items' positions by index;
-//        // also updates items' previousPositions.
-//        self.setYPositionByIndices(
-//            originalItemId: item.id,
-//            isDragEnded: true)
-//        
-//        let allDragged: [Self.ItemID] = [item.id] + Array(draggedAlong) + otherSelections
-//        
-//        // update both the X and Y in the previousLocation of the items that were moved;
-//        // ie `item` AND every id in `draggedAlong`
-//        for draggedId in allDragged {
-//            guard let draggedItem = self.retrieveItem(draggedId) else {
-//                fatalErrorIfDebug("Could not retrieve item")
-//                continue
-//            }
-//            draggedItem.previousLocation = draggedItem.location
-////            items = updateSidebarListItem(draggedItem, items)
-//        }
-//        
-//        // reset the z-indices
-////        self.items.forEach {
-////            $0.zIndex = 0
-////        }
-//    }
 }

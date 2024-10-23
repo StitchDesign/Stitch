@@ -21,19 +21,6 @@ extension SidebarItemSwipable {
     func implicitlyDragged(_ implicitlyDraggedItems: Set<Self.ID>) -> Bool {
         implicitlyDraggedItems.contains(self.id)
     }
-    
-//    func wipeIndentationLevel() {
-//        self.previousLocation.x = .zero
-//        self.location.x = .zero
-//        
-//        // TODO: update parent logic
-////        self.parentId = nil
-//    }
-    
-//    func setIndentToOneLevel() {
-//        self.previousLocation.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
-//        self.location.x = CGFloat(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)
-//    }
 }
 
 extension ProjectSidebarObservable {
@@ -64,61 +51,8 @@ extension ProjectSidebarObservable {
             itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
         }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
         
-        print("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
-        print("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
-        
-        // All items either explicitly-dragged (because selected) or implicitly-dragged (because a child of a selected parent)
-        let allDraggedItems = items.filter { $0.isSelected(selections) || $0.implicitlyDragged(implicitlyDraggedItems) }
-        
-        
-        
-//        var draggedResult = [Self.ItemViewModel]()
-//        var itemsHandledBySomeChunk = Set<ItemID>()
-//        for draggedItem in allDraggedItems {
-//            print("getStack: on draggedItem \(draggedItem.id)")
-//            
-//            if itemsHandledBySomeChunk.contains(draggedItem.id) {
-//                print("getStack: draggedItem \(draggedItem.id) was already handled by some chunk")
-//                continue
-//            }
-//            
-//            let draggedItemIsSelected = draggedItem.isSelected(selections)
-//            
-//            // An explicitly-dragged parent kicks off a "chunk"
-//            if draggedItem.isGroup,
-//               draggedItemIsSelected {
-//                print("getStack: draggedItem \(draggedItem.id) starts a chunk")
-//                // wipe the draggedItem's
-//                let chunk = self.rearrangeChunk(
-//                    selectedParentItem: draggedItem,
-//                    selections: selections,
-//                    implicitlyDragged: implicitlyDraggedItems)
-//                
-//                itemsHandledBySomeChunk = itemsHandledBySomeChunk.union(Set<ItemID>(chunk.map(\.id)))
-//                draggedResult += chunk
-//            }
-//            
-//            // Explicitly selected items get their indents wiped
-//            else if draggedItemIsSelected {
-//                print("getStack: draggedItem \(draggedItem.id) is explicitly selected")
-//                let draggedItem = draggedItem
-////                draggedItem.wipeIndentationLevel()
-//                draggedResult.append(draggedItem)
-//            }
-//            
-//            else {
-//                print("getStack: draggedItem \(draggedItem.id) is only implicitly-selected")
-//                draggedResult.append(draggedItem)
-//            }
-//        }
-//        
-//        self.items = nonDraggedItemsAbove + draggedResult + nonDraggedItemsBelow
-//        
-//        // Use the newly-reordered masterList's indices to update each master list item's y position
-////        self.setYPositionByIndices(
-////            originalItemId: draggedItem.id,
-////            // treat as drag ended so that we update previousLocation etc.
-////            isDragEnded: true)
+//        log("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
+//        log("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
         
         return true
     }
