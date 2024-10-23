@@ -246,8 +246,9 @@ extension ProjectSidebarObservable {
             self.implicitlyDragged.contains(item.id)
         }
         
-        let filteredVisualList = visualList.filter {
-            $0.id != item.id
+        // Remove dragged items from data structure used for identifying drag location
+        let filteredVisualList = visualList.filter { item in
+            !allDraggedItems.contains(where: { $0.id == item.id })
         }
         
         let originalItemIndex = item.sidebarIndex
@@ -357,13 +358,15 @@ extension ProjectSidebarObservable {
         let draggedToElementResult = visualList.findClosestElement(draggedElement: firstDraggedElement,
                                                                    to: index)
         
-        guard !draggedItems.contains(where: {
-            $0.id == draggedToElementResult.id ||
-            $0.sidebarIndex == .init(groupIndex: index.groupIndex,
-                                     rowIndex: index.rowIndex + 1)
-        }) else {
-            return
-        }
+        // We should have removed dragged elements from the visual list
+        assertInDebug(!draggedItems.contains(where: { $0.id == draggedToElementResult.id }))
+//        guard !draggedItems.contains(where: {
+//            $0.id == draggedToElementResult.id ||
+//            $0.sidebarIndex == .init(groupIndex: index.groupIndex,
+//                                     rowIndex: index.rowIndex + 1)
+//        }) else {
+//            return
+//        }
 
         draggedItems.forEach {
             newItemsList.remove($0.id)
