@@ -26,7 +26,8 @@ extension GraphState {
                       childSize: CGSize,
                       childPosition: CGPoint) {
                 
-        // log("layerDragged CALLED")
+        log("layerDragged CALLED")
+        log("layerDragged: interactiveLayer.id: \(interactiveLayer.id)")
         
         var nodesToRecalculate = NodeIdSet()
 

@@ -56,7 +56,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
     var dragGesture: some Gesture {
         DragGesture(minimumDistance: minimumDragDistance)
             .onChanged {
-                // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onChanged: \($0)")
+                 log("PreviewWindowElementSwiftUIGestures: DragGesture: id: \(interactiveLayer.id) onChanged: \($0)")
                 
                 // TODO: come up with a better, more accurate velocity calculation
                 // (average vs momentaneous velocity?)
@@ -77,7 +77,7 @@ struct PreviewWindowElementSwiftUIGestures: ViewModifier {
                                    childPosition: position)
             }
             .onEnded {  _ in
-                // log("PreviewWindowElementGestures: DragGesture: id: \(interactiveLayer.id) onEnded")
+                log("PreviewWindowElementSwiftUIGestures: drag ended on preview coordinate: \(interactiveLayer.id)")
                 graph.layerDragEnded(interactiveLayer: interactiveLayer,
                                      parentSize: parentSize,
                                      childSize: size)
