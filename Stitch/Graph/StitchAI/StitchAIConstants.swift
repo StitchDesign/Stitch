@@ -8,12 +8,12 @@
 import Foundation
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
+//let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
 //let OPEN_AI_MODEL =  "ft:gpt-4o-2024-08-06:adammenges::ALJN0utQ"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVMS6zv"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVbB7aX"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALZypIgk"
-
+let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
 
 
 let SYSTEM_PROMPT = """
@@ -28,7 +28,16 @@ When generating the solution, follow these steps:
 1) Add a node using the ADD_NODE action. 
 2) If needed, set its ValueType using the CHANGE_NODE_TYPE action. 
 3) Set the value in the node's port by using SET_INPUT as needed. 
-4) Connect nodes using the CONNECT_NODES action as needed. An output from a node can connect to multiple input nodes, so you are free to connect one output to several inputs if required by the task. 
+4) When connecting nodes, use the `CONNECT_NODES` action. A node’s output can be connected to the inputs of multiple nodes if needed 
+
+- For **patch nodes**, always use numeric values for their port names.
+- For **layer nodes**, use one of the defined `LayerPorts` values as the port name.
+
+**Important:**
+- Never use the node name itself as a port name.
+- Never use a string as a port identifier for a patch node.
+- Patch nodes can be connected to other patch nodes and to layer nodes. 
+
 5) Repeat steps 1-4 for each node in the graph. Don't use value nodes unless you have to — if you can just set the input ports of a node directly, do that. 
 
 Use as few nodes as possible to accomplish the user's task. DON'T ADD EXTRANEOUS NODES TO THE GRAPH.
@@ -40,8 +49,6 @@ For setting the value of a patch node input use SET_INPUT action. Whenever we se
 Do NOT use ADD_LAYER_INPUT when  creating an edge between a patch node and a patch node; ONLY call it when connecting an edge between a patch node and a layer node. 
 
 Nodes can have multiple connections.
-
-Patch nodes use numbers for their port names. Layer nodes use one of the items in LayerPorts. Do not ever use a node name for a port name.
 
 Connect nodes from port to port with CONNECT_NODES. When connecting a patch node to a patch node, default to using the 0th port.
 
