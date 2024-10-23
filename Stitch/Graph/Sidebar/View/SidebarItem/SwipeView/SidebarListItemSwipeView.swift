@@ -11,19 +11,23 @@ import StitchSchemaKit
 struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     typealias ItemViewModel = SidebarViewModel.ItemViewModel
     
+    @Environment(\.appTheme) private var theme
     @State private var isHovered = false
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var gestureViewModel: ItemViewModel
     
-    var offset: CGSize {
+    var yOffset: CGFloat {
         guard let dragPosition = gestureViewModel.dragPosition else {
-            return gestureViewModel.location.toCGSize
+            return gestureViewModel.location.y
         }
         
-        return .init(width: gestureViewModel.location.x,
-                     height: dragPosition.y)
+        return dragPosition.y
+    }
+    
+    var indentationPadding: Int {
+        CUSTOM_LIST_ITEM_INDENTATION_LEVEL * gestureViewModel.sidebarIndex.groupIndex
     }
     
     var body: some View {
@@ -37,10 +41,16 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         .zIndex(gestureViewModel.zIndex)
         .height(CGFloat(CUSTOM_LIST_ITEM_VIEW_HEIGHT))
         .padding(.horizontal, 4)
+        .padding(.leading, CGFloat(indentationPadding))
+        .background {
+            theme.fontColor
+                .opacity(gestureViewModel.backgroundOpacity)
+        }
+        .offset(y: yOffset)
         
         // More accurate: needs to come before the `.offset(y:)` modifier
         .onHover { hovering in
-            // log("hovering: sidebar item \(item.id.id)")
+            log("hovering: sidebar item \(gestureViewModel.id)")
             // log("hovering: \(hovering)")
             self.isHovered = hovering
             if hovering {
@@ -49,7 +59,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
                 self.gestureViewModel.sidebarLayerHoverEnded(itemId: gestureViewModel.id)
             }
         }
-        .offset(offset)
         
         #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`

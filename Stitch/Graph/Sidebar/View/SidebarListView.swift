@@ -93,7 +93,6 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             ZStack(alignment: .leading) {
                 // HACK
                 if allFlattenedItems.isEmpty {
-//                    fakeSidebarListItem
                     Color.clear
                 }
                 
@@ -138,26 +137,4 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
             isBeingEditedAnimated = newValue
         }
     }
-
-    // HACK for proper width even when sidebar is empty
-    // TODO: revisit and re-organize UI to avoid this hack
-//    @ViewBuilder @MainActor
-//    var fakeSidebarListItem: some View {
-//        
-//        let item = SidebarListItem.fakeSidebarListItem
-//        
-//        SidebarListItemSwipeView(
-//            graph: $graph,
-//            item: item,
-//            name: item.layer.value,
-//            layer: .rectangle,
-//            current: .none,
-//            proposedGroup: .none,
-//            isClosed: true,
-//            selection: .none,
-//            isBeingEdited: false,
-//            activeGesture: $activeGesture,
-//            activeSwipeId: $activeSwipeId)
-//        .opacity(0)
-//    }
 }
