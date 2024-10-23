@@ -48,9 +48,6 @@ struct ProjectSidebarView: View {
         // iPad only
 #if !targetEnvironment(macCatalyst)
         .navigationTitle("Stitch")
-        .toolbar {
-            SidebarEditButtonView(isEditing: $isEditing)
-        }
 
         // Allows scrolled up content to be visible underneath other nav-stack icons; not ideal.
 //        .toolbarBackground(.hidden, for: .automatic)

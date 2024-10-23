@@ -18,24 +18,22 @@ extension EditMode {
     }
 }
 
-struct SidebarEditButtonView: View {
-    static let EDIT_BUTTON_COLOR: Color = Color(.editButton)
-
-    @Binding var isEditing: Bool
+struct SidebarEditButtonView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
+    @Bindable var sidebarViewModel: SidebarViewModel
 
     var body: some View {
         StitchButton {
-            isEditing.toggle()
+            sidebarViewModel.isEditing.toggle()
         } label: {
-            Text(isEditing ? "Done" : "Edit")
+            Text(sidebarViewModel.isEditing ? "Done" : "Edit")
         }
         .font(SwiftUI.Font.system(size: 18))
-        .foregroundColor(Self.EDIT_BUTTON_COLOR)
+        .foregroundColor(Color(.editButton))
     }
 }
 
-struct SidebarEditButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        SidebarEditButtonView(isEditing: .constant(false))
-    }
-}
+//struct SidebarEditButtonView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SidebarEditButtonView(isEditing: .constant(false))
+//    }
+//}

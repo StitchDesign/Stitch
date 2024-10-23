@@ -187,7 +187,7 @@ extension GraphState {
         
         #if !targetEnvironment(macCatalyst)
         // If left sidebar is in edit-mode, "primary selections" become inspector-focused
-        if self.sidebarSelectionState.isEditMode {
+        if self.layersSidebarViewModel.isEditing {
             self.sidebarSelectionState.inspectorFocusedLayers.focused = self.sidebarSelectionState.primary
             self.sidebarSelectionState.inspectorFocusedLayers.activelySelected = self.sidebarSelectionState.primary
         }
