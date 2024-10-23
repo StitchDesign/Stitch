@@ -92,7 +92,9 @@ struct SidebarListItemGestureRecognizerView<T: View,
         uiViewController.rootView = view
 
         delegate.instantDrag = instantDrag
-        
+        delegate.gestureViewModel = gestureViewModel
+        delegate.sidebarViewModel = sidebarViewModel
+        delegate.keyboardObserver = keyboardObserver
         delegate.graph = graph
         delegate.itemId = itemId
     }

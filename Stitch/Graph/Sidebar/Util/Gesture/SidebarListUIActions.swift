@@ -183,56 +183,56 @@ extension ProjectSidebarObservable {
     // Grab the item immediately below;
     // if it has a parent (which should be above us),
     // use that parent as the proposed group.
-    @MainActor
-    func groupFromChildBelow(_ item: Self.ItemViewModel) -> Self.ItemViewModel? {
-        
-        log("groupFromChildBelow: item: \(item)")
-        // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
-        // log("groupFromChildBelow: items: \(debugItems)")
-        
-        let movedItemIndex = item.itemIndex(self.items)
-        fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
-        
-        let movedItemChildrenCount = item.children?.count ?? 0
-        
-        let entireIndex = movedItemIndex + movedItemChildrenCount
-        // log("groupFromChildBelow: entireIndex: \(entireIndex)")
-        
-        // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
-        let indexBelow: Int = entireIndex + 1
-        
-        // log("groupFromChildBelow: indexBelow: \(indexBelow)")
-        
-        guard let itemBelow = self.items[safeIndex: indexBelow] else {
-            log("groupFromChildBelow: no itemBelow")
-            return nil
-        }
-        
-        log("groupFromChildBelow: itemBelow: \(itemBelow)")
-        
-        guard let parentOfItemBelow = itemBelow.parentId else {
-            log("groupFromChildBelow: no parent on itemBelow")
-            return nil
-        }
-        
-        let itemsAbove = self.getItemsAbove(item)
-        
-        guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }),
-              // added:
-              parentItemAbove.isGroup else {
-            log("groupFromChildBelow: could not find parent above")
-            return nil
-        }
-        
-        log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
-        
-        return parentItemAbove
-//        let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
+//    @MainActor
+//    func groupFromChildBelow(_ item: Self.ItemViewModel) -> Self.ItemViewModel? {
 //        
-//        // we'll use the indentation level of the parent + 1
-//        return ProposedGroup(parentId: proposedParent,
-//                             xIndentation: proposedIndentation)
-    }
+//        log("groupFromChildBelow: item: \(item)")
+//        // let debugItems = items.enumerated().map { ($0.offset, $0.element.layer) }
+//        // log("groupFromChildBelow: items: \(debugItems)")
+//        
+//        let movedItemIndex = item.itemIndex(self.items)
+//        fatalErrorIfDebug("TODO: come back here as logic likely doesn't work")
+//        
+//        let movedItemChildrenCount = item.children?.count ?? 0
+//        
+//        let entireIndex = movedItemIndex + movedItemChildrenCount
+//        // log("groupFromChildBelow: entireIndex: \(entireIndex)")
+//        
+//        // must look at the index of the first item BELOW THE ENTIRE BEING-MOVED-ITEM-LIST
+//        let indexBelow: Int = entireIndex + 1
+//        
+//        // log("groupFromChildBelow: indexBelow: \(indexBelow)")
+//        
+//        guard let itemBelow = self.items[safeIndex: indexBelow] else {
+//            log("groupFromChildBelow: no itemBelow")
+//            return nil
+//        }
+//        
+//        log("groupFromChildBelow: itemBelow: \(itemBelow)")
+//        
+//        guard let parentOfItemBelow = itemBelow.parentId else {
+//            log("groupFromChildBelow: no parent on itemBelow")
+//            return nil
+//        }
+//        
+//        let itemsAbove = self.getItemsAbove(item)
+//        
+//        guard let parentItemAbove = itemsAbove.first(where: { $0.id == parentOfItemBelow }),
+//              // added:
+//              parentItemAbove.isGroup else {
+//            log("groupFromChildBelow: could not find parent above")
+//            return nil
+//        }
+//        
+//        log("groupFromChildBelow: parentItemAbove: \(parentItemAbove)")
+//        
+//        return parentItemAbove
+////        let proposedIndentation = parentItemAbove.indentationLevel.inc().toXLocation
+////        
+////        // we'll use the indentation level of the parent + 1
+////        return ProposedGroup(parentId: proposedParent,
+////                             xIndentation: proposedIndentation)
+//    }
     
     @MainActor
     func getItemsBelow(_ item: Self.ItemViewModel) -> [Self.ItemViewModel] {
