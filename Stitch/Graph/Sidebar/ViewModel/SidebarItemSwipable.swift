@@ -487,7 +487,7 @@ extension Array where Element: SidebarItemSwipable {
         var newList = self
         
         switch dragResult {
-        case .afterElement(let element):
+        case .afterElement:
             newList.insertDraggedElements(draggedItems,
                                           at: indexAtHierarchy,
                                           shouldPlaceAfter: true)
