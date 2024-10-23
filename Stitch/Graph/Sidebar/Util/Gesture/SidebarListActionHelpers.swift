@@ -143,7 +143,7 @@ extension ProjectSidebarObservable {
                                 movingDown: Bool,
                                 flattenedItems: [Self.ItemViewModel]) -> SidebarIndex? {
         
-        let maxRowIndex = flattenedItems.count - 1
+        let maxRowIndex = flattenedItems.count
         let maxGroupIndex = flattenedItems.max { $0.sidebarIndex.groupIndex < $1.sidebarIndex.groupIndex }?.sidebarIndex.groupIndex ?? 0
         let dragX = max(dragPosition.x, 0)
         let rawFloatX = Int(floor(dragX / Double(CUSTOM_LIST_ITEM_INDENTATION_LEVEL)))
