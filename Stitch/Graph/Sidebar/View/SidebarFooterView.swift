@@ -24,11 +24,7 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
     var selections: SidebarViewModel.SidebarSelectionState {
         self.sidebarViewModel.selectionState
     }
-
-    var groups: SidebarViewModel.SidebarGroupsDict {
-        self.sidebarViewModel.getSidebarGroupsDict()
-    }
-
+    
     var showEditModeFooter: Bool {
         #if targetEnvironment(macCatalyst)
         // on Catalyst, show edit mode footer if we're in edit-mode or have at least one edit-mode-selection
@@ -49,14 +45,10 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
                     .animation(.default, value: isBeingEdited)
             }
         }
-        .onChange(of: groups) {
-            sidebarViewModel.activeSwipeId = nil
-        }
         .padding()
         .animation(.default, value: showEditModeFooter)
         .animation(.default, value: selections.primary)
         .animation(.default, value: selections.secondary)
-        .animation(.default, value: groups)
         .frame(maxWidth: .infinity)
         .height(self.SIDEBAR_FOOTER_HEIGHT)
         .background(self.SIDEBAR_FOOTER_COLOR.ignoresSafeArea())
@@ -74,10 +66,7 @@ struct SidebarFooterView<SidebarViewModel: ProjectSidebarObservable>: View {
         HStack(spacing: 10) {
             Spacer()
             SidebarFooterButtonsView(sidebarViewModel: sidebarViewModel,
-//                                     groups: groups,
-//                                     selections: selections,
                                      isBeingEdited: isBeingEdited)
-//                                     layerNodes: layerNodes)
         }
     } // editModeFooter
 }
@@ -94,9 +83,7 @@ struct DisabledButtonModifier: ViewModifier {
 
 struct SidebarFooterButtonsView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     @Bindable var sidebarViewModel: SidebarViewModel
-//    let groups: SidebarViewModel.SidebarGroupsDict
     let isBeingEdited: Bool
-//    let layerNodes: LayerNodesForSidebarDict
 
     var selections: SidebarViewModel.SidebarSelectionState {
         self.sidebarViewModel.selectionState
