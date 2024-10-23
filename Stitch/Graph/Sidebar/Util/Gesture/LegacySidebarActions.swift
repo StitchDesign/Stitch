@@ -627,8 +627,8 @@ extension Array where Element: SidebarItemSwipable {
 #endif
         
         // Check for condition where we want to insert a row to the top of a group's children list
-        if recommendedItem.isGroup && recommendedItem.rowIndex == indexOfDraggedLocation.rowIndex,
-            !(recommendedItem.children?.isEmpty ?? true) ||
+        if recommendedItem.isGroup && recommendedItem.rowIndex + 1 == indexOfDraggedLocation.rowIndex,
+//            !(recommendedItem.children?.isEmpty ?? true) ||
             indexOfDraggedLocation.groupIndex > recommendedItem.sidebarIndex.groupIndex {
             log("TOP OF GROUP")
             return .topOfGroup(recommendedItem)
