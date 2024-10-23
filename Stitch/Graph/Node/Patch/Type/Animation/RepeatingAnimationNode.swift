@@ -97,7 +97,7 @@ func repeatingAnimationEvalOpNumber(values: PortValues,
     }
 
     guard case var .oneField(animationState) = computedState.classicAnimationState else {
-        fatalErrorIfDebug()
+        // fatalErrorIfDebug()
         return defaultResult
     }
 
