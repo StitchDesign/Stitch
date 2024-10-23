@@ -36,9 +36,6 @@ struct InspectorFocusedData<ItemID: Hashable> {
 final class SidebarSelectionObserver<ItemID: Hashable> {
     typealias SidebarSelections = Set<ItemID>
     
-    // avoid this?
-    var madeStack: Bool = false
-    
     var haveDuplicated: Bool = false
     var optionDragInProgress: Bool = false
     

@@ -24,38 +24,38 @@ extension SidebarItemSwipable {
 }
 
 extension ProjectSidebarObservable {
-    @MainActor
-    func updateStackOnDrag(_ draggedItem: Self.ItemViewModel,
-                  // all selections
-                  selections: Set<Self.ItemID>) -> Bool {
-        
-        guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
-            print("getStack: no dragged item index")
-            return false
-        }
-        
-        // All items that were dragged along, whether explicitly or implicitly selected
-        let draggedAlong = self.getDraggedAlong(draggedItem,
-                                                selections: selections)
-        
-        // Items that were dragged along but not explicitly selected
-        let implicitlyDraggedItems = self.getImplicitlyDragged(
-            draggedAlong: draggedAlong, 
-            selections: selections)
-        
-        let nonDraggedItemsAbove = items.enumerated().compactMap { itemAndIndex in
-            itemAndIndex.offset < draggedItemIndex ? itemAndIndex.element : nil
-        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
-        
-        let nonDraggedItemsBelow = items.enumerated().compactMap { itemAndIndex in
-            itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
-        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
-        
-//        log("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
-//        log("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
-        
-        return true
-    }
+//    @MainActor
+//    func updateStackOnDrag(_ draggedItem: Self.ItemViewModel,
+//                  // all selections
+//                  selections: Set<Self.ItemID>) -> Bool {
+//        
+//        guard let draggedItemIndex = items.firstIndex(where: { $0.id == draggedItem.id }) else {
+//            print("getStack: no dragged item index")
+//            return false
+//        }
+//        
+//        // All items that were dragged along, whether explicitly or implicitly selected
+//        let draggedAlong = self.getDraggedAlong(draggedItem,
+//                                                selections: selections)
+//        
+//        // Items that were dragged along but not explicitly selected
+//        let implicitlyDraggedItems = self.getImplicitlyDragged(
+//            draggedAlong: draggedAlong, 
+//            selections: selections)
+//        
+//        let nonDraggedItemsAbove = items.enumerated().compactMap { itemAndIndex in
+//            itemAndIndex.offset < draggedItemIndex ? itemAndIndex.element : nil
+//        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
+//        
+//        let nonDraggedItemsBelow = items.enumerated().compactMap { itemAndIndex in
+//            itemAndIndex.offset > draggedItemIndex ? itemAndIndex.element : nil
+//        }.filter { !$0.isSelected(selections) && !$0.implicitlyDragged(implicitlyDraggedItems)}
+//        
+////        log("getStack: nonDraggedItemsAbove: \(nonDraggedItemsAbove.map(\.id))")
+////        log("getStack: nonDraggedItemsBelow: \(nonDraggedItemsBelow.map(\.id))")
+//        
+//        return true
+//    }
     
 //    func rearrangeChunk(selectedParentItem: Self.ItemViewModel,
 //                        selections: Set<Self.ItemID>,

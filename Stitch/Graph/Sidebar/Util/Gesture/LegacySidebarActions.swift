@@ -141,18 +141,6 @@ extension ProjectSidebarObservable {
         // do we need this `else if` ?
 //        else if focusedLayers.count > 1 {
         if focusedLayers.count > 1 {
-            // log("SidebarListItemDragged: multiple selections; dragging an existing one")
-            // Turn the master list into a "master list with a stack" first,
-            if !state.selectionState.madeStack,
-                let item = self.items.get(itemId),
-            
-                self.updateStackOnDrag(
-                    item,
-                    selections: state.selectionState.inspectorFocusedLayers.focused) {
-                
-                state.selectionState.madeStack = true
-            }
-            
             if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused),
                itemId != selectedItemWithSmallestIndex {
@@ -344,8 +332,7 @@ extension ProjectSidebarObservable {
 
         // reset the current dragging item
         state.currentItemDragged = nil
-                
-        state.selectionState.madeStack = false
+
         state.selectionState.haveDuplicated = false
         state.selectionState.optionDragInProgress = false
         state.implicitlyDragged = .init()
