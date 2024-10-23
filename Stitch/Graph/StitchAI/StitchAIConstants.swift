@@ -9,6 +9,11 @@ import Foundation
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
 let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
+//let OPEN_AI_MODEL =  "ft:gpt-4o-2024-08-06:adammenges::ALJN0utQ"
+//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVMS6zv"
+//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVbB7aX"
+
+
 
 let SYSTEM_PROMPT = """
 You are a helpful assistant. Using a visual programming language, specify the nodes required to solve the given problem and detail how to connect them to form a coherent and functional graph. Refer to the node descriptions for guidance on their purposes.

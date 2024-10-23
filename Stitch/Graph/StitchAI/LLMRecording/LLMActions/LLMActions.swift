@@ -72,7 +72,7 @@ struct LLMAddEdge: Equatable, Codable {
 // MARK: Change Node Type
 
 struct LLMAChangeNodeTypeAction: Equatable, Codable {
-    let action = LLMActionNames.changeNodeType.rawValue
+    var action = LLMActionNames.changeNodeType.rawValue
     let node: String
     let nodeType: String
 }
@@ -87,13 +87,13 @@ extension String {
 // MARK: Add Layer Node Input/Output
 
 struct LLMAddLayerInput: Equatable, Codable {
-    let action = LLMActionNames.addLayerInput.rawValue
+    var action = LLMActionNames.addLayerInput.rawValue
     let node: String
     let port: String // layer node input's label (long form)
 }
 
 struct LLMAddLayerOutput: Equatable, Codable {
-    let action = LLMActionNames.addLayerOutput.rawValue
+    var action = LLMActionNames.addLayerOutput.rawValue 
     let node: String
     let port: String // layer node input's label (long form)
 }
