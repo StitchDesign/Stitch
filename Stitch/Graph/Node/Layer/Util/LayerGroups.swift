@@ -9,16 +9,6 @@ import Foundation
 import SwiftUI
 import StitchSchemaKit
 
-extension ProjectSidebarObservable {
-    // Find the parent, if any, for this layer node.
-    static func findGroupLayerParentForLayerNode(_ itemId: Self.ItemID,
-                                                 _ groups: Self.SidebarGroupsDict) -> Self.ItemID? {
-        groups.first { (_, value) in
-            value.contains(itemId)
-        }?.key
-    }
-}
-
 extension GraphState {
     // Assumes:
     // - all selected nodes have either same parent or no parent ('top level')

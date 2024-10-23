@@ -7,7 +7,6 @@
 
 import SwiftUI
 import StitchViewKit
-import OrderedCollections
 
 protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID == EncodedItemData.ID,
                                                                Self.ItemViewModel.SidebarViewModel == Self {
@@ -16,7 +15,6 @@ protocol ProjectSidebarObservable: AnyObject, Observable where ItemViewModel.ID 
 
     typealias ItemID = ItemViewModel.ID
     typealias SidebarSelectionState = SidebarSelectionObserver<ItemID>
-    typealias SidebarGroupsDict = OrderedDictionary<Self.ItemID, [Self.ItemID]>
     typealias ExcludedGroups = [ItemID: [ItemViewModel]]
     
     var isEditing: Bool { get set }

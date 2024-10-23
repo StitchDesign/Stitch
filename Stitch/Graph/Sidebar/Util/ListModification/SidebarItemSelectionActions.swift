@@ -271,8 +271,6 @@ extension ProjectSidebarObservable {
     @MainActor
     func sidebarItemSelectedViaEditMode(_ id: Self.ItemID,
                                         isSidebarItemTapped: Bool) {
-        let sidebarGroups = self.getSidebarGroupsDict()
-        
         // if we actively-selected (non-edit-mode-selected) an item that is already secondarily-selected, we don't need to change the
         if isSidebarItemTapped,
            self.selectionState.secondary.contains(id) {
@@ -282,26 +280,27 @@ extension ProjectSidebarObservable {
         
         // we selected a group -- so 100% select the group
         // and 80% all the children further down in the street
-        if let item = self.retrieveItem(id),
-           item.isGroup {
-
+        guard let item = self.retrieveItem(id) else {
+            return
+        }
+           
+        if item.isGroup {
             self.addExclusivelyToPrimary(id)
 
-            sidebarGroups[id]?.forEach({ childId in
-                self.secondarilySelectAllChildren(id: childId,
-                                                  groups: sidebarGroups)
-            })
+            item.children?.forEach{ child in
+                child.secondarilySelectAllChildren()
+            }
         }
 
         // If we selected a child of a group,
         // then deselect that parent and all other children,
         // and primarily select the child.
         // ie deselect everything(?), and only select the child.
-        else if let parent = Self.findGroupLayerParentForLayerNode(id, sidebarGroups) {
+        else if let parent = item.parentDelegate {
 
             // if the parent is currently selected,
             // then deselect the parent and all other children
-            if self.selectionState.isSelected(parent) {
+            if self.selectionState.isSelected(parent.id) {
                 self.selectionState.resetEditModeSelections()
                 self.addExclusivelyToPrimary(id)
             }
@@ -330,28 +329,17 @@ struct SidebarItemDeselected: GraphEvent {
 }
 
 extension ProjectSidebarObservable {
+    // If we deselected a group,
+    // then we should also deselect all its children.
     @MainActor
     func sidebarItemDeselectedViaEditMode(_ id: Self.ItemID) {
-        // If we deselected a group,
-        // then we should also deselect all its children.
-        let groups = self.getSidebarGroupsDict()
-        
-        var idsToDeselect = Set<ItemID>([id])
-
-        groups[id]?.forEach({ childId in
-            // ids all ids to remove
-            let ids = self.getDescendantsIds(id: childId)
-            idsToDeselect = idsToDeselect.union(ids)
-        })
-
-        // log("SidebarItemDeselected: idsToDeselect: \(idsToDeselect)")
-
-        // now that we've gathered all the ids (ie directly de-selected item + its descendants),
-        // we can remove them
-        idsToDeselect.forEach { idToRemove in
-            self.removeFromSelections(idToRemove)
+        guard let item = self.items.get(id) else {
+            fatalErrorIfDebug()
+            return
         }
-        
+
+        item.removeFromSelections()
+
         self.graphDelegate?.updateInspectorFocusedLayers()
     }
 }
