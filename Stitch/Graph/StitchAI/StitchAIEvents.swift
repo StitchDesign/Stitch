@@ -161,7 +161,7 @@ extension StitchDocumentViewModel {
             
             let contentJSON = try firstChoice.message.parseContent()
             var llmActions: [LLMActionTest] = []
-            var nodeInfoMap: [String: NodeInfoTest] = [:]
+            var nodeInfoMap: [String: NodeInfoData] = [:]
             var layerInputsAdded: Set<String> = []
             
             for step in contentJSON.steps {
@@ -177,7 +177,7 @@ extension StitchDocumentViewModel {
                         if let nodeType = VisualProgrammingTypes.validNodeTypes[parsedNodeType.lowercased()] {
                             let title = "\(nodeType.rawValue) (\(nodeId))"
                             llmActions.append(LLMActionTest(action: ActionType.addNode.rawValue, node: title, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
-                            nodeInfoMap[nodeId] = NodeInfoTest(type: nodeType.rawValue)
+                            nodeInfoMap[nodeId] = NodeInfoData(type: nodeType.rawValue)
                         } else {
                             print("Unknown node type: '\(parsedNodeType)' does not match any validNodeTypes.")
                         }
