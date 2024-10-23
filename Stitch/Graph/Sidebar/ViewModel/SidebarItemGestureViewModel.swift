@@ -23,6 +23,9 @@ let DEFAULT_ACTION_THRESHOLD: CGFloat = SIDEBAR_WIDTH * 0.75
 
 let GREY_SWIPE_MENU_OPTION_COLOR: Color = Color(.greySwipMenuOption)
 
+let CUSTOM_LIST_ITEM_VIEW_HEIGHT: Int = Int(SIDEBAR_LIST_ITEM_ROW_COLORED_AREA_HEIGHT)
+let CUSTOM_LIST_ITEM_INDENTATION_LEVEL: Int = 24
+
 //protocol SidebarItemData: Identifiable, Equatable where Self.ID: Equatable {
 ////    var parentId: Self.ID? { get set }
 ////    var location: CGPoint { get set }

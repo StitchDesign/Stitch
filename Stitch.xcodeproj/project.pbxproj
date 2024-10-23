@@ -122,7 +122,6 @@
 		B55500EB2C1BAD0E0081C3F1 /* ColorInvertModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */; };
 		B55500ED2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500EC2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift */; };
 		B55500EF2C1BADB20081C3F1 /* PreviewCommonMisc.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */; };
-		B55500F42C1BC2320081C3F1 /* SidebarListItemUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500F32C1BC2320081C3F1 /* SidebarListItemUtils.swift */; };
 		B55500F62C1BC2660081C3F1 /* SidebarListItemSwipeInnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500F52C1BC2660081C3F1 /* SidebarListItemSwipeInnerView.swift */; };
 		B55500F92C1BC2D20081C3F1 /* SidebarListItemSwipeMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500F82C1BC2D20081C3F1 /* SidebarListItemSwipeMenu.swift */; };
 		B55500FB2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B55500FA2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift */; };
@@ -406,7 +405,6 @@
 		EC28E4B726F92B36006D20CB /* ProjectsListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC28E4B626F92B36006D20CB /* ProjectsListItemView.swift */; };
 		EC2942312BA1364600D14CD1 /* UpdateStateAfterListChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942302BA1364600D14CD1 /* UpdateStateAfterListChange.swift */; };
 		EC2942372BA1377B00D14CD1 /* SidebarListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */; };
-		EC2942392BA13C8100D14CD1 /* SidebarListUIActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */; };
 		EC29423D2BA13DB400D14CD1 /* JumpToCanvasItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */; };
 		EC29423F2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */; };
 		EC2942412BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */; };
@@ -1048,7 +1046,6 @@
 		B55500EA2C1BAD0E0081C3F1 /* ColorInvertModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorInvertModifier.swift; sourceTree = "<group>"; };
 		B55500EC2C1BAD610081C3F1 /* PreviewAbsoluteShapeLayerModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewAbsoluteShapeLayerModifier.swift; sourceTree = "<group>"; };
 		B55500EE2C1BADB20081C3F1 /* PreviewCommonMisc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCommonMisc.swift; sourceTree = "<group>"; };
-		B55500F32C1BC2320081C3F1 /* SidebarListItemUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemUtils.swift; sourceTree = "<group>"; };
 		B55500F52C1BC2660081C3F1 /* SidebarListItemSwipeInnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSwipeInnerView.swift; sourceTree = "<group>"; };
 		B55500F82C1BC2D20081C3F1 /* SidebarListItemSwipeMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSwipeMenu.swift; sourceTree = "<group>"; };
 		B55500FA2C1BC2FF0081C3F1 /* SidebarListItemSwipeButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItemSwipeButton.swift; sourceTree = "<group>"; };
@@ -1340,7 +1337,6 @@
 		EC28E4B626F92B36006D20CB /* ProjectsListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectsListItemView.swift; sourceTree = "<group>"; };
 		EC2942302BA1364600D14CD1 /* UpdateStateAfterListChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateStateAfterListChange.swift; sourceTree = "<group>"; };
 		EC2942362BA1377B00D14CD1 /* SidebarListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListItem.swift; sourceTree = "<group>"; };
-		EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarListUIActions.swift; sourceTree = "<group>"; };
 		EC29423C2BA13DB400D14CD1 /* JumpToCanvasItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JumpToCanvasItem.swift; sourceTree = "<group>"; };
 		EC29423E2BA13DDC00D14CD1 /* SidebarGroupUncreated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarGroupUncreated.swift; sourceTree = "<group>"; };
 		EC2942402BA13E0800D14CD1 /* SidebarSelectedItemsDeleted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarSelectedItemsDeleted.swift; sourceTree = "<group>"; };
@@ -2450,7 +2446,6 @@
 		B55501092C1BCEDD0081C3F1 /* LayerGrouping */ = {
 			isa = PBXGroup;
 			children = (
-				B55500F32C1BC2320081C3F1 /* SidebarListItemUtils.swift */,
 				EC4BD8992BA1350300B8F38A /* SidebarLayerData.swift */,
 				ECC2BCEE2B9E3B9200D5F942 /* LayerGroupFit.swift */,
 			);
@@ -2462,7 +2457,6 @@
 			children = (
 				B55501062C1BCAD50081C3F1 /* SidebarListItemActions.swift */,
 				ECC2BCD82B9B73FA00D5F942 /* LegacySidebarActions.swift */,
-				EC2942382BA13C8100D14CD1 /* SidebarListUIActions.swift */,
 				ECC2BCEA2B9B867E00D5F942 /* SidebarListActionHelpers.swift */,
 				ECBEE1652CA705F800A10B37 /* SidebarListItemHelpers.swift */,
 			);
@@ -4582,7 +4576,6 @@
 				B59447212B97FA140039603D /* CommentBoxViewModel.swift in Sources */,
 				E4AB307C29B4F42F000A66B0 /* YOLOv3Tiny.mlmodel in Sources */,
 				ECD7FA8D29D73E2D0073ACAC /* ComponentActions.swift in Sources */,
-				EC2942392BA13C8100D14CD1 /* SidebarListUIActions.swift in Sources */,
 				EC2BBF042947BBC2005BCCDB /* ColorFillLayerNode.swift in Sources */,
 				B550C22F28D0404300F40B80 /* MiddlewareService.swift in Sources */,
 				EC83D89A2926E42400255311 /* GraphUICursorSelectionActions.swift in Sources */,
@@ -5175,7 +5168,6 @@
 				ECF0B0F42877E45A001D7CFC /* ColorOrbValueButtonView.swift in Sources */,
 				EC4CFB6526FE480700D085F3 /* StitchSoundFile.swift in Sources */,
 				ECEEA5022AFD9EC800C7CE86 /* TagMenuHelperViews.swift in Sources */,
-				B55500F42C1BC2320081C3F1 /* SidebarListItemUtils.swift in Sources */,
 				ECB33C6226F15A1C0069885B /* ProjectsUtils.swift in Sources */,
 				EC609DB429352FB800BF60A5 /* NumberExtensionUtils.swift in Sources */,
 				ECA92A00260A694C00281B52 /* PressInteractionPatchNode.swift in Sources */,
