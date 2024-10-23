@@ -259,7 +259,8 @@ extension ProjectSidebarObservable {
             
             self.currentItemDragged = item.id
             
-            // TODO: filter selected items given groups
+            // Remove elements from groups if there are selections inside other selected groups
+            Self.removeSelectionsFromGroups(selections: allDraggedItems)
             
             // Move items to dragged item
             self.movedDraggedItems(allDraggedItems,
@@ -389,6 +390,22 @@ extension ProjectSidebarObservable {
         
         // TODO: should only be for layers sidebar
         self.graphDelegate?.updateOrderedPreviewLayers()
+    }
+    
+    /// Removes selected elements from other selected groups.
+    static func removeSelectionsFromGroups(selections: [Self.ItemViewModel]) {
+        var queue = selections
+        
+        // Traverse backwards by exploring parent delegate
+        while let element = queue.popLast() {
+            guard let parent = element.parentDelegate else { continue }
+            
+            if selections.contains(where: { $0.id == parent.id }) {
+                parent.children?.remove(element.id)
+            }
+            
+            queue.append(parent)
+        }
     }
 }
 
