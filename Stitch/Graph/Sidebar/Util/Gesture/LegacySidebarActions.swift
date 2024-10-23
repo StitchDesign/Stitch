@@ -347,6 +347,7 @@ extension ProjectSidebarObservable {
         let visualList = visualList
         let draggedItems = draggedItems
         let oldCount = flattenedList.count
+        let draggedItemIdSet = draggedItems.map(\.id).toSet
         
 //        draggedItems.forEach { draggedItem in
 //            // Don't use helper since visual list is already flattened
@@ -369,9 +370,8 @@ extension ProjectSidebarObservable {
 //            return
 //        }
 
-        draggedItems.forEach {
-            newItemsList.remove($0.id)
-        }
+        // Remove items from dragged set--these will be added later
+        newItemsList.remove(draggedItemIdSet)
         
         guard !draggedItems.isEmpty else { return }
         
@@ -486,14 +486,14 @@ extension Array where Element: SidebarItemSwipable {
         }
     }
     
-//    /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
-//    func recursiveMap(_ callback: @escaping (Element) -> Element) -> [Element] {
-//        self.map { item in
-//            item.children = item.children?.recursiveMap(callback)
-//            
-//            return callback(item)
-//        }
-//    }
+    /// Helper that recursively travels nested data structure in DFS traversal (aka children first).
+    func recursiveCompactMap(_ callback: @escaping (Element) -> Element?) -> [Element] {
+        self.compactMap { item in
+            item.children = item.children?.recursiveCompactMap(callback)
+            
+            return callback(item)
+        }
+    }
     
     /// Filters out collapsed groups.
     /// List mut be flattened for drag gestures.
