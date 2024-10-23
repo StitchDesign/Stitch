@@ -302,8 +302,6 @@ extension SidebarItemGestureViewModel {
                 commandHeld: graph.keypressState.isCommandPressed)
         }
         
-        let primary = selections.primary
-        
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak graph] _ in
             guard let graph = graph else { return UIMenu(title: "", children: []) }
             

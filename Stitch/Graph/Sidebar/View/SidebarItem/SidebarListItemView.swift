@@ -55,7 +55,6 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
 //            .padding(.leading)
                 .offset(x: -swipeOffset)
             Spacer()
-
         }
         
         .contentShape(Rectangle()) // for hit area
@@ -94,9 +93,6 @@ struct SidebarListItemView<SidebarViewModel>: View where SidebarViewModel: Proje
             // Preferably animate the smallest view possible; when this .animation was applied outside the .overlay, we undesiredly animated text color changes
                 .animation(.default, value: isProposedGroup)
         }
-
-        // TODO: needs to be for all actively-dragged selected layers
-//        .animation(.default, value: isBeingDragged)
     }
 }
 

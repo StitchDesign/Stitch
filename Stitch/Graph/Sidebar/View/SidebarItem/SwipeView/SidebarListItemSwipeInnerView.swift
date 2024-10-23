@@ -12,17 +12,12 @@ import StitchSchemaKit
 struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewModel: ProjectSidebarObservable {
     // The actual rendered distance for the swipe distance
     @State private var swipeX: Double = 0
-    @State private var sidebarWidth: Double = .zero
-
-    @Environment(\.appTheme) private var theme
     
     @Bindable var graph: GraphState
     @Bindable var sidebarViewModel: SidebarViewModel
     @Bindable var itemViewModel: SidebarViewModel.ItemViewModel
     
-    
     var showMainItem: Bool { swipeX < DEFAULT_ACTION_THRESHOLD }
-    
     
     var body: some View {
         HStack(spacing: .zero) {
@@ -32,10 +27,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                                     sidebarViewModel: sidebarViewModel,
                                     item: itemViewModel,
                                     swipeOffset: swipeX)
-                .background {
-                    theme.fontColor
-                        .opacity(itemViewModel.backgroundOpacity)
-                }
                 // right-side label overlay comes AFTER x-placement of item,
                 // so as not to be affected by x-placement.
                 .overlay(alignment: .trailing) {
@@ -75,20 +66,6 @@ struct SidebarListItemSwipeInnerView<SidebarViewModel>: View where SidebarViewMo
                 gestureViewModel: itemViewModel,
                 swipeOffset: swipeX)
 #endif
-        }
-        .background {
-            GeometryReader { geometry in
-                Color.clear
-                    .onAppear {
-                        self.sidebarWidth = geometry.size.width
-                    }
-                    .onChange(of: geometry.size.width) { _, newWidth in
-                        if newWidth != self.sidebarWidth {
-                            log("sidebar width: \(newWidth)")
-                            self.sidebarWidth = newWidth
-                        }
-                    }
-            }
         }
         
         // Animates swipe distance if it gets pinned to its open or closed position.
