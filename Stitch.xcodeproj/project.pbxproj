@@ -3684,31 +3684,19 @@
 		B5C093CA2C1A590F0011B4E9 /* Type */ = {
 			isa = PBXGroup;
 			children = (
-				EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */,
-				EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */,
-				ECD039242641F28E003926B4 /* GroupLayerNode.swift */,
-				EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */,
-				E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */,
-				EC281EFA294901C70094BA5D /* HitAreaLayerNode.swift */,
-				ECA92A41260A6AA200281B52 /* OvalLayerNode.swift */,
-				EC11218E2942846900F0AE19 /* ShapeLayerNode.swift */,
-				ECDD4E0D2CC065BE003B4F9A /* MaterialLayerNode.swift */,
-				ECA92A45260A6AD000281B52 /* RectangleLayerNode.swift */,
-				ECA92A49260A6ADE00281B52 /* TextLayerNode.swift */,
-				E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */,
-				E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */,
-				EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */,
-				E4114F6D2BD96BF700934151 /* VideoStreamingLayerNode.swift */,
 				E41140F02BB23054000C34E3 /* MapLayerNode.swift */,
 				E40EBAD12BB5D8DD00CCA3C3 /* SwitchLayerNode.swift */,
 				E4D7EA142BB33F4E0040BB77 /* ProgressIndicatorLayerNode.swift */,
-				EC004DD82B46438900C5DB33 /* TextFieldLayerNode.swift */,
-				EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */,
-				ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */,
-				B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */,
-				E4F7AC272974B73F00B7F55A /* RealityView */,
-				E41685E228A3FA9200731889 /* 3DModelLayerNode */,
-				B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */,
+				ECD039242641F28E003926B4 /* GroupLayerNode.swift */,
+				EC2BBF032947BBC2005BCCDB /* ColorFillLayerNode.swift */,
+				EC281EFA294901C70094BA5D /* HitAreaLayerNode.swift */,
+				ECDD4E0D2CC065BE003B4F9A /* MaterialLayerNode.swift */,
+				EC226C662BD881D400411EB7 /* SFSymbolLayerNode.swift */,
+				EC808C072CC9532A00F30C70 /* Canvas */,
+				EC808C042CC952DE00F30C70 /* Gradients */,
+				EC808C062CC9531E00F30C70 /* Shapes */,
+				EC808C052CC9530E00F30C70 /* Text */,
+				EC808C082CC9535A00F30C70 /* Media */,
 			);
 			path = Type;
 			sourceTree = "<group>";
@@ -4131,6 +4119,58 @@
 				EC808C012CC6CF4400F30C70 /* NumberCoercers.swift */,
 			);
 			path = CoercerUtilHelpers;
+			sourceTree = "<group>";
+		};
+		EC808C042CC952DE00F30C70 /* Gradients */ = {
+			isa = PBXGroup;
+			children = (
+				E41A66B22BD2BB8E00385C9F /* LinearGradientNode.swift */,
+				E4F8AABA2BD6ED8500E9BA4D /* RadialGradientNode.swift */,
+				E4F8AABC2BD6ED9600E9BA4D /* AngularGradientNode.swift */,
+			);
+			path = Gradients;
+			sourceTree = "<group>";
+		};
+		EC808C052CC9530E00F30C70 /* Text */ = {
+			isa = PBXGroup;
+			children = (
+				ECA92A49260A6ADE00281B52 /* TextLayerNode.swift */,
+				EC004DD82B46438900C5DB33 /* TextFieldLayerNode.swift */,
+			);
+			path = Text;
+			sourceTree = "<group>";
+		};
+		EC808C062CC9531E00F30C70 /* Shapes */ = {
+			isa = PBXGroup;
+			children = (
+				ECA92A41260A6AA200281B52 /* OvalLayerNode.swift */,
+				EC11218E2942846900F0AE19 /* ShapeLayerNode.swift */,
+				ECA92A45260A6AD000281B52 /* RectangleLayerNode.swift */,
+			);
+			path = Shapes;
+			sourceTree = "<group>";
+		};
+		EC808C072CC9532A00F30C70 /* Canvas */ = {
+			isa = PBXGroup;
+			children = (
+				EC004DCC2B4498C200C5DB33 /* CanvasSketchLayerNode.swift */,
+				EC004DD22B44D24300C5DB33 /* CanvasSketchUtils.swift */,
+			);
+			path = Canvas;
+			sourceTree = "<group>";
+		};
+		EC808C082CC9535A00F30C70 /* Media */ = {
+			isa = PBXGroup;
+			children = (
+				E4114F6D2BD96BF700934151 /* VideoStreamingLayerNode.swift */,
+				EC5A2DE2263202FC00D8DEE5 /* VisualMediaLayerNode.swift */,
+				ECC506EA267BBA1900A2D015 /* VideoLayerNode.swift */,
+				B5A2D11C286F7A5A002BFB97 /* VisualMedia.swift */,
+				E4F7AC272974B73F00B7F55A /* RealityView */,
+				E41685E228A3FA9200731889 /* 3DModelLayerNode */,
+				B5EFD6192C1134EC006F5E7F /* MediaLayerViewModifier.swift */,
+			);
+			path = Media;
 			sourceTree = "<group>";
 		};
 		EC81043B2B714D5800AF7A20 /* LineShape */ = {
