@@ -248,7 +248,7 @@ extension ProjectSidebarObservable {
         
         // Remove dragged items from data structure used for identifying drag location
         let filteredVisualList = visualList.filter { item in
-            !allDraggedItems.contains(where: { $0.id == item.id })
+            !(allDraggedItems + implicitlyDraggedItems).contains(where: { $0.id == item.id })
         }
         
         let originalItemIndex = item.sidebarIndex
@@ -594,7 +594,7 @@ extension Array where Element: SidebarItemSwipable {
         // Filters for:
         // 1. Row indices smaller than index
         // 2. Rows with allowed groups--which are constrained by the index's above and below element
-        let flattenedItems = self[0..<Swift.min(indexOfDraggedLocation.rowIndex, self.count)]
+        let flattenedItems = self[0..<Swift.max(0, Swift.min(indexOfDraggedLocation.rowIndex, self.count))]
             .filter {
                 // Can't be self
 //                guard $0.sidebarIndex != index else { return false }
