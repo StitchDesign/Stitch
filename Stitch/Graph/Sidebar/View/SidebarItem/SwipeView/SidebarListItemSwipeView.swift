@@ -50,7 +50,7 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         
         // More accurate: needs to come before the `.offset(y:)` modifier
         .onHover { hovering in
-            log("hovering: sidebar item \(gestureViewModel.id)")
+            // log("hovering: sidebar item \(gestureViewModel.id)")
             // log("hovering: \(hovering)")
             self.isHovered = hovering
             if hovering {
