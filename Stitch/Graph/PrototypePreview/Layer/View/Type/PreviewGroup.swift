@@ -90,6 +90,10 @@ struct PreviewGroupLayer: View {
         size.width == .hug || size.height == .hug
     }
     
+    var noFixedSizeForLayerGroup: Bool {
+        size.width.noFixedSizeForLayerGroup || size.height.noFixedSizeForLayerGroup
+    }
+    
     var useParentSizeForAnchoring: Bool {
         usesHug && !parentDisablesPosition
     }
@@ -206,6 +210,7 @@ struct PreviewGroupLayer: View {
                           parentCornerRadius: cornerRadius,
                           // i.e. if this view (a LayerGroup) uses .hug, then its children will not use their own .position values.
                           parentUsesHug: usesHug,
+                          noFixedSizeForLayerGroup: noFixedSizeForLayerGroup,
                           parentGridData: gridData,
                           isGhostView: !isPinnedViewRendering)
     }
