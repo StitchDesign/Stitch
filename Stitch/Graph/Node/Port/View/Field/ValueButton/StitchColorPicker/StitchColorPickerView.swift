@@ -88,6 +88,7 @@ struct StitchColorPickerView: View {
                                  isMultiselectInspectorInputWithHeterogenousValues: isMultiselectInspectorInputWithHeterogenousValues)
                 .popover(isPresented: $show, content: {
                     colorPopover.padding()
+                    
                 })
                 .onTapGesture {
                     show.toggle()

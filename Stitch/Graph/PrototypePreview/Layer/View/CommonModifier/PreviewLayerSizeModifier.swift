@@ -150,7 +150,7 @@ struct LayerSizeModifier: ViewModifier {
             
             // If we are using width = fill, then passed-in width will actually be parent-length,
             // and we should supply `.frame(width = nil)` but `.frame(maxWidth = passed-in-width)`
-                .frame(maxWidth: finalMaxWidth)
+                .frame(maxWidth: finalMaxWidth, alignment: alignment)
                 .frame(width: usesFillForWidth ? nil : width,
                        alignment: alignment)
                 
@@ -164,8 +164,8 @@ struct LayerSizeModifier: ViewModifier {
             logInView("LayerSizeModifier: defined height but not width")
                 
             content
-                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
-                .frame(maxHeight: finalMaxHeight)
+                .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
+                .frame(maxHeight: finalMaxHeight, alignment: alignment)
             
                 .frame(height: usesFillForHeight ? nil : height,
                        alignment: alignment)
@@ -190,14 +190,14 @@ struct LayerSizeModifier: ViewModifier {
             } else {
                 
                 content
-                    .frame(minWidth: usesParentPercentForWidth ? minWidth : nil)
-                    .frame(maxWidth: finalMaxWidth)
+                    .frame(minWidth: usesParentPercentForWidth ? minWidth : nil, alignment: alignment)
+                    .frame(maxWidth: finalMaxWidth, alignment: alignment)
                     
                     .frame(width: usesFillForWidth ? nil : width,
                            alignment: alignment)
                     
-                    .frame(minHeight: usesParentPercentForHeight ? minHeight : nil)
-                    .frame(maxHeight: finalMaxHeight)
+                    .frame(minHeight: usesParentPercentForHeight ? minHeight : nil, alignment: alignment)
+                    .frame(maxHeight: finalMaxHeight, alignment: alignment)
                     
                     .frame(height: usesFillForHeight ? nil : height,
                            alignment: alignment)
