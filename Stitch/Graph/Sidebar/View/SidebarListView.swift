@@ -131,7 +131,6 @@ struct SidebarListScrollView<SidebarObservable>: View where SidebarObservable: P
         .toolbar {
             SidebarEditButtonView(sidebarViewModel: self.sidebarViewModel)
         }
-        .animation(.spring(), value: self.sidebarViewModel.selectionState.primary)
 #endif
         // TODO: remove some of these animations ?
         .animation(.spring(), value: isBeingEdited)        
