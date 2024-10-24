@@ -109,6 +109,17 @@ extension VisibleNodesViewModel {
                                               unpackedPortParentFieldGroupType: nil,
                                               unpackedPortIndex: nil)
                 
+                // Initializes view models for canvas
+                guard let node = canvasGroup.nodeDelegate else {
+                    fatalErrorIfDebug()
+                    return
+                }
+                
+                assertInDebug(node.kind == .group)
+                
+                canvasGroup.initializeDelegate(node,
+                                               unpackedPortParentFieldGroupType: nil,
+                                               unpackedPortIndex: nil)
             default:
                 return
             }
