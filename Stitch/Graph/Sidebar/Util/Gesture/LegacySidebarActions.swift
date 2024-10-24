@@ -37,17 +37,6 @@ extension ProjectSidebarObservable {
         return smallestItem
     }
     
-    // All the focused layers minus the actively dragged item
-    func getOtherSelections(draggedItem: Self.ItemID) -> Set<Self.ItemID> {
-        var otherDragged = self.selectionState
-            .inspectorFocusedLayers
-            .focused
-            .toSet
-        
-        otherDragged.remove(draggedItem)
-        
-        return otherDragged
-    }
     
     func getDraggedAlong(_ draggedItem: Self.ItemViewModel,
                          selections: Set<Self.ItemID>) -> Set<Self.ItemID> {
@@ -122,7 +111,7 @@ extension ProjectSidebarObservable {
             // also, it aready updates the selected and focused sidebar layers etc.
             
             // But will the user's cursor still be on / under the original layer ?
-            state.graphDelegate?.sidebarSelectedItemsDuplicatedViaEditMode()
+            state.graphDelegate?.sidebarSelectedItemsDuplicated()
             state.selectionState.haveDuplicated = true
             state.selectionState.optionDragInProgress = true
             
@@ -152,24 +141,25 @@ extension ProjectSidebarObservable {
            }
         }
         
-        let otherSelections = state.getOtherSelections(draggedItem: itemId)
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
         self.onSidebarListItemDragged(
             item, // this dragged item
-            translation, // drag data
-            // ALL items
-            otherSelections: otherSelections)
+            translation)
     }
     
     @MainActor
     func onSidebarListItemDragged(_ item: Self.ItemViewModel, // assumes we've already
-                                  _ translation: CGSize,
-                                  otherSelections: Set<ItemID>) {
+                                  _ translation: CGSize) {
         let visualList = self.getVisualFlattenedList()
 
-        let allDraggedItems = [item] + visualList.filter { item in
-            otherSelections.contains(item.id)
+        let allSelections = self.selectionState
+            .inspectorFocusedLayers
+            .focused
+        
+        // Important to keep items in sorted order
+        let allDraggedItems = visualList.filter { item in
+            allSelections.contains(item.id)
         }
 
         let implicitlyDraggedItems = visualList.filter { item in
@@ -193,7 +183,8 @@ extension ProjectSidebarObservable {
             Self.removeSelectionsFromGroups(selections: allDraggedItems)
             
             // Move items to dragged item
-            self.movedDraggedItems(allDraggedItems,
+            self.movedDraggedItems(draggedElement: item,
+                                   draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
                                    to: originalItemIndex)
             
@@ -230,7 +221,8 @@ extension ProjectSidebarObservable {
         }
         
         if originalItemIndex != calculatedIndex {
-            self.movedDraggedItems(allDraggedItems,
+            self.movedDraggedItems(draggedElement: item,
+                                   draggedItems: allDraggedItems,
                                    visualList: filteredVisualList,
                                    to: calculatedIndex)
         }
@@ -243,13 +235,10 @@ extension ProjectSidebarObservable {
     }
     
     @MainActor
-    func movedDraggedItems(_ draggedItems: [Self.ItemViewModel],
+    func movedDraggedItems(draggedElement: Self.ItemViewModel,
+                           draggedItems: [Self.ItemViewModel],
                            visualList: [Self.ItemViewModel],
                            to index: SidebarIndex) {
-        
-        guard let firstDraggedElement = draggedItems.first else {
-            return
-        }
         
         let flattenedList = self.items.flattenedItems
         
@@ -258,7 +247,7 @@ extension ProjectSidebarObservable {
         let oldCount = flattenedList.count
         let draggedItemIdSet = draggedItems.map(\.id).toSet
         
-        let draggedToElementResult = visualList.findClosestElement(draggedElement: firstDraggedElement,
+        let draggedToElementResult = visualList.findClosestElement(draggedElement: draggedElement,
                                                                    to: index)
         
         // We should have removed dragged elements from the visual list
@@ -308,21 +297,6 @@ extension ProjectSidebarObservable {
 //        log("SidebarListItemDragEnded called: itemId: \(itemId)")
 
         let state = self
-        
-        // TODO: option click on end
-//        var itemId = itemId
-        
-//        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
-//        if state.selectionState.optionDragInProgress {
-//            // If we're currently doing an option+drag, then item needs to just be the top
-//            log("SidebarListItemDragged: had option drag and have already duplicated the layers")
-//            
-//            if let selectedItemWithSmallestIndex = findSetItemWithSmallestIndex(
-//                from: state.selectionState.inspectorFocusedLayers.focused) {
-//                log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-//                itemId = selectedItemWithSmallestIndex
-//            }
-//        }
         
         self.items.flattenedItems.forEach {
             $0.dragPosition = nil
