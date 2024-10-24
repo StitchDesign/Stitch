@@ -8,17 +8,13 @@
 import SwiftUI
 import StitchSchemaKit
 
-/*
- NOTE: native SwiftUI ColorPicker is rendered differently
- on Catalyst vs iPad.
- Hence we make our custom adjustments.
- */
 struct ColorOrbValueButtonView: View {
     @State private var colorState: Color = .white
     @State private var show = false
 
     let fieldViewModel: InputFieldViewModel
     let layerInputObserver: LayerInputObserver?
+    let isForFlyout: Bool
     let nodeId: NodeId
     let id: InputCoordinate
     let currentColor: Color // the current color, from input
@@ -53,6 +49,7 @@ struct ColorOrbValueButtonView: View {
                               layerInputObserver: layerInputObserver,
                               fieldCoordinate: fieldViewModel.id,
                               isFieldInsideLayerInspector: fieldViewModel.isFieldInsideLayerInspector,
+                              isForFlyout: isForFlyout,
                               chosenColor: binding,
                               graph: graph)
         .onAppear {

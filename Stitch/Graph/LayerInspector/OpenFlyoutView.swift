@@ -14,8 +14,8 @@ struct OpenFlyoutView: View, KeyboardReadable {
     
     var body: some View {
         if let flyoutState = graph.graphUI.propertySidebar.flyoutState,
-           let node = graph.getNodeViewModel(flyoutState.input.nodeId),
-           let layerNode = node.layerNode,
+           let node: NodeViewModel = graph.getNodeViewModel(flyoutState.flyoutNode),
+           let layerNode: LayerNodeViewModel = node.layerNode,
            let entry = graph.graphUI.propertySidebar.propertyRowOrigins.get(flyoutState.flyoutInput) {
             
             let flyoutSize = flyoutState.flyoutSize
@@ -69,6 +69,10 @@ struct OpenFlyoutView: View, KeyboardReadable {
                        ShadowFlyoutView(node: node,
                                         layerNode: layerNode,
                                         graph: graph)
+                    } else if flyoutInput.usesColor {
+                        ColorFlyoutView(graph: graph,
+                                        layerInputObserver: portObserver,
+                                        nodeId: node.id)
                     }
                     // One multifield input presented in separate rows in the flyout
                     else {                        
