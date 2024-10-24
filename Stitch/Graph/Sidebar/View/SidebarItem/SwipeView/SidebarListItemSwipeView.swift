@@ -57,6 +57,9 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             }
         }
         
+        // MARK: - offset must come after hover and before gestures for dragging to work!
+        .offset(y: yOffset)
+        
 #if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
         .simultaneousGesture(gestureViewModel.macDragGesture)
@@ -66,9 +69,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
 #endif
-        
-        // MARK:  gestures must come before offset
-        .offset(y: yOffset)
         
         .onChange(of: sidebarViewModel.activeSwipeId) {
             gestureViewModel.resetSwipePosition()

@@ -242,10 +242,10 @@ extension SidebarItemSwipable {
 //        let itemDrag = DragGesture(minimumDistance: 0)
         let itemDrag = DragGesture(minimumDistance: 5)
             .onChanged { value in
-                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onChanged")
+//                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onChanged")
                 self.onItemDragChanged(value.translation)
             }.onEnded { _ in
-                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onEnded")
+//                print("SidebarItemGestureViewModel: longPressDragGesture: itemDrag onEnded")
                 self.onItemDragEnded()
             }
 
