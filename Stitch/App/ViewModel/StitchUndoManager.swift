@@ -24,33 +24,29 @@ final class StitchUndoManager: MiddlewareService {
 
 extension StitchStore {    
     /// Saves undo history of some graph using copies of StitchDocument.
+    @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
                                           undoEvents: Actions? = nil,
                                           redoEvents: Actions? = nil) where EncoderDelegate: DocumentEncodableDelegate {
-        let undoCallback = {
+        let undoCallback = { @Sendable @MainActor in
             guard let undoEvents = undoEvents else {
                 return
             }
             
-            // TODO: do we need dispatch?
-            DispatchQueue.main.async {
-                for action in undoEvents {
-                    dispatch(action)
-                }
+            for action in undoEvents {
+                dispatch(action)
             }
         }
         
-        let redoCallback = {
+        let redoCallback = { @Sendable @MainActor in
             guard let redoEvents else {
                 return
             }
             
-            DispatchQueue.main.async {
-                for action in redoEvents {
-                    dispatch(action)
-                }
+            for action in redoEvents {
+                dispatch(action)
             }
         }
         
@@ -61,26 +57,29 @@ extension StitchStore {
                                                            redoCallback: redoCallback))
     }
     
+    @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
                                           undoEffectsData: UndoEffectsData? = nil) where EncoderDelegate: DocumentEncodableDelegate {
         
         // Update undo
-        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in            
-            Task(priority: .high) { [weak self, weak delegate] in
-                await delegate?.update(from: oldSchema)
+        self.undoManager.undoManager.registerUndo(withTarget: encoderDelegate) { delegate in
+            Task(priority: .high) { @MainActor @Sendable [weak self, weak delegate] in
+                guard let delegate = delegate else { return }
+                
+                await delegate.update(from: oldSchema)
                 
                 // Don't update undo history from this action
-                await self?.encodeCurrentProject(willUpdateUndoHistory: false)
+                self?.encodeCurrentProject(willUpdateUndoHistory: false)
+    
+                undoEffectsData?.undoCallback?()
+                
+                self?.saveUndoHistory(from: delegate,
+                                      oldSchema: newSchema,
+                                      newSchema: oldSchema,
+                                      undoEffectsData: undoEffectsData?.createRedoEffects())
             }
-            
-            undoEffectsData?.undoCallback?()
-            
-            self.saveUndoHistory(from: delegate,
-                                 oldSchema: newSchema,
-                                 newSchema: oldSchema,
-                                 undoEffectsData: undoEffectsData?.createRedoEffects())
         }
     }
     
@@ -88,21 +87,23 @@ extension StitchStore {
     @MainActor 
     func saveProjectDeletionUndoHistory(undoActions: [Action],
                                         redoActions: [Action]) {
-        let undoEvents: [@MainActor () -> ()] = undoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
-        let redoEvents: [@MainActor () -> ()] = redoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
+        let undoEvents: [@Sendable @MainActor () -> ()] = undoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
+        let redoEvents: [@Sendable @MainActor () -> ()] = redoActions.map { action in { self.environment.undoManager.safeDispatch(action) } }
         self.saveProjectDeletionUndoHistory(undoEvents: undoEvents,
                                             redoEvents: redoEvents)
     }
     
     /// Saves undo history using actions. Used for project deletion.
     @MainActor
-    func saveProjectDeletionUndoHistory(undoEvents: [@MainActor () -> ()],
-                                        redoEvents: [@MainActor () -> ()]) {
+    func saveProjectDeletionUndoHistory(undoEvents: [@Sendable @MainActor () -> ()],
+                                        redoEvents: [@Sendable @MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
         
         undoManager.registerUndo(withTarget: self) { _ in
             undoEvents.forEach { undoEvent in
-                undoEvent()
+                Task(priority: .high) { @MainActor in
+                    undoEvent()
+                }
             }
             
             // Make redo effects the opposite of undo effects
@@ -110,15 +111,17 @@ extension StitchStore {
             let onRedoRedoEvents = undoEvents
             
             // Register the redo action
-            self.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
-                                                redoEvents: onRedoRedoEvents)
+            Task(priority: .high) { @MainActor [weak self] in
+                self?.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
+                                                     redoEvents: onRedoRedoEvents)
+            }
         }
     }
 }
 
-struct UndoEffectsData {
-    var undoCallback: (() -> Void)?
-    var redoCallback: (() -> Void)?
+struct UndoEffectsData: Sendable {
+    var undoCallback: (@MainActor @Sendable () -> Void)?
+    var redoCallback: (@MainActor @Sendable () -> Void)?
 }
 
 extension UndoEffectsData {
