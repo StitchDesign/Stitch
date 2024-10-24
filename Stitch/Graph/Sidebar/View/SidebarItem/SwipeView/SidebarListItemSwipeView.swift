@@ -46,9 +46,6 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             theme.fontColor
                 .opacity(gestureViewModel.backgroundOpacity)
         }
-        .offset(y: yOffset)
-        
-        // More accurate: needs to come before the `.offset(y:)` modifier
         .onHover { hovering in
             // log("hovering: sidebar item \(gestureViewModel.id)")
             // log("hovering: \(hovering)")
@@ -60,15 +57,19 @@ struct SidebarListItemSwipeView<SidebarViewModel>: View where SidebarViewModel: 
             }
         }
         
-        #if targetEnvironment(macCatalyst)
+#if targetEnvironment(macCatalyst)
         // SwiftUI gesture handlers must come AFTER `.offset`
         .simultaneousGesture(gestureViewModel.macDragGesture)
-        #else
+#else
         // SwiftUI gesture handlers must come AFTER `.offset`
         .onTapGesture { } // fixes long press + drag on iPad screen-touch
         // could also be a `.simultaneousGesture`?
         .gesture(gestureViewModel.longPressDragGesture)
-        #endif
+#endif
+        
+        // MARK:  gestures must come before offset
+        .offset(y: yOffset)
+        
         .onChange(of: sidebarViewModel.activeSwipeId) {
             gestureViewModel.resetSwipePosition()
         }
