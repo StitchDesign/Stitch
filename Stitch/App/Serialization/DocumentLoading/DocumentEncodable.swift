@@ -19,8 +19,8 @@ protocol DocumentEncodable: Actor where CodableDocument == DocumentDelegate.Coda
     @MainActor var delegate: DocumentDelegate? { get }
 }
 
-protocol DocumentEncodableDelegate: Observable, AnyObject {
-    associatedtype CodableDocument: Codable
+protocol DocumentEncodableDelegate: Observable, AnyObject, Sendable {
+    associatedtype CodableDocument: Codable & Sendable
     
     @MainActor var lastEncodedDocument: CodableDocument { get set }
     

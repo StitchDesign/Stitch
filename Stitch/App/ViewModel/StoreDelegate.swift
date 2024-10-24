@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol StoreDelegate: AnyObject {
+protocol StoreDelegate: AnyObject, Sendable {
     var documentLoader: DocumentLoader { get }
     
     var systems: [StitchSystemType: StitchSystemViewModel] { get }
