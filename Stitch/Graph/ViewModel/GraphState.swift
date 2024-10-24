@@ -298,13 +298,11 @@ extension GraphState {
         self.visibleNodesViewModel.nodes = newDictionary
     }
     
+    @MainActor
     private func updateSynchronousProperties(from schema: GraphEntity) {
         self.id = schema.id
         self.name = schema.name
-        
-        Task { @MainActor [weak self] in
-            self?.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
-        }
+        self.layersSidebarViewModel.update(from: schema.orderedSidebarLayers)
     }
     
     @MainActor func update(from schema: GraphEntity) async {
