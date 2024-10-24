@@ -384,9 +384,6 @@ extension Array where Element: NodeRowViewModel {
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
                        unpackedPortIndex: Int?) {
-            
-        // This will be nil for some inits--that's ok, just need to set delegate after
-        let node = canvas.nodeDelegate
         
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet

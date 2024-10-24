@@ -183,6 +183,7 @@ extension StitchDocumentViewModel {
         
         //input splitters need to be west of the `to` node for the `edge`
         self.visibleGraph.createSplitterForNewGroup(splitterType: .input,
+                                                    selectedCanvasItems: selectedCanvasItems,
                                                     edges: edges,
                                                     newGroupNodeId: newGroupNodeId,
                                                     isComponent: isComponent,
@@ -190,6 +191,7 @@ extension StitchDocumentViewModel {
         
         // output edge = an edge going FROM a node in the group, TO a node outside the group
         self.visibleGraph.createSplitterForNewGroup(splitterType: .output,
+                                                    selectedCanvasItems: selectedCanvasItems,
                                                     edges: edges,
                                                     newGroupNodeId: newGroupNodeId,
                                                     isComponent: isComponent,
@@ -263,13 +265,14 @@ extension StitchDocumentViewModel {
 
 extension GraphState {
     @MainActor func createSplitterForNewGroup(splitterType: SplitterType,
+                                              selectedCanvasItems: CanvasItemViewModels,
                                               edges: [PortEdgeData],
                                               newGroupNodeId: NodeId,
                                               isComponent: Bool,
                                               center: CGPoint) {
         let (inputEdgesToUpdate,
              outputEdgesToUpdate) = self.getEdgesToUpdate(
-                selectedCanvasItems: self.selectedCanvasItems.map(\.id).toSet,
+                selectedCanvasItems: selectedCanvasItems.map(\.id).toSet,
                 edges: edges)
         
         var oldEdgeLocations = splitterType == .input ?
@@ -355,8 +358,9 @@ extension GraphState {
         splitterNode.splitterType = splitterType
         
         // Slightly modify date for consistent port ordering
-        splitterNode.splitterNode?.lastModifiedDate = splitterNode.splitterNode?.lastModifiedDate
-            .addingTimeInterval(Double(portId) * 0.01) ?? Date.now
+        let lastModifiedDate = splitterNode.splitterNode?.lastModifiedDate ?? Date.now
+        splitterNode.splitterNode?.lastModifiedDate = lastModifiedDate
+            .addingTimeInterval(Double(portId) * 0.01)
 
         self.visibleNodesViewModel.nodes.updateValue(newSplitterNode, forKey: newSplitterNode.id)
         
