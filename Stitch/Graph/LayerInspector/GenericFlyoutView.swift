@@ -108,10 +108,10 @@ extension Int {
 extension LayerInputObserver {
     func layerInputType(_ fieldIndex: Int) -> LayerInputType {
         switch self.observerMode {
-        case .packed(let x):
+        case .packed:
             return .init(layerInput: self.port,
                          portType: .packed)
-        case .unpacked(let x):
+        case .unpacked:
             return .init(layerInput: self.port,
                          portType: .unpacked(fieldIndex.asUnpackedPortType))
         }
@@ -124,7 +124,6 @@ struct GenericFlyoutRowView: View {
     let viewModel: InputFieldViewModel
         
     let layerInputObserver: LayerInputObserver
-    
     
     let nodeId: NodeId
     let fieldIndex: Int
@@ -173,7 +172,8 @@ struct GenericFlyoutRowView: View {
                                     canvasItemId: canvasItemId,
                                     // Always false for a flyout row
                                     isPortSelected: false,
-                                    isHovered: isHovered)
+                                    isHovered: isHovered,
+                                    fieldIndex: fieldIndex)
             
             InputValueEntry(graph: graph,
                             viewModel: viewModel,
@@ -241,11 +241,17 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
     let nodeId: NodeId
     let fieldIndex: Int
     
+    @MainActor
     func handle(state: GraphState) -> GraphResponse {
+        
+        //        log("LayerInputFieldAddedToGraph: layerInput: \(layerInput)")
+        //        log("LayerInputFieldAddedToGraph: nodeId: \(nodeId)")
+        //        log("LayerInputFieldAddedToGraph: fieldIndex: \(fieldIndex)")
         
         guard let node = state.getNode(nodeId),
               let layerNode = node.layerNode,
               let document = state.documentDelegate else {
+            log("LayerInputFieldAddedToGraph: no node, layer node and/or document")
             return .noChange
         }
         
@@ -271,8 +277,16 @@ struct LayerInputFieldAddedToGraph: GraphEventWithResponse {
                                 nodeId: nodeId,
                                 unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
                                 unpackedPortIndex: fieldIndex)
+            
+            unpackedPort.canvasObserver?.initializeDelegate(
+                node,
+                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                unpackedPortIndex: fieldIndex)
+            
+        } else {
+            fatalErrorIfDebug("LayerInputFieldAddedToGraph: no unpacked port for fieldIndex \(fieldIndex)")
         }
-        
+                
         return .persistenceResponse
     }
 }
