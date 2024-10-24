@@ -38,7 +38,7 @@ struct Step: Codable {
     var fromNodeId: String?
     var toNodeId: String?
     var value: StringOrNumber?  // Updated to handle String or Int
-    var valueType: String?
+    var nodeType: String?
     
     enum CodingKeys: String, CodingKey {
         case stepType = "step_type"
@@ -48,7 +48,7 @@ struct Step: Codable {
         case fromNodeId = "from_node_id"
         case toNodeId = "to_node_id"
         case value
-        case valueType = "value_type"
+        case nodeType = "node_type"
     }
 }
 
@@ -93,7 +93,7 @@ struct EdgePoint: Codable {
 struct NodeInfoData {
     var type: String
     var inputPortCount: Int = 0
-    var valueType: String?
+    var nodeType: String?
 }
 
 enum ActionType: String {
@@ -262,7 +262,7 @@ enum LayerPort: String, CaseIterable {
 }
 
 // Value Types
-enum ValueType: String, CaseIterable {
+enum StitchAINodeType: String, CaseIterable {
     case number = "Number"
     case text = "Text"
     case boolean = "Boolean"
@@ -272,5 +272,5 @@ enum ValueType: String, CaseIterable {
 struct VisualProgrammingTypes {
     static let validNodeTypes: [String: NodeTypeTest] = Dictionary(uniqueKeysWithValues: NodeTypeTest.allCases.map { ($0.stringValue, $0) })
     static let validLayerPorts: [String: LayerPort] = Dictionary(uniqueKeysWithValues: LayerPort.allCases.map { ($0.rawValue.lowercased(), $0) })
-    static let validValueTypes: [String: ValueType] = Dictionary(uniqueKeysWithValues: ValueType.allCases.map { ($0.rawValue, $0) })
+    static let validStitchAITypes: [String: StitchAINodeType] = Dictionary(uniqueKeysWithValues: StitchAINodeType.allCases.map { ($0.rawValue, $0) })
 }
