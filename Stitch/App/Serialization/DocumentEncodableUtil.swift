@@ -9,6 +9,17 @@ import Foundation
 import StitchSchemaKit
 
 extension DocumentEncodable {
+    func deleteMediaFromNode(mediaKey: MediaKey) {
+        switch self.getMediaURL(for: mediaKey) {
+        case .success(let url):
+            let _ = self.removeStitchMedia(at: url)
+
+        case .failure(let error):
+            // Silently report error
+            log("deleteMediaFromNodeEffect error: could not find library substate with error: \(error)")
+        }
+    }
+
     /// Called when GraphState is initialized to build library data and then run first calc.
     func getDecodedFiles() -> GraphDecodedFiles? {
         do {
