@@ -378,9 +378,8 @@ extension NodeRowViewModel {
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
-                               importedMediaObject: StitchMediaObject?) {
-        
-        self.fieldValueTypes = getFieldValueTypes(
+                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
+        getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
