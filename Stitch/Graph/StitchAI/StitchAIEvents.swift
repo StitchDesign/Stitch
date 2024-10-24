@@ -233,15 +233,23 @@ extension StitchDocumentViewModel {
                     }
                     
                 case .setInput:
-                    if let nodeId = step.nodeId, let value = step.value?.value, var nodeInfo = nodeInfoMap[nodeId] {
-                        let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                        let portNumber = String(nodeInfo.inputPortCount)
-                        let field = EdgePoint(node: nodeTitle, port: portNumber)
-                        llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.nodeType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
-                        nodeInfo.inputPortCount += 1
-                        nodeInfoMap[nodeId] = nodeInfo
+                    if let nodeId = step.nodeId {
+                        if let value = step.value?.value {
+                            if var nodeInfo = nodeInfoMap[nodeId] {
+                                let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                                let portNumber = String(nodeInfo.inputPortCount)
+                                let field = EdgePoint(node: nodeTitle, port: portNumber)
+                                llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.nodeType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
+                                nodeInfo.inputPortCount += 1
+                                nodeInfoMap[nodeId] = nodeInfo
+                            } else {
+                                print("failed to get nodeInfo")
+                            }
+                        } else {
+                            print("failed to get value")
+                        }
                     } else {
-                        print("failed to set input)")
+                        print("failed to get nodeId")
                     }
                 }
             }
