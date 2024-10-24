@@ -413,12 +413,13 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.createFieldValueTypes(initialValue: newValue,
-                                       nodeIO: nodeIO,
-                                       // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
-                                       unpackedPortParentFieldGroupType: nil,
-                                       unpackedPortIndex: nil,
-                                       importedMediaObject: importedMediaObject)
+            self.fieldValueTypes = self.createFieldValueTypes(
+                initialValue: newValue,
+                nodeIO: nodeIO,
+                // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                importedMediaObject: importedMediaObject)
             return
         }
         
@@ -442,13 +443,14 @@ extension NodeRowViewModel {
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
             if willUpdateField {
-                self.createFieldValueTypes(initialValue: newValue,
-                                           nodeIO: nodeIO,
-                                           // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
-                                           // Not relevant?
-                                           unpackedPortParentFieldGroupType: nil,
-                                           unpackedPortIndex:  nil,
-                                           importedMediaObject: importedMediaObject)
+                self.fieldValueTypes = self.createFieldValueTypes(
+                    initialValue: newValue,
+                    nodeIO: nodeIO,
+                    // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
+                    // Not relevant?
+                    unpackedPortParentFieldGroupType: nil,
+                    unpackedPortIndex:  nil,
+                    importedMediaObject: importedMediaObject)
                 return
             }
             
