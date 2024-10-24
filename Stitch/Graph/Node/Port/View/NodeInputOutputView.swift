@@ -19,6 +19,9 @@ struct LayerInspectorRowButton: View {
     let isPortSelected: Bool
     let isHovered: Bool
     
+    // non-nil = this inspector row button is for a field, not a
+    var fieldIndex: Int? = nil
+    
     @MainActor
     var isWholeInputWithAtleastOneFieldAlreadyOnCanvas: Bool {
         if case let .layerInput(layerInputType) = layerInspectorRowId,
@@ -83,9 +86,17 @@ struct LayerInspectorRowButton: View {
             
             // Else we're adding an input (whole or field) or an output to the canvas
             else if let layerInput = coordinate.keyPath {
-                dispatch(LayerInputAddedToGraph(
-                    nodeId: nodeId,
-                    coordinate: layerInput))
+                
+                if let fieldIndex = fieldIndex {
+                    dispatch(LayerInputFieldAddedToGraph(layerInput: layerInput.layerInput,
+                                                         nodeId: nodeId,
+                                                         fieldIndex: fieldIndex))
+                } else {
+                    dispatch(LayerInputAddedToGraph(
+                        nodeId: nodeId,
+                        coordinate: layerInput))
+                }
+                
             } else if let portId = coordinate.portId {
                 dispatch(LayerOutputAddedToGraph(nodeId: nodeId,
                                                  portId: portId))
