@@ -459,6 +459,8 @@
 		EC47F54228D18AB0009EE90E /* HapticFeedbackNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */; };
 		EC48F0312C65975300DB3ACB /* PinningUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0302C65975200DB3ACB /* PinningUtils.swift */; };
 		EC48F0332C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */; };
+		EC49069D2CCACD4000165554 /* StitchCustomColorPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49069C2CCACD4000165554 /* StitchCustomColorPickerView.swift */; };
+		EC49069F2CCACF0100165554 /* ColorFlyoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49069E2CCACF0100165554 /* ColorFlyoutView.swift */; };
 		EC49148C29357DF400D74344 /* GreaterThanNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148B29357DF400D74344 /* GreaterThanNode.swift */; };
 		EC49148F293580EE00D74344 /* ColorToHSLNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC49148E293580EE00D74344 /* ColorToHSLNode.swift */; };
 		EC4914912935891700D74344 /* HSLColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4914902935891700D74344 /* HSLColor.swift */; };
@@ -1398,6 +1400,8 @@
 		EC47F54128D18AB0009EE90E /* HapticFeedbackNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticFeedbackNode.swift; sourceTree = "<group>"; };
 		EC48F0302C65975200DB3ACB /* PinningUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinningUtils.swift; sourceTree = "<group>"; };
 		EC48F0322C668B6C00DB3ACB /* PreviewWindowCoordinateSpaceReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWindowCoordinateSpaceReader.swift; sourceTree = "<group>"; };
+		EC49069C2CCACD4000165554 /* StitchCustomColorPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StitchCustomColorPickerView.swift; sourceTree = "<group>"; };
+		EC49069E2CCACF0100165554 /* ColorFlyoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorFlyoutView.swift; sourceTree = "<group>"; };
 		EC49148B29357DF400D74344 /* GreaterThanNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreaterThanNode.swift; sourceTree = "<group>"; };
 		EC49148E293580EE00D74344 /* ColorToHSLNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorToHSLNode.swift; sourceTree = "<group>"; };
 		EC4914902935891700D74344 /* HSLColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HSLColor.swift; sourceTree = "<group>"; };
@@ -2001,6 +2005,7 @@
 				B50F41702C1F52C00082262F /* LayerInspectorView.swift */,
 				ECEA12FB2C45B67D0058CD6A /* GenericFlyoutView.swift */,
 				EC2C8C982C654D5300D067B8 /* OpenFlyoutView.swift */,
+				EC49069E2CCACF0100165554 /* ColorFlyoutView.swift */,
 				ECE639212C489C6900FB8D5F /* FlyoutUtils.swift */,
 				ECE6391F2C489C4F00FB8D5F /* ShadowFlyoutView.swift */,
 				EC5F642C2C29E68500A9E52F /* LayerInspectorPortView.swift */,
@@ -3838,6 +3843,7 @@
 			isa = PBXGroup;
 			children = (
 				ECB9A8642AEB48A2006E65EE /* StitchColorPickerView.swift */,
+				EC49069C2CCACD4000165554 /* StitchCustomColorPickerView.swift */,
 				ECB9A8662AEB48FF006E65EE /* HSLSliderView.swift */,
 				ECB9A8682AEB4922006E65EE /* HueSliderView.swift */,
 				ECB9A86A2AEB4935006E65EE /* SaturationSliderView.swift */,
@@ -4656,6 +4662,7 @@
 				EC4BD89A2BA1350300B8F38A /* SidebarLayerData.swift in Sources */,
 				ECBD32FD2988A31E00C778BE /* ImpureEvaluation.swift in Sources */,
 				EC9AB63D28DFE33A002810BC /* LayerDragEndedActions.swift in Sources */,
+				EC49069F2CCACF0100165554 /* ColorFlyoutView.swift in Sources */,
 				EC17ACC426B4BC5900137EA5 /* StitchVideoMetadata.swift in Sources */,
 				EC5F64312C2B451C00A9E52F /* LLMActions.swift in Sources */,
 				ECE7086A2B8D4AF8009F4525 /* CurveToPackNode.swift in Sources */,
@@ -5268,6 +5275,7 @@
 				EC9D16E22808D97A00684978 /* InputValueEntry.swift in Sources */,
 				B56FFB2D2C18B7B400623CC7 /* SupportedMediaFormat.swift in Sources */,
 				B55500BD2C1B9A1B0081C3F1 /* JSONReplViews.swift in Sources */,
+				EC49069D2CCACD4000165554 /* StitchCustomColorPickerView.swift in Sources */,
 				EC609DC42935468000BF60A5 /* SubtractNode.swift in Sources */,
 				EC89F7E127602C0700C4447A /* ExpansionBox.swift in Sources */,
 				ECF6AEF7263CB7C70011C679 /* NotNode.swift in Sources */,
