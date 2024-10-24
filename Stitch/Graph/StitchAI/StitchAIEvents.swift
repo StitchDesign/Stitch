@@ -98,7 +98,8 @@ extension StitchDocumentViewModel {
                     }
 
                     let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                    
+                    print("RAW JSON \(jsonResponse)")
+
                     do {
                         if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
                             guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
@@ -108,7 +109,7 @@ extension StitchDocumentViewModel {
                             
                             let json = JSON(parseJSON: transformedResponse)
                             if let jsonString = json.rawString() {
-                                print(jsonString)
+                                print("TRANSFORMED JSON \(jsonString)")
                             } else {
                                 print("Failed to convert JSON to String")
                             }
@@ -215,13 +216,15 @@ extension StitchDocumentViewModel {
                         print("failed to connect nodes")
                     }
                 case .changeNodeType:
-                    if let nodeId = step.nodeId, let nodeTypeRaw = step.valueType {
+                    if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
                         let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let valueType = VisualProgrammingTypes.validValueTypes[parsedNodeType.capitalized], var nodeInfo = nodeInfoMap[nodeId] {
-                            let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                            llmActions.append(LLMActionData(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: valueType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
-                            nodeInfo.valueType = valueType.rawValue
-                            nodeInfoMap[nodeId] = nodeInfo
+                        if let nodeType = VisualProgrammingTypes.validStitchAITypes[parsedNodeType.capitalized] {
+                            if var nodeInfo = nodeInfoMap[nodeId] {
+                                let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                                llmActions.append(LLMActionData(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
+                                nodeInfo.nodeType = nodeType.rawValue
+                                nodeInfoMap[nodeId] = nodeInfo
+                            }
                         } else {
                             print("Unrecognized value type: '\(parsedNodeType)' does not match any validValueTypes.")
                         }
@@ -234,7 +237,7 @@ extension StitchDocumentViewModel {
                         let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
                         let portNumber = String(nodeInfo.inputPortCount)
                         let field = EdgePoint(node: nodeTitle, port: portNumber)
-                        llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.valueType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
+                        llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.nodeType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
                         nodeInfo.inputPortCount += 1
                         nodeInfoMap[nodeId] = nodeInfo
                     } else {

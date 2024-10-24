@@ -8,12 +8,12 @@
 import Foundation
 
 let OPEN_AI_BASE_URL = "https://api.openai.com/v1/chat/completions"
-//let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
+let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
 //let OPEN_AI_MODEL =  "ft:gpt-4o-2024-08-06:adammenges::ALJN0utQ"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVMS6zv"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALVbB7aX"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALZypIgk"
-let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
+//let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
 
 let SYSTEM_PROMPT = """
 You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems.
@@ -23,12 +23,12 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 2. Use the minimum number of nodes needed to solve the task
 3. Only use value nodes when direct input port setting isn't possible
 
-# Available ValueTypes
+# Available NodeTypes
 - NUMBER: For numeric values (integers/floats)
 - STRING: For text values
 - BOOLEAN: For true/false values
 
-# Node Types & Connection Rules
+# Node Kinds & Connection Rules
 - Patch nodes: 
   - Use numeric values (0, 1, 2...) for port names
   - Can connect to other patch nodes and layer nodes
@@ -42,8 +42,8 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 
 # Action Sequence
 1. ADD_NODE: Create a new node
-2. CHANGE_NODE_TYPE: Set the node's ValueType (if needed)
-3. SET_INPUT: Set values for node input ports
+2. CHANGE_NODE_TYPE: Set the node's NodeType (if needed).
+3. SET_INPUT: Set values for node input ports. Must include the appropriate NodeType. 
 4. CONNECT_NODES: Link nodes via their ports
    - For patch-to-patch connections: Default to port 0
    - For patch-to-layer connections: Call ADD_LAYER_INPUT first
@@ -51,8 +51,14 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 # Important Restrictions
 - Never use node names as port names
 - Never use strings as patch node port identifiers
+- Never use ints for layer node port identifiers 
 - Only use ADD_LAYER_INPUT for patch-to-layer connections
 """
+
+//NODE TYPE IS OVERALL PORT VALUE TYPE OF THE NODE
+//SUPPOSE YOU HAVE AN ADD NODE WHOSE TYPE IS TEXT
+//IN THAT CASE, THE NODE KIND IS PATCH.ADDNODE, AND THE NODE TYPE IS TEXT/STRING
+//NODE KIND IS PATCH VS LAYER (and which patch / layer)
 
 let VISUAL_PROGRAMMING_ACTIONS = """
 {
@@ -115,17 +121,17 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                     "default": null,
                     "description": "The id of the target node"
                 },
-                "value_type": {
+                "node_type": {
                     "anyOf": [
                         {
-                            "$ref": "#/$defs/ValueType"
+                            "$ref": "#/$defs/NodeType"
                         },
                         {
                             "type": "null"
                         }
                     ],
                     "default": null,
-                    "description": "The value type of the node"
+                    "description": "The node type of the node"
                 },
                 "value": {
                     "anyOf": [
@@ -311,13 +317,13 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             "title": "StepType",
             "type": "string"
         },
-        "ValueType": {
+        "NodeType": {
             "enum": [
                 "number",
                 "text",
                 "boolean"
             ],
-            "title": "ValueType",
+            "title": "NodeType",
             "type": "string"
         }
     },
