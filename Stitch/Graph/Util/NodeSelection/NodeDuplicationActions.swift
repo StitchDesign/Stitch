@@ -34,7 +34,7 @@ extension StitchDocumentViewModel {
         let activelySelectedLayers = state.visibleGraph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
         
         if !activelySelectedLayers.isEmpty {
-            state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
+            state.visibleGraph.sidebarSelectedItemsDuplicated()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
                 groupNodeFocused: state.graphUI.groupNodeFocused,
