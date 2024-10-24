@@ -42,8 +42,8 @@ You are a helpful assistant that creates visual programming graphs. Your task is
 
 # Action Sequence
 1. ADD_NODE: Create a new node
-2. CHANGE_NODE_TYPE: Set the node's NodeType (if needed).
-3. SET_INPUT: Set values for node input ports. Must include the appropriate NodeType. 
+2. CHANGE_NODE_TYPE: Set the node's NodeType.
+3. SET_INPUT: Set values for node input ports and the NodeType of the node. Do this only after adding a node.
 4. CONNECT_NODES: Link nodes via their ports
    - For patch-to-patch connections: Default to port 0
    - For patch-to-layer connections: Call ADD_LAYER_INPUT first
