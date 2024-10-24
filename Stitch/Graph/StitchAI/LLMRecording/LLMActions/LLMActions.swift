@@ -12,7 +12,7 @@ import StitchSchemaKit
 
 // Used fo
 struct LLMAddNode: Equatable, Codable {
-    let action: String = LLMActionNames.addNode.rawValue
+    var action: String = LLMActionNames.addNode.rawValue
     // `node` for AddNode represents node kind's default node + some portion of its UI id
     let node: String
 }
@@ -30,7 +30,7 @@ struct LLMMoveNodeTranslation: Equatable, Codable {
 }
 
 struct LLMMoveNode: Equatable, Codable {
-    let action: String = LLMActionNames.moveNode.rawValue
+    var action: String = LLMActionNames.moveNode.rawValue
     let node: String
     
     // empty string = we moved a patch node,
@@ -63,7 +63,7 @@ struct LLMSetInputAction: Equatable, Encodable {
 // MARK: Add Edge
 
 struct LLMAddEdge: Equatable, Codable {
-    let action: String = LLMActionNames.addEdge.rawValue
+    var action: String = LLMActionNames.addEdge.rawValue
     let from: LLMPortCoordinate
     let to: LLMPortCoordinate
 }
