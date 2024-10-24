@@ -14,15 +14,17 @@ import SwiftUI
 struct SidebarSelectedItemsDeleted: GraphEventWithResponse {
 
     func handle(state: GraphState) -> GraphResponse {
-        state.layersSidebarViewModel.sidebarSelectedItemsDeletingViaEditMode()
+        state.layersSidebarViewModel.deleteSelectedItems()
         return .shouldPersist
     }
 }
 
 extension ProjectSidebarObservable {
-    func sidebarSelectedItemsDeletingViaEditMode() {
-        let deletedIds = self.selectionState.all//.map(\.id)
-        
+    func deleteSelectedItems() {
+        self.deleteItems(from: self.selectionState.all)
+    }
+    
+    func deleteItems(from deletedIds: Set<Self.ItemID>) {
         deletedIds.forEach {
             self.items.remove($0)
         }
