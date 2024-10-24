@@ -62,6 +62,7 @@ final class StitchDocumentViewModel: Sendable {
     weak var storeDelegate: StoreDelegate?
     weak var projectLoader: ProjectLoader?
     
+    @MainActor
     init(from schema: StitchDocument,
          graph: GraphState,
          documentEncoder: DocumentEncoder,
@@ -80,10 +81,7 @@ final class StitchDocumentViewModel: Sendable {
         self.lastEncodedDocument = schema
         
         if let store = store {
-            DispatchQueue.main.async { [weak self, weak store] in
-                guard let store = store else { return }
-                self?.initializeDelegate(store: store)
-            }
+            self.initializeDelegate(store: store)
         }
     }
     
@@ -109,12 +107,12 @@ final class StitchDocumentViewModel: Sendable {
         let graph = await GraphState(from: schema.graph,
                                      saveLocation: [],
                                      encoder: documentEncoder)
-        self.init(from: schema,
-                  graph: graph,
-                  documentEncoder: documentEncoder,
-                  isPhoneDevice: isPhoneDevice,
-                  projectLoader: projectLoader,
-                  store: store)
+        await self.init(from: schema,
+                        graph: graph,
+                        documentEncoder: documentEncoder,
+                        isPhoneDevice: isPhoneDevice,
+                        projectLoader: projectLoader,
+                        store: store)
     }
 }
 
