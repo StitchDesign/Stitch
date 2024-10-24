@@ -22,7 +22,7 @@ struct DeleteShortcutKeyPressed: GraphEventWithResponse {
 
         // Check which we have focused: layers or canvas items
         if state.hasActivelySelectedLayers {
-            state.layersSidebarViewModel.sidebarSelectedItemsDeletingViaEditMode()
+            state.layersSidebarViewModel.deleteSelectedItems()
             state.updateInspectorFocusedLayers()
         }
         
@@ -137,6 +137,8 @@ extension GraphState {
             return
         }
         
+        let isLayer = node.kind.isLayer
+        
         // Find nodes to recursively delete
         switch node.kind {
         case .layer(let layer) where layer == .group:
@@ -189,6 +191,11 @@ extension GraphState {
 
         // Update comment box data
         self.deleteCommentBox(id)
+        
+        // Update sidebar
+        if isLayer {
+            self.layersSidebarViewModel.deleteItems(from: Set([id]))
+        }
     }
 }
 
