@@ -12,6 +12,24 @@ extension Color {
     static let SWIFTUI_LIST_BACKGROUND_COLOR = Color(uiColor: .secondarySystemBackground)
 }
 
+struct FlyoutHeader: View {
+    
+    let flyoutTitle: String
+    
+    var body: some View {
+        HStack {
+            StitchTextView(string: flyoutTitle).font(.title3)
+            Spacer()
+            Image(systemName: "xmark.circle.fill")
+                .onTapGesture {
+                    withAnimation {
+                        dispatch(FlyoutClosed())
+                    }
+                }
+        }
+    }
+}
+
 struct GenericFlyoutView: View {
     
     static let DEFAULT_FLYOUT_WIDTH: CGFloat = 256.0 // Per Figma
@@ -186,7 +204,7 @@ struct GenericFlyoutRowView: View {
 
 struct FlyoutBackgroundColorModifier: ViewModifier {
     
-    let width: CGFloat
+    let width: CGFloat?
     @Binding var height: CGFloat?
     
     func body(content: Content) -> some View {

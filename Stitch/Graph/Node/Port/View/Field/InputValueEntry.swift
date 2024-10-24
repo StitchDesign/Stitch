@@ -324,6 +324,7 @@ struct InputValueView: View {
         case .color(let color):
             ColorOrbValueButtonView(fieldViewModel: viewModel, 
                                     layerInputObserver: layerInputObserver,
+                                    isForFlyout: isForFlyout,
                                     nodeId: rowObserverId.nodeId,
                                     id: rowObserverId,
                                     currentColor: color,
