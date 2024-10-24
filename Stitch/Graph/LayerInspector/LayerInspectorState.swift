@@ -59,13 +59,6 @@ struct PropertySidebarFlyoutState: Equatable {
     var flyoutNode: NodeId
     
     var keyboardIsOpen: Bool = false
-    
-    var input: InputCoordinate {
-        // TODO: flyouts only for packed state?
-        InputCoordinate(portType: .keyPath(.init(layerInput: flyoutInput,
-                                                 portType: .packed)),
-                        nodeId: self.flyoutNode)
-    }
 }
 
 struct LayerInspectorSectionData: Equatable, Hashable {
