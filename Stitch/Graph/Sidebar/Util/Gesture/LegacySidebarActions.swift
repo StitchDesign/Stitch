@@ -72,7 +72,9 @@ extension ProjectSidebarObservable {
         }
         
         let state = self
-        var itemId = item.id
+        
+        // The tracked dragged item may change if option + click
+        var draggedItem = item
         
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.haveDuplicated {
 //        if state.keypressState.isOptionPressed && state.sidebarSelectionState.optionDragInProgress {
@@ -80,23 +82,24 @@ extension ProjectSidebarObservable {
             // If we're currently doing an option+drag, then item needs to just be the top
             log("SidebarListItemDragged: had option drag and have already duplicated the layers")
             
-            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
-                from: state.inspectorFocusedLayers.focused) {
+            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
+                from: state.inspectorFocusedLayers.focused),
+               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex) {
                 log("SidebarListItemDragged: had option drag, will use selectedItemWithSmallestIndex \(selectedItemWithSmallestIndex) as itemId")
-                itemId = selectedItemWithSmallestIndex
+                draggedItem = selectedItemWithSmallestIndex
             }
         }
         
         let focusedLayers = state.inspectorFocusedLayers.focused
         
         // Dragging a layer not already selected = dragging just that layer and deselecting all the others
-        if !focusedLayers.contains(itemId) {
+        if !focusedLayers.contains(draggedItem.id) {
             state.selectionState.resetEditModeSelections()
-            state.selectionState.inspectorFocusedLayers.focused = .init([itemId])
-            state.selectionState.inspectorFocusedLayers.activelySelected = .init([itemId])
-            state.sidebarItemSelectedViaEditMode(itemId,
+            state.selectionState.inspectorFocusedLayers.focused = .init([draggedItem.id])
+            state.selectionState.inspectorFocusedLayers.activelySelected = .init([draggedItem.id])
+            state.sidebarItemSelectedViaEditMode(draggedItem.id,
                                                  isSidebarItemTapped: true)
-            state.selectionState.inspectorFocusedLayers.lastFocusedLayer = itemId
+            state.selectionState.inspectorFocusedLayers.lastFocusedLayer = draggedItem.id
         }
                 
         
@@ -130,13 +133,14 @@ extension ProjectSidebarObservable {
         // do we need this `else if` ?
 //        else if focusedLayers.count > 1 {
         if focusedLayers.count > 1 {
-            if let selectedItemWithSmallestIndex = self.findSetItemWithSmallestIndex(
+            if let selectedItemIdWithSmallestIndex = self.findSetItemWithSmallestIndex(
                 from: state.selectionState.inspectorFocusedLayers.focused),
-               itemId != selectedItemWithSmallestIndex {
+               let selectedItemWithSmallestIndex = self.items.get(selectedItemIdWithSmallestIndex),
+               draggedItem.id != selectedItemIdWithSmallestIndex {
                
                // If we had mutiple layers focused, the "dragged item" should be the top item
                // (Note: we'll also move all the potentially-disparate/island'd layers into a single stack; so we may want to do this AFTER the items are all stacked? or we're just concerned about the dragged-item, not its index per se?)
-               itemId = selectedItemWithSmallestIndex
+                draggedItem = selectedItemWithSmallestIndex
                // log("SidebarListItemDragged item is now \(selectedItemWithSmallestIndex) ")
            }
         }
@@ -144,7 +148,7 @@ extension ProjectSidebarObservable {
         // log("SidebarListItemDragged: otherDragged \(otherSelections) ")
 
         self.onSidebarListItemDragged(
-            item, // this dragged item
+            draggedItem, // this dragged item
             translation)
     }
     
