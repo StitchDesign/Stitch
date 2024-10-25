@@ -114,7 +114,7 @@ enum StepType: String, Codable {
 
 
 // Node Types
-enum NodeTypeTest: String, CaseIterable {
+enum StitchAINodeKinds: String, CaseIterable {
     // Mathematical Operations
     case add = "Add"
     case subtract = "Subtract"
@@ -270,7 +270,7 @@ enum StitchAINodeType: String, CaseIterable {
 
 // Helper struct to manage all types
 struct VisualProgrammingTypes {
-    static let validNodeTypes: [String: NodeTypeTest] = Dictionary(uniqueKeysWithValues: NodeTypeTest.allCases.map { ($0.stringValue, $0) })
+    static let validNodeKinds: [String: StitchAINodeKinds] = Dictionary(uniqueKeysWithValues: StitchAINodeKinds.allCases.map { ($0.stringValue, $0) })
     static let validLayerPorts: [String: LayerPort] = Dictionary(uniqueKeysWithValues: LayerPort.allCases.map { ($0.rawValue.lowercased(), $0) })
-    static let validStitchAITypes: [String: StitchAINodeType] = Dictionary(uniqueKeysWithValues: StitchAINodeType.allCases.map { ($0.rawValue, $0) })
+    static let validStitchAINodeTypes: [String: StitchAINodeType] = Dictionary(uniqueKeysWithValues: StitchAINodeType.allCases.map { ($0.rawValue, $0) })
 }

@@ -180,10 +180,10 @@ extension StitchDocumentViewModel {
                 case .addNode:
                     if let nodeId = step.nodeId, let nodeName = step.nodeName {
                         let parsedNodeType = nodeName.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let nodeType = VisualProgrammingTypes.validNodeTypes[parsedNodeType.lowercased()] {
-                            let title = "\(nodeType.rawValue) (\(nodeId))"
-                            llmActions.append(LLMActionData(action: ActionType.addNode.rawValue, node: title, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
-                            nodeInfoMap[nodeId] = NodeInfoData(type: nodeType.rawValue)
+                        if let nodeKind = VisualProgrammingTypes.validNodeKinds[parsedNodeType.lowercased()] {
+                            let title = "\(nodeKind.rawValue) (\(nodeId))"
+                            llmActions.append(LLMActionData(action: ActionType.addNode.rawValue, node: title, nodeType: nodeKind.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
+                            nodeInfoMap[nodeId] = NodeInfoData(type: nodeKind.rawValue)
                         } else {
                             print("Unknown node type: '\(parsedNodeType)' does not match any validNodeTypes.")
                         }
@@ -218,7 +218,7 @@ extension StitchDocumentViewModel {
                 case .changeNodeType:
                     if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
                         let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
-                        if let nodeType = VisualProgrammingTypes.validStitchAITypes[parsedNodeType.capitalized] {
+                        if let nodeType = VisualProgrammingTypes.validStitchAINodeTypes[parsedNodeType.capitalized] {
                             if var nodeInfo = nodeInfoMap[nodeId] {
                                 let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
                                 llmActions.append(LLMActionData(action: ActionType.changeNodeType.rawValue, node: nodeTitle, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: nil, value: nil))
@@ -232,24 +232,30 @@ extension StitchDocumentViewModel {
                         print("failed to change nodes")
                     }
                     
+
+                    
                 case .setInput:
-                    if let nodeId = step.nodeId {
-                        if let value = step.value?.value {
-                            if var nodeInfo = nodeInfoMap[nodeId] {
-                                let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
-                                let portNumber = String(nodeInfo.inputPortCount)
-                                let field = EdgePoint(node: nodeTitle, port: portNumber)
-                                llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeInfo.nodeType?.uppercased(), port: nil, from: nil, to: nil, field: field, value: value))
-                                nodeInfo.inputPortCount += 1
-                                nodeInfoMap[nodeId] = nodeInfo
+                    if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
+                        let parsedNodeType = nodeTypeRaw.components(separatedBy: "||").first?.trimmingCharacters(in: .whitespaces) ?? ""
+                        if let nodeType = VisualProgrammingTypes.validStitchAINodeTypes[parsedNodeType.capitalized] {
+                            
+                            if let value = step.value?.value {
+                                if var nodeInfo = nodeInfoMap[nodeId] {
+                                    let nodeTitle = "\(nodeInfo.type.capitalized) (\(nodeId))"
+                                    let portNumber = String(nodeInfo.inputPortCount)
+                                    let field = EdgePoint(node: nodeTitle, port: portNumber)
+                                    llmActions.append(LLMActionData(action: ActionType.setInput.rawValue, node: nil, nodeType: nodeType.rawValue, port: nil, from: nil, to: nil, field: field, value: value))
+                                    nodeInfo.inputPortCount += 1
+                                    nodeInfoMap[nodeId] = nodeInfo
+                                } else {
+                                    print("failed to get nodeInfo")
+                                }
                             } else {
-                                print("failed to get nodeInfo")
+                                print("failed to get value")
                             }
                         } else {
-                            print("failed to get value")
+                            print("failed to get nodeId")
                         }
-                    } else {
-                        print("failed to get nodeId")
                     }
                 }
             }
