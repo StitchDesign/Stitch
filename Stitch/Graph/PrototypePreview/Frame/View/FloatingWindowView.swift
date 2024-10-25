@@ -66,7 +66,10 @@ struct FloatingWindowView: View {
         ZStack {
             if shouldRenderPreview {
                 floatingWindowWithHandle
-                    .matchedGeometryEffect(id: projectId, in: namespace)
+                    .onTapGesture {
+                        log("LOVE TAPPED")
+                    }
+//                    .matchedGeometryEffect(id: projectId, in: namespace)
                     // .transition(.slideInAndOut)
             } else {
                 EmptyView()
@@ -98,14 +101,50 @@ struct FloatingWindowView: View {
     var floatingWindowWithHandle: some View {
         floatingWindow
             .border(.red, width: 8)
+//            .onTapGesture {
+            .simultaneousGesture(
+                TapGesture().onEnded({ _ in
+                    log("FW TAPPED")
+                })
+            )
         
 //            .animation(.spring(duration: 0.6), value: self.finalXOffset)
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
 //            .background(alignment: .topTrailing) {
-            .background(alignment: .bottomLeading) {
-                floatingWindowHandle
+//            .background(alignment: .bottomLeading) {
+            .overlay(alignment: .bottomLeading) {
+//                floatingWindowHandle
+                Ellipse().fill(.purple).frame(width: 100, height: 100)
                     .border(.green, width: 8)
+//                    .onTapGesture {
+//                        log("GREEN 1 TAPPED")
+//                    }
+                    .simultaneousGesture(
+                        TapGesture().onEnded({ _ in
+                            log("GREEN 1 TAPPED")
+                        })
+                    )
+                    .offset(x: -50, y: 50)
+//                    .onTapGesture {
+//                        log("GREEN 2 TAPPED")
+//                    }
+                    .simultaneousGesture(
+                        TapGesture().onEnded({ _ in
+                            log("GREEN 2 TAPPED")
+                        })
+                    )
+//                    .offset(x: -50, y: 50)
+                    .border(.orange)
+//                    .onTapGesture {
+//                        log("GREEN 3 TAPPED")
+//                    }
+                    .simultaneousGesture(
+                        TapGesture().onEnded({ _ in
+                            log("GREEN 3 TAPPED")
+                        })
+                    )
+                
 //                    .offset(x: -50, y: 50)
 //                    .offset(x: -Self.xOffset)
             } // .background
@@ -171,7 +210,7 @@ struct FloatingWindowView: View {
         floatingWindowHandleHitbox
 //            .offset(x: -dimensions.width,
 //                    y: dimensions.height)
-            .gesture(floatingWindowHandleDragGesture)
+//            .gesture(floatingWindowHandleDragGesture)
     }
 
     var floatingWindowHandleHitbox: some View {
