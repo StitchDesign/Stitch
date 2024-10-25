@@ -215,7 +215,10 @@ struct CatalystTopBarGraphButtons: View {
 struct LayerInspectorToggled: GraphUIEvent {
     func handle(state: GraphUIState) {
         
-        state.showsLayerInspector.toggle()
+        withAnimation {
+            state.showsLayerInspector.toggle()
+        }
+        
         
         // reset selected inspector-row when inspector panel toggled
         state.propertySidebar.selectedProperty = nil

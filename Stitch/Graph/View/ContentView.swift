@@ -117,28 +117,55 @@ struct ContentView: View, KeyboardReadable {
                                       insertNodeMenuHiddenNodeId: graphUI.insertNodeMenuState.hiddenNodeId,
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
-                .overlay {
-                    VStack {
-                        if graphUI.groupNodeFocused?.component != nil {
-                            ComponentNavBarView(graph: document.visibleGraph,
-                                                store: store)
-                        }
-                        
-                        HStack(spacing: .zero) {
-                            Spacer()
-                            // Floating preview kept outside NavigationSplitView for animation purposes
-                            if !showFullScreen.isTrue {
-                                FloatingWindowView(
-                                    document: document,
-                                    deviceScreenSize: graphUI.frame.size,
-                                    showPreviewWindow: showPreviewWindow,
-                                    namespace: graphNamespace)
-                            }
-                        }
-                        
-                        Spacer()
-                    }
-                }
+//                .overlay {
+//                    VStack {
+//                        if graphUI.groupNodeFocused?.component != nil {
+//                            ComponentNavBarView(graph: document.visibleGraph,
+//                                                store: store)
+//                        }
+//                        
+////                        HStack(spacing: .zero) {
+//////                            Spacer()
+////                            // Floating preview kept outside NavigationSplitView for animation purposes
+////                            if !showFullScreen.isTrue {
+////                                FloatingWindowView(
+////                                    document: document,
+////                                    deviceScreenSize: graphUI.frame.size,
+////                                    showPreviewWindow: showPreviewWindow,
+////                                    namespace: graphNamespace)
+////                            }
+////                        }
+//                        
+//                        Spacer()
+//                    }
+//                }
+                .overlay(alignment: .topTrailing, content: {
+                    
+                    let screenSize = graphUI.frame.size
+                    logInView("ContentView: screenSize: \(screenSize)")
+                    
+                    let x = screenSize.width - 400
+                    logInView("ContentView: position: x: \(x)")
+                    
+                    let y = screenSize.height - 400
+                    logInView("ContentView: position: y: \(y)")
+                    
+                    FloatingWindowView(
+                        document: document,
+                        deviceScreenSize: graphUI.frame.size,
+                        showPreviewWindow: showPreviewWindow,
+                        namespace: graphNamespace)
+                    .padding(.trailing)
+                    .opacity(0.5)
+//                    .position(x: 600, y: 300)
+                    .position(
+                        // move to right edge of screen, then
+                        // assumes preview window is 800x800
+                        x: x,
+                        y: y
+                    )
+                })
+                
 //                // Layer Inspector Flyout must sit above preview window
                 .overlay {
                     flyout

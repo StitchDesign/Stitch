@@ -72,6 +72,14 @@ struct GraphBaseView: View {
     @MainActor
     var nodesView: some View {
         GraphGestureView(document: document) {
+            
+//            Ellipse().fill(.green.opacity(0.75)).frame(width: 300, height: 300)
+//                .zIndex(9999999999)
+//                
+            Ellipse().fill(.yellow.opacity(0.75)).frame(width: 300, height: 300)
+                 .zIndex(999999999999)
+                .position(x: 600, y: 300)
+            
             NodesView(document: document,
                       graph: graph,
                       groupTraversedToChild: graphUI.groupTraversedToChild,

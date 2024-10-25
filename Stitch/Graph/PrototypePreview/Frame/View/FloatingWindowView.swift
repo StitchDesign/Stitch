@@ -97,20 +97,21 @@ struct FloatingWindowView: View {
      */
     var floatingWindowWithHandle: some View {
         floatingWindow
+//            .animation(.spring(duration: 0.6), value: self.finalXOffset)
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
             .background(alignment: .topTrailing) {
                 floatingWindowHandle
-                    .offset(x: -Self.xOffset)
+//                    .offset(x: -Self.xOffset)
             } // .background
-            .offset(x: self.finalXOffset)
+//            .offset(x: self.finalXOffset)
         
         // TODO: which animation most closely matches the Inspector? (without .animation, we jump when inspector opened or closed)
 //            .animation(.linear, value: self.finalXOffset)
 //            .animation(.easeOut, value: self.finalXOffset)
 //            .animation(.easeInout, value: self.finalXOffset)
 //            .animation(.spring, value: self.finalXOffset)
-            .animation(.default, value: self.finalXOffset)
+//            .animation(.default, value: self.finalXOffset)
     }
 
     @State var isDragging: Bool = false
@@ -219,7 +220,9 @@ struct FloatingWindowView: View {
     
     var finalXOffset: CGFloat {
         
-        return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+//        return document.graphUI.showsLayerInspector ? Self.xOffset - LayerInspectorView.LAYER_INSPECTOR_WIDTH : Self.xOffset
+        
+        return Self.xOffset
         
         //        if showPreviewWindow {
         //            // Original
