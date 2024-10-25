@@ -1,6 +1,6 @@
 //
 //  LayerTextview.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/3/22.
 //

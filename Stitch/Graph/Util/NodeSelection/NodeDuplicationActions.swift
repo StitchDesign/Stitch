@@ -14,6 +14,16 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
     // Duplicates BOTH nodes AND comments
     @MainActor
     func handle(state: StitchDocumentViewModel) {
+        Task(priority: .high) { [weak state] in
+            await state?.duplicateShortcutKeyPressed()
+        }
+    }
+}
+
+extension StitchDocumentViewModel {
+    @MainActor
+    func duplicateShortcutKeyPressed() async {
+        let state = self
         
         guard !state.llmRecording.isRecording else {
             log("Duplication disabled during LLM Recording")
@@ -27,73 +37,106 @@ struct DuplicateShortcutKeyPressed: StitchDocumentEvent {
             state.visibleGraph.sidebarSelectedItemsDuplicatedViaEditMode()
         } else {
             let copiedComponentResult = state.visibleGraph.createCopiedComponent(
-                groupNodeFocused: state.graphUI.groupNodeFocused?.asNodeId,
+                groupNodeFocused: state.graphUI.groupNodeFocused,
                 selectedNodeIds: state.visibleGraph.selectedNodeIds.compactMap(\.nodeCase).toSet)
             
-            state.visibleGraph.insertNewComponent(copiedComponentResult)
+            await state.visibleGraph.insertNewComponent(copiedComponentResult,
+                                                        encoder: state.visibleGraph.documentEncoderDelegate)
         }
         
-        state.graph.encodeProjectInBackground()
+        Task { [weak self] in
+            self?.visibleGraph.encodeProjectInBackground()
+        }
     }
 }
 
 extension GraphState {
     /// Inserts new component in state and processes media effects
     @MainActor
-    func insertNewComponent(_ copiedComponentResult: StitchComponentCopiedResult) {
-        self.insertNewComponent(component: copiedComponentResult.component,
-                                effects: copiedComponentResult.effects)
+    func insertNewComponent<T>(_ copiedComponentResult: StitchComponentCopiedResult<T>,
+                               encoder: (any DocumentEncodable)?) async where T: StitchComponentable {
+        await self.insertNewComponent(component: copiedComponentResult.component,
+                                      encoder: encoder,
+                                      copiedFiles: copiedComponentResult.copiedSubdirectoryFiles)
     }
 
     @MainActor
-    func insertNewComponent(component: StitchComponent,
-                            effects: AsyncCallbackList) {
-        let hasEffectsToRun = !effects.isEmpty
-
+    func insertNewComponent<T>(component: T,
+                               encoder: (any DocumentEncodable)?,
+                               copiedFiles: StitchDocumentDirectory) async where T: StitchComponentable {
+        let newComponent = self.updateCopiedNodes(component: component)
+        let encoderDelegate = self.documentEncoderDelegate      // keep optional for unit tests
+        
+        guard let document = self.documentDelegate else {
+            return
+        }
+        
+        // Copy files before inserting component
+        if let encoder = encoder {
+            await encoder.importComponentFiles(copiedFiles)
+        }
+        
+        // Update top-level nodes to match current focused group
+        let newNodes: [NodeEntity] = self.createNewNodes(from: newComponent)
+        let graph = self.duplicateCopiedNodes(newComponent: newComponent,
+                                              newNodes: newNodes)
+        
+        // Create master component if any imported
+        if let decodedFiles = GraphDecodedFiles(importedFilesDir: copiedFiles) {
+            // Update save location for components
+            let components = decodedFiles.components.map { component in
+                var component = component
+                component.saveLocation = .localComponent(.init(docId: document.id,
+                                                               componentId: component.id,
+                                                               componentsPath: self.saveLocation))
+                return component
+            }
+            
+            let componentsDict = components.createComponentsDict(parentGraph: self)
+            self.components = componentsDict.reduce(into: self.components) { result, newComponentEntry in
+                result.updateValue(newComponentEntry.value, forKey: newComponentEntry.key)
+            }
+        } else {
+            fatalErrorIfDebug()
+        }
+        
+        if let encoderDelegate = encoderDelegate {
+            self.initializeDelegate(document: document,
+                                    documentEncoderDelegate: encoderDelegate)
+        }
+        
+        await self.update(from: graph)
+        
+        self.updateGraphAfterPaste(newNodes: newNodes)
+    }
+    
+    func updateCopiedNodes<T>(component: T) -> T where T: StitchComponentable {
         // Change all IDs
-        var newComponent = component.changeIds()
-
+        var newComponent = component
+        newComponent.graph = newComponent.graph.changeIds()
+        
         // Update nodes in the follow ways:
         // 1. Stagger position
         // 2. Increment z-index
-        newComponent.nodes = newComponent.nodes.map { node in
+        newComponent.graph.nodes = newComponent.nodes.map { node in
             var node = node
+            
+            // Update positional data            
             node.canvasEntityMap { node in
                 var node = node
                 node.position.shiftNodePosition()
                 node.zIndex += 1
                 return node
             }
+            
             return node
         }
-
-        guard hasEffectsToRun else {
-            // Update state synchronously
-            self._insertNewComponent(newComponent)
-            return
-        }
-
-        // Display loading status for imported media effects
-//        self.libraryLoadingStatus = .loading
-
-        Task {
-            await effects.processEffects()
-
-            await MainActor.run { [weak self] in
-                self?._insertNewComponent(newComponent)
-
-                // Hide loading status
-//                self?.libraryLoadingStatus = .loaded
-            }
-        }
+        
+        return newComponent
     }
-
-    @MainActor
-    func _insertNewComponent(_ component: StitchComponent) {
-        var document = self.createSchema()
-
-        // Update top-level nodes to match current focused group
-        let newNodes: [NodeEntity] = component.nodes
+    
+    func createNewNodes<T>(from newComponent: T) -> [NodeEntity] where T: StitchComponentable {
+        newComponent.nodes
             .map { stitch in
                 var stitch = stitch
                 stitch.canvasEntityMap { node in
@@ -110,12 +153,22 @@ extension GraphState {
                 
                 return stitch
             }
-
+    }
+    
+    @MainActor
+    func duplicateCopiedNodes<T>(newComponent: T,
+                                 newNodes: [NodeEntity]) -> GraphEntity where T: StitchComponentable {        
+        var graph = self.createSchema()
+        
         // Add new nodes
-        document.nodes += newNodes
-        document.orderedSidebarLayers = component.orderedSidebarLayers + document.orderedSidebarLayers
-        self.documentDelegate?.update(from: document)
-
+        graph.nodes += newNodes
+        graph.orderedSidebarLayers = newComponent.graph.orderedSidebarLayers + graph.orderedSidebarLayers
+        
+        return graph
+    }
+        
+    @MainActor
+    func updateGraphAfterPaste(newNodes: [NodeEntity]) {
         // Reset selected nodes
         self.resetSelectedCanvasItems()
 
@@ -166,7 +219,7 @@ extension GraphState {
                         }
                     }
                     
-                case .patch, .group:
+                case .patch, .group, .component:
                     let stitch = self.getNodeViewModel(nodeEntity.id)
                     if let canvasItem = stitch?.patchCanvasItem {
                         canvasItem.select()
@@ -174,17 +227,8 @@ extension GraphState {
                 }
         }
         
-        // update sidebar UI data
-        self.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: self.sidebarListState,
-            expanded: self.getSidebarExpandedItems(),
-            graphState: self)
-        
-        self.calculateFullGraph() // not needed?
-        self.updateOrderedPreviewLayers()
+        // Also wipe sidebar selection state
+        self.sidebarSelectionState = .init()
     }
     
     // Duplicate ONLY the selected comment boxes

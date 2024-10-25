@@ -50,7 +50,11 @@ struct ContentView: View, KeyboardReadable {
 
     var nodeAndMenu: some View {
         ZStack {
-            contentView // the graph
+            
+            // Best place to listen for TAB key for flyout
+            UIKitWrapper(ignoresKeyCommands: true, name: "nodeAndMenu") {
+                contentView // the graph
+            }
             
             if showMenu {
                 InsertNodeMenuWrapper(document: document,
@@ -114,14 +118,31 @@ struct ContentView: View, KeyboardReadable {
                                       routerNamespace: routerNamespace)
                 .zIndex(showFullScreen.isTrue ? -99 : 0)
                 .overlay {
-                    // Floating preview kept outside NavigationSplitView for animation purposes
-                    if !showFullScreen.isTrue {
-                        FloatingWindowView(
-                            document: document,
-                            deviceScreenSize: graphUI.frame.size,
-                            showPreviewWindow: showPreviewWindow,
-                            namespace: graphNamespace)
+                    VStack {
+                        if graphUI.groupNodeFocused?.component != nil {
+                            ComponentNavBarView(graph: document.visibleGraph,
+                                                store: store)
+                        }
+                        
+                        HStack(spacing: .zero) {
+                            Spacer()
+                            // Floating preview kept outside NavigationSplitView for animation purposes
+                            if !showFullScreen.isTrue {
+                                FloatingWindowView(
+                                    document: document,
+                                    deviceScreenSize: graphUI.frame.size,
+                                    showPreviewWindow: showPreviewWindow,
+                                    namespace: graphNamespace)
+                            }
+                        }
+                        
+                        Spacer()
                     }
+                    // Hack to disable the split view sidebar swipe
+                    .gesture(
+                        DragGesture()
+                            .onChanged { _ in }
+                    )
                 }
 //                // Layer Inspector Flyout must sit above preview window
                 .overlay {
@@ -164,6 +185,18 @@ struct ContentView: View, KeyboardReadable {
                      sheetBody: {
             LLMActionsJSONEntryModalView()
         })
+        .stitchSheet(isPresented: document.stitchAI.promptState.showModal,
+                      titleLabel: "Stitch AI",
+                      hideAction: document.closedStitchAIModal,
+                      sheetBody: {
+             StitchAIPromptEntryModalView(
+                 prompt: $document.stitchAI.promptState.prompt,
+                 isGenerating: document.stitchAI.promptState.isGenerating,
+                 onSubmit: { prompt in
+                     document.makeAPIRequest(userInput: prompt)
+                 }
+             )
+         })
     }
 
     private var fullScreenPreviewView: some View {

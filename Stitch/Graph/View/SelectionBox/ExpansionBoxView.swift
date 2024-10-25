@@ -1,6 +1,6 @@
 //
 //  ExpansionBoxView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 12/6/21.
 //

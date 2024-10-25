@@ -487,6 +487,24 @@ extension PortValue {
             return nil
         }
     }
+    
+    var getMaterialThickness: MaterialThickness? {
+        switch self {
+        case .materialThickness(let x):
+            return x
+        default:
+            return nil
+        }
+    }
+    
+    var getDeviceAppearance: DeviceAppearance? {
+        switch self {
+        case .deviceAppearance(let x):
+            return x
+        default:
+            return nil
+        }
+    }
 }
 
 extension SizingScenario {

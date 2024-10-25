@@ -1,6 +1,6 @@
 //
 //  ProjectsListItemView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 9/20/21.
 //
@@ -17,6 +17,8 @@ struct ProjectsListItemIconView: View {
     // Important: UIImage is a reference type, and the thummbnail URL itself never changes;
     // so we trigger reunder-upon-thumbnail-write by listening to ProjectLoader's modifiedDate
     var modifiedDate: Date? = nil // nil = project is loading, or failed to load
+    
+    var isLoading: Bool = false
     
     var image: UIImage {
         if let projectThumbnail = projectThumbnail {
@@ -45,7 +47,14 @@ struct ProjectsListItemIconView: View {
                 }
             }
              .cornerRadius(8)
-            .contentShape(Rectangle()) // for consistent tappable thumbnail area
+             .contentShape(Rectangle()) // for consistent tappable thumbnail area
+             .projectItemBlur(willBlur: isLoading)
+             .overlay {
+                 if isLoading {
+                     ProgressView()
+                         .progressViewStyle(.circular)
+                 }
+             }
     }
 }
 
@@ -67,7 +76,8 @@ struct ProjectsListItemThumbnailView<Thumbnail: View, Label: View>: View {
 
 struct ProjectsListItemView: View {
     
-    @Environment(StitchStore.self) var store // added
+    @Environment(StitchStore.self) var store
+    @State private var isLoadingForPresentation = false // displays loading screen when tapped
     
     @Bindable var projectLoader: ProjectLoader
     let documentLoader: DocumentLoader
@@ -75,8 +85,8 @@ struct ProjectsListItemView: View {
 
     var document: StitchDocument? {
         switch projectLoader.loadingDocument {
-        case .loaded(let document):
-            return document
+        case .loaded(let data, _):
+            return data
         default:
             return nil
         }
@@ -91,22 +101,28 @@ struct ProjectsListItemView: View {
                 ProjectsListItemIconView(projectThumbnail: nil,
                                          previewWindowBackgroundColor: nil)
                     .modifier(ProjectsListItemErrorOverlayViewModifer())
-            case .loaded(let document):
+            case .loaded(let document, let thumbnail):
                 #if DEV_DEBUG
                 logInView("LOADED: \(document.name) \(document.id)")
                 #endif
                 ProjectsListItemIconView(
-                    projectThumbnail: document.getProjectThumbnailImage(),
+                    projectThumbnail: thumbnail,
                     previewWindowBackgroundColor: document.previewWindowBackgroundColor,
-                    modifiedDate: projectLoader.modifiedDate)
+                    modifiedDate: projectLoader.modifiedDate,
+                    isLoading: self.isLoadingForPresentation)
                     .onTapGesture {
-                        dispatch(ProjectTapped(documentURL: projectLoader.url))
+                        self.isLoadingForPresentation = true
+                        
+                        store.handleProjectTapped(projectLoader: self.projectLoader,
+                                                  isPhoneDevice: GraphUIState.isPhoneDevice) {
+                            self.isLoadingForPresentation = false
+                        }
                     }
                     .transition(.opacity)
             }
         } labelView: {
             switch projectLoader.loadingDocument {
-            case .loaded(let document):
+            case .loaded(let document, _):
                 ProjectThumbnailTextField(document: document,
                                           namespace: namespace)
             default:
@@ -118,8 +134,10 @@ struct ProjectsListItemView: View {
             if self.projectLoader.loadingDocument == .initialized {
                 projectLoader.loadingDocument = .loading
                 
-                Task.detached(priority: .background) {
-                    await documentLoader.loadDocument(projectLoader)
+                Task.detached(priority: .background) { [weak documentLoader, weak projectLoader] in
+                    if let projectLoader = projectLoader {
+                        await documentLoader?.loadDocument(projectLoader)                        
+                    }
                 }
             }
         }

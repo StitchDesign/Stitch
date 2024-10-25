@@ -11,6 +11,30 @@ import StitchSchemaKit
 let WIDTH_FIELD_INDEX = 0
 let HEIGHT_FIELD_INDEX = 1
 
+struct LayerGroupIdChanged: GraphEvent {
+    let layerNodeId: LayerNodeId
+    let layerGroupParentId: NodeId?
+    
+    func handle(state: GraphState) {
+        
+        // If this layer node now has a layer group parent, block the position and unblock
+        guard let layerNode = state.getLayerNode(id: layerNodeId.id)?.layerNode else {
+            log("LayerGroupIdChanged: could not find layer node for node \(layerNodeId)")
+            return
+        }
+        
+        if layerGroupParentId.isDefined {
+            layerNode.blockPositionInput()
+            layerNode.unblockOffsetInput()
+        } else {
+            layerNode.unblockPositionInput()
+            layerNode.blockOffsetInput()
+        }
+        
+    }
+    
+}
+
 // TODO: we also need to block or unblock the inputs of the row on the canvas as well
 extension LayerNodeViewModel {
     
@@ -55,11 +79,10 @@ extension LayerNodeViewModel {
     
     // it's more like this should be on the layer node view model itself, not on the layer input observer;
     // but it's the passed in `layer input port` that tells us
-    @MainActor
     func blockOrUnblockFields(newValue: PortValue,
                               layerInput: LayerInputPort) {
         
-        log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
+        // log("LayerInputObserver: blockOrUnblockFields called for layerInput \(layerInput) with newValue \(newValue)")
         
         // TODO: Which is better? To look at layer input or port value?
         // Currently there are no individual inputs for LayerDimension, though LayerDimension could be changed.
@@ -104,7 +127,7 @@ extension LayerNodeViewModel {
         // Changing the orientation of a parent (layer group) updates fields on the children
         let children = self.nodeDelegate?.graphDelegate?.children(of: self.id) ?? []
         
-        log("layerGroupOrientationUpdated: parent \(self.id) had children: \(children.map(\.id))")
+        log("layerGroupOrientationUpdated: layer group \(self.id) had children: \(children.map(\.id))")
         
         switch newValue {
         
@@ -248,7 +271,7 @@ extension LayerNodeViewModel {
     @MainActor
     func sizingScenarioUpdated(scenario: SizingScenario) {
         
-        log("sizingScenarioUpdated: scenario: \(scenario)")
+        // log("sizingScenarioUpdated: scenario: \(scenario)")
         
         let stitch = self
                 
@@ -497,7 +520,6 @@ extension LayerNodeViewModel {
 
 extension LayerInputObserver {
     @MainActor
-//    func setBlockStatus(_ keypathPortType: LayerInputKeyPathType, // e.g. minSize packed input, or min
     func setBlockStatus(_ keypathPortType: LayerInputType, // e.g. minSize packed input, or min
                         // blocked = add to blocked-set, else remove
                         isBlocked: Bool) {
@@ -507,10 +529,10 @@ extension LayerInputObserver {
         if isBlocked {
             
             if allChanged {
-                log("LayerInputObserver: setBlockStatus: will block all")
+                // log("LayerInputObserver: setBlockStatus: will block all")
                 self.blockedFields = .init([.packed])
             } else {
-                log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
+                // log("LayerInputObserver: setBlockStatus: will block keypathPortType \(keypathPortType)")
                 self.blockedFields.insert(keypathPortType.portType)
             }
             
@@ -518,7 +540,7 @@ extension LayerInputObserver {
             if allChanged {
                 self.blockedFields = .init()
             } else {
-                log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
+                // log("LayerInputObserver: setBlockStatus: will unblock keypathPortType \(keypathPortType)")
                 self.blockedFields.remove(keypathPortType.portType)
             }
         }

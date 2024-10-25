@@ -17,7 +17,6 @@ struct CanvasItemPositionHandler: ViewModifier {
     }
 
     @Bindable var node: CanvasItemViewModel
-    let position: CGPoint
 
     @MainActor
     var isOptionPressed: Bool {
@@ -43,7 +42,7 @@ struct CanvasItemPositionHandler: ViewModifier {
         } else {
             content
                 .zIndex(_zIndex)
-                .position(position)
+                .position(node.position)
 
                 // MARK: we used to support node touch-down gesture with a hack using long press but this had averse effects on pinch
                 .gesture(
@@ -78,13 +77,11 @@ extension View {
     /// Handles node position, drag gestures, and option+select for duplicating node.
     func canvasItemPositionHandler(document: StitchDocumentViewModel,
                                    node: CanvasItemViewModel,
-                                   position: CGPoint,
                                    zIndex: ZIndex,
                                    usePositionHandler: Bool) -> some View {
 
         self.modifier(CanvasItemPositionHandler(document: document,
                                                 node: node,
-                                                position: position,
                                                 zIndex: zIndex,
                                                 usePositionHandler: usePositionHandler))
     }

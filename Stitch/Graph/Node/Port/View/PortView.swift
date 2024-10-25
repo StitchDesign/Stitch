@@ -1,6 +1,6 @@
 //
 //  PortView.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 1/21/21.
 //
@@ -27,11 +27,6 @@ struct PortEntryView<NodeRowViewModelType: NodeRowViewModel>: View {
     @MainActor
     var portColor: Color {
         rowViewModel.portColor.color(theme)
-    }
-    
-    @MainActor
-    var isNodeMoving: Bool {
-        rowViewModel.canvasItemDelegate?.isMoving ?? false
     }
     
     var body: some View {

@@ -42,7 +42,6 @@ final class FieldGroupTypeViewModel<FieldType: FieldViewModel>: Identifiable {
     }
     
     /// Updates observer objects with latest data.
-    @MainActor
     func updateFieldValues(fieldValues: FieldValues) {
         guard fieldValues.count == fieldObservers.count else {
             log("FieldGroupTypeViewModel error: non-equal count of field values to observer objects for \(type).")
@@ -119,7 +118,7 @@ extension NodeRowType {
             return [.anchoring]
         case .spacing:
             return [.spacing]
-        case .singleDropdown, .textFontDropdown:
+        case .singleDropdown, .textFontDropdown, .layerGroupOrientationDropdown:
             return [.dropdown]
         case .readOnly:
             return [.readOnly]
@@ -273,6 +272,13 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
                       unpackedPortIndex: unpackedPortIndex,
                       rowViewModel: rowViewModel)]
         
+    case .layerGroupOrientationDropdown:
+        return [.init(fieldValues: fieldValuesForSingleFieldGroup,
+                      type: .layerGroupOrientation,
+                      unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                      unpackedPortIndex: unpackedPortIndex,
+                      rowViewModel: rowViewModel)]
+        
     case .bool:
         return [.init(fieldValues: fieldValuesForSingleFieldGroup,
                       type: .bool,
@@ -368,16 +374,12 @@ func getFieldValueTypes<FieldType: FieldViewModel>(value: PortValue,
 
 //extension Array where Element: FieldGroupTypeViewModel<InputFieldViewModel> {
 extension NodeRowViewModel {
-    
-    // Every place we use this, we seem to pass in a proper
-    @MainActor
     func createFieldValueTypes(initialValue: PortValue,
                                nodeIO: NodeIO,
                                unpackedPortParentFieldGroupType: FieldGroupType?,
                                unpackedPortIndex: Int?,
-                               importedMediaObject: StitchMediaObject?) {
-        
-        self.fieldValueTypes = getFieldValueTypes(
+                               importedMediaObject: StitchMediaObject?) -> [FieldGroupTypeViewModel<FieldType>] {
+        getFieldValueTypes(
             value: initialValue,
             nodeIO: nodeIO,
             unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,

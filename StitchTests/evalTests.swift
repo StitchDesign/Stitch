@@ -13,7 +13,7 @@ import XCTest
 // TESTS FOR NODES' EVAL METHODS
 
 class EvalTests: XCTestCase {
-    @MainActor var document = StitchDocumentViewModel()
+    @MainActor var document = StitchDocumentViewModel.createEmpty()
     
     @MainActor var graphState: GraphState {
         self.document.graph
@@ -21,7 +21,9 @@ class EvalTests: XCTestCase {
     
     @MainActor
     override func setUp() {
-        self.document = StitchDocumentViewModel()
+        self.document = StitchDocumentViewModel.createEmpty()
+        self.document.graphStepManager.delegate = self.document
+        self.document.graph.documentDelegate = self.document
     }
 
     /// Runs all evals to make sure nodes can initialize.

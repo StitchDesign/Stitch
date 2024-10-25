@@ -1,6 +1,6 @@
 //
 //  ProjectDestructiveActions.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/26/22.
 //
@@ -13,7 +13,7 @@ extension StitchStore {
     // Called when user elects to remove project locally after it's been deleted elsewhere
     @MainActor
     func handleDeleteAndExitCurrentProject() {
-        guard let document = self.currentGraph else {
+        guard let document = self.currentDocument else {
             log("DeleteAndExitCurrentProject: current project was not found.")
             self.alertState.stitchFileError = .currentProjectNotFound
             return
@@ -27,10 +27,10 @@ extension StitchStore {
 extension StitchStore {
     @MainActor
     func deleteProject(document: StitchDocument) {
-        let projectId = document.projectId
+        let projectId = document.id
 
         switch StitchFileManager.removeStitchProject(
-            url: document.getUrl(),
+            url: document.rootUrl,
             projectId: projectId) {
 
         case .success:
@@ -47,8 +47,8 @@ extension StitchStore {
             }
             // self.alertState.deletedProjectId = projectId
 
-            self.saveUndoHistory(undoActions: undoEvents,
-                                 redoActions: redoEvents)
+            self.saveProjectDeletionUndoHistory(undoActions: undoEvents,
+                                                redoActions: redoEvents)
 
         case .failure(let error):
             log("StitchStore: deleteProject: failure")
@@ -65,7 +65,7 @@ extension StitchStore {
 
 struct DeleteAllProjects: FileManagerEvent {
     func handle(fileManager: StitchFileManager) -> MiddlewareManagerResponse {
-        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL.url).value {
+        if let contents = StitchFileManager.readDirectoryContents(StitchFileManager.documentsURL).value {
             contents.forEach { url in
                 try? fileManager.removeItem(at: url)
             }
@@ -78,14 +78,15 @@ extension StitchStore {
     @MainActor
     func undoDeleteProject(projectId: ProjectId) {
         // Find URL from recently deleted
-        let deletedProjectURL = StitchDocument.recentlyDeletedURL
-            .appendingStitchProjectDataPath(projectId)
+        let deletedProjectURL = StitchFileManager.recentlyDeletedURL
+            .appendingStitchProjectDataPath("\(projectId)")
 
         // Reimports deleted project
         Task {
             do {
-                let _ = try await StitchDocument.openDocument(from: deletedProjectURL,
-                                                              isImport: true)
+                let _ = try await StitchDocument
+                    .openDocument(from: deletedProjectURL,
+                                  isImport: true)
             } catch {
                 await MainActor.run { [weak self] in
                     self?.alertState.stitchFileError = .projectWriteFailed

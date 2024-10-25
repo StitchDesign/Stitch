@@ -17,13 +17,13 @@ extension GraphState {
     // (Should not need to, since eg the eastern-most node will have to come on-screen before it can hit the screen's western border.)
 
     @MainActor
-    func canvasItemsAtTraversalLevel(_ focusedGroupNodeId: GroupNodeId?) -> CanvasItemViewModels {
+    func canvasItemsAtTraversalLevel(_ focusedGroupNodeId: NodeId?) -> CanvasItemViewModels {
         self.visibleNodesViewModel
-            .getVisibleCanvasItems(at: focusedGroupNodeId?.asNodeId )
+            .getVisibleCanvasItems(at: focusedGroupNodeId )
     }
 
     // eastern-most node is node with greatest x-position
-    static func easternMostNode(_ focusedGroupNodeId: GroupNodeId?,
+    static func easternMostNode(_ focusedGroupNodeId: NodeId?,
                                 canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
             .max { n, n2 in
@@ -32,7 +32,7 @@ extension GraphState {
     }
 
     // western-most node is node with least x-position
-    static func westernMostNode(_ focusedGroupNodeId: GroupNodeId?,
+    static func westernMostNode(_ focusedGroupNodeId: NodeId?,
                                 canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
             .max { n, n2 in
@@ -41,7 +41,7 @@ extension GraphState {
     }
 
     // southern-most node is node with greatest y-position
-    static func southernMostNode(_ focusedGroupNodeId: GroupNodeId?,
+    static func southernMostNode(_ focusedGroupNodeId: NodeId?,
                                  canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
             .max { n, n2 in
@@ -50,7 +50,7 @@ extension GraphState {
     }
 
     // northern-most node is node with least y-position
-    static func northernMostNode(_ focusedGroupNodeId: GroupNodeId?,
+    static func northernMostNode(_ focusedGroupNodeId: NodeId?,
                                  canvasItems: CanvasItemViewModels) -> CanvasItemViewModel? {
         canvasItems
             .max { n, n2 in

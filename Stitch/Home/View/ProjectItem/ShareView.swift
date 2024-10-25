@@ -1,6 +1,6 @@
 //
 //  ShareView.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 9/9/21.
 //
@@ -126,30 +126,10 @@ extension StitchStore {
     } // do
      ```
      */
-    func copyExistingProject(_ document: StitchDocument) async -> StitchFileVoidResult {
-        var _finalDoc = document
-        _finalDoc.projectId = .init()
-        _finalDoc.name += " copy"
-        let finalDoc = _finalDoc
-
-        do {
-            // TODO: Encoding a versioned content fails if the project does not already exist at that url. So we "install" the "new" document, then encode it. Ideally we'd do this in one step?
-            try await self.documentLoader.installDocument(document: finalDoc)
-            try await self.documentLoader.encodeVersionedContents(document: finalDoc)
-
-            // Need to manually copy the original project's thumbnail
-            try FileManager.default.copyItem(at: document.getProjectThumbnailURL(),
-                                             to: finalDoc.getProjectThumbnailURL())
-            
-            // Need to manually copy the original project's imported-files-dir url to the duplicated project's imported-files-dir
-            // Note: this is allowed to fail, since a project without media will not have an ImportedFiles directory.
-            let _ = try? FileManager.default.copyItem(at: document.getImportedFilesURL(),
-                                                      to: finalDoc.getImportedFilesURL())
-
-            return .success
-        } catch {
-            log("copyExistingProject: error: \(error)")
-            return .failure(.projectDuplicationFailed)
+    func copyExistingProject(_ document: StitchDocument) throws {
+        let _ = try document.copyProject() { document in
+            document.graph.id = .init()
+            document.graph.name += " copy"
         }
     }
 }
@@ -169,8 +149,10 @@ struct ProjectContextMenuModifer: ViewModifier {
                                               document: document)
                     
                     StitchButton(action: {
-                        Task { [weak store] in
-                            await store?.copyExistingProject(document)
+                        do {
+                            try store.copyExistingProject(document)
+                        } catch {
+                            store.displayError(error: .projectDuplicationFailed)
                         }
                     }, label: {
                         Text("Duplicate")

@@ -50,7 +50,7 @@ struct AlphaPickerView_Previews: PreviewProvider {
     static var previews: some View {
 
         AlphaSliderView(chosenColor: Binding.constant(Color.indigo),
-                        graph: .init(id: .init(), store: nil))
+                        graph: .createEmpty())
             .rotation3DEffect(Angle(degrees: -90),
                               axis: (x: 0.0, y: 1.0, z: 90.0))
             .scaleEffect(5)

@@ -10,13 +10,13 @@ import SwiftUI
 import StitchSchemaKit
 
 // formerly `SplitterOptionSelected`
-struct SplitterTypeChanged: StitchDocumentEvent {
+struct SplitterTypeChanged: GraphEvent {
 
     let newType: SplitterType
     let currentType: SplitterType
     let splitterNodeId: NodeId
 
-    func handle(state: StitchDocumentViewModel) {
+    func handle(state: GraphState) {
         //        log("SplitterOptionSelected called: newType: \(newType)")
         //        log("SplitterOptionSelected called: currentType: \(currentType)")
 
@@ -30,7 +30,7 @@ struct SplitterTypeChanged: StitchDocumentEvent {
             return
         }
 
-        state.visibleGraph.setSplitterType(
+        state.setSplitterType(
             splitterNode: splitterNode,
             newType: newType,
             currentType: currentType)
@@ -41,7 +41,7 @@ struct SplitterTypeChanged: StitchDocumentEvent {
         // Recalculate the graph, since we may have flattened an input on a splitter node and so that output should be flat as well (happens via node eval).
         state.calculateFullGraph()
         
-        state.graph.encodeProjectInBackground()
+        state.encodeProjectInBackground()
     }
 }
 

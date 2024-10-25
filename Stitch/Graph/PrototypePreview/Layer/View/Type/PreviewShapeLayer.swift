@@ -1,6 +1,6 @@
 //
 //  PreviewShape.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 4/29/21.
 //
@@ -15,6 +15,7 @@ import StitchSchemaKit
 ///
 struct PreviewShapeLayer: View {
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var layerViewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -58,7 +59,9 @@ struct PreviewShapeLayer: View {
     var pos: StitchPosition {
         adjustPosition(
             // TODO: use `layerViewModel.readSize` instead?
-            size: layerNodeSize.scaleBy(scale),
+            // size: layerNodeSize.scaleBy(scale),
+            size: size.asCGSizeForLayer(parentSize: parentSize,
+                                        readSize: layerViewModel.readSize),
             position: position,
             anchor: anchoring,
             parentSize: parentSize)
@@ -86,6 +89,7 @@ struct PreviewShapeLayer: View {
             // TODO: revisit this
                 .modifier(PreviewAbsoluteShapeLayerModifier(
                     document: document,
+                    graph: graph,
                     viewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,
@@ -108,6 +112,7 @@ struct PreviewShapeLayer: View {
                 .opacity(opacity)
                 .modifier(PreviewCommonModifier(
                     document: document,
+                    graph: graph,
                     layerViewModel: layerViewModel,
                     isPinnedViewRendering: isPinnedViewRendering,
                     interactiveLayer: interactiveLayer,

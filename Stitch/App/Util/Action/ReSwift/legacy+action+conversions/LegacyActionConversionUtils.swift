@@ -16,7 +16,7 @@ func _getResponse(from legacyAction: Action,
 
     let getState: () -> AppState = store.getState
     let document = store.currentDocument
-    let graphState: GraphState? = document?.graph
+    let graphState: GraphState? = document?.visibleGraph
     let environment: StitchEnvironment = store.environment
     
     let fileManager = environment.fileManager
@@ -171,9 +171,7 @@ extension ProjectAlertResponse {
         return AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: updatedAppState,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }
 
@@ -185,9 +183,7 @@ extension MiddlewareManagerResponse {
         AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: nil,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }
 
@@ -199,8 +195,6 @@ extension GraphResponse {
         AppResponse(
             sideEffectCoordinator: self.sideEffectCoordinator,
             state: nil,
-            shouldPersist: self.shouldPersist,
-            undoEvents: self.undoEvents,
-            redoEvents: self.redoEvents)
+            shouldPersist: self.shouldPersist)
     }
 }

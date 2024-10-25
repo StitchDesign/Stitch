@@ -41,28 +41,57 @@ struct SidebarItemHiddenStatusToggled: GraphEventWithResponse {
 
     let clickedId: LayerNodeId
 
+    @MainActor
     func handle(state: GraphState) -> GraphResponse {
+        state.layerHiddenStatusToggled(clickedId)
+        return .persistenceResponse
+    }
+}
 
-        let sidebarGroups = state.getSidebarGroupsDict()
+struct SelectedLayersVisiblityUpdated: GraphEventWithResponse {
+
+    let selectedLayers: LayerIdSet
+    let newVisibilityStatus: Bool
+    
+    @MainActor
+    func handle(state: GraphState) -> GraphResponse {
+        for selectedLayer in selectedLayers {
+            state.layerHiddenStatusToggled(selectedLayer,
+                                           newVisibilityStatus: newVisibilityStatus)
+        }
+        return .persistenceResponse
+    }
+}
+
+extension GraphState {
+    @MainActor
+    func layerHiddenStatusToggled(_ clickedId: LayerNodeId,
+                                  // If provided, then we are explicitly setting true/false (for multiple layers) as opposed to just toggling an individual layer
+                                  newVisibilityStatus: Bool? = nil) {
+        
+        guard let layerNode = self.getLayerNode(id: clickedId.id)?.layerNode else {
+            log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
+            fatalErrorIfDebug() // Is this bad?
+            return
+        }
+        
+        let sidebarGroups = self.getSidebarGroupsDict()
         
         let descendants: LayerIdSet = getDescendantsIds(
             id: clickedId,
             groups: sidebarGroups,
             acc: LayerIdSet())
 
-        guard let layerNode = state.getLayerNode(id: clickedId.id)?.layerNode else {
-            log("SidebarItemHiddenStatusToggled: could not find layer node for clickedId \(clickedId.id)")
-            return .noChange
+        if let newVisibilityStatus = newVisibilityStatus {
+            layerNode.hasSidebarVisibility = newVisibilityStatus
+        } else {
+            layerNode.hasSidebarVisibility.toggle()
         }
-                
-        layerNode.hasSidebarVisibility.toggle()
         
         let isShown = layerNode.hasSidebarVisibility
         
         for id in descendants {
-            state.getLayerNode(id: id.id)?.layerNode?.hasSidebarVisibility = isShown
+            self.getLayerNode(id: id.id)?.layerNode?.hasSidebarVisibility = isShown
         }
-        
-        return .persistenceResponse
     }
 }

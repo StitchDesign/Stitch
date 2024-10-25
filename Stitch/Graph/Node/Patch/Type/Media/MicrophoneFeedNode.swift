@@ -1,6 +1,6 @@
 //
 //  MicrophoneFeedNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 6/30/21.
 //

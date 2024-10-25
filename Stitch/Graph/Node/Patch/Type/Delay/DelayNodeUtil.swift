@@ -1,6 +1,6 @@
 //
 //  GraphActions.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 12/21/20.
 //

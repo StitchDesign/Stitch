@@ -735,7 +735,7 @@ extension StitchDocumentViewModel {
             .graphBounds(graphMovement.zoomData.zoom,
                          graphView: graphUIState.frame,
                          graphOffset: graphMovement.localPosition,
-                         groupNodeFocused: graphUIState.groupNodeFocused)
+                         groupNodeFocused: graphUIState.groupNodeFocused?.groupNodeId)
 
         //    log("handleGraphDragEnded: momentumOrigin: \(momentumOrigin)")
 

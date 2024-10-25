@@ -19,6 +19,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .enabled,
         .position,
         .size,
+        .scale,
         .anchoring,
         .zIndex,
         .setupMode
@@ -27,6 +28,7 @@ struct HitAreaLayerNode: LayerNodeDefinition {
         .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
@@ -34,11 +36,13 @@ struct HitAreaLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewHitAreaLayer(
             document: document,
+            graph: graph,
             layerViewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
             position: viewModel.position.getPosition ?? .zero,
             size: viewModel.size.getSize ?? defaultHitAreaSize,
+            scale: viewModel.scale.getNumber ?? 1.0,
             enabled: viewModel.enabled.getBool ?? true,
             anchoring: viewModel.anchoring.getAnchoring ?? .defaultAnchoring,
             setupMode: viewModel.setupMode.getBool ?? false,

@@ -25,32 +25,13 @@ struct ESCKeyPressed: StitchStoreEvent {
 struct KeyCharacterPressBegan: StitchStoreEvent {
     let char: Character
     
+    @MainActor
     func handle(store: StitchStore) -> ReframeResponse<NoState> {
         store.keyCharacterPressBegan(char: char)
         return .noChange
     }
 }
 
-struct GraphInitialized: StitchStoreEvent {
-    let graph: GraphState
-    let document: StitchDocument
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        Task { [weak graph] in
-            await graph?.graphInitialized(document: document)
-        }
-        return .noChange
-    }
-}
-
-struct UndoManagerInvoked: StitchStoreEvent {
-    let newState: StitchDocument?
-    
-    func handle(store: StitchStore) -> ReframeResponse<NoState> {
-        store.undoManagerInvoked(newState: newState)
-        return .shouldPersist
-    }
-}
 
 struct UndoEvent: StitchStoreEvent {
     func handle(store: StitchStore) -> ReframeResponse<NoState> {

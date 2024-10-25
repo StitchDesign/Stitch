@@ -33,19 +33,7 @@ struct SelectedGraphItemsCut: GraphEvent {
             state.deleteCanvasItem($0)
         }
 
-//        state.updateSidebarListStateAfterStateChange(state.sidebarExpandedItems)
-        state.updateSidebarListStateAfterStateChange()
-        
-        // TODO: why is this necessary?
-        _updateStateAfterListChange(
-            updatedList: state.sidebarListState,
-            expanded: state.getSidebarExpandedItems(),
-            graphState: state)
-        
-        // TODO: delete comment boxes for cut
-        //        graphSchema = deleteSelectedCommentBoxes(
-        //            graphSchema: graphSchema,
-        //            graphState: graphState)
+        state.updateGraphData()
     }
 }
 
@@ -66,51 +54,32 @@ struct SelectedGraphItemsCopied: GraphEvent {
 
 // "Paste" = past shortcut, which pastes BOTH nodes AND comments
 // struct SelectedGraphNodesPasted: AppEnvironmentEvent {
-struct SelectedGraphItemsPasted: GraphEventWithResponse {
+struct SelectedGraphItemsPasted: GraphEvent {
 
-    func handle(state: GraphState) -> GraphResponse {
+    func handle(state: GraphState) {
         
         guard !state.llmRecording.isRecording else {
             log("Paste disabled during LLM Recording")
-            return .noChange
+            return
         }
         
-        guard let pasteboardUrl = UIPasteboard.general.url else {
-            return .noChange
-        }
+        let pasteboardUrl = StitchClipboardContent.rootUrl
 
         do {
-            let componentData = try Data(
-                contentsOf: pasteboardUrl.appendingDataJsonPath()
-            )
-            let newComponent = try getStitchDecoder().decode(StitchComponent.self, from: componentData)
-            let currentDoc = state.createSchema()
-            let importedFilesDir = pasteboardUrl.appendingStitchMediaPath()
-            let mediaUrls = StitchFileManager
-                .readMediaFilesDirectory(mediaDirectory: importedFilesDir)
-
-            let mediaEffects: AsyncCallbackList = mediaUrls.map { mediaUrl in {
-                switch await StitchFileManager.copyToMediaDirectory(originalURL: mediaUrl,
-                                                                    in: currentDoc,
-                                                                    forRecentlyDeleted: false) {
-                case .success(let newMediaUrl):
-                    // Update library in GraphState
-                    state.mediaLibrary.updateValue(newMediaUrl, forKey: newMediaUrl.mediaKey)
-                case .failure(let error):
-                    log("SelectedGraphItemsPasted error: could not get imported media URL.")
-                    DispatchQueue.main.async {
-                        dispatch(DisplayError(error: error))
-                    }
-                }
+            let componentData = try Data(contentsOf: pasteboardUrl.appendingVersionedSchemaPath())
+            let newComponent = try getStitchDecoder().decode(StitchClipboardContent.self, from: componentData)
+            let importedFiles = try ComponentEncoder.readAllImportedFiles(rootUrl: pasteboardUrl)
+            
+            Task(priority: .high) { [weak state] in
+                guard let state = state else { return }
+    
+                await state.insertNewComponent(component: newComponent,
+                                               encoder: state.documentEncoderDelegate,
+                                               copiedFiles: importedFiles)
+                state.encodeProjectInBackground()
             }
-            }
-
-            state.insertNewComponent(component: newComponent,
-                                     effects: mediaEffects)
-            return .persistenceResponse
         } catch {
             log("SelectedGraphItemsPasted error: \(error)")
-            return .noChange
         }
     }
 }

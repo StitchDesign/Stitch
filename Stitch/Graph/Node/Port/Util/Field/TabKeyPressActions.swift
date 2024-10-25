@@ -158,6 +158,7 @@ extension NodeViewModel {
             let eligibleFields = getTabEligibleFields(
                 layerNode: layerNode,
                 layerInputOnCanvas: layerInput,
+                flyoutInput: propertySidebarState.flyoutState?.flyoutInput,
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {
@@ -243,21 +244,32 @@ typealias LayerInputEligibleFields = OrderedSet<LayerInputEligibleField>
 
 @MainActor
 func getTabEligibleFields(layerNode: LayerNodeViewModel,
-                          layerInputOnCanvas: LayerInputPort? = nil,
+                          layerInputOnCanvas: LayerInputPort?,
+                          flyoutInput: LayerInputPort?,
                           collapsedSections: Set<LayerInspectorSectionName>) -> LayerInputEligibleFields {
     
+//    if let flyoutInput = flyoutInput,
+//       flyoutInput == SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+//        
+//    }
     
-    if let layerInput = layerInputOnCanvas {
-        let fields = layerNode.getLayerInspectorInputFields(layerInput).map({ field in
-            LayerInputEligibleField(input: layerInput, fieldIndex: field.fieldIndex)
+    // TODO: handle the case of shadow flyout
+    // If we are tabbing through fields in an open 'generic flyout' (i.e. a flyout that represents fields on a single input),
+    // or through fields on a layer-input-on-the-canvas,
+    // our logic is a little simpler:
+    if let singleInputToTabThrough = flyoutInput ?? layerInputOnCanvas,
+       // Shadow Flyout uses multiple inputs
+       flyoutInput != SHADOW_FLYOUT_LAYER_INPUT_PROXY {
+        let fields = layerNode.getLayerInspectorInputFields(singleInputToTabThrough).map({ field in
+            LayerInputEligibleField(input: singleInputToTabThrough, fieldIndex: field.fieldIndex)
         })
-        
         return LayerInputEligibleFields(fields)
     }
     
     let layer = layerNode.layer
     let inputsForThisLayer = layer.layerGraphNode.inputDefinitions
   
+    // TODO: more like "eligible inspector fields"
     let eligibleFields: LayerInputEligibleFields = LayerInspectorView
     
     // Master, ordered list (ordered set)
@@ -277,7 +289,7 @@ func getTabEligibleFields(layerNode: LayerNodeViewModel,
         .filter { layerInput in
             inputsForThisLayer.contains(layerInput)
             && layerInput.usesTextFields(layer)
-            && !layerInput.usesFlyout
+             && !layerInput.usesFlyout
         }
     
     // Turn each non-blocked field on a layeri input into a LayerInputEligibleField
@@ -351,6 +363,7 @@ extension NodeViewModel {
             let eligibleFields = getTabEligibleFields(
                 layerNode: layerNode,
                 layerInputOnCanvas: layerInputOnCanvas,
+                flyoutInput: propertySidebarState.flyoutState?.flyoutInput,
                 collapsedSections: propertySidebarState.collapsedSections)
             
             guard let currentEligibleField = eligibleFields.first(where: {

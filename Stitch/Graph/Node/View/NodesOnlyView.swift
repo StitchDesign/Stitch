@@ -39,7 +39,7 @@ struct NodesOnlyView: View {
             // Note: if/else seems better than opacity modifier, which introduces funkiness with edges (port preference values?) when going in and out of groups;
             // (`.opacity(0)` means we still render the view, and thus anchor preferences?)
             if let node = canvasNode.nodeDelegate as? NodeViewModel,
-               canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.asNodeId {
+               canvasNode.parentGroupNodeId == graphUI.groupNodeFocused?.groupNodeId {
                 NodeTypeView(
                     document: document,
                     graph: graph,
@@ -47,7 +47,7 @@ struct NodesOnlyView: View {
                     canvasNode: canvasNode,
                     atleastOneCommentBoxSelected: selection.selectedCommentBoxes.count >= 1,
                     activeIndex: activeIndex,
-                    groupNodeFocused: graphUI.groupNodeFocused,
+                    groupNodeFocused: graphUI.groupNodeFocused?.groupNodeId,
                     adjustmentBarSessionId: adjustmentBarSessionId,
                     isHiddenDuringAnimation: insertNodeMenuHiddenNode
                         .map { $0 == node.id } ?? false
@@ -62,10 +62,6 @@ struct NodesOnlyView: View {
                 EmptyView()
             }
         }
-    }
-    
-    var currentlyFocusedGroup: NodeId? {
-        graphUI.groupNodeFocused?.asNodeId
     }
 }
 

@@ -1,6 +1,6 @@
 //
 //  Util.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 11/8/20.
 //

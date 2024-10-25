@@ -38,10 +38,10 @@ struct SwitchLayerNode: LayerNodeDefinition {
     ])
         .union(.layerEffects)
         .union(.strokeInputs)
-        .union(.aspectRatio)
-        .union(.sizing).union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
+        .union(.pinning).union(.layerPaddingAndMargin).union(.offsetInGroup)
     
     static func content(document: StitchDocumentViewModel,
+                        graph: GraphState,
                         viewModel: LayerViewModel,
                         parentSize: CGSize,
                         layersInGroup: LayerDataList,
@@ -49,6 +49,7 @@ struct SwitchLayerNode: LayerNodeDefinition {
                         parentDisablesPosition: Bool) -> some View {
         PreviewSwitchLayer(
             document: document,
+            graph: graph,
             viewModel: viewModel,
             isPinnedViewRendering: isPinnedViewRendering,
             interactiveLayer: viewModel.interactiveLayer,
@@ -87,6 +88,7 @@ struct PreviewSwitchLayer: View {
     static let ASSUMED_SWIFTUI_TOGGLE_SWITCH_SIZE = CGSize(width: 40, height: 40)
     
     @Bindable var document: StitchDocumentViewModel
+    @Bindable var graph: GraphState
     @Bindable var viewModel: LayerViewModel
     let isPinnedViewRendering: Bool
     let interactiveLayer: InteractiveLayer
@@ -118,6 +120,7 @@ struct PreviewSwitchLayer: View {
         return view
             .modifier(PreviewCommonModifier(
                 document: document,
+                graph: graph,
                 layerViewModel: viewModel,
                 isPinnedViewRendering: isPinnedViewRendering,
                 interactiveLayer: interactiveLayer,

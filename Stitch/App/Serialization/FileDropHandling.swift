@@ -15,8 +15,15 @@ func handleOnDrop(providers: [NSItemProvider],
                   location: CGPoint,
                   store: StitchStore) -> Bool {
 
+    let tempURLDir = StitchFileManager.importedFilesDir
     let incrementSize = CGFloat(NODE_POSITION_STAGGER_SIZE)
     var droppedLocation = location
+    
+    // Clear previous data
+    try? FileManager.default.removeItem(at: tempURLDir)
+    
+    // Create imported folder if not yet made
+    try? FileManager.default.createDirectory(at: tempURLDir, withIntermediateDirectories: true)
 
     // handles MULTIPLE ACTIONS ETC.
     for provider in providers {
@@ -31,25 +38,31 @@ func handleOnDrop(providers: [NSItemProvider],
             }
 
             // MARK: due to async logic of dispatched effects, the provided temporary URL has a tendancy to expire, so a new URL is created.
-            let tempURL = StitchFileManager.tempDir.appendingPathComponent(url.filename).appendingPathExtension(url.pathExtension)
+            let tempURL = tempURLDir
+                .appendingPathComponent(url.filename)
+                .appendingPathExtension(url.pathExtension)
 
             let _ = url.startAccessingSecurityScopedResource()
 
             // Default FileManager ok here given we just need a temp URL
-            try? FileManager.default.copyItem(at: url, to: tempURL)
-            url.stopAccessingSecurityScopedResource()
+            do {
+                try FileManager.default.copyItem(at: url, to: tempURL)
+                url.stopAccessingSecurityScopedResource()
+            } catch {
+                url.stopAccessingSecurityScopedResource()
+                fatalErrorIfDebug("handleOnDrop error: \(error)")
+                return
+            }
 
             // Opens stitch documents
-            guard tempURL.pathExtension != STITCH_EXTENSION_RAW else {
-                Task { [weak store] in
+            guard tempURL.pathExtension != UTType.stitchDocument.preferredFilenameExtension else {
+                Task(priority: .high) { [weak store] in
                     do {
                         switch await store?.documentLoader.loadDocument(from: tempURL,
                                                                         isImport: true) {
-                        case .loaded(let document):
-                            DispatchQueue.main.async { [weak store] in
-                                store?.openProjectAction(from: document)
-                            }
-                        default:
+                        case .loaded(let data, _):
+                            await store?.createNewProject(from: data)
+                       default:
                             DispatchQueue.main.async {
                                 dispatch(DisplayError(error: .unsupportedProject))
                             }

@@ -140,10 +140,8 @@ final class SidebarListGestureRecognizer: NSObject, UIGestureRecognizerDelegate 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, 
                            shouldReceive event: UIEvent) -> Bool {
         if event.modifierFlags.contains(.shift) || event.modifierFlags.contains(.alphaShift) {
-            log("SHIFT DOWN")
             self.shiftHeldDown = true
         } else {
-            log("SHIFT NOT DOWN")
             self.shiftHeldDown = false
         }
         
@@ -282,7 +280,7 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 
         let selections = self.graph.sidebarSelectionState
         let groups = self.graph.getSidebarGroupsDict()
-        let sidebarDeps =  SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
+        let sidebarDeps = SidebarDeps(layerNodes: .fromLayerNodesDict( nodes: self.graph.layerNodes, orderedSidebarItems: self.graph.orderedSidebarLayers),
                                        groups: groups,
                                        expandedItems: self.graph.getSidebarExpandedItems())
         let layerNodes = sidebarDeps.layerNodes
@@ -314,12 +312,40 @@ extension SidebarListGestureRecognizer: UIContextMenuInteractionDelegate {
                 buttons.append(groupButton)
             }
             
-            if !selections.all.isEmpty {
+            let activeSelections = self.graph.sidebarSelectionState.inspectorFocusedLayers.activelySelected
+            
+            let atLeastOneSelected = !activeSelections.isEmpty
+            
+            if atLeastOneSelected {
                 buttons.append(UIAction(title: "Delete", image: nil) { action in
                     dispatch(SidebarSelectedItemsDeleted())
                 })
             }
-                        
+                      
+            let onlyOneSelected = activeSelections.count == 1
+            
+            if onlyOneSelected,
+               let layerNodeId = selections.primary.first,
+               let isVisible = self.graph.getLayerNode(id: layerNodeId.asNodeId)?.layerNode?.hasSidebarVisibility {
+                
+                buttons.append(UIAction(title: isVisible ? "Hide Layer" : "Unhide Layer", image: nil) { action in
+                    dispatch(SidebarItemHiddenStatusToggled(clickedId: layerNodeId))
+                })
+            }
+            
+            if activeSelections.count > 1 {
+                buttons.append(UIAction(title: "Hide Layers", image: nil) { action in
+                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                           newVisibilityStatus: false))
+                })
+                
+                buttons.append(UIAction(title: "Unhide Layers", image: nil) { action in
+                    dispatch(SelectedLayersVisiblityUpdated(selectedLayers: selections.primary,
+                                                            newVisibilityStatus: true))
+                })
+            }
+            
+            
             return UIMenu(title: "", children: buttons)
         }
     }

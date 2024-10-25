@@ -21,26 +21,24 @@ protocol NodeRowObserver: AnyObject, Observable, Identifiable, Sendable, NodeRow
     
     var nodeKind: NodeKind { get set }
     
-    @MainActor var allRowViewModels: [RowViewModelType] { get }
+    var allRowViewModels: [RowViewModelType] { get }
     
-    @MainActor var nodeDelegate: NodeDelegate? { get set }
+    var nodeDelegate: NodeDelegate? { get set }
     
     var connectedNodes: NodeIdSet { get set }
     
     var hasLoopedValues: Bool { get set }
     
-    @MainActor var importedMediaObject: StitchMediaObject? { get }
+    var importedMediaObject: StitchMediaObject? { get }
     
     var hasEdge: Bool { get }
     
     @MainActor var containsUpstreamConnection: Bool { get }
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?)
 }
 
@@ -84,23 +82,18 @@ final class InputNodeRowObserver: NodeRowObserver, InputNodeRowCalculatable {
     // Can't be computed for rendering purposes
     var hasLoopedValues: Bool = false
     
-    @MainActor
-    convenience init(from schema: NodePortInputEntity,
-                     activeIndex: ActiveIndex) {
+    convenience init(from schema: NodePortInputEntity) {
         self.init(values: schema.portData.values ?? [],
                   nodeKind: schema.nodeKind,
                   userVisibleType: schema.userVisibleType,
                   id: schema.id,
-                  activeIndex: activeIndex,
                   upstreamOutputCoordinate: schema.portData.upstreamConnection)
     }
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?) {
         self.id = id
         self.upstreamOutputCoordinate = upstreamOutputCoordinate
@@ -144,12 +137,10 @@ final class OutputNodeRowObserver: NodeRowObserver {
     // Always nil for outputs
     let importedMediaObject: StitchMediaObject? = nil
     
-    @MainActor
     init(values: PortValues,
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          // always nil but needed for protocol
          upstreamOutputCoordinate: NodeIOCoordinate? = nil) {
         
@@ -277,6 +268,16 @@ extension InputNodeRowObserver {
             }
             
             inputs.append(groupInput)
+            
+        case .component(let component):
+            let canvas = component.canvas
+            guard let portId = self.id.portId,
+                  let groupInput = canvas.inputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            inputs.append(groupInput)
         }
 
         return inputs
@@ -337,6 +338,16 @@ extension OutputNodeRowObserver {
             }
             
             outputs.append(groupOutput)
+            
+        case .component(let component):
+            let canvas = component.canvas
+            guard let portId = self.id.portId,
+                  let groupOutput = canvas.outputViewModels[safe: portId] else {
+                fatalErrorIfDebug()
+                return []
+            }
+            
+            outputs.append(groupOutput)
         }
 
         return outputs
@@ -377,7 +388,6 @@ extension OutputNodeRowObserver {
 
 extension NodeRowViewModel {
     /// Called by parent node view model to update fields.
-    @MainActor
     func activeValueChanged(oldValue: PortValue,
                             newValue: PortValue) {
         let nodeIO = Self.RowObserver.nodeIOType
@@ -387,7 +397,6 @@ extension NodeRowViewModel {
     }
     
     /// Called by parent node view model to update fields.
-    @MainActor
     func activeValueChanged(oldRowType: NodeRowType,
                             newValue: PortValue) {
         
@@ -404,12 +413,13 @@ extension NodeRowViewModel {
         // Create new field value observers if the row type changed
         // This can happen on various input changes
         guard !nodeRowTypeChanged else {
-            self.createFieldValueTypes(initialValue: newValue,
-                                       nodeIO: nodeIO,
-                                       // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
-                                       unpackedPortParentFieldGroupType: nil,
-                                       unpackedPortIndex: nil,
-                                       importedMediaObject: importedMediaObject)
+            self.fieldValueTypes = self.createFieldValueTypes(
+                initialValue: newValue,
+                nodeIO: nodeIO,
+                // Node Row Type change is only when a patch node changes its node type; can't happen for layer nodes
+                unpackedPortParentFieldGroupType: nil,
+                unpackedPortIndex: nil,
+                importedMediaObject: importedMediaObject)
             return
         }
         
@@ -433,13 +443,14 @@ extension NodeRowViewModel {
             let willUpdateField = newFields.count != fieldObserversCount || importedMediaObject.isDefined
             
             if willUpdateField {
-                self.createFieldValueTypes(initialValue: newValue,
-                                           nodeIO: nodeIO,
-                                           // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
-                                           // Not relevant?
-                                           unpackedPortParentFieldGroupType: nil,
-                                           unpackedPortIndex:  nil,
-                                           importedMediaObject: importedMediaObject)
+                self.fieldValueTypes = self.createFieldValueTypes(
+                    initialValue: newValue,
+                    nodeIO: nodeIO,
+                    // Note: this is only for a patch node whose node-type has changed (?); does not happen with layer nodes, a layer input being packed or unpacked is irrelevant here etc.
+                    // Not relevant?
+                    unpackedPortParentFieldGroupType: nil,
+                    unpackedPortIndex:  nil,
+                    importedMediaObject: importedMediaObject)
                 return
             }
             
@@ -479,19 +490,17 @@ extension NodeRowObserver {
          nodeKind: NodeKind,
          userVisibleType: UserVisibleType?,
          id: NodeIOCoordinate,
-         activeIndex: ActiveIndex,
          upstreamOutputCoordinate: NodeIOCoordinate?,
          nodeDelegate: NodeDelegate) {
         self.init(values: values,
                   nodeKind: nodeKind,
                   userVisibleType: userVisibleType,
                   id: id,
-                  activeIndex: activeIndex,
                   upstreamOutputCoordinate: upstreamOutputCoordinate)
         self.initializeDelegate(nodeDelegate)
     }
     
-    @MainActor func initializeDelegate(_ node: NodeDelegate) {
+    func initializeDelegate(_ node: NodeDelegate) {
         self.nodeDelegate = node
         self.postProcessing(oldValues: [], newValues: values)
     }

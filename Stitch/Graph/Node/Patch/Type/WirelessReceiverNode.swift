@@ -1,6 +1,6 @@
 //
 //  wirelessReceiverNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 11/22/21.
 //

@@ -38,7 +38,7 @@ extension Patch {
             // DOES use GraphStep
             return .impure(.graphAndGraphStep(dragInteractionEval))
         case .cameraFeed:
-            return .impure(.document(cameraFeedEval))
+            return .impure(.graph(cameraFeedEval))
         case .loop:
             return .pure(.node(outputsOnlyEval(loopStartEval)))
         case .counter:
@@ -53,7 +53,7 @@ extension Patch {
         case .deviceTime:
             return .pure(.node(deviceTimeEval))
         case .location:
-            return .impure(.document(locationEval))
+            return .impure(.graph(locationEval))
         case .random:
             return .impure(.graphStep(randomEval))
         case .hslColor:

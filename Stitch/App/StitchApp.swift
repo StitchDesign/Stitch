@@ -1,6 +1,6 @@
 //
 //  StitchApp.swift
-//  prototype
+//  Stitch
 //
 //  Created by cjc on 11/1/20.
 //
@@ -13,6 +13,8 @@ struct StitchApp: App {
     @State var store = StitchStore()
     @StateObject var keyboardObserver = KeyboardObserver()
 
+    
+    
     // MARK: VERY important to pass the store StateObject into each view for perf
     var body: some Scene {
         WindowGroup {
@@ -42,7 +44,7 @@ struct StitchApp: App {
         //        #endif
         .commands {
             StitchCommands(store: store,
-                           activeReduxFocusedField: store.currentGraph?.graphUI.reduxFocusedField)
+                           activeReduxFocusedField: store.currentDocument?.graphUI.reduxFocusedField)
         }
     }
 }

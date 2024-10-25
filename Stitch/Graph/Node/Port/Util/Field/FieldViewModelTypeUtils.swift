@@ -1,6 +1,6 @@
 //
 //  PortValueFields.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/3/22.
 //
@@ -79,8 +79,6 @@ extension PortValue {
             return .singleDropdown(.shapeCoordinates)
         case .shapeCommandType:
             return .singleDropdown(.shapeCommandType)
-        case .orientation:
-            return .singleDropdown(.orientation)
         case .cameraOrientation:
             return .singleDropdown(.cameraOrientation)
         case .deviceOrientation:
@@ -141,13 +139,19 @@ extension PortValue {
         case .contentMode(_):
             return .singleDropdown(.contentMode)
             
-            // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
+        // TODO: need new kind of field that supports text + dropdown; will be reused with LayerDimension field as well
         case .spacing:
             return .spacing
         case .sizingScenario:
             return .singleDropdown(.sizingScenario)
         case .pinTo:
             return .pinTo
+        case .materialThickness:
+            return .singleDropdown(.materialThickness)
+        case .deviceAppearance:
+            return .singleDropdown(.deviceAppearance)
+        case .orientation:
+            return .layerGroupOrientationDropdown
         }
     }
 

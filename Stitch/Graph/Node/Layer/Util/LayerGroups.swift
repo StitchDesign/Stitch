@@ -1,6 +1,6 @@
 //
 //  Groups.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 7/28/21.
 //

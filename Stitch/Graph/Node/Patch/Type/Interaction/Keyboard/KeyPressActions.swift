@@ -12,6 +12,7 @@ import StitchSchemaKit
 struct KeyModifierPressEnded: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         // log("KeyModifierPressEnded: modifiers: \(modifiers)")
         for modifier in modifiers {
@@ -23,6 +24,7 @@ struct KeyModifierPressEnded: StitchDocumentEvent {
 struct KeyModifierPressBegan: StitchDocumentEvent {
     let modifiers: Set<StitchKeyModifier>
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
          // log("KeyModifierPressBegan: modifiers: \(modifiers)")
         
@@ -51,6 +53,8 @@ struct KeyModifierPressBegan: StitchDocumentEvent {
 
 // TODO: more like?: `RemoveCommandKeyModifier`
 struct KeyModifierReset: StitchDocumentEvent {
+    
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         // BAD: resets all key press state, including isSpacePressed etc.
         //        state.keypressState = .init()
@@ -119,8 +123,7 @@ extension StitchStore {
 
         // Not in edge-edit-mode, so recalc the keyboard patch nodes
         else {
-            let keyboardNodes = document.graph.keyboardNodes
-            document.calculate(keyboardNodes)
+            document.calculateAllKeyboardNodes()
         }
     }
 }
@@ -128,6 +131,7 @@ extension StitchStore {
 struct KeyCharacterPressEnded: StitchDocumentEvent {
     let char: Character
 
+    @MainActor
     func handle(state: StitchDocumentViewModel) {
         
         // log("KEY: KeyCharacterPressEnded: char: \(char)")
@@ -147,7 +151,6 @@ struct KeyCharacterPressEnded: StitchDocumentEvent {
         // log("KEY: KeyCharacterPressEnded: graphState.graphUI.keypressState.isSpacePressed is now: \(graphState.graphUI.keypressState.isSpacePressed)")
 
         // recalculate all the keyboard nodes on the graph
-        let keyboardNodes = state.graph.keyboardNodes
-        state.calculate(keyboardNodes)
+        state.calculateAllKeyboardNodes()
     }
 }

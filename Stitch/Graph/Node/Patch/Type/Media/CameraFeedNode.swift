@@ -1,6 +1,6 @@
 //
 //  CameraFeedNode.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 5/18/21.
 //
@@ -85,10 +85,19 @@ struct CameraFeedPatchNode: PatchNodeDefinition {
 
 @MainActor
 func createCameraFeedManager(document: StitchDocumentViewModel,
+                             graph: GraphDelegate,
                              nodeId: NodeId) -> StitchSingletonMediaObject {
-    let nodeKind = document.getNodeViewModel(nodeId)?.kind
-    let camera = document.createCamera(for: nodeKind ?? .patch(.cameraFeed),
-                                       newNode: nodeId)
+    let _node = graph.getNodeViewModel(nodeId)
+    
+    // breaks test
+//    assertInDebug(_node != nil)
+    
+    let node = _node ?? .createEmpty()
+    let nodeKind = node.kind
+    
+    let camera = document.createCamera(for: nodeKind,
+                                       graph: graph,
+                                       newNode: node.id)
     return .cameraFeedManager(camera)
 }
 
@@ -96,6 +105,7 @@ func createCameraFeedManager(document: StitchDocumentViewModel,
 /// Used by the camera feed and raycast nodes.
 @MainActor
 func cameraManagerEval(node: PatchNode,
+                       graph: GraphDelegate,
                        document: StitchDocumentViewModel,
                        cameraEnabledInputIndex: Int,
                        mediaOp: @escaping AsyncSingletonMediaEvalOp) -> ImpureEvalResult {
@@ -107,9 +117,8 @@ func cameraManagerEval(node: PatchNode,
     // If node doesn't contain any inputs marking enabled, send info to CameraFeedManager
     // to possibly tear down camera
     guard isNodeEnabled else {
-        if let enabledNodeIds = document.cameraFeed?.enabledNodeIds,
-           enabledNodeIds.contains(node.id) {
-            document.removeCameraNode(id: node.id)
+        if graph.enabledCameraNodeIds.contains(node.id) {
+            graph.enabledCameraNodeIds.remove(node.id)
         }
 
         // Better: returns two separate outputs, where each output does not contain a loop
@@ -119,9 +128,13 @@ func cameraManagerEval(node: PatchNode,
                 [.size(.zero)]
             ])
     }
+    
+    if isNodeEnabled && !graph.enabledCameraNodeIds.contains(node.id) {
+        graph.enabledCameraNodeIds.insert(node.id)
+    }
 
     return asyncSingletonMediaEval(node: node,
-                                   document: document,
+                                   graph: graph,
                                    mediaCreation: createCameraFeedManager,
                                    mediaManagerKeyPath: \.cameraFeedManager,
                                    mediaOp: mediaOp)
@@ -130,10 +143,16 @@ func cameraManagerEval(node: PatchNode,
 
 @MainActor
 func cameraFeedEval(node: PatchNode,
-                    document: StitchDocumentViewModel) -> ImpureEvalResult {
-    cameraManagerEval(node: node,
-                      document: document,
-                      cameraEnabledInputIndex: 0) { values, _, loopIndex in
+                    graph: GraphDelegate) -> ImpureEvalResult {
+    guard let document = graph.documentDelegate else {
+        fatalErrorIfDebug()
+        return .noChange(node)
+    }
+    
+    return cameraManagerEval(node: node,
+                             graph: graph,
+                             document: document,
+                             cameraEnabledInputIndex: 0) { values, _, loopIndex in
         
         guard !document.isGeneratingProjectThumbnail else {
             log("cameraFeedEval: generating project thumbnail, so will not use camera image")
@@ -144,11 +163,11 @@ func cameraFeedEval(node: PatchNode,
             log("cameraFeedEval: issue decoding values")
             return node.defaultOutputs
         }
-
+        
         guard isEnabled else {
             return node.defaultOutputs
         }
-
+        
         guard let currentCamearaImage = document.cameraFeed?.currentCameraImage else {
             return node.defaultOutputs
         }

@@ -252,6 +252,10 @@ extension LayerInputPort {
             return .padding(.zero)
         case .offsetInGroup:
             return .size(.zero)
+        case .materialThickness:
+            return .materialThickness(.defaultMaterialThickness)
+        case .deviceAppearance:
+            return .deviceAppearance(.defaultDeviceAppearance)
         }
     }
     
@@ -464,6 +468,10 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .materialThickness:
+            return \.materialThicknessPort
+        case .deviceAppearance:
+            return \.deviceAppearancePort
         }
     }
     
@@ -648,7 +656,7 @@ extension LayerViewModel {
         case .endColor:
             return self.endColor
         case .startAnchor:
-            return self.startColor
+            return self.startAnchor
         case .endAnchor:
             return self.endAnchor
         case .centerAnchor:
@@ -709,6 +717,11 @@ extension LayerViewModel {
             return self.layerMargin
         case .offsetInGroup:
             return self.offsetInGroup
+        case .deviceAppearance:
+            return self.deviceAppearance
+        case .materialThickness:
+            return self.materialThickness
+            
         }
     }
     
@@ -851,7 +864,7 @@ extension LayerViewModel {
         case .endColor:
             self.endColor = value
         case .startAnchor:
-            self.startColor = value
+            self.startAnchor = value
         case .endAnchor:
             self.endAnchor = value
         case .centerAnchor:
@@ -917,12 +930,15 @@ extension LayerViewModel {
             self.layerMargin = value
         case .offsetInGroup:
             self.offsetInGroup = value
+        case .deviceAppearance:
+            self.deviceAppearance = value
+        case .materialThickness:
+            self.materialThickness = value
         }
     }
 }
 
 extension LayerInputPort {
-    @MainActor
     var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, LayerInputObserver> {
         switch self {
         case .position:
@@ -1119,6 +1135,10 @@ extension LayerInputPort {
             return \.layerMarginPort
         case .offsetInGroup:
             return \.offsetInGroupPort
+        case .materialThickness:
+            return \.materialThicknessPort
+        case .deviceAppearance:
+            return \.deviceAppearancePort
         }
     }
     
@@ -1214,7 +1234,6 @@ extension PortValue {
 
 extension LayerInputType {
     /// Key paths for parent layer view model
-    @MainActor
     var layerNodeKeyPath: ReferenceWritableKeyPath<LayerNodeViewModel, InputLayerNodeRowData> {
         let portKeyPath = self.layerInput.layerNodeKeyPath
         
@@ -1309,8 +1328,8 @@ extension LayerInputPort {
             return "Background Color"
         case .isClipped:
             return "Clipped"
-        case .orientation:
-            return "Orientation"
+        case .orientation: // LayerGroup orientation
+            return "Layout"
         case .padding:
             return "Padding"
         case .setupMode:
@@ -1451,6 +1470,10 @@ extension LayerInputPort {
             return useShortLabel ? "Margin" : "Layer Margin"
         case .offsetInGroup:
             return useShortLabel ? "Offset" : "Offset in Group"
+        case .materialThickness:
+            return "Material"
+        case .deviceAppearance:
+            return useShortLabel ? "Appearance" : "Device Appearance"
         }
     }
 

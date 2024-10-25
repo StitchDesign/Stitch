@@ -1,6 +1,6 @@
 //
 //  LayerSize.swift
-//  prototype
+//  Stitch
 //
 //  Created by Christian J Clampitt on 3/1/22.
 //
@@ -29,6 +29,19 @@ extension LayerSize {
                height: self.height.asCGFloat(parentSize.height))
     }
 
+    /*
+     Note: The layer view model's `readSize` already includes information about scaling which, if fed to anchor-position logic,
+     means that e.g. the view's top left corner is always flush with the preview window's top left corner,
+     which is incorrect when e.g. a layer is scaled > 1 and has pivot = center.
+     
+     So, we prefer to use the layer's size input, and fall back on `readSize` in cases like `auto` or `hug` where there the size input's layer-dimension has no real number.
+     */
+    // TODO: version of this for `resourceSize` ?
+    func asCGSizeForLayer(parentSize: CGSize, readSize: CGSize) -> CGSize {
+        .init(width: self.width.asCGFloatIfNumber(parentSize.width) ?? readSize.width,
+              height: self.height.asCGFloatIfNumber(parentSize.height) ?? readSize.height)
+    }
+    
     func asCGSize(parentSize: CGSize,
                   // resourceSize = e.g. UIImage.size
                   resourceSize: CGSize) -> CGSize {
@@ -52,6 +65,7 @@ extension LayerSize {
         }
     }
 
+    // TODO: "Algebraic Size" defaults every non-number case to 0 or some %
     var asAlgebraicCGSize: CGSize {
 
         // `auto` defaults to zero when used in algebraic contexts
@@ -65,6 +79,16 @@ extension LayerSize {
                height: self.height.asNumber)
     }
 
+    func asSceneSize(parentSize: CGSize) -> CGSize {
+        var sceneSize: CGSize = self.asCGSize(parentSize)
+        
+        sceneSize.width =  sceneSize.width >= max1DTextureWidth ? max1DTextureWidth : sceneSize.width
+        
+        sceneSize.height =  sceneSize.height >= max1DTextureWidth ? max1DTextureWidth : sceneSize.height
+        
+        return sceneSize
+    }
+    
     static var zero: LayerSize {
         CGSize.zero.toLayerSize
     }

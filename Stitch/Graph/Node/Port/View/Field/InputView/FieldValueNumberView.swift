@@ -27,6 +27,7 @@ struct FieldValueNumberView: View {
     let isForFlyout: Bool
     let isSelectedInspectorRow: Bool
     var isForSpacingField: Bool = false
+    var isForLayerDimensionField: Bool = false
     var nodeKind: NodeKind
     
     @State private var isButtonPressed = false
@@ -79,13 +80,14 @@ struct FieldValueNumberView: View {
                                      fieldValue: fieldValue,
                                      fieldCoordinate: fieldCoordinate,
                                      isCanvasItemSelected: isCanvasItemSelected,
-                                     choices: nil,
+                                     choices: choices,
                                      adjustmentBarSessionId: adjustmentBarSessionId,
                                      forPropertySidebar: forPropertySidebar,
                                      propertyIsAlreadyOnGraph: propertyIsAlreadyOnGraph,
                                      isFieldInMultifieldInput: isFieldInMultifieldInput,
                                      isForFlyout: isForFlyout, 
-                                     isSelectedInspectorRow: isSelectedInspectorRow, 
+                                     isSelectedInspectorRow: isSelectedInspectorRow,
+                                     isForLayerDimensionField: isForLayerDimensionField,
                                      nodeKind: nodeKind)
         }
     }
