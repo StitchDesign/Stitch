@@ -146,7 +146,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             }
           ],
           "default": null,
-          "description": "The port for connections. Use integer for patch nodes and LayerPorts for layer nodes"
+          "description": "The port for connections. Use integers for patch nodes, and LayerPorts for layer nodes"
         }
       },
       "required": [
@@ -239,7 +239,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             }
           },
           "then": {
-            "required": ["node_id", "value", "port", "node_kind"],
+            "required": ["node_id", "value", "port", "node_type"],
             "properties": {
               "node_id": {
                 "description": "ID of the node receiving the input",
