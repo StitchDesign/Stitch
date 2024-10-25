@@ -57,7 +57,6 @@ extension StitchStore {
                                                            redoCallback: redoCallback))
     }
     
-    @MainActor
     func saveUndoHistory<EncoderDelegate>(from encoderDelegate: EncoderDelegate,
                                           oldSchema: EncoderDelegate.CodableDocument,
                                           newSchema: EncoderDelegate.CodableDocument,
@@ -74,12 +73,12 @@ extension StitchStore {
                 self?.encodeCurrentProject(willUpdateUndoHistory: false)
     
                 undoEffectsData?.undoCallback?()
-                
-                self?.saveUndoHistory(from: delegate,
-                                      oldSchema: newSchema,
-                                      newSchema: oldSchema,
-                                      undoEffectsData: undoEffectsData?.createRedoEffects())
             }
+            
+            self.saveUndoHistory(from: delegate,
+                                 oldSchema: newSchema,
+                                 newSchema: oldSchema,
+                                 undoEffectsData: undoEffectsData?.createRedoEffects())
         }
     }
     
@@ -94,7 +93,6 @@ extension StitchStore {
     }
     
     /// Saves undo history using actions. Used for project deletion.
-    @MainActor
     func saveProjectDeletionUndoHistory(undoEvents: [@Sendable @MainActor () -> ()],
                                         redoEvents: [@Sendable @MainActor () -> ()]) {
         let undoManager = self.environment.undoManager.undoManager
@@ -111,10 +109,8 @@ extension StitchStore {
             let onRedoRedoEvents = undoEvents
             
             // Register the redo action
-            Task(priority: .high) { @MainActor [weak self] in
-                self?.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
-                                                     redoEvents: onRedoRedoEvents)
-            }
+            self.saveProjectDeletionUndoHistory(undoEvents: onRedoUndoEvents,
+                                                redoEvents: onRedoRedoEvents)
         }
     }
 }
