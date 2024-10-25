@@ -10,19 +10,19 @@ import SwiftUI
 import SwiftyJSON
 
 extension StitchDocumentViewModel {
-
+    
     @MainActor func openedStitchAIModal() {
         self.stitchAI.promptState.showModal = true
         self.graphUI.reduxFocusedField = .stitchAIPromptModal
     }
-
+    
     // When json-entry modal is closed, we turn the JSON of LLMActions into state changes
     @MainActor func closedStitchAIModal() {
         let prompt = self.stitchAI.promptState.prompt
         
         self.stitchAI.promptState.showModal = false
         self.graphUI.reduxFocusedField = nil
- 
+        
         
         //HACK until we figure out why this is called twice
         if prompt == "" {
@@ -34,7 +34,7 @@ extension StitchDocumentViewModel {
     
     @MainActor func makeAPIRequest(userInput: String) {
         stitchAI.promptState.isGenerating = true
-
+        
         guard let openAIAPIURL = URL(string: OPEN_AI_BASE_URL) else {
             showErrorModal(message: "Invalid URL", userPrompt: userInput, jsonResponse: nil)
             return
@@ -44,7 +44,7 @@ extension StitchDocumentViewModel {
             showErrorModal(message: "No API Key found or API Key is empty", userPrompt: userInput, jsonResponse: nil)
             return
         }
-
+        
         var request = URLRequest(url: openAIAPIURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -74,7 +74,7 @@ extension StitchDocumentViewModel {
                 ]
             ]
         ]
-
+        
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
             request.httpBody = jsonData
@@ -82,62 +82,62 @@ extension StitchDocumentViewModel {
             showErrorModal(message: "Error encoding JSON: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
             return
         }
-
+        
         let task = URLSession.shared.dataTask(with: request) { [weak self] data, _, error in
-                DispatchQueue.main.async {
-                    self?.stitchAI.promptState.isGenerating = false
-
-                    if let error = error {
-                        self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
-                        return
-                    }
-
-                    guard let data = data else {
-                        self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
-                        return
-                    }
-
-                    let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
-                    print("RAW JSON \(jsonResponse)")
-
-                    do {
-                        if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
-                            guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                                self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
-                                return
-                            }
-                            
-                            let json = JSON(parseJSON: transformedResponse)
-                            if let jsonString = json.rawString() {
-                                print("TRANSFORMED JSON \(jsonString)")
-                            } else {
-                                print("Failed to convert JSON to String")
-                            }
-                            let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
-                            var nodesAdded = 0
-                            
-                            // Process actions
-                            actions.forEach {
-                                nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
-                            }
-                            
-                            // Trigger additional functionality
-                            self?.visibleGraph.encodeProjectInBackground()
-                            
-                            // Close the modal after successful processing
-                            self?.closeStitchAIModal()
-                        } else {
-                            self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
+            DispatchQueue.main.async {
+                self?.stitchAI.promptState.isGenerating = false
+                
+                if let error = error {
+                    self?.showErrorModal(message: "Request error: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: nil)
+                    return
+                }
+                
+                guard let data = data else {
+                    self?.showErrorModal(message: "No data received", userPrompt: userInput, jsonResponse: nil)
+                    return
+                }
+                
+                let jsonResponse = String(data: data, encoding: .utf8) ?? "Invalid JSON format"
+                print("RAW JSON \(jsonResponse)")
+                
+                do {
+                    if let transformedResponse = self?.transformOpenAIResponseToLLMActionsString(data: data) {
+                        guard !transformedResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                            self?.showErrorModal(message: "Empty transformed response", userPrompt: userInput, jsonResponse: jsonResponse)
+                            return
                         }
-                    } catch {
-                        self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
+                        
+                        let json = JSON(parseJSON: transformedResponse)
+                        if let jsonString = json.rawString() {
+                            print("TRANSFORMED JSON \(jsonString)")
+                        } else {
+                            print("Failed to convert JSON to String")
+                        }
+                        let actions: LLMActions = try JSONDecoder().decode(LLMActions.self, from: json.rawData())
+                        var nodesAdded = 0
+                        
+                        // Process actions
+                        actions.forEach {
+                            nodesAdded = (self?.handleLLMAction($0, nodesAdded: nodesAdded))!
+                        }
+                        
+                        // Trigger additional functionality
+                        self?.visibleGraph.encodeProjectInBackground()
+                        
+                        // Close the modal after successful processing
+                        self?.closeStitchAIModal()
+                    } else {
+                        self?.showErrorModal(message: "Failed to transform response", userPrompt: userInput, jsonResponse: jsonResponse)
                     }
+                } catch {
+                    self?.showErrorModal(message: "Error processing response: \(error.localizedDescription)", userPrompt: userInput, jsonResponse: jsonResponse)
                 }
             }
-            task.resume()
         }
-
-
+        task.resume()
+    }
+    
+    
     @MainActor private func closeStitchAIModal() {
         self.stitchAI.promptState.showModal = false
         self.stitchAI.promptState.prompt = ""
@@ -156,7 +156,7 @@ extension StitchDocumentViewModel {
             }
         }
     }
-
+    
     func transformOpenAIResponseToLLMActionsString(data: Data) -> String? {
         do {
             let response = try JSONDecoder().decode(OpenAIResponse.self, from: data)
@@ -231,8 +231,6 @@ extension StitchDocumentViewModel {
                     } else {
                         print("failed to change nodes")
                     }
-                    
-
                     
                 case .setInput:
                     if let nodeId = step.nodeId, let nodeTypeRaw = step.nodeType {
