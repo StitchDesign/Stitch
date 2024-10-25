@@ -163,6 +163,11 @@ extension VisibleNodesViewModel {
         } else {
             nodeViewModel.getAllInputsObservers().enumerated().forEach { portId, inputObserver in
                 guard let connectedOutputObserver = inputObserver.upstreamOutputObserver else {
+                    // Upstream values are cached and need to be refreshed if disconnected
+                    if inputObserver.upstreamOutputCoordinate != nil {
+                        inputObserver.upstreamOutputCoordinate = nil
+                    }
+                    
                     return
                 }
 
