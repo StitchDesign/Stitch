@@ -227,7 +227,7 @@ extension StitchDocumentViewModel {
             self.visibleGraph.initializeDelegate(document: self,
                                                  documentEncoderDelegate: encoderDelegate)
         } else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
         }
 
         // Recalculate graph
