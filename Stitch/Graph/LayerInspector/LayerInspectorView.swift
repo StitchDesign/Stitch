@@ -262,8 +262,6 @@ struct LayerInspectorInputsSectionView: View {
                 }
             }
         }
-        
-        
     }
 }
 
