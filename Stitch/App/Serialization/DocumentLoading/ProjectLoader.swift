@@ -11,6 +11,8 @@ import SwiftUI
 /// Passed into view to property sort URLs by modified date and forces a new render cycle when the date changes.
 @Observable
 final class ProjectLoader: Sendable {
+    var encoder: DocumentEncoder?
+    
     var modifiedDate: Date
     var url: URL
     var loadingDocument: DocumentLoadingStatus = .initialized
