@@ -30,9 +30,9 @@ struct ProjectNavigationView: View {
         GraphBaseView(document: document,
                       graphUI: document.graphUI,
                       insertNodeMenuHiddenNodeId: insertNodeMenuHiddenNodeId)
-        .overlay {
-            Rectangle().fill(.red.opacity(0.75)).frame(width: 300, height: 300)
-        }
+//        .overlay {
+//            Rectangle().fill(.red.opacity(0.75)).frame(width: 300, height: 300)
+//        }
         .onChange(of: document.visibleGraph.nodes.keys.count) {
             document.visibleGraph.updateGraphData()
         }

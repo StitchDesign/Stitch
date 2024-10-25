@@ -186,24 +186,32 @@ struct ContentView: View, KeyboardReadable {
                     
                     // logInView("ContentView: position: y: \(y)")
                     
-                    FloatingWindowView(
-                        document: document,
-                        deviceScreenSize: graphUI.frame.size,
-                        showPreviewWindow: showPreviewWindow,
-                        namespace: graphNamespace)
-                    .padding(.trailing)
-                    .opacity(0.5)
-//                    .position(x: 600, y: 300)
-                    .position(
-                        // move to right edge of screen, then
-                        // assumes preview window is 800x800
-                        x: x,
-                        y: y
-                    )
+//                    FloatingWindowView(
+//                        document: document,
+//                        deviceScreenSize: graphUI.frame.size,
+//                        showPreviewWindow: showPreviewWindow,
+//                        namespace: graphNamespace)
+//                    .padding(.trailing)
+//                    .opacity(0.5)
+////                    .position(x: 600, y: 300)
+//                    .position(
+//                        // move to right edge of screen, then
+//                        // assumes preview window is 800x800
+//                        x: x,
+//                        y: y
+//                    )
+//                    .overlay(alignment: .bottomTrailing) {
+//                        Ellipse().fill(.green).frame(width: 100, height: 100)
+//                            .onTapGesture {
+//                                log("OUTER TAPPED")
+//                            }
+//                    }
+                
+                    
 //                    .offset(x: -(self.inspectorIsOpen ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0))
 //                    
                     // More like: "need to disable `x` animation
-                    .animation(.default, value: self.inspectorIsOpen ? x : 0.0)
+//                    .animation(.default, value: self.inspectorIsOpen ? x : 0.0)
                     
 //                    .animation(.default, value: y)
                 })

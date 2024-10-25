@@ -76,7 +76,7 @@ struct GraphBaseView: View {
 //            Ellipse().fill(.green.opacity(0.75)).frame(width: 300, height: 300)
 //                .zIndex(9999999999)
 //                
-            Ellipse().fill(.yellow.opacity(0.75)).frame(width: 300, height: 300)
+            Ellipse().fill(.yellow.opacity(0.75)).frame(width: 100, height: 100)
                  .zIndex(999999999999)
                 .position(x: 600, y: 300)
             
@@ -128,6 +128,15 @@ struct GraphBaseView: View {
                     isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
             }
 
+            Rectangle().fill(.orange).frame(width: 200, height: 200)
+                .position(
+                    x: graphUI.frame.size.width
+                    - 100
+                    - (graphUI.showsLayerInspector ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0.0)
+                    ,
+                    y: 100
+                )
+            
             // To cover top safe area that we don't ignore on iPad and that is gesture-inaccessbile
             Stitch.APP_BACKGROUND_COLOR
                 .edgesIgnoringSafeArea(.all).zIndex(-10)
