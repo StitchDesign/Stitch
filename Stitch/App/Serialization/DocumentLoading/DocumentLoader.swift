@@ -100,6 +100,7 @@ actor DocumentLoader {
             // thumbnail loading not needed for import
             let thumbnail = isImport ? nil : DocumentEncoder.getProjectThumbnailImage(rootUrl: url)
             
+            
             return .loaded(document, thumbnail)
         } catch {
             log("DocumentLoader.loadDocument error: \(error)")
@@ -111,7 +112,14 @@ actor DocumentLoader {
                                   isImport: Bool = false) async {
         let newLoading = await self.loadDocument(from: projectLoader.url, isImport: isImport)
 
+        
         await MainActor.run { [weak projectLoader] in
+            // Create an encoder if not yet created
+            if projectLoader?.encoder == nil,
+                let document = newLoading.document {
+                projectLoader?.encoder = DocumentEncoder(document: document)
+            }
+    
             projectLoader?.loadingDocument = newLoading
         }
     }
