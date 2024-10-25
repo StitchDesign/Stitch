@@ -71,8 +71,6 @@ extension StitchDocumentViewModel {
     func nodeCreated(node: NodeViewModel) {
 
         let choice = node.kind
-        var undoEvents = Actions()
-        let nodeId = node.id
 
         // Note: DO NOT RESET THE ACTIVE NODE MENU SELECTION UNTIL ANIMATION HAS COMPLETED
         // Reset selection for insert node menu
