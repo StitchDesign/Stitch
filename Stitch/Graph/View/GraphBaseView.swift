@@ -128,6 +128,7 @@ struct GraphBaseView: View {
                     isFingerOnScreenSelection: selectionState.isFingerOnScreenSelection)
             }
 
+            // Pseudo preview window; messes up node-selection box position?
             Rectangle().fill(.orange).frame(width: 200, height: 200)
                 .position(
                     x: graphUI.frame.size.width
