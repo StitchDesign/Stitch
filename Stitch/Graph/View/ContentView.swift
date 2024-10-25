@@ -138,6 +138,11 @@ struct ContentView: View, KeyboardReadable {
                         
                         Spacer()
                     }
+                    // Hack to disable the split view sidebar swipe
+                    .gesture(
+                        DragGesture()
+                            .onChanged { _ in }
+                    )
                 }
 //                // Layer Inspector Flyout must sit above preview window
                 .overlay {
