@@ -11,24 +11,6 @@ import StitchSchemaKit
 // Represents "packed" shadow
 let SHADOW_FLYOUT_LAYER_INPUT_PROXY = LayerInputPort.shadowColor
 
-struct FlyoutHeader: View {
-    
-    let flyoutTitle: String
-    
-    var body: some View {
-        HStack {
-            StitchTextView(string: flyoutTitle).font(.title3)
-            Spacer()
-            Image(systemName: "xmark.circle.fill")
-                .onTapGesture {
-                    withAnimation {
-                        dispatch(FlyoutClosed())
-                    }
-                }
-        }
-    }
-}
-
 struct ShadowFlyoutView: View {
     
     static let SHADOW_FLYOUT_WIDTH: CGFloat = 256.0
@@ -43,15 +25,7 @@ struct ShadowFlyoutView: View {
         
         VStack(alignment: .leading) {
             FlyoutHeader(flyoutTitle: "Shadow")
-            
-            // TODO: why does UIKitWrapper mess up padding so badly?
-//            UIKitWrapper(ignoresKeyCommands: false,
-//                         name: "ShadowFlyout") {
-                rows
-//            }
-//                         .border(.yellow)
-//                         .padding()
-//                         .border(.red)
+            rows
         }
         .modifier(FlyoutBackgroundColorModifier(width: Self.SHADOW_FLYOUT_WIDTH,
                                                 height: self.$height))

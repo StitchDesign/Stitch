@@ -152,13 +152,21 @@ extension NodeRowViewModel {
                           unpackedPortParentFieldGroupType: FieldGroupType?,
                           unpackedPortIndex: Int?,
                           initialValue: PortValue) {        
-        self.activeValue = initialValue
+        if initialValue != self.activeValue {
+            self.activeValue = initialValue
+        }
         
-        self.createFieldValueTypes(initialValue: initialValue,
-                                   nodeIO: Self.nodeIO,
-                                   unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
-                                   unpackedPortIndex: unpackedPortIndex,
-                                   importedMediaObject: nil)
+        let fields = self.createFieldValueTypes(initialValue: initialValue,
+                                                nodeIO: Self.nodeIO,
+                                                unpackedPortParentFieldGroupType: unpackedPortParentFieldGroupType,
+                                                unpackedPortIndex: unpackedPortIndex,
+                                                importedMediaObject: nil)
+        
+        let didFieldsChange = self.fieldValueTypes.isEmpty || self.fieldValueTypes.first?.type != fields.first?.type
+        
+        if didFieldsChange {
+            self.fieldValueTypes = fields
+        }
     }
     
     func didPortValuesUpdate(values: PortValues) {
@@ -384,9 +392,6 @@ extension Array where Element: NodeRowViewModel {
                        canvas: CanvasItemViewModel,
                        unpackedPortParentFieldGroupType: FieldGroupType?,
                        unpackedPortIndex: Int?) {
-            
-        // This will be nil for some inits--that's ok, just need to set delegate after
-        let node = canvas.nodeDelegate
         
         let incomingIds = newEntities.map { $0.id }.toSet
         let currentIds = self.compactMap { $0.rowDelegate?.id }.toSet

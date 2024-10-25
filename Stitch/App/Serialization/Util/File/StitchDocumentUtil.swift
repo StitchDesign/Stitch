@@ -274,7 +274,7 @@ extension StitchDocumentMigratable {
         
         graphDataUrl.stopAccessingSecurityScopedResource()
 
-        log("openDocument: returning codable doc")
+//        log("openDocument: returning codable doc")
         return codableDoc
     }
 }

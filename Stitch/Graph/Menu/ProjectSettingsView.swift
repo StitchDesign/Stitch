@@ -121,6 +121,7 @@ struct ProjectSettingsView: View {
             layerInputObserver: nil,
             fieldCoordinate: .fakeFieldCoordinate,
             isFieldInsideLayerInspector: false,
+            isForFlyout: false,
             isForPreviewWindowBackgroundPicker: true,
             isForIPhone: isPhoneDevice(),
             chosenColor: binding, 

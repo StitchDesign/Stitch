@@ -189,6 +189,35 @@ extension GraphState {
 
         // Update comment box data
         self.deleteCommentBox(id)
+        
+        // Delete media from file manager if it's the "source" media and unused elsewhere
+        node.inputs.findImportedMediaKeys().forEach { mediaKey in
+            self.checkToDeleteMedia(mediaKey, from: node.id)
+        }
+    }
+    
+    /// Checks if some media is used elsewhere before proceeding to delete.
+    @MainActor
+    func checkToDeleteMedia(_ mediaKey: MediaKey,
+                            from nodeId: NodeId) {
+        // Check media in other places
+        let allOtherMedia = self.nodes.values.reduce(into: Set<MediaKey>()) { result, node in
+            guard node.id != nodeId else { return }
+            
+            let allMediaHere = node.inputs.findImportedMediaKeys().toSet
+            result = result.union(allMediaHere)
+        }
+        
+        // Safe to delete if other nodes don't use specified media
+        let isMediaUsedElsewhere = allOtherMedia.contains(mediaKey)
+        if !isMediaUsedElsewhere {
+            self.mediaLibrary.removeValue(forKey: mediaKey)
+
+            Task { [weak self] in
+                await self?.documentEncoderDelegate?
+                    .deleteMediaFromNode(mediaKey: mediaKey)
+            }
+        }
     }
 }
 
