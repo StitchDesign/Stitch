@@ -186,8 +186,8 @@ struct SidebarListLabelEditView: View {
                                fontColor: fontColor)
                 .padding(.top, 1)
             }
-            
-        }.onAppear {
+        }
+        .onChange(of: self.name, initial: true) {
             self.edit = name
         }
         .onTapGesture(count: 2) {
