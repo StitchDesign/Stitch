@@ -117,11 +117,6 @@ struct LayerInspectorView: View {
                     graph: graph)
                 .padding(.horizontal)
                 .padding(.trailing, LAYER_INSPECTOR_ROW_SPACING + LAYER_INSPECTOR_ROW_ICON_LENGTH)
-                
-                // Hack to add some spacing to the bottom of the list, better than padding which hides scroll content
-                Color.clear
-                    .frame(height: 1)
-                    .listRowBackground(Color.clear)
             } // List
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
