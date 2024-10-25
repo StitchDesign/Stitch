@@ -144,12 +144,12 @@ final class GraphState: Sendable {
             expanded: self.getSidebarExpandedItems(),
             graphState: self)
         
+        self.updateTopologicalData()
+
         self.visibleNodesViewModel
             .updateNodesPagingDict(components: self.components,
                                    parentGraphPath: self.saveLocation)
         
-        // Initialize preview layers and topological data
-        self.updateTopologicalData()
         self.updateOrderedPreviewLayers()
         
         // Calculate graph
@@ -244,6 +244,9 @@ extension GraphState: GraphDelegate {
     func updateGraphData() {        
         if let document = self.documentDelegate,
            let encoderDelegate = self.documentEncoderDelegate {
+            // Helps refresh connections data
+            self.update(from: self.createSchema())
+            
             self.initializeDelegate(document: document,
                                     documentEncoderDelegate: encoderDelegate)
         }
