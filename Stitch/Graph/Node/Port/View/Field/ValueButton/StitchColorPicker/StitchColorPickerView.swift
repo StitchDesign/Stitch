@@ -103,7 +103,6 @@ struct StitchColorPickerView: View {
                         chosenColor: self.$chosenColor,
                         graph: graph)
                     .padding()
-                    
                 })
                 .onTapGesture {
 //                    if !isCatalyst && isForFlyout {
