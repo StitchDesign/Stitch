@@ -145,6 +145,10 @@ struct PreviewCommonSizeModifier: ViewModifier {
         }
     }
     
+    var widthIsFill: Bool {
+        width == .fill
+    }
+    
     var finalHeight: CGFloat? {
         if usesParentPercentForHeight && (finalMinHeight.isDefined || finalMaxHeight.isDefined) {
             return nil
@@ -155,6 +159,9 @@ struct PreviewCommonSizeModifier: ViewModifier {
         }
     }
     
+    var heightIsFill: Bool {
+        height == .fill
+    }
     
     func body(content: Content) -> some View {
         switch sizingScenario {
@@ -170,6 +177,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
+                    usesFillForWidth: widthIsFill,
+                    usesFillForHeight: heightIsFill,
                     width: finalWidth,
                     height: finalHeight,
                     minWidth: finalMinWidth,
@@ -200,6 +209,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
+                    usesFillForWidth: widthIsFill,
+                    usesFillForHeight: heightIsFill,
                     width: finalWidth,
                     height: nil,
                     minWidth: finalMinWidth,
@@ -227,6 +238,8 @@ struct PreviewCommonSizeModifier: ViewModifier {
                     alignment: frameAlignment,
                     usesParentPercentForWidth: usesParentPercentForWidth,
                     usesParentPercentForHeight: usesParentPercentForHeight,
+                    usesFillForWidth: widthIsFill,
+                    usesFillForHeight: heightIsFill,
                     width: nil,
                     height: finalHeight,
                     minWidth: nil,
