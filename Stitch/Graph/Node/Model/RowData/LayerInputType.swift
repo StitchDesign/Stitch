@@ -656,7 +656,7 @@ extension LayerViewModel {
         case .endColor:
             return self.endColor
         case .startAnchor:
-            return self.startColor
+            return self.startAnchor
         case .endAnchor:
             return self.endAnchor
         case .centerAnchor:
@@ -864,7 +864,7 @@ extension LayerViewModel {
         case .endColor:
             self.endColor = value
         case .startAnchor:
-            self.startColor = value
+            self.startAnchor = value
         case .endAnchor:
             self.endAnchor = value
         case .centerAnchor:
