@@ -97,10 +97,14 @@ extension DocumentEncodable {
             saveUndoHistory(delegate, oldSchema, newSchema)
         }
         
-        Task(priority: .background) {
-            await self.encodeProject(newSchema,
-                                     willUpdateUndoHistory: willUpdateUndoHistory,
-                                     temporaryURL: temporaryUrl)
+        Task(priority: .background) { [weak self] in
+            guard let encoder = self else {
+                return
+            }
+            
+            let _ = await encoder.encodeProject(newSchema,
+                                                willUpdateUndoHistory: willUpdateUndoHistory,
+                                                temporaryURL: temporaryUrl)
         }
     }
     
