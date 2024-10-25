@@ -171,6 +171,7 @@ extension DocumentLoader {
     func installDocument(document: StitchDocument) throws -> ProjectLoader {
         let rootUrl = document.rootUrl
         let projectLoader = ProjectLoader(url: rootUrl)
+        projectLoader.encoder = .init(document: document)
         
         try document.installDocument()
         
