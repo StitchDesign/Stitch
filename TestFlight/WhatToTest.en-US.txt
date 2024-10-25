@@ -34,6 +34,7 @@ New keybindings:
 - Option + W and Option + Shift + W for inserting Wireless Broadcaster or Wireless Receiver node
 
 Bugs fixes:
+- Fixed issue where some swipe gestures on iPad would trigger open sidebar
 - Fixed issue where prototype restart would temporarily remove media
 - Fixed issue where “auto” size would crash 3D Model layer node
 - “Fill” size support for 3D Model layer
