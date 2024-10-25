@@ -111,19 +111,27 @@ struct LayerSizeModifier: ViewModifier {
     }
     
     func body(content: Content) -> some View {
+        logInView("LayerSizeModifier: BODY")
         logInView("LayerSizeModifier: alignment: \(alignment)")
-        //
+        
         logInView("LayerSizeModifier: usesParentPercentForWidth: \(usesParentPercentForWidth)")
         logInView("LayerSizeModifier: usesParentPercentForHeight: \(usesParentPercentForHeight)")
-        //
+        
+        
+        logInView("LayerSizeModifier: usesFillForWidth: \(usesFillForWidth)")
+        logInView("LayerSizeModifier: usesFillForHeight: \(usesFillForHeight)")
+        
         logInView("LayerSizeModifier: width: \(width)")
         logInView("LayerSizeModifier: height: \(height)")
-        //
+        
         logInView("LayerSizeModifier: minWidth: \(minWidth)")
         logInView("LayerSizeModifier: maxWidth: \(maxWidth)")
         logInView("LayerSizeModifier: minHeight: \(minHeight)")
         logInView("LayerSizeModifier: maxHeight: \(maxHeight)")
-        //
+                
+        logInView("LayerSizeModifier: finalMaxHeight: \(finalMaxHeight)")
+        logInView("LayerSizeModifier: finalMaxWidth: \(finalMaxWidth)")
+        
                
         // TODO: the below conditionals can be simplified, but are currently evolving; will be cleaned up after final iterations on conditional input logic
         
@@ -179,16 +187,20 @@ struct LayerSizeModifier: ViewModifier {
         else if let width = width, let height = height {
             logInView("LayerSizeModifier: defined width and height")
             
-            // TODO: get rid of this branch
-            // If we have a static width and height, and we're not using an parent-percents,
-            // then we can use the SwiftUI API with the specified alignment
-            if !usesParentPercentForWidth && !usesParentPercentForHeight {
-                logInView("LayerSizeModifier: defined width and height and not using parent percent for width or height")
-                content.frame(width: width,
-                              height: height,
-                              alignment: alignment)
-            } else {
-                
+//            // TODO: get rid of this branch
+//            // If we have a static width and height, and we're not using an parent-percents,
+//            // then we can use the SwiftUI API with the specified alignment
+////            if !usesParentPercentForWidth && !usesParentPercentForHeight {
+//            if !usesParentPercentForWidth,
+//               !usesParentPercentForHeight,
+//               !usesFillForWidth,
+//               !usesFillForHeight {
+//                logInView("LayerSizeModifier: defined width and height and not using parent percent for width or height")
+//                content.frame(width: width,
+//                              height: height,
+//                              alignment: alignment)
+//            } else {
+//                
                 content
                     .frame(minWidth: usesParentPercentForWidth ? minWidth : nil, alignment: alignment)
                     .frame(maxWidth: finalMaxWidth, alignment: alignment)
@@ -201,7 +213,7 @@ struct LayerSizeModifier: ViewModifier {
                     
                     .frame(height: usesFillForHeight ? nil : height,
                            alignment: alignment)
-            }
+//            }
         }
         
         // Both height and width are auto, so use min/max height and width
