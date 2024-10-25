@@ -121,9 +121,6 @@ struct LayerInspectorView: View {
             .listSectionSpacing(.compact) // reduce spacing between sections
             .scrollContentBackground(.hidden)
             
-            // TODO: better padding that doesn't cut off bottom input/output row and doesn't create a black band in Dark Mode
-            .padding(.bottom)
-            
             // Note: Need to use `.plain` style so that layers with fewer sections (e.g. Linear Gradient layer, vs Text layer) do not default to a different list style;
             // And using .plain requires manually adding trailing and leading padding
             .listStyle(.plain)
