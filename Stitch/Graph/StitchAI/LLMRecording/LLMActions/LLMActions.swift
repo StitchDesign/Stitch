@@ -10,7 +10,6 @@ import StitchSchemaKit
 
 // MARK: Add Node
 
-// Used fo
 struct LLMAddNode: Equatable, Codable {
     var action: String = LLMActionNames.addNode.rawValue
     // `node` for AddNode represents node kind's default node + some portion of its UI id
