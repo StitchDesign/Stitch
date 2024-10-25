@@ -88,6 +88,9 @@ struct ContentView: View, KeyboardReadable {
        .environment(\.isSelectionBoxInUse, graphUI.selection.isSelecting)
     }
 
+    @State var inspectorIsOpen: Bool = false
+    
+    
     @ViewBuilder
     var contentView: some View {
         ZStack {
@@ -141,14 +144,47 @@ struct ContentView: View, KeyboardReadable {
 //                }
                 .overlay(alignment: .topTrailing, content: {
                     
+                    
+                    // logInView("ContentView: previewWindowSizing.dimensions: \(previewWindowSizing.dimensions)")
+                    
+                    let dimensions = previewWindowSizing.dimensions
+                    
+                    // logInView("ContentView: previewWindowSizing.previewWindowDeviceSize: \(previewWindowSizing.previewWindowDeviceSize)")
+                    
                     let screenSize = graphUI.frame.size
-                    logInView("ContentView: screenSize: \(screenSize)")
+                    // logInView("ContentView: screenSize: \(screenSize)")
                     
-                    let x = screenSize.width - 400
-                    logInView("ContentView: position: x: \(x)")
                     
-                    let y = screenSize.height - 400
-                    logInView("ContentView: position: y: \(y)")
+                    // .position(.zero)
+                    // place's view's CENTER in top left corner
+                    // so top have view's top edge on screen
+                    
+                    
+                    let x = screenSize.width // "Start at right edge of screen"
+//                    - 175.0 // then move west
+                    - dimensions.width/2 // then move west
+                    
+//                    - (graphUI.showsLayerInspector ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0) // move further west when inspector open
+                    
+//                    - (self.inspectorIsOpen ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0) // move further west when inspector open
+                    
+                    // logInView("ContentView: position: x: \(x)")
+                    
+                    // y can never be negative; can never be less than (preview window height / 2)
+                    
+                    // - because need to move up
+//                    let y = screenSize.height - 400
+//                    let y = screenSize.height - 400
+//                    let y = screenSize.height - 800
+//                    let y = screenSize.height - 600
+                    
+                    // We start at the top, i.e. y = 0 is top
+                    // so just need a little "padding" by moving down
+//                    let y = 20.0 // 400.0
+//                    let y = 175.0
+                    let y = dimensions.height/2
+                    
+                    // logInView("ContentView: position: y: \(y)")
                     
                     FloatingWindowView(
                         document: document,
@@ -164,6 +200,12 @@ struct ContentView: View, KeyboardReadable {
                         x: x,
                         y: y
                     )
+//                    .offset(x: -(self.inspectorIsOpen ? LayerInspectorView.LAYER_INSPECTOR_WIDTH : 0))
+//                    
+                    // More like: "need to disable `x` animation
+                    .animation(.default, value: self.inspectorIsOpen ? x : 0.0)
+                    
+//                    .animation(.default, value: y)
                 })
                 
 //                // Layer Inspector Flyout must sit above preview window
@@ -180,7 +222,28 @@ struct ContentView: View, KeyboardReadable {
 //                #endif
             }
         } // ZStack
-        
+        .onChange(of: self.graphUI.showsLayerInspector, { oldValue, newValue in
+            
+//            withAnimation {
+//                self.inspectorIsOpen = newValue
+//            }
+
+            
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                // make sure we're still
+                if self.graphUI.showsLayerInspector == newValue {
+//                    withAnimation {
+//                    withAnimation(.spring(duration: 0.2)) {
+                    withAnimation(.spring(duration: 0.1)) {
+                        self.inspectorIsOpen = newValue
+                    }
+                    
+                }
+            } // DispatchQueue
+        })
         .stitchSheet(isPresented: alertState.showProjectSettings,
                      titleLabel: "Settings",
                      hideAction: store.hideProjectSettingsSheet) {

@@ -97,11 +97,16 @@ struct FloatingWindowView: View {
      */
     var floatingWindowWithHandle: some View {
         floatingWindow
+            .border(.red, width: 8)
+        
 //            .animation(.spring(duration: 0.6), value: self.finalXOffset)
             // Start the handle-circle at top-right corner ...
             // ... then manually move down and left by the scaled preview window's dimensions
-            .background(alignment: .topTrailing) {
+//            .background(alignment: .topTrailing) {
+            .background(alignment: .bottomLeading) {
                 floatingWindowHandle
+                    .border(.green, width: 8)
+//                    .offset(x: -50, y: 50)
 //                    .offset(x: -Self.xOffset)
             } // .background
 //            .offset(x: self.finalXOffset)
@@ -164,8 +169,8 @@ struct FloatingWindowView: View {
 
     var floatingWindowHandle: some View {
         floatingWindowHandleHitbox
-            .offset(x: -dimensions.width,
-                    y: dimensions.height)
+//            .offset(x: -dimensions.width,
+//                    y: dimensions.height)
             .gesture(floatingWindowHandleDragGesture)
     }
 

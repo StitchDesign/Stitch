@@ -123,7 +123,7 @@ struct ToggleSidebars: GraphEvent {
         // else closes both.
         let inspectorOpen = state.graphUI.showsLayerInspector
         let layerSidebarOpen = state.graphUI.leftSidebarOpen
-        withAnimation {
+//        withAnimation {
             if !inspectorOpen && !layerSidebarOpen {
                 state.graphUI.showsLayerInspector = true
                 state.graphUI.leftSidebarOpen = true
@@ -131,7 +131,7 @@ struct ToggleSidebars: GraphEvent {
                 state.graphUI.showsLayerInspector = false
                 state.graphUI.leftSidebarOpen = false
             }
-        }
+//        }
         
     }
 }

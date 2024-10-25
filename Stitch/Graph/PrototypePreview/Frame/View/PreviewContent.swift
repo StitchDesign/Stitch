@@ -56,6 +56,10 @@ struct PreviewContent: View {
         
         let generatedPreview = GeneratePreview(document: document)
         
+//        logInView("finalSize: \(finalSize)")
+//        logInView("finalScale: \(finalScale)")
+//        logInView("finalSize.scaleBy(finalScale): \(finalSize.scaleBy(finalScale))")
+        
         UIKitWrapper(ignoresKeyCommands: false, name: "PreviewContent") {
             generatedPreview
                 .frame(finalSize)
