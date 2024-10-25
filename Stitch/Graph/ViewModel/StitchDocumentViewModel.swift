@@ -90,7 +90,7 @@ final class StitchDocumentViewModel: Sendable {
         self.storeDelegate = store
         
         guard let documentEncoder = self.documentEncoder else {
-            fatalErrorIfDebug()
+//            fatalErrorIfDebug()
             return
         }
         
