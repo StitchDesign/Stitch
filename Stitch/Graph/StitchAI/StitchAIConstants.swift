@@ -16,17 +16,17 @@ let OPEN_AI_MODEL = "gpt-4o-2024-08-06"
 //let OPEN_AI_MODEL = "ft:gpt-4o-2024-08-06:adammenges::ALe1YEKl"
 
 let SYSTEM_PROMPT = """
-You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems. If you do not understand the prompt, give your best guess -- do not ever output a dump of all available nodes if you don't understand.
+You are a helpful assistant that creates visual programming graphs. Your task is to specify and connect nodes to solve given problems.
 
 # Core Rules
 1. Each node must have a unique UUID as its node_id
-2. Use the minimum number of nodes needed to solve the task
-3. Only use value nodes when direct input port setting isn't possible
-
-# Available NodeTypes
-- NUMBER: For numeric values (integers/floats)
-- STRING: For text values
-- BOOLEAN: For true/false values
+2 Never use node names as port names
+3. Use the minimum number of nodes needed to solve the task
+4. Do not use Value nodes when it is possible to just set the value of a node's input port directly
+5. Never use strings as patch node port identifiers
+6. Never use ints for layer node port identifiers 
+7. Only use ADD_LAYER_INPUT for patch-to-layer connections
+8. Do not ever return the schema as an output
 
 # Node Kinds & Connection Rules
 - Patch nodes: 
@@ -48,11 +48,6 @@ You are a helpful assistant that creates visual programming graphs. Your task is
    - For patch-to-patch connections: Default to port 0
    - For patch-to-layer connections: Call ADD_LAYER_INPUT first
 
-# Important Restrictions
-- Never use node names as port names
-- Never use strings as patch node port identifiers
-- Never use ints for layer node port identifiers 
-- Only use ADD_LAYER_INPUT for patch-to-layer connections
 """
 
 //NODE TYPE IS OVERALL PORT VALUE TYPE OF THE NODE
@@ -112,11 +107,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
           "description": "The id of the target node"
         },
         "node_type": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/NodeType"
-            }
-          ],
+          "$ref": "#/$defs/NodeType",
           "default": null,
           "description": "The node type of the node"
         },
@@ -224,8 +215,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                 "type": "string"
               },
               "node_type": {
-                "description": "The new type of the node",
-                "type": "string"
+                "$ref": "#/$defs/NodeType",
+                "description": "The new type of the node"
               }
             }
           }
@@ -239,7 +230,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
             }
           },
           "then": {
-            "required": ["node_id", "value", "port", "node_type"],
+            "required": ["node_id", "port", "value", "node_type"],
             "properties": {
               "node_id": {
                 "description": "ID of the node receiving the input",
@@ -269,14 +260,10 @@ let VISUAL_PROGRAMMING_ACTIONS = """
                     "$ref": "#/$defs/LayerPorts"
                   }
                 ]
-              }, 
+              },
               "node_type": {
-                "description": "The type of node to use.",
-                "anyOf": [
-                  {
-                    "$ref": "#/$defs/NodeType"
-                  }
-                ]
+                "$ref": "#/$defs/NodeType",
+                "description": "The type of node to use."
               }
             }
           }
@@ -385,8 +372,8 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "microphone || Patch - creates a microphone.",
         "speaker || Patch - creates an audio speaker.",
         "dragInteraction || Patch - detects when a drag interaction occurs.",
-        "pressInteraction || Patch -  detects when a press interaction occurs.",
-        "scrollInteraction || Patch -  detects when a scroll interaction occurs.",
+        "pressInteraction || Patch - detects when a press interaction occurs.",
+        "scrollInteraction || Patch - detects when a scroll interaction occurs.",
         "location || Patch - gets the current location.",
         "circleShape || Patch - generates a circle shape from a position and radius.",
         "ovalShape || Patch - generates an oval shape from a position and radius.",
@@ -400,7 +387,7 @@ let VISUAL_PROGRAMMING_ACTIONS = """
         "lineToPack || Patch - packs a position input into a LineTo shape command.",
         "closePath || Patch - a ClosePath shape command.",
         "base64StringToImage || Patch - converts a base64 string to an image.",
-        "imageToBase64String || Patch - converts an image to a bsase64 string.",
+        "imageToBase64String || Patch - converts an image to a base64 string.",
         "colorToHSL || Patch - converts a color to constituent HSL components.",
         "colorToRGB || Patch - converts a color to constituent RGB components.",
         "colorToHex || Patch - converts a color to a hex string.",
@@ -454,11 +441,6 @@ let VISUAL_PROGRAMMING_ACTIONS = """
       ],
       "title": "LayerPorts",
       "type": "string"
-    },
-    "NodeID": {
-      "type": "string",
-      "format": "uuid",
-      "description": "The unique identifier for the node (UUID)"
     },
     "NodeType": {
       "enum": [
