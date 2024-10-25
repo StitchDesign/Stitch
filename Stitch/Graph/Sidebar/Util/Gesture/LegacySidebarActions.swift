@@ -219,7 +219,8 @@ extension ProjectSidebarObservable {
         guard let calculatedIndex = Self.getMovedtoIndex(
             dragPosition: item.dragPosition ?? item.location,
             movingDown: isDraggingDown,
-            flattenedItems: filteredVisualList) else {
+            flattenedItems: filteredVisualList,
+            maxRowIndex: visualList.count - 1) else {
             log("No index found")
             return
         }

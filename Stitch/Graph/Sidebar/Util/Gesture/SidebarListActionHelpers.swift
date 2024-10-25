@@ -12,7 +12,11 @@ extension ProjectSidebarObservable {
     @MainActor
     static func getMovedtoIndex(dragPosition: CGPoint,
                                 movingDown: Bool,
-                                flattenedItems: [Self.ItemViewModel]) -> SidebarIndex? {
+                                flattenedItems: [Self.ItemViewModel],
+                                // captures max index before dragged elements were removed from list
+                                maxRowIndex: Int) -> SidebarIndex? {
+        
+        guard let lastItem = flattenedItems.last else { return nil }
         
         let halfRowHeight = Double(CUSTOM_LIST_ITEM_VIEW_HEIGHT) / 2
         let maxRowIndex = flattenedItems.count
@@ -30,7 +34,7 @@ extension ProjectSidebarObservable {
         let rowIndex = min(Int(rawFloatY), maxRowIndex)
         
         let sidebarIndex = SidebarIndex(groupIndex: groupIndex, rowIndex: rowIndex)
-//        log("row index: \(rowIndex)\tis moving down: \(movingDown)")
+//        log("row index: \(rowIndex)\trawFloatY: \(rawFloatY)")
         
         return sidebarIndex
     }
